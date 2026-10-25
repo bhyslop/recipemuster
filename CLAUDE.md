@@ -1,18 +1,11 @@
 # Recipe Bottle (`rb`) — sire context
 
-The kit context this tree contributes to a kraal session's composed context, and
-its gather manifest. No session sits in this tree: it is prepared as a billet
-standing beside the session's own outspan, and the outspan — which carries no
-repository — is where that session's shell starts. Every path below is therefore
-repo-relative and names a file in the billet, reached by joining the billet root
-the composed frame above names.
+The kit context this tree contributes to a kraal session's composed context, and its gather manifest.
+No session sits in this tree: it is prepared as a billet standing beside the session's own outspan, and the outspan — which carries no repository — is where that session's shell starts.
+Every path below is therefore repo-relative and names a file in the billet, reached by joining the billet root the composed frame above names.
 
-Tabtarget lines are written the same way, `tt/rbw-…`, and are run by their
-absolute path from wherever the shell happens to stand: `tt/z-launcher.sh`
-normalizes the working directory to the repo root itself, so a tabtarget invoked
-from outside the tree behaves exactly as one invoked inside it. Nothing here
-needs a `cd`, and the log paths a dispatch announces are the ones to read back —
-never a path rebuilt from a remembered layout.
+Tabtarget lines are written the same way, `tt/rbw-…`, and are run by their absolute path from wherever the shell happens to stand: `tt/z-launcher.sh` normalizes the working directory to the repo root itself, so a tabtarget invoked from outside the tree behaves exactly as one invoked inside it.
+Nothing here needs a `cd`, and the log paths a dispatch announces are the ones to read back — never a path rebuilt from a remembered layout.
 
 ## Current Context
 - Primary focus: Recipe Bottle infrastructure and tooling
@@ -22,61 +15,40 @@ never a path rebuilt from a remembered layout.
 
 ## Managed Kit Directories
 
-`Tools/buk/` is a consumed copy, not a source. BUK's primary home is the JJ
-application clone, `../jjqa_app` — a peer of the outspan, not a tree inside this
-one; this tree receives BUK as a minted parcel and installs it by
-whole-directory replacement — the install verb (`emplace`) deletes the kit
-directory outright, then recopies it from the parcel. Nothing standing in it
-survives.
+`Tools/buk/` is a consumed copy, not a source.
+BUK's primary home is the JJ application clone, `../jjqa_app` — a peer of the outspan, not a tree inside this one; this tree receives BUK as a minted parcel and installs it by whole-directory replacement — the install verb (`emplace`) deletes the kit directory outright, then recopies it from the parcel.
+Nothing standing in it survives.
 
-So an edit to any file beneath `Tools/buk/` is destroyed work, however small and
-however correct. There is no merge and no conflict: the file is deleted, a fresh
-copy from `../jjqa_app` is written in its place, and the change is gone — no
-diff, no warning, no trace that it ever stood. This has nearly happened here. A
-ruled, censused, reveille-verified change to `Tools/buk/buv_validation.sh`
-(`d6390f148`) was made in this tree after it stopped being BUK's home, and
-survived only because it was hand-carried upstream ahead of the first install.
-That rescue was a one-time act and has since retired; a second such edit has
-nothing catching it.
+So an edit to any file beneath `Tools/buk/` is destroyed work, however small and however correct.
+There is no merge and no conflict: the file is deleted, a fresh copy from `../jjqa_app` is written in its place, and the change is gone — no diff, no warning, no trace that it ever stood.
+This has nearly happened here.
+A ruled, censused, reveille-verified change to `Tools/buk/buv_validation.sh` (`d6390f148`) was made in this tree after it stopped being BUK's home, and survived only because it was hand-carried upstream ahead of the first install.
+That rescue was a one-time act and has since retired; a second such edit has nothing catching it.
 
-A buk file is therefore fixed in `../jjqa_app` and arrives here by parcel. That
-is the only path in — including a buk file's own carried prose, so a correction
-owed to `Tools/buk/buai0/buais_buk.md` is made at the BUK home and rides the
-next parcel.
+A buk file is therefore fixed in `../jjqa_app` and arrives here by parcel.
+That is the only path in — including a buk file's own carried prose, so a correction owed to `Tools/buk/buai0/buais_buk.md` is made at the BUK home and rides the next parcel.
 
-Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in
-`rbmm_moorings/burc.env` — today, `bkk` and `buk`. Every other directory under
-`Tools/` is this repo's own and is edited in the billet in the ordinary way. The
-release and install procedures themselves are specified in
-`jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`,
-`vosoi_install`); this tree carries no copy of them, by design.
+Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in `rbmm_moorings/burc.env` — today, `bkk` and `buk`.
+Every other directory under `Tools/` is this repo's own and is edited in the billet in the ordinary way.
+The release and install procedures themselves are specified in `jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`, `vosoi_install`); this tree carries no copy of them, by design.
 
 ## File Acronym Mappings
 
-Each kit's acronym rows ride that kit's core context file, annotated with the
-per-row descriptions and family topology — RBK's in
-`Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the
-veiled half's in `vov_veiled/claude-rbk-veiled.md`. Those cores load
-below.
+Each kit's acronym rows ride that kit's core context file, annotated with the per-row descriptions and family topology — RBK's in `Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the veiled half's in `vov_veiled/claude-rbk-veiled.md`.
+Those cores load below.
 
-Beside each core stands a bare index (`claude-{kit}-acronyms.md`) restating the
-same rows without their annotations. Those indexes are not loaded — see the
-curation record under **Kit context** — and each core is a strict superset of
-its own index, so nothing is lost. They stand for the lints that read them as
-rosters, and for a reader who wants the bare table.
+Beside each core stands a bare index (`claude-{kit}-acronyms.md`) restating the same rows without their annotations.
+Those indexes are not loaded — see the curation record under **Kit context** — and each core is a strict superset of its own index, so nothing is lost.
+They stand for the lints that read them as rosters, and for a reader who wants the bare table.
 
 ## Retired Memos
 
-A memo whose work is fully dispositioned (every concern resolved into a pace, an
-RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/`
-with its basename unchanged. A memo path under `jjqs_studbook/` that no longer
-resolves has retired — look for the same basename under
-`jjqs_studbook/retired/memos/`. Retired memos are historical record: read them
-freely, never resurrect work from them without operator direction.
+A memo whose work is fully dispositioned (every concern resolved into a pace, an RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/` with its basename unchanged.
+A memo path under `jjqs_studbook/` that no longer resolves has retired — look for the same basename under `jjqs_studbook/retired/memos/`.
+Retired memos are historical record: read them freely, never resurrect work from them without operator direction.
 
-Memos are provenance, never authority: if a fact must still be true after the
-memo retires, it needs a spec home. The temptation to home durable knowledge in
-a memo is itself the signal that formal specification is due.
+Memos are provenance, never authority: if a fact must still be true after the memo retires, it needs a spec home.
+The temptation to home durable knowledge in a memo is itself the signal that formal specification is due.
 
 ## Working Preferences
 - When an acronym is mentioned, navigate to the corresponding file
@@ -114,7 +86,10 @@ Always use the tabtarget, never raw cargo commands.
 
 ### Test Execution
 
-**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union). The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`. Suite membership is owned by the hand-written `RBTCEA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift). Run the broadest applicable suite:
+**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union).
+The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`.
+Suite membership is owned by the hand-written `RBTCEA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift).
+Run the broadest applicable suite:
 
 | Suite | Tabtarget | Dependencies | Stratum |
 |-------|-----------|-------------|---------|
@@ -123,10 +98,11 @@ Always use the tabtarget, never raw cargo commands.
 | `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | Container runtime | reveille + container-runtime crucible fixtures |
 | `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | All of the above | reveille ∪ picket ∪ bivouac |
 
-`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code). It rides above reveille — reveille reserves the tweak slot for the credless guard — so a regime/validation change runs reveille (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`. Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
+`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code).
+It rides above reveille — reveille reserves the tweak slot for the credless guard — so a regime/validation change runs reveille (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`.
+Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
 
-**Release/probe suites** — ladders distinguished by project-churn × crucible ×
-network posture, not dependency tier:
+**Release/probe suites** — ladders distinguished by project-churn × crucible × network posture, not dependency tier:
 
 | Suite | Tabtarget | Precondition | What it covers |
 |-------|-----------|-------------|----------------|
@@ -143,11 +119,16 @@ network posture, not dependency tier:
 - Bottle/sentry/network changes → `bivouac`
 - Pre-release or decomposition sweep → `echelon`
 
-**Single fixture**: `tt/rbw-tf.FixtureRun.sh <name>` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
+**Single fixture**:
+`tt/rbw-tf.FixtureRun.sh <name>` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
 
-**Single case**: `tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench). Omit case name to list all cases for the fixture; omit fixture to list all fixtures. Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
+**Single case**:
+`tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench).
+Omit case name to list all cases for the fixture; omit fixture to list all fixtures.
+Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
 
-**Sequential only**: Never run fixtures in parallel — they share regime state and container namespaces.
+**Sequential only**:
+Never run fixtures in parallel — they share regime state and container namespaces.
 
 <!-- Universal minting doctrine is CMK-homed, and CMK homes in ../jjqa_app: this
      repo no longer carries the kit, so the doctrine is not loaded here. What
@@ -174,15 +155,22 @@ For expanded prefix trees within each project, see **File Acronym Mappings** abo
 
 ### Load-Bearing Complexity
 
-An element is **load-bearing** when its removal would create a gap between intent and behavior. The litmus for any new pattern, extraction, or structural choice: "Does this element earn its existence?" If not, it doesn't belong.
+An element is **load-bearing** when its removal would create a gap between intent and behavior.
+The litmus for any new pattern, extraction, or structural choice: "Does this element earn its existence?"
+If not, it doesn't belong.
 
-Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog instantiates. Domain forms: BCG (Zeroes Theory, Interface Contamination), RCG (Constant and Constructor Discipline), ACG (Allodial Discipline).
+Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog instantiates.
+Domain forms: BCG (Zeroes Theory, Interface Contamination), RCG (Constant and Constructor Discipline), ACG (Allodial Discipline).
 
 ### Zeroes Theory
 
-Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space. The litmus: **"How many zeroes did this choice add to the enumerated state space?"** If the answer isn't zero, it needs explicit justification. The multiplication runs along several axes — the input forms accepted at one moment, the formats tolerated across time, and the interior representation chosen for data.
+Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space.
+The litmus: **"How many zeroes did this choice add to the enumerated state space?"**
+If the answer isn't zero, it needs explicit justification.
+The multiplication runs along several axes — the input forms accepted at one moment, the formats tolerated across time, and the interior representation chosen for data.
 
-Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline. Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
+Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline.
+Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
 
 ## Kit context
 

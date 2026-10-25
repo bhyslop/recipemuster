@@ -4,7 +4,8 @@ A portable, template-based Visual SlickEdit project installer for BUK-based repo
 
 ## Overview
 
-VSLK provides a simple, bash 3.2-compatible way to install SlickEdit project configurations. It follows the template-copy pattern and integrates with the BUK (Bash Utility Kit) infrastructure.
+VSLK provides a simple, bash 3.2-compatible way to install SlickEdit project configurations.
+It follows the template-copy pattern and integrates with the BUK (Bash Utility Kit) infrastructure.
 
 Instead of generating project files programmatically, VSLK:
 1. Reads pre-configured SlickEdit project files (`.vpj` and `.vpw`) from a repo-specific location
