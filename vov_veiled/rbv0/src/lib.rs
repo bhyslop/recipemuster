@@ -10,7 +10,7 @@
 // tests (RBSHC). It owns four commands split on the one load-bearing seam,
 // reversible vs irreversible: essai (the repair lap), docimasy (the reveal's
 // reversible proving act), ostend (the reveal's irreversible showing), and
-// harbinger (the stranger rig). This crate is withheld from delivery by
+// harbinger (the stranger walk). This crate is withheld from delivery by
 // directory construction; it may therefore cite the closed spec
 // (RBSHE/RBSHC/RBSHD/RBSHO/RBSHH, rbshc_ quoins) directly, which shipped
 // source may never do.

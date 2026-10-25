@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBVCEG — the coldwalk rig: the one truly absorbed module (RBSHC "Worker,
+// RBVCEG — the coldwalk temenos: the one truly absorbed module (RBSHC "Worker,
 // never authority"). It clones a tree, guards it so nothing the walk does can
 // reach any remote (severed origin + a pre-push refusal hook), cuts a throwaway
 // walk branch, and hands off the launch line and stranger prompt.
@@ -17,7 +17,7 @@
 // authority; it is not a worker reached by subprocess but the hierophant's own
 // absorbed surgery.
 //
-// RIG PUSHES NOTHING, EVER. The station running essai holds real credentials to
+// TEMENOS PUSHES NOTHING, EVER. The station running essai holds real credentials to
 // the public repository; the guard is therefore structural, not a rule to
 // remember — the clone names no remote, and even a re-added one dies at the hook.
 
@@ -29,7 +29,7 @@ use crate::rbvcel_log;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
 
-/// The rig's parent-relative dirname, a fixed basename beside the maintainer
+/// The temenos's parent-relative dirname, a fixed basename beside the maintainer
 /// repo. Shared by essai and harbinger — they never stand simultaneously, so one
 /// location, any prior seposed.
 /// A conserved spelling, declared in the cosmology's cadaster, and the same
@@ -37,7 +37,7 @@ use crate::rbvcer_run;
 pub const RBVCEG_TEMENOS_DIRNAME: &str = "rbthdr_coldwalk";
 
 /// The clone lives one level down; the findings memo is a sibling of it under
-/// the rig dir, so discarding the clone leaves the memo standing.
+/// the temenos dir, so discarding the clone leaves the memo standing.
 const RBVCEG_TEMENOS_CLONE_SUBDIR: &str = "recipebottle";
 
 /// The pristine reference the walk diffs against is the clone's own default
@@ -60,7 +60,7 @@ exit 1
 ";
 
 /// The stranger prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
-/// substituted with the rig's dated findings-memo path at emit. This is the
+/// substituted with the temenos's dated findings-memo path at emit. This is the
 /// absorbed authority the cinch names — one copy, here.
 const RBVCEG_STRANGER_PROMPT: &str = r#"----------------------------------------------------------------------
 You are trying Recipe Bottle for the first time. You cloned it because you want to
@@ -108,37 +108,37 @@ Begin by reading the README, then find the onboarding entry point and take the f
 beat.
 ----------------------------------------------------------------------"#;
 
-/// The standing artifacts of a stood-up rig.
+/// The standing artifacts of a stood-up temenos.
 pub struct rbvceg_Temenos {
-    pub rig_dir: PathBuf,
+    pub temenos_dir: PathBuf,
     pub clone_dir: PathBuf,
     pub memo_path: PathBuf,
 }
 
-/// Stand up the guarded coldwalk rig from `clone_source` (a local regulus path
+/// Stand up the guarded coldwalk temenos from `clone_source` (a local regulus path
 /// or a public URL). Narrates each act. Returns the standing artifacts; the
 /// launch line and stranger prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).
 pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbvceg_Temenos {
-    let rig_dir = parent.join(RBVCEG_TEMENOS_DIRNAME);
-    let clone_dir = rig_dir.join(RBVCEG_TEMENOS_CLONE_SUBDIR);
+    let temenos_dir = parent.join(RBVCEG_TEMENOS_DIRNAME);
+    let clone_dir = temenos_dir.join(RBVCEG_TEMENOS_CLONE_SUBDIR);
 
-    // Guard before anything moves: the rig dir is the fixed name and not the repo
+    // Guard before anything moves: the temenos dir is the fixed name and not the repo
     // root. The disposal is a rename, so a wrong guard destroys nothing — the
     // guard makes a wrong move impossible in the first place.
-    rbvcep_repo::rbvcep_guard_disposable(&rig_dir, RBVCEG_TEMENOS_DIRNAME, top);
+    rbvcep_repo::rbvcep_guard_disposable(&temenos_dir, RBVCEG_TEMENOS_DIRNAME, top);
 
     let walk_date = rbvcer_run::rbvcer_datestamp(cwd);
-    let memo_path = rig_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_TEMENOS_MEMO_SLUG));
+    let memo_path = temenos_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_TEMENOS_MEMO_SLUG));
 
-    rbvcel_log::rbvcel_step(&format!("Seposing any existing rig: {}", rig_dir.display()));
-    if !rbvcep_repo::rbvcep_sepose(&rig_dir, cwd) {
-        rbvcel_log::rbvcel_line("no prior rig to sepose");
+    rbvcel_log::rbvcel_step(&format!("Seposing any existing temenos: {}", temenos_dir.display()));
+    if !rbvcep_repo::rbvcep_sepose(&temenos_dir, cwd) {
+        rbvcel_log::rbvcel_line("no prior temenos to sepose");
     }
-    std::fs::create_dir_all(&rig_dir)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to create the rig dir {}: {}", rig_dir.display(), e));
+    std::fs::create_dir_all(&temenos_dir)
+        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to create the temenos dir {}: {}", temenos_dir.display(), e));
 
-    rbvcel_log::rbvcel_step(&format!("Cloning into the rig from {}", clone_source));
+    rbvcel_log::rbvcel_step(&format!("Cloning into the temenos from {}", clone_source));
     let clone_dir_str = zrbvceg_path_str(&clone_dir);
     let code = rbvcer_run::rbvcer_stream("git", &["clone", clone_source, &clone_dir_str], cwd, &[]);
     if code != 0 {
@@ -169,18 +169,18 @@ pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path
     rbvcel_log::rbvcel_step(&format!("Cutting the throwaway walk branch {}", RBVCEG_TEMENOS_WALK_BRANCH));
     zrbvceg_git_c(&clone_dir, &["checkout", "-b", RBVCEG_TEMENOS_WALK_BRANCH], cwd, "cut the walk branch");
 
-    rbvceg_Temenos { rig_dir, clone_dir, memo_path }
+    rbvceg_Temenos { temenos_dir, clone_dir, memo_path }
 }
 
 /// Emit the launch line and the stranger prompt — the shared handoff both essai
 /// and harbinger end on. The walk is the operator's own, launched by hand from
-/// the printed line; the rig launches nothing and pushes nothing.
-pub fn rbvceg_emit_handoff(rig: &rbvceg_Temenos) {
-    let clone = zrbvceg_path_str(&rig.clone_dir);
-    let memo = zrbvceg_path_str(&rig.memo_path);
+/// the printed line; the temenos launches nothing and pushes nothing.
+pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
+    let clone = zrbvceg_path_str(&temenos.clone_dir);
+    let memo = zrbvceg_path_str(&temenos.memo_path);
 
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line("Rig ready. Two steps, by your hand:");
+    rbvcel_log::rbvcel_line("Temenos ready. Two steps, by your hand:");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("1. Launch a cold session in the clone (NEW terminal):");
     rbvcel_log::rbvcel_blank();
@@ -191,10 +191,10 @@ pub fn rbvceg_emit_handoff(rig: &rbvceg_Temenos) {
     rbvcel_log::rbvcel_raw(&RBVCEG_STRANGER_PROMPT.replace("__MEMO_PATH__", &memo));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!(
-        "When the walk is done, review {} in the rig, commit it into",
-        zrbvceg_basename(&rig.memo_path)
+        "When the walk is done, review {} in the temenos, commit it into",
+        zrbvceg_basename(&temenos.memo_path)
     ));
-    rbvcel_log::rbvcel_line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the rig.");
+    rbvcel_log::rbvcel_line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the temenos.");
 }
 
 /// git -C <dir> <args>, fatal on non-zero with the act named.

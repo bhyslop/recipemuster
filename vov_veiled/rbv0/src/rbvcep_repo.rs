@@ -25,7 +25,7 @@ use crate::rbvcer_run;
 pub const RBVCEP_REGULUS_DIRNAME: &str = "rbthdr_regulus";
 
 /// The clone subdir the cut creates beneath its target dir (rbvcex_expede
-/// builds there; the lap and the rig stage find what it built through this
+/// builds there; the lap and the temenos stage find what it built through this
 /// one name).
 pub const RBVCEP_REGULUS_SUBDIR: &str = "regulus";
 
@@ -86,7 +86,7 @@ pub fn rbvcep_parent(top: &Path) -> PathBuf {
 }
 
 /// Sepose a directory: dispose of it by RENAME to a timestamped sibling — never
-/// a delete (RBSHE step 3, the dispose-by-rename discipline the rig proves).
+/// a delete (RBSHE step 3, the dispose-by-rename discipline the temenos proves).
 /// Absent target is a no-op. The caller asserts the target's identity (fixed
 /// basename, not the repo root) before calling; this only refuses to clobber an
 /// existing seposed sibling. Returns whether anything was seposed.
