@@ -263,7 +263,7 @@ zrbfvm_graft_metadata_submit() {
 
   local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
   buc_info "Combined about+vouch build submitted: ${z_build_id}"
-  buc_link "Click to " "Open build in Cloud Console" "${z_console_url}"
+  buc_link "Open build in Cloud Console: " "${z_console_url}" "${z_console_url}"
 
   zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_ABOUT_VOUCH}" "About+Vouch"
 
