@@ -147,7 +147,6 @@ zrba_furnish() {
   zrbcc_kindle
   zrbgc_kindle
   zrbrd_kindle
-  zrbrd_enforce
   zrbdc_kindle
   zrbgo_kindle
   zrbuh_kindle
