@@ -138,7 +138,9 @@ zrba_furnish() {
 
   # RBRR is sourced for the RBRR_ACTIVE_FOEDUS selector alone (the trust
   # resolve in rbcc_source_active_rbrf_flint); depot-agnostic, so no RBRR
-  # enforcement — mirroring the avowal probe's furnish posture.
+  # enforcement — mirroring the avowal probe's furnish posture. RBRD is
+  # kindled for the sederunt cache directory's derivation and stays as
+  # enrolled, locked, inert strings, as in rbfk_cli.sh.
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
   rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
