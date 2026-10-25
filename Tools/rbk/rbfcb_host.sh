@@ -41,7 +41,7 @@ ZRBFCB_SOURCED=1
 # re-don; a don failed transiently while the sederunt is still live warns, and
 # the caller keeps its prior token and retries next poll (the status poll's
 # consecutive-failure counter stays the backstop). A lapsed sederunt dies via
-# buc_die_now with the open-a-sederunt advisory; the don's admission deficit
+# buc_die_now with the novate advisory; the don's admission deficit
 # buc_rejects on its band. Sentinel-free by design — reads no ZRBFC kindle
 # state (callees guard their own kindles) — so the lapse branch stays
 # unit-testable without a live build.
@@ -64,7 +64,7 @@ zrbfcb_redon_tick() {
     return 0
   fi
 
-  buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a ${RBCC_noun_sederunt} (rbw-aa or rbw-aN), then re-run"
+  buc_die_now "${z_label}: ${RBCC_noun_sederunt} lapsed mid-build — the mantle cannot be re-donned; open a fresh ${RBCC_noun_sederunt} with rbw-aN, then re-run"
 }
 
 # zrbfcb_failure_tail — best-effort view of why a build ended short of SUCCESS:
