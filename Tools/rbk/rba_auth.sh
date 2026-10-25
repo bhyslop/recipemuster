@@ -124,8 +124,9 @@ zrba_sentinel() {
 #
 # Deliberately NOT a pure _capture: rba_avow is folded in so callers never
 # learn the avowal dance, so this accessor emits rba_avow's buc_step
-# progress — the device-flow prompt included — to stderr and may buc_die_now on a
-# failed avowal. The stdout contract
+# progress to stderr and may buc_reject or buc_die_now on a failed avowal —
+# under the interactive mechanism a missing sederunt rejects naming novate,
+# since this accessor never signs in. The stdout contract
 # still holds — only the mantle token reaches stdout (avow writes stderr
 # only; the don emits the token straight to stdout) — and the reveille-tier
 # credless guard's in-band buc_reject still propagates: avow's exit
@@ -647,9 +648,12 @@ zrba_sederunt_open() {
 # rba_avow — the avowal accessor step. Ensures a live sederunt with sufficient
 # runway; its side effect is the per-session cache, and consumers read the
 # federated token with zrba_sederunt_read_capture. Cache-hit → gate the
-# remaining runway, then reuse. Miss/expired → open a fresh sederunt
-# (zrba_sederunt_open). The suite-head seam stands: an automated run avows once
-# at suite head; cases thereafter take the cache-hit path.
+# remaining runway, then reuse. Miss/expired → mechanism-gated: interactive
+# rejects in the runway band naming novate (rba_novate is the one road to a
+# sederunt, so no sign-in starts inside another command); programmatic opens a
+# fresh one (zrba_sederunt_open), no human prompt being at stake. An automated
+# run avows once at suite head after the operator's novation; cases thereafter
+# take the cache-hit path.
 #
 # Runway gate (RBr_r3n). Required runway: the optional first argument,
 # defaulting to the blanket floor.
@@ -678,7 +682,10 @@ rba_avow() {
     return 0
   fi
 
-  buc_step "No live ${RBCC_noun_sederunt} — opening a fresh one"
+  test "${RBRF_MECHANISM}" != "rbnfe_interactive" \
+    || buc_reject "${BUBC_band_runway}" "No live ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt} with rbw-aN, the one door that signs in, then re-run"
+
+  buc_step "No live ${RBCC_noun_sederunt} — acquiring a fresh one"
   zrba_sederunt_open
 }
 

@@ -20,7 +20,7 @@ The two compose, but neither requires the other.
 > If you evaluate or deploy this, you are contributing to its hardening.
 > Security-focused contributors and responsible disclosure are especially valued.
 
-**Host platform scope.** [Recipe Bottle](#RecipeBottle) is [release-qualified](#ReleaseProcedure) on Linux and macOS with Docker.
+**Host platform scope.** [Recipe Bottle](#RecipeBottle) is release-qualified on Linux and macOS with Docker.
 Windows host support works and is exercised in testing, but is not yet part of the release-qualification baseline — treat it as supported-experimental for now.
 
 **Project page**: [scaleinv.github.io/recipebottle](https://scaleinv.github.io/recipebottle)
@@ -284,11 +284,6 @@ It is a synthetic test identity provider and no security boundary.
 Its asserter signing key and client secret are committed in the repository by design, so the federation-admission path is proven deterministically with no human and no corporate tenant.
 It is safe only as an isolated local test-bed: no production federation may trust its issuer, reuse its committed key, secret or realm, or drop its `fdkyclk-test-` subject namespacing, since anyone holding the repository can forge its assertions.
 
-## <a id="ReleaseProcedure"></a>Release Procedure
-
-The project maintainer's release qualification ceremony, in nine operator steps: the qualification ladder, the local cut and the private preview run roughly an hour, with cloud cost on the order of two GCP projects per run, and the greenfield walk that gates promotion is a separate, multi-hour ceremony.
-See `RELEASE.md` for the full procedure.
-
 ## <a id="HowThisIsNormallyDone"></a>Appendix: How This Is Normally Done
 
 The two controls [Recipe Bottle](#RecipeBottle) provides are not novel — they are what a platform team normally assembles from dedicated infrastructure.
@@ -447,7 +442,6 @@ The annotated tree below maps its files to the concepts defined above.
 | --- | --- |
 | `Project Root/` |  |
 | `├── CLAUDE.md` | [Claude Code](https://claude.com/claude-code) context for sessions working in this tree |
-| `├── RELEASE.md` | [Release Procedure](#ReleaseProcedure) — maintainer release qualification ceremony |
 | `├── tt/` | [Tabtargets](#Tabtarget) — `tt/rbw-<TAB>` for all operations |
 | `├── Tools/` |  |
 | `│   ├── buk/` | Bash Utility Kit — portable CLI infrastructure |
@@ -565,7 +559,8 @@ Inspect one [Lode's](#Lode) members and decode its provenance envelope.
 
 Sign in for a session.
 An [Avowal](#Avow) is a fresh federated authentication against the [Manor's](#Manor) identity provider that opens a [Sederunt](#Sederunt).
-It is not a [Tabtarget](#Tabtarget): any cloud operation finding no live [Sederunt](#Sederunt) [Avows](#Avow) inline, a person completing the sign-in wherever they are, and a run nobody attends waits out the sign-in's expiry and fails loud.
+It is not a [Tabtarget](#Tabtarget) of its own: [Novate](#Novate) is the one road to it, a person completing the sign-in wherever they are, and a [Novation](#Novate) nobody attends waits out the sign-in's expiry and fails loud.
+A cloud operation finding no live [Sederunt](#Sederunt) never signs in on its own: it refuses and names [Novate](#Novate), so a sign-in never starts inside a long command.
 
 <a id="Banish"></a>**Banish**
 
@@ -615,8 +610,8 @@ Start a [Crucible](#Crucible) — the [Sentry](#Sentry), [Pentacle](#Pentacle) a
 
 <a id="CheckFederatedAccess"></a>**CheckFederatedAccess**
 
-Open or reuse a [Sederunt](#Sederunt) and confirm the federated sign-in reaches Google.
-Runs the federated [Avowal](#Avow) and the token exchange against the [Manor's](#Manor) trust — the first thing to run when sign-in is failing.
+Reuse a live [Sederunt](#Sederunt) and confirm the federated sign-in reaches Google.
+Checks the [Sederunt](#Sederunt) that [Novate](#Novate) opened against the [Manor's](#Manor) trust, never signing in itself: with none live it refuses and names [Novate](#Novate) — the first thing to run, after [Novate](#Novate), when sign-in is failing.
 
 <a id="CheckMantleAccess"></a>**CheckMantleAccess**
 
@@ -802,7 +797,7 @@ The configuration that ties a [Sentry](#Sentry) and a [Bottle](#Bottle) together
 <a id="Novate"></a>**Novate**
 
 Open a fresh, full-window [Sederunt](#Sederunt), extinguishing any standing one.
-The named remedy when the runway gate refuses a reuse, signed in like any [Avowal](#Avow).
+The one road to a [Sederunt](#Sederunt), run before cloud work, and the named remedy when an operation finds none live or the runway gate refuses a reuse, signed in like any [Avowal](#Avow).
 
 <a id="OAuthProbe"></a>**OAuthProbe**
 
@@ -929,7 +924,7 @@ Observe network traffic across [Crucible](#Crucible) containers.
 
 The time-bounded session an [Avowal](#Avow) opens — the workforce-pool window (15 minutes to 12 hours) within which [Mantles](#Mantle) can be [Donned](#Don).
 No federated operation runs outside a live [Sederunt](#Sederunt); when one lapses the next token mint fails loud rather than reaching for a stored secret.
-Reuse of a standing [Sederunt](#Sederunt) is runway-gated — an operation refuses to start on a [Sederunt](#Sederunt) too near its lapse, and names [Novate](#Novate) as the remedy.
+Reuse of a standing [Sederunt](#Sederunt) is runway-gated — an operation refuses to start on a [Sederunt](#Sederunt) too near its lapse, or with none live, and names [Novate](#Novate) as the remedy.
 
 <a id="Sentry"></a>**Sentry**
 

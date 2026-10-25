@@ -1685,13 +1685,14 @@ fn rbtcgp_foedus_reuse(dir: &Path) -> rbtcee_Verdict {
         }
         let _ = std::fs::write(dir.join("04-instate.txt"), format!("instated {}", foedus));
 
-        // Credential heal — avow opens or reuses the sederunt (one human click at
-        // suite head); the mantle dons then ride the cached federated token.
+        // Credential heal — avow reuses the sederunt the operator novated before
+        // the run, or refuses naming novate; the mantle dons then ride the cached
+        // federated token.
         match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
             Ok(r) if r.exit_code == 0 => {}
             Ok(r) => return rbtcee_Verdict::Fail(format!(
-                "avow exit {} — open a {} with {} (one device-flow click), or launch \
-                 from a terminal so the prompt can surface\n{}", r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_CHECK_AVOWAL, r.stderr
+                "avow exit {} — open a fresh {} with {} (one device-flow click), \
+                 then re-run\n{}", r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_NOVATE_SEDERUNT, r.stderr
             )),
             Err(e) => return rbtcee_Verdict::Fail(format!("avow invocation: {}", e)),
         }
@@ -2797,7 +2798,7 @@ const RBTCGP_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<(), rbtcee_Verdict> {
     // Fail-fast: the read-only espy replaces the blind device-window poll the
     // operator hit (260704) — a dead sederunt is reported in seconds with the
-    // open-a-sederunt instruction, never waited out to the device-code expiry.
+    // novate instruction, never waited out to the device-code expiry.
     let espy = match rbtcei_invoke_global(ctx, RBTGEC_ESPY_SEDERUNT, &[], &[]) {
         Ok(r) if r.exit_code == 0 => r,
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!(
@@ -2827,9 +2828,9 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
     // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtcee_Verdict::Fail(format!(
-            "no live {} ({}) — open one from a terminal with {} (one device-flow \
-             sign-in) or {} (fresh full window), then re-run",
-            RBTGEC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTGEC_CHECK_AVOWAL, RBTGEC_NOVATE_SEDERUNT
+            "no live {} ({}) — open a fresh full-window one with {} (one \
+             device-flow sign-in), then re-run",
+            RBTGEC_NOUN_SEDERUNT, fact.replace('\n', ", "), RBTGEC_NOVATE_SEDERUNT
         )));
     }
 
@@ -2839,9 +2840,9 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
     match rbtcei_invoke_global(ctx, RBTGEC_CHECK_AVOWAL, &[], &[]) {
         Ok(r) if r.exit_code == 0 => {}
         Ok(r) => return Err(rbtcee_Verdict::Fail(format!(
-            "baseline avow exit {} — open a {} with {} (one device-flow click), \
-             or novate ({}) if the gate turned a short {} away\nstdout:\n{}\nstderr:\n{}",
-            r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_CHECK_AVOWAL, RBTGEC_NOVATE_SEDERUNT, RBTGEC_NOUN_SEDERUNT, r.stdout, r.stderr
+            "baseline avow exit {} — run {} if the gate turned a short or absent {} \
+             away\nstdout:\n{}\nstderr:\n{}",
+            r.exit_code, RBTGEC_NOVATE_SEDERUNT, RBTGEC_NOUN_SEDERUNT, r.stdout, r.stderr
         ))),
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("baseline avow invocation: {}", e))),
     }
@@ -2909,8 +2910,8 @@ pub static RBTCGP_CASES_ACCESS_PROBE: &[rbtcee_Case] = &[
 /// director (ordain/conjure) and retriever (summon/charge). Governor is
 /// deliberately not donned: no release-ladder body wields it, and its
 /// readiness is proven where it IS wielded (the polity fixtures). A deficit
-/// rejects in seconds with the remedy named — open a sederunt (rbw-aa),
-/// novate a short one (rbw-aN), or seat the freehold (freehold-establish).
+/// rejects in seconds with the remedy named — novate an absent or short
+/// sederunt (rbw-aN), or seat the freehold (freehold-establish).
 fn rbtcgp_credential_readiness(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         if let Err(v) = zrbtcgp_sederunt_ready_arc(ctx, dir) {
