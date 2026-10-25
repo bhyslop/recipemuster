@@ -22,6 +22,7 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 # Command: zero - Zero regime to blank template for release
 
@@ -387,8 +388,7 @@ zrblm_furnish() {
   buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory for this invocation (dispatch-provided)"
   # BUZ_FOLIO (param1 channel) carries expede's target directory and zero's tree
   # identity, and is legitimately empty for the folioless verbs, so it is not a
-  # buc_doc_env_row here: an empty doc_env var warns, and the warn path needs
-  # buym_yelp, which this furnish has not yet sourced (rbgv_cli optional-folio
+  # buc_doc_env_row here: an empty doc_env var warns (rbgv_cli optional-folio
   # precedent).
   buc_doc_env_done || return 0
 
@@ -411,7 +411,6 @@ zrblm_furnish() {
       ;;
   esac
 
-  source "${BURD_BUK_DIR}/buym_yelp.sh"         || buc_die_now "Failed to source buym_yelp.sh"
   source "${BURD_BUK_DIR}/buh_handbook.sh"      || buc_die_now "Failed to source buh_handbook.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"     || buc_die_now "Failed to source buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"    || buc_die_now "Failed to source rbz_zipper.sh"
