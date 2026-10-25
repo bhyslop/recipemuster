@@ -123,10 +123,12 @@ zrba_furnish() {
   source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
   source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
   source "${z_rbk}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
   source "${z_rbk}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
   source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
   source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
   source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
@@ -136,13 +138,18 @@ zrba_furnish() {
 
   # RBRR is sourced for the RBRR_ACTIVE_FOEDUS selector alone (the trust
   # resolve in rbcc_source_active_rbrf_flint); depot-agnostic, so no RBRR
-  # enforcement — mirroring the avowal probe's furnish posture.
+  # enforcement — mirroring the avowal probe's furnish posture. RBRD is
+  # kindled for the sederunt cache directory's derivation and stays as
+  # enrolled, locked, inert strings, as in rbfk_cli.sh.
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
   rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
   source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrr_kindle
   zrbcc_kindle
   zrbgc_kindle
+  zrbrd_kindle
+  zrbdc_kindle
   zrbgo_kindle
   zrbuh_kindle
   zrba_kindle

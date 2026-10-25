@@ -171,19 +171,19 @@ rba_token_capture() {
 # transient-curl classifier. Callers kindle rbrw + rbrf + rbcc before invoking
 # rba_avow; the functions guard on their sentinels.
 
-# Resolve the per-session sederunt cache path. Session-scoped — it spans tabtarget
-# processes within one operator session — tmpfs-preferred, keyed by the trust so
-# switching pools never crosses sederunts. Dir 0700; the file is written 0600.
+# Resolve the sederunt cache path. The cache spans tabtarget processes within one
+# operator session and is a credential store in the station secrets directory
+# (RBDC_SEDERUNT_DIR), keyed by the trust so switching pools never crosses
+# sederunts. Dir 0700; the file is written 0600.
 zrba_sederunt_path_capture() {
   zrba_sentinel
+  zrbdc_sentinel
   zrbrw_sentinel
   zrbrf_sentinel
 
-  local z_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}"
-  z_dir="${z_dir%/}/rbf-sederunt"
-  mkdir -p  "${z_dir}" || return 1
-  chmod 700 "${z_dir}" || return 1
-  printf '%s/%s.%s.json' "${z_dir}" "${RBRW_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
+  mkdir -p  "${RBDC_SEDERUNT_DIR}" || return 1
+  chmod 700 "${RBDC_SEDERUNT_DIR}" || return 1
+  printf '%s/%s.%s.json' "${RBDC_SEDERUNT_DIR}" "${RBRW_WORKFORCE_POOL_ID}" "${RBRF_PROVIDER_ID}"
 }
 
 # Echo the cached federated token if present and not within skew of expiry;

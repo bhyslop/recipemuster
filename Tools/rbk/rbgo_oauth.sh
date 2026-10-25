@@ -84,9 +84,11 @@ rbgo_base64_decode_file_to_file() {
 rbgo_base64_encode_string_capture() {
   zrbgo_sentinel
 
-  local -r zSECRET_input="${1:-}"
+  local -r z_user="${1:-}"
+  local -r zSECRET_token="${2:-}"
+  local -r zSECRET_pair="${z_user}:${zSECRET_token}"
   local zSECRET_encoded
-  zSECRET_encoded=$(printf '%s' "${zSECRET_input}" | openssl enc -base64 -A) || return 1
+  zSECRET_encoded=$(printf '%s' "${zSECRET_pair}" | openssl enc -base64 -A) || return 1
   echo "${zSECRET_encoded}"
 }
 
@@ -124,10 +126,12 @@ rbgo_curl_status_is_transient_predicate() {
 # (RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE), and Windows docker ignores an empty
 # credsStore, so config alone cannot divert the store to the file store. On
 # that exact signature the function bends ONCE: auth already succeeded, so it
-# writes the credential straight into docker's base64 file store at
+# makes a credential-store write into docker's store, which is docker's own — a
+# foreign tool's store written by no governed file save as that write — at
 # ${HOME}/.docker/config.json (the `auths` map, the form WSL uses) and returns
-# success. The caller's `docker push` reads that credential from the file, so
-# the push completes without ever touching the Windows vault.
+# success. The write is composed in memory, placed under umask 077 by rename,
+# and replaces the whole file. The caller's `docker push` reads that credential
+# from the file, so the push completes without ever touching the Windows vault.
 # Args: token registry_host
 rbgo_docker_login() {
   zrbgo_sentinel
@@ -147,7 +151,8 @@ rbgo_docker_login() {
   local z_stderr_file=""
   local z_login_out=""
   local z_rc=0
-  local z_auth_b64=""
+  local zSECRET_auth_b64=""
+  local zSECRET_config=""
   local z_stderr_text=""
 
   while :; do
@@ -166,20 +171,28 @@ rbgo_docker_login() {
     # wincred helper cannot persist the credential auth just succeeded for, and
     # an empty credsStore does not divert Windows docker to the file store
     # (verified — the CLI still detects wincred). Auth already succeeded, so
-    # write the credential into the base64 file store ourselves — the on-disk
-    # `auths` form WSL uses and `docker push` reads directly — and treat login
-    # as done. credsStore is intentionally omitted so retrieval reads the file.
+    # make the credential-store write into docker's own store ourselves — the
+    # on-disk `auths` form WSL uses and `docker push` reads directly — and treat
+    # login as done. credsStore is intentionally omitted so retrieval reads the
+    # file.
     # A real auth failure emits "unauthorized", never matches, and falls through
     # to the surveyed-transient / fail-fast handling below.
     z_stderr_text=$(<"${z_stderr_file}") || buc_die_now "Failed to read: ${z_stderr_file}"
     if [[ "${z_stderr_text}" == *"${RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE}"* ]]; then
-      buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); writing the authenticated credential to the base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
-      z_auth_b64=$(rbgo_base64_encode_string_capture "oauth2accesstoken:${zSECRET_token}") \
+      buc_warn "Docker wincred helper cannot persist headless (no interactive Windows logon); making a credential-store write of the authenticated credential into docker's base64 file store in \${HOME}/.docker/config.json. REMOVE this bend when the host gains a working credential vault."
+      zSECRET_auth_b64=$(rbgo_base64_encode_string_capture oauth2accesstoken "${zSECRET_token}") \
         || buc_die_now "Cannot base64-encode the docker credential for the file-store bend"
+      zSECRET_config='{"auths":{"'"${z_host}"'":{"auth":"'"${zSECRET_auth_b64}"'"}}}'
       mkdir -p "${HOME}/.docker" \
         || buc_die_now "Cannot create ${HOME}/.docker for the credential-store bend"
-      printf '{"auths":{"%s":{"auth":"%s"}}}' "${z_host}" "${z_auth_b64}" > "${HOME}/.docker/config.json" \
-        || buc_die_now "Cannot write ${HOME}/.docker/config.json credential-store bend"
+      local -r z_config_file="${HOME}/.docker/config.json"
+      local -r z_config_tmp="${z_config_file}.tmp"
+      (
+        umask 077 || buc_die_now "Cannot set umask for the credential-store bend"
+        printf '%s' "${zSECRET_config}" > "${z_config_tmp}" || buc_die_now "Cannot write ${z_config_tmp} for the credential-store bend"
+      ) || buc_die_now "Cannot write the docker config for the credential-store bend"
+      mv -f "${z_config_tmp}" "${z_config_file}" \
+        || buc_die_now "Cannot place ${z_config_file} credential-store bend"
       return 0
     fi
 

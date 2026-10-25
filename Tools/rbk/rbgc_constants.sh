@@ -100,10 +100,11 @@ zrbgc_kindle() {
   # only the credential STORE fails. Windows docker also ignores an empty
   # credsStore (the CLI still detects wincred), so config alone cannot divert
   # the store to the file store. At this Palisade (docker's own credential store,
-  # source we cannot edit) rbgo_docker_login bends ONCE on this exact signature:
-  # since auth already succeeded it writes the credential into the base64 file
-  # store itself (the config.json `auths` map docker push reads directly — the
-  # form WSL uses natively) and treats login as done. A real auth failure emits
+  # a foreign tool's store, source we cannot edit) rbgo_docker_login bends ONCE
+  # on this exact signature: since auth already succeeded it makes a
+  # credential-store write into docker's base64 file store (the config.json
+  # `auths` map docker push reads directly — the form WSL uses natively) and
+  # treats login as done. A real auth failure emits
   # "unauthorized" and never matches. Stable Win32 system-error message;
   # corroborated by docker/cli#4353 and #1263. REMOVE the bend when the
   # uncontrolled-Cygwin host gains an interactive Windows logon / working vault.
