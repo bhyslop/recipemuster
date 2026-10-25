@@ -97,9 +97,10 @@ rbho_first_crucible() {
   buh_line "subscription, and paste the code back into the terminal."
   buh_e
   buh_warn "The ${RBYC_CCYOLO} ${RBYC_BOTTLE} pins Claude Code to a specific version."
-  buh_line "Versions after v2.1.89 have a regression where paste does not"
-  buh_line "work in the OAuth input prompt through SSH or docker exec"
-  buh_line "(github.com/anthropics/claude-code/issues/47745). If you"
+  buh_line "The pinned version was tried by hand, pasting the OAuth code"
+  buh_line "through both SSH and docker exec. Versions v2.1.105 through"
+  buh_line "v2.1.107 broke paste in that prompt"
+  buh_line "(github.com/anthropics/claude-code/issues/47699). If you"
   buh_line "update the pin and paste stops working, type the code manually."
   buh_e
   buh_line "Once authenticated, Claude Code starts in full autonomy mode —"
