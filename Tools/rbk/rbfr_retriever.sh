@@ -163,13 +163,19 @@ rbfr_summon() {
   # Docker login to GAR
   rbgo_docker_login "${zSECRET_token}" "${ZRBFC0_REGISTRY_HOST}"
 
+  # Pull each ark that exists, capturing every status so the logout stands
+  # ahead of the first die
+  local z_pull_image_status=0
+  local z_pull_about_status=0
+  local z_pull_vouch_status=0
+
   # Pull image ark if exists
   if test "${z_image_exists}" = "true"; then
     buc_step "Pulling image ark"
 
     local z_image_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
-    docker pull "${z_image_ref}" || buc_die_now "Failed to pull image ark"
-    buc_info "Retrieved: ${z_image_ref}"
+    docker pull "${z_image_ref}" || z_pull_image_status=$?
+    test "${z_pull_image_status}" -ne 0 || buc_info "Retrieved: ${z_image_ref}"
   fi
 
   # Pull about ark if exists
@@ -177,8 +183,8 @@ rbfr_summon() {
     buc_step "Pulling about ark"
 
     local z_about_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
-    docker pull "${z_about_ref}" || buc_die_now "Failed to pull about ark"
-    buc_info "Retrieved: ${z_about_ref}"
+    docker pull "${z_about_ref}" || z_pull_about_status=$?
+    test "${z_pull_about_status}" -ne 0 || buc_info "Retrieved: ${z_about_ref}"
   fi
 
   # Pull vouch ark if exists
@@ -186,9 +192,16 @@ rbfr_summon() {
     buc_step "Pulling vouch ark"
 
     local z_vouch_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
-    docker pull "${z_vouch_ref}" || buc_die_now "Failed to pull vouch ark"
-    buc_info "Retrieved: ${z_vouch_ref}"
+    docker pull "${z_vouch_ref}" || z_pull_vouch_status=$?
+    test "${z_pull_vouch_status}" -ne 0 || buc_info "Retrieved: ${z_vouch_ref}"
   fi
+
+  local z_logout_status=0
+  rbgo_docker_logout_predicate "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
+  test "${z_pull_image_status}" -eq 0 || buc_die_now "Failed to pull image ark (status ${z_pull_image_status})"
+  test "${z_pull_about_status}" -eq 0 || buc_die_now "Failed to pull about ark (status ${z_pull_about_status})"
+  test "${z_pull_vouch_status}" -eq 0 || buc_die_now "Failed to pull vouch ark (status ${z_pull_vouch_status})"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   # Display results
   echo "" || buc_die_now

@@ -104,7 +104,9 @@ zrbgc_kindle() {
   # on this exact signature: since auth already succeeded it makes a
   # credential-store write into docker's base64 file store (the config.json
   # `auths` map docker push reads directly — the form WSL uses natively) and
-  # treats login as done. A real auth failure emits
+  # treats login as done. The write merges this host's `auths` entry into the
+  # existing config, dropping `credsStore` and this host's `credHelpers` entry
+  # (either would route retrieval to a helper) and keeping all else. A real auth failure emits
   # "unauthorized" and never matches. Stable Win32 system-error message;
   # corroborated by docker/cli#4353 and #1263. REMOVE the bend when the
   # uncontrolled-Cygwin host gains an interactive Windows logon / working vault.
