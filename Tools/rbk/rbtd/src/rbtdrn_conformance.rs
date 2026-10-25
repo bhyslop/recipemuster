@@ -283,8 +283,8 @@ const ZRBTCHN_CURL_EXEMPT_PREFIXES: &[&str] = &["Tools/rbk/rbgj"];
 const ZRBTCHN_CURL_CAPTURE: &str = "|| z_curl_status=$?";
 
 /// Lines after the terminator within which the captured z_curl_status must
-/// reappear. Corpus maximum is rbuh_http's dual-variant if/else, whose first
-/// branch's capture sits 21 lines from the shared test.
+/// reappear. The bound leaves headroom over the corpus's longest span,
+/// which is the retry loop in rbuh_http's request helper.
 const ZRBTCHN_CURL_TEST_WINDOW: usize = 24;
 
 /// One curl containment violation: where and which rule.

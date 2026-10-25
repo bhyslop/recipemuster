@@ -1523,11 +1523,12 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 //
 // Drives the build poll's mid-flight re-don — the don, then zrbfcb_redon_tick
 // (rbfcb_host.sh) judging its status — at the lapsed-sederunt branch,
-// deterministically and credless: XDG_RUNTIME_DIR is pointed at an empty
-// scratch dir so the sederunt cache resolves to nothing, the don's sederunt
+// deterministically and credless: RBRR_SECRETS_DIR is pointed at an empty
+// scratch dir after the regime enforces, so the sederunt cache resolves to
+// nothing under it, the don's sederunt
 // read misses before any network touch, and the tick must die with the
 // novate advisory. The furnish
-// ceremony mirrors rba_cli's zrba_furnish plus the don's rbrd/rbdc arm —
+// ceremony mirrors rba_cli's zrba_furnish —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real
 // short build — rides the hallmark-lifecycle ordain under the
@@ -1553,7 +1554,6 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          export BURD_TEMP_DIR='{dir_p}'\n\
-         export XDG_RUNTIME_DIR='{dir_p}/rt-no-sederunt'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -1578,6 +1578,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zrbrd_kindle\n\
          zrbrr_enforce\n\
          zrbrd_enforce\n\
+         RBRR_SECRETS_DIR='{dir_p}/secrets-no-sederunt'\n\
          zrbcc_kindle\n\
          zrbgc_kindle\n\
          zrbdc_kindle\n\
