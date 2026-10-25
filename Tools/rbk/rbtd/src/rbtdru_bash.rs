@@ -245,6 +245,9 @@ pub(crate) fn zrbtchb_command_words(src: &str) -> Vec<(usize, String)> {
     let mut cmd_pos = true;
     let mut paren_depth = 0usize;
     let mut in_dbracket = false;
+    // True from a declaration word (`local`, `readonly`, …) until command
+    // position reopens; its flags and assignment words follow.
+    let mut after_decl = false;
     let mut pending_heredoc: Option<String> = None;
     // case…esac nesting. Each frame tracks the position within a `case`:
     // 0 = subject (between `case` and `in`), 1 = pattern (suppress recording;
@@ -526,7 +529,10 @@ pub(crate) fn zrbtchb_command_words(src: &str) -> Vec<(usize, String)> {
             cmd_pos = false;
             continue;
         }
-        if !cmd_pos {
+        if cmd_pos {
+            after_decl = false;
+        }
+        if !cmd_pos && !(after_decl && zrbtchb_is_assignment(&word)) {
             continue;
         }
         if zrbtchb_is_assignment(&word) {
@@ -549,6 +555,7 @@ pub(crate) fn zrbtchb_command_words(src: &str) -> Vec<(usize, String)> {
             }
             None => {}
         }
+        after_decl = matches!(word.as_str(), "local" | "readonly" | "declare" | "typeset");
         out.push((word_line, word));
         cmd_pos = false;
     }
