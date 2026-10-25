@@ -2331,6 +2331,51 @@ pub const RBVGEB_MANOR_RAZE_NOMINALIZATION_VERSAL: &str = rbvgeb_manor_raze_nomi
 macro_rules! rbvgeb_manor_raze_nominalization_lettrine { () => { "Razing" }; }
 pub(crate) use rbvgeb_manor_raze_nominalization_lettrine;
 pub const RBVGEB_MANOR_RAZE_NOMINALIZATION_LETTRINE: &str = rbvgeb_manor_raze_nominalization_lettrine!();
+macro_rules! rbvgeb_nameplate_mitre_base { () => { "mitre" }; }
+pub(crate) use rbvgeb_nameplate_mitre_base;
+pub const RBVGEB_NAMEPLATE_MITRE_BASE: &str = rbvgeb_nameplate_mitre_base!();
+macro_rules! rbvgeb_nameplate_mitre_base_versal { () => { "MITRE" }; }
+pub(crate) use rbvgeb_nameplate_mitre_base_versal;
+pub const RBVGEB_NAMEPLATE_MITRE_BASE_VERSAL: &str = rbvgeb_nameplate_mitre_base_versal!();
+macro_rules! rbvgeb_nameplate_mitre_base_lettrine { () => { "Mitre" }; }
+pub(crate) use rbvgeb_nameplate_mitre_base_lettrine;
+pub const RBVGEB_NAMEPLATE_MITRE_BASE_LETTRINE: &str = rbvgeb_nameplate_mitre_base_lettrine!();
+macro_rules! rbvgeb_nameplate_mitre_third_singular { () => { "mitres" }; }
+pub(crate) use rbvgeb_nameplate_mitre_third_singular;
+pub const RBVGEB_NAMEPLATE_MITRE_THIRD_SINGULAR: &str = rbvgeb_nameplate_mitre_third_singular!();
+macro_rules! rbvgeb_nameplate_mitre_third_singular_versal { () => { "MITRES" }; }
+pub(crate) use rbvgeb_nameplate_mitre_third_singular_versal;
+pub const RBVGEB_NAMEPLATE_MITRE_THIRD_SINGULAR_VERSAL: &str = rbvgeb_nameplate_mitre_third_singular_versal!();
+macro_rules! rbvgeb_nameplate_mitre_third_singular_lettrine { () => { "Mitres" }; }
+pub(crate) use rbvgeb_nameplate_mitre_third_singular_lettrine;
+pub const RBVGEB_NAMEPLATE_MITRE_THIRD_SINGULAR_LETTRINE: &str = rbvgeb_nameplate_mitre_third_singular_lettrine!();
+macro_rules! rbvgeb_nameplate_mitre_past { () => { "mitred" }; }
+pub(crate) use rbvgeb_nameplate_mitre_past;
+pub const RBVGEB_NAMEPLATE_MITRE_PAST: &str = rbvgeb_nameplate_mitre_past!();
+macro_rules! rbvgeb_nameplate_mitre_past_versal { () => { "MITRED" }; }
+pub(crate) use rbvgeb_nameplate_mitre_past_versal;
+pub const RBVGEB_NAMEPLATE_MITRE_PAST_VERSAL: &str = rbvgeb_nameplate_mitre_past_versal!();
+macro_rules! rbvgeb_nameplate_mitre_past_lettrine { () => { "Mitred" }; }
+pub(crate) use rbvgeb_nameplate_mitre_past_lettrine;
+pub const RBVGEB_NAMEPLATE_MITRE_PAST_LETTRINE: &str = rbvgeb_nameplate_mitre_past_lettrine!();
+macro_rules! rbvgeb_nameplate_mitre_progressive { () => { "mitring" }; }
+pub(crate) use rbvgeb_nameplate_mitre_progressive;
+pub const RBVGEB_NAMEPLATE_MITRE_PROGRESSIVE: &str = rbvgeb_nameplate_mitre_progressive!();
+macro_rules! rbvgeb_nameplate_mitre_progressive_versal { () => { "MITRING" }; }
+pub(crate) use rbvgeb_nameplate_mitre_progressive_versal;
+pub const RBVGEB_NAMEPLATE_MITRE_PROGRESSIVE_VERSAL: &str = rbvgeb_nameplate_mitre_progressive_versal!();
+macro_rules! rbvgeb_nameplate_mitre_progressive_lettrine { () => { "Mitring" }; }
+pub(crate) use rbvgeb_nameplate_mitre_progressive_lettrine;
+pub const RBVGEB_NAMEPLATE_MITRE_PROGRESSIVE_LETTRINE: &str = rbvgeb_nameplate_mitre_progressive_lettrine!();
+macro_rules! rbvgeb_nameplate_mitre_nominalization { () => { "mitring" }; }
+pub(crate) use rbvgeb_nameplate_mitre_nominalization;
+pub const RBVGEB_NAMEPLATE_MITRE_NOMINALIZATION: &str = rbvgeb_nameplate_mitre_nominalization!();
+macro_rules! rbvgeb_nameplate_mitre_nominalization_versal { () => { "MITRING" }; }
+pub(crate) use rbvgeb_nameplate_mitre_nominalization_versal;
+pub const RBVGEB_NAMEPLATE_MITRE_NOMINALIZATION_VERSAL: &str = rbvgeb_nameplate_mitre_nominalization_versal!();
+macro_rules! rbvgeb_nameplate_mitre_nominalization_lettrine { () => { "Mitring" }; }
+pub(crate) use rbvgeb_nameplate_mitre_nominalization_lettrine;
+pub const RBVGEB_NAMEPLATE_MITRE_NOMINALIZATION_LETTRINE: &str = rbvgeb_nameplate_mitre_nominalization_lettrine!();
 macro_rules! rbvgeb_sederunt_espy_base { () => { "espy" }; }
 pub(crate) use rbvgeb_sederunt_espy_base;
 pub const RBVGEB_SEDERUNT_ESPY_BASE: &str = rbvgeb_sederunt_espy_base!();
@@ -3156,9 +3201,9 @@ pub const RBVGEB_MANOR_JILT_PEDIMENT: &str = rbvgeb_manor_jilt_pediment!();
 macro_rules! rbvgeb_manor_raze_pediment { () => { "rbw-mR" }; }
 pub(crate) use rbvgeb_manor_raze_pediment;
 pub const RBVGEB_MANOR_RAZE_PEDIMENT: &str = rbvgeb_manor_raze_pediment!();
-macro_rules! rbvgeb_nameplate_drive_pediment { () => { "rbw-nm" }; }
-pub(crate) use rbvgeb_nameplate_drive_pediment;
-pub const RBVGEB_NAMEPLATE_DRIVE_PEDIMENT: &str = rbvgeb_nameplate_drive_pediment!();
+macro_rules! rbvgeb_nameplate_mitre_pediment { () => { "rbw-nm" }; }
+pub(crate) use rbvgeb_nameplate_mitre_pediment;
+pub const RBVGEB_NAMEPLATE_MITRE_PEDIMENT: &str = rbvgeb_nameplate_mitre_pediment!();
 macro_rules! rbvgeb_payor_establish_pediment { () => { "rbw-gPE" }; }
 pub(crate) use rbvgeb_payor_establish_pediment;
 pub const RBVGEB_PAYOR_ESTABLISH_PEDIMENT: &str = rbvgeb_payor_establish_pediment!();

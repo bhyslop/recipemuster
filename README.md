@@ -176,8 +176,8 @@ At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sederunt](#Sederunt
 The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds.
 Each [Ordain](#Ordain) chains its own metadata and [Vouch](#Vouch) stages, and the [Director](#Director) can [Vouch](#Vouch) any [Hallmark](#Hallmark) still pending in one batch; the [Retriever](#Retriever) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status.
 
-Build results become durable by being written into committed [Regime](#Regime) lines: each chain-link verb — [Yoke](#Yoke), [Feoff](#Feoff), [Anoint](#Anoint), [Drive](#Drive) — resolves a fresh build fact into the configuration lines it owns, which the operator then commits.
-The chain is what lets every later build and every [Charge](#Charge) draw on a pinned, reviewable record instead of a floating reference, a [Hallmark](#Hallmark) being [Driven](#Drive) into its [Nameplate's](#Nameplate) [Regime](#Regime) file to complete the chain from build to runtime.
+Build results become durable by being written into committed [Regime](#Regime) lines: each chain-link verb — [Yoke](#Yoke), [Feoff](#Feoff), [Anoint](#Anoint), [Mitre](#Mitre) — resolves a fresh build fact into the configuration lines it owns, which the operator then commits.
+The chain is what lets every later build and every [Charge](#Charge) draw on a pinned, reviewable record instead of a floating reference, a [Hallmark](#Hallmark) being [Mitred](#Mitre) into its [Nameplate's](#Nameplate) [Regime](#Regime) file to complete the chain from build to runtime.
 
 The [Retriever](#Retriever) [Summons](#Summon) a [Hallmark's](#Hallmark) images locally for use.
 
@@ -655,12 +655,6 @@ Assume a [Mantle](#Mantle).
 Having [Avowed](#Avow), an operator dons a named mantle to mint the short-lived service-account token that operation needs; exactly one mantle is worn per token.
 [CheckMantleAccess](#CheckMantleAccess) reports whether a given mantle reaches Artifact Registry, or surfaces the access deficit.
 
-<a id="Drive"></a>**Drive**
-
-Record a fresh [Hallmark](#Hallmark) into a [Nameplate's](#Nameplate) [Sentry](#Sentry) or [Bottle](#Bottle) hallmark line.
-The chain's terminus: what [Charge](#Charge) consumes is exactly what was driven and committed.
-[Kludge](#Kludge) composes a drive automatically; after a cloud [Ordain](#Ordain), the new [Hallmark](#Hallmark) is driven explicitly.
-
 <a id="Enclave"></a>**Enclave**
 
 The isolated network joining a [Bottle](#Bottle) to its [Sentry](#Sentry), the [Bottle's](#Bottle) only path out.
@@ -784,6 +778,12 @@ The [Payor's](#Payor) administrative seat, holding the billing account and OAuth
 A standing administrative office — [Governor](#Governor), [Director](#Director), or [Retriever](#Retriever) — realized as a Google service account whose resource authority is granted once at [Levy](#Levy) and frozen there.
 A [Citizen](#Citizen) [Dons](#Don) one mantle at a time, and the mantle worn is that token's entire blast radius.
 A mantle is worn, never issued as a file — there is no key to leak.
+
+<a id="Mitre"></a>**Mitre**
+
+Record a fresh [Hallmark](#Hallmark) into a [Nameplate's](#Nameplate) [Sentry](#Sentry) or [Bottle](#Bottle) hallmark line.
+The chain's terminus (the joiner's sense — the joint that closes a frame): what [Charge](#Charge) consumes is exactly what was [Mitred](#Mitre) and committed.
+[Kludge](#Kludge) composes a [Mitre](#Mitre) automatically; after a cloud [Ordain](#Ordain), the new [Hallmark](#Hallmark) is [Mitred](#Mitre) explicitly.
 
 <a id="Muniment"></a>**Muniment**
 
