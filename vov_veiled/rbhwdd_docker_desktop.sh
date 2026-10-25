@@ -23,7 +23,7 @@ rbhw_docker_desktop() {
   buh_line     "Provide Windows-hosted Docker daemon for Windows and Cygwin environments."
   buh_e
   buh_step1    "Download and Install Docker Desktop:"
-  buh_link     "" "Docker Desktop for Windows" "https://www.docker.com/products/docker-desktop/"
+  buh_link     "Docker Desktop for Windows: " "https://www.docker.com/products/docker-desktop/" "https://www.docker.com/products/docker-desktop/"
   buh_e
   buh_step1    "Enable WSL Integration:"
   buym_ui_yawp "WSL Integration"; local -r z_wsl_int="${z_buym_yelp}"

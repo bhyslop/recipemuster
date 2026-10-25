@@ -61,7 +61,7 @@ rbhpo_organization() {
   buh_line     "   organization without one."
   buh_e
   buh_section  "2. Sign Up for Cloud Identity (Free):"
-  buym_href_yawp "https://workspace.google.com/gcpidentity/signup" "Cloud Identity Free Signup"; local -r z_href_ci_signup="${z_buym_yelp}"
+  buym_href_yawp "https://workspace.google.com/gcpidentity/signup" "https://workspace.google.com/gcpidentity/signup"; local -r z_href_ci_signup="${z_buym_yelp}"
   buh_line     "   1. Open: ${z_href_ci_signup}"
   buh_line     "   2. Enter your business/contact details when asked"
   buym_cmd_yawp "«your-domain»"; local -r z_cmd_domain="${z_buym_yelp}"
@@ -71,7 +71,7 @@ rbhpo_organization() {
   buh_line     "   charge; it exists solely to provision the organization resource node."
   buh_e
   buh_section  "3. Verify Domain Ownership (DNS):"
-  buym_href_yawp "https://admin.google.com" "Google Admin Console"; local -r z_href_admin="${z_buym_yelp}"
+  buym_href_yawp "https://admin.google.com" "https://admin.google.com"; local -r z_href_admin="${z_buym_yelp}"
   buh_line     "   1. In the ${z_href_admin} setup flow, choose to verify your domain"
   buym_ui_yawp "TXT"; local -r z_ui_txt="${z_buym_yelp}"
   buh_line     "   2. Google shows a ${z_ui_txt} record value to publish"
@@ -87,7 +87,7 @@ rbhpo_organization() {
   buh_line     "   organization node appears once verification succeeds."
   buh_e
   buh_section  "4. Read the Organization Numeric ID:"
-  buym_href_yawp "https://console.cloud.google.com/cloud-resource-manager" "Cloud Resource Manager"; local -r z_href_crm="${z_buym_yelp}"
+  buym_href_yawp "https://console.cloud.google.com/cloud-resource-manager" "https://console.cloud.google.com/cloud-resource-manager"; local -r z_href_crm="${z_buym_yelp}"
   buh_line     "   1. Open: ${z_href_crm} signed in as the Cloud Identity administrator"
   buym_ui_yawp "Organization"; local -r z_ui_organization="${z_buym_yelp}"
   buh_line     "   2. At the top, the ${z_ui_organization} picker shows your domain as the org node"

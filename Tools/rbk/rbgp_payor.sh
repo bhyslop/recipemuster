@@ -761,8 +761,8 @@ zrbgp_pool_build_submit_await() {
     || buc_die_now "${z_operation_label} submission for ${z_pool_variant} returned no build ID (HTTP ${z_submit_code})"
 
   buc_info "  Build:    ${z_build_id} (awaiting terminal state)"
-  buc_link "  " "Open ${z_operation_label} build in Cloud Console" \
-    "${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_build_console_url="${RBGC_CONSOLE_URL}cloud-build/builds;region=${z_region}/${z_build_id}?project=${RBDC_DEPOT_PROJECT_ID}"
+  buc_link "  Open ${z_operation_label} build in Cloud Console: " "${z_build_console_url}" "${z_build_console_url}"
 
   local -r z_build_get_url="${z_build_url}/${z_build_id}"
   local z_status="PENDING"
@@ -980,7 +980,7 @@ rbgp_install() {
   local -r z_auth_url="${RBGC_OAUTH_AUTHORIZE_URL}?client_id=${z_client_id}&redirect_uri=${z_redirect_enc}&scope=openid%20email%20https://www.googleapis.com/auth/cloud-platform%20https://www.googleapis.com/auth/cloud-billing&response_type=code&access_type=offline&prompt=consent"
 
   buh_e
-  buh_link "Open this URL in your browser: " "Google OAuth Authorization" "${z_auth_url}"
+  buh_link "Open this URL in your browser: " "${z_auth_url}" "${z_auth_url}"
   buh_e
   buh_line "You will see four or five screens:"
   buym_ui_yawp "Choose an account"; local -r z_yelp_choose="${z_buym_yelp}"
@@ -2391,7 +2391,8 @@ rbgp_depot_levy() {
     "${RBGC_MAX_CONSISTENCY_SEC}"
 
   buc_info "Depot project ID: ${RBDC_DEPOT_PROJECT_ID}"
-  buc_link "Click to " "Open depot Cloud Build console" "${RBGC_CONSOLE_URL}cloud-build/builds?project=${RBDC_DEPOT_PROJECT_ID}"
+  local -r z_depot_console_url="${RBGC_CONSOLE_URL}cloud-build/builds?project=${RBDC_DEPOT_PROJECT_ID}"
+  buc_link "Open depot Cloud Build console: " "${z_depot_console_url}" "${z_depot_console_url}"
 
   buc_step 'Link billing account'
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_link.json"
