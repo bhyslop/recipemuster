@@ -104,7 +104,7 @@ rbhoct_crucible_trunk() {
   buh_e
   buh_code "   ${z_nameplate_file}"
   buh_e
-  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND drives the resulting"
+  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND mitres the resulting"
   buh_line "${RBYC_HALLMARK} into the ${z_moniker} ${RBYC_NAMEPLATE} — no copy/paste."
   buh_e
   buh_warn "${RBYC_KLUDGE} requires a clean git tree."
@@ -119,7 +119,7 @@ rbhoct_crucible_trunk() {
   buh_line "and dnsmasq to enforce network policy — only domains on the"
   buh_line "${RBYC_NAMEPLATE}'s allowlist are reachable from inside."
   buh_e
-  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
+  buh_line "Build it and mitre the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_SENTRY}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"
   buh_e
@@ -149,7 +149,7 @@ rbhoct_crucible_trunk() {
   buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
   buh_e
   buh_line "The ${RBYC_BOTTLE} is the workload container — the unprivileged target"
-  buh_line "the ${RBYC_SENTRY} protects. Build it and drive the ${RBYC_HALLMARK}"
+  buh_line "the ${RBYC_SENTRY} protects. Build it and mitre the ${RBYC_HALLMARK}"
   buh_line "into the ${RBYC_NAMEPLATE}:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"

@@ -60,7 +60,7 @@ use crate::rbtgec_consts::{
     RBTGEC_CONTAINER_SENTRY,
     RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
     RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
-    RBTGEC_DRIVE_HALLMARK,
+    RBTGEC_MITRE_HALLMARK,
     RBTGEC_ENSCONCE_BOLE,
     RBTGEC_CONCLAVE_RELIQUARY,
     RBTGEC_FEOFF_BOLE,
@@ -71,7 +71,7 @@ use crate::rbtgec_consts::{
     RBTGEC_REKON_HALLMARK,
     RBTGEC_SUMMON_HALLMARK,
     RBTGEC_VERB_ANOINT,
-    RBTGEC_VERB_DRIVE,
+    RBTGEC_VERB_MITRE,
     RBTGEC_VERB_KLUDGE,
     RBTGEC_VERB_YOKE,
     RBTGEC_WREST_HALLMARK_IMAGE,
@@ -385,14 +385,14 @@ fn rbtcgo_read_vessel_env(
     Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir))
 }
 
-/// Drive a freshly-built hallmark into a nameplate's RBRN_{BOTTLE,SENTRY}_HALLMARK
-/// by invoking the real rbw-nd drive tabtarget — the unified drive-link — with the
+/// Mitre a freshly-built hallmark into a nameplate's RBRN_{BOTTLE,SENTRY}_HALLMARK
+/// by invoking the real rbw-nm mitre tabtarget — the unified mitre link — with the
 /// hallmark passed EXPRESS (`field` is the two-value selector `bottle`|`sentry`).
 /// The onboarding harness exercises the same operator verb the cloud path ships,
 /// never an in-process reimplementation, so the durable-config discipline
 /// (relay-then-read, band-reject) lives in ONE bash home.
-/// The drive does not commit; callers commit via rbtcee_commit_nameplates.
-fn rbtcgo_drive_nameplate(
+/// The mitre does not commit; callers commit via rbtcee_commit_nameplates.
+fn rbtcgo_mitre_nameplate(
     ctx: &mut rbtcei_Context,
     dir: &Path,
     nameplate: &str,
@@ -401,20 +401,20 @@ fn rbtcgo_drive_nameplate(
 ) -> Result<(), rbtcee_Verdict> {
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTGEC_VERB_DRIVE, field),
+        &format!("{} {}", RBTGEC_VERB_MITRE, field),
         nameplate,
-        RBTGEC_DRIVE_HALLMARK,
+        RBTGEC_MITRE_HALLMARK,
         &[nameplate, field, hallmark],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTGEC_VERB_DRIVE, field, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_MITRE, field, nameplate),
     )?;
     Ok(())
 }
 
 /// Kludge helper: build sentry and bottle locally for a nameplate. Both steps
-/// are local docker builds with no GCP dependency. The kludge tabtargets drive
-/// hallmarks directly into the nameplate's rbrn.env via the rbrn_drive drive-link
+/// are local docker builds with no GCP dependency. The kludge tabtargets mitre
+/// hallmarks directly into the nameplate's rbrn.env via the rbrn_mitre link
 /// they compose. rbw-cKS and rbw-cKB are global (param1-channel) tabtargets — no
 /// imprint suffix, nameplate passed as a positional argument.
 fn rbtcgo_kludge_nameplate(
@@ -543,7 +543,7 @@ fn zrbtcgo_kludge_tadmor_onboarding_impl(ctx: &mut rbtcei_Context, dir: &Path) -
 /// Same build+commit of both vessels as the onboarding case, but WITHOUT the
 /// reliquary-touchmark probe: that probe is an onboarding-sequence sequencing
 /// witness, not a local-kludge dependency (kludge is local docker, no GCP, no
-/// reliquary). Drives + commits the sentry and bottle hallmarks so the tadmor
+/// reliquary). Mitres + commits the sentry and bottle hallmarks so the tadmor
 /// crucible fixture that follows charges against a clean nameplate.
 fn rbtcgo_kludge_tadmor_standalone(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| zrbtcgo_kludge_tadmor_onboarding_impl(ctx, dir))
@@ -743,7 +743,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
 
     for nameplate in RBTCGO_CONSUMERS_SENTRY_TETHER {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_SENTRY, &hallmark)
+            rbtcgo_mitre_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_SENTRY, &hallmark)
         {
             return v;
         }
@@ -785,7 +785,7 @@ fn zrbtcgo_ordain_conjure_jupyter_impl(ctx: &mut rbtcei_Context, dir: &Path) -> 
 
     for nameplate in RBTCGO_CONSUMERS_JUPYTER_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
+            rbtcgo_mitre_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
         {
             return v;
         }
@@ -936,7 +936,7 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
 
     for nameplate in RBTCGO_CONSUMERS_AIRGAP_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &airgap_hallmark)
+            rbtcgo_mitre_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &airgap_hallmark)
         {
             return v;
         }
@@ -1071,7 +1071,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
 
     for nameplate in RBTCGO_CONSUMERS_PLANTUML_BOTTLE {
         if let Err(v) =
-            rbtcgo_drive_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
+            rbtcgo_mitre_nameplate(ctx, dir, nameplate, RBTGEC_CONTAINER_BOTTLE, &hallmark)
         {
             return v;
         }
