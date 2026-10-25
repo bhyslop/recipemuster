@@ -10,7 +10,7 @@
 //   rbv essai              — the reversible repair lap (RBSHE).
 //   rbv docimasy [rehearse] — the reveal's reversible proving act (RBSHD).
 //   rbv ostend   [rehearse] — the reveal's irreversible showing (RBSHO).
-//   rbv harbinger          — the stranger rig against promoted public main (RBSHH).
+//   rbv harbinger          — the stranger walk against promoted public main (RBSHH).
 //
 // docimasy and ostend take an optional trailing "rehearse" token, proving
 // their reversible stages against the real private narthex without

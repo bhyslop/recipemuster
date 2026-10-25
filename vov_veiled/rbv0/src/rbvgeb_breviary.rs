@@ -2763,6 +2763,33 @@ pub const RBVGEB_SEPOSE_NOMINALIZATION_VERSAL: &str = rbvgeb_sepose_nominalizati
 macro_rules! rbvgeb_sepose_nominalization_lettrine { () => { "Seposition" }; }
 pub(crate) use rbvgeb_sepose_nominalization_lettrine;
 pub const RBVGEB_SEPOSE_NOMINALIZATION_LETTRINE: &str = rbvgeb_sepose_nominalization_lettrine!();
+macro_rules! rbvgeb_temenos_base { () => { "temenos" }; }
+pub(crate) use rbvgeb_temenos_base;
+pub const RBVGEB_TEMENOS_BASE: &str = rbvgeb_temenos_base!();
+macro_rules! rbvgeb_temenos_base_versal { () => { "TEMENOS" }; }
+pub(crate) use rbvgeb_temenos_base_versal;
+pub const RBVGEB_TEMENOS_BASE_VERSAL: &str = rbvgeb_temenos_base_versal!();
+macro_rules! rbvgeb_temenos_base_lettrine { () => { "Temenos" }; }
+pub(crate) use rbvgeb_temenos_base_lettrine;
+pub const RBVGEB_TEMENOS_BASE_LETTRINE: &str = rbvgeb_temenos_base_lettrine!();
+macro_rules! rbvgeb_temenos_plural { () => { "temene" }; }
+pub(crate) use rbvgeb_temenos_plural;
+pub const RBVGEB_TEMENOS_PLURAL: &str = rbvgeb_temenos_plural!();
+macro_rules! rbvgeb_temenos_plural_versal { () => { "TEMENE" }; }
+pub(crate) use rbvgeb_temenos_plural_versal;
+pub const RBVGEB_TEMENOS_PLURAL_VERSAL: &str = rbvgeb_temenos_plural_versal!();
+macro_rules! rbvgeb_temenos_plural_lettrine { () => { "Temene" }; }
+pub(crate) use rbvgeb_temenos_plural_lettrine;
+pub const RBVGEB_TEMENOS_PLURAL_LETTRINE: &str = rbvgeb_temenos_plural_lettrine!();
+macro_rules! rbvgeb_temenos_possessive { () => { "temenos's" }; }
+pub(crate) use rbvgeb_temenos_possessive;
+pub const RBVGEB_TEMENOS_POSSESSIVE: &str = rbvgeb_temenos_possessive!();
+macro_rules! rbvgeb_temenos_possessive_versal { () => { "TEMENOS'S" }; }
+pub(crate) use rbvgeb_temenos_possessive_versal;
+pub const RBVGEB_TEMENOS_POSSESSIVE_VERSAL: &str = rbvgeb_temenos_possessive_versal!();
+macro_rules! rbvgeb_temenos_possessive_lettrine { () => { "Temenos's" }; }
+pub(crate) use rbvgeb_temenos_possessive_lettrine;
+pub const RBVGEB_TEMENOS_POSSESSIVE_LETTRINE: &str = rbvgeb_temenos_possessive_lettrine!();
 macro_rules! rbvgeb_sortie_base { () => { "sortie" }; }
 pub(crate) use rbvgeb_sortie_base;
 pub const RBVGEB_SORTIE_BASE: &str = rbvgeb_sortie_base!();
