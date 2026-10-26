@@ -8,11 +8,15 @@ The words in capitals are defined in the glossary at the end.
 Run every command from the maintainer repository, with its tree committed and pushed: each [Hierophant](#Hierophant) command refuses an uncommitted tree, [Essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
+Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [Agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [Palaestra](#Palaestra), against a private stand-in for the public repository.
+There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [Cachet](#Cachet), and every banner the tool prints names the world it is in.
+
 1. [Standing ground](#StandingGround) — once per station.
-2. [The laps](#TheLaps) — [Essai](#Essai), repeated until a [Lap](#Lap) runs dry.
-3. [The reveal](#TheReveal) — [Docimasy](#Docimasy), then [Ostend](#Ostend), then [Harbinger](#Harbinger).
-4. [The walk](#GreenfieldWalk) — the greenfield manor walk against promoted public main.
-5. [Closeout](#Closeout) — liveness, the spot-check, the deletes and the record.
+2. [Practice](#ThePractice) — rounds in the [Palaestra](#Palaestra) until one surfaces nothing.
+3. [The laps](#TheLaps) — [Essai](#Essai), repeated until a [Lap](#Lap) runs dry.
+4. [The reveal](#TheReveal) — [Docimasy](#Docimasy), then [Ostend](#Ostend), then [Harbinger](#Harbinger).
+5. [The walk](#GreenfieldWalk) — the greenfield manor walk against promoted public main.
+6. [Closeout](#Closeout) — liveness, the spot-check, the deletes and the record.
 
 ## <a id="Rules"></a>Rules
 
@@ -20,6 +24,7 @@ Run the long commands inside a terminal multiplexer session, and keep a second p
 - The tool never pushes. When it prints a push line, leave its prompt waiting, type the line exactly in the second pane, and answer `y` only after the push has returned.
 - A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [Lap](#Lap).
 - The [Regulus](#Regulus) the reveal shows is the one the dry [Lap](#Lap) proved, never a fresh cut.
+- A [Cachet](#Cachet) granted in the [Palaestra](#Palaestra) never admits a showing in the [Agora](#Agora), nor one granted in the [Agora](#Agora) a showing in the [Palaestra](#Palaestra); [Ostend](#Ostend) refuses it and names both worlds.
 
 <a id="RuledOrder"></a>The standing doctrine is that the walk gates promotion.
 This release runs under the operator's ruled exception to it: [Ostend](#Ostend) stages and promotes in one run, and the walk follows against promoted public main.
@@ -46,9 +51,69 @@ Once per station, before the first lap.
    Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [Hierophant](#Hierophant) never uses them.
 
+## <a id="ThePractice"></a>Practice
+
+The whole ceremony is practiced end to end in the [Palaestra](#Palaestra) before the real cycle, from the first [Lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
+Practice protects against a fumble — a wrong push, a misread prompt, a hygiene step that bites — and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [Regulus](#Regulus) and the private [Narthex](#Narthex) guard that.
+
+Practice differs from the real ceremony in three ways only: [Docimasy](#Docimasy) skips the sign-in and the `gauntlet`, the [Cachet](#Cachet) it grants admits a showing in the [Palaestra](#Palaestra) alone, and the practice [Regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
+Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [Harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
+
+### <a id="PracticeGround"></a>Practice standing ground
+
+Once per station, beside the real base remote.
+Add the practice base remote and neuter its push side exactly as the real one's; [Essai](#Essai) in the [Palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
+Type each line as shown:
+
+- `git remote add PALAESTRA_UPSTREAM git@github.com:scaleinv/recipebottle-palaestra.git`
+- `git remote set-url --push PALAESTRA_UPSTREAM DISABLED-PALAESTRA_UPSTREAM-IS-READ-ONLY`
+
+### <a id="PracticeOpening"></a>Opening a round
+
+At the GitHub console, by hand, delete both practice repositories and create them again, empty and private: the stand-in `scaleinv/recipebottle-palaestra` and the practice [Narthex](#Narthex) `scaleinv/recipebottle-palaestra-staging`.
+Then seed the stand-in from a fresh clone of real public main, by two single-refspec pushes — main, then `POSTULANT_LOCAL` at the same commit — so it carries the real repository's refs, and the round practices the real-sized delta and the stale-branch delete.
+Type each line as shown, in order:
+
+- `git clone git@github.com:scaleinv/recipebottle.git «fresh clone»`
+- `cd «fresh clone»`
+- `git push git@github.com:scaleinv/recipebottle-palaestra.git main:main`
+- `git push git@github.com:scaleinv/recipebottle-palaestra.git main:POSTULANT_LOCAL`
+
+Discard the fresh clone afterwards; it is never a working directory of the ceremony.
+
+### <a id="PracticeRound"></a>A practice round
+
+Run the four commands under their practice doors, reading each stop as the real section of the same name describes it:
+
+1. Run `tt/rbvw-e.Essai.palaestra.sh`.
+   It cuts the [Regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [Temenos](#Temenos) in `../palaestra_coldwalk`.
+   Walk the coldwalk and read the [Regulus](#Regulus) as the laps below describe, with those paths.
+2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
+3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
+   It gates the practice [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and stops once, for the preview push line into the practice [Narthex](#Narthex): type it in the second pane, then answer `y`.
+   It asks for no sign-in and runs no `gauntlet`, and grants a practice [Cachet](#Cachet).
+4. Run `tt/rbvw-o.Ostend.palaestra.sh`.
+   It stops three times, exactly as the real [Ostend](#Ostend) does — the file list, the staging push line, the promotion line — but every push it prints targets the stand-in, never the public repository.
+5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
+
+<a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
+Type each line as shown, in order:
+
+- `git clone git@github.com:scaleinv/recipebottle-palaestra.git «fresh clone»`
+- `cd «fresh clone»`
+- `git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL`
+
+### <a id="PracticeClosing"></a>Closing a round
+
+1. Delete the stand-in's `POSTULANT_LOCAL` branch, as the real closeout deletes the public one.
+2. Check that every coldwalk findings memo is committed, including any still inside a moved-aside `palaestra_coldwalk` sibling; then delete every `palaestra_*` directory beside the maintainer repository.
+3. Record what the round surfaced.
+   A finding in the procedure is an edit to this ordinatio and a re-render; a finding in the instrument is a repair and another round.
+   The next round opens by deleting and recreating both practice repositories, so they need not be deleted here.
+
 ## <a id="TheLaps"></a>The laps
 
-1. Run `tt/rbvw-e.Essai.sh`.
+1. Run `tt/rbvw-e.Essai.agora.sh`.
    It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Temenos](#Temenos).
    A [Regulus](#Regulus) already standing there is first moved aside by [Sepose](#Sepose).
 2. Read its verdict and the base inventory it prints.
@@ -102,17 +167,16 @@ At the GitHub console, by hand:
 
 ### <a id="DocimasyAct"></a>Docimasy
 
-Run `tt/rbvw-d.Docimasy.sh` in the multiplexer session, since its last hour runs unattended.
-It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and then stops four times:
+Run `tt/rbvw-d.Docimasy.agora.sh` in the multiplexer session, since its last hour runs unattended.
+It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and then stops three times:
 
 1. It prints the preview push line into the private [Narthex](#Narthex).
    Type it in the second pane, then answer `y`.
 2. It prints a sign-in URL and code to renew your session.
    Open the URL in a browser and enter the code before it times out; this is the fresh sign-in the unattended hour needs.
 3. It asks whether to proceed with marshal zero and the `gauntlet`.
-   Answer `y`.
-4. Marshal zero lists what it will blank and asks you to type `zero`.
-   Type it, and leave only once the `gauntlet` has begun: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects, committing regime changes as it goes.
+   Answer `y`; that answer is marshal zero's confirmation too, so it lists what it blanks and asks nothing more.
+   Leave only once the `gauntlet` has begun: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects, committing regime changes as it goes.
 
 On green it grants the [Cachet](#Cachet) and points you to [Ostend](#Ostend).
 Push the commits it left on the maintainer tree.
@@ -129,7 +193,7 @@ On red:
 
 ### <a id="OstendAct"></a>Ostend
 
-Run `tt/rbvw-o.Ostend.sh` and stay with it throughout; it is short.
+Run `tt/rbvw-o.Ostend.agora.sh` and stay with it throughout; it is short.
 It requires the [Cachet](#Cachet), re-checks the [Narthex](#Narthex) and the maintainer tree, and then stops three times:
 
 1. It shows the full file list of the [Regulus](#Regulus).
@@ -158,7 +222,7 @@ Then type the printed promotion line there.
 
 ### <a id="HarbingerAct"></a>Harbinger
 
-Run `tt/rbvw-h.Harbinger.sh`.
+Run `tt/rbvw-h.Harbinger.agora.sh`.
 It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints a launch line, a stranger prompt and a dated findings-memo path.
 Launch the confirmation coldwalk by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
 
@@ -238,3 +302,11 @@ A guarded, disposable clone a stranger walk runs in; it cannot push.
 <a id="Sepose"></a>**Sepose**
 
 Moving a prior working directory aside to a timestamped sibling instead of deleting it.
+
+<a id="Agora"></a>**Agora**
+
+The real world: the public repository, the real [Narthex](#Narthex) and the `rbthdr_` working directories; what is shown here is disclosed.
+
+<a id="Palaestra"></a>**Palaestra**
+
+The practice world: a private stand-in for the public repository, its own [Narthex](#Narthex) and the `palaestra_` working directories; nothing shown here is public.

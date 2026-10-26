@@ -2514,6 +2514,33 @@ pub const RBTGEB_TERRIER_REHEARSE_NOMINALIZATION_VERSAL: &str = rbtgeb_terrier_r
 macro_rules! rbtgeb_terrier_rehearse_nominalization_lettrine { () => { "Rehearsal" }; }
 pub(crate) use rbtgeb_terrier_rehearse_nominalization_lettrine;
 pub const RBTGEB_TERRIER_REHEARSE_NOMINALIZATION_LETTRINE: &str = rbtgeb_terrier_rehearse_nominalization_lettrine!();
+macro_rules! rbtgeb_agora_base { () => { "agora" }; }
+pub(crate) use rbtgeb_agora_base;
+pub const RBTGEB_AGORA_BASE: &str = rbtgeb_agora_base!();
+macro_rules! rbtgeb_agora_base_versal { () => { "AGORA" }; }
+pub(crate) use rbtgeb_agora_base_versal;
+pub const RBTGEB_AGORA_BASE_VERSAL: &str = rbtgeb_agora_base_versal!();
+macro_rules! rbtgeb_agora_base_lettrine { () => { "Agora" }; }
+pub(crate) use rbtgeb_agora_base_lettrine;
+pub const RBTGEB_AGORA_BASE_LETTRINE: &str = rbtgeb_agora_base_lettrine!();
+macro_rules! rbtgeb_agora_plural { () => { "agorae" }; }
+pub(crate) use rbtgeb_agora_plural;
+pub const RBTGEB_AGORA_PLURAL: &str = rbtgeb_agora_plural!();
+macro_rules! rbtgeb_agora_plural_versal { () => { "AGORAE" }; }
+pub(crate) use rbtgeb_agora_plural_versal;
+pub const RBTGEB_AGORA_PLURAL_VERSAL: &str = rbtgeb_agora_plural_versal!();
+macro_rules! rbtgeb_agora_plural_lettrine { () => { "Agorae" }; }
+pub(crate) use rbtgeb_agora_plural_lettrine;
+pub const RBTGEB_AGORA_PLURAL_LETTRINE: &str = rbtgeb_agora_plural_lettrine!();
+macro_rules! rbtgeb_agora_possessive { () => { "agora's" }; }
+pub(crate) use rbtgeb_agora_possessive;
+pub const RBTGEB_AGORA_POSSESSIVE: &str = rbtgeb_agora_possessive!();
+macro_rules! rbtgeb_agora_possessive_versal { () => { "AGORA'S" }; }
+pub(crate) use rbtgeb_agora_possessive_versal;
+pub const RBTGEB_AGORA_POSSESSIVE_VERSAL: &str = rbtgeb_agora_possessive_versal!();
+macro_rules! rbtgeb_agora_possessive_lettrine { () => { "Agora's" }; }
+pub(crate) use rbtgeb_agora_possessive_lettrine;
+pub const RBTGEB_AGORA_POSSESSIVE_LETTRINE: &str = rbtgeb_agora_possessive_lettrine!();
 macro_rules! rbtgeb_cachet_base { () => { "cachet" }; }
 pub(crate) use rbtgeb_cachet_base;
 pub const RBTGEB_CACHET_BASE: &str = rbtgeb_cachet_base!();
@@ -2748,6 +2775,33 @@ pub const RBTGEB_OSTEND_NOMINALIZATION_VERSAL: &str = rbtgeb_ostend_nominalizati
 macro_rules! rbtgeb_ostend_nominalization_lettrine { () => { "Ostension" }; }
 pub(crate) use rbtgeb_ostend_nominalization_lettrine;
 pub const RBTGEB_OSTEND_NOMINALIZATION_LETTRINE: &str = rbtgeb_ostend_nominalization_lettrine!();
+macro_rules! rbtgeb_palaestra_base { () => { "palaestra" }; }
+pub(crate) use rbtgeb_palaestra_base;
+pub const RBTGEB_PALAESTRA_BASE: &str = rbtgeb_palaestra_base!();
+macro_rules! rbtgeb_palaestra_base_versal { () => { "PALAESTRA" }; }
+pub(crate) use rbtgeb_palaestra_base_versal;
+pub const RBTGEB_PALAESTRA_BASE_VERSAL: &str = rbtgeb_palaestra_base_versal!();
+macro_rules! rbtgeb_palaestra_base_lettrine { () => { "Palaestra" }; }
+pub(crate) use rbtgeb_palaestra_base_lettrine;
+pub const RBTGEB_PALAESTRA_BASE_LETTRINE: &str = rbtgeb_palaestra_base_lettrine!();
+macro_rules! rbtgeb_palaestra_plural { () => { "palaestrae" }; }
+pub(crate) use rbtgeb_palaestra_plural;
+pub const RBTGEB_PALAESTRA_PLURAL: &str = rbtgeb_palaestra_plural!();
+macro_rules! rbtgeb_palaestra_plural_versal { () => { "PALAESTRAE" }; }
+pub(crate) use rbtgeb_palaestra_plural_versal;
+pub const RBTGEB_PALAESTRA_PLURAL_VERSAL: &str = rbtgeb_palaestra_plural_versal!();
+macro_rules! rbtgeb_palaestra_plural_lettrine { () => { "Palaestrae" }; }
+pub(crate) use rbtgeb_palaestra_plural_lettrine;
+pub const RBTGEB_PALAESTRA_PLURAL_LETTRINE: &str = rbtgeb_palaestra_plural_lettrine!();
+macro_rules! rbtgeb_palaestra_possessive { () => { "palaestra's" }; }
+pub(crate) use rbtgeb_palaestra_possessive;
+pub const RBTGEB_PALAESTRA_POSSESSIVE: &str = rbtgeb_palaestra_possessive!();
+macro_rules! rbtgeb_palaestra_possessive_versal { () => { "PALAESTRA'S" }; }
+pub(crate) use rbtgeb_palaestra_possessive_versal;
+pub const RBTGEB_PALAESTRA_POSSESSIVE_VERSAL: &str = rbtgeb_palaestra_possessive_versal!();
+macro_rules! rbtgeb_palaestra_possessive_lettrine { () => { "Palaestra's" }; }
+pub(crate) use rbtgeb_palaestra_possessive_lettrine;
+pub const RBTGEB_PALAESTRA_POSSESSIVE_LETTRINE: &str = rbtgeb_palaestra_possessive_lettrine!();
 macro_rules! rbtgeb_regulus_base { () => { "regulus" }; }
 pub(crate) use rbtgeb_regulus_base;
 pub const RBTGEB_REGULUS_BASE: &str = rbtgeb_regulus_base!();
