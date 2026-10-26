@@ -1645,7 +1645,7 @@ const RBTCHF_KC_SCRATCH_DIR: &str = "scratch";
 const RBTCHF_KC_EDIT_LINE: &str = "\n# edited\n";
 
 /// Marker echoed after the gate returns, so an early exit cannot read as current.
-const RBTCHF_KC_RETURNED_MARKER: &str = "zqmarker-gate-returned";
+const RBTCHF_KC_RETURNED_MARKER: &str = "zqmarker-returned-intact";
 
 /// Stale-pin fragment asserted on the gate's refusal. Mirror:
 /// rbob_bottle.sh `zrbob_kludge_currency_gate` refusal text — same literal.
