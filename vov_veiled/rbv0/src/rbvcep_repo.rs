@@ -15,14 +15,9 @@ use std::path::{Path, PathBuf};
 
 use crate::rbvcer_run;
 
-/// The fixed regulus parent directory, a sibling of the maintainer repo. Not
-/// dated (unlike RELEASE.md's operator-hand `rbm_regulus_{date}_{try}`): essai
-/// runs the lap repeatedly at one conventional location and seposes any prior,
-/// so the location is memorable and the disposal is safe. Expede builds
-/// the clone one level down, at {parent}/{RBVCEP_REGULUS_SUBDIR}.
-/// A conserved spelling, declared in the cosmology's cadaster: a later run
-/// finds an earlier run's location by these exact characters.
-pub const RBVCEP_REGULUS_DIRNAME: &str = "rbthdr_regulus";
+// The fixed regulus parent and freshness-scratch directories are the elected
+// world's (rbvcew_world bundle: regulus_dirname, freshness_dirname), conserved
+// spellings declared in the cosmology's cadaster; none is spelled here.
 
 /// The clone subdir the cut creates beneath its target dir (rbvcex_expede
 /// builds there; the lap and the temenos stage find what it built through this
@@ -35,14 +30,6 @@ pub const RBVCEP_STATION_SUBDIR: &str = "station-files";
 pub const RBVCEP_STATION_FILE: &str = "burs.env";
 pub const RBVCEP_SECRETS_SUBDIR: &str = "secrets";
 pub const RBVCEP_LOGS_SUBDIR: &str = "logs-buk";
-
-/// The fixed parent directory for the freshness matcher's scratch re-cut
-/// (RBSHD step 2 / RBSHO step 2, RBSHC single-matcher rule), a sibling of the
-/// maintainer repo distinct from RBVCEP_REGULUS_DIRNAME so the freshness
-/// check can never collide with, or dispose of, the standing regulus it is
-/// comparing against.
-/// A conserved spelling, declared in the cosmology's cadaster.
-pub const RBVCEP_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
 /// non-absolute — every derived path anchors on it, and the seposition guards

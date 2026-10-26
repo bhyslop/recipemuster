@@ -16,17 +16,22 @@
 // module re-verifies by remote read after — no `git push` to any real remote
 // lives in this file.
 //
-// Rehearse proves the reversible stages against the real private narthex:
-// it skips credential preflight and the gauntlet, and grants no cachet.
+// The docimasy conducts in the world its one argument elects (RBSHC "The
+// election"). In the real world every step runs. In the practice world the
+// credential preflight and the gauntlet stage are skipped — their cost an hour
+// and two payor projects a round — and the cachet granted records the
+// practice world, so it admits a showing there alone.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use crate::rbvcet_cachet;
+use crate::rbvcew_world;
 use crate::rbvcex_expede;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvgeb_breviary;
 
 /// Tabtarget colophon prefixes this command sequences, on the MAINTAINER
 /// tree — credential preflight and the gauntlet ladder are host/session-level
@@ -40,25 +45,30 @@ const RBVCCD_COL_MARSHAL_ZERO: &str = "rbw-MZ.";
 pub(crate) const RBVCCD_COL_SUITE: &str = "rbw-ts.";
 const RBVCCD_SUITE_GAUNTLET: &str = "gauntlet";
 
+/// The confirmation marshal zero is handed: docimasy's own prompt before the
+/// gauntlet stage stands as the operator's one answer, so the worker's typed
+/// gate is skipped through the stream's env, as essai's feign call does
+/// (RBSHD "Run the gauntlet stage").
+const RBVCCD_ENV_CONFIRM: &str = "BURE_CONFIRM";
+const RBVCCD_CONFIRM_SKIP: &str = "skip";
+
 /// The `tt/` subdirectory holding tabtargets, relative to a repo root.
 pub(crate) const RBVCCD_TT_SUBDIR: &str = "tt";
 
-/// Conduct the docimasy. `rehearse` proves the reversible stages (narthex
-/// gate, freshness, preview) against the real private narthex, skipping
-/// credential preflight, the gauntlet, and the cachet grant. Fatal on any
-/// deficit; ExitCode::SUCCESS only when the standing regulus is previewed,
-/// and — outside rehearse — the gauntlet ran green and a cachet stands.
-pub fn rbvccd_docimasy_conduct(rehearse: bool) -> ExitCode {
+/// Conduct the docimasy in the elected world. Fatal on any deficit;
+/// ExitCode::SUCCESS only when the standing regulus is previewed on the
+/// world's narthex, the gauntlet ran green (in the real world alone), and a
+/// cachet of that world stands.
+pub fn rbvccd_docimasy_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
+    rbvcel_log::rbvcel_elect(world);
+    let bundle = rbvcew_world::rbvcew_bundle(world);
     rbvcel_log::rbvcel_section("Hierophant Docimasy — the reveal's reversible proving act (RBSHD)");
-    if rehearse {
-        rbvcel_log::rbvcel_line("REHEARSAL — reversible stages only: no credential spend, no gauntlet, no cachet granted.");
-    }
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
     rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
 
-    let regulus_parent = parent.join(rbvcep_repo::RBVCEP_REGULUS_DIRNAME);
+    let regulus_parent = parent.join(bundle.regulus_dirname);
     let regulus_clone = regulus_parent.join(rbvcep_repo::RBVCEP_REGULUS_SUBDIR);
     if !regulus_clone.is_dir() {
         crate::rbvcel_fatal!(
@@ -69,24 +79,41 @@ pub fn rbvccd_docimasy_conduct(rehearse: bool) -> ExitCode {
     let regulus_tip = rbvcep_repo::rbvcep_commit_sha(&regulus_clone, &top);
     rbvcel_log::rbvcel_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
 
-    zrbvccd_gate_narthex(&top, &regulus_tip);
-    rbvcex_expede::rbvcex_assert_fresh(&top, &parent, &regulus_clone);
-    zrbvccd_preview(&top, &regulus_clone, &regulus_tip);
+    zrbvccd_gate_narthex(&top, &regulus_tip, world);
+    rbvcex_expede::rbvcex_assert_fresh(&top, &parent, &regulus_clone, world);
+    zrbvccd_preview(&top, &regulus_clone, &regulus_tip, bundle);
 
-    if rehearse {
-        rbvcel_log::rbvcel_blank();
-        rbvcel_log::rbvcel_success("Docimasy rehearsal complete — narthex gated, freshness proven, preview stands. No cachet granted.");
-        return ExitCode::SUCCESS;
+    match world {
+        rbvcew_world::rbvcew_World::Agora => {
+            zrbvccd_credential_preflight(&top);
+            zrbvccd_gauntlet_stage(&top);
+        }
+        rbvcew_world::rbvcew_World::Palaestra => {
+            rbvcel_log::rbvcel_blank();
+            rbvcel_log::rbvcel_warn(&format!(
+                "In the {} the credential preflight and the gauntlet stage are skipped; the {} written below admits a showing in the {} alone.",
+                rbvcew_world::rbvcew_word(world),
+                rbvgeb_breviary::RBVGEB_CACHET_BASE,
+                rbvcew_world::rbvcew_word(world)
+            ));
+        }
     }
 
-    zrbvccd_credential_preflight(&top);
-    zrbvccd_gauntlet_stage(&top);
-
     rbvcel_log::rbvcel_section("Grant the cachet (RBSHD grant step)");
-    rbvcet_cachet::rbvcet_grant(&regulus_parent, &regulus_clone, &top);
+    rbvcet_cachet::rbvcet_grant(&regulus_parent, &regulus_clone, &top, world);
 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Hand-off: the reveal's irreversible act is now admissible — run ostend.");
+    if world == rbvcew_world::rbvcew_World::Palaestra {
+        rbvcel_log::rbvcel_success(&format!(
+            "{} complete in the {} — {} previewed, practice {} in hand (RBSHD completion).",
+            rbvgeb_breviary::RBVGEB_DOCIMASY_BASE_LETTRINE,
+            rbvcew_world::rbvcew_word(world),
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            rbvgeb_breviary::RBVGEB_CACHET_BASE
+        ));
+        return ExitCode::SUCCESS;
+    }
     rbvcel_log::rbvcel_success("Docimasy complete — regulus previewed, gauntlet green, cachet granted (RBSHD completion).");
 
     ExitCode::SUCCESS
@@ -94,12 +121,13 @@ pub fn rbvccd_docimasy_conduct(rehearse: bool) -> ExitCode {
 
 // ── Step 1: gate the narthex ─────────────────────────────
 
-fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str) {
+fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str, world: rbvcew_world::rbvcew_World) {
     rbvcel_log::rbvcel_section("Gate the narthex (RBSHD step 1)");
 
-    rbvcex_expede::rbvcex_assert_narthex_private(top);
+    rbvcex_expede::rbvcex_assert_narthex_private(top, world);
 
-    let refs = rbvcep_repo::rbvcep_ls_remote(rbvcex_expede::RBVCEX_NARTHEX_URL, top);
+    let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
+    let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
     let branch_ref = format!("refs/heads/{}", rbvcex_expede::RBVCEX_REGULUS_BRANCH);
     let fresh = refs.is_empty()
         || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip);
@@ -118,12 +146,13 @@ fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str) {
 
 // ── Step 3: preview into the narthex (reversible) ────────
 
-fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
+fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Preview into the narthex (RBSHD step 3)");
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
+    let narthex_url = bundle.narthex_url;
 
-    let refs = rbvcep_repo::rbvcep_ls_remote(rbvcex_expede::RBVCEX_NARTHEX_URL, top);
+    let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
     let already = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if already {
         rbvcel_log::rbvcel_line("narthex already previews this regulus tip — the preview line is not re-typed");
@@ -134,11 +163,11 @@ fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Preview push line — type this yourself:");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&format!("        git -C {} push {} {}:{}", clone, rbvcex_expede::RBVCEX_NARTHEX_URL, branch, branch));
+    rbvcel_log::rbvcel_raw(&format!("        git -C {} push {} {}:{}", clone, narthex_url, branch, branch));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_confirm("pushed the preview line above?");
 
-    let refs = rbvcep_repo::rbvcep_ls_remote(rbvcex_expede::RBVCEX_NARTHEX_URL, top);
+    let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
     let landed = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !landed {
         crate::rbvcel_fatal!(
@@ -149,7 +178,7 @@ fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
     rbvcel_log::rbvcel_line("narthex previews the regulus: tip verified by remote read");
 }
 
-// ── Step 4: credential preflight (skipped under rehearse) ───
+// ── Step 4: credential preflight (the real world alone) ───
 
 fn zrbvccd_credential_preflight(top: &Path) {
     rbvcel_log::rbvcel_section("Credential preflight (RBSHD step 4)");
@@ -164,7 +193,7 @@ fn zrbvccd_credential_preflight(top: &Path) {
     rbvcel_log::rbvcel_line("payor credential live, sederunt fresh — the gauntlet's build verbs are runway-gated");
 }
 
-// ── Step 5: run the gauntlet stage (skipped under rehearse) ─
+// ── Step 5: run the gauntlet stage (the real world alone) ─
 
 fn zrbvccd_gauntlet_stage(top: &Path) {
     rbvcel_log::rbvcel_section("Run the gauntlet stage (RBSHD step 5)");
@@ -177,8 +206,13 @@ fn zrbvccd_gauntlet_stage(top: &Path) {
         .and_then(|n| n.to_str())
         .unwrap_or_else(|| crate::rbvcel_fatal!("cannot read the maintainer tree's basename: {}", top.display()));
 
+    // The prompt above is the operator's one answer: marshal zero is handed it,
+    // so its own typed gate does not stop the unattended hour a second time.
     let zero = zrbvccd_find_tt(&tt, RBVCCD_COL_MARSHAL_ZERO, None);
-    zrbvccd_require(rbvcer_run::rbvcer_stream(&zero, &[basename], top, &[]), "marshal zero");
+    zrbvccd_require(
+        rbvcer_run::rbvcer_stream(&zero, &[basename], top, &[(RBVCCD_ENV_CONFIRM, RBVCCD_CONFIRM_SKIP)]),
+        "marshal zero",
+    );
 
     let suite = zrbvccd_find_tt(&tt, RBVCCD_COL_SUITE, Some(RBVCCD_SUITE_GAUNTLET));
     zrbvccd_require(rbvcer_run::rbvcer_stream(&suite, &[], top, &[]), "gauntlet suite");

@@ -13,6 +13,12 @@
 # VEILED, withheld from delivery. Dispatched by the hierophant's own veiled
 # workbench (rbvw_workbench.sh) via its own zipper (rbvz_zipper.sh) — never the
 # shipped rbw workbench, so no shipped manifest references the veiled crate.
+#
+# The four ceremony commands each conduct in the world their tabtarget's
+# imprint names (BUZ_FOLIO, the imprint channel). The folio is handed to the
+# binary as it stands, empty included, with any trailing argument behind it:
+# the binary alone judges the world and refuses a missing, unknown or extra
+# one, so no world is defaulted here.
 
 set -euo pipefail
 
@@ -90,35 +96,25 @@ rbve_essai() {
 
   zrbve_heel
   buc_step "Conducting essai"
-  "${z_rbve_binary}" essai
+  "${z_rbve_binary}" essai "${BUZ_FOLIO:-}" "$@"
 }
 
 rbve_docimasy() {
   buc_doc_brief "Docimasy — the reveal's reversible proving act (narthex gate, freshness, preview, credential preflight, gauntlet; grants the cachet)"
-  buc_doc_oparm "rehearse" "Prove the reversible stages only: skip credential preflight, the gauntlet, and the cachet grant"
   buc_doc_shown || return 0
 
   zrbve_heel
   buc_step "Conducting docimasy"
-  if [ -n "${BUZ_FOLIO:-}" ]; then
-    "${z_rbve_binary}" docimasy "${BUZ_FOLIO}"
-  else
-    "${z_rbve_binary}" docimasy
-  fi
+  "${z_rbve_binary}" docimasy "${BUZ_FOLIO:-}" "$@"
 }
 
 rbve_ostend() {
   buc_doc_brief "Ostend — the reveal's irreversible showing (re-asserted ground, file-list eyes, kerygma, promotion)"
-  buc_doc_oparm "rehearse" "Prove the reversible stages only: stop before the kerygma line"
   buc_doc_shown || return 0
 
   zrbve_heel
   buc_step "Conducting ostend"
-  if [ -n "${BUZ_FOLIO:-}" ]; then
-    "${z_rbve_binary}" ostend "${BUZ_FOLIO}"
-  else
-    "${z_rbve_binary}" ostend
-  fi
+  "${z_rbve_binary}" ostend "${BUZ_FOLIO:-}" "$@"
 }
 
 rbve_harbinger() {
@@ -127,7 +123,7 @@ rbve_harbinger() {
 
   zrbve_heel
   buc_step "Conducting harbinger"
-  "${z_rbve_binary}" harbinger
+  "${z_rbve_binary}" harbinger "${BUZ_FOLIO:-}" "$@"
 }
 
 rbve_test() {

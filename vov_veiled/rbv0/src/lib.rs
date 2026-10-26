@@ -10,7 +10,8 @@
 // tests (RBSHC). It owns four commands split on the one load-bearing seam,
 // reversible vs irreversible: essai (the repair lap), docimasy (the reveal's
 // reversible proving act), ostend (the reveal's irreversible showing), and
-// harbinger (the stranger walk). This crate is withheld from delivery by
+// harbinger (the stranger walk), each conducting in the world its one argument
+// elects (rbvcew_world). This crate is withheld from delivery by
 // directory construction; it may therefore cite the closed spec
 // (RBSHE/RBSHC/RBSHD/RBSHO/RBSHH, rbshc_ quoins) directly, which shipped
 // source may never do.
@@ -19,6 +20,7 @@
 #![deny(warnings)]
 
 pub mod rbvgeb_breviary;
+pub mod rbvcew_world;
 pub mod rbvcel_log;
 pub mod rbvcer_run;
 pub mod rbvcep_repo;
@@ -38,3 +40,5 @@ mod rbvtem_perambulation;
 mod rbvteu_loupe;
 #[cfg(test)]
 mod rbvtet_cachet;
+#[cfg(test)]
+mod rbvtew_world;

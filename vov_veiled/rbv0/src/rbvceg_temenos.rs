@@ -28,13 +28,11 @@ use bkp::bkprs_scrivener::bkprs_program_write;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvcew_world;
 
-/// The temenos's parent-relative dirname, a fixed basename beside the maintainer
-/// repo. Shared by essai and harbinger — they never stand simultaneously, so one
-/// location, any prior seposed.
-/// A conserved spelling, declared in the cosmology's cadaster, and the same
-/// directory the bash harbinger stands its rig in.
-pub const RBVCEG_TEMENOS_DIRNAME: &str = "rbthdr_coldwalk";
+// The temenos's parent-relative dirname is the elected world's (rbvcew_world
+// bundle: temenos_dirname), a conserved spelling declared in the cosmology's
+// cadaster; it is not spelled here.
 
 /// The clone lives one level down; the findings memo is a sibling of it under
 /// the temenos dir, so discarding the clone leaves the memo standing.
@@ -116,17 +114,24 @@ pub struct rbvceg_Temenos {
 }
 
 /// Stand up the guarded coldwalk temenos from `clone_source` (a local regulus path
-/// or a public URL). Narrates each act. Returns the standing artifacts; the
+/// or a public URL), in the elected world's temenos directory. Narrates each
+/// act. Returns the standing artifacts; the
 /// launch line and stranger prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).
-pub fn rbvceg_stand_up(parent: &Path, top: &Path, clone_source: &str, cwd: &Path) -> rbvceg_Temenos {
-    let temenos_dir = parent.join(RBVCEG_TEMENOS_DIRNAME);
+pub fn rbvceg_stand_up(
+    parent: &Path,
+    top: &Path,
+    clone_source: &str,
+    cwd: &Path,
+    bundle: &rbvcew_world::rbvcew_Bundle,
+) -> rbvceg_Temenos {
+    let temenos_dir = parent.join(bundle.temenos_dirname);
     let clone_dir = temenos_dir.join(RBVCEG_TEMENOS_CLONE_SUBDIR);
 
     // Guard before anything moves: the temenos dir is the fixed name and not the repo
     // root. The disposal is a rename, so a wrong guard destroys nothing — the
     // guard makes a wrong move impossible in the first place.
-    rbvcep_repo::rbvcep_guard_disposable(&temenos_dir, RBVCEG_TEMENOS_DIRNAME, top);
+    rbvcep_repo::rbvcep_guard_disposable(&temenos_dir, bundle.temenos_dirname, top);
 
     let walk_date = rbvcer_run::rbvcer_datestamp(cwd);
     let memo_path = temenos_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_TEMENOS_MEMO_SLUG));

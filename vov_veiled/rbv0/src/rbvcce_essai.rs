@@ -15,6 +15,10 @@
 // `//axhos_step` blocks in order; the regulus battery is RELEASE.md step 5,
 // which essai automates. A finding at any red means RE-CUT, never patch
 // forward — the accumulated-state bug class the ceremony exists to catch.
+//
+// The lap conducts in the world its one argument elects (RBSHC "The
+// election"): the base it gates and cuts atop, the regulus directory, and the
+// temenos directory are the elected bundle's. Nothing else differs.
 
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
@@ -28,6 +32,7 @@ use crate::rbvceu_loupe;
 use crate::rbvcep_repo;
 use crate::rbvceg_temenos;
 use crate::rbvcer_run;
+use crate::rbvcew_world;
 
 // ── Worker location: colophons and imprints ─────────────────
 
@@ -58,9 +63,12 @@ const RBVCCE_FEIGN_TT: &str = "rbw-MF.MarshalFeigns.sh";
 const RBVCCE_STATION_USER: &str = "regulus";
 const RBVCCE_STATION_TINCTURE: &str = "cnd";
 
-/// Conduct one essai lap. Fatal (exit 1) on any deficit or red; ExitCode::SUCCESS
-/// only when a walk-ready temenos stands beside a proven regulus.
-pub fn rbvcce_essai_conduct() -> ExitCode {
+/// Conduct one essai lap in the elected world. Fatal (exit 1) on any deficit or
+/// red; ExitCode::SUCCESS only when a walk-ready temenos stands beside a
+/// proven regulus.
+pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
+    rbvcel_log::rbvcel_elect(world);
+    let bundle = rbvcew_world::rbvcew_bundle(world);
     rbvcel_log::rbvcel_section("Hierophant Essai — the reversible repair lap (RBSHE)");
     rbvcel_log::rbvcel_line("Gate, cut, prove, temenos — zero remote acts. A finding means re-cut.");
 
@@ -68,16 +76,16 @@ pub fn rbvcce_essai_conduct() -> ExitCode {
     let parent = rbvcep_repo::rbvcep_parent(&top);
     rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
 
-    zrbvcce_gate(&top);
+    zrbvcce_gate(&top, bundle);
     zrbvcce_precut_assays(&top);
-    let regulus_clone = zrbvcce_cut(&top, &parent);
-    zrbvcce_prove(&parent, &regulus_clone, &top);
+    let regulus_clone = zrbvcce_cut(&top, &parent, world);
+    zrbvcce_prove(&parent, &regulus_clone, &top, bundle);
 
     // Steps 5 & 6 — stand up the temenos from the LOCAL regulus, show the fidelity
     // gap loud, hand off the walk, and state the two standing artifacts.
     rbvcel_log::rbvcel_section("Stand up the coldwalk temenos (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
-    let temenos = rbvceg_temenos::rbvceg_stand_up(&parent, &top, &clone_source, &top);
+    let temenos = rbvceg_temenos::rbvceg_stand_up(&parent, &top, &clone_source, &top, bundle);
 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this temenos is a LOCAL proxy:");
@@ -99,7 +107,7 @@ pub fn rbvcce_essai_conduct() -> ExitCode {
 
 // ── Step 1: gate the maintainer tree and the base ───────────
 
-fn zrbvcce_gate(top: &Path) {
+fn zrbvcce_gate(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Gate the maintainer tree and the base (RBSHE step 1)");
 
     // Clean, fully-pushed working tree. The regulus is cut from COMMITTED
@@ -135,11 +143,11 @@ fn zrbvcce_gate(top: &Path) {
     }
     rbvcel_log::rbvcel_line("working tree clean and fully pushed");
 
-    // The base — read-only by construction. The gate and the cut share the
-    // crate's own constants (rbvcex_expede), so this preflight can never
-    // drift from the cut-time refusal.
-    let base_remote = rbvcex_expede::RBVCEX_BASE_REMOTE;
-    let push_sentinel = rbvcex_expede::RBVCEX_BASE_PUSH_DISABLED;
+    // The base — read-only by construction. The gate and the cut read the one
+    // elected bundle (rbvcew_world), so this preflight can never drift from
+    // the cut-time refusal.
+    let base_remote = bundle.base_remote;
+    let push_sentinel = bundle.base_push_disabled;
 
     let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", base_remote], top);
     if fetch.code != 0 {
@@ -192,12 +200,13 @@ fn zrbvcce_precut_assays(top: &Path) {
 
 // ── Step 3: cut the regulus — the absorbed cut, in-process ─
 
-/// Returns the regulus clone path ({parent}/rbthdr_regulus/regulus).
-fn zrbvcce_cut(top: &Path, parent: &Path) -> PathBuf {
+/// Returns the regulus clone path ({parent}/{the world's regulus dirname}/regulus).
+fn zrbvcce_cut(top: &Path, parent: &Path, world: rbvcew_world::rbvcew_World) -> PathBuf {
     rbvcel_log::rbvcel_section("Cut the regulus (RBSHE step 3)");
 
-    let regulus_parent = parent.join(rbvcep_repo::RBVCEP_REGULUS_DIRNAME);
-    rbvcep_repo::rbvcep_guard_disposable(&regulus_parent, rbvcep_repo::RBVCEP_REGULUS_DIRNAME, top);
+    let regulus_dirname = rbvcew_world::rbvcew_bundle(world).regulus_dirname;
+    let regulus_parent = parent.join(regulus_dirname);
+    rbvcep_repo::rbvcep_guard_disposable(&regulus_parent, regulus_dirname, top);
     rbvcel_log::rbvcel_step(&format!("Disposing any prior regulus: {}", regulus_parent.display()));
     if !rbvcep_repo::rbvcep_sepose(&regulus_parent, top) {
         rbvcel_log::rbvcel_line("no prior regulus to sepose");
@@ -210,7 +219,7 @@ fn zrbvcce_cut(top: &Path, parent: &Path) -> PathBuf {
     // judged in-process by the one matcher. Fatal on any deficit; a return
     // is the verdict.
     rbvcel_log::rbvcel_step(&format!("Expediting the regulus into {}", regulus_parent.display()));
-    let regulus_clone = rbvcex_expede::rbvcex_cut(top, &regulus_parent);
+    let regulus_clone = rbvcex_expede::rbvcex_cut(top, &regulus_parent, world);
 
     rbvcel_log::rbvcel_line(&format!("regulus cut: {}", regulus_clone.display()));
     regulus_clone
@@ -218,9 +227,9 @@ fn zrbvcce_cut(top: &Path, parent: &Path) -> PathBuf {
 
 // ── Step 4: prove the regulus (the battery, in order) ─────
 
-fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path) {
+fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Prove the regulus — the battery (RBSHE step 4)");
-    let regulus_parent = parent.join(rbvcep_repo::RBVCEP_REGULUS_DIRNAME);
+    let regulus_parent = parent.join(bundle.regulus_dirname);
     let tt = regulus_clone.join(RBVCCD_TT_SUBDIR);
 
     zrbvcce_write_station(&regulus_parent);

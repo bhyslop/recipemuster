@@ -6,24 +6,29 @@
 //
 // RBVM Hierophant — binary entry point.
 //
-// Subcommands, one per ceremony (RBSHC "The command seam"):
-//   rbv essai              — the reversible repair lap (RBSHE).
-//   rbv docimasy [rehearse] — the reveal's reversible proving act (RBSHD).
-//   rbv ostend   [rehearse] — the reveal's irreversible showing (RBSHO).
-//   rbv harbinger          — the stranger walk against promoted public main (RBSHH).
+// Subcommands, one per ceremony (RBSHC "The command seam"), each taking the
+// world it conducts in as its one argument, with no default (RBSHC "The
+// election" — the agora or the palaestra):
+//   rbv essai     <world> — the reversible repair lap (RBSHE).
+//   rbv docimasy  <world> — the reveal's reversible proving act (RBSHD).
+//   rbv ostend    <world> — the reveal's irreversible showing (RBSHO).
+//   rbv harbinger <world> — the stranger walk against promoted public main (RBSHH).
 //
-// docimasy and ostend take an optional trailing "rehearse" token, proving
-// their reversible stages against the real private narthex without
-// spending credential/gauntlet cost or crossing the irreversible line.
+// The world is judged by the library's own parser (rbvcew_world), where the
+// self-proofs reach it; this file only hands it argv and fatals on a refusal.
 //
-// Launched only via the withheld tabtargets (tt/rbvw-*); a direct invocation
-// still resolves the working repository from cwd, which the launcher normalizes
-// to the maintainer repo root.
+// Launched only via the withheld tabtargets (tt/rbvw-*, one per command and
+// world, the world riding the imprint); a direct invocation still resolves
+// the working repository from cwd, which the launcher normalizes to the
+// maintainer repo root.
 
 #![allow(non_camel_case_types)]
 #![deny(warnings)]
 
 use std::process::ExitCode;
+
+use rbv::rbvcew_world;
+use rbv::rbvgeb_breviary;
 
 /// The essai subcommand token.
 const RBVM_CMD_ESSAI: &str = "essai";
@@ -37,28 +42,14 @@ const RBVM_CMD_OSTEND: &str = "ostend";
 /// The harbinger subcommand token.
 const RBVM_CMD_HARBINGER: &str = "harbinger";
 
-/// The optional trailing rehearse-mode token for docimasy and ostend.
-const RBVM_ARG_REHEARSE: &str = "rehearse";
-
-/// Whether argv[2] names the rehearse token — the ceremony's dangerous-seam
-/// mode switch, so unlike the unknown-command match below (which already
-/// rejects loud), this must reject just as loud rather than default toward
-/// real mode. A typo'd or garbled token, or a trailing extra argument, is
-/// fatal, never silently read as "no rehearse" (RCG Interface Contamination
-/// Discipline: reject non-canonical input, never default toward it).
-fn zrbvm_rehearse(command: &str, args: &[String]) -> bool {
-    match args.get(2).map(|s| s.as_str()) {
-        None => false,
-        Some(RBVM_ARG_REHEARSE) if args.get(3).is_none() => true,
-        Some(RBVM_ARG_REHEARSE) => rbv::rbvcel_fatal!(
-            "hierophant {} {}: unexpected extra argument '{}'",
-            command, RBVM_ARG_REHEARSE, args[3]
-        ),
-        Some(other) => rbv::rbvcel_fatal!(
-            "hierophant {}: unrecognized argument '{}' — usage: rbv {} [{}]",
-            command, other, command, RBVM_ARG_REHEARSE
-        ),
-    }
+/// The world argv[2] elects for `command` — the ceremony's dangerous-seam
+/// input. The library's parser refuses a bare invocation, an unknown word and
+/// a trailing extra argument; each refusal is fatal here, never defaulted
+/// toward either world (RCG Interface Contamination Discipline: reject
+/// non-canonical input, never default toward it).
+fn zrbvm_world(command: &str, args: &[String]) -> rbvcew_world::rbvcew_World {
+    let rest = args.get(2..).unwrap_or(&[]);
+    rbvcew_world::rbvcew_elect(command, rest).unwrap_or_else(|e| rbv::rbvcel_fatal!("{}", e))
 }
 
 /// The flag the kennel's election asks a standing binary before it launches or
@@ -89,18 +80,22 @@ fn main() -> ExitCode {
 
     match args.get(1).map(|s| s.as_str()) {
         Some(RBVM_FLAG_EXERGUE) => zrbvm_answer_exergue(),
-        Some(RBVM_CMD_ESSAI) => rbv::rbvcce_essai::rbvcce_essai_conduct(),
-        Some(RBVM_CMD_DOCIMASY) => rbv::rbvccd_docimasy::rbvccd_docimasy_conduct(zrbvm_rehearse(RBVM_CMD_DOCIMASY, &args)),
-        Some(RBVM_CMD_OSTEND) => rbv::rbvcco_ostend::rbvcco_ostend_conduct(zrbvm_rehearse(RBVM_CMD_OSTEND, &args)),
-        Some(RBVM_CMD_HARBINGER) => rbv::rbvcch_harbinger::rbvcch_harbinger_conduct(),
+        Some(RBVM_CMD_ESSAI) => rbv::rbvcce_essai::rbvcce_essai_conduct(zrbvm_world(RBVM_CMD_ESSAI, &args)),
+        Some(RBVM_CMD_DOCIMASY) => rbv::rbvccd_docimasy::rbvccd_docimasy_conduct(zrbvm_world(RBVM_CMD_DOCIMASY, &args)),
+        Some(RBVM_CMD_OSTEND) => rbv::rbvcco_ostend::rbvcco_ostend_conduct(zrbvm_world(RBVM_CMD_OSTEND, &args)),
+        Some(RBVM_CMD_HARBINGER) => rbv::rbvcch_harbinger::rbvcch_harbinger_conduct(zrbvm_world(RBVM_CMD_HARBINGER, &args)),
         Some(other) => rbv::rbvcel_fatal!(
-            "hierophant: unknown command '{}' — usage: rbv {}|{} [{}]|{} [{}]|{}",
-            other, RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_ARG_REHEARSE, RBVM_CMD_OSTEND, RBVM_ARG_REHEARSE, RBVM_CMD_HARBINGER
+            "{}: unknown verb '{}' — usage: rbv {}|{}|{}|{} {}|{}",
+            rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE, other,
+            RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
+            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE
         ),
         None => rbv::rbvcel_fatal!(
-            "hierophant: no command — usage: rbv {}|{} [{}]|{} [{}]|{}\n\
-             launch via the withheld tabtargets: tt/rbvw-e.Essai.sh, tt/rbvw-d.Docimasy.sh, tt/rbvw-o.Ostend.sh, tt/rbvw-h.Harbinger.sh",
-            RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_ARG_REHEARSE, RBVM_CMD_OSTEND, RBVM_ARG_REHEARSE, RBVM_CMD_HARBINGER
+            "{}: no verb — usage: rbv {}|{}|{}|{} {}|{}\n\
+             launch via the withheld colophons rbvw-e, rbvw-d, rbvw-o and rbvw-h, each imprinted with its world",
+            rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE,
+            RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
+            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE
         ),
     }
 }
