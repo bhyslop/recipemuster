@@ -106,6 +106,12 @@ pub struct rbvcew_Bundle {
     pub temenos_dirname: &'static str,
 }
 
+/// The real world's three conserved working-directory names (RBSHC cadaster),
+/// each its own declaration so the spelling the cosmology cites stands seated.
+const RBVCEW_AGORA_REGULUS_DIRNAME: &str = "rbthdr_regulus";
+const RBVCEW_AGORA_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
+const RBVCEW_AGORA_TEMENOS_DIRNAME: &str = "rbthdr_coldwalk";
+
 /// The real world: the live public repository, the standing narthex, and the
 /// conserved rbthdr_ working directories.
 pub const RBVCEW_AGORA: rbvcew_Bundle = rbvcew_Bundle {
@@ -115,9 +121,9 @@ pub const RBVCEW_AGORA: rbvcew_Bundle = rbvcew_Bundle {
     narthex_url: "git@github.com:scaleinv/recipebottle-staging.git",
     narthex_https: "https://github.com/scaleinv/recipebottle-staging",
     harbinger_url: "https://github.com/scaleinv/recipebottle.git",
-    regulus_dirname: "rbthdr_regulus",
-    freshness_dirname: "rbthdr_regulus_freshness",
-    temenos_dirname: "rbthdr_coldwalk",
+    regulus_dirname: RBVCEW_AGORA_REGULUS_DIRNAME,
+    freshness_dirname: RBVCEW_AGORA_FRESHNESS_DIRNAME,
+    temenos_dirname: RBVCEW_AGORA_TEMENOS_DIRNAME,
 };
 
 /// The practice world: a private stand-in for the public repository, seeded
