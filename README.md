@@ -76,7 +76,7 @@ tt/rbw-o.ONBOARDING.sh
 
 Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
 The [Foundry](#Foundry) encompasses [RB Depots](#Depot), [Vessels](#Vessel), and [Hallmark](#Hallmark) tracking.
-Three vessel modes determine how images enter the [Depot](#Depot): conjure (egress-locked build from source with SLSA provenance), bind (digest-pinned upstream mirror), and graft (local push).
+Three vessel modes determine how images enter the [Depot](#Depot): conjure (build from source with SLSA provenance, with or without public egress as each vessel elects), bind (digest-pinned upstream mirror), and graft (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
 The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
