@@ -119,6 +119,9 @@ zrbob_kindle() {
   z_provenance=$(pwd -P) || buc_die_now "Cannot resolve working tree root for provenance"
   readonly ZRBOB_PROVENANCE="${z_provenance}"
 
+  # Temp-file prefix for the currency gate; the gate appends its discriminator.
+  readonly ZRBOB_CURRENCY_PREFIX="${BURD_TEMP_DIR}/zrbob_currency_"
+
   # Container names (for connect and info commands)
   readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-${RBCC_container_sentry}"
   readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-${RBCC_container_pentacle}"
@@ -358,13 +361,13 @@ zrbob_kludge_currency_gate() {
 
   # Resolve before diffing so an unreachable or ambiguous sha refuses in git's
   # own words rather than surfacing as a diff failure.
-  local -r z_verify_file="${BURD_TEMP_DIR}/zrbob_currency_verify_${z_vessel}.txt"
+  local -r z_verify_file="${ZRBOB_CURRENCY_PREFIX}verify_${z_vessel}.txt"
   git rev-parse --verify --quiet "${z_sha}^{commit}" > "${z_verify_file}" 2>&1 \
     || buc_die_now "Kludge hallmark for vessel ${z_vessel} names an unresolvable commit ${z_sha} — see ${z_verify_file}"
 
   local -r z_rbrv_file="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
-  local -r z_dockerfile_file="${BURD_TEMP_DIR}/zrbob_currency_dockerfile_${z_vessel}.txt"
-  local -r z_context_file="${BURD_TEMP_DIR}/zrbob_currency_context_${z_vessel}.txt"
+  local -r z_dockerfile_file="${ZRBOB_CURRENCY_PREFIX}dockerfile_${z_vessel}.txt"
+  local -r z_context_file="${ZRBOB_CURRENCY_PREFIX}context_${z_vessel}.txt"
   local z_dockerfile=""
   local z_context=""
   if test -f "${z_rbrv_file}"; then
@@ -382,7 +385,7 @@ zrbob_kludge_currency_gate() {
   test -z "${z_dockerfile}" || z_pathspec+=("${z_dockerfile}")
   test -z "${z_context}" || z_pathspec+=("${z_context}")
 
-  local -r z_diff_stderr="${BURD_TEMP_DIR}/zrbob_currency_diff_${z_vessel}_stderr.txt"
+  local -r z_diff_stderr="${ZRBOB_CURRENCY_PREFIX}diff_${z_vessel}_stderr.txt"
   local z_diff_status=0
   git diff --quiet "${z_sha}" -- "${z_pathspec[@]}" 2>"${z_diff_stderr}" || z_diff_status=$?
   test "${z_diff_status}" -ne 0 || return 0
