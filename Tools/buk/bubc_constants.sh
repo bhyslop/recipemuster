@@ -98,7 +98,7 @@ readonly BUBC_band_instate=107   # foedus instate rejection (missing/unresolvabl
 # rides the message, never the band. Distinct code — not an alternative of any
 # gate above.
 readonly BUBC_band_clean_tree=108 # clean-tree gate rejection (dirty working tree at a clean-tree-gated operation)
-# Mantle admission: the don's Leg-3 403 (rba_don_capture) is a structural
+# Mantle admission: the don's Leg-3 403 (rbau_don_capture) is a structural
 # admission-deficit Palisade signature, distinct from every gate above — no
 # express-or-chain fact, no regime/enrollment rule, no descry/instate
 # cardinality op. One gate: a citizen not brevetted onto the wielded mantle.

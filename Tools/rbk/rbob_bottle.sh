@@ -423,7 +423,7 @@ zrbob_summon_full_hallmark() {
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
@@ -468,7 +468,7 @@ zrbob_vouch_gate_and_summon() {
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"

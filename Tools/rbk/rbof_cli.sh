@@ -62,7 +62,7 @@ zrbof_furnish() {
       source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
       source "${z_rbk_kit_dir}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
       source "${z_rbk_kit_dir}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
-      source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+      source "${z_rbk_kit_dir}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
       source "${z_rbk_kit_dir}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
       source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
       source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
@@ -83,7 +83,7 @@ zrbof_furnish() {
       zrbuh_kindle
       zrbge_kindle
       zrbgi_kindle
-      zrba_kindle
+      zrbau_kindle
       zrbgp_kindle
       ;;
     rbof_instate)

@@ -34,7 +34,7 @@ rbfln_tally() {
 
   buc_step "Authenticating as Retriever"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") \
     || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
@@ -161,7 +161,7 @@ rbfln_rekon_hallmark() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
@@ -223,7 +223,7 @@ rbfln_audit_hallmarks() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
@@ -295,7 +295,7 @@ rbfln_list() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # One enumeration of every package (decoded names, slashes restored, sorted).

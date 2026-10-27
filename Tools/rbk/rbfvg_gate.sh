@@ -42,7 +42,7 @@ rbfvg_vouch_gate() {
   buc_step "Vouch gate: checking ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}:${z_vouch_tag}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "rbfvg_vouch_gate: failed to get Director OAuth token"
 
   local z_vouch_http_code

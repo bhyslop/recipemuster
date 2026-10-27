@@ -2778,7 +2778,7 @@ fn rbtcgp_oauth_payor(dir: &Path) -> rbtcee_Verdict {
 /// Impossible runway demand — above the 12h workforce-session ceiling (43200s),
 /// so ANY live sederunt's remaining runway falls short and the avow reuse gate
 /// must reject. Keeps the negative deterministic without forging cache state:
-/// the demand rides rba_avow's parameterized required-runway seam (the designed
+/// the demand rides rbau_avow's parameterized required-runway seam (the designed
 /// per-operation channel), never a test-only back door.
 const RBTCGP_RUNWAY_IMPOSSIBLE_SEC: &str = "999999";
 
@@ -2825,7 +2825,7 @@ fn zrbtcgp_sederunt_ready_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<()
         Ok(f) => f,
         Err(e) => return Err(rbtcee_Verdict::Fail(format!("{} fact unreadable: {}", RBTGEC_NOUN_SEDERUNT, e))),
     };
-    // The verdict token "live" is espy's (rba_espy_sederunt / RBCC_fact_ext_sederunt).
+    // The verdict token "live" is espy's (rbau_espy_sederunt / RBCC_fact_ext_sederunt).
     if !fact.lines().any(|l| l.trim() == "verdict=live") {
         return Err(rbtcee_Verdict::Fail(format!(
             "no live {} ({}) — open a fresh full-window one with {} (one \

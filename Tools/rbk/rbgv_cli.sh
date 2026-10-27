@@ -55,9 +55,9 @@ rbgv_check_payor() {
 # gates the sederunt's remaining runway then reuses it; under the interactive
 # mechanism a miss rejects in the runway band naming novate (rbw-aN), the one
 # door that signs in; under programmatic a miss acquires (Legs 1+2) and caches
-# the federated token. The probe owns no logic of its own: it is rba_avow's
+# the federated token. The probe owns no logic of its own: it is rbau_avow's
 # reuse-or-refuse, surfaced. The optional argument rides
-# rba_avow's required-runway seam, so the probe can demand a specific runway
+# rbau_avow's required-runway seam, so the probe can demand a specific runway
 # (and a live-but-short sederunt rejects in the runway band, advising novate).
 # Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
 rbgv_check_avowal() {
@@ -77,10 +77,10 @@ rbgv_check_avowal() {
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_avow "${z_required_runway}"
+  rbau_avow "${z_required_runway}"
 
   local zSECRET_token
-  zSECRET_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
+  zSECRET_token=$(zrbau_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
   test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
   buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#zSECRET_token} chars)"
 }
@@ -132,7 +132,7 @@ rbgv_check_mantle() {
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_avow
+  rbau_avow
 
   # Confirm the human avowed as the freehold subject. The cached subject is
   # the decoded oid (best-effort, informational per the accessor): a mismatch
@@ -140,7 +140,7 @@ rbgv_check_mantle() {
   # gate the don; an undecodable subject is skipped with a log note.
   local z_cached_subject=""
   local z_cached_subject_status=0
-  z_cached_subject=$(zrba_sederunt_subject_capture) || z_cached_subject_status=$?
+  z_cached_subject=$(zrbau_sederunt_subject_capture) || z_cached_subject_status=$?
   test "${z_cached_subject_status}" -eq 0 || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
     buc_log_args "Avowed subject not decodable from the ${RBCC_noun_sederunt} cache — skipping the freehold-identity confirmation (informational only)"
@@ -151,7 +151,7 @@ rbgv_check_mantle() {
   fi
 
   buc_step "Don the ${z_polity_mantle} mantle (Leg 3)"
-  # rba_don_capture emits the mantle token on success or returns a code having
+  # rbau_don_capture emits the mantle token on success or returns a code having
   # already logged the admission-deficit / lapsed-sederunt forensic line; the
   # probe surfaces that as its verdict (the accessor owns the diagnosis). The
   # distinguished admission-band return (Leg-3 403) gets its own operator-facing
@@ -161,7 +161,7 @@ rbgv_check_mantle() {
   # only its length is reported.
   local zSECRET_mantle_token
   local z_don_status=0
-  zSECRET_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
+  zSECRET_mantle_token=$(rbau_don_capture "${z_mantle}") || z_don_status=$?
   if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
     buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
@@ -219,7 +219,7 @@ zrbgv_furnish() {
   source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
   source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
-  source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
   source "${z_rbk}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
   source "${z_rbk}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
   source "${z_rbk}/rbgv_probe.sh" || buc_die_now "Failed to source rbgv_probe.sh"
@@ -257,7 +257,7 @@ zrbgv_furnish() {
   zrbgo_kindle
   zrbuh_kindle
   zrbge_kindle
-  zrba_kindle
+  zrbau_kindle
   zrbgi_kindle
   zrbgp_kindle
   zrbgv_kindle
