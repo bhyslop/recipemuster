@@ -51,7 +51,7 @@ zrbfd0_furnish() {
   source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
   source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
   source "${z_rbk_kit_dir}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
-  source "${z_rbk_kit_dir}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk_kit_dir}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
   source "${z_rbk_kit_dir}/rbfh_hygiene.sh" || buc_die_now "Failed to source rbfh_hygiene.sh"
   source "${z_rbk_kit_dir}/rbfd0_director.sh" || buc_die_now "Failed to source rbfd0_director.sh"
   source "${z_rbk_kit_dir}/rbfb_beckon.sh" || buc_die_now "Failed to source rbfb_beckon.sh"
@@ -92,7 +92,7 @@ zrbfd0_furnish() {
   zrbgo_kindle
   zrbuh_kindle
   zrbge_kindle
-  zrba_kindle
+  zrbau_kindle
   zrbfh_kindle
   zrbfd0_kindle
   zrbndb_kindle

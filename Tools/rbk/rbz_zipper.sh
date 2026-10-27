@@ -48,8 +48,8 @@ zrbz_kindle() {
   buz_enroll RBZ_CHECK_PAYOR             "rbw-ap"  "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
   buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     "param1"  "Check federated access — reuse a live sederunt against the RBRF trust, or refuse naming rbw-aN when none is live (optional arg: required runway seconds)"
   buz_enroll RBZ_CHECK_MANTLE            "rbw-am"  "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
-  buz_enroll RBZ_NOVATE_SEDERUNT          "rbw-aN"  "rba_cli.sh" "rba_novate_sederunt"       ""        "Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the one way to sign in, and the runway gate's named remedy)"
-  buz_enroll RBZ_ESPY_SEDERUNT            "rbw-as"  "rba_cli.sh" "rba_espy_sederunt"         ""        "Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
+  buz_enroll RBZ_NOVATE_SEDERUNT          "rbw-aN"  "rbau_cli.sh" "rbau_novate_sederunt"       ""        "Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the one way to sign in, and the runway gate's named remedy)"
+  buz_enroll RBZ_ESPY_SEDERUNT            "rbw-as"  "rbau_cli.sh" "rbau_espy_sederunt"         ""        "Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"

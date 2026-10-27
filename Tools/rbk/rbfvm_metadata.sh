@@ -46,7 +46,7 @@ zrbfvm_graft_metadata_submit() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Constructing combined about+vouch Cloud Build resource"

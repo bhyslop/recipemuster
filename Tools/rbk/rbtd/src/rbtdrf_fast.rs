@@ -1229,7 +1229,7 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
 /// verb (rbw-iJ, registry delete) invoked from a reveille-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtcei_tabtarget_command` because this fixture is
-/// `credless: true`, and `rba_avow` rejects before touching the IdP or
+/// `credless: true`, and `rbau_avow` rejects before touching the IdP or
 /// any credential — so the verdict is identical on credentialed and bare
 /// machines. The junk ref names a nonexistent namespace and the verb's
 /// interactive confirm sits after the mint, so even a broken guard cannot
@@ -1528,7 +1528,7 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 // nothing under it, the don's sederunt
 // read misses before any network touch, and the tick must die with the
 // novate advisory. The furnish
-// ceremony mirrors rba_cli's zrba_furnish —
+// ceremony mirrors rbau_cli's zrbau_furnish —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real
 // short build — rides the hallmark-lifecycle ordain under the
@@ -1568,7 +1568,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          source '{rbk_p}/rbdc_derived.sh'\n\
          source '{rbk_p}/rbgo_oauth.sh'\n\
          source '{rbk_p}/rbuh_http.sh'\n\
-         source '{rbk_p}/rba_auth.sh'\n\
+         source '{rbk_p}/rbau_auth.sh'\n\
          source '{rbk_p}/rbfcb_host.sh'\n\
          zbuv_kindle\n\
          zburd_kindle\n\
@@ -1585,13 +1585,13 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zrbdc_kindle\n\
          zrbgo_kindle\n\
          zrbuh_kindle\n\
-         zrba_kindle\n\
+         zrbau_kindle\n\
          rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\
          z_don_rc=0\n\
-         zSECRET_probe=$(rba_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
+         zSECRET_probe=$(rbau_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
          zrbfcb_redon_tick 'LapseProbe' 'poll 1' \"${{z_don_rc}}\"\n",
         moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
     );
@@ -1774,7 +1774,7 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
          source '{rbk_p}/rbgd_depot.sh'\n\
          source '{rbk_p}/rbgo_oauth.sh'\n\
          source '{rbk_p}/rbuh_http.sh'\n\
-         source '{rbk_p}/rba_auth.sh'\n\
+         source '{rbk_p}/rbau_auth.sh'\n\
          source '{rbk_p}/rbob_bottle.sh'\n\
          source '{rbk_p}/rbz_zipper.sh'\n\
          zbuv_kindle\n\
@@ -1796,7 +1796,7 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
          zrbgd_kindle\n\
          zrbgo_kindle\n\
          zrbuh_kindle\n\
-         zrba_kindle\n\
+         zrbau_kindle\n\
          zrbob_kindle\n\
          zbuz_kindle\n\
          zrbz_kindle\n\

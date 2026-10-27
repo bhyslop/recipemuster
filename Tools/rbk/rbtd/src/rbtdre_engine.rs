@@ -216,7 +216,7 @@ pub fn rbtcee_tree_clean(root: &Path) -> Result<(), String> {
 // officium's work, an operator's half-finished change — into its commit. The
 // only entry that touches an arbitrary path list, `rbtcee_commit_paths`, is
 // private to this module; external callers reach it solely through the
-// class-typed verbs. Doctrine: claude-rbk-theurge-ifrit-context.md.
+// class-typed verbs. Doctrine: rbaie_theurge.md.
 
 /// Stage and commit EXACTLY the given repo-relative paths — never a wider set.
 /// Module-private: the class verbs are the only callers, which is what seals

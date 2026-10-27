@@ -105,7 +105,7 @@ Cases group by purpose in source order (no formal section structure):
 ### Reveille-Tier Cases: Credless by Construction
 
 The reveille suite's fixtures carry `credless: true` on their `rbtcee_Fixture` static.
-While such a fixture runs, every tabtarget Command theurge builds (via `rbtcei_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTGEC_TWEAK_CREDLESS_GUARD`), and both token mints refuse under it before touching any credential, leaving the shell with the credless band code (`BUBC_band_credless` / `RBTGEC_BAND_CREDLESS`): `rba_avow` rejects itself, and the payor's `rbgp_authenticate_capture` emits its credless refusal word, which `rbgp_authenticate_die` at every caller rejects in that band.
+While such a fixture runs, every tabtarget Command theurge builds (via `rbtcei_tabtarget_command` — including the direct-Command helpers) carries the credless-guard tweak (`RBCC_tweak_credless_guard` / `RBTGEC_TWEAK_CREDLESS_GUARD`), and both token mints refuse under it before touching any credential, leaving the shell with the credless band code (`BUBC_band_credless` / `RBTGEC_BAND_CREDLESS`): `rbau_avow` rejects itself, and the payor's `rbgp_authenticate_capture` emits its credless refusal word, which `rbgp_authenticate_die` at every caller rejects in that band.
 The guard rides the fixture, not the suite — a reveille fixture hosted in picket/echelon is still guarded.
 
 Rules for authoring a reveille-tier case:

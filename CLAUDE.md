@@ -34,10 +34,10 @@ The release and install procedures themselves are specified in `jjqs_studbook/sp
 
 ## File Acronym Mappings
 
-Each kit's acronym rows ride that kit's core context file, annotated with the per-row descriptions and family topology — RBK's in `Tools/rbk/claude-rbk-core.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the veiled half's in `vov_veiled/claude-rbk-veiled.md`.
+Each kit's acronym rows ride that kit's core context file, annotated with the per-row descriptions and family topology — RBK's in `Tools/rbk/rbai0/rbais_rbk.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the veiled half's in the corpus at `context/rbk/rbai0/rbais_rbk_veiled.md`.
 Those cores load below.
 
-Beside each core stands a bare index (`claude-{kit}-acronyms.md`) restating the same rows without their annotations.
+Beside each core stands a bare index (`rbaip_rbk.md`, `buaip_buk.md`, `rbaip_rbk_veiled.md`) restating the same rows without their annotations.
 Those indexes are not loaded — see the curation record under **Kit context** — and each core is a strict superset of its own index, so nothing is lost.
 They stand for the lints that read them as rosters, and for a reader who wants the bare table.
 
@@ -187,8 +187,8 @@ Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sha
         carrying its acronym rows WITH the per-row descriptions and family
         topology, and beside it a bare index restating the same rows without
         them. Every token in each index is present in its core with the same
-        path, and the rbk core carries eight tokens its index lacks, so each
-        index is a strict subset and adds no fact at launch time. The cores
+        path, the index being rendered from its core's rows, so each index is
+        a subset and adds no fact at launch time. The cores
         load; the indexes stand as pull doors and as lint rosters.
 
      2. A GENERATED LOOKUP TABLE IS A PULL DOOR, NOT LAUNCH-TIME WEIGHT. The
@@ -207,23 +207,23 @@ Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sha
 <!-- Distributable kit guidance. -->
 @Tools/buk/buai0/buais_buk.md
 
-@Tools/rbk/claude-rbk-core.md
+@Tools/rbk/rbai0/rbais_rbk.md
 
-@Tools/rbk/claude-rbk-conduct.md
+@Tools/rbk/rbai0/rbais_conduct.md
 
-<!-- rbm-only veiled guidance (never distributed). -->
-@vov_veiled/claude-rbk-veiled.md
+<!-- rbm-only veiled guidance (never distributed), read from the studbook peer. -->
+@../jjqs_studbook/context/rbk/rbai0/rbais_rbk_veiled.md
 
 ## Pull doors
 
 Named, not loaded — read when the work calls for one.
 
-- `Tools/rbk/claude-rbk-tabtarget-context.md` — the full tabtarget command
+- `Tools/rbk/rbai0/rbaie_tabtarget.md` — the full tabtarget command
   reference: every colophon, its folio channel, and its purpose. Build-generated
   from the zipper registry; `ls tt/` lists the same set by filename.
-- `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — theurge/ifrit crucible
+- `Tools/rbk/rbai0/rbaie_theurge.md` — theurge/ifrit crucible
   testing: the iteration loop (kludge, charge, test, ordain), the architecture of
   the two Rust binaries, and how to add new security test cases.
-- `Tools/rbk/claude-rbk-acronyms.md`, `Tools/buk/buai0/buaip_buk.md`,
-  `vov_veiled/claude-rbk-veiled-acronyms.md` — the bare acronym
+- `Tools/rbk/rbai0/rbaip_rbk.md`, `Tools/buk/buai0/buaip_buk.md`,
+  `context/rbk/rbai0/rbaip_rbk_veiled.md` in the corpus — the bare acronym
   indexes, each a subset of its loaded core.

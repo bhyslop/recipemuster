@@ -36,7 +36,7 @@ rbfvb_batch_vouch() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"

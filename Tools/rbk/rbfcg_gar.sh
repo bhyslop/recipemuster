@@ -394,7 +394,7 @@ rbfcg_vessel_for_hallmark_capture() {
   local -r z_hallmark="${1:?Hallmark required}"
 
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") \
     || return 1
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"

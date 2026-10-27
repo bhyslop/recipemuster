@@ -258,7 +258,7 @@ rbldv_immure() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Fresh mode: mint a new stamp and compute the preserved substitution (empty — no

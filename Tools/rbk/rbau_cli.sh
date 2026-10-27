@@ -17,11 +17,11 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBA CLI - Recipe Bottle Auth command-line interface
+# RBAU CLI - Recipe Bottle Auth command-line interface
 #
 # Surfaces the sederunt-lifecycle operator verbs as tabtargets — where avow
 # itself never is: novate, the one mutating surface, and
-# espy, the read-only probe. Thin arm over the rba library:
+# espy, the read-only probe. Thin arm over the rbau library:
 # the furnish carries only the avowal-path stack (trust + manor pool + OAuth
 # transport), none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
 
@@ -39,8 +39,8 @@ source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 # short sederunt away. Mechanism-gated exactly as avowal is: device-flow
 # interactive or RFC 7523 programmatic per the trust's RBRF_MECHANISM.
 # Depot-agnostic like the avowal probe: needs only the RBRF trust + manor pool.
-rba_novate_sederunt() {
-  zrba_sentinel
+rbau_novate_sederunt() {
+  zrbau_sentinel
   buc_doc_brief "Novate the ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt}, extinguishing any standing one (the runway gate's named remedy)"
   buc_doc_shown || return 0
 
@@ -50,10 +50,10 @@ rba_novate_sederunt() {
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_novate
+  rbau_novate
 
   local zSECRET_token
-  zSECRET_token=$(zrba_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
+  zSECRET_token=$(zrbau_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
   test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
   buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#zSECRET_token} chars)"
 }
@@ -65,8 +65,8 @@ rba_novate_sederunt() {
 # dies. Liveness and sufficiency judgments belong to the callers: the verdict
 # rides a fact file keyed by the active foedus, the branch point for the
 # theurge gate arc's fail-fast before its may-prompt baseline avow.
-rba_espy_sederunt() {
-  zrba_sentinel
+rbau_espy_sederunt() {
+  zrbau_sentinel
   buc_doc_brief "Espy the ${RBCC_noun_sederunt} — report liveness and remaining runway from the cache alone (read-only: never opens, never prompts, no network)"
   buc_doc_shown || return 0
 
@@ -77,7 +77,7 @@ rba_espy_sederunt() {
   zrbrw_enforce
 
   local z_path
-  z_path=$(zrba_sederunt_path_capture) || buc_die_now "Failed to resolve the ${RBCC_noun_sederunt} cache path"
+  z_path=$(zrbau_sederunt_path_capture) || buc_die_now "Failed to resolve the ${RBCC_noun_sederunt} cache path"
 
   # Verdict: absent (no cache), else live/lapsed by the skew-gated predicate.
   # Runway is reported raw (a lapsed sederunt inside the skew window may still
@@ -87,9 +87,9 @@ rba_espy_sederunt() {
   if test ! -f "${z_path}"; then
     z_verdict="absent"
   else
-    z_runway=$(zrba_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} cache present but unreadable: ${z_path}"
+    z_runway=$(zrbau_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} cache present but unreadable: ${z_path}"
     case "${z_runway}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_runway}" ;; esac
-    if zrba_sederunt_live_predicate; then
+    if zrbau_sederunt_live_predicate; then
       z_verdict="live"
     else
       z_verdict="lapsed"
@@ -112,7 +112,7 @@ runway=${z_runway}"
 ######################################################################
 # Furnish and Main
 
-zrba_furnish() {
+zrbau_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env_done || return 0
@@ -131,7 +131,7 @@ zrba_furnish() {
   source "${z_rbk}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
   source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
   source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
-  source "${z_rbk}/rba_auth.sh" || buc_die_now "Failed to source rba_auth.sh"
+  source "${z_rbk}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
 
   zbuv_kindle
   zburd_kindle
@@ -152,9 +152,9 @@ zrba_furnish() {
   zrbdc_kindle
   zrbgo_kindle
   zrbuh_kindle
-  zrba_kindle
+  zrbau_kindle
 }
 
-buc_execute rba_ "Recipe Bottle Auth" zrba_furnish "$@"
+buc_execute rbau_ "Recipe Bottle Auth" zrbau_furnish "$@"
 
 # eof
