@@ -17,11 +17,11 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBA CLI - Recipe Bottle Auth command-line interface
+# RBAU CLI - Recipe Bottle Auth command-line interface
 #
 # Surfaces the sederunt-lifecycle operator verbs as tabtargets — where avow
 # itself never is: novate, the one mutating surface, and
-# espy, the read-only probe. Thin arm over the rba library:
+# espy, the read-only probe. Thin arm over the rbau library:
 # the furnish carries only the avowal-path stack (trust + manor pool + OAuth
 # transport), none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
 
@@ -155,6 +155,6 @@ zrbau_furnish() {
   zrbau_kindle
 }
 
-buc_execute rba_ "Recipe Bottle Auth" zrbau_furnish "$@"
+buc_execute rbau_ "Recipe Bottle Auth" zrbau_furnish "$@"
 
 # eof

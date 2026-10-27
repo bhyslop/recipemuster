@@ -22,16 +22,16 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBAU_SOURCED:-}" || buc_die_now "Module rba multiply sourced - check sourcing hierarchy"
+test -z "${ZRBAU_SOURCED:-}" || buc_die_now "Module rbau multiply sourced - check sourcing hierarchy"
 ZRBAU_SOURCED=1
 
 ######################################################################
-# Internal Functions (zrba_*)
+# Internal Functions (zrbau_*)
 
 zrbau_kindle() {
-  test -z "${ZRBAU_KINDLED:-}" || buc_die_now "Module rba already kindled"
+  test -z "${ZRBAU_KINDLED:-}" || buc_die_now "Module rbau already kindled"
 
-  # Ensure dependency kindled first (rba mints tokens via rbgo)
+  # Ensure dependency kindled first (rbau mints tokens via rbgo)
   zrbgo_sentinel
 
   # Federation protocol constants — RFC 8628 device flow (Leg 1) + RFC 8693 STS
@@ -39,7 +39,7 @@ zrbau_kindle() {
   # set unconditionally; the per-trust audience is built from RBRF_* at Leg 2, not
   # here. The federated path is opt-in: only rbau_avow and its legs read these,
   # and they guard on zrbrf_sentinel / zrbcc_sentinel, so the keyfile-only
-  # consumers that source rba are untouched.
+  # consumers that source rbau are untouched.
   readonly ZRBAU_STS_ENDPOINT="https://sts.googleapis.com/v1/token"
   readonly ZRBAU_STS_GRANT_TYPE="urn:ietf:params:oauth:grant-type:token-exchange"
   readonly ZRBAU_STS_REQUESTED_TOKEN_TYPE="urn:ietf:params:oauth:token-type:access_token"
@@ -109,7 +109,7 @@ zrbau_kindle() {
 }
 
 zrbau_sentinel() {
-  test "${ZRBAU_KINDLED:-}" = "1" || buc_die_now "Module rba not kindled - call zrbau_kindle first"
+  test "${ZRBAU_KINDLED:-}" = "1" || buc_die_now "Module rbau not kindled - call zrbau_kindle first"
 }
 
 ######################################################################
@@ -474,7 +474,7 @@ zrbau_leg1_programmatic_idtoken_capture() {
   z_iat=$(<"${ZRBAU_FED_PROG_NOW_FILE}") || return 1
   case "${z_iat}" in ''|*[!0123456789]*) return 1 ;; esac
   local -r z_exp=$(( 10#${z_iat} + ZRBAU_PROG_ASSERTION_TTL_SEC ))
-  local -r z_jti="rba-${z_iat}-${$}"
+  local -r z_jti="rbau-${z_iat}-${$}"
 
   # Compose the non-secret JWT header and payload as JSON via jq (safe quoting of the
   # regime-sourced values). aud = RBRF_IDP_ISSUER — the assertion aud is cinched to

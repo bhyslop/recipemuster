@@ -144,18 +144,18 @@ There are no service-account keyfiles to protect, back up, or rotate — the man
 @Tools/buk/buai0/buais_buk.md
 @Tools/buk/buai0/buaip_buk.md
 
-@Tools/rbk/claude-rbk-core.md
-@Tools/rbk/claude-rbk-acronyms.md
+@Tools/rbk/rbai0/rbais_rbk.md
+@Tools/rbk/rbai0/rbaip_rbk.md
 
-@Tools/rbk/claude-rbk-conduct.md
+@Tools/rbk/rbai0/rbais_conduct.md
 
-@Tools/rbk/claude-rbk-tabtarget-context.md
+@Tools/rbk/rbai0/rbaie_tabtarget.md
 
 Test suite/fixture tabtargets use the `rbw-ts` (suites), `rbw-tf` (single fixture), and `rbw-tc` (single case) colophons:
 - Available test suites: `ls tt/rbw-ts.TestSuite.*`
 - Run one fixture: `tt/rbw-tf.FixtureRun.sh <fixture>` (run `tt/rbw-tc.FixtureCase.sh` with no argument to list fixtures)
 
-For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/claude-rbk-theurge-ifrit-context.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
+For theurge/ifrit crucible testing work (editing test cases, adding new security probes, debugging test failures), read `Tools/rbk/rbai0/rbaie_theurge.md` — covers the two-binary architecture, the kludge/charge/test/ordain iteration loop, and how to add new test cases.
 
 ### Regime Inspection
 

@@ -34,7 +34,7 @@ readonly RBCC_kit_dir="${BASH_SOURCE[0]%/*}"
 # (write-on-change), rbq's gates verify them. Absolute, composed from the
 # readonly kit dir (source-time, no kindle dependency).
 readonly RBCC_rbtdgc_consts_file="${RBCC_kit_dir}/rbtd/src/rbtdgc_consts.rs"
-readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/claude-rbk-tabtarget-context.md"
+readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/rbai0/rbaie_tabtarget.md"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
 # Moorings-relative path values. Source-time literals, no kindle dependency.
