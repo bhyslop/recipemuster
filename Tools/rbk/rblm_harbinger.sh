@@ -37,11 +37,13 @@
 # missing rather than dangling on an absent function.
 #
 # HARBINGER PUSHES NOTHING, EVER. It clones over HTTPS (anonymous read of the public
-# repo), then severs the clone's origin and installs a pre-push hook that refuses every
-# push — belt and suspenders, because THIS station holds real credentials to the public
-# repository and a stray push from the walk clone is the one act the rig must make
-# structurally impossible. The walk that follows is the operator's own, launched by
-# hand from the printed line; harbinger sets the stage and steps off it.
+# repo), then severs the clone's origin and reads the remotes back to none, pins the
+# clone's hooks path to its own hooks directory, redirects every push to a public host
+# to a destination that cannot stand, and installs a pre-push hook that refuses every
+# push — because THIS station holds real credentials to the public repository and a
+# stray push from the walk clone is the one act the rig must make structurally
+# impossible. The walk that follows is the operator's own, launched by hand from the
+# printed line; harbinger sets the stage and steps off it.
 
 set -euo pipefail
 
@@ -51,13 +53,35 @@ ZRBLM_HARBINGER_SOURCED=1
 ######################################################################
 # Harbinger constants
 
-# The rig's parent directory, a fixed basename beside the maintainer repository.
-# Derived from git (the repo's parent), never hand-typed, so the rig always lands next
-# to the tree it was launched from. The basename is a constant and is asserted before
-# the move below: harbinger seposes this directory — a rename to a timestamped
-# sibling, never a delete — so it may only ever name THIS one, never the maintainer
-# tree it sits beside, and even a wrong guard could not destroy data.
+# The rig directory's stem; the walk date completes its basename, so each day's walk
+# stands its own rig and a second run on the same day seposes that day's — a rename to
+# a timestamped sibling, never a delete, so even a wrong guard could not destroy data.
 readonly RBLM_harbinger_dirname="rbthdr_coldwalk"
+
+# The directory every rig stands in, beside the infield holding the maintainer tree
+# rather than inside it, so a cold session launched in the clone loads no context file
+# of that infield. Derived from git (the repo root's grandparent), never hand-typed.
+readonly RBLM_harbinger_infield="infield-coldwalk"
+
+# The hooks path the clone is pinned to, relative so git resolves it against the
+# clone's own root wherever a seposition moves the rig.
+readonly RBLM_harbinger_hooks_path=".git/hooks"
+
+# Where every push to a public host is redirected: a path beneath /dev/null, which can
+# never stand as a repository, spelled so git's own error states the refusal.
+readonly RBLM_harbinger_refused_destination="/dev/null/coldwalk-clone-pushes-are-refused/"
+
+# Every public-host prefix a push is redirected from. The org prefixes are longer than
+# any host-wide rewrite a station's global config may carry for its own pushes, so the
+# clone's rule wins git's longest-match.
+readonly RBLM_harbinger_public_prefixes=(
+  "https://github.com/"
+  "git@github.com:"
+  "ssh://git@github.com/"
+  "https://github.com/scaleinv/"
+  "git@github.com:scaleinv/"
+  "ssh://git@github.com/scaleinv/"
+)
 
 # The clone lives one level down, in its own subdirectory. The findings memo is a
 # sibling of it under the parent dir, so discarding the clone subdirectory leaves the
@@ -92,10 +116,12 @@ rblm_harbinger() {
   buc_doc_shown || return 0
 
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
+  local -r z_temp_prefix="${BURD_TEMP_DIR}/rblm_harbinger_"
 
-  # Where we are. The rig lands beside this tree, so its identity is the anchor for
-  # every derived path below — and the guard that the seposition move can never hit it.
-  local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
+  # Where we are. The rig's location derives from this tree's root, so its identity is
+  # the anchor for every derived path below — and the guard that the seposition move
+  # can never hit it.
+  local -r z_toplevel_temp="${z_temp_prefix}toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
   local z_toplevel
   z_toplevel=$(<"${z_toplevel_temp}") || buc_die_now "Failed to read: ${z_toplevel_temp}"
@@ -105,23 +131,28 @@ rblm_harbinger() {
     *)  buc_die_now "Repository root is not an absolute path: ${z_toplevel}" ;;
   esac
 
-  local -r z_parent="${z_toplevel%/*}"
-  test -n "${z_parent}" || buc_die_now "Repository root has no parent directory: ${z_toplevel}"
-  case "${z_parent}" in
+  local -r z_infield="${z_toplevel%/*}"
+  test -n "${z_infield}" || buc_die_now "Repository root has no parent directory: ${z_toplevel}"
+  local -r z_estate="${z_infield%/*}"
+  test -n "${z_estate}" || buc_die_now "Repository root's parent has no parent directory: ${z_infield}"
+  case "${z_estate}" in
     /*) ;;
-    *)  buc_die_now "Repository root's parent is not an absolute path: '${z_parent}' (from ${z_toplevel})" ;;
+    *)  buc_die_now "Repository root's grandparent is not an absolute path: '${z_estate}' (from ${z_toplevel})" ;;
   esac
-  local -r z_target_dir="${z_parent}/${RBLM_harbinger_dirname}"
 
-  # Rig-move guard. Harbinger moves the target aside wholesale, so it must be exactly
-  # the constant-named rig dir and never the maintainer tree it sits beside. Both are
-  # asserted before anything moves: the basename must be the fixed name, and the target
-  # must differ from this repository's own root. The disposal is a RENAME, not a delete
-  # — the prior rig is seposed to a timestamped sibling, recoverable — so nothing here
-  # can destroy data even if a guard were wrong.
-  local -r z_target_base="${z_target_dir##*/}"
-  test "${z_target_base}" = "${RBLM_harbinger_dirname}" \
-    || buc_die_now "Refusing to move '${z_target_dir}' — its basename is not the rig name '${RBLM_harbinger_dirname}'"
+  # The walk date, which completes the rig's basename and dates the findings memo.
+  local -r z_walkdate_temp="${z_temp_prefix}walkdate.txt"
+  date +%Y%m%d > "${z_walkdate_temp}" || buc_die_now "date failed"
+  local z_walkdate
+  z_walkdate=$(<"${z_walkdate_temp}") || buc_die_now "Failed to read: ${z_walkdate_temp}"
+  test -n "${z_walkdate}" || buc_die_now "walk date resolved empty"
+
+  local -r z_target_dir="${z_estate}/${RBLM_harbinger_infield}/${RBLM_harbinger_dirname}_${z_walkdate}"
+
+  # Rig-move guard. Harbinger moves the target aside wholesale, so it must never be the
+  # maintainer tree; that is asserted before anything moves. The disposal is a RENAME,
+  # not a delete — the prior rig is seposed to a timestamped sibling, recoverable — so
+  # nothing here can destroy data even if a guard were wrong.
   test "${z_target_dir}" != "${z_toplevel}" \
     || buc_die_now "Refusing to move '${z_target_dir}' — it is this repository's own root"
 
@@ -130,16 +161,11 @@ rblm_harbinger() {
   # The dated findings-memo path — absolute, and a sibling of the clone so it survives
   # the clone's discard. The prompt below hands this exact path to the walker; the
   # maintainer reviews it and commits it into the studbook after the walk.
-  local -r z_walkdate_temp="${BURD_TEMP_DIR}/rblm_harbinger_walkdate.txt"
-  date +%Y%m%d > "${z_walkdate_temp}" || buc_die_now "date failed"
-  local z_walkdate
-  z_walkdate=$(<"${z_walkdate_temp}") || buc_die_now "Failed to read: ${z_walkdate_temp}"
-  test -n "${z_walkdate}" || buc_die_now "walk date resolved empty"
   local -r z_memo_path="${z_target_dir}/memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md"
 
   # The seposed sibling for any prior rig — a second-grained stamp so two runs in
   # one day cannot collide. An existing rig is renamed here, never deleted.
-  local -r z_sepose_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_sepose_stamp.txt"
+  local -r z_sepose_stamp_temp="${z_temp_prefix}sepose_stamp.txt"
   date +%Y%m%d-%H%M%S > "${z_sepose_stamp_temp}" || buc_die_now "date failed"
   local z_sepose_stamp
   z_sepose_stamp=$(<"${z_sepose_stamp_temp}") || buc_die_now "Failed to read: ${z_sepose_stamp_temp}"
@@ -163,8 +189,8 @@ rblm_harbinger() {
   buh_line "  end. Harbinger clones, guards, and hands off — it launches nothing and"
   buh_line "  pushes nothing."
   buh_e
-  buh_line "  Any prior rig is SEPOSED: renamed to a timestamped sibling, never deleted; sweep"
-  buh_line "  old ${RBLM_harbinger_dirname}.seposed-* dirs whenever you like."
+  buh_line "  A same-day prior rig is SEPOSED: renamed to a timestamped sibling, never deleted;"
+  buh_line "  sweep old ${RBLM_harbinger_dirname}_* rigs and their .seposed-* siblings whenever you like."
   buh_e
   buc_require "Sepose any existing rig and stand up a fresh cold-walk clone at ${z_target_dir}?" "harbinger"
 
@@ -193,12 +219,41 @@ rblm_harbinger() {
   buc_step "Severing the clone from its origin"
   git -C "${z_clone_dir}" remote remove origin || buc_die_now "Failed to sever the clone's origin"
 
+  # Pin the hooks path to the clone's own, so a global config relocating hooks cannot
+  # leave the refusal hook standing where git never reads it. A relative pin resolves
+  # against the clone's root only where .git is a directory, as a clone's is.
+  buc_step "Pinning the clone's hooks path to its own hooks directory"
+  test -d "${z_clone_dir}/.git" \
+    || buc_die_now "The clone stands no .git directory, so a relative hooks path would reach nothing: ${z_clone_dir}"
+  git -C "${z_clone_dir}" config --local core.hooksPath "${RBLM_harbinger_hooks_path}" \
+    || buc_die_now "Failed to pin the clone's hooks path"
+
+  # Redirect every public-host push to a destination that cannot stand. A push to an
+  # explicit URL needs no remote and --no-verify skips the hook; this rule still answers
+  # it, the station's credentials notwithstanding.
+  buc_step "Redirecting every public-host push to ${RBLM_harbinger_refused_destination}"
+  local z_i=0
+  for z_i in "${!RBLM_harbinger_public_prefixes[@]}"; do
+    git -C "${z_clone_dir}" config --local --add "url.${RBLM_harbinger_refused_destination}.pushInsteadOf" "${RBLM_harbinger_public_prefixes[${z_i}]}" \
+      || buc_die_now "Failed to redirect pushes from ${RBLM_harbinger_public_prefixes[${z_i}]}"
+  done
+
+  # Read the remotes back rather than trusting the sever's exit: a remote a station's
+  # global config defines survives the removal of origin.
+  local -r z_remotes_temp="${z_temp_prefix}remotes.txt"
+  git -C "${z_clone_dir}" remote > "${z_remotes_temp}" || buc_die_now "Failed to list the clone's remotes"
+  local z_remotes
+  z_remotes=$(<"${z_remotes_temp}") || buc_die_now "Failed to read: ${z_remotes_temp}"
+  test -z "${z_remotes}" || buc_die_now "The severed clone still names remote(s): ${z_remotes}"
+
   # Install the pre-push refusal. Belt to the sever's suspenders: even if the walk (or
   # a helpful agent) re-adds a remote, every push dies here. Written with a loud reason
   # so the refusal is legible, not a silent non-zero. printf (a builtin) writes the hook
-  # line by line — BCG bars multi-line heredocs.
+  # line by line — BCG bars multi-line heredocs. Whatever stands at the hook path is
+  # removed first, so the write never follows a symlink.
   buc_step "Installing the pre-push refusal hook"
   local -r z_hook="${z_clone_dir}/.git/hooks/pre-push"
+  rm -f -- "${z_hook}" || buc_die_now "Failed to clear the pre-push hook path: ${z_hook}"
   printf '%s\n' \
     '#!/bin/sh' \
     'echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2' \
@@ -213,12 +268,39 @@ rblm_harbinger() {
   buc_step "Cutting the throwaway walk branch ${RBLM_harbinger_walk_branch}"
   git -C "${z_clone_dir}" checkout -b "${RBLM_harbinger_walk_branch}" || buc_die_now "Failed to cut the walk branch"
 
+  # The clone's HEAD, shown so the operator can match it to the promoted commit.
+  local -r z_head_temp="${z_temp_prefix}head.txt"
+  git -C "${z_clone_dir}" rev-parse HEAD > "${z_head_temp}" || buc_die_now "Failed to read the clone's HEAD"
+  local z_head
+  z_head=$(<"${z_head_temp}") || buc_die_now "Failed to read: ${z_head_temp}"
+  test -n "${z_head}" || buc_die_now "The clone's HEAD resolved empty"
+
+  # The launch line's path in POSIX single-quote form, an embedded quote spelled '\''
+  # — the operator pastes the line into zsh or bash, and both read it so.
+  local z_rest="${z_clone_dir}"
+  local z_launch_dir=""
+  while :; do
+    case "${z_rest}" in
+      *\'*)
+        z_launch_dir="${z_launch_dir}${z_rest%%\'*}'\\''"
+        z_rest="${z_rest#*\'}"
+        ;;
+      *)
+        z_launch_dir="${z_launch_dir}${z_rest}"
+        break
+        ;;
+    esac
+  done
+  z_launch_dir="'${z_launch_dir}'"
+
+  buh_e
+  buh_line "  Clone HEAD: ${z_head} — match it to the promoted commit before the walk."
   buh_e
   buh_line "  Rig ready. Two steps, by your hand:"
   buh_e
   buh_line "  1. Launch a cold session in the clone (NEW terminal):"
   buh_e
-  buc_bare "        (cd ${z_clone_dir} && claude --model sonnet --permission-mode auto)"
+  buc_bare "        (cd ${z_launch_dir} && claude --model sonnet --permission-mode auto)"
   buh_e
   buh_line "  2. Paste the stranger prompt below:"
   buh_e

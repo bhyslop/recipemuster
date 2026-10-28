@@ -103,9 +103,9 @@ pub fn rbvcep_sepose(dir: &Path, cwd: &Path) -> bool {
 }
 
 /// Assert a target directory is safe to move aside wholesale: its basename is
-/// exactly the fixed name, and it is not the maintainer repo root. Mirrors the
-/// rig-move guard in rblm_harbinger.sh — the disposal is a rename, so even a
-/// wrong guard destroys nothing, but the guard makes a wrong move impossible.
+/// exactly the fixed name, and it is not the maintainer repo root. Serves the
+/// regulus and the freshness scratch beside the maintainer tree — the disposal
+/// is a rename, so even a wrong guard destroys nothing.
 pub fn rbvcep_guard_disposable(dir: &Path, expected_basename: &str, top: &Path) {
     let base = dir.file_name().and_then(|n| n.to_str());
     if base != Some(expected_basename) {

@@ -37,10 +37,15 @@ pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
 
     let top = rbvcep_repo::rbvcep_toplevel();
-    let parent = rbvcep_repo::rbvcep_parent(&top);
     rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
 
-    let temenos = rbvceg_temenos::rbvceg_stand_up(&parent, &top, bundle.harbinger_url, &top, bundle);
+    let temenos = rbvceg_temenos::rbvceg_stand_up(
+        &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
+        &top,
+        bundle.harbinger_url,
+        &top,
+        bundle,
+    );
     rbvceg_temenos::rbvceg_emit_handoff(&temenos);
 
     rbvcel_log::rbvcel_blank();
