@@ -44,13 +44,6 @@ zrbte_kindle() {
   readonly ZRBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_PIN_FILE="${ZRBTE_REPO_ROOT}/rust-toolchain.toml"
 
-  # The variable the crate's build script demands, the position the binary
-  # answers --exergue with. The name is the build script's contract, not a
-  # choice made here. Cargo reruns the script when it changes, so every road
-  # building into this target directory must state the same position under the
-  # same definition, or each rebuilds the binary the other left.
-  readonly ZRBTE_POSITION_VAR="BKCH_COLLAR_POSITION"
-
   # The position's roots: the crate's own source and manifests and the root pin,
   # its cfg(test) modules carved out. The position is the seat's newest
   # first-parent commit touching them: the seat's own line, not a landed walk,
@@ -78,6 +71,7 @@ zrbte_kindle() {
   readonly ZRBTE_CLIPPY_ASKED
   readonly ZRBTE_CLIPPY_MARK="index.html#disallowed_methods"
   readonly ZRBTE_LINT_REPORT="${BURD_TEMP_DIR}/rbte_lint_report.txt"
+  readonly ZRBTE_CHANNEL_PATTERN='^channel *= *"([^"]+)"'
 
   # Where cargo's dev profile lands the binary, on either road.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
@@ -115,10 +109,14 @@ zrbte_codegen() {
 zrbte_channel_capture() {
   zrbte_sentinel
 
-  local z_channel=""
-  z_channel=$(sed -n 's/^channel *= *"\([^"]*\)".*/\1/p' "${ZRBTE_PIN_FILE}") || return 1
-  test -n "${z_channel}" || return 1
-  echo "${z_channel}"
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if [[ "${z_line}" =~ ${ZRBTE_CHANNEL_PATTERN} ]]; then
+      echo "${BASH_REMATCH[1]}"
+      return 0
+    fi
+  done < "${ZRBTE_PIN_FILE}" || return 1
+  return 1
 }
 
 # The seat's position over the roots, the one line the binary will answer.
@@ -133,11 +131,18 @@ zrbte_position_capture() {
 
 # Run cargo for the theurge: the pinned channel, the lock flag ahead of the
 # verb, the position stated, the manifest named after the verb.
+#
+# THE POSITION'S NAME IS THE BUILD SCRIPT'S CONTRACT, not a choice made here,
+# and it is the binary's answer to --exergue. Cargo reruns the script when the
+# value changes, so every road building into this target directory must state
+# the same position under the same definition, or each rebuilds what the other
+# left.
 zrbte_cargo() {
   zrbte_sentinel
 
-  local -r z_verb="${1}"
-  shift
+  local -r z_verb="${1:-}"
+  test -n "${z_verb}" || buc_die_now "zrbte_cargo needs a cargo verb"
+  shift || buc_die_now "zrbte_cargo could not shift its verb"
 
   local z_channel=""
   z_channel=$(zrbte_channel_capture) || buc_die_now "The root pin at ${ZRBTE_PIN_FILE} names no channel"
@@ -145,8 +150,11 @@ zrbte_cargo() {
   local z_position=""
   z_position=$(zrbte_position_capture) || buc_die_now "Could not read the seat's position over the theurge's roots in ${ZRBTE_REPO_ROOT}"
 
-  env "${ZRBTE_POSITION_VAR}=${z_position}" \
-    cargo "+${z_channel}" --locked "${z_verb}" --manifest-path "${ZRBTE_MANIFEST}" "$@"
+  local z_cargo_status=0
+  BKCH_COLLAR_POSITION="${z_position}" \
+    cargo "+${z_channel}" --locked "${z_verb}" --manifest-path "${ZRBTE_MANIFEST}" "$@" \
+    || z_cargo_status=$?
+  return "${z_cargo_status}"
 }
 
 # The codegen, then cargo's build. Cargo decides whether anything recompiles.
@@ -165,6 +173,9 @@ zrbte_build_binary() {
 rbte_build() {
   zrbte_sentinel
 
+  buc_doc_brief "Build the theurge crate, regenerating the zipper-derived files first"
+  buc_doc_shown || return 0
+
   test "$#" -eq 0 || buc_die_now "The theurge build takes no argument"
 
   zrbte_build_binary
@@ -176,11 +187,16 @@ rbte_build() {
 rbte_test() {
   zrbte_sentinel
 
+  buc_doc_brief "Run the theurge crate's unit tests"
+  buc_doc_param "filter" "Optional: cargo's test-name filter"
+  buc_doc_shown || return 0
+
   test "$#" -le 1 || buc_die_now "The theurge test takes at most one argument, a test-name filter"
+  local -r z_filter="${1:-}"
 
   zrbte_codegen
   buc_step "Testing theurge"
-  zrbte_cargo test ${1:+"${1}"} || buc_die_now "Theurge tests failed"
+  zrbte_cargo test ${z_filter:+"${z_filter}"} || buc_die_now "Theurge tests failed"
   buc_success "All theurge tests passed"
 }
 
@@ -189,6 +205,9 @@ rbte_test() {
 rbte_lint() {
   zrbte_sentinel
 
+  buc_doc_brief "Lint the theurge crate, refusing only on calls the root clippy.toml bars"
+  buc_doc_shown || return 0
+
   test "$#" -eq 0 || buc_die_now "The theurge lint takes no argument"
 
   zrbte_codegen
@@ -196,9 +215,12 @@ rbte_lint() {
   local z_lint_status=0
   CLIPPY_CONF_DIR="${ZRBTE_REPO_ROOT}" zrbte_cargo clippy "${ZRBTE_CLIPPY_ASKED[@]}" \
     > "${ZRBTE_LINT_REPORT}" 2>&1 || z_lint_status=$?
-  cat "${ZRBTE_LINT_REPORT}"
 
-  ! grep -q -F "${ZRBTE_CLIPPY_MARK}" "${ZRBTE_LINT_REPORT}" \
+  local z_report=""
+  z_report=$(<"${ZRBTE_LINT_REPORT}") || buc_die_now "Could not read the lint report at ${ZRBTE_LINT_REPORT}"
+  printf '%s\n' "${z_report}" || buc_die_now "Could not print the lint report"
+
+  [[ "${z_report}" != *"${ZRBTE_CLIPPY_MARK}"* ]] \
     || buc_die_now "The theurge calls what the root clippy.toml bars; each finding above names the surface to adopt"
   test "${z_lint_status}" -eq 0 || buc_die_now "The theurge did not compile under clippy (status ${z_lint_status})"
   buc_success "Theurge lint found no barred call"
@@ -207,6 +229,9 @@ rbte_lint() {
 # Cargo's clean of the theurge's own target directory, and nothing else.
 rbte_clean() {
   zrbte_sentinel
+
+  buc_doc_brief "Remove the theurge crate's build output"
+  buc_doc_shown || return 0
 
   test "$#" -eq 0 || buc_die_now "The theurge clean takes no argument"
 
