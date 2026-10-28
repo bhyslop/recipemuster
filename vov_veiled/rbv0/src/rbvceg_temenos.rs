@@ -49,13 +49,20 @@ const RBVCEG_TEMENOS_MEMO_SLUG: &str = "coldwalk-shakedown";
 /// is not what the walk expects.
 const RBVCEG_TEMENOS_FACE: &str = "README.md";
 
-/// The pre-push refusal hook body, belt to the sever's suspenders: even if the
-/// walk re-adds a remote, every push dies here with a loud, legible reason.
-const RBVCEG_TEMENOS_HOOK_BODY: &str = "\
-#!/bin/sh
-echo \"coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push\" >&2
-exit 1
-";
+/// The pre-push refusal hook's reason, loud and legible: even if the walk
+/// re-adds a remote, every push dies at the hook with this line.
+pub const RBVCEG_TEMENOS_HOOK_REFUSAL: &str =
+    "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push";
+
+/// Where every push to a public host is redirected: a path beneath /dev/null,
+/// which can never stand as a repository, spelled so git's own error states
+/// the refusal.
+pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/coldwalk-clone-pushes-are-refused";
+
+/// The pre-push refusal hook body, belt to the sever's suspenders.
+fn zrbvceg_hook_body() -> String {
+    format!("#!/bin/sh\necho \"{}\" >&2\nexit 1\n", RBVCEG_TEMENOS_HOOK_REFUSAL)
+}
 
 /// The stranger prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
 /// substituted with the temenos's dated findings-memo path at emit. This is the
@@ -166,7 +173,7 @@ pub fn rbvceg_stand_up(
 
     rbvcel_log::rbvcel_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
-    bkprs_program_write(&hook, RBVCEG_TEMENOS_HOOK_BODY)
+    bkprs_program_write(&hook, &zrbvceg_hook_body())
         .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the pre-push hook {}: {}", hook.display(), e));
 
     // Cut the throwaway walk branch; the clone's own default branch stays the

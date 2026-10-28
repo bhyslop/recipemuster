@@ -42,3 +42,5 @@ mod rbvteu_loupe;
 mod rbvtet_cachet;
 #[cfg(test)]
 mod rbvtew_world;
+#[cfg(test)]
+mod rbvteg_temenos;
