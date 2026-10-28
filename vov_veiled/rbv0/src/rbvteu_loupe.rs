@@ -18,6 +18,10 @@
 //            its own synthetic census — the guarantee the assay's finding is a
 //            leak in the tree, not a broken matcher.
 //
+//   EMPTY    the live document census may be empty, the veiled tree holding no
+//            document, and the assay admits it; what keeps that admission honest
+//            is the self-proof, which still fails a matcher that leaks.
+//
 //   BOUNDARY the hostname word-boundary test: a machine name is a leak only when
 //            it stands as its own token, never as a substring of a longer,
 //            unrelated identifier.
@@ -36,8 +40,10 @@ use std::collections::BTreeSet;
 
 use crate::rbvceu_loupe::{
     zrbvceu_names_token,
+    zrbvceu_veil_leak,
     zrbvceu_veil_scan_text,
     zrbvceu_veil_self_proof,
+    zrbvceu_veil_self_proof_by,
     zrbvceu_Finding,
     ZRBVCEU_HOST_CENSUS,
     ZRBVCEU_HOST_EXEMPT,
@@ -110,6 +116,45 @@ fn rbvteu_veil_self_proof_holds() {
     assert!(
         findings.is_empty(),
         "the veil matcher self-proof failed — the live-tree verdict cannot be trusted: {:?}",
+        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+    );
+}
+
+// ── The empty census ────────────────────────────────────────
+
+/// A matcher that leaks: it reads every line and reports nothing.
+fn zrbvteu_blind_scan(
+    _rel: &str,
+    _text: &str,
+    _census: &BTreeSet<String>,
+    _findings: &mut Vec<zrbvceu_Finding>,
+) {
+}
+
+/// The veiled tree holds no document, so the live census is empty, and the
+/// assay admits it rather than reddening a clean tree: over a root holding no
+/// veiled tree and no shipping file at all, the leak scan raises nothing.
+#[test]
+fn rbvteu_veil_leak_admits_an_empty_census() {
+    let root = std::env::temp_dir().join(format!("rbvteu-absent-root-{}", std::process::id()));
+    assert!(!root.exists(), "the absent root {:?} stands — the hurdle needs a tree holding nothing", root);
+    let findings = zrbvceu_veil_leak(&root);
+    assert!(
+        findings.is_empty(),
+        "an empty census reddened the assay: {:?}",
+        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+    );
+}
+
+/// The admission rests on the self-proof, so the proof must still fail a matcher
+/// that leaks: every planted positive it is handed goes missed, and each is named.
+#[test]
+fn rbvteu_veil_self_proof_fails_a_leaking_matcher() {
+    let findings = zrbvceu_veil_self_proof_by(zrbvteu_blind_scan);
+    assert!(!findings.is_empty(), "the self-proof passed a matcher that catches nothing");
+    assert!(
+        findings.iter().all(|f| f.detail.starts_with("veil matcher missed a known leak")),
+        "the self-proof failed a leaking matcher for the wrong reason: {:?}",
         findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
     );
 }
