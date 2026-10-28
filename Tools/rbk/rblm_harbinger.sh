@@ -69,7 +69,7 @@ readonly RBLM_harbinger_hooks_path=".git/hooks"
 
 # Where every push to a public host is redirected: a path beneath /dev/null, which can
 # never stand as a repository, spelled so git's own error states the refusal.
-readonly RBLM_harbinger_refused_destination="/dev/null/coldwalk-clone-pushes-are-refused"
+readonly RBLM_harbinger_refused_destination="/dev/null/coldwalk-clone-pushes-are-refused/"
 
 # Every public-host prefix a push is redirected from. The org prefixes are longer than
 # any host-wide rewrite a station's global config may carry for its own pushes, so the

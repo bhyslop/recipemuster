@@ -83,7 +83,7 @@ pub const RBVCEG_TEMENOS_HOOK_REFUSAL: &str =
 /// Where every push to a public host is redirected: a path beneath /dev/null,
 /// which can never stand as a repository, spelled so git's own error states
 /// the refusal.
-pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/coldwalk-clone-pushes-are-refused";
+pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/coldwalk-clone-pushes-are-refused/";
 
 /// The pre-push refusal hook body, belt to the sever's suspenders.
 fn zrbvceg_hook_body() -> String {
