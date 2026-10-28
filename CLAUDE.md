@@ -227,6 +227,14 @@ Suites, fixtures and cases each have a colophon: `rbw-ts` runs a suite, `rbw-tf`
 
 For crucible testing work, editing test cases, adding security probes or debugging a failure, read `Tools/rbk/rbai0/rbaie_theurge.md` first: it covers the two-binary architecture, the kludge, Charge, test and ordain loop, and how to add a case.
 
+## Kit Context
+
+@Tools/buk/buai0/buais_buk.md
+
+@Tools/rbk/rbai0/rbais_rbk.md
+
+@Tools/rbk/rbai0/rbais_conduct.md
+
 ## Troubleshooting
 
 - **A regime fails validation**: run its render command to see the values, then its validate command to name the faulty field; fix the `.env` file and retry.
@@ -236,11 +244,3 @@ For crucible testing work, editing test cases, adding security probes or debuggi
 - **A tabtarget is not found**: `tt/rbw-tq.QualifyFast.sh` checks tabtarget and colophon health.
 - **A build fails**: `tt/rbw-ft.RetrieverTalliesHallmarks.sh` shows which hallmarks are vouched, pending or incomplete, and the build's own logs stand in the Google Cloud Console under the depot's project.
 - **"Already exists" right after a delete**: almost always Google's post-delete read flap rather than stale local state, so wait a few seconds and retry.
-
-## Kit Context
-
-@Tools/buk/buai0/buais_buk.md
-
-@Tools/rbk/rbai0/rbais_rbk.md
-
-@Tools/rbk/rbai0/rbais_conduct.md
