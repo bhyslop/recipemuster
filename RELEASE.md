@@ -86,7 +86,7 @@ Discard the fresh clone afterwards; it is never a working directory of the cerem
 Run the four commands under their practice doors, reading each stop as the real section of the same name describes it:
 
 1. Run `tt/rbvw-e.Essai.palaestra.sh`.
-   It cuts the [Regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [Temenos](#Temenos) in `../palaestra_coldwalk`.
+   It cuts the [Regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [Temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
    Walk the coldwalk and read the [Regulus](#Regulus) as the laps below describe, with those paths.
 2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
 3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
@@ -106,7 +106,7 @@ Type each line as shown, in order:
 ### <a id="PracticeClosing"></a>Closing a round
 
 1. Delete the stand-in's `POSTULANT_LOCAL` branch, as the real closeout deletes the public one.
-2. Check that every coldwalk findings memo is committed, including any still inside a moved-aside `palaestra_coldwalk` sibling; then delete every `palaestra_*` directory beside the maintainer repository.
+2. Check that every coldwalk findings memo is committed, including any inside a dated `palaestra_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `palaestra_*` directory beside the maintainer repository.
 3. Record what the round surfaced.
    A finding in the procedure is an edit to this ordinatio and a re-render; a finding in the instrument is a repair and another round.
    The next round opens by deleting and recreating both practice repositories, so they need not be deleted here.
@@ -223,7 +223,7 @@ Then type the printed promotion line there.
 ### <a id="HarbingerAct"></a>Harbinger
 
 Run `tt/rbvw-h.Harbinger.agora.sh`.
-It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints a launch line, a stranger prompt and a dated findings-memo path.
+It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints the clone's `HEAD` to match against the promoted commit, a launch line, a stranger prompt and a dated findings-memo path.
 Launch the confirmation coldwalk by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
 
 ## <a id="GreenfieldWalk"></a>The walk
@@ -246,7 +246,7 @@ Dispose of each finding:
    Links into main go live only at promotion; before the push only their structure was checked, by the `pyx` sweep.
 2. Spot-check the repository front page and the github.io render.
 3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [Narthex](#Narthex) repository.
-4. Check that every coldwalk findings memo is committed, including any still inside a moved-aside `rbthdr_coldwalk` sibling; then delete every `rbthdr_*` directory beside the maintainer repository.
+4. Check that every coldwalk findings memo is committed, including any inside a dated `rbthdr_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `rbthdr_*` directory beside the maintainer repository.
 5. Record the release in `RBSPH-ProjectHistory.adoc`, the project's history; this procedure carries no dated record.
 
 ## Glossary
