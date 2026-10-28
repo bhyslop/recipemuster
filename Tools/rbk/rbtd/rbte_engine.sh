@@ -109,14 +109,16 @@ zrbte_codegen() {
 zrbte_channel_capture() {
   zrbte_sentinel
 
+  local z_channel=""
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     if [[ "${z_line}" =~ ${ZRBTE_CHANNEL_PATTERN} ]]; then
-      echo "${BASH_REMATCH[1]}"
-      return 0
+      z_channel="${BASH_REMATCH[1]}"
+      break
     fi
   done < "${ZRBTE_PIN_FILE}" || return 1
-  return 1
+  test -n "${z_channel}" || return 1
+  echo "${z_channel}" || return 1
 }
 
 # The seat's position over the roots, the one line the binary will answer.
@@ -126,7 +128,7 @@ zrbte_position_capture() {
   local z_position=""
   z_position=$(git -C "${ZRBTE_REPO_ROOT}" log -n 1 --first-parent --format=%H HEAD -- "${ZRBTE_ROOTS[@]}") || return 1
   test -n "${z_position}" || return 1
-  echo "${z_position}"
+  echo "${z_position}" || return 1
 }
 
 # Run cargo for the theurge: the pinned channel, the lock flag ahead of the
@@ -173,9 +175,6 @@ zrbte_build_binary() {
 rbte_build() {
   zrbte_sentinel
 
-  buc_doc_brief "Build the theurge crate, regenerating the zipper-derived files first"
-  buc_doc_shown || return 0
-
   test "$#" -eq 0 || buc_die_now "The theurge build takes no argument"
 
   zrbte_build_binary
@@ -187,10 +186,6 @@ rbte_build() {
 rbte_test() {
   zrbte_sentinel
 
-  buc_doc_brief "Run the theurge crate's unit tests"
-  buc_doc_param "filter" "Optional: cargo's test-name filter"
-  buc_doc_shown || return 0
-
   test "$#" -le 1 || buc_die_now "The theurge test takes at most one argument, a test-name filter"
   local -r z_filter="${1:-}"
 
@@ -200,12 +195,11 @@ rbte_test() {
   buc_success "All theurge tests passed"
 }
 
-# Clippy over every target, refusing only on a barred call the root clippy.toml
-# lists; every other lint stands in the report as a warning.
+# Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars.
 rbte_lint() {
   zrbte_sentinel
 
-  buc_doc_brief "Lint the theurge crate, refusing only on calls the root clippy.toml bars"
+  buc_doc_brief "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
   buc_doc_shown || return 0
 
   test "$#" -eq 0 || buc_die_now "The theurge lint takes no argument"
@@ -226,11 +220,11 @@ rbte_lint() {
   buc_success "Theurge lint found no barred call"
 }
 
-# Cargo's clean of the theurge's own target directory, and nothing else.
+# Removes the test engine's build output, so the next door that builds starts from nothing.
 rbte_clean() {
   zrbte_sentinel
 
-  buc_doc_brief "Remove the theurge crate's build output"
+  buc_doc_brief "Removes the test engine's build output, so the next door that builds starts from nothing."
   buc_doc_shown || return 0
 
   test "$#" -eq 0 || buc_die_now "The theurge clean takes no argument"

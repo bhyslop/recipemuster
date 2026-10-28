@@ -285,8 +285,8 @@ zrbz_kindle() {
   # is consumed. (Empty channel would drop the args; param1 would eat the first.)
   buz_enroll RBZ_THEURGE_BUILD    "rbw-tb"  "${z_mod}" "rbte_build"   "imprint"  "Build the theurge crate"
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
-  buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lint the theurge crate, refusing only on calls the root clippy.toml bars"
-  buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Remove the theurge crate's build output"
+  buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
+  buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Removes the test engine's build output, so the next door that builds starts from nothing."
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"
