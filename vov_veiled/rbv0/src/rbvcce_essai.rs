@@ -254,7 +254,8 @@ fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path, bundle: &rbvce
     // branch from ever being mistaken for a regulus.
     zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_DAMNATIO], top, &[]), "regulus damnatio");
 
-    // The regulus's transposed root CLAUDE.md must carry no veil needle —
+    // The regulus's root CLAUDE.md, shipped from the maintainer's committed
+    // bytes like every other path, must carry no veil needle —
     // re-homed in-process from the theurge damnatio fixture's veil_stripped case,
     // whose census-bearing scan could only run where the veiled trees still
     // stand. The path-grain half (a withheld tree survived the strip) is already

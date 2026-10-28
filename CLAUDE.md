@@ -1,229 +1,246 @@
-# Recipe Bottle (`rb`) — sire context
+# <a id="rbsoc_context"></a>Recipe Bottle Project Context
 
-The kit context this tree contributes to a kraal session's composed context, and its gather manifest.
-No session sits in this tree: it is prepared as a billet standing beside the session's own outspan, and the outspan — which carries no repository — is where that session's shell starts.
-Every path below is therefore repo-relative and names a file in the billet, reached by joining the billet root the composed frame above names.
+Recipe Bottle lets you run untrusted containers safely: a sentry container stands between the untrusted workload, the bottle container, and everything the workload could reach.
+Running it needs only `bash` 3.2, `curl`, `openssl`, `jq` and a handful of standard tools, with Docker as the container runtime, and no `gcloud` CLI on the workstation.
+Images are built by Google Cloud Build and served from Google Artifact Registry, and an image built from source carries verifiable SLSA provenance.
 
-Tabtarget lines are written the same way, `tt/rbw-…`, and are run by their absolute path from wherever the shell happens to stand: `tt/z-launcher.sh` normalizes the working directory to the repo root itself, so a tabtarget invoked from outside the tree behaves exactly as one invoked inside it.
-Nothing here needs a `cd`, and the log paths a dispatch announces are the ones to read back — never a path rebuilt from a remembered layout.
+Project page: [scaleinv.github.io/recipebottle](https://scaleinv.github.io/recipebottle)
 
-## Current Context
-- Primary focus: Recipe Bottle infrastructure and tooling
-- Architecture: Bash-based CLI tools with Google Cloud integration
-- Documentation format: AsciiDoc (.adoc) for specs, Markdown (.md) for guides
-- Public project page: https://scaleinv.github.io/recipebottle
+## Getting Started
 
-## Managed Kit Directories
+New users start with `README.md` at the project root, which walks the setup from clone to a running bottle.
+The onboarding guide reads your current state and shows the next step, from the first payor setup onward:
 
-`Tools/buk/` is a consumed copy, not a source.
-BUK's primary home is the JJ application clone, `../jjqa_app` — a peer of the outspan, not a tree inside this one; this tree receives BUK as a minted parcel and installs it by whole-directory replacement — the install verb (`emplace`) deletes the kit directory outright, then recopies it from the parcel.
-Nothing standing in it survives.
+```
+tt/rbw-o.ONBOARDING.sh
+```
 
-So an edit to any file beneath `Tools/buk/` is destroyed work, however small and however correct.
-There is no merge and no conflict: the file is deleted, a fresh copy from `../jjqa_app` is written in its place, and the change is gone — no diff, no warning, no trace that it ever stood.
-This has nearly happened here.
-A ruled, censused, reveille-verified change to `Tools/buk/buv_validation.sh` (`d6390f148`) was made in this tree after it stopped being BUK's home, and survived only because it was hand-carried upstream ahead of the first install.
-That rescue was a one-time act and has since retired; a second such edit has nothing catching it.
+## Domain Vocabulary
 
-A buk file is therefore fixed in `../jjqa_app` and arrives here by parcel.
-That is the only path in — including a buk file's own carried prose, so a correction owed to `Tools/buk/buai0/buais_buk.md` is made at the BUK home and rides the next parcel.
+Recipe Bottle names its concepts and operations with words of its own, in its commands and its documentation alike.
+When you meet an unfamiliar term, read `README.md`: its glossary, the last section of the page, defines every term in alphabetical order, each under an anchor named for the term.
+Link to one directly, as in `README.md#Ordain`, `README.md#Depot` or `README.md#Charge`.
 
-Which directories are drop-zones is declared by `BURC_MANAGED_KITS` in `rbmm_moorings/burc.env` — today, `bkk` and `buk`.
-Every other directory under `Tools/` is this repo's own and is edited in the billet in the ordinary way.
-The release and install procedures themselves are specified in `jjqs_studbook/specs/vok/VOSO-distribution.adoc` (`vosor_release`, `vosoi_install`); this tree carries no copy of them, by design.
+The terms fall into a few families:
 
-## File Acronym Mappings
+- **Architecture**: Foundry, Manor, Depot, Crucible, Vessel, Hallmark, Ark, Nameplate, Regime, Tabtarget
+- **Roles**: Payor, Governor, Director, Retriever, the last three being mantles a federated citizen wears
+- **Identity**: Citizen, Mantle, Foedus, Sederunt, Terrier, Muniment
+- **Containers**: Sentry, Pentacle, Bottle
+- **Supply chain**: Lode, Touchmark, Reliquary, Capture
+- **Crucible operations**: Charge, Quench, Rack, Hail, Scry
+- **Testing**: Ifrit, Theurge
 
-Each kit's acronym rows ride that kit's core context file, annotated with the per-row descriptions and family topology — RBK's in `Tools/rbk/rbai0/rbais_rbk.md`, BUK's in `Tools/buk/buai0/buais_buk.md`, and the veiled half's in the corpus at `context/rbk/rbai0/rbais_rbk_veiled.md`.
-Those cores load below.
+## Verb Guide
 
-Beside each core stands a bare index (`rbaip_rbk.md`, `buaip_buk.md`, `rbaip_rbk_veiled.md`) restating the same rows without their annotations.
-Those indexes are not loaded — see the curation record under **Kit context** — and each core is a strict superset of its own index, so nothing is lost.
-They stand for the lints that read them as rosters, and for a reader who wants the bare table.
+Recipe Bottle's operations take domain verbs in place of generic ones such as create, delete, start and stop, and each tabtarget's frontispiece carries its verb.
+The tables below map what you want to do to the verb you will meet.
 
-## Retired Memos
+### Building images
 
-A memo whose work is fully dispositioned (every concern resolved into a pace, an RBSHR entry, or an explicit decline) moves to `jjqs_studbook/retired/memos/` with its basename unchanged.
-A memo path under `jjqs_studbook/` that no longer resolves has retired — look for the same basename under `jjqs_studbook/retired/memos/`.
-Retired memos are historical record: read them freely, never resurrect work from them without operator direction.
+| Verb | What it does |
+| --- | --- |
+| **Conclave** | Capture the co-versioned cohort of builder tool images into one Lode, the reliquary, named by its touchmark; Cloud Build jobs run their steps from its members. |
+| **Ensconce** | Capture an upstream base image into your depot's registry as a Lode, recording the exact digest captured, so builds draw from your own copy. |
+| **Ordain** | Build a hallmark: it reads the vessel's mode and conjures, binds or grafts. |
+| **Conjure** | Build from source in Cloud Build with SLSA provenance; a mode of ordain. |
+| **Bind** | Mirror an upstream image pinned by digest; a mode of ordain. |
+| **Graft** | Push a locally built image to the depot's registry, with no provenance chain; a mode of ordain. |
+| **Kludge** | Build a conjure vessel's image locally for fast iteration, with no Cloud Build and no registry push. |
 
-Memos are provenance, never authority: if a fact must still be true after the memo retires, it needs a spec home.
-The temptation to home durable knowledge in a memo is itself the signal that formal specification is due.
+The supply chain runs in that order: conclave captures the reliquary, ensconce captures base images, and ordain conjures your vessel from both once yoke and Feoff have recorded them into it.
 
-## Working Preferences
-- When an acronym is mentioned, navigate to the corresponding file
-- Everything under `Tools/` is this repo's own and is edited in the billet,
-  bounded by the drop-zone limit above: a change beneath `Tools/buk/` is made in
-  `../jjqa_app`, never here
-- For bash scripts, prefer functional programming style with clear error handling
-- For .adoc files, maintain consistent AsciiDoc formatting
+### Verifying and inspecting images
 
-### Heredoc Delimiter Selection
+| Verb | What it does |
+| --- | --- |
+| **Audit** | List the hallmark identifiers in the depot's registry, a flat catalog at the director tier. |
+| **Tally** | Classify hallmarks by health, vouched, pending or incomplete; a retriever operation. |
+| **Rekon** | Report which of one hallmark's artifacts stand in the registry. |
+| **Vouch** | Record a hallmark's verification: SLSA provenance for conjure, the digest pin for bind, a GRAFTED verdict for graft. |
+| **Plumb** | Inspect a hallmark's provenance: the full view shows its SBOM, build info and Dockerfile, the compact view its trust posture. |
 
-When generating heredocs for stdin content, the delimiter must not appear alone on any line within the content.
+### Getting and removing images
 
-- **Check content first**: If content includes `EOF` (e.g., code examples showing heredoc patterns), use a different delimiter
-- **Safe alternatives**: `SPEC`, `CONTENT`, `DOC`, `PACESPEC`, `SLASHCMD`
-- **Pattern**: `cat <<'DELIM' | command` (quoted delimiter prevents variable expansion)
+| Verb | What it does |
+| --- | --- |
+| **Summon** | Pull a hallmark's artifacts to your workstation under retriever credentials. |
+| **Wrest** | Pull one image by its locator, a hallmark member or a Lode member alike, as a direct pull. |
+| **Abjure** | Delete a hallmark's whole ark from the registry: its image, its about artifact and its vouch record. |
+| **Jettison** | Delete one image tag by its locator, a hallmark member or a Lode member alike. |
+| **Banish** | Delete a whole Lode. |
 
-### AsciiDoc Linked Terms
-When working with .adoc files using MCM patterns:
-- **Linked Term**: Concept with three parts:
-  - Attribute reference: `:prefix_snake_case:` (mapping section)
-  - Replacement text: `<<anchor,Display Text>>` (what readers see)
-  - Definition: `[[anchor]] {attribute}:: Definition text` (meaning)
-- Definitions may be grouped in lists or dispersed through document
-- Maintain consistent prefix categories (e.g., `mcm_`, `rbw_`)
-- Use snake_case for anchors, match attribute to anchor
+### Running and inspecting containers
 
-### Rust Build Discipline
+| Verb | What it does |
+| --- | --- |
+| **Charge** | Start a crucible, the sentry first, then the pentacle, then the bottle; it refuses over a live crucible another working tree started. |
+| **Quench** | Stop a crucible and remove its network resources; one another working tree started is named and confirmed first. |
+| **Rack** | Open a shell inside the bottle. |
+| **Hail** | Open a shell on the sentry, for its `iptables` rules, `dnsmasq` configuration and network state. |
+| **Scry** | Capture packets across the crucible's network interfaces. |
 
-Always use the tabtarget, never raw cargo commands.
+### Managing infrastructure
 
-**Theurge** (rbk's own test infrastructure — dispatches through the unified rbw workbench):
-- `tt/rbw-tb.Build.sh` — build theurge crate
-- `tt/rbw-tt.Test.sh` — run theurge unit tests
+| Verb | What it does |
+| --- | --- |
+| **Establish** | Stand up the manor, its GCP project, billing link, OAuth consent screen and OAuth client, by the one manual procedure, guided through the Google Cloud Console. |
+| **Instaurate** | Found the manor's identity substrate: the workforce pool every depot's sign-in trusts, and the terrier that records who holds what. |
+| **Affiance** | Seat an external identity provider under the manor's pool as a foedus. |
+| **Jilt** | Dissolve one foedus, leaving the pool standing. |
+| **Levy** | Provision a depot: its GCP project, artifact registry, build worker pools and three mantle service accounts. |
+| **Unmake** | Destroy a depot; its project enters Google's thirty-day deletion retention, recoverable only within that window. |
 
-### Test Execution
+### Admitting people and signing in
 
-**Test suites** group fixtures by dependency **stratum** (reveille/picket/bivouac; echelon = their union).
-The cosmology — the wrapper(inner) model, the three strata, and the freehold/leasehold substrate — is spec-homed in `RBSTC-theurge_cosmology.adoc`.
-Suite membership is owned by the hand-written `RBTCEA_SUITES` literal registry (`Tools/rbk/rbtd/src/rbtdra_almanac.rs`), the authoritative source; the table below summarizes strata, never member lists (which drift).
-Run the broadest applicable suite:
+Nobody holds a long-lived key.
+An operator is a citizen of a foedus, and a role is a mantle the citizen is admitted to wear.
+Signing in opens a Sederunt, a time-bounded session, and each privileged call mints a short-lived token for one mantle.
+Novate is the one way to sign in: a cloud command finding no live Sederunt never signs in on its own, but refuses and names `tt/rbw-aN.NovateSederunt.sh`, so run that before cloud work.
 
-| Suite | Tabtarget | Dependencies | Stratum |
-|-------|-----------|-------------|---------|
-| `reveille` | `tt/rbw-ts.TestSuite.reveille.sh` | None | Credless base — no external dependency |
-| `picket` | `tt/rbw-ts.TestSuite.picket.sh` | GCP credentials | reveille + GCP-credentialed fixtures |
-| `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | Container runtime | reveille + container-runtime crucible fixtures |
-| `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | All of the above | reveille ∪ picket ∪ bivouac |
+| Verb | What it does |
+| --- | --- |
+| **Avow** | The federated sign-in against the active foedus that opens a Sederunt; only Novate performs it. |
+| **Novate** | Open a fresh full-window Sederunt, extinguishing any standing one. |
+| **Espy** | Report whether a Sederunt stands and how much runway is left, from the local cache and with no network. |
+| **Don** | Mint a short-lived token for one mantle. |
+| **Gird** | The payor seats a fresh depot's first governor, the one admission made outside governor wielding. |
+| **Brevet** | A governor admits a citizen onto a mantle in a depot. |
+| **Unseat** | A governor withdraws one mantle from a citizen, a suspension rather than an erasure. |
+| **Attaint** | A governor expels a citizen from the depot entirely. |
+| **Rehearse** | Recount the terrier, who holds which mantle across the manor, reading only. |
 
-`regime-poison` is the in-universe negative-validation fixture (real validate verbs against real regimes, one field corrupted via the regime-poison tweak, asserting a specific band code).
-It rides above reveille — reveille reserves the tweak slot for the credless guard — so a regime/validation change runs reveille (positives) plus this fixture (negatives) via `tt/rbw-tf.FixtureRun.sh regime-poison`.
-Its operator-local cases (station/oauth/auth/node/privilege) self-skip when the regime is not configured on the machine.
+## Roles
 
-**Release/probe suites** — ladders distinguished by project-churn × crucible × network posture, not dependency tier:
+The payor stands apart; the other three roles are mantles worn by federated citizens.
 
-| Suite | Tabtarget | Precondition | What it covers |
-|-------|-----------|-------------|----------------|
-| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | None (levies fresh projects) | Release-qualification ladder: marshal-zero state → depot-lifecycle → freehold-establish → onboarding-sequence → reveille fixtures → crucibles |
-| `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | Freehold depot already levied | Mini-gauntlet: depot→build→crucible chain without project churn |
-| `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | Freehold depot already levied | Cloud-build viability probe: ordain → summon → run, no crucible |
-| `siege` | `tt/rbw-ts.TestSuite.siege.sh` | None (fully local) | Tadmor self-contained: kludge both vessels + security cases |
-| `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | Depot levied + moriah hallmark ordained | Airgap moriah crucible with credential self-heal |
-| `parley` | `tt/rbw-ts.TestSuite.parley.sh` | Freehold depot levied + subject brevetted onto retriever (standing terrier) | Positive federation-admission round-trip: unseat → restore-brevet retriever, asserting via rehearse's manor roll that the muniment stands → vanishes → stands |
+| Role | Authenticates via | Purpose |
+| --- | --- | --- |
+| **Payor** | OAuth, browser flow | Establishes the manor, funds depots, Girds the first governor |
+| **Governor** | Federated Sederunt, governor mantle | Admits citizens to mantles within a depot |
+| **Director** | Federated Sederunt, director mantle | Submits builds, manages images, verifies provenance |
+| **Retriever** | Federated Sederunt, retriever mantle | Pulls images for local use |
 
-**After code changes**, run the appropriate tier:
-- Regime/validation changes → `reveille` + `regime-poison` (`tt/rbw-tf.FixtureRun.sh regime-poison`)
-- Foundry/credential changes → `picket`
-- Bottle/sentry/network changes → `bivouac`
-- Pre-release or decomposition sweep → `echelon`
+The payor is the only role needing manual console work.
+Every other role signs in against the foedus and dons its mantle per call, so authority is short-lived by construction and each use traces to the person who wore it.
+Each role, as the project defines it:
 
-**Single fixture**:
-`tt/rbw-tf.FixtureRun.sh <name>` (e.g., `tadmor`, `enrollment-validation`, `regime-smoke`)
+<a id="rbsfr_payor"></a>**Payor Role**
 
-**Single case**:
-`tt/rbw-tc.FixtureCase.sh <fixture> [case-name]` — run one case against an already-charged crucible (no charge/quench).
-Omit case name to list all cases for the fixture; omit fixture to list all fixtures.
-Workflow for crucible debugging: charge via `tt/rbw-cC.Charge.{nameplate}.sh`, run individual cases, quench via `tt/rbw-cQ.Quench.{nameplate}.sh` when done.
+An RB Role that enables an Operator to manage billing accounts and create depot projects using OAuth user authentication rather than service accounts.
+The [Payor Role](#rbsfr_payor) operates through OAuth 2.0 desktop application flow.
+Everyday depot-side management requires no organization-level permissions; the payor's one org-scoped authority is exercising the Manor's command of its GCP Organization — founding the manor's workforce pool at manor setup and pledging or dissolving foedus providers (Affiance, Jilt) — the asymmetry that keeps every RB Depot org-blind.
 
-**Sequential only**:
-Never run fixtures in parallel — they share regime state and container namespaces.
+<a id="rbsfr_governor"></a>**Governor Role**
 
-<!-- Universal minting doctrine is CMK-homed, and CMK homes in ../jjqa_app: this
-     repo no longer carries the kit, so the doctrine is not loaded here. What
-     stays is this repo's own Project Prefix Registry, which the doctrine's
-     Rule 1 defers to the host project for. -->
+An RB Role whose Mantle holds Owner permissions on the RB Depot Project without billing authority, granted at Levy; the Citizen donning it administers admission onto the [Director Role](#rbsfr_director) and [Retriever Role](#rbsfr_retriever) Mantles.
 
-## Project Prefix Registry (rbm-local)
+<a id="rbsfr_director"></a>**Director Role**
 
-| Prefix | Project |
-|--------|---------|
-| `rb` | Recipe Bottle |
-| `bu` | BUK (Bash Utilities Kit) |
-| `jj` | Job Jockey |
-| `pb` | Paneboard |
-| `mcm`, `axl` | CMK (Concept Model Kit) |
-| `crg` | Config Regime |
-| `wrs` | Ward Realm Substrate |
-| `vsl` | VSLK (Visual SlickEdit Local Kit) |
+An RB Role that grants an Operator full build lifecycle permissions including Cloud Build submission and RB Container Repository management.
 
-For expanded prefix trees within each project, see **File Acronym Mappings** above.
+<a id="rbsfr_retriever"></a>**Retriever Role**
 
-## Design Principles
+An RB Role that allows an Operator read-only access to the RB Container Repository for pulling RB Images.
 
-### Load-Bearing Complexity
+## Credential Safety
 
-An element is **load-bearing** when its removal would create a gap between intent and behavior.
-The litmus for any new pattern, extraction, or structural choice: "Does this element earn its existence?"
-If not, it doesn't belong.
+**The payor's OAuth credential is the system's one standing secret**.
+There are no service-account key files to protect, back up or rotate: the mantles hold no durable credential at all.
 
-Concept home: MCM `mcm_load_bearing` — the headwater the Antipatterns catalog instantiates.
-Domain forms: BCG (Zeroes Theory, Interface Contamination), RCG (Constant and Constructor Discipline), ACG (Allodial Discipline).
+- **Payor OAuth** (`rbro.env`, in the payor's directory under `RBRR_SECRETS_DIR`): the client secret and refresh token, mode `600`, only on the administrator's workstation and never committed.
+- **Mantle tokens**: minted per call from a live Sederunt and never written to disk as a durable credential; lose your Sederunt and you Novate again, with nothing to restore.
 
-### Zeroes Theory
+## Regimes
 
-Every tolerance, alias, fallback, or alternative path multiplies the enumerated state space.
-The litmus: **"How many zeroes did this choice add to the enumerated state space?"**
-If the answer isn't zero, it needs explicit justification.
-The multiplication runs along several axes — the input forms accepted at one moment, the formats tolerated across time, and the interior representation chosen for data.
+A regime is a structured family of configuration: a `.env` file of values, each typed and validated, with its own render and validate commands.
+Each regime's variables share one uppercase prefix, so no two collide.
+Its tabtargets follow one pattern, `rbw-r` and the regime's code, then `r` to render, `v` to validate and, where offered, `l` to list.
 
-Concept home: BCG **Zeroes Theory** — the built form, where each axis carries its own discipline.
-Instantiates MCM `mcm_load_bearing`: the litmus is the load-bearing question sharpened to state space.
+| Code | Regime | Holds | Render | Validate |
+| --- | --- | --- | --- | --- |
+| `rp` | RBRP | Manor identity: billing account, OAuth client, operator email, the payor's project | `rbw-rpr` | `rbw-rpv` |
+| `rr` | RBRR | Repository settings: runtime prefix, vessel and secrets directories, Cloud Build limits, the active foedus | `rbw-rrr` | `rbw-rrv` |
+| `rd` | RBRD | Depot identity: cloud prefix, moniker, region, build machine type | `rbw-rdr` | `rbw-rdv` |
+| `rn` | RBRN | One nameplate: its sentry and bottle vessels, runtime and hallmarks | `rbw-rnr` | `rbw-rnv` |
+| `rv` | RBRV | One vessel: how its image is built | `rbw-rvr` | `rbw-rvv` |
+| `rf` | RBRF | One foedus: the identity provider's trust values | `rbw-rfr` | `rbw-rfv` |
+| `rw` | RBRW | The manor's workforce pool | `rbw-rwr` | `rbw-rwv` |
+| `ro` | RBRO | The payor's OAuth credential | `rbw-ror` | `rbw-rov` |
 
-## Kit context
+You edit the regimes during setup, save two: payor install writes RBRO, and RBRD is filled at levy and stands for the depot's life, so changing it means a fresh depot.
+`tt/rbw-rnl.ListNameplateRegime.sh` lists every nameplate and `tt/rbw-rvl.ListVesselRegime.sh` every vessel; `tt/rbw-ni.NameplateInfo.sh` surveys the nameplates and `tt/rbw-nv.ValidateNameplates.sh` validates them all.
 
-<!-- THE GATHER MANIFEST, and the curation record for it. Every `@` line below
-     is a whole file spliced into the composed context of every session this
-     tree is dispatched to, so each line is standing launch-time weight. Which
-     files load is decided here; their content is edited in the files
-     themselves, and a target standing in the Tools/buk parcel drop-zone (see
-     Managed Kit Directories above) is edited at the BUK home and arrives by
-     parcel.
+Two Bash Utility Kit regimes underlie every tool:
 
-     Three rulings govern what stands here, each applied to every kit alike:
+- **BURC** (`rbmm_moorings/burc.env`): the project's structure, its tabtarget and tools directories, its temp and output roots and the path of the station file; in git.
+- **BURS** (`../station-files/burs.env` by default): this machine's settings, the log directory among them; not in git.
 
-     1. ANNOTATED CORE IN, BARE INDEX OUT. Each kit ships a core context file
-        carrying its acronym rows WITH the per-row descriptions and family
-        topology, and beside it a bare index restating the same rows without
-        them. Every token in each index is present in its core with the same
-        path, the index being rendered from its core's rows, so each index is
-        a subset and adds no fact at launch time. The cores
-        load; the indexes stand as pull doors and as lint rosters.
+| Colophon | Frontispiece | Purpose |
+| --- | --- | --- |
+| `buw-tt-ll` | ListLaunchers | List every registered launcher |
+| `buw-rcv` | ValidateConfigRegime | Validate BURC |
+| `buw-rcr` | RenderConfigRegime | Render BURC |
+| `buw-rsv` | ValidateStationRegime | Validate BURS |
+| `buw-rsr` | RenderStationRegime | Render BURS |
 
-     2. A GENERATED LOOKUP TABLE IS A PULL DOOR, NOT LAUNCH-TIME WEIGHT. The
-        tabtarget command reference is regenerated by the build from the zipper
-        registry, is the largest single file this manifest could carry, and is
-        consulted a handful of rows at a time — while `ls tt/` already lists the
-        same set. It stands named under Pull doors below.
+## Layout
 
-     3. AN INCLUDE SITS UNDER THE HEADING THAT CLAIMS IT. The composition
-        demotes each gathered file to nest under the heading in effect where its
-        line sits, so placement decides both the composed outline and how much
-        of a gathered file's own outline survives the depth budget. Every
-        include therefore stands directly under this H2, never trailing whatever
-        section happened to precede it. -->
+```
+Project Root/
+├── rbmm_moorings/           # the consumer configuration root
+│   ├── burc.env             # BURC
+│   ├── rbrp.env             # RBRP
+│   ├── rbrr.env             # RBRR, naming the active foedus
+│   ├── rbrd.env             # RBRD
+│   ├── rbrw.env             # RBRW
+│   ├── rbmf_foedera/        # one rbef_<foedus>/rbrf.env per standing foedus
+│   ├── rben_<moniker>/      # one rbrn.env per nameplate
+│   ├── rbmv_vessels/        # one rbev_<vessel>/rbrv.env per vessel, beside its build context
+│   └── buml_launchers/      # launcher scripts
+├── tt/                      # tabtargets; ls it to see every command
+└── Tools/
+    ├── buk/                 # Bash Utility Kit, the portable infrastructure
+    └── rbk/                 # Recipe Bottle Kit, the domain logic
+```
 
-<!-- Distributable kit guidance. -->
+## Commands
+
+`ls tt/` lists every command, and tab completion narrows them by prefix, as in `tt/rbw-<TAB>`.
+For each command's folio channel and purpose, read `Tools/rbk/rbai0/rbaie_tabtarget.md`, the full reference generated from the command registry.
+`Tools/buk/README.md` documents the Bash Utility Kit whole: tabtargets, launchers, regimes and dispatch.
+
+## Bash Conventions
+
+- Bash 3.2 compatible, so the macOS default shell runs it.
+- `set -euo pipefail` at script start, so an error stops the script.
+- Every variable expanded braced and quoted, `"${var}"` and never `$var`.
+- Functional style with explicit error handling.
+- No `gcloud` on the workstation: cloud calls are `curl`, `openssl` and `jq`.
+
+## Testing
+
+Suites, fixtures and cases each have a colophon: `rbw-ts` runs a suite, `rbw-tf` one fixture and `rbw-tc` one case.
+
+- List the suites with `ls tt/rbw-ts.TestSuite.*`.
+- Run one fixture with `tt/rbw-tf.FixtureRun.sh <fixture>`, and run `tt/rbw-tc.FixtureCase.sh` with no argument to list the fixtures.
+
+For crucible testing work, editing test cases, adding security probes or debugging a failure, read `Tools/rbk/rbai0/rbaie_theurge.md` first: it covers the two-binary architecture, the kludge, Charge, test and ordain loop, and how to add a case.
+
+## Kit Context
+
 @Tools/buk/buai0/buais_buk.md
 
 @Tools/rbk/rbai0/rbais_rbk.md
 
 @Tools/rbk/rbai0/rbais_conduct.md
 
-<!-- rbm-only veiled guidance (never distributed), read from the studbook peer. -->
-@../jjqs_studbook/context/rbk/rbai0/rbais_rbk_veiled.md
+## Troubleshooting
 
-## Pull doors
-
-Named, not loaded — read when the work calls for one.
-
-- `Tools/rbk/rbai0/rbaie_tabtarget.md` — the full tabtarget command
-  reference: every colophon, its folio channel, and its purpose. Build-generated
-  from the zipper registry; `ls tt/` lists the same set by filename.
-- `Tools/rbk/rbai0/rbaie_theurge.md` — theurge/ifrit crucible
-  testing: the iteration loop (kludge, charge, test, ordain), the architecture of
-  the two Rust binaries, and how to add new security test cases.
-- `Tools/rbk/rbai0/rbaip_rbk.md`, `Tools/buk/buai0/buaip_buk.md`,
-  `context/rbk/rbai0/rbaip_rbk_veiled.md` in the corpus — the bare acronym
-  indexes, each a subset of its loaded core.
+- **A regime fails validation**: run its render command to see the values, then its validate command to name the faulty field; fix the `.env` file and retry.
+- **The payor's OAuth token is dead**: re-run payor install with the saved client-secret file, `tt/rbw-gPI.PayorInstall.sh «secrets-dir»/client_secrets/client_secret_*.json`; a dead token needs no new file.
+- **A command refuses for want of authority**: check the Sederunt with `tt/rbw-as.EspySederunt.sh` and open a fresh one with `tt/rbw-aN.NovateSederunt.sh`; if the Sederunt is healthy you hold no Brevet onto the mantle that command wears, so a governor must Brevet you with `tt/rbw-pB.GovernorBrevetsCitizen.sh`, and `tt/rbw-pr.GovernorRehearsesTerrier.sh` shows who holds what.
+- **Federated sign-in fails outright**: Descry the active foedus with `tt/rbw-jd.FoedusDescry.sh`, which reports its provider's health under the manor's pool or names the deficit.
+- **A tabtarget is not found**: `tt/rbw-tq.QualifyFast.sh` checks tabtarget and colophon health.
+- **A build fails**: `tt/rbw-ft.RetrieverTalliesHallmarks.sh` shows which hallmarks are vouched, pending or incomplete, and the build's own logs stand in the Google Cloud Console under the depot's project.
+- **"Already exists" right after a delete**: almost always Google's post-delete read flap rather than stale local state, so wait a few seconds and retry.

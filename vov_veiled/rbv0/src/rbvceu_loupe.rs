@@ -30,9 +30,8 @@
 //     `ZRBVCEU_HOST_CENSUS`.
 //   - `assay_regulus` runs POST-CUT on the regulus (RBSHE step 4), re-homed
 //     from the theurge damnatio fixture's `veil_stripped` case: it hunts the veil
-//     token in the regulus's transposed root CLAUDE.md — a leak the pre-cut
-//     scan cannot catch, because its census is harvested where the veiled trees
-//     still stand. The OTHER half of `veil_stripped` — "a withheld tree survived
+//     token in the regulus's root CLAUDE.md as the cut committed it, the last
+//     word on what the regulus ships whatever the pre-cut scan read. The OTHER half of `veil_stripped` — "a withheld tree survived
 //     the strip" — is not re-homed here: expede's object-graph delta sweep
 //     already catches any withheld PATH in the regulus graph at any history
 //     depth (RBSHC "The cut, and the single matcher"), so only the content-grain
@@ -97,14 +96,13 @@ const ZRBVCEU_VEIL_ROOTS: &[&str] =
     &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
 
 /// Repo-relative single files added to the veil corpus. The repo-root `CLAUDE.md`
-/// is deliberately ABSENT here — pre-cut it is the maintainer's own context and
-/// names withheld material on purpose; the regulus's transposed CLAUDE.md is
-/// covered by `assay_regulus` instead. `LICENSE`/`.gitignore`/`.gitattributes`
+/// is the consumer's context, rendered and shipped byte for byte, so it is held
+/// to the veil here like `README.md`. `LICENSE`/`.gitignore`/`.gitattributes`
 /// are named because they ship but sit at the repo root, outside every walked
 /// root — a withheld path named in an ignore pattern would otherwise ride unseen.
 const ZRBVCEU_VEIL_FILES: &[&str] = &[
     "README.md",
-    "vov_veiled/CLAUDE.consumer.md",
+    "CLAUDE.md",
     "LICENSE",
     ".gitignore",
     ".gitattributes",
@@ -269,8 +267,18 @@ pub(crate) fn zrbvceu_veil_scan_text(
 
 /// The veil matcher's self-proof, run before its live-tree verdict is trusted.
 /// The census it proves against is synthetic, so the proof holds in a tree whose
-/// veiled documents have all been stripped away.
+/// veiled documents have all been stripped away — and in the maintainer tree,
+/// whose veiled tree holds no document today, it is the one proof the matcher
+/// extracts at all.
 pub(crate) fn zrbvceu_veil_self_proof() -> Vec<zrbvceu_Finding> {
+    zrbvceu_veil_self_proof_by(zrbvceu_veil_scan_text)
+}
+
+/// The self-proof over a given matcher, so a hurdle can hand it one that leaks
+/// and watch the proof fail.
+pub(crate) fn zrbvceu_veil_self_proof_by(
+    scan: fn(&str, &str, &BTreeSet<String>, &mut Vec<zrbvceu_Finding>),
+) -> Vec<zrbvceu_Finding> {
     let mut findings = Vec::new();
     let census: BTreeSet<String> = ["ZZQ-Example.adoc".to_string()].into_iter().collect();
 
@@ -281,7 +289,7 @@ pub(crate) fn zrbvceu_veil_self_proof() -> Vec<zrbvceu_Finding> {
     ];
     for probe in positives {
         let mut hits = Vec::new();
-        zrbvceu_veil_scan_text("self-proof", probe, &census, &mut hits);
+        scan("self-proof", probe, &census, &mut hits);
         if hits.is_empty() {
             findings.push(zrbvceu_Finding {
                 file: "rbvceu_loupe.rs".to_string(),
@@ -298,7 +306,7 @@ pub(crate) fn zrbvceu_veil_self_proof() -> Vec<zrbvceu_Finding> {
     ];
     for probe in negatives {
         let mut hits = Vec::new();
-        zrbvceu_veil_scan_text("self-proof", probe, &census, &mut hits);
+        scan("self-proof", probe, &census, &mut hits);
         if !hits.is_empty() {
             findings.push(zrbvceu_Finding {
                 file: "rbvceu_loupe.rs".to_string(),
@@ -386,22 +394,16 @@ pub fn rbvceu_assay(top: &Path) -> Vec<String> {
 /// No shipping file may name what the distribution withholds — not the veiled
 /// tree by path, and not a withheld document by basename. The census is
 /// harvested from the tree, so a document veiled tomorrow is protected tomorrow.
-/// An empty census is a FINDING outright: this assay runs only where the veiled
-/// trees stand, so an empty result can only mean the extractor stopped
-/// extracting.
-fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
+/// An empty census is admitted: the consumer context was the one document the
+/// veiled tree held, and it now ships rendered at the root, so a census of none
+/// is the tree as it stands. The self-proof run first stays the proof that the
+/// matcher extracts, and the veiled-dir needle fires whatever the census holds.
+pub(crate) fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
     let mut findings = zrbvceu_veil_self_proof();
 
     let census_root = root.join(ZRBVCEU_VEIL_CENSUS_ROOT);
     let mut census = BTreeSet::new();
     zrbvceu_census_walk(&census_root, &mut census);
-    if census.is_empty() {
-        findings.push(zrbvceu_Finding {
-            file: ZRBVCEU_VEIL_CENSUS_ROOT.to_string(),
-            line: 0,
-            detail: "the census matched no documents — the extractor stopped extracting".to_string(),
-        });
-    }
 
     let mut files = Vec::new();
     for sub in ZRBVCEU_VEIL_ROOTS {
@@ -497,8 +499,8 @@ fn zrbvceu_hostname_leak(root: &Path) -> Vec<zrbvceu_Finding> {
 // ── The post-cut rbvceu_assay (regulus) ──────────────────────────
 
 /// Re-homed from the theurge damnatio fixture's `veil_stripped` case: hunt the
-/// veil token in the regulus's transposed root CLAUDE.md, once no veiled tree
-/// stands to census from. The census is empty here by construction, so only the
+/// veil token in the regulus's root CLAUDE.md, once no veiled tree stands to
+/// census from. The census is empty here by construction, so only the
 /// veiled-dir needle can fire. The path-grain "a withheld tree survived" half is
 /// NOT here — expede's object-graph delta sweep already catches any withheld
 /// path in the regulus graph. Returns rendered findings, empty when clean.
