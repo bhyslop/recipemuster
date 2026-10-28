@@ -116,11 +116,12 @@ rblm_harbinger() {
   buc_doc_shown || return 0
 
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
+  local -r z_temp_prefix="${BURD_TEMP_DIR}/rblm_harbinger_"
 
   # Where we are. The rig's location derives from this tree's root, so its identity is
   # the anchor for every derived path below — and the guard that the seposition move
   # can never hit it.
-  local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_harbinger_toplevel.txt"
+  local -r z_toplevel_temp="${z_temp_prefix}toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — harbinger must run inside a git repository"
   local z_toplevel
   z_toplevel=$(<"${z_toplevel_temp}") || buc_die_now "Failed to read: ${z_toplevel_temp}"
@@ -140,7 +141,7 @@ rblm_harbinger() {
   esac
 
   # The walk date, which completes the rig's basename and dates the findings memo.
-  local -r z_walkdate_temp="${BURD_TEMP_DIR}/rblm_harbinger_walkdate.txt"
+  local -r z_walkdate_temp="${z_temp_prefix}walkdate.txt"
   date +%Y%m%d > "${z_walkdate_temp}" || buc_die_now "date failed"
   local z_walkdate
   z_walkdate=$(<"${z_walkdate_temp}") || buc_die_now "Failed to read: ${z_walkdate_temp}"
@@ -164,7 +165,7 @@ rblm_harbinger() {
 
   # The seposed sibling for any prior rig — a second-grained stamp so two runs in
   # one day cannot collide. An existing rig is renamed here, never deleted.
-  local -r z_sepose_stamp_temp="${BURD_TEMP_DIR}/rblm_harbinger_sepose_stamp.txt"
+  local -r z_sepose_stamp_temp="${z_temp_prefix}sepose_stamp.txt"
   date +%Y%m%d-%H%M%S > "${z_sepose_stamp_temp}" || buc_die_now "date failed"
   local z_sepose_stamp
   z_sepose_stamp=$(<"${z_sepose_stamp_temp}") || buc_die_now "Failed to read: ${z_sepose_stamp_temp}"
@@ -231,15 +232,15 @@ rblm_harbinger() {
   # explicit URL needs no remote and --no-verify skips the hook; this rule still answers
   # it, the station's credentials notwithstanding.
   buc_step "Redirecting every public-host push to ${RBLM_harbinger_refused_destination}"
-  local z_prefix
-  for z_prefix in "${RBLM_harbinger_public_prefixes[@]}"; do
-    git -C "${z_clone_dir}" config --local --add "url.${RBLM_harbinger_refused_destination}.pushInsteadOf" "${z_prefix}" \
-      || buc_die_now "Failed to redirect pushes from ${z_prefix}"
+  local z_i=0
+  for z_i in "${!RBLM_harbinger_public_prefixes[@]}"; do
+    git -C "${z_clone_dir}" config --local --add "url.${RBLM_harbinger_refused_destination}.pushInsteadOf" "${RBLM_harbinger_public_prefixes[${z_i}]}" \
+      || buc_die_now "Failed to redirect pushes from ${RBLM_harbinger_public_prefixes[${z_i}]}"
   done
 
   # Read the remotes back rather than trusting the sever's exit: a remote a station's
   # global config defines survives the removal of origin.
-  local -r z_remotes_temp="${BURD_TEMP_DIR}/rblm_harbinger_remotes.txt"
+  local -r z_remotes_temp="${z_temp_prefix}remotes.txt"
   git -C "${z_clone_dir}" remote > "${z_remotes_temp}" || buc_die_now "Failed to list the clone's remotes"
   local z_remotes
   z_remotes=$(<"${z_remotes_temp}") || buc_die_now "Failed to read: ${z_remotes_temp}"
@@ -268,7 +269,7 @@ rblm_harbinger() {
   git -C "${z_clone_dir}" checkout -b "${RBLM_harbinger_walk_branch}" || buc_die_now "Failed to cut the walk branch"
 
   # The clone's HEAD, shown so the operator can match it to the promoted commit.
-  local -r z_head_temp="${BURD_TEMP_DIR}/rblm_harbinger_head.txt"
+  local -r z_head_temp="${z_temp_prefix}head.txt"
   git -C "${z_clone_dir}" rev-parse HEAD > "${z_head_temp}" || buc_die_now "Failed to read the clone's HEAD"
   local z_head
   z_head=$(<"${z_head_temp}") || buc_die_now "Failed to read: ${z_head_temp}"
@@ -276,9 +277,21 @@ rblm_harbinger() {
 
   # The launch line's path in POSIX single-quote form, an embedded quote spelled '\''
   # — the operator pastes the line into zsh or bash, and both read it so.
-  local -r z_sq="'"
-  local -r z_sq_escaped="'\\''"
-  local -r z_launch_dir="'${z_clone_dir//${z_sq}/${z_sq_escaped}}'"
+  local z_rest="${z_clone_dir}"
+  local z_launch_dir=""
+  while :; do
+    case "${z_rest}" in
+      *\'*)
+        z_launch_dir="${z_launch_dir}${z_rest%%\'*}'\\''"
+        z_rest="${z_rest#*\'}"
+        ;;
+      *)
+        z_launch_dir="${z_launch_dir}${z_rest}"
+        break
+        ;;
+    esac
+  done
+  z_launch_dir="'${z_launch_dir}'"
 
   buh_e
   buh_line "  Clone HEAD: ${z_head} — match it to the promoted commit before the walk."

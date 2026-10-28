@@ -156,7 +156,7 @@ pub fn rbvceg_coldwalk_parent(top: &Path) -> PathBuf {
     let infield = rbvcep_repo::rbvcep_parent(top);
     let estate = infield
         .parent()
-        .unwrap_or_else(|| crate::rbvcel_fatal!("the infield {} has no parent", infield.display()));
+        .unwrap_or_else(|| crate::rbvcel_fatal!("the repository root's parent {} has no parent", infield.display()));
     estate.join(RBVCEG_COLDWALK_INFIELD)
 }
 
