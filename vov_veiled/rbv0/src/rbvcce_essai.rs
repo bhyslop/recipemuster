@@ -85,7 +85,13 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     // gap loud, hand off the walk, and state the two standing artifacts.
     rbvcel_log::rbvcel_section("Stand up the coldwalk temenos (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
-    let temenos = rbvceg_temenos::rbvceg_stand_up(&parent, &top, &clone_source, &top, bundle);
+    let temenos = rbvceg_temenos::rbvceg_stand_up(
+        &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
+        &top,
+        &clone_source,
+        &top,
+        bundle,
+    );
 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this temenos is a LOCAL proxy:");

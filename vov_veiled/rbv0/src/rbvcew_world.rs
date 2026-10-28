@@ -98,11 +98,12 @@ pub struct rbvcew_Bundle {
     /// is comparing against. A conserved spelling, declared in the cadaster.
     pub freshness_dirname: &'static str,
 
-    /// The temenos's parent-relative dirname, a fixed basename beside the
-    /// maintainer repo. Shared by essai and harbinger — they never stand
-    /// simultaneously, so one location per world, any prior seposed. A
-    /// conserved spelling, declared in the cadaster; the real world's is the
-    /// same directory the bash harbinger stands its rig in.
+    /// The temenos's dirname stem, dated by the walk at stand-up and placed
+    /// in the coldwalk infield beside the maintainer's infield (rbvceg_temenos).
+    /// Shared by essai and harbinger — they never stand simultaneously, so one
+    /// location per world per day, any same-day prior seposed. A conserved
+    /// spelling, declared in the cadaster; the real world's is the same stem
+    /// the bash harbinger dates its rig by.
     pub temenos_dirname: &'static str,
 }
 
