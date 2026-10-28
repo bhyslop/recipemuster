@@ -36,29 +36,50 @@ zrbte_kindle() {
 
   local z_dir="${BASH_SOURCE[0]%/*}"
 
-  # The theurge's two collars (rbmm_moorings/bkd_weaned/). Every cargo
-  # invocation is the kennel's, through the door each collar is handed to: the
-  # app converged by the heel, the suite launched by the mush.
-  readonly ZRBTE_APP_COLLAR="rbtdn_app"
-  readonly ZRBTE_SUITE_COLLAR="rbtdn_suite"
-
-  # THE KENNEL BINARY IS DRIVEN, never a nested kennel tabtarget: a second
-  # dispatch inside this one mints a second temp generation and a second log,
-  # and the theurge's own touchstone reads one dispatch per invoke. The gate the
-  # whistle would have run is the kennel's own published bash, which the CLI's
-  # furnish sources and kindles.
+  # EVERY CARGO INVOCATION IS SPELLED HERE, by the crate's manifest, locked,
+  # under the channel the repository's root pin states. These doors carry no
+  # stale-binary gate and refuse no uncommitted tree: cargo's own fingerprint
+  # answers currency, and every run door builds first.
   readonly ZRBTE_REPO_ROOT="${PWD}"
-  readonly ZRBTE_KENNEL_CRATE="${ZRBTE_REPO_ROOT}/${BURD_TOOLS_DIR}/bkk/bk0"
-  readonly ZRBTE_KENNEL="${ZRBTE_KENNEL_CRATE}/target/release/bkx"
-  readonly ZRBTE_KENNEL_ELECTION="${ZRBTE_KENNEL_CRATE}/bkce_roots.txt"
+  readonly ZRBTE_MANIFEST="${z_dir}/Cargo.toml"
+  readonly ZRBTE_PIN_FILE="${ZRBTE_REPO_ROOT}/rust-toolchain.toml"
 
-  # The whistle, named by every refusal below and run by none, resolved by
-  # COLOPHON rather than by whole filename: the frontispiece is a label the kit
-  # may re-word.
-  local -r z_whistle=("${BURD_TABTARGET_DIR}/bkw-w."*)
-  readonly ZRBTE_WHISTLE="${z_whistle[0]}"
+  # The variable the crate's build script demands, the position the binary
+  # answers --exergue with. The name is the build script's contract, not a
+  # choice made here. Cargo reruns the script when it changes, so every road
+  # building into this target directory must state the same position under the
+  # same definition, or each rebuilds the binary the other left.
+  readonly ZRBTE_POSITION_VAR="BKCH_COLLAR_POSITION"
 
-  # Where the heel installs the binary: the app collar's residence and byname.
+  # The position's roots: the crate's own source and manifests and the root pin,
+  # its cfg(test) modules carved out. The position is the seat's newest
+  # first-parent commit touching them: the seat's own line, not a landed walk,
+  # so a billet carrying unlanded commits states where it actually stands.
+  ZRBTE_ROOTS=(
+    "Tools/rbk/rbtd/src"
+    "Tools/rbk/rbtd/build.rs"
+    "Tools/rbk/rbtd/Cargo.toml"
+    "Tools/rbk/rbtd/Cargo.lock"
+    "rust-toolchain.toml"
+    ":(exclude)Tools/rbk/rbtd/src/rbtdt*"
+  )
+  readonly ZRBTE_ROOTS
+
+  # The lint's whole ask, every lint capped at warning and the one barred-call
+  # lint raised to be read. The verdict is read from that lint's help-URL mark
+  # in the output, never the exit code, which the cap silences.
+  ZRBTE_CLIPPY_ASKED=(
+    --all-targets
+    --color never
+    --
+    --cap-lints warn
+    -W clippy::disallowed_methods
+  )
+  readonly ZRBTE_CLIPPY_ASKED
+  readonly ZRBTE_CLIPPY_MARK="index.html#disallowed_methods"
+  readonly ZRBTE_LINT_REPORT="${BURD_TEMP_DIR}/rbte_lint_report.txt"
+
+  # Where cargo's dev profile lands the binary, on either road.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
@@ -90,41 +111,51 @@ zrbte_codegen() {
     || buc_die_now "Failed to generate colophon consts"
 }
 
-# The kennel stands and is current, or refuse naming the whistle. REPORT AND
-# REFUSE, NEVER CONVERGE: the whistle is the one door that rebuilds the kennel.
-# The door law stands first, since a kennel refusing a dirty tree states no seat
-# and would read as outrun.
-zrbte_kennel_or_die() {
+# The channel the root pin states, stated on every invocation.
+zrbte_channel_capture() {
   zrbte_sentinel
 
-  bkcp_door_law_or_die "${ZRBTE_REPO_ROOT}"
-
-  test -x "${ZRBTE_KENNEL}" || buc_die_now \
-    "No kennel stands at ${ZRBTE_KENNEL}, and every cargo invocation of the theurge passes through it. The converge, run deliberately: ${ZRBTE_WHISTLE}"
-
-  local z_seat=""
-  z_seat=$(bkcp_position_capture "${ZRBTE_REPO_ROOT}" "${ZRBTE_KENNEL_ELECTION}") \
-    || buc_die_now "Could not read the seat's position over ${ZRBTE_KENNEL_ELECTION}"
-
-  local z_standing=""
-  z_standing=$(bkcp_standing_seat_capture "${ZRBTE_KENNEL}") \
-    || buc_die_now "Could not ask the kennel at ${ZRBTE_KENNEL} where it was struck"
-
-  test "${z_standing}" = "${z_seat}" || buc_die_now \
-    "The seat has outrun the kennel: the binary at ${ZRBTE_KENNEL} stands at ${z_standing:-no position it could state}, the seat at ${z_seat}. The converge, run deliberately: ${ZRBTE_WHISTLE}"
-
-  bkcb_ensure
+  local z_channel=""
+  z_channel=$(sed -n 's/^channel *= *"\([^"]*\)".*/\1/p' "${ZRBTE_PIN_FILE}") || return 1
+  test -n "${z_channel}" || return 1
+  echo "${z_channel}"
 }
 
-# The codegen, then the kennel's converge of the app collar. A codegen that moved
-# a committed file leaves the tree dirty, and the gate refuses it by the door law.
+# The seat's position over the roots, the one line the binary will answer.
+zrbte_position_capture() {
+  zrbte_sentinel
+
+  local z_position=""
+  z_position=$(git -C "${ZRBTE_REPO_ROOT}" log -n 1 --first-parent --format=%H HEAD -- "${ZRBTE_ROOTS[@]}") || return 1
+  test -n "${z_position}" || return 1
+  echo "${z_position}"
+}
+
+# Run cargo for the theurge: the pinned channel, the lock flag ahead of the
+# verb, the position stated, the manifest named after the verb.
+zrbte_cargo() {
+  zrbte_sentinel
+
+  local -r z_verb="${1}"
+  shift
+
+  local z_channel=""
+  z_channel=$(zrbte_channel_capture) || buc_die_now "The root pin at ${ZRBTE_PIN_FILE} names no channel"
+
+  local z_position=""
+  z_position=$(zrbte_position_capture) || buc_die_now "Could not read the seat's position over the theurge's roots in ${ZRBTE_REPO_ROOT}"
+
+  env "${ZRBTE_POSITION_VAR}=${z_position}" \
+    cargo "+${z_channel}" --locked "${z_verb}" --manifest-path "${ZRBTE_MANIFEST}" "$@"
+}
+
+# The codegen, then cargo's build. Cargo decides whether anything recompiles.
 zrbte_build_binary() {
   zrbte_sentinel
 
   zrbte_codegen
-  zrbte_kennel_or_die
   buc_step "Building theurge"
-  "${ZRBTE_KENNEL}" heel "${ZRBTE_APP_COLLAR}" || buc_die_now "The kennel's heel of ${ZRBTE_APP_COLLAR} failed"
+  zrbte_cargo build || buc_die_now "The theurge did not build"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -134,24 +165,54 @@ zrbte_build_binary() {
 rbte_build() {
   zrbte_sentinel
 
-  test "$#" -eq 0 || buc_die_now "The theurge build takes no argument; its shape is the collar ${ZRBTE_APP_COLLAR}'s"
+  test "$#" -eq 0 || buc_die_now "The theurge build takes no argument"
 
   zrbte_build_binary
   buc_success "Theurge built"
 }
 
-# The codegen, then the kennel's mush over the suite collar; any argument is the
-# kennel's selection pattern, handed through untouched.
+# The codegen, then cargo's test; the one optional argument is cargo's own
+# test-name filter.
 rbte_test() {
   zrbte_sentinel
 
+  test "$#" -le 1 || buc_die_now "The theurge test takes at most one argument, a test-name filter"
+
   zrbte_codegen
-  zrbte_kennel_or_die
   buc_step "Testing theurge"
-  local z_mush_status=0
-  "${ZRBTE_KENNEL}" mush "${ZRBTE_SUITE_COLLAR}" "$@" || z_mush_status=$?
-  test "${z_mush_status}" -eq 0 || buc_die_now "The kennel's mush of ${ZRBTE_SUITE_COLLAR} failed (status ${z_mush_status})"
+  zrbte_cargo test ${1:+"${1}"} || buc_die_now "Theurge tests failed"
   buc_success "All theurge tests passed"
+}
+
+# Clippy over every target, refusing only on a barred call the root clippy.toml
+# lists; every other lint stands in the report as a warning.
+rbte_lint() {
+  zrbte_sentinel
+
+  test "$#" -eq 0 || buc_die_now "The theurge lint takes no argument"
+
+  zrbte_codegen
+  buc_step "Linting theurge"
+  local z_lint_status=0
+  CLIPPY_CONF_DIR="${ZRBTE_REPO_ROOT}" zrbte_cargo clippy "${ZRBTE_CLIPPY_ASKED[@]}" \
+    > "${ZRBTE_LINT_REPORT}" 2>&1 || z_lint_status=$?
+  cat "${ZRBTE_LINT_REPORT}"
+
+  ! grep -q -F "${ZRBTE_CLIPPY_MARK}" "${ZRBTE_LINT_REPORT}" \
+    || buc_die_now "The theurge calls what the root clippy.toml bars; each finding above names the surface to adopt"
+  test "${z_lint_status}" -eq 0 || buc_die_now "The theurge did not compile under clippy (status ${z_lint_status})"
+  buc_success "Theurge lint found no barred call"
+}
+
+# Cargo's clean of the theurge's own target directory, and nothing else.
+rbte_clean() {
+  zrbte_sentinel
+
+  test "$#" -eq 0 || buc_die_now "The theurge clean takes no argument"
+
+  buc_step "Cleaning theurge"
+  zrbte_cargo clean || buc_die_now "The theurge clean failed"
+  buc_success "Theurge build output removed"
 }
 
 rbte_run() {

@@ -206,6 +206,8 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-tb` | Build | imprint | Build the theurge crate |
 | `rbw-tt` | Test | imprint | Run theurge unit tests |
+| `rbw-tm` | Lint | — | Lint the theurge crate, refusing only on calls the root clippy.toml bars |
+| `rbw-tx` | Clean | — | Remove the theurge crate's build output |
 | `rbw-ts` | TestSuite | imprint | Run a named test suite |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
 | `rbw-tc` | FixtureCase | param1 | Run one case against a charged Crucible (omit to list fixtures/cases) |

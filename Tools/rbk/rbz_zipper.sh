@@ -280,11 +280,13 @@ zrbz_kindle() {
   # tP/tS/tT into rbw-ts imprints (gauntlet/skirmish/siege).
   buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge — Test infrastructure"
   z_mod="rbtd/rbte_cli.sh"
-  # Build/Test carry the imprint channel solely to forward cargo passthrough
+  # Build/Test carry the imprint channel solely to forward the caller's
   # args ("$@"); the 2-segment filename leaves BURD_TOKEN_3 empty, so no folio
   # is consumed. (Empty channel would drop the args; param1 would eat the first.)
   buz_enroll RBZ_THEURGE_BUILD    "rbw-tb"  "${z_mod}" "rbte_build"   "imprint"  "Build the theurge crate"
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
+  buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lint the theurge crate, refusing only on calls the root clippy.toml bars"
+  buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Remove the theurge crate's build output"
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"
