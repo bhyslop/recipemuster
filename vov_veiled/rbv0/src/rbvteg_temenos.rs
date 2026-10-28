@@ -9,7 +9,8 @@
 // hook and a `--no-verify` push to either world's harbinger address at its
 // redirect, under a global config that relocates hooks and maps both
 // addresses onto the bare — so without the clone's own guards every push
-// below would land. Nothing reaches a network: every git call runs with a
+// below would land. The scratch stands under the crate's own ignored build
+// directory. Nothing reaches a network: every git call runs with a
 // scratch global, no system config and the file protocol alone, set per
 // command and never on the process, the harness running cases as threads.
 
@@ -53,13 +54,16 @@ fn zrbvteg_stderr(out: &Output) -> String {
     String::from_utf8_lossy(&out.stderr).into_owned()
 }
 
-/// A fresh scratch root under the system temp directory, unique to this run.
+/// A fresh scratch root under the crate's own ignored build directory, never
+/// the system temp directory, unique to this run.
 fn zrbvteg_scratch_root() -> PathBuf {
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .expect("clock after the epoch")
         .as_nanos();
-    let root = std::env::temp_dir().join(format!("rbvteg_temenos_{}_{}", std::process::id(), nanos));
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("target")
+        .join(format!("rbvteg_temenos_{}_{}", std::process::id(), nanos));
     std::fs::create_dir_all(&root).expect("scratch root must be creatable");
     root
 }
