@@ -26,16 +26,6 @@ pub struct rbvcer_Captured {
     pub stderr: String,
 }
 
-/// Captured result of a command whose stdout is a byte stream, not text. The
-/// transposition byte-assert needs the template's exact committed bytes —
-/// `capture`'s lossy UTF-8 conversion would quietly launder the very
-/// difference the assert exists to catch.
-pub struct rbvcer_CapturedBytes {
-    pub code: i32,
-    pub stdout: Vec<u8>,
-    pub stderr: String,
-}
-
 /// Env-var prefixes of inherited BUK dispatch state, scrubbed before a child
 /// tabtarget runs so it starts from the same blank slate a terminal invocation
 /// gives it. The child's own launcher (bul_launcher → bud_dispatch) rebuilds
@@ -62,23 +52,6 @@ pub fn rbvcer_capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> 
     rbvcer_Captured {
         code: out.status.code().unwrap_or(-1),
         stdout: String::from_utf8_lossy(&out.stdout).into_owned(),
-        stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
-    }
-}
-
-/// Run a program, capturing stdout as raw bytes. Same contract as `capture`:
-/// spawn failure fatal, non-zero exit returned for the caller to judge.
-pub fn rbvcer_capture_bytes(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> rbvcer_CapturedBytes {
-    let program = program.as_ref();
-    let out = zrbvcer_command(program, args, cwd)
-        .stdin(Stdio::null())
-        .output()
-        .unwrap_or_else(|e| {
-            crate::rbvcel_fatal!("cannot launch {}: {}", program.to_string_lossy(), e)
-        });
-    rbvcer_CapturedBytes {
-        code: out.status.code().unwrap_or(-1),
-        stdout: out.stdout,
         stderr: String::from_utf8_lossy(&out.stderr).into_owned(),
     }
 }
