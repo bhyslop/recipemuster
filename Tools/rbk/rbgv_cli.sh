@@ -204,7 +204,6 @@ zrbgv_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
-  source "${z_rbk}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
   source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
