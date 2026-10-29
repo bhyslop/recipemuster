@@ -69,8 +69,8 @@ const RBTDRI_WORD_NOLOG: &str = "buuc_nolog";
 const RBTDRI_TRAMPOLINE: &str = "z-launcher.sh";
 
 /// The run roots a rooted direct launch is handed, beneath its case directory.
-const RBTDRI_ROOTED_OUTPUT_SUBDIR: &str = "burv-output";
-const RBTDRI_ROOTED_TEMP_SUBDIR: &str = "burv-temp";
+const RBTDRI_ROOTED_OUTPUT_SUBDIR: &str = "burv-o";
+const RBTDRI_ROOTED_TEMP_SUBDIR: &str = "burv-t";
 
 /// Canonical Cygwin bash in POSIX form. theurge nativizes this via RBTDRX
 /// (cygpath) to launch scripts: a bare "bash" from a Windows-native binary
