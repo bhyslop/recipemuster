@@ -81,6 +81,8 @@ pub mod rbtcgp_patrol;
 pub mod rbtccd_dowse;
 #[path = "rbtdrx_platform.rs"]
 pub mod rbtcep_platform;
+#[path = "rbtdry_quiet.rs"]
+pub mod rbtdry_quiet;
 
 #[cfg(test)]
 #[path = "rbtdth_helpers.rs"]
