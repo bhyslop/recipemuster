@@ -421,15 +421,76 @@ const ZRBTCHD_MARK_ROLLS: &str = "##ROLLS";
 const ZRBTCHD_MARK_PROSCRIPTION: &str = "##PROSCRIPTION";
 const ZRBTCHD_MARK_HOMES: &str = "##HOMES";
 const ZRBTCHD_MARK_HARDPOINTS: &str = "##HARDPOINTS";
+const ZRBTCHD_MARK_VALUES: &str = "##VALUES";
+
+/// The state words of a value row: what bash found the field to be once the file
+/// was sourced.
+const ZRBTCHD_HELD_SET: &str = "set";
+const ZRBTCHD_HELD_UNSET: &str = "unset";
+const ZRBTCHD_HELD_UNWIREABLE: &str = "unwireable";
+const ZRBTCHD_HELD_UNSOURCED: &str = "unsourced";
+
+/// The value read, spliced into the reach after the proscription kindles and
+/// before any regime kindles. Each home and each hardpoint is sourced in a child
+/// shell that holds no kindled regime, so no readonly mark stands in the way of
+/// its assignments; every field is unset first, so a field the file does not
+/// assign reads unset rather than inheriting a value. Bash, never a text match,
+/// decides what the file holds. A value carrying a tab or a newline cannot cross
+/// the tab-separated wire and is reported as such rather than split.
+const ZRBTCHD_VALUE_READ: &str = r#"zrbtchd_value_rows() {
+  local -r z_file="$1"
+  shift
+  (
+    for z_var in "$@"; do unset "${z_var}"; done
+    if ! source "${z_file}"; then
+      printf '%s\t\t%s\n' "${z_file}" unsourced
+      exit 0
+    fi
+    for z_var in "$@"; do
+      if test -z "${!z_var+x}"; then
+        printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" unset
+        continue
+      fi
+      z_value="${!z_var}"
+      case "${z_value}" in
+        *$'\t'*|*$'\n'*) printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" unwireable ;;
+        *) printf '%s\t%s\t%s\t%s\n' "${z_file}" "${z_var}" set "${z_value}" ;;
+      esac
+    done
+  )
+}
+for z_h in "${!z_rblm_home_file_roll[@]}"; do
+  z_vars=()
+  for z_j in "${!z_rblm_var_roll[@]}"; do
+    test "${z_rblm_scope_roll[${z_j}]}" = "${z_rblm_home_scope_roll[${z_h}]}" || continue
+    test "${z_rblm_disposition_roll[${z_j}]}" = "${RBLM_disposition_site}" || continue
+    z_vars+=("${z_rblm_var_roll[${z_j}]}")
+  done
+  test "${#z_vars[@]}" -eq 0 || zrbtchd_value_rows "${z_rblm_home_file_roll[${z_h}]}" "${z_vars[@]}"
+done
+for z_h in "${!z_rblm_hardpoint_var_roll[@]}"; do
+  zrbtchd_value_rows "${z_rblm_hardpoint_path_roll[${z_h}]}" "${z_rblm_hardpoint_var_roll[${z_h}]}"
+done
+"#;
+
+/// What bash found one field to hold.
+enum zrbtchd_Held {
+    Set(String),
+    Unset,
+    Unwireable,
+}
 
 /// What the bash reach hands back: the live enrollment rolls, the proscription
-/// that judges them, the regime files those judgments apply to, and the hardpoint
-/// constants no roll can reach.
+/// that judges them, the regime files those judgments apply to, the hardpoint
+/// constants no roll can reach, and the value each of those files holds for each
+/// field judged against it, keyed by file and field.
 struct zrbtchd_Reach {
     rolls: Vec<(String, String)>,
     proscription: Vec<zrbtchd_Judgment>,
     homes: Vec<(String, String)>,
     hardpoints: Vec<(String, String, String)>,
+    values: BTreeMap<(String, String), zrbtchd_Held>,
+    unsourced: BTreeSet<String>,
 }
 
 /// Reach into bash for everything that must not be a second copy in Rust.
@@ -447,6 +508,9 @@ struct zrbtchd_Reach {
 /// The proscription, the scope-to-file mapping and the hardpoints are read back
 /// from the lustration module — the same table the transform writes from, so the
 /// judgment the fixture enforces and the judgment the verb applies cannot drift.
+/// The values those homes and hardpoints hold are read by bash sourcing each file,
+/// before any regime kindles, so the case compares what bash would hold and never
+/// a line shape.
 fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
     let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
     let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
@@ -475,6 +539,8 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          source '{rbk}/rbrn_regime.sh'\n\
          zbuv_kindle\n\
          zrblm_kindle\n\
+         echo '{mark_values}'\n\
+         {value_read}\
          source '{moorings}/rbrr.env'\n\
          zrbrr_kindle\n\
          source '{moorings}/rbrd.env'\n\
@@ -508,6 +574,8 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
         mark_homes = ZRBTCHD_MARK_HOMES,
         mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
+        mark_values = ZRBTCHD_MARK_VALUES,
+        value_read = ZRBTCHD_VALUE_READ,
     );
 
     let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
@@ -517,8 +585,14 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         }
     };
 
-    let mut reach =
-        zrbtchd_Reach { rolls: Vec::new(), proscription: Vec::new(), homes: Vec::new(), hardpoints: Vec::new() };
+    let mut reach = zrbtchd_Reach {
+        rolls: Vec::new(),
+        proscription: Vec::new(),
+        homes: Vec::new(),
+        hardpoints: Vec::new(),
+        values: BTreeMap::new(),
+        unsourced: BTreeSet::new(),
+    };
     let mut section = "";
 
     for line in stdout.lines() {
@@ -526,7 +600,8 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
             ZRBTCHD_MARK_ROLLS
             | ZRBTCHD_MARK_PROSCRIPTION
             | ZRBTCHD_MARK_HOMES
-            | ZRBTCHD_MARK_HARDPOINTS => {
+            | ZRBTCHD_MARK_HARDPOINTS
+            | ZRBTCHD_MARK_VALUES => {
                 section = line;
                 continue;
             }
@@ -558,6 +633,19 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
                     fields[2].to_string(),
                 ));
             }
+            ZRBTCHD_MARK_VALUES if fields.len() >= 3 => {
+                let held = match fields[2] {
+                    ZRBTCHD_HELD_SET => zrbtchd_Held::Set(fields.get(3).unwrap_or(&"").to_string()),
+                    ZRBTCHD_HELD_UNSET => zrbtchd_Held::Unset,
+                    ZRBTCHD_HELD_UNWIREABLE => zrbtchd_Held::Unwireable,
+                    ZRBTCHD_HELD_UNSOURCED => {
+                        reach.unsourced.insert(fields[0].to_string());
+                        continue;
+                    }
+                    other => return Err(format!("the value read printed an unknown state '{}': {}", other, line)),
+                };
+                reach.values.insert((fields[0].to_string(), fields[1].to_string()), held);
+            }
             _ => {}
         }
     }
@@ -572,31 +660,36 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
     Ok(reach)
 }
 
-/// Read one `VAR=value` assignment out of a config file. Absent is not an error:
-/// a bind vessel carries no graft image, a conjure vessel no bind image. The
-/// value is returned with surrounding quotes peeled, which is how both the regime
-/// files and the hardpoint sources spell it.
-fn zrbtchd_field_value(path: &Path, var: &str) -> Option<String> {
-    let text = std::fs::read_to_string(path).ok()?;
-    let prefix = format!("{}=", var);
-    for line in text.lines() {
-        if let Some(value) = line.strip_prefix(&prefix) {
-            let value = value.trim();
-            let value = value.strip_prefix('"').unwrap_or(value);
-            let value = value.strip_suffix('"').unwrap_or(value);
-            return Some(value.to_string());
-        }
-    }
-    None
-}
-
 // ── Case: proscribed values ─────────────────────────────────
+
+/// A finding for a field the value read could not judge: a file bash could not
+/// source, a value the wire could not carry, or a row the read never printed.
+/// None of these is passed over — an unjudged field is not a sterile one.
+fn zrbtchd_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbtchx_Finding> {
+    let detail = if reach.unsourced.contains(file) {
+        format!("{} cannot be judged — bash could not source the file", var)
+    } else {
+        match reach.values.get(&(file.to_string(), var.to_string())) {
+            Some(zrbtchd_Held::Unwireable) => {
+                format!("{} holds a value carrying a tab or a newline, which cannot be judged", var)
+            }
+            Some(_) => return None,
+            None => format!("{} cannot be judged — the value read printed nothing for it", var),
+        }
+    };
+    Some(zrbtchx_Finding { file: file.to_string(), line: 0, detail })
+}
 
 /// Every site-scoped field, in every instance of its regime, must hold its sterile
 /// value — and so must every hardpoint constant. This is the net for identity that
 /// has no shape: a workforce pool id, a project id, an org number are opaque
 /// tokens no sweep can recognize, and this case is the only thing standing between
 /// them and the upstream.
+///
+/// The value judged is the one bash holds after sourcing the file, read in the
+/// reach; this case reads no file text. A field a home does not assign is not an
+/// error — a bind vessel carries no graft image, a conjure vessel no bind image —
+/// while a hardpoint that is not assigned is.
 fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtchx_root() {
         Ok(r) => r,
@@ -618,13 +711,16 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
             if *scope != judgment.scope {
                 continue;
             }
-            let path = root.join(home);
-            let held = match zrbtchd_field_value(&path, &judgment.var) {
-                Some(v) => v,
-                None => continue,
+            if let Some(finding) = zrbtchd_unjudged(&reach, home, &judgment.var) {
+                findings.push(finding);
+                continue;
+            }
+            let held = match reach.values.get(&(home.clone(), judgment.var.clone())) {
+                Some(zrbtchd_Held::Set(v)) => v,
+                _ => continue,
             };
             inventory.insert(format!("{}\t{}\t{:?}", home, judgment.var, held));
-            if held != judgment.sterile {
+            if *held != judgment.sterile {
                 findings.push(zrbtchx_Finding {
                     file: home.clone(),
                     line: 0,
@@ -638,9 +734,13 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     }
 
     for (path, var, sterile) in &reach.hardpoints {
-        let held = match zrbtchd_field_value(&root.join(path), var) {
-            Some(v) => v,
-            None => {
+        if let Some(finding) = zrbtchd_unjudged(&reach, path, var) {
+            findings.push(finding);
+            continue;
+        }
+        let held = match reach.values.get(&(path.clone(), var.clone())) {
+            Some(zrbtchd_Held::Set(v)) => v,
+            _ => {
                 findings.push(zrbtchx_Finding {
                     file: path.clone(),
                     line: 0,
@@ -650,7 +750,7 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
             }
         };
         inventory.insert(format!("{}\t{}\t{:?}", path, var, held));
-        if held != *sterile {
+        if held != sterile {
             findings.push(zrbtchx_Finding {
                 file: path.clone(),
                 line: 0,
