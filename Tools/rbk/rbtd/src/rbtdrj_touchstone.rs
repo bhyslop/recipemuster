@@ -30,7 +30,7 @@
 // RBTDRG discipline routes entirely to stderr — arrive on the PARENT'S
 // captured stdout; captured stderr carries only pre-coordinator chain
 // failures. Cases therefore assert on captured stdout, except the one
-// stream-placement case, which runs its child under BURD_NO_LOG (streams
+// stream-placement case, which runs its child in no-log mode (streams
 // unmerged, station/logging sublayer skipped) to prove diagnostics land on
 // stderr rather than stdout.
 //
@@ -104,8 +104,8 @@ const ZRBTCCT_CHILD_TRACE_SUBDIR: &str = "trace";
 /// One observed child run: the captured streams and exit code, plus the two
 /// roots the parent handed the child — the BURV temp root (under which the
 /// child's dispatch minted its temp-<stamp>/ generation, holding the child
-/// rbt trace tree) and the BURV_LOG_DIR override (None for a BURD_NO_LOG
-/// child, which writes no logs at all).
+/// rbt trace tree) and the BURV_LOG_DIR override (None for a no-log child,
+/// which writes no logs at all).
 struct zrbtcct_Child {
     exit_code: i32,
     stdout: String,
@@ -127,7 +127,6 @@ fn zrbtcct_child(
 ) -> Result<zrbtcct_Child, rbtcee_Verdict> {
     let mut env: Vec<(String, String)> = vec![("TERM".to_string(), "dumb".to_string())];
     let log_dir = if no_log {
-        env.push(("BURD_NO_LOG".to_string(), "1".to_string()));
         None
     } else {
         let d = dir.join(format!("{}-logs", label));
@@ -142,6 +141,9 @@ fn zrbtcct_child(
 
     let mut captured: Option<(rbtcei_InvokeResult, PathBuf)> = None;
     let invoke_verdict = rbtccc_with_ctx(|ctx| {
+        if no_log {
+            ctx.rbtdri_nolog_next_invoke();
+        }
         let invoked = match imprint {
             Some(imp) => rbtcei_invoke_imprint_env(ctx, colophon, imp, args, &env_refs),
             None => rbtcei_invoke_global(ctx, colophon, args, &env_refs),
@@ -852,7 +854,7 @@ fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
 
 // ── stream-placement ────────────────────────────────────────
 
-/// Under BURD_NO_LOG the dispatch leaves the coordinator's streams unmerged,
+/// In no-log mode the dispatch leaves the coordinator's streams unmerged,
 /// so this is where the placement contract itself is provable: rbt's
 /// diagnostics land on stderr, not stdout. Every other case reads the folded
 /// stdout the logged chain produces.

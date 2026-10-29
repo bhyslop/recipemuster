@@ -113,9 +113,6 @@ zrbob_furnish() {
   local z_command="${1:-}"
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${z_rbk_kit_dir}/rbrn_regime.sh" || buc_die_now "Failed to source rbrn_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
@@ -144,8 +141,6 @@ zrbob_furnish() {
   source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zrbcc_kindle
 
   local z_folio="${BUZ_FOLIO:-}"

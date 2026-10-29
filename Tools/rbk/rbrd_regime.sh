@@ -68,10 +68,10 @@ zrbrd_enforce() {
   buv_vet RBRD
 
   [[ "${RBRD_DEPOT_MONIKER}" =~ ^[a-z][a-z0-9]*$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRD_DEPOT_MONIKER format: ${RBRD_DEPOT_MONIKER} (expected lowercase alphanumeric starting with letter; no hyphens)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRD_DEPOT_MONIKER format: ${RBRD_DEPOT_MONIKER} (expected lowercase alphanumeric starting with letter; no hyphens)"
 
   [[ "${RBRD_CLOUD_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRD_CLOUD_PREFIX format: ${RBRD_CLOUD_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRD_CLOUD_PREFIX format: ${RBRD_CLOUD_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
 
   # Joint-length cap: GCP project IDs max 30 chars. RBDC_DEPOT_PROJECT_ID
   # composes as "${RBRD_CLOUD_PREFIX}d-${RBRD_DEPOT_MONIKER}".
@@ -90,7 +90,7 @@ zrbrd_enforce() {
   local -r z_moniker_len=${#RBRD_DEPOT_MONIKER}
   local -r z_joint_len=$(( z_prefix_len + 2 + z_moniker_len ))
   test "${z_joint_len}" -le 30 \
-    || buc_reject "${BUBC_band_regime}" "Joint length exceeds 30-char GCP project ID limit: RBRD_CLOUD_PREFIX(${z_prefix_len}) + 'd-'(2) + RBRD_DEPOT_MONIKER(${z_moniker_len}) = ${z_joint_len}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Joint length exceeds 30-char GCP project ID limit: RBRD_CLOUD_PREFIX(${z_prefix_len}) + 'd-'(2) + RBRD_DEPOT_MONIKER(${z_moniker_len}) = ${z_joint_len}"
 }
 
 # eof

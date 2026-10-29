@@ -31,18 +31,22 @@ BKW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
-source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
+
+# The band's range, its gate codes and the verdict codes, from the substrate's
+# generated constants, sourced at this process's entry. The sourced file carries
+# its own inclusion guard, so a sibling sourcing it costs nothing.
+source "${BASH_SOURCE[0]%/*}/../../buk/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
 source "${BKW_SCRIPT_DIR}/bkz_zipper.sh" || buc_die_now "Failed to source bkz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Kindle dispatch and zipper registry
-zbuv_kindle
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares.
+buv_export_sentinel "${BURD_TARGET}"
+
+# Kindle the zipper registry; the command module kindled the dispatch regime
 zbuz_kindle
 zbkz_kindle
 

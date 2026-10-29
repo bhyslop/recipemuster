@@ -26,6 +26,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Seise (rbfls_*)
 
@@ -48,7 +53,7 @@ rbfls_seise() {
   local z_touchmark_status=0
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") || z_touchmark_status=$?
   test "${z_touchmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before seise"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before seise"
   local z_source="chain"
   test -z "${z_express}" || z_source="express"
 
@@ -61,9 +66,9 @@ rbfls_seise() {
   local z_kind_status=0
   z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_RELIQUARY}" \
-    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' is kind '${z_kind}', not a reliquary — seise elects the substrate-capture tool cohort, which only a reliquary conclave carries"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "Touchmark '${z_touchmark}' is kind '${z_kind}', not a reliquary — seise elects the substrate-capture tool cohort, which only a reliquary conclave carries"
 
   buc_step "Seising substrate reliquary ${z_touchmark} into ${RBCC_rbrr_file} (source ${z_source})"
 

@@ -22,6 +22,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBFR_SOURCED:-}" || buc_die_now "Module rbfr multiply sourced - check sourcing hierarchy"
 ZRBFR_SOURCED=1
@@ -70,7 +75,7 @@ rbfr_summon() {
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
 
   buc_step "Authenticating for retrieval"
   local zSECRET_token
@@ -149,7 +154,7 @@ rbfr_summon() {
 
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_reject "${BUBC_band_vacant}" "Hallmark not found: neither image nor about ark exists"
+    buc_reject "${RBCG_VACANT_DENTIL}" "Hallmark not found: neither image nor about ark exists"
   fi
 
   if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then

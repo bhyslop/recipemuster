@@ -17,13 +17,17 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# BKCW Whistle - the thin bash bootstrap that builds the kennel and execs it
+# BKCW Whistle - the thin bash bootstrap that builds the kennel and execs it,
+# and beside it the toolchain half of rebed, the kennel's readiness converge
 #
-# THE ONE BASH THAT REMAINS, and it remains because the kennel cannot build
-# itself: something outside the binary has to exist before the binary does. It
-# binds the toolchain once, minimally, and grows nothing else. Every other door
-# of this kit is a rust interior; this is the bootstrap the founding cinch
-# carved out.
+# TWO BASH ENTRIES REMAIN, and both remain because they must run before the
+# kennel binary exists. The whistle is the bootstrap the founding cinch carved
+# out: the kennel cannot build itself, so something outside the binary has to
+# exist before the binary does, and it binds the toolchain once, minimally, and
+# grows nothing else. Rebed's toolchain half lays what does not answer: a gutted
+# toolchain is exactly when the kennel cannot be built, so that half needs only
+# rustup and never the binary, and the rest of rebed is the binary's. Every
+# other door of this kit is a rust interior.
 #
 # ONE TABTARGET PER DOOR, AND THE DOOR WORD IS NEVER TYPED (operator, 260905).
 # What stood here was a single tabtarget taking the door word as its argument,
@@ -79,6 +83,13 @@ zbkcw_kindle() {
   readonly ZBKCW_PIN_FILE="${ZBKCW_CRATE_DIR}/rust-toolchain.toml"
   readonly ZBKCW_BINARY="${ZBKCW_CRATE_DIR}/target/release/bkx"
 
+  # The hurdles' own declaration of the toolchains they demand, which rebed
+  # reads as the kennelman does rather than restating: a second list here would
+  # be free to drift from the one the suite asserts against, and the drift would
+  # present as a tackroom rebed called whole and the hurdles then found short.
+  readonly ZBKCW_SURFACE="${ZBKCW_CRATE_DIR}/src/bktu_lure.rs"
+  readonly ZBKCW_TOOLCHAINS_CONST="BKTU_REQUIRED_TOOLCHAINS"
+
   readonly ZBKCW_KINDLED=1
 }
 
@@ -112,10 +123,11 @@ zbkcw_converge() {
   z_channel=$(bkcp_pin_capture "${ZBKCW_PIN_FILE}") \
     || buc_die_now "The kennel's pin at ${ZBKCW_PIN_FILE} names no channel"
 
-  bkcb_channel_present_or_die "${z_channel}"
+  bkcb_channel_answers_or_die "${z_channel}"
 
   local z_cargo_status=0
-  cargo "+${z_channel}" build --release --manifest-path "${ZBKCW_MANIFEST}" --locked \
+  CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
+    cargo "+${z_channel}" build --release --manifest-path "${ZBKCW_MANIFEST}" --locked \
     || z_cargo_status=$?
   test "${z_cargo_status}" -eq 0 \
     || buc_die_now "The kennel did not build (exit ${z_cargo_status})"
@@ -149,11 +161,177 @@ zbkcw_door() {
     || buc_die_now "Could not exec the kennel at ${ZBKCW_BINARY}"
 }
 
+# One rustup act of rebed's, its status contained: rustup's own exit codes are
+# not the kennel's to pass through the band, so any failure is named and the
+# door dies on it.
+#
+# RUSTUP RUNS UNDER ITS OWN CARGO HOME, NEVER THE TACKROOM'S. A build states
+# CARGO_HOME as the tackroom's registry store, which is every build's; rustup
+# reads the same name as the place it is itself installed, and refuses a
+# toolchain install where it does not stand there - "rustup is not installed at"
+# the tackroom's cargo home, met on a real station after the toolchain had
+# landed. So each act states CARGO_HOME as the home the rustup on the path
+# stands in, the directory above the one holding it, and leaves RUSTUP_HOME the
+# tackroom's, where every toolchain lands. Rustup and its shims are the one
+# thing admitted from the station user's own home.
+#
+# Args: <rustup argument>...
+zbkcw_rustup_or_die() {
+  # The rustup the path offers first, run by the path it was found at, so the
+  # home stated and the program run are one answer.
+  local z_rustup
+  z_rustup=$(buc_executable_path_capture rustup) \
+    || buc_die_now "No rustup stands on the path - rebed lays every toolchain through rustup and nothing else"
+  local -r z_rustup_home="${z_rustup%/*/*}"
+
+  local z_rustup_status=0
+  CARGO_HOME="${z_rustup_home}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" "${z_rustup}" "$@" || z_rustup_status=$?
+  test "${z_rustup_status}" -eq 0 \
+    || buc_die_now "rustup $* failed under ${BKCB_RUSTUP_HOME}, rustup's own home ${z_rustup_home} (exit ${z_rustup_status})"
+}
+
+# The channels the hurdles demand, space-separated, read off the declaration the
+# suite asserts against.
+#
+# READ FROM THE SOURCE AND NEVER ASKED OF THE BINARY, for two reasons that do not
+# bend. The declaration is a hurdle's demand and is compiled into the hurdles
+# alone, so no binary carries it; and rebed runs exactly when the kennel may not
+# build. Anchored on the declaration's own line, as the kennelman's reading is,
+# so a mention of the name in prose above it cannot answer.
+#
+# Returns non-zero where the declaration cannot be found or reads empty, and the
+# caller dies on that: an unread demand would re-lay the pin alone and call the
+# tackroom whole.
+zbkcw_hurdle_channels_capture() {
+  test -f "${ZBKCW_SURFACE}" || return 1
+
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${ZBKCW_SURFACE}"
+
+  local z_declaration=""
+  local z_i=0
+  for z_i in "${!z_lines[@]}"; do
+    case "${z_lines[${z_i}]}" in
+      "pub const ${ZBKCW_TOOLCHAINS_CONST}"*) z_declaration="${z_lines[${z_i}]}"; break ;;
+    esac
+  done
+  test -n "${z_declaration}" || return 1
+
+  # The declaration runs on through the line that closes it, since the formatter
+  # holds a list of two or more one item per line.
+  while [[ "${z_declaration}" != *";"* ]]; do
+    z_i=$(( z_i + 1 ))
+    test "${z_i}" -lt "${#z_lines[@]}" || return 1
+    z_declaration="${z_declaration} ${z_lines[${z_i}]}"
+  done
+
+  # Each quoted literal in the declaration, in order, walked off its front.
+  local -r z_quoted_pattern='"([^"]*)"(.*)'
+  local z_rest="${z_declaration}"
+  local z_channels=""
+  while [[ "${z_rest}" =~ ${z_quoted_pattern} ]]; do
+    z_channels="${z_channels:+${z_channels} }${BASH_REMATCH[1]}"
+    z_rest="${BASH_REMATCH[2]}"
+  done
+
+  test -n "${z_channels}" || return 1
+
+  echo "${z_channels}"
+}
+
+# Lay one channel again: uninstall it, install it fresh, prove its compiler
+# answers, and say so.
+#
+# Args: <channel>
+zbkcw_lay_or_die() {
+  local -r z_channel="${1:-}"
+  test -n "${z_channel}" || buc_die_now "Laying a channel needs the channel"
+
+  buc_step "Uninstalling ${z_channel} from the tackroom's rustup home ${BKCB_RUSTUP_HOME}"
+  zbkcw_rustup_or_die toolchain uninstall "${z_channel}"
+
+  buc_step "Installing ${z_channel} into ${BKCB_RUSTUP_HOME}"
+  zbkcw_rustup_or_die toolchain install "${z_channel}" --profile minimal --component clippy --component rustfmt --no-self-update
+
+  bkcb_channel_answers_or_die "${z_channel}"
+
+  buc_success "The tackroom's ${z_channel} is laid again, and its compiler answers"
+}
+
+# Rebed's toolchain half: every channel the kennel requires asked whether it
+# answers, and only one that does not laid again.
+#
+# EVERY CHANNEL THE KENNEL REQUIRES, AND NOT THE PIN'S ALONE. The pin's channel
+# builds the kennel; the hurdles demand a second, because proving a bumped pin
+# reaches the compiler needs a toolchain to bump to. So the pin is read first,
+# as the whistle reads it, and then every other channel the hurdles' own
+# declaration names.
+#
+# ONLY WHAT DOES NOT ANSWER IS LAID, which is what makes the converge safe to
+# drive at any time: the proof the whistle takes is asked of each channel as a
+# predicate, and an answering channel is left standing and asked nothing more of
+# rustup. A gutted one is refused by that proof before its compiler is spawned,
+# so deciding to lay it never raises the station's crash dialog.
+#
+# THE FENCE FIRST, because without it rustup writes the station user's own
+# home: the hand repair this door replaces landed there for want of it. Both
+# readings stand ahead of the first proof, so a demand that cannot be read
+# refuses before anything is taken down.
+zbkcw_rebed_toolchains() {
+  bkcb_ensure
+
+  local z_pin=""
+  z_pin=$(bkcp_pin_capture "${ZBKCW_PIN_FILE}") \
+    || buc_die_now "The kennel's pin at ${ZBKCW_PIN_FILE} names no channel"
+
+  local z_demanded=""
+  z_demanded=$(zbkcw_hurdle_channels_capture) \
+    || buc_die_now "Could not read ${ZBKCW_TOOLCHAINS_CONST} from ${ZBKCW_SURFACE} - rebed reads the hurdles' own declaration rather than holding a list of its own, and an unread demand would lay the pin alone and call the tackroom whole"
+
+  local z_others=()
+  read -r -a z_others <<< "${z_demanded}" \
+    || buc_die_now "Could not split the channels read from ${ZBKCW_SURFACE}"
+  (( ${#z_others[@]} )) || buc_die_now "No channel was read from ${ZBKCW_SURFACE}"
+
+  local z_channels=("${z_pin}")
+  local z_other=""
+  for z_other in "${z_others[@]}"; do
+    case " ${z_channels[*]} " in
+      *" ${z_other} "*) continue ;;
+    esac
+    z_channels+=("${z_other}")
+  done
+
+  buc_step "Asking ${#z_channels[@]} channel(s) under ${BKCB_RUSTUP_HOME} whether each answers: the pin's ${z_pin}, then each other the hurdles demand"
+
+  local z_laid=0
+  local z_channel=""
+  local z_condition=""
+  for z_channel in "${z_channels[@]}"; do
+    if bkcb_channel_answers_predicate "${z_channel}"; then
+      buc_step "The tackroom's ${z_channel} answers, and is left as it stands"
+      continue
+    fi
+    z_condition=$(<"${BKCB_CONDITION_PREFIX}${z_channel}.txt") \
+      || buc_die_now "The tackroom's ${z_channel} does not answer, and its proof left no condition at ${BKCB_CONDITION_PREFIX}${z_channel}.txt"
+    buc_step "The tackroom's ${z_channel} does not answer: ${z_condition}"
+    zbkcw_lay_or_die "${z_channel}"
+    z_laid=$(( z_laid + 1 ))
+  done
+
+  buc_step "Laid ${z_laid} of ${#z_channels[@]} channel(s); every other answered as it stood"
+}
+
 ######################################################################
 # External
 #
-# ELEVEN FUNCTIONS, ONE SHAPE. Each names its door's word and hands everything
-# else to zbkcw_door; what differs between them is the word and the help text.
+# ONE SHAPE FOR EVERY FUNCTION BELOW. Each names its door's word and hands
+# everything else to zbkcw_door; what differs between them is the word and the
+# help text. Rebed, at the foot, takes its toolchain half in bash first, for the
+# reason that half is bash at all, and then takes the same shape.
 # That is the whole of what the one-tabtarget-per-door ruling asks the bash to
 # hold, and the reason it can hold so little: the grammar of each door is the
 # kennel's, stated in the binary and nowhere here.
@@ -267,12 +445,51 @@ bkcw_scoop() {
   zbkcw_door scoop "$@"
 }
 
+# Empties what the kennel keeps on the station for every tree, and this
+# checkout's python environments. Run it deliberately, on your own word:
+# nothing calls it, and rebed lays it all again.
+bkcw_bleach() {
+  buc_doc_brief "Empties what the kennel keeps on the station for every tree, and this checkout's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
+  buc_doc_shown || return 0
+
+  zbkcw_door bleach "$@"
+}
+
 # delouse - the day's sweep, taken ahead of a build.
 bkcw_delouse() {
   buc_doc_brief "Take the day's sweep of every collar's build directory if no sweep has landed today - recorded once a day, a no-op after"
   buc_doc_shown || return 0
 
   zbkcw_door delouse "$@"
+}
+
+# rebed - the kennel's readiness converge.
+#
+# THE ONE CONVERGE THE VERIFY NAMES, safe to drive at any time. Every refusal
+# of the channel's proof - the whistle's here in bash, the leash's in rust, and
+# the hurdles' own fence - and the derby's refusal over a tree that cannot be
+# green send their reader here. It makes a cold station and a cold tree ready
+# for the derby in one act: every toolchain the kennel requires answering, the
+# kennel converged, and then the binary's own rebed - every heel and every
+# strike the derby's preflight names, every manifest's registry closure under
+# its lock.
+#
+# TWO HALVES, AND THE SEAM IS THE WHISTLE'S OWN. The toolchain half stays bash,
+# because a toolchain that cannot answer is exactly when no kennel can be built;
+# everything after it is the binary's, reached through the same converge-and-
+# exec every door takes, so the kennel it execs is current.
+bkcw_rebed() {
+  buc_doc_brief "Make the station and the tree ready for the derby: lay every toolchain the kennel requires that does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every manifest's registry closure"
+  buc_doc_shown || return 0
+
+  test -z "${BUZ_FOLIO:-}" || buc_die_now \
+    "Rebed takes nothing - it converges what the kennel's own pin, hurdles and the tree's declarations name, and '${BUZ_FOLIO}' is no part of that"
+  test "$#" -eq 0 || buc_die_now \
+    "Rebed takes nothing - it converges what the kennel's own pin, hurdles and the tree's declarations name"
+
+  zbkcw_rebed_toolchains
+
+  zbkcw_door rebed
 }
 
 # eof

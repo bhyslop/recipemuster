@@ -26,7 +26,7 @@
 // destructive write. The band fires only at the RBK consumer (buc_reject in
 // feoff/yoke); the BUK footing resolver returns a bare 1, so the band can only
 // be asserted here, against the real verbs. Each negative case asserts the
-// SPECIFIC band (RBTGEC_BAND_CHAIN) — like the regime-poison precedent, a
+// SPECIFIC band (RBTGEB_CHAIN_DENTIL) — like the regime-poison precedent, a
 // harness breakage exits with some other code and fails the case loud, where a
 // bare-nonzero assertion would pass on it.
 //
@@ -61,11 +61,13 @@
 use std::path::{Path, PathBuf};
 
 use crate::rbtcee_case;
-use crate::rbtgeb_breviary::RBTGEB_NAMEPLATE_MITRE_BASE;
+use crate::rbtgeb_breviary::{
+    RBTGEB_CHAIN_DENTIL,
+    RBTGEB_NAMEPLATE_MITRE_BASE,
+};
 use crate::rbtgec_consts::{
     RBTGEC_ANOINT_GRAFT,
     RBTGEC_AUGUR_LODE,
-    RBTGEC_BAND_CHAIN,
     RBTGEC_CONTAINER_BOTTLE,
     RBTGEC_FEOFF_BOLE,
     RBTGEC_MITRE_HALLMARK,
@@ -342,12 +344,12 @@ fn rbtcgh_drive_readside(
 /// Assert an exit code equals the chain-rejection band, with the artifact dir
 /// named for triage on mismatch.
 fn rbtcgh_expect_band(code: i32, label: &str, dir: &Path) -> rbtcee_Verdict {
-    if code == RBTGEC_BAND_CHAIN {
+    if code == RBTGEB_CHAIN_DENTIL {
         rbtcee_Verdict::Pass
     } else {
         rbtcee_Verdict::Fail(format!(
             "{}: exited {} — expected chain-rejection band {} (artifacts in {})",
-            label, code, RBTGEC_BAND_CHAIN, dir.display()
+            label, code, RBTGEB_CHAIN_DENTIL, dir.display()
         ))
     }
 }
@@ -445,10 +447,10 @@ fn rbtcgh_feoff_fact_intact(dir: &Path) -> rbtcee_Verdict {
             Ok(t) => t,
             Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTGEC_BAND_CHAIN {
+    if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "feoff wrong-kind chain exited {} — expected band {} (artifacts in {})",
-            code, RBTGEC_BAND_CHAIN, dir.display()
+            code, RBTGEB_CHAIN_DENTIL, dir.display()
         ));
     }
     let rbrv_after = std::fs::read_to_string(&rbrv).unwrap_or_default();
@@ -510,10 +512,10 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTGEC_BAND_CHAIN {
+    if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "anoint broken chain (empty BURV root) exited {} — expected band {} (artifacts in {})",
-            code, RBTGEC_BAND_CHAIN, dir.display()
+            code, RBTGEB_CHAIN_DENTIL, dir.display()
         ));
     }
 
@@ -556,11 +558,11 @@ fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    if code != RBTGEC_BAND_CHAIN {
+    if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "{} broken chain (empty BURV root, no express) exited {} — expected band {} (artifacts in {})",
             RBTGEB_NAMEPLATE_MITRE_BASE,
-            code, RBTGEC_BAND_CHAIN, dir.display()
+            code, RBTGEB_CHAIN_DENTIL, dir.display()
         ));
     }
 
@@ -770,11 +772,11 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
             Ok(t) => t,
             Err(e) => return rbtcee_Verdict::Fail(e),
         };
-    if code != RBTGEC_BAND_CHAIN {
+    if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "feoff after an intervening non-chain dispatch exited {} — expected chain-rejection \
              band {}: the fact must die at the first non-chain dispatch (artifacts in {})",
-            code, RBTGEC_BAND_CHAIN, dir.display()
+            code, RBTGEB_CHAIN_DENTIL, dir.display()
         ));
     }
     // The reject left the staged vessel untouched — no stale value was elected.

@@ -27,11 +27,52 @@
 //! reader that depended on its own first consumer to prove itself could not be
 //! the crate the other five readers converge onto.
 
-use super::bkprc_catena::{bkprc_admit, bkprc_read};
-use std::path::{Path, PathBuf};
+use super::bkprc_catena::{
+    bkprc_admit,
+    bkprc_read, //
+};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
-/// The dispatch's temp root. ABSENT IS A REFUSAL, never a fallback.
+/// The dispatch's temp root, read from the file its pointer names. ABSENT IS A
+/// REFUSAL, never a fallback.
 const ZBKPTC_TEMP_ROOT_VAR: &str = "BURD_TEMP_DIR";
+
+/// The pointer naming the dispatch's file.
+const ZBKPTC_POINTER_VAR: &str = "BURD_BURD_FILE";
+
+/// The dispatch's temp root, read from the suite's own dispatch file through
+/// this crate's own reader, refusing where the pointer, the file or the field is
+/// absent.
+fn zbkptc_declared() -> String {
+    let pointer = std::env::var_os(ZBKPTC_POINTER_VAR).unwrap_or_else(|| {
+        panic!(
+            "{} is unset. The reader' hurdles stand under the dispatch's temp root and reach \
+             for no ambient temp directory; drive the suite through its own door",
+            ZBKPTC_POINTER_VAR, //
+        )
+    });
+    crate::bkprc_catena::bkprc_read(Path::new(&pointer))
+        .unwrap_or_else(|err| {
+            panic!(
+                "{} names no readable dispatch file: {}",
+                ZBKPTC_POINTER_VAR,
+                err, //
+            )
+        })
+        .bkprc_scalar(ZBKPTC_TEMP_ROOT_VAR)
+        .map(str::trim)
+        .filter(|dir| !dir.is_empty())
+        .map(str::to_string)
+        .unwrap_or_else(|| {
+            panic!(
+                "the suite's dispatch file names no {}",
+                ZBKPTC_TEMP_ROOT_VAR, //
+            )
+        })
+}
 
 /// A composed seat holding one regime file, removed when the hurdle drops it.
 struct zbkptc_Composed {
@@ -45,22 +86,29 @@ impl zbkptc_Composed {
     /// The name is the hurdle's, so a directory left behind by a panicking test
     /// says which hurdle made it.
     fn zbkptc_compose(name: &str, text: &str) -> zbkptc_Composed {
-        let declared = std::env::var(ZBKPTC_TEMP_ROOT_VAR).unwrap_or_else(|_| {
+        let declared = zbkptc_declared();
+
+        let root = Path::new(&declared).join(format!(
+            "bkptc-{}",
+            name, //
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap_or_else(|err| {
             panic!(
-                "{} is unset. The reader's hurdles stand under the dispatch's temp root and reach \
-                 for no ambient temp directory; drive the suite through its own door",
-                ZBKPTC_TEMP_ROOT_VAR
+                "could not compose a seat at {}: {}",
+                root.display(),
+                err, //
             )
         });
 
-        let root = Path::new(&declared).join(format!("bkptc-{}", name));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root)
-            .unwrap_or_else(|err| panic!("could not compose a seat at {}: {}", root.display(), err));
-
         let file = root.join("bkrr.env");
-        std::fs::write(&file, text)
-            .unwrap_or_else(|err| panic!("could not write {}: {}", file.display(), err));
+        std::fs::write(&file, text).unwrap_or_else(|err| {
+            panic!(
+                "could not write {}: {}",
+                file.display(),
+                err, //
+            )
+        });
 
         zbkptc_Composed { root, file }
     }
@@ -96,17 +144,17 @@ fn zbkptc_single_quote_refuses_naming_the_line() {
     assert!(
         refusal.contains(":3:"),
         "the refusal must name the offending line, and it reads: {}",
-        refusal
+        refusal, //
     );
     assert!(
         refusal.contains("single-quoted"),
         "the refusal must say what is outside the subset, and it reads: {}",
-        refusal
+        refusal, //
     );
     assert!(
         refusal.contains(&seat.zbkptc_file().display().to_string()),
         "the refusal must name the file, and it reads: {}",
-        refusal
+        refusal, //
     );
 }
 
@@ -134,7 +182,7 @@ fn zbkptc_continuation_joins_before_comments_are_read() {
         elements,
         vec!["one", "#two", "three", "four"],
         "the '#' line is CONTENT inside a quoted value: joining it before comments are read is \
-         what yields four elements, and a reader that stripped it first would answer two"
+         what yields four elements, and a reader that stripped it first would answer two", //
     );
 }
 
@@ -172,21 +220,21 @@ fn zbkptc_the_space_before_the_backslash_is_load_bearing() {
     assert_eq!(
         apart.bkprc_catena("K").unwrap(),
         vec!["buk", "vok"],
-        "the space before the backslash keeps the elements apart"
+        "the space before the backslash keeps the elements apart", //
     );
 
     let joined = bkprc_admit("K=\"buk\\\nvok\"\n", "composed").expect("inside the subset");
     assert_eq!(
         joined.bkprc_catena("K").unwrap(),
         vec!["bukvok"],
-        "the same layout one character apart joins them, as bash joins them"
+        "the same layout one character apart joins them, as bash joins them", //
     );
 
     let indented = bkprc_admit("K=\"buk\\\n  vok\"\n", "composed").expect("inside the subset");
     assert_eq!(
         indented.bkprc_catena("K").unwrap(),
         vec!["buk", "vok"],
-        "a continued line's own indentation survives the join and delimits on its own"
+        "a continued line's own indentation survives the join and delimits on its own", //
     );
 }
 
@@ -210,11 +258,17 @@ fn zbkptc_comments_and_blanks_carry_nothing() {
 fn zbkptc_absent_and_empty_are_different_answers() {
     let regime = bkprc_admit("K=\"\"\nB=\n", "composed").expect("inside the subset");
 
-    assert!(regime.bkprc_holds("K"), "a quoted empty value is a declaration");
+    assert!(
+        regime.bkprc_holds("K"),
+        "a quoted empty value is a declaration", //
+    );
     assert_eq!(regime.bkprc_scalar("K"), Some(""));
     assert_eq!(regime.bkprc_catena("K"), Some(Vec::new()));
 
-    assert!(regime.bkprc_holds("B"), "a bare empty value is a declaration too");
+    assert!(
+        regime.bkprc_holds("B"),
+        "a bare empty value is a declaration too", //
+    );
     assert_eq!(regime.bkprc_scalar("B"), Some(""));
 
     assert!(!regime.bkprc_holds("ABSENT"));
@@ -249,29 +303,43 @@ fn zbkptc_the_last_assignment_wins() {
 #[test]
 fn zbkptc_the_refused_forms_refuse() {
     let refused: &[(&str, &str, &str)] = &[
-        ("an unquoted value carrying whitespace", "K=two words\n", ":1:"),
+        (
+            "an unquoted value carrying whitespace",
+            "K=two words\n",
+            ":1:",
+        ),
         ("a leading export", "export K=\"v\"\n", ":1:"),
         ("a variable reference", "K=\"$HOME\"\n", ":1:"),
         ("command substitution", "K=\"`date`\"\n", ":1:"),
         ("a value quoted at one end alone", "K=\"open\n", ":1:"),
         ("a value closed but never opened", "K=open\"\n", ":1:"),
-        ("a line that is no assignment", "K=\"v\"\nnot an assignment\n", ":2:"),
+        (
+            "a line that is no assignment",
+            "K=\"v\"\nnot an assignment\n",
+            ":2:",
+        ),
         ("an escape inside a value", "K=\"a\\\"b\"\n", ":1:"),
         ("text after the closing quote", "K=\"v\" trailing\n", ":1:"),
         ("a trailing comment after a value", "K=\"v\" # why\n", ":1:"),
-        ("a value never closed", "K=\"open \\\n  still open \\\n", ":2:"),
+        (
+            "a value never closed",
+            "K=\"open \\\n  still open \\\n",
+            ":2:",
+        ),
         ("an empty key", "=v\n", ":1:"),
     ];
 
     for (what, text, at) in refused {
-        let refusal =
-            bkprc_admit(text, "composed").expect_err(&format!("{} must refuse", what));
+        let refusal = bkprc_admit(text, "composed").expect_err(&format!(
+            "{} must refuse",
+            what, //
+        ));
         assert!(
             refusal.contains(at),
             "the refusal for {} must name line {}, and it reads: {}",
             what,
             at,
-            refusal
+            refusal, //
         );
     }
 }
@@ -288,7 +356,7 @@ fn zbkptc_an_absent_file_refuses() {
     assert!(
         refusal.contains("bkrp.env"),
         "the refusal must name the path it could not read, and it reads: {}",
-        refusal
+        refusal, //
     );
 }
 

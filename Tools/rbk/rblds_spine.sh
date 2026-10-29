@@ -43,6 +43,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection — this cluster is multiply-sourced (rbld0_lode for
 # the capture kinds, rbfl0_ledger for made-side abjure), so unlike the
 # single-entry guard-free clusters it carries its own guard. rbld and rbfl are never co-furnished, so the guard
@@ -117,7 +122,7 @@ zrblds_spine_validate() {
       case "${z_keys_blob}" in
         *$'\n'"${z_ref}"$'\n'*) ;;
         *) buc_log_args "Uncovered substitution register: ${z_ref}"
-           buc_reject "${BUBC_band_recipe}" "Step body ${z_body_file} references substitution register ${z_ref}, absent from the composition blob ${z_keys_file}"
+           buc_reject "${RBCG_RECIPE_DENTIL}" "Step body ${z_body_file} references substitution register ${z_ref}, absent from the composition blob ${z_keys_file}"
            ;;
       esac
       z_rest="${z_rest#*"${z_ref}"}"

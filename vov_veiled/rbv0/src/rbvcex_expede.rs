@@ -72,6 +72,15 @@ const RBVCEX_SCRATCH_SUBDIR: &str = "scratch";
 /// identity-bearing module the script sources resolves from its own tree).
 const RBVCEX_BUK_SUBDIR: &str = "Tools/buk";
 
+/// The dispatch file the cut composes for the sterilize subprocess, written
+/// beneath the scratch directory: the subprocess holds no dispatch of its own,
+/// so its values reach it through this file and the pointer naming it.
+const RBVCEX_BURD_FILE: &str = "burd.env";
+
+/// The config regime of a repo root, relative to it — the dispatch file names
+/// the regulus's own, which the command module sources beside the dispatch file.
+const RBVCEX_BURC_PATH: &str = "rbmm_moorings/burc.env";
+
 // ── The cut ─────────────────────────────────────────────────
 
 /// Cut the delivery regulus by addition into {target_dir}/regulus, atop the
@@ -337,10 +346,13 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // The clone runs ITS OWN copy — a process cannot regenerate from
     // lustrated values unless its modules are the lustrated modules (see
     // rblm_sterilize.sh). The one subprocess of the cut, by design. Its
-    // dispatch env is provided explicitly: the hierophant's stream() scrubs
-    // the inherited BURD_ state, and the script needs exactly three values —
-    // a temp root (the cut's scratch), the BUK utility modules, and the
-    // RELATIVE tabtarget dir it regenerates the context from.
+    // dispatch values are provided explicitly: the hierophant's stream() scrubs
+    // the inherited BURD_ state, and the script needs exactly four values —
+    // a temp root (the cut's scratch), the BUK utility modules, the RELATIVE
+    // tabtarget dir it regenerates the context from, and the regulus's config
+    // regime. They cross as a dispatch file, the kit refusing a dispatch name
+    // that arrives exported; the subprocess is handed the pointer naming that
+    // file and the kit directory, the two hand-offs a coordinator takes.
     rbvcel_log::rbvcel_step("Lustrating and regenerating in the clone");
     let sterilize = clone_dir.join(RBVCEX_STERILIZE_PATH);
     if !sterilize.is_file() {
@@ -352,14 +364,30 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let sterilize = rbvcep_repo::rbvcep_as_str(&sterilize);
     let scratch = rbvcep_repo::rbvcep_as_str(&scratch_dir);
     let buk_dir = rbvcep_repo::rbvcep_as_str(&top.join(RBVCEX_BUK_SUBDIR));
+    let burc = rbvcep_repo::rbvcep_as_str(&clone_dir.join(RBVCEX_BURC_PATH));
+    let burd_path = scratch_dir.join(RBVCEX_BURD_FILE);
+    let mut burd = String::new();
+    for (name, value) in [
+        ("BURD_TEMP_DIR", scratch.as_str()),
+        ("BURD_BUK_DIR", buk_dir.as_str()),
+        ("BURD_TABTARGET_DIR", RBVCCD_TT_SUBDIR),
+        ("BURD_REGIME_FILE", burc.as_str()),
+    ] {
+        if value.contains(['"', '\\', '$', '`', '\n']) {
+            crate::rbvcel_fatal!("the sterilize dispatch value {} cannot stand on a dispatch file line: {}", name, value);
+        }
+        burd.push_str(&format!("{}=\"{}\"\n", name, value));
+    }
+    std::fs::write(&burd_path, burd)
+        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the sterilize dispatch file {}: {}", burd_path.display(), e));
+    let burd_file = rbvcep_repo::rbvcep_as_str(&burd_path);
     let code = rbvcer_run::rbvcer_stream(
         "bash",
         &[&sterilize],
         top,
         &[
-            ("BURD_TEMP_DIR", &scratch),
+            ("BURD_BURD_FILE", &burd_file),
             ("BURD_BUK_DIR", &buk_dir),
-            ("BURD_TABTARGET_DIR", RBVCCD_TT_SUBDIR),
         ],
     );
     if code != 0 {

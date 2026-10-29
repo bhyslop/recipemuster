@@ -94,6 +94,10 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchl_calibrant::RBTCHL_FIXTURE_COVERAGE_UNUSED,
     &crate::rbtchl_calibrant::RBTCHL_FIXTURE_TARIFF_DRIFT,
     &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+    // quiet-hush: the levels of environment-quiet's chain, reached
+    // only through it one case at a time — a member of no suite.
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_QUIET_HUSH,
 ];
 
 /// Resolve a fixture name to its registered Fixture definition. Returns None
@@ -133,6 +137,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
         ],
     },
     // Picket — reveille + GCP-credentialed bare fixtures.
@@ -163,6 +168,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CHAINING_LIVERY,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
         ],
     },
     // Bivouac — reveille + container-runtime crucible fixtures. kludge-tadmor
@@ -194,6 +200,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
         ],
     },
     // Echelon — reveille + every dependency-tiered fixture (picket ∪ bivouac).
@@ -230,6 +237,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
         ],
     },
     // Gauntlet — release-qualification ladder. Walks marshal-zero state through
@@ -268,6 +276,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
             &crate::rbtcgp_patrol::RBTCGP_FIXTURE_HALLMARK_LIFECYCLE,
             // kludge-tadmor re-pins tadmor right before its charge, on
             // bivouac's pattern: onboarding-sequence's own tadmor kludge is
@@ -314,6 +323,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
             // kludge-tadmor stands after onboarding-sequence's vessel commits,
             // for the reason gauntlet carries it.
             &crate::rbtcgo_onboarding::RBTCGO_FIXTURE_KLUDGE_TADMOR,
@@ -437,6 +447,7 @@ pub static RBTCEA_REVEILLE_BASE: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
     &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
 ];
 
 // ── Compile-time uniqueness guard ────────────────────────────

@@ -22,13 +22,55 @@
 //! A written program is RUN, not merely inspected: the bit is what the writers
 //! promise, and the exec is what the bit is for.
 
-use super::bkprs_scrivener::{bkprs_copy, bkprs_program_copy, bkprs_program_write};
+use super::bkprs_scrivener::{
+    bkprs_copy,
+    bkprs_program_copy,
+    bkprs_program_write, //
+};
 use std::os::unix::fs::PermissionsExt;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 use std::process::Command;
 
-/// The dispatch's temp root. ABSENT IS A REFUSAL, never a fallback.
+/// The dispatch's temp root, read from the file its pointer names. ABSENT IS A
+/// REFUSAL, never a fallback.
 const ZBKPTS_TEMP_ROOT_VAR: &str = "BURD_TEMP_DIR";
+
+/// The pointer naming the dispatch's file.
+const ZBKPTS_POINTER_VAR: &str = "BURD_BURD_FILE";
+
+/// The dispatch's temp root, read from the suite's own dispatch file through
+/// this crate's own reader, refusing where the pointer, the file or the field is
+/// absent.
+fn zbkpts_declared() -> String {
+    let pointer = std::env::var_os(ZBKPTS_POINTER_VAR).unwrap_or_else(|| {
+        panic!(
+            "{} is unset. The writers' hurdles stand under the dispatch's temp root and reach \
+             for no ambient temp directory; drive the suite through its own door",
+            ZBKPTS_POINTER_VAR, //
+        )
+    });
+    crate::bkprc_catena::bkprc_read(Path::new(&pointer))
+        .unwrap_or_else(|err| {
+            panic!(
+                "{} names no readable dispatch file: {}",
+                ZBKPTS_POINTER_VAR,
+                err, //
+            )
+        })
+        .bkprc_scalar(ZBKPTS_TEMP_ROOT_VAR)
+        .map(str::trim)
+        .filter(|dir| !dir.is_empty())
+        .map(str::to_string)
+        .unwrap_or_else(|| {
+            panic!(
+                "the suite's dispatch file names no {}",
+                ZBKPTS_TEMP_ROOT_VAR, //
+            )
+        })
+}
 
 /// A program that says one word and exits.
 const ZBKPTS_SAYS: &str = "#!/bin/sh\necho composed\n";
@@ -41,18 +83,20 @@ struct zbkpts_Yard {
 impl zbkpts_Yard {
     /// Compose an empty yard named for the hurdle that asks for it.
     fn zbkpts_compose(name: &str) -> zbkpts_Yard {
-        let declared = std::env::var(ZBKPTS_TEMP_ROOT_VAR).unwrap_or_else(|_| {
+        let declared = zbkpts_declared();
+
+        let root = Path::new(&declared).join(format!(
+            "bkpts-{}",
+            name, //
+        ));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(&root).unwrap_or_else(|err| {
             panic!(
-                "{} is unset. The writers' hurdles stand under the dispatch's temp root and reach \
-                 for no ambient temp directory; drive the suite through its own door",
-                ZBKPTS_TEMP_ROOT_VAR
+                "could not compose a yard at {}: {}",
+                root.display(),
+                err, //
             )
         });
-
-        let root = Path::new(&declared).join(format!("bkpts-{}", name));
-        let _ = std::fs::remove_dir_all(&root);
-        std::fs::create_dir_all(&root)
-            .unwrap_or_else(|err| panic!("could not compose a yard at {}: {}", root.display(), err));
 
         zbkpts_Yard { root }
     }
@@ -72,7 +116,13 @@ impl Drop for zbkpts_Yard {
 /// Whether a file stands armed.
 fn zbkpts_armed(path: &Path) -> bool {
     std::fs::metadata(path)
-        .unwrap_or_else(|err| panic!("could not read {}: {}", path.display(), err))
+        .unwrap_or_else(|err| {
+            panic!(
+                "could not read {}: {}",
+                path.display(),
+                err, //
+            )
+        })
         .permissions()
         .mode()
         & 0o111
@@ -81,14 +131,18 @@ fn zbkpts_armed(path: &Path) -> bool {
 
 /// Run a program and answer what it printed, refusing the hurdle if it fails.
 fn zbkpts_run(program: &Path) -> String {
-    let out = Command::new(program)
-        .output()
-        .unwrap_or_else(|err| panic!("could not run {}: {}", program.display(), err));
+    let out = Command::new(program).output().unwrap_or_else(|err| {
+        panic!(
+            "could not run {}: {}",
+            program.display(),
+            err, //
+        )
+    });
     assert!(
         out.status.success(),
         "{} exited {}",
         program.display(),
-        out.status
+        out.status, //
     );
     String::from_utf8_lossy(&out.stdout).into_owned()
 }
@@ -125,7 +179,10 @@ fn zbkpts_a_copied_program_is_armed() {
     let yard = zbkpts_Yard::zbkpts_compose("program-copy");
     let source = yard.zbkpts_at("source.sh");
     std::fs::write(&source, ZBKPTS_SAYS).unwrap();
-    assert!(!zbkpts_armed(&source), "the source must stand unarmed for this to prove anything");
+    assert!(
+        !zbkpts_armed(&source),
+        "the source must stand unarmed for this to prove anything", //
+    );
     let copy = yard.zbkpts_at("bin/says.sh");
 
     bkprs_program_copy(&source, &copy).expect("the copier copies");
@@ -155,7 +212,7 @@ fn zbkpts_a_copy_carries_whether_it_is_a_program() {
     bkprs_copy(&plain, &armed_copy).expect("a plain source copies over a program");
     assert!(
         !zbkpts_armed(&armed_copy),
-        "a plain copy over a program must not keep the program's bit"
+        "a plain copy over a program must not keep the program's bit", //
     );
 }
 
@@ -167,10 +224,19 @@ fn zbkpts_an_absent_source_refuses_naming_it() {
     let named = absent.display().to_string();
 
     let carried = bkprs_copy(&absent, &yard.zbkpts_at("to.sh")).expect_err("nothing to copy");
-    assert!(carried.contains(&named), "the refusal reads: {}", carried);
+    assert!(
+        carried.contains(&named),
+        "the refusal reads: {}",
+        carried, //
+    );
 
-    let program = bkprs_program_copy(&absent, &yard.zbkpts_at("to.sh")).expect_err("nothing to copy");
-    assert!(program.contains("to.sh"), "the refusal reads: {}", program);
+    let program =
+        bkprs_program_copy(&absent, &yard.zbkpts_at("to.sh")).expect_err("nothing to copy");
+    assert!(
+        program.contains("to.sh"),
+        "the refusal reads: {}",
+        program, //
+    );
 }
 
 /// A copy onto its own source refuses and leaves the source standing.
@@ -181,7 +247,8 @@ fn zbkpts_a_copy_onto_its_source_refuses() {
     bkprs_program_write(&program, ZBKPTS_SAYS).unwrap();
 
     bkprs_copy(&program, &program).expect_err("a carry onto its source refuses");
-    bkprs_program_copy(&program, &yard.zbkpts_at("./says.sh")).expect_err("a copy onto its source refuses");
+    bkprs_program_copy(&program, &yard.zbkpts_at("./says.sh"))
+        .expect_err("a copy onto its source refuses");
 
     assert_eq!(zbkpts_run(&program), "composed\n");
 }
@@ -201,7 +268,11 @@ fn zbkpts_programs_written_beside_spawning_threads_all_run() {
             let root = root.clone();
             std::thread::spawn(move || {
                 for round in 0..25 {
-                    let program = root.join(format!("w{}-r{}.sh", worker, round));
+                    let program = root.join(format!(
+                        "w{}-r{}.sh",
+                        worker,
+                        round, //
+                    ));
                     bkprs_program_write(&program, ZBKPTS_SAYS).expect("the writer writes");
                     assert_eq!(zbkpts_run(&program), "composed\n");
                 }
@@ -210,7 +281,9 @@ fn zbkpts_programs_written_beside_spawning_threads_all_run() {
         .collect();
 
     for worker in workers {
-        worker.join().expect("every worker runs every program it wrote");
+        worker
+            .join()
+            .expect("every worker runs every program it wrote");
     }
 }
 

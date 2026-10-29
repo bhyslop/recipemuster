@@ -34,10 +34,10 @@
 
 use std::path::PathBuf;
 
-use crate::bktu_lure::bktu_Lure;
-use crate::bktu_lure::BKTU_COLOPHON;
 use crate::bkg_breviary::bkg_bus_loosebox_base;
 use crate::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
+use crate::bktu_lure::bktu_Lure;
+use crate::bktu_lure::BKTU_COLOPHON;
 
 /// What the seat's coordinator writes to stdout, ahead of the colophon it was
 /// handed.
@@ -84,7 +84,7 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
          exit {verdict}\n",
         said = BKTB_SAID,
         grumbled = BKTB_GRUMBLED,
-        verdict = BKTB_VERDICT
+        verdict = BKTB_VERDICT, //
     ));
 
     let out = lure.bktu_dispatch(&tabtarget, &[]);
@@ -100,7 +100,7 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
         Some(BKTB_VERDICT),
         "the seat carries the coordinator's own verdict back: {}\n{}",
         said,
-        grumbled
+        grumbled, //
     );
 
     // THE COLOPHON REACHED THE COORDINATOR. The dispatch splits it out of the
@@ -108,9 +108,13 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     // coordinator that can name it was reached through the seat's own door and
     // not by some shorter road.
     assert!(
-        said.contains(&format!("{} {}", BKTB_SAID, BKTU_COLOPHON)),
+        said.contains(&format!(
+            "{} {}",
+            BKTB_SAID,
+            BKTU_COLOPHON, //
+        )),
         "the coordinator names the colophon the inscription spells: {}",
-        said
+        said, //
     );
 
     // BOTH STREAMS, READ WHERE THE LAW PUTS THEM. The logged mode merges the
@@ -120,12 +124,12 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     assert!(
         said.contains(BKTB_GRUMBLED),
         "the dispatch merges the coordinator's stderr into the record: {}",
-        said
+        said, //
     );
     assert!(
         grumbled.is_empty(),
         "nothing in the chain wrote past the record: {}",
-        grumbled
+        grumbled, //
     );
 
     // THE SEAT'S OWN LOG FAMILY, WRITTEN WHERE THE SEAT PUT IT. This is the
@@ -143,14 +147,15 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
             root.join(name).is_file(),
             "the seat's own log directory holds {}, under {}",
             name,
-            root.display()
+            root.display(), //
         );
         family += 1;
     }
     assert_eq!(
-        family, 3,
+        family,
+        3,
         "a dispatch that logs writes three files, one record read three ways: {}",
-        announced
+        announced, //
     );
 
     // AND ITS OWN SCRATCH. The transcript is announced absolute, the dispatch
@@ -159,7 +164,7 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     assert!(
         zbktb_announced(&said, BKTB_TRANSCRIPT).starts_with(&root.display().to_string()),
         "the seat's own temp root carries the dispatch's scratch: {}",
-        said
+        said, //
     );
 }
 
@@ -223,7 +228,7 @@ fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
         panic!(
             "could not read the seat's own regime at {}: {}",
             regime_path.display(),
-            err
+            err, //
         )
     });
 
@@ -239,19 +244,20 @@ fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
         .replace(
             &format!(
                 "BURC_LOOSEBOX_ROOT_DIR={}\n",
-                BKG_BUS_LOOSEBOX_BASE
+                BKG_BUS_LOOSEBOX_BASE, //
             ),
             &format!(
                 "BURC_LOOSEBOX_ROOT_DIR=../{}-lure-parent\n",
-                BKG_BUS_LOOSEBOX_BASE
+                BKG_BUS_LOOSEBOX_BASE, //
             ),
         );
 
     assert_ne!(
-        posed, standing,
+        posed,
+        standing,
         "the seat's default regime spells all three roots plainly, so posing a parent segment on \
          each must change the file: {}",
-        standing
+        standing, //
     );
 
     posed
@@ -286,7 +292,7 @@ fn bktb_the_dispatch_settles_a_root_spelled_through_a_parent_segment() {
         out.status.success(),
         "the dispatch settles a parent-relative root rather than refusing it: {}\n{}",
         said,
-        grumbled
+        grumbled, //
     );
 
     for (label, must_be_dir) in [
@@ -303,23 +309,118 @@ fn bktb_the_dispatch_settles_a_root_spelled_through_a_parent_segment() {
                 .any(|c| matches!(c, std::path::Component::ParentDir)),
             "the {} path carries no parent-segment component once the dispatch settles it: {}",
             label,
-            announced
+            announced, //
         );
         assert!(
             path.is_absolute(),
             "the {} path stands absolute once the dispatch settles it: {}",
             label,
-            announced
+            announced, //
         );
         if must_be_dir {
             assert!(
                 path.is_dir(),
                 "the {} path is the directory the dispatch made: {}",
                 label,
-                announced
+                announced, //
             );
         }
     }
+}
+
+/// The seat's own default regime with its endonym line posed as `endonym`: any
+/// line the default states for it is dropped and the posed one appended, so the
+/// regime declares the field exactly once and with the hurdle's own value.
+fn zbktb_posed_endonym_regime(lure: &bktu_Lure, endonym: &str) -> String {
+    let regime_path = lure.bktu_root().join(".buk/burc.env");
+    let standing = std::fs::read_to_string(&regime_path).unwrap_or_else(|err| {
+        panic!(
+            "could not read the seat's own regime at {}: {}",
+            regime_path.display(),
+            err, //
+        )
+    });
+
+    let mut posed: String = standing
+        .lines()
+        .filter(|line| !line.starts_with("BURC_ENDONYM="))
+        .map(|line| {
+            format!(
+                "{}\n",
+                line, //
+            )
+        })
+        .collect();
+    posed.push_str(&format!(
+        "BURC_ENDONYM={}\n",
+        endonym, //
+    ));
+    posed
+}
+
+/// A WELL-FORMED ENDONYM DISPATCHES. The regime's format check admits the
+/// minted head, its separator and a lowercase tail, so a seat declaring one is
+/// a seat the substrate dispatches in.
+#[test]
+fn bktb_the_dispatch_takes_a_well_formed_endonym() {
+    let lure = bktu_Lure::bktu_compose("substrate-headed-value");
+    let tabtarget = lure.bktu_substrate_seat("#!/bin/bash\nexit 0\n");
+
+    lure.bktu_write(
+        ".buk/burc.env",
+        &zbktb_posed_endonym_regime(&lure, "buon_posed"),
+    );
+    lure.bktu_commit("pose a value wearing the minted head");
+
+    let out = lure.bktu_dispatch(&tabtarget, &[]);
+    let said = String::from_utf8_lossy(&out.stdout);
+    let grumbled = String::from_utf8_lossy(&out.stderr);
+
+    assert!(
+        out.status.success(),
+        "the dispatch takes a BURC_ENDONYM value wearing the minted head: {}\n{}",
+        said,
+        grumbled, //
+    );
+}
+
+/// AN ENDONYM LACKING ITS HEAD IS REFUSED BY THE FORMAT CHECK, which names the
+/// field. The refusal must be the format check's own: the scope sentinel names
+/// the field too where the regime never enrolled it, so a refusal carrying the
+/// sentinel's words is a regime that does not know the field at all.
+#[test]
+fn bktb_the_dispatch_refuses_an_endonym_lacking_its_head() {
+    let lure = bktu_Lure::bktu_compose("substrate-headless-value");
+    let tabtarget = lure.bktu_substrate_seat("#!/bin/bash\nexit 0\n");
+
+    lure.bktu_write(
+        ".buk/burc.env",
+        &zbktb_posed_endonym_regime(&lure, "posed_lure"),
+    );
+    lure.bktu_commit("pose a value lacking the minted head");
+
+    let out = lure.bktu_dispatch(&tabtarget, &[]);
+    let both = format!(
+        "{}\n{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr), //
+    );
+
+    assert!(
+        !out.status.success(),
+        "the dispatch refuses a BURC_ENDONYM value lacking the minted head: {}",
+        both, //
+    );
+    assert!(
+        both.contains("Invalid BURC_ENDONYM format: posed_lure"),
+        "the refusal is the format check's, naming the field and the value: {}",
+        both, //
+    );
+    assert!(
+        !both.contains("not enrolled"),
+        "the refusal is not the scope sentinel's: {}",
+        both, //
+    );
 }
 
 /// The rest of the line the dispatch announced under `label`, trimmed.
@@ -330,7 +431,13 @@ fn bktb_the_dispatch_settles_a_root_spelled_through_a_parent_segment() {
 fn zbktb_announced<'a>(said: &'a str, label: &str) -> &'a str {
     said.lines()
         .find(|line| line.starts_with(label))
-        .unwrap_or_else(|| panic!("the dispatch announces '{}': {}", label, said))
+        .unwrap_or_else(|| {
+            panic!(
+                "the dispatch announces '{}': {}",
+                label,
+                said, //
+            )
+        })
         .trim_start_matches(label)
         .trim()
 }

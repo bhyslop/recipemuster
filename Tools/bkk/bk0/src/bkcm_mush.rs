@@ -39,10 +39,13 @@
 //! asked about. The election is over apps alone.
 
 use crate::bkcl_leash;
-use crate::bkcv_voice;
 use crate::bkcr_resolve::bkcr_Collar;
+use crate::bkcv_voice;
 use crate::bkcx_python;
-use std::ffi::{OsStr, OsString};
+use std::ffi::{
+    OsStr,
+    OsString, //
+};
 use std::path::PathBuf;
 
 /// The runners the collar may name, in the substrate's enum sprue form under
@@ -173,7 +176,10 @@ impl bkcm_Launch {
 /// the features ride whatever the collar declared. A field standing empty is the
 /// collar saying there is nothing to spell, which is a declaration rather than an
 /// omission — the roster's own `BKRR_FEATURES` is empty at nearly every collar.
-pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<bkcm_Launch, String> {
+pub fn bkcm_suite(
+    repository: &std::path::Path,
+    collar: &bkcr_Collar,
+) -> Result<bkcm_Launch, String> {
     // AHEAD OF THE COMPOSITION, so the launch seam refuses for the same reason
     // and in the same words as the other two roads. It is asked here rather than
     // at the run because this is where the collar is still in hand — and a suite
@@ -203,8 +209,8 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
                 "the collar declares the runner '{}', which is no runner the kennel spawns — it \
                  spawns what a collar says and infers none, so a value outside the declared pair \
                  names a command nobody elected",
-                other
-            ))
+                other, //
+            ));
         }
     };
 
@@ -217,7 +223,9 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
     let features = collar.bkcr_field("BKRR_FEATURES");
     if !features.trim().is_empty() {
         rest.push(OsString::from(ZBKCM_FEATURES_FLAG));
-        rest.push(OsString::from(features.split_whitespace().collect::<Vec<&str>>().join(" ")));
+        rest.push(OsString::from(
+            features.split_whitespace().collect::<Vec<&str>>().join(" "),
+        ));
     }
 
     // THE TARGET IS A DECLARATION EITHER WAY, which is why the whole-manifest
@@ -260,7 +268,7 @@ pub fn bkcm_suite(repository: &std::path::Path, collar: &bkcr_Collar) -> Result<
 /// of the run it cleared, in the order the two actually happened.
 pub fn bkcm_run(
     repository: &std::path::Path,
-    weaned: &std::path::Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_Collar,
     launch: &bkcm_Launch,
     tongue: &str,
@@ -287,7 +295,11 @@ pub fn bkcm_run(
     // is not reported.
     let seat = crate::bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
 
-    let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(tongue, &bkcv_voice::bkcv_Record::bkcv_invocation())?;
+    let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(
+        dispatch,
+        tongue,
+        &bkcv_voice::bkcv_Record::bkcv_invocation(),
+    )?;
 
     for line in preamble {
         voice.bkcv_mark(line)?;
@@ -298,7 +310,10 @@ pub fn bkcm_run(
     // marks. It is a fact about what the kennel DECIDED from the collar — which
     // runner, which profile, which target — and a reader asking why a suite ran
     // the way it did reads it here rather than re-deriving it from the collar.
-    voice.bkcv_mark(&format!("launching: {}", launch.bkcm_spelling()))?;
+    voice.bkcv_mark(&format!(
+        "launching: {}",
+        launch.bkcm_spelling(), //
+    ))?;
 
     // A HEED THAT CANNOT REFUSE, so a failing record does not lose the run. What
     // the child said is gone the moment it is not taken, and a write that failed
@@ -307,11 +322,14 @@ pub fn bkcm_run(
     let mut grievance: Option<String> = None;
     let attended = bkcl_leash::bkcl_attend(
         repository,
-        weaned,
+        dispatch,
         &launch.manifest,
         &launch.verb,
         &launch.rest,
-        &[(crate::bkch_heel::BKCH_COLLAR_POSITION_VAR, OsStr::new(seat.as_str()))],
+        &[(
+            crate::bkch_heel::BKCH_COLLAR_POSITION_VAR,
+            OsStr::new(seat.as_str()),
+        )],
         bkcv_voice::BKCV_CADENCE,
         |heard| {
             if let Err(err) = voice.bkcv_heed(heard) {
@@ -353,14 +371,18 @@ pub fn bkcm_run(
 /// of this one could not open its own family and keep what it wrote.
 pub fn bkcm_python(
     repository: &std::path::Path,
-    weaned: &std::path::Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     at: &std::path::Path,
     spelled: &[OsString],
     stated: &[(&str, &std::ffi::OsStr)],
     tongue: &str,
     preamble: &[String],
 ) -> Result<(bkcl_leash::bkcl_Run, bkcv_voice::bkcv_Tally), String> {
-    let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(tongue, &bkcv_voice::bkcv_Record::bkcv_invocation())?;
+    let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(
+        dispatch,
+        tongue,
+        &bkcv_voice::bkcv_Record::bkcv_invocation(),
+    )?;
 
     for line in preamble {
         voice.bkcv_mark(line)?;
@@ -372,13 +394,13 @@ pub fn bkcm_python(
             .iter()
             .map(|one| one.to_string_lossy().into_owned())
             .collect::<Vec<String>>()
-            .join(" ")
+            .join(" "), //
     ))?;
 
     let mut grievance: Option<String> = None;
     let attended = bkcl_leash::bkcl_uv_attend(
         repository,
-        weaned,
+        dispatch,
         at,
         spelled,
         stated,
@@ -417,7 +439,7 @@ pub fn bkcm_python(
 /// walks at their preflight.
 pub fn bkcm_python_suite(
     repository: &std::path::Path,
-    weaned: &std::path::Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_python::bkcx_Collar,
     seat: &bkcx_python::bkcx_Seat,
     selection: &[OsString],
@@ -428,7 +450,7 @@ pub fn bkcm_python_suite(
 
     bkcm_python(
         repository,
-        weaned,
+        dispatch,
         &at,
         &spelled,
         &bkcx_python::bkcx_borne(&stated),

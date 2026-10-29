@@ -28,9 +28,19 @@
 
 use crate::bkce_election::bkce_Geography;
 use crate::bkco_output::BKCO_VERB_GANGLINE;
-use crate::bkct_tattoo::{bkct_proclamation_python, BKCT_LANGUAGE_PYTHON};
-use crate::bkcx_python::{bkcx_resolve, BKCX_LOCK_FILE};
-use crate::bktu_lure::{bktu_Bent, bktu_Lure};
+use crate::bkct_tattoo::{
+    bkct_proclamation_python,
+    BKCT_LANGUAGE_PYTHON, //
+};
+use crate::bkcx_python::{
+    bkcx_resolve,
+    BKCX_LOCK_FILE, //
+};
+use crate::bktr_resolve::bktr_lured;
+use crate::bktu_lure::{
+    bktu_Bent,
+    bktu_Lure, //
+};
 
 /// The collar every hurdle below composes, and the project it points at.
 const ZBKTX_COLLAR: &str = "suite-lure";
@@ -44,8 +54,7 @@ const ZBKTX_AT: &str = "project";
 /// to be true at the next bump; what these hurdles prove is what the READER does
 /// with a declaration, never what uv the estate stands on.
 const ZBKTX_UV_VERSION: &str = "0.11.30";
-const ZBKTX_UV_SEAL: &str =
-    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+const ZBKTX_UV_SEAL: &str = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 
 /// A lure carrying one uv project, one python collar over it, and the uv kibble.
 ///
@@ -55,7 +64,10 @@ const ZBKTX_UV_SEAL: &str =
 /// hypothetical — it was driven, and all ten went red together on a failure
 /// belonging to none of them.
 fn zbktx_seated(named: &str, bent: &bktu_Bent) -> bktu_Lure {
-    let lure = bktu_Lure::bktu_compose(&format!("python-{}", named));
+    let lure = bktu_Lure::bktu_compose(&format!(
+        "python-{}",
+        named, //
+    ));
 
     lure.bktu_project(ZBKTX_AT, ZBKTX_COLLAR, bent);
 
@@ -70,7 +82,8 @@ fn zbktx_seated(named: &str, bent: &bktu_Bent) -> bktu_Lure {
              BKRK_BYNAME=\"uv\"\n\
              BKRK_LARDER=\"https://example.invalid/releases\"\n\
              BKRK_BORDEREAU=\"dist-manifest.json\"\n",
-            ZBKTX_UV_VERSION, ZBKTX_UV_SEAL
+            ZBKTX_UV_VERSION,
+            ZBKTX_UV_SEAL, //
         ),
     );
 
@@ -79,7 +92,7 @@ fn zbktx_seated(named: &str, bent: &bktu_Bent) -> bktu_Lure {
 
 /// Every finding the reading gathers against the seated collar.
 fn zbktx_findings(lure: &bktu_Lure) -> Vec<String> {
-    bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR)
+    bkcx_resolve(lure.bktu_root(), &bktr_lured(lure), ZBKTX_COLLAR)
         .expect("the seated collar resolves")
         .findings
 }
@@ -98,14 +111,15 @@ fn bktx_a_whole_python_collar_over_a_composed_project_carries_no_finding() {
     assert!(
         findings.is_empty(),
         "a conforming python collar reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_conforming_collar_proclaims_with_the_python_language_value() {
     let lure = zbktx_seated("proclaims", &bktu_Bent::default());
-    let resolved = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR).expect("the collar resolves");
+    let resolved = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
+        .expect("the collar resolves");
 
     let said = bkct_proclamation_python(
         &resolved.collar,
@@ -114,9 +128,12 @@ fn bktx_a_conforming_collar_proclaims_with_the_python_language_value() {
     );
 
     assert!(
-        said.contains(&format!("BKRC_LANGUAGE=\"{}\"", BKCT_LANGUAGE_PYTHON)),
+        said.contains(&format!(
+            "BKRC_LANGUAGE=\"{}\"",
+            BKCT_LANGUAGE_PYTHON, //
+        )),
         "the proclamation named no python language value: {}",
-        said
+        said, //
     );
 
     // THE PROJECT POINTER SURFACES AS THE MANIFEST, which is the whole of what
@@ -125,193 +142,399 @@ fn bktx_a_conforming_collar_proclaims_with_the_python_language_value() {
     assert!(
         said.contains("BKRC_MANIFEST=\"project/pyproject.toml\""),
         "the proclamation carried no manifest row: {}",
-        said
+        said, //
     );
 
     // NO FAMILY SPELLING REACHES THE ANSWER.
     assert!(
         !said.contains("BKRP_"),
         "a family spelling reached the proclamation: {}",
-        said
+        said, //
     );
 }
 
 #[test]
 fn bktx_an_absent_project_file_refuses() {
-    let lure = zbktx_seated("lockless", &bktu_Bent {
-        lockless: true,
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "lockless",
+        &bktu_Bent {
+            lockless: true,
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, BKCX_LOCK_FILE),
         "a project missing its lock reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_pin_disagreeing_with_the_manifests_requirement_refuses() {
-    let lure = zbktx_seated("pin-below", &bktu_Bent {
-        pin: "3.11.9".to_string(),
-        requires: ">=3.12".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "pin-below",
+        &bktu_Bent {
+            pin: "3.11.9".to_string(),
+            requires: ">=3.12".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "falls below the project's own floor"),
         "a pin below the manifest's floor reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_bare_minor_version_floor_refuses() {
-    let lure = zbktx_seated("pin-floor", &bktu_Bent {
-        pin: "3.12".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "pin-floor",
+        &bktu_Bent {
+            pin: "3.12".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "not an exact patch"),
         "a bare minor pin reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_non_default_index_declared_without_explicit_refuses() {
-    let lure = zbktx_seated("implicit-index", &bktu_Bent {
-        uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"https://example.invalid/simple\"\n\
+    let lure = zbktx_seated(
+        "implicit-index",
+        &bktu_Bent {
+            uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"https://example.invalid/simple\"\n\
              \n[tool.uv.sources]\nheld = { index = \"house\" }\n"
-            .to_string(),
-        ..Default::default()
-    });
+                .to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "non-default and not explicit"),
         "an implicit non-default index reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_an_index_strategy_refuses() {
-    let lure = zbktx_seated("strategy", &bktu_Bent {
-        uv: "\n[tool.uv]\nindex-strategy = \"unsafe-best-match\"\n".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "strategy",
+        &bktu_Bent {
+            uv: "\n[tool.uv]\nindex-strategy = \"unsafe-best-match\"\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "index-strategy"),
         "a declared index strategy reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_kennel_owned_knob_in_the_uv_table_refuses() {
-    let lure = zbktx_seated("knob", &bktu_Bent {
-        uv: "\n[tool.uv]\npython-downloads = \"automatic\"\n".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "knob",
+        &bktu_Bent {
+            uv: "\n[tool.uv]\npython-downloads = \"automatic\"\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "the kennel states in the environment"),
         "a kennel-owned knob reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_build_bar_key_in_the_uv_table_refuses_citing_the_rivet() {
-    let lure = zbktx_seated("build-knob", &bktu_Bent {
-        uv: "\n[tool.uv]\nno-build = false\n".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "build-knob",
+        &bktu_Bent {
+            uv: "\n[tool.uv]\nno-build = false\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "no-build") && zbktx_names(&findings, "BKr_hpt"),
         "a build bar key in the project's table reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_flat_index_refuses_in_either_spelling() {
-    let legacy = zbktx_seated("flat-find-links", &bktu_Bent {
-        uv: "\n[tool.uv]\nfind-links = [\"/posed/flat\"]\n".to_string(),
-        ..Default::default()
-    });
+    let legacy = zbktx_seated(
+        "flat-find-links",
+        &bktu_Bent {
+            uv: "\n[tool.uv]\nfind-links = [\"/posed/flat\"]\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&legacy);
 
     assert!(
         zbktx_names(&findings, "serve the files from a simple index"),
         "a find-links index reported: {:?}",
-        findings
+        findings, //
     );
 
-    let modern = zbktx_seated("flat-format", &bktu_Bent {
-        uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"/posed/flat\"\nformat = \"flat\"\n\
+    let modern = zbktx_seated(
+        "flat-format",
+        &bktu_Bent {
+            uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"/posed/flat\"\nformat = \"flat\"\n\
              default = true\n"
-            .to_string(),
-        ..Default::default()
-    });
+                .to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&modern);
 
     assert!(
         zbktx_names(&findings, "is declared flat"),
         "a flat-format index reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_source_the_converge_would_build_refuses() {
-    let pathed = zbktx_seated("source-path", &bktu_Bent {
-        uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\" }\n".to_string(),
-        ..Default::default()
-    });
+    let pathed = zbktx_seated(
+        "source-path",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\" }\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&pathed);
 
     assert!(
-        zbktx_names(&findings, "draws 'sib' from a path source") && zbktx_names(&findings, "BKr_hpt"),
+        zbktx_names(&findings, "draws 'sib' from a path source")
+            && zbktx_names(&findings, "BKr_hpt"),
         "a path source reported: {:?}",
-        findings
+        findings, //
     );
 
-    let spanned = zbktx_seated("source-workspace", &bktu_Bent {
-        uv: "\n[tool.uv.workspace]\nmembers = [\"sib\"]\n".to_string(),
-        ..Default::default()
-    });
+    let spanned = zbktx_seated(
+        "source-workspace",
+        &bktu_Bent {
+            uv: "\n[tool.uv.workspace]\nmembers = [\"sib\"]\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&spanned);
 
     assert!(
         zbktx_names(&findings, "one project stands per environment"),
         "a workspace reported: {:?}",
-        findings
+        findings, //
+    );
+}
+
+/// The sibling every hurdle over a source by path stands beside the composed
+/// project, inside the lure's repository.
+const ZBKTX_SIBLING: &str = "sib";
+
+/// A sibling project beside the composed one, its build system the text given.
+fn zbktx_sibling(lure: &bktu_Lure, build: &str) {
+    lure.bktu_write(
+        &format!(
+            "{}/pyproject.toml",
+            ZBKTX_SIBLING, //
+        ),
+        &format!(
+            "[project]\nname = \"sib\"\nversion = \"0.0.1\"\nrequires-python = \">=3.12\"\n\
+             dependencies = [\"beta\"]\n{}",
+            build, //
+        ),
+    );
+}
+
+/// The build system a conforming sibling declares: uv's own backend in the range
+/// the fabricated uv kibble satisfies.
+const ZBKTX_SIBLING_BUILD: &str =
+    "\n[build-system]\nrequires = [\"uv_build>=0.11.0,<0.12.0\"]\nbuild-backend = \"uv_build\"\n";
+
+/// A lock as uv writes one for a project taking an editable sibling: the
+/// project's own entry at the lock's root, the sibling's entry at its own
+/// directory carrying an account of its own, and both their dependencies
+/// wheeled.
+fn zbktx_sibling_lock() -> String {
+    let mut lock = String::from("version = 1\nrevision = 3\nrequires-python = \">=3.12\"\n\n");
+    lock.push_str(
+        "[[package]]\nname = \"lure\"\nversion = \"0.0.1\"\nsource = { virtual = \".\" }\n\
+         dependencies = [{ name = \"alpha\" }, { name = \"sib\" }]\n\n\
+         [package.metadata]\nrequires-dist = [{ name = \"alpha\" }, { name = \"sib\", editable = \"../sib\" }]\n\n",
+    );
+    lock.push_str(
+        "[[package]]\nname = \"sib\"\nversion = \"0.0.1\"\nsource = { editable = \"../sib\" }\n\
+         dependencies = [{ name = \"beta\" }]\n\n\
+         [package.metadata]\nrequires-dist = [{ name = \"beta\" }]\n\n",
+    );
+
+    for name in ["alpha", "beta"] {
+        lock.push_str(&format!(
+            "[[package]]\nname = \"{0}\"\nversion = \"1.0\"\nsource = {{ registry = \"/posed/index\" }}\n\
+             wheels = [\n    {{ path = \"/posed/files/{0}-1.0-py3-none-any.whl\" }},\n]\n\n",
+            name, //
+        ));
+    }
+
+    lock
+}
+
+#[test]
+fn bktx_an_editable_sibling_inside_the_repository_stands_tree_own() {
+    let lure = zbktx_seated(
+        "sibling-editable",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\", editable = true }\n".to_string(),
+            baked: "alpha".to_string(),
+            ..Default::default()
+        },
+    );
+    zbktx_sibling(&lure, ZBKTX_SIBLING_BUILD);
+    lure.bktu_write(
+        &format!(
+            "{}/uv.lock",
+            ZBKTX_AT, //
+        ),
+        &zbktx_sibling_lock(),
+    );
+
+    // THE SIBLING PASSES THE SOURCE BAR AND STANDS IN NO LIST. Its entry carries
+    // the lock's own-entry key as the project's does, and a reading that took
+    // every such entry for the project would merge the sibling's account into
+    // the project's: 'beta' would read as a direct dependency the lists owe a
+    // name, and the sibling itself as one the baked list forgot.
+    let findings = zbktx_findings(&lure);
+
+    assert!(
+        findings.is_empty(),
+        "an editable sibling inside the repository reported: {:?}",
+        findings, //
+    );
+
+    // THE ROSTER LEAVES THE SIBLING OFF BY ITS LOCK ENTRY, as it leaves the
+    // project, and bars everything the two of them reach.
+    let barred = crate::bkcx_python::bkcx_lock_packages(&lure.bktu_root().join(ZBKTX_AT))
+        .expect("the posed lock reads");
+
+    assert_eq!(barred, vec!["alpha".to_string(), "beta".to_string()]);
+}
+
+#[test]
+fn bktx_a_sibling_by_path_outside_its_bounds_still_refuses_citing_the_rivet() {
+    // NOT EDITABLE: a sibling uv installs as a copy.
+    let copied = zbktx_seated(
+        "sibling-copied",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\" }\n".to_string(),
+            ..Default::default()
+        },
+    );
+    zbktx_sibling(&copied, ZBKTX_SIBLING_BUILD);
+    let findings = zbktx_findings(&copied);
+
+    assert!(
+        zbktx_names(
+            &findings,
+            "draws 'sib' from a path source not installed editable"
+        ) && zbktx_names(&findings, "BKr_hpt"),
+        "a sibling not installed editable reported: {:?}",
+        findings, //
+    );
+
+    // OUTSIDE THE REPOSITORY: the lure's own parent directory.
+    let outside = zbktx_seated(
+        "sibling-outside",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../..\", editable = true }\n".to_string(),
+            ..Default::default()
+        },
+    );
+    let findings = zbktx_findings(&outside);
+
+    assert!(
+        zbktx_names(&findings, "inside the repository") && zbktx_names(&findings, "BKr_hpt"),
+        "a sibling outside the repository reported: {:?}",
+        findings, //
+    );
+
+    // ON A FOREIGN BACKEND: the project's own bound, read off the sibling's own
+    // manifest.
+    let foreign = zbktx_seated(
+        "sibling-backend",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\", editable = true }\n".to_string(),
+            ..Default::default()
+        },
+    );
+    zbktx_sibling(
+        &foreign,
+        "\n[build-system]\nrequires = [\"hatchling\"]\nbuild-backend = \"hatchling.build\"\n",
+    );
+    let findings = zbktx_findings(&foreign);
+
+    assert!(
+        zbktx_names(&findings, "the sibling 'sib'") && zbktx_names(&findings, "uv_build"),
+        "a sibling on a foreign backend reported: {:?}",
+        findings, //
+    );
+
+    // NO BUILD SYSTEM AT ALL: nothing names the backend uv would build it with.
+    let bare = zbktx_seated(
+        "sibling-bare",
+        &bktu_Bent {
+            uv: "\n[tool.uv.sources]\nsib = { path = \"../sib\", editable = true }\n".to_string(),
+            ..Default::default()
+        },
+    );
+    zbktx_sibling(&bare, "");
+    let findings = zbktx_findings(&bare);
+
+    assert!(
+        zbktx_names(&findings, "the sibling 'sib'") && zbktx_names(&findings, "declares no"),
+        "a sibling declaring no build system reported: {:?}",
+        findings, //
     );
 }
 
 #[test]
 fn bktx_dynamic_metadata_refuses() {
-    let lure = zbktx_seated("dynamic", &bktu_Bent {
-        uv: "dynamic = [\"version\"]\n".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "dynamic",
+        &bktu_Bent {
+            uv: "dynamic = [\"version\"]\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "cannot be locked under the build bar"),
         "dynamic metadata reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -327,7 +550,7 @@ fn bktx_a_backend_other_than_uvs_own_refuses_and_uvs_own_in_range_passes() {
     assert!(
         zbktx_names(&findings, "the backend is uv's own"),
         "a foreign backend reported: {:?}",
-        findings
+        findings, //
     );
 
     let beyond = zbktx_seated("backend-beyond", &bktu_Bent {
@@ -340,7 +563,7 @@ fn bktx_a_backend_other_than_uvs_own_refuses_and_uvs_own_in_range_passes() {
     assert!(
         zbktx_names(&findings, "so the range admits the pin"),
         "a backend range beyond the kibble's pin reported: {:?}",
-        findings
+        findings, //
     );
 
     // THE CONTROL: uv's own backend in the range the kibble's pin satisfies
@@ -355,7 +578,7 @@ fn bktx_a_backend_other_than_uvs_own_refuses_and_uvs_own_in_range_passes() {
     assert!(
         findings.is_empty(),
         "uv's own backend in range reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -365,7 +588,12 @@ fn bktx_a_backend_other_than_uvs_own_refuses_and_uvs_own_in_range_passes() {
 fn zbktx_lock(direct: &[&str], dev: &[&str], wheeled: &[&str], sourced: &[&str]) -> String {
     let named = |list: &[&str]| -> String {
         list.iter()
-            .map(|held| format!("{{ name = \"{}\" }}", held))
+            .map(|held| {
+                format!(
+                    "{{ name = \"{}\" }}",
+                    held, //
+                )
+            })
             .collect::<Vec<_>>()
             .join(", ")
     };
@@ -374,14 +602,20 @@ fn zbktx_lock(direct: &[&str], dev: &[&str], wheeled: &[&str], sourced: &[&str])
     lock.push_str(
         "[[package]]\nname = \"lure\"\nversion = \"0.0.1\"\nsource = { virtual = \".\" }\n\n",
     );
-    lock.push_str(&format!("[package.metadata]\nrequires-dist = [{}]\n\n", named(direct)));
-    lock.push_str(&format!("[package.metadata.requires-dev]\ndev = [{}]\n\n", named(dev)));
+    lock.push_str(&format!(
+        "[package.metadata]\nrequires-dist = [{}]\n\n",
+        named(direct), //
+    ));
+    lock.push_str(&format!(
+        "[package.metadata.requires-dev]\ndev = [{}]\n\n",
+        named(dev), //
+    ));
 
     for name in wheeled {
         lock.push_str(&format!(
             "[[package]]\nname = \"{0}\"\nversion = \"1.0\"\nsource = {{ registry = \"/posed/index\" }}\n\
              wheels = [\n    {{ path = \"/posed/files/{0}-1.0-py3-none-any.whl\" }},\n]\n\n",
-            name
+            name, //
         ));
     }
 
@@ -389,7 +623,7 @@ fn zbktx_lock(direct: &[&str], dev: &[&str], wheeled: &[&str], sourced: &[&str])
         lock.push_str(&format!(
             "[[package]]\nname = \"{0}\"\nversion = \"1.0\"\nsource = {{ registry = \"/posed/index\" }}\n\
              sdist = {{ path = \"/posed/files/{0}-1.0.tar.gz\" }}\n\n",
-            name
+            name, //
         ));
     }
 
@@ -399,10 +633,17 @@ fn zbktx_lock(direct: &[&str], dev: &[&str], wheeled: &[&str], sourced: &[&str])
 /// Bend one line of the composed collar, so a hurdle states the one thing it is
 /// about rather than spelling the collar a second time.
 fn zbktx_bend_collar(lure: &bktu_Lure, from: &str, to: &str) {
-    let at = lure.bktu_root().join(lure.bktu_weaned_at(&format!("{}/bkrp.env", ZBKTX_COLLAR)));
+    let at = lure.bktu_root().join(lure.bktu_weaned_at(&format!(
+        "{}/bkrp.env",
+        ZBKTX_COLLAR, //
+    )));
     let said = std::fs::read_to_string(&at).expect("the composed collar reads");
 
-    assert!(said.contains(from), "the composed collar carries no '{}' to bend", from);
+    assert!(
+        said.contains(from),
+        "the composed collar carries no '{}' to bend",
+        from, //
+    );
 
     std::fs::write(&at, said.replace(from, to)).expect("the bent collar writes");
 }
@@ -410,12 +651,21 @@ fn zbktx_bend_collar(lure: &bktu_Lure, from: &str, to: &str) {
 /// A seated project whose lock carries the given account, the collar naming the
 /// baked list given.
 fn zbktx_partitioned(named: &str, baked: &str, lock: &str) -> bktu_Lure {
-    let lure = zbktx_seated(named, &bktu_Bent {
-        baked: baked.to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        named,
+        &bktu_Bent {
+            baked: baked.to_string(),
+            ..Default::default()
+        },
+    );
 
-    lure.bktu_write(&format!("{}/uv.lock", ZBKTX_AT), lock);
+    lure.bktu_write(
+        &format!(
+            "{}/uv.lock",
+            ZBKTX_AT, //
+        ),
+        lock,
+    );
 
     lure
 }
@@ -431,7 +681,11 @@ fn bktx_the_lists_together_name_the_locks_account_and_nothing_else() {
     );
     let findings = zbktx_findings(&whole);
 
-    assert!(findings.is_empty(), "a whole partition reported: {:?}", findings);
+    assert!(
+        findings.is_empty(),
+        "a whole partition reported: {:?}",
+        findings, //
+    );
 
     // A DIRECT DEPENDENCY NEITHER LIST NAMES, the dev group counting.
     let unlisted = zbktx_partitioned(
@@ -442,9 +696,12 @@ fn bktx_the_lists_together_name_the_locks_account_and_nothing_else() {
     let findings = zbktx_findings(&unlisted);
 
     assert!(
-        zbktx_names(&findings, "'pytest' is a direct dependency of the manifest and neither"),
+        zbktx_names(
+            &findings,
+            "'pytest' is a direct dependency of the manifest and neither"
+        ),
         "an unlisted direct dependency reported: {:?}",
-        findings
+        findings, //
     );
 
     // A NAME THE LOCK'S ACCOUNT DOES NOT CARRY.
@@ -458,7 +715,7 @@ fn bktx_the_lists_together_name_the_locks_account_and_nothing_else() {
     assert!(
         zbktx_names(&findings, "names 'gamma', which the lock's account"),
         "a name the lock does not carry reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -481,13 +738,16 @@ fn bktx_a_name_in_both_lists_and_a_crude_name_each_refuse_citing_the_rivet() {
     assert!(
         zbktx_names(&findings, "names 'alpha'") && zbktx_names(&findings, "BKr_hpt"),
         "a name in the second list reported no rivet: {:?}",
-        findings
+        findings, //
     );
 
     assert!(
-        zbktx_names(&findings, "'alpha' is named in BKRP_BAKED_PACKAGES and BKRP_CRUDE_PACKAGES both"),
+        zbktx_names(
+            &findings,
+            "'alpha' is named in BKRP_BAKED_PACKAGES and BKRP_CRUDE_PACKAGES both"
+        ),
         "a name in both lists reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -501,10 +761,12 @@ fn bktx_a_baked_name_the_lock_carries_no_wheel_for_refuses() {
     let findings = zbktx_findings(&lure);
 
     assert!(
-        zbktx_names(&findings, "names 'alpha' and the lock carries no wheel for it")
-            && zbktx_names(&findings, "BKr_hpt"),
+        zbktx_names(
+            &findings,
+            "names 'alpha' and the lock carries no wheel for it"
+        ) && zbktx_names(&findings, "BKr_hpt"),
         "a listed name with no wheel reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -516,14 +778,18 @@ fn bktx_a_crude_list_without_its_none_value_refuses() {
         &zbktx_lock(&["alpha"], &["pytest"], &["alpha", "pytest"], &[]),
     );
 
-    zbktx_bend_collar(&lure, "BKRP_CRUDE_PACKAGES=\"bknre_baked\"", "BKRP_CRUDE_PACKAGES=\"\"");
+    zbktx_bend_collar(
+        &lure,
+        "BKRP_CRUDE_PACKAGES=\"bknre_baked\"",
+        "BKRP_CRUDE_PACKAGES=\"\"",
+    );
 
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "carries no bknre_baked"),
         "an empty second list reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -539,40 +805,45 @@ fn bktx_a_lock_with_no_entry_for_the_project_refuses() {
     assert!(
         zbktx_names(&findings, "carries no entry for the project itself"),
         "a lock with no project entry reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_required_version_excluding_the_kibbles_pin_refuses() {
-
-    let lure = zbktx_seated("required", &bktu_Bent {
-        uv: "\n[tool.uv]\nrequired-version = \">=0.12\"\n".to_string(),
-        ..Default::default()
-    });
+    let lure = zbktx_seated(
+        "required",
+        &bktu_Bent {
+            uv: "\n[tool.uv]\nrequired-version = \">=0.12\"\n".to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "cannot be converged here"),
         "a required-version beyond the kibble's pin reported: {:?}",
-        findings
+        findings, //
     );
 }
 
 #[test]
 fn bktx_a_declared_index_no_source_draws_from_refuses() {
-    let lure = zbktx_seated("undrawn-index", &bktu_Bent {
-        uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"https://example.invalid/simple\"\n\
+    let lure = zbktx_seated(
+        "undrawn-index",
+        &bktu_Bent {
+            uv: "\n[[tool.uv.index]]\nname = \"house\"\nurl = \"https://example.invalid/simple\"\n\
              explicit = true\n"
-            .to_string(),
-        ..Default::default()
-    });
+                .to_string(),
+            ..Default::default()
+        },
+    );
     let findings = zbktx_findings(&lure);
 
     assert!(
         zbktx_names(&findings, "no [tool.uv.sources] entry draws from it"),
         "an index nothing draws from reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -585,7 +856,7 @@ fn bktx_a_declared_index_no_source_draws_from_refuses() {
 /// that every parallel neighbour also reads, and a hurdle writing it would be
 /// deciding their answers.
 fn zbktx_posed_seat(lure: &bktu_Lure) -> crate::bkcx_python::bkcx_Seat {
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(lure), ZBKTX_COLLAR)
         .expect("the seated collar resolves")
         .collar;
 
@@ -606,7 +877,7 @@ fn bktx_the_environment_stands_under_the_loosebox_and_never_in_the_project() {
     assert!(
         said.starts_with("/posed/derived"),
         "the environment stands at {} rather than under the derived root",
-        said
+        said, //
     );
 
     // THE KENNEL'S QUARTER STANDS BETWEEN THE ROOT AND THE PROJECT, which is what
@@ -614,7 +885,7 @@ fn bktx_the_environment_stands_under_the_loosebox_and_never_in_the_project() {
     assert!(
         said.contains("/bkk/"),
         "the environment {} names no kennel quarter",
-        said
+        said, //
     );
 
     // KEYED ON THE PROJECT'S PATH AND NOT ON THE COLLAR'S NAME, which is the
@@ -623,14 +894,14 @@ fn bktx_the_environment_stands_under_the_loosebox_and_never_in_the_project() {
     assert!(
         said.ends_with(ZBKTX_AT),
         "the environment {} is not keyed on the project's own path",
-        said
+        said, //
     );
 
     assert!(
         !said.contains(ZBKTX_COLLAR),
         "the environment {} is keyed on the collar, so two collars over one project would build \
          two environments",
-        said
+        said, //
     );
 }
 
@@ -645,7 +916,7 @@ fn bktx_the_stores_stand_in_the_tackroom_quarter_and_the_executables_do_not() {
             said.starts_with("/posed/tackroom/bkk/"),
             "the {} stands at {} rather than in the kennel's tackroom quarter",
             label,
-            said
+            said, //
         );
     }
 
@@ -657,7 +928,7 @@ fn bktx_the_stores_stand_in_the_tackroom_quarter_and_the_executables_do_not() {
     assert!(
         executables.starts_with("/posed/derived"),
         "the executable guard stands at {} rather than under the derived root",
-        executables
+        executables, //
     );
 }
 
@@ -666,21 +937,31 @@ fn bktx_the_stated_roster_names_every_root_the_seat_carries() {
     let lure = zbktx_seated("stated-roots", &bktu_Bent::default());
     let seat = zbktx_posed_seat(&lure);
 
-    let stated =
-        crate::bkcx_python::bkcx_stated(&seat, crate::bkcx_python::bkcx_Posture::Sealed);
+    let stated = crate::bkcx_python::bkcx_stated(&seat, crate::bkcx_python::bkcx_Posture::Sealed);
 
     let held = |name: &str| -> String {
         stated
             .iter()
             .find(|(key, _)| *key == name)
             .map(|(_, value)| value.to_string_lossy().into_owned())
-            .unwrap_or_else(|| panic!("the roster states no {}", name))
+            .unwrap_or_else(|| {
+                panic!(
+                    "the roster states no {}",
+                    name, //
+                )
+            })
     };
 
-    assert_eq!(held("UV_PROJECT_ENVIRONMENT"), seat.environment.to_string_lossy());
+    assert_eq!(
+        held("UV_PROJECT_ENVIRONMENT"),
+        seat.environment.to_string_lossy()
+    );
     assert_eq!(held("UV_PYTHON_INSTALL_DIR"), seat.store.to_string_lossy());
     assert_eq!(held("UV_CACHE_DIR"), seat.cache.to_string_lossy());
-    assert_eq!(held("UV_PYTHON_BIN_DIR"), seat.executables.to_string_lossy());
+    assert_eq!(
+        held("UV_PYTHON_BIN_DIR"),
+        seat.executables.to_string_lossy()
+    );
 
     // PYTHON'S OWN NAME, AND THE ONLY ONE ON THIS ROSTER THAT IS. It stands here
     // because the roster is what reaches the child's child: what the kennel
@@ -710,7 +991,12 @@ fn bktx_only_the_fetching_posture_lifts_downloads_and_only_the_sealed_one_is_off
             .iter()
             .find(|(key, _)| *key == name)
             .map(|(_, value)| value.to_string_lossy().into_owned())
-            .unwrap_or_else(|| panic!("the roster states no {}", name))
+            .unwrap_or_else(|| {
+                panic!(
+                    "the roster states no {}",
+                    name, //
+                )
+            })
     };
 
     use crate::bkcx_python::bkcx_Posture;
@@ -720,8 +1006,14 @@ fn bktx_only_the_fetching_posture_lifts_downloads_and_only_the_sealed_one_is_off
     // lifts the download knob.
     assert_eq!(read(bkcx_Posture::Sealed, "UV_PYTHON_DOWNLOADS"), "never");
     assert_eq!(read(bkcx_Posture::Reaching, "UV_PYTHON_DOWNLOADS"), "never");
-    assert_eq!(read(bkcx_Posture::Authoring, "UV_PYTHON_DOWNLOADS"), "never");
-    assert_eq!(read(bkcx_Posture::Fetching, "UV_PYTHON_DOWNLOADS"), "manual");
+    assert_eq!(
+        read(bkcx_Posture::Authoring, "UV_PYTHON_DOWNLOADS"),
+        "never"
+    );
+    assert_eq!(
+        read(bkcx_Posture::Fetching, "UV_PYTHON_DOWNLOADS"),
+        "manual"
+    );
 
     // EVERY POSTURE STATES THE OFFLINE KNOB, and the reaching ones state it
     // FALSE rather than leaving it off: uv refuses an empty boolean outright, so
@@ -749,7 +1041,10 @@ fn bktx_the_per_package_bar_names_the_lock_packages_but_the_projects_own() {
     // A LOCK CARRYING THE PROJECT, A WHEELED PACKAGE AND A SOURCED ONE: the
     // roster names both packages and never the project, whatever each carries.
     lure.bktu_write(
-        &format!("{}/uv.lock", ZBKTX_AT),
+        &format!(
+            "{}/uv.lock",
+            ZBKTX_AT, //
+        ),
         &zbktx_lock(&["alpha"], &["beta"], &["alpha"], &["beta"]),
     );
 
@@ -790,7 +1085,7 @@ fn bktx_no_stated_value_is_empty_because_uv_refuses_an_empty_boolean() {
                 !value.is_empty(),
                 "{} is stated empty under {:?}, and uv refuses an empty value",
                 name,
-                posture
+                posture, //
             );
         }
     }
@@ -799,7 +1094,7 @@ fn bktx_no_stated_value_is_empty_because_uv_refuses_an_empty_boolean() {
 #[test]
 fn bktx_an_absent_environment_refuses_naming_the_converge() {
     let lure = zbktx_seated("verify-absent", &bktu_Bent::default());
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
         .expect("the seated collar resolves")
         .collar;
 
@@ -811,13 +1106,14 @@ fn bktx_an_absent_environment_refuses_naming_the_converge() {
         &collar,
     );
 
-    let err = crate::bkcx_python::bkcx_verify_at(lure.bktu_root(), &lure.bktu_weaned(), &collar, &seat)
-        .expect_err("an absent environment refuses");
+    let err =
+        crate::bkcx_python::bkcx_verify_at(lure.bktu_root(), &bktr_lured(&lure), &collar, &seat)
+            .expect_err("an absent environment refuses");
 
     assert!(
         err.contains("heel"),
         "the refusal does not name the one door that writes an environment: {}",
-        err
+        err, //
     );
 
     // AND IT SAYS WHY THERE IS NOTHING TO FIND BESIDE THE PROJECT, which is the
@@ -825,7 +1121,7 @@ fn bktx_an_absent_environment_refuses_naming_the_converge() {
     assert!(
         err.contains("outside the source tree"),
         "the refusal does not say where an environment stands: {}",
-        err
+        err, //
     );
 }
 
@@ -867,7 +1163,7 @@ fn bktx_the_listing_parser_yields_the_captured_node_ids_and_nothing_else() {
             "tests/test_beta.py::test_three".to_string(),
             "tests/test_beta.py::test_red".to_string(),
         ],
-        "the listing membrane did not yield exactly the node ids pytest named"
+        "the listing membrane did not yield exactly the node ids pytest named", //
     );
 }
 
@@ -889,7 +1185,11 @@ fn bktx_the_listing_parser_admits_all_three_tally_spellings() {
     // case costs is the hollow gate at the run, which is a verdict about a
     // course; a parser that refused here would turn that verdict into a parse
     // error and send its reader to the membrane instead of to the suite.
-    assert!(none.is_empty(), "an empty listing yielded {:?}", none);
+    assert!(
+        none.is_empty(),
+        "an empty listing yielded {:?}",
+        none, //
+    );
 }
 
 #[test]
@@ -902,7 +1202,7 @@ fn bktx_the_listing_parser_refuses_an_unsurveyed_line() {
     assert!(
         err.contains("has not surveyed"),
         "the refusal does not name the membrane's own bound: {}",
-        err
+        err, //
     );
 }
 
@@ -916,7 +1216,10 @@ fn bktx_the_tongue_reads_a_case_off_the_verbose_line() {
     .expect("a verbose case line reports a case");
 
     assert_eq!(green.name, "tests/test_alpha.py::test_one");
-    assert!(green.passed, "a PASSED case did not read as passed");
+    assert!(
+        green.passed,
+        "a PASSED case did not read as passed", //
+    );
 
     let red = crate::bkcv_voice::bkcv_case(
         crate::bkcv_voice::BKCV_TONGUE_PYTEST,
@@ -926,7 +1229,10 @@ fn bktx_the_tongue_reads_a_case_off_the_verbose_line() {
     .expect("a verbose case line reports a case");
 
     assert_eq!(red.name, "tests/test_beta.py::test_red");
-    assert!(!red.passed, "a FAILED case did not read as failed");
+    assert!(
+        !red.passed,
+        "a FAILED case did not read as failed", //
+    );
 }
 
 #[test]
@@ -943,7 +1249,7 @@ fn bktx_the_tongue_steps_over_the_short_summary_that_repeats_a_failure() {
     assert!(
         said.is_none(),
         "the short summary was read as a second report of the same case: {:?}",
-        said
+        said, //
     );
 }
 
@@ -959,7 +1265,11 @@ fn bktx_the_tongue_steps_over_the_outcomes_outside_the_signature() {
         let said = crate::bkcv_voice::bkcv_case(crate::bkcv_voice::BKCV_TONGUE_PYTEST, line)
             .expect("the tongue is declared");
 
-        assert!(said.is_none(), "an unsurveyed line reported a case: {:?}", line);
+        assert!(
+            said.is_none(),
+            "an unsurveyed line reported a case: {:?}",
+            line, //
+        );
     }
 
     // ERROR IS INSIDE THE SIGNATURE AND COUNTS AS A FAILURE — pytest's word for a
@@ -972,7 +1282,10 @@ fn bktx_the_tongue_steps_over_the_outcomes_outside_the_signature() {
     .expect("the tongue is declared")
     .expect("an ERROR line reports a case");
 
-    assert!(!errored.passed, "an ERROR case did not read as failed");
+    assert!(
+        !errored.passed,
+        "an ERROR case did not read as failed", //
+    );
 }
 
 #[test]
@@ -989,10 +1302,14 @@ fn bktx_a_pattern_narrows_to_the_exact_set_and_the_selection_is_those_node_ids()
             "tests/test_beta.py::test_three".to_string(),
             "tests/test_beta.py::test_red".to_string(),
         ],
-        "the pattern did not narrow to the set it names"
+        "the pattern did not narrow to the set it names", //
     );
 
-    assert_eq!(narrowing.held.len(), 4, "the narrowing lost the whole set");
+    assert_eq!(
+        narrowing.held.len(),
+        4,
+        "the narrowing lost the whole set", //
+    );
 
     let selection = crate::bkci_pipeline::bkci_selection(
         crate::bkcx_python::BKCX_RUNNER_PYTEST,
@@ -1009,7 +1326,7 @@ fn bktx_a_pattern_narrows_to_the_exact_set_and_the_selection_is_those_node_ids()
             std::ffi::OsString::from("tests/test_beta.py::test_three"),
             std::ffi::OsString::from("tests/test_beta.py::test_red"),
         ],
-        "the selection was spelled as something other than the node ids"
+        "the selection was spelled as something other than the node ids", //
     );
 }
 
@@ -1027,16 +1344,20 @@ fn bktx_a_pattern_matching_nothing_chooses_nothing_so_the_door_may_refuse_before
     assert!(
         narrowing.chosen.is_empty(),
         "a pattern naming no case chose {:?}",
-        narrowing.chosen
+        narrowing.chosen, //
     );
-    assert_eq!(narrowing.held.len(), 4, "the refusal could not say of how many");
+    assert_eq!(
+        narrowing.held.len(),
+        4,
+        "the refusal could not say of how many", //
+    );
 }
 
 #[test]
 fn bktx_a_posed_seat_with_no_marque_refuses_naming_heel() {
     let lure = zbktx_seated("marqueless", &bktu_Bent::default());
 
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
         .expect("the seated collar resolves")
         .collar;
 
@@ -1050,13 +1371,14 @@ fn bktx_a_posed_seat_with_no_marque_refuses_naming_heel() {
         &collar,
     );
 
-    let err = crate::bkcx_python::bkcx_verify_at(lure.bktu_root(), &lure.bktu_weaned(), &collar, &seat)
-        .expect_err("a seat carrying no environment refuses");
+    let err =
+        crate::bkcx_python::bkcx_verify_at(lure.bktu_root(), &bktr_lured(&lure), &collar, &seat)
+            .expect_err("a seat carrying no environment refuses");
 
     assert!(
         err.contains("no environment stands"),
         "the refusal does not say what is missing: {}",
-        err
+        err, //
     );
 
     // AND IT NAMES THE ONE DOOR THAT WRITES AN ENVIRONMENT. A python environment
@@ -1065,7 +1387,7 @@ fn bktx_a_posed_seat_with_no_marque_refuses_naming_heel() {
     assert!(
         err.contains("heel"),
         "the refusal does not name the converge: {}",
-        err
+        err, //
     );
 }
 
@@ -1073,21 +1395,18 @@ fn bktx_a_posed_seat_with_no_marque_refuses_naming_heel() {
 fn bktx_the_bytecode_root_stands_under_the_loosebox_and_never_beside_the_sources() {
     let lure = zbktx_seated("bytecode", &bktu_Bent::default());
 
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
         .expect("the seated collar resolves")
         .collar;
 
     let loosebox = lure.bktu_loosebox().join("posed");
-    let seat = crate::bkcx_python::bkcx_seat_at(
-        &loosebox,
-        &lure.bktu_root().join("tackroom"),
-        &collar,
-    );
+    let seat =
+        crate::bkcx_python::bkcx_seat_at(&loosebox, &lure.bktu_root().join("tackroom"), &collar);
 
     assert!(
         seat.bytecode.starts_with(&loosebox),
         "the bytecode root stands outside the derived root: {}",
-        seat.bytecode.display()
+        seat.bytecode.display(), //
     );
 
     // AND NEVER INSIDE THE CHECKOUT, which is the property that matters: bytecode
@@ -1096,7 +1415,7 @@ fn bktx_the_bytecode_root_stands_under_the_loosebox_and_never_beside_the_sources
     assert!(
         !seat.bytecode.starts_with(lure.bktu_root()),
         "the bytecode root stands inside the source tree: {}",
-        seat.bytecode.display()
+        seat.bytecode.display(), //
     );
 }
 
@@ -1116,32 +1435,33 @@ fn bktx_a_project_awaiting_its_first_lock_raises_that_finding_alone() {
         },
     );
 
-    let resolved =
-        bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR).expect("the seated collar resolves");
+    let resolved = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
+        .expect("the seated collar resolves");
 
     assert!(
         resolved.lockless,
         "a project lacking only its lock did not read as awaiting one: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
     assert_eq!(
         resolved.findings.len(),
         1,
         "a project lacking only its lock raised more than the lock: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
     assert!(
         resolved.bkcx_findings_but_lock().is_empty(),
         "with the lock set aside, findings still bar: {:?}",
-        resolved.bkcx_findings_but_lock()
+        resolved.bkcx_findings_but_lock(), //
     );
 
     assert!(
-        zbktx_names(&resolved.findings, BKCX_LOCK_FILE) && zbktx_names(&resolved.findings, BKCO_VERB_GANGLINE),
+        zbktx_names(&resolved.findings, BKCX_LOCK_FILE)
+            && zbktx_names(&resolved.findings, BKCO_VERB_GANGLINE),
         "the lock's finding names neither the file nor the door that writes it: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 }
 
@@ -1161,19 +1481,19 @@ fn bktx_a_project_awaiting_its_first_lock_still_meets_its_pin_reading() {
         },
     );
 
-    let resolved =
-        bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTX_COLLAR).expect("the seated collar resolves");
+    let resolved = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTX_COLLAR)
+        .expect("the seated collar resolves");
 
     assert!(
         resolved.lockless,
         "the control: a project lacking only its lock reads as awaiting one: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
     assert!(
         zbktx_names(resolved.bkcx_findings_but_lock(), "floor"),
         "the pin's reading did not run over a project awaiting its lock: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
     assert!(
@@ -1182,7 +1502,7 @@ fn bktx_a_project_awaiting_its_first_lock_still_meets_its_pin_reading() {
             .last()
             .is_some_and(|last| last.contains(BKCX_LOCK_FILE)),
         "the lock's finding does not stand last: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 }
 
@@ -1194,17 +1514,21 @@ fn bktx_a_project_awaiting_its_first_lock_still_meets_its_pin_reading() {
 /// reads nothing unhitched, so what the reading answered is the declaration.
 #[test]
 fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
-    let control = crate::bkth_heel::bkth_python_seated("python-unhitched-control", ">=3.12", "", "");
+    let control =
+        crate::bkth_heel::bkth_python_seated("python-unhitched-control", ">=3.12", "", "");
 
     let read = crate::bkcx_python::bkcx_unhitched_at(
         control.lure.bktu_root(),
-        &control.lure.bktu_weaned(),
+        &bktr_lured(&control.lure),
         &control.collar,
         &control.seat,
     )
     .expect("the reading over the control is taken");
 
-    assert_eq!(read, None, "the control: an undeclared project read as declared out of this station");
+    assert_eq!(
+        read, None,
+        "the control: an undeclared project read as declared out of this station", //
+    );
 
     let seated = crate::bkth_heel::bkth_python_seated(
         "python-unhitched",
@@ -1215,7 +1539,7 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
 
     let unhitched = crate::bkcx_python::bkcx_unhitched_at(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.collar,
         &seated.seat,
     )
@@ -1225,17 +1549,17 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
     assert!(
         unhitched.environments.contains("nowhere"),
         "the reading does not carry the project's own words: {:?}",
-        unhitched
+        unhitched, //
     );
     assert!(
         !seated.seat.environment.exists(),
         "the reading built an environment at {}",
-        seated.seat.environment.display()
+        seated.seat.environment.display(), //
     );
 
     let refused = crate::bkcx_python::bkcx_verify_at(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.collar,
         &seated.seat,
     )
@@ -1244,14 +1568,15 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
     assert!(
         refused.contains(crate::bkg_breviary::BKG_UNHITCHED_BASE) && refused.contains("nowhere"),
         "the verify's refusal does not name the declaration: {}",
-        refused
+        refused, //
     );
     assert!(
         !refused.contains(&crate::bkco_output::bkco_call(
+            None,
             crate::bkco_output::BKCO_VERB_HEEL,
             Some(&seated.collar.name)
         )),
         "the verify's refusal names the converge, which cannot supply a declaration: {}",
-        refused
+        refused, //
     );
 }

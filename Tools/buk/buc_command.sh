@@ -25,6 +25,14 @@ set -euo pipefail
 test -z "${ZBUC_SOURCED:-}" || { printf '%s\n' "Module buc multiply sourced - check sourcing hierarchy" >&2 || exit 1; exit 1; }
 ZBUC_SOURCED=1
 
+# The band's range the membrane below reads, from the substrate's generated
+# constants, sourced here so the membrane holds in every process that loads
+# this module. The sourced file carries its own inclusion guard, so a sibling
+# sourcing it costs nothing; buc_die_now is not yet defined, so a failed
+# source dies through printf and exit like the guard above.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" \
+  || { printf '%s\n' "Failed to source bubg_breviary.sh" >&2 || exit 1; exit 1; }
+
 # Color is no longer buc's own concern.  Every display path renders through
 # the buym core (buym_format_yawp over the kindle-time BUYC_* palette), which
 # owns the single terminal-capability decision and honors NO_COLOR/TERM=dumb.
@@ -99,37 +107,47 @@ buc_success() {
   printf '%s\n' "${z_buym_format}" >&2 || buc_die_now
 }
 # Band membrane: $? captured before any command so a `cmd || buc_die_now` chain
-# whose cmd exited with a precision-band code (bubc band tinder) re-exits
-# that code instead of laundering it to 1. Everything else — including a
-# cold caller before bubc is sourced — stays exit 1, "imprecise death".
+# whose cmd exited with a precision-band code (the band's range in the
+# generated constants sourced above) re-exits that code instead of laundering
+# it to 1. Everything else stays exit 1, "imprecise death".
 buc_die_now() {
   local z_status=$?
-  zbuc_tag_args 3 "buc_die_now      " "ERROR: [${z_buc_context:-}] $*"
-  buym_fail_yawp "ERROR:"; local -r z_pfx="${z_buym_yelp}"
-  zbuc_print -1 "" "${z_pfx} [${z_buc_context:-}] $*"
-  if test -n "${BUBC_band_base:-}"                                \
-     && test "${z_status}" -ge "${BUBC_band_base}"                \
-     && test "${z_status}" -lt "$((BUBC_band_base + BUBC_band_width))"; then
+  if test -z "${ZBUYM_SOURCED:-}"; then
+    # Ahead of the yelp module, which every display path renders through: the
+    # dispatch kindle at this file's foot runs before its sourcer loads it.
+    printf 'ERROR: [%s] %s\n' "${z_buc_context:-}" "$*" >&2 || exit 1
+  else
+    zbuc_tag_args 3 "buc_die_now      " "ERROR: [${z_buc_context:-}] $*"
+    buym_fail_yawp "ERROR:"; local -r z_pfx="${z_buym_yelp}"
+    zbuc_print -1 "" "${z_pfx} [${z_buc_context:-}] $*"
+  fi
+  if test "${z_status}" -ge "${BUBG_BAND_FRIEZE_BASE}" \
+     && test "${z_status}" -lt "$((BUBG_BAND_FRIEZE_BASE + BUBG_BAND_FRIEZE_WIDTH))"; then
     exit "${z_status}"
   fi
   exit 1
 }
 
-# Deliberate rejection origin. Exits with an in-band code from the bubc band
-# tinder block so a negative test can assert WHICH gate fired; buc_die_now
-# wrappers upstream propagate the code unchanged through the band membrane.
+# Deliberate rejection origin. Exits with an in-band code, a gate's generated
+# constant, so a negative test can assert WHICH gate fired; buc_die_now wrappers
+# upstream propagate the code unchanged through the band membrane.
 # An out-of-band argument is a programming error and dies imprecisely.
 buc_reject() {
   local z_code="${1:-}"
   test "$#" -eq 0 || shift
-  test -n "${BUBC_band_base:-}" || buc_die_now "buc_reject: band tinder not sourced (bubc_constants.sh)"
   test -n "${z_code}"           || buc_die_now "buc_reject: band code required"
   case "${z_code}" in *[!0123456789]*) buc_die_now "buc_reject: code '${z_code}' is not a number" ;; esac
-  test "${z_code}" -ge "${BUBC_band_base}" || buc_die_now "buc_reject: code '${z_code}' below band"
-  test "${z_code}" -lt "$((BUBC_band_base + BUBC_band_width))" || buc_die_now "buc_reject: code '${z_code}' above band"
-  zbuc_tag_args 3 "buc_reject   " "ERROR: [${z_buc_context:-}] $*"
-  buym_fail_yawp "ERROR:"; local -r z_pfx="${z_buym_yelp}"
-  zbuc_print -1 "" "${z_pfx} [${z_buc_context:-}] $*"
+  test "${z_code}" -ge "${BUBG_BAND_FRIEZE_BASE}" || buc_die_now "buc_reject: code '${z_code}' below band"
+  test "${z_code}" -lt "$((BUBG_BAND_FRIEZE_BASE + BUBG_BAND_FRIEZE_WIDTH))" || buc_die_now "buc_reject: code '${z_code}' above band"
+  if test -z "${ZBUYM_SOURCED:-}"; then
+    # Ahead of the yelp module, as buc_die_now above: a refusal at the
+    # dispatch kindle at this file's foot.
+    printf 'ERROR: [%s] %s\n' "${z_buc_context:-}" "$*" >&2 || buc_die_now
+  else
+    zbuc_tag_args 3 "buc_reject   " "ERROR: [${z_buc_context:-}] $*"
+    buym_fail_yawp "ERROR:"; local -r z_pfx="${z_buym_yelp}"
+    zbuc_print -1 "" "${z_pfx} [${z_buc_context:-}] $*"
+  fi
   exit "${z_code}"
 }
 
@@ -399,6 +417,7 @@ zbuc_show_help() {
   local z_i
   for z_i in "${!z_words[@]}"; do
     [[ "${z_words[${z_i}]}" =~ ^${z_prefix}[a-z][a-z0-9_]*$ ]] || continue
+    [[ "${z_words[${z_i}]}" != *_predicate && "${z_words[${z_i}]}" != *_capture && "${z_words[${z_i}]}" != *_recite ]] || continue
     buc_context "${z_words[${z_i}]}"
     # A call through a variable: the name arrives at run time, so the call takes a form the
     # unguarded-command reading admits (VOr_jqp). A known name is called by name.
@@ -465,10 +484,15 @@ buc_execute() {
   test "$#" -lt 3 || shift 3
   test -z "${z_command}" || shift
 
-  export BUC_VERBOSE="${BUC_VERBOSE:-0}"
+  # THE CLI'S ENTRY, where a dispatch's pointer reached it: a name of the kit
+  # standing exported is refused save the hand-offs this level declares, the
+  # zipper's folio among them. The folio is then withdrawn from the export, so
+  # the command still reads it here and nothing this CLI runs inherits it.
+  test -z "${BURD_BURD_FILE:-}" || buv_export_sentinel "${BURD_TARGET}" "BUZ_FOLIO"
+  test -z "${BUZ_FOLIO+x}" || export -n BUZ_FOLIO
 
-  # Enable bash trace to stderr if BUC_VERBOSE is 3 or higher and bash >= 4.1
-  if test "${BUC_VERBOSE}" -ge 3; then
+  # Enable bash trace to stderr if BURE_VERBOSE is 3 or higher and bash >= 4.1
+  if test "${BURE_VERBOSE:-0}" -ge 3; then
     if test "${BASH_VERSINFO[0]}" -gt 4 || { test "${BASH_VERSINFO[0]}" -eq 4 && test "${BASH_VERSINFO[1]}" -ge 1; }; then
       export PS4='+ ${BASH_SOURCE##*/}:${LINENO}: '
       export BASH_XTRACEFD=2
@@ -494,25 +518,17 @@ buc_execute() {
   fi
 }
 
-# --- Hyperlink helpers (OSC-8), falls back to plain text when disabled ---
-# Disable with: export BURD_NO_HYPERLINKS=1
+# --- Hyperlink helper, rendered through the yelp module's one decision ---
+# OSC-8 where the palette renders one; the URL beside the text where it does
+# not.  Disable with: export BURE_HYPERLINKS=0
 zbuc_hyperlink() {
   local z_text="${1:-}"
   local z_url="${2:-}"
 
-  # ANSI codes for blue underlined text
-  local z_blue_underline=$'\033[34m\033[4m'
-  local z_reset=$'\033[0m'
-
-  if test -n "${BURD_NO_HYPERLINKS:-}"; then
-    # Fallback: blue underlined text with URL in angle brackets
-    printf '%s%s%s <%s>' "${z_blue_underline}" "${z_text}" "${z_reset}" "${z_url}" || buc_die_now
-    return 0
-  fi
-
-  # OSC-8 with blue underline formatting
-  printf '%s\033]8;;%s\033\\%s\033]8;;\033\\%s' \
-    "${z_blue_underline}" "${z_url}" "${z_text}" "${z_reset}" || buc_die_now
+  zbuym_sentinel
+  buym_href_yawp "${z_url}" "${z_text}"; local -r z_href="${z_buym_yelp}"
+  buym_format_yawp "" "${z_href}"; local -r z_rendered="${z_buym_format}"
+  printf '%s' "${z_rendered}" || buc_die_now
 }
 
 # buc_link "Prefix text" "Link text" "URL"  (prints to stderr like other user-visible messages)
@@ -524,7 +540,7 @@ buc_link() {
   zbuc_tag_args 3 "buc_link    " "${z_prefix} ${z_text} -> ${z_url}"
 
   # Always show at verbosity >= 0 (same visibility as buc_step)
-  if test "${BUC_VERBOSE:-0}" -ge 0; then
+  if test "${BURE_VERBOSE:-0}" -ge 0; then
     # Print prefix text if provided
     if test -n "${z_prefix}"; then
       printf '%s ' "${z_prefix}" >&2 || buc_die_now
@@ -553,7 +569,8 @@ buc_link() {
 # per-module copies (zrbfc/zrbndb/zrbob_native_path_capture) into one (heat ₣BV).
 # Retire when the Windows-native tools build/run as true Cygwin binaries.
 buc_native_path_capture() {
-  local -r z_path="${1:?buc_native_path_capture: path required}"
+  local -r z_path="${1:-}"
+  test -n "${z_path}" || return 1
 
   local z_native="${z_path}"
   if test "${BURD_OSTYPE:-}" = "cygwin"; then
@@ -571,6 +588,43 @@ buc_native_path_capture() {
   fi
 
   printf '%s\n' "${z_native}"
+}
+
+# --- Executable location (read from PATH itself) ---
+#
+# Answer the absolute path of the first executable file of the given name on
+# PATH, or return 1 where none stands. A builtin may not stand at the head of a
+# substitution, so a caller cannot take `command -v` or `type -P` in the one
+# form, and bash 3.2 has no BASH_CMDS to read a lookup's answer from; this walk
+# is the one capture that replaces them. It reads PATH rather than the hash
+# table, so a hashed path never answers, and it answers only a regular file
+# that is executable: a directory of that name, or a file that is not
+# executable, is passed over where a lookup would answer it. An entry that does
+# not open with `/` is passed over too, the empty entry among them, so the
+# answer is absolute whatever directory the caller stands in. A name carrying
+# a `/` is no PATH search and is refused. Reads its argument and PATH alone —
+# no kindle state — so it stays unit-testable in isolation.
+buc_executable_path_capture() {
+  local -r z_name="${1:-}"
+  test -n "${z_name}" || return 1
+  case "${z_name}" in */*) return 1 ;; esac
+
+  local z_dirs=()
+  IFS=: read -r -a z_dirs <<< "${PATH}" || return 1
+  test "${#z_dirs[@]}" -gt 0 || return 1
+
+  local z_found=""
+  local z_dir=""
+  for z_dir in "${z_dirs[@]}"; do
+    case "${z_dir}" in /*) ;; *) continue ;; esac
+    test -f "${z_dir}/${z_name}" || continue
+    test -x "${z_dir}/${z_name}" || continue
+    z_found="${z_dir}/${z_name}"
+    break
+  done
+  test -n "${z_found}" || return 1
+
+  printf '%s\n' "${z_found}"
 }
 
 # --- Clipboard copy (platform-normalized) ---
@@ -605,7 +659,8 @@ buc_native_path_capture() {
 # fire-and-forget with terminal-dependent support — so an announcement over it
 # would be unverifiable, which is this same dishonesty rebuilt one layer up.
 buc_clipboard_copy_predicate() {
-  local -r z_text="${1:?buc_clipboard_copy_predicate: text required}"
+  local -r z_text="${1:-}"
+  test -n "${z_text}" || return 1
 
   z_buc_clipboard_tool=""
 
@@ -633,5 +688,41 @@ buc_clipboard_copy_predicate() {
 
   test "${z_copied}" = "1"
 }
+
+######################################################################
+# The dispatch this process runs under
+#
+# A dispatch writes its regime once to its dispatch file and hands every
+# coordinator below it the pointer BURD_BURD_FILE and the kit directory
+# BURD_BUK_DIR. This module, which every workbench and CLI sources first, reads
+# the file the pointer names and then the config regime from the file that one
+# names, and kindles both, so a CLI whose furnish sources nothing holds the two
+# regimes kindled. The modules that kindle them are sourced here, and nowhere
+# else in the process.
+#
+# A process the pointer does not reach kindles nothing here: a launcher, which
+# withdraws an inherited pointer before it sources this module and composes its
+# own run's; and a harness sourcing the module for its functions alone. A
+# pointer naming no readable file is a broken launch contract, and dies
+# imprecisely naming the pointer.
+if test -n "${BURD_BURD_FILE:-}"; then
+  test -f "${BURD_BURD_FILE}" || buc_die_now "BURD_BURD_FILE names no dispatch file: ${BURD_BURD_FILE}"
+  test -r "${BURD_BURD_FILE}" || buc_die_now "BURD_BURD_FILE names an unreadable dispatch file: ${BURD_BURD_FILE}"
+  source "${BURD_BURD_FILE}" \
+    || buc_die_now "Failed to source the dispatch file BURD_BURD_FILE names: ${BURD_BURD_FILE}"
+  test -n "${BURD_REGIME_FILE:-}" \
+    || buc_die_now "The dispatch file names no config regime: ${BURD_BURD_FILE}"
+  source "${BURD_REGIME_FILE}" \
+    || buc_die_now "Failed to source the config regime the dispatch file names: ${BURD_REGIME_FILE}"
+
+  source "${BASH_SOURCE[0]%/*}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
+  source "${BASH_SOURCE[0]%/*}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
+  source "${BASH_SOURCE[0]%/*}/burd_regime.sh"    || buc_die_now "Failed to source burd_regime.sh"
+  source "${BASH_SOURCE[0]%/*}/burc_regime.sh"    || buc_die_now "Failed to source burc_regime.sh"
+
+  zbuv_kindle
+  zburd_kindle
+  zburc_kindle
+fi
 
 # eof

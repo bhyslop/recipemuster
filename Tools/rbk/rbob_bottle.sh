@@ -184,6 +184,14 @@ zrbob_kindle() {
   # Export RBRN/RBRR vars for compose environment: bare name forwarding.
   # Compose --env-file populates the compose environment for both YAML interpolation
   # and bare name forwarding; explicit exports provide defense-in-depth.
+  #
+  # A declared standing exception to the exported-name rule: these RBRN_/RBRR_
+  # names and RBRV_USER below are this repository's own regime values exported
+  # for compose, the one rb scope a kindle exports by design. They stand
+  # exported beneath this kindle alone, the last of its CLI's furnish: no rb
+  # regime kindles after it in this process, and nothing it spawns kindles one,
+  # so no scope sentinel meets them. A move that puts a kindle beneath the
+  # charge meets the refusal there.
   export RBRN_ENCLAVE_BASE_IP
   export RBRN_ENCLAVE_NETMASK
   export RBRN_ENCLAVE_SENTRY_IP

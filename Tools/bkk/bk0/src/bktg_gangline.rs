@@ -26,26 +26,31 @@
 //! gangline that follows has re-derived a lock nothing was blocking, and the
 //! hurdle would pass against a kennel whose lock discipline had quietly lapsed.
 
-use super::bkcg_gangline::{bkcg_python, bkcg_Verdict, bkcg_gangline};
+use super::bkcg_gangline::{
+    bkcg_Verdict,
+    bkcg_gangline,
+    bkcg_python, //
+};
 use super::bkch_heel::bkch_python_at;
+use super::bkcl_leash::bkcl_recall;
 use super::bkco_output::{
     BKCO_VERB_GANGLINE,
-    BKCO_VERB_HEEL,
+    BKCO_VERB_HEEL, //
 };
+use super::bkcr_resolve::bkcr_resolve;
 use super::bkcx_python::{
     bkcx_resolve,
-    BKCX_LOCK_FILE,
+    BKCX_LOCK_FILE, //
 };
-use super::bktu_lure::bktu_wheel;
 use super::bkth_heel::{
     bkth_python_installed,
-    bkth_served_manifest,
     bkth_python_lockless,
     bkth_python_seated,
+    bkth_served_manifest, //
 };
-use super::bkcl_leash::bkcl_recall;
-use super::bkcr_resolve::bkcr_resolve;
+use super::bktr_resolve::bktr_lured;
 use super::bktu_lure::bktu_Lure;
+use super::bktu_lure::bktu_wheel;
 
 /// The collar the hurdles resolve, over the lure's own crate.
 const ZBKTG_COLLAR_NAME: &str = "suite-lure";
@@ -156,7 +161,7 @@ fn zbktg_leashed(lure: &bktu_Lure) -> bool {
 
     bkcl_recall(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(lure),
         &manifest,
         "metadata",
         ["--format-version", "1"],
@@ -169,16 +174,17 @@ fn zbktg_leashed(lure: &bktu_Lure) -> bool {
 
 /// Re-derive the lure's lock through the door.
 fn zbktg_gangline(lure: &bktu_Lure) -> bkcg_Verdict {
-    let resolved = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTG_COLLAR_NAME)
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(lure), ZBKTG_COLLAR_NAME)
         .expect("the lure's collar should resolve");
 
     assert!(
         resolved.findings.is_empty(),
         "the lure's own collar should conform: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
-    bkcg_gangline(lure.bktu_root(), &lure.bktu_weaned(), &resolved.collar).expect("the door should reach cargo")
+    bkcg_gangline(lure.bktu_root(), &bktr_lured(lure), &resolved.collar)
+        .expect("the door should reach cargo")
 }
 
 /// A manifest that gained a path dependency the lock does not answer: the leash
@@ -197,18 +203,18 @@ fn bktg_the_door_writes_the_lock_the_leash_was_refusing() {
         !zbktg_leashed(&lure),
         "the leash carries the lock flag, so a manifest whose lock does not answer it must REFUSE \
          — an acceptance here says the lock discipline has lapsed and the rest of this hurdle \
-         would prove nothing"
+         would prove nothing", //
     );
 
     assert_eq!(
         zbktg_gangline(&lure),
         bkcg_Verdict::Moved,
-        "the door should report the lock as moved"
+        "the door should report the lock as moved", //
     );
 
     assert!(
         zbktg_leashed(&lure),
-        "the lock the door wrote should be the one the leash accepts with the flag still on"
+        "the lock the door wrote should be the one the leash accepts with the flag still on", //
     );
 }
 
@@ -230,14 +236,14 @@ fn bktg_a_lock_that_already_answers_is_left_alone() {
     assert_eq!(
         zbktg_gangline(&lure),
         bkcg_Verdict::Unmoved,
-        "the door should report the lock as unmoved"
+        "the door should report the lock as unmoved", //
     );
 
     let after = std::fs::read(&lock).expect("the lock should still stand");
 
     assert_eq!(
         before, after,
-        "a lock that already answers its manifest must come back byte-identical"
+        "a lock that already answers its manifest must come back byte-identical", //
     );
 }
 
@@ -256,7 +262,7 @@ fn bktg_a_second_drive_over_its_own_output_finds_nothing() {
     assert_eq!(
         zbktg_gangline(&lure),
         bkcg_Verdict::Unmoved,
-        "the door's own output must satisfy its next drive, or notch-gangline-notch never ends"
+        "the door's own output must satisfy its next drive, or notch-gangline-notch never ends", //
     );
 }
 
@@ -281,21 +287,32 @@ fn bktg_a_python_lock_over_an_unmoved_manifest_is_re_derived_byte_identical() {
 
     let before = std::fs::read(&lock).expect("the seated lock stands before the door is driven");
 
-    let verdict = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| panic!("the door refused an authored project: {}", err));
+    let verdict = bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .unwrap_or_else(|err| {
+        panic!(
+            "the door refused an authored project: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
         verdict,
         bkcg_Verdict::Unmoved,
-        "an unmoved manifest re-derived to a lock the door called moved"
+        "an unmoved manifest re-derived to a lock the door called moved", //
     );
 
     let after = std::fs::read(&lock).expect("the lock still reads");
 
     assert_eq!(
-        before, after,
+        before,
+        after,
         "the lock at {} moved under a manifest that did not",
-        lock.display()
+        lock.display(), //
     );
 }
 
@@ -318,21 +335,32 @@ fn bktg_a_python_lock_is_re_derived_once_its_manifest_moves() {
         "[project]\nname = \"lure\"\nversion = \"0.0.1\"\nrequires-python = \">=3.12.7\"\n",
     );
 
-    let verdict = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| panic!("the door refused a moved manifest: {}", err));
+    let verdict = bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .unwrap_or_else(|err| {
+        panic!(
+            "the door refused a moved manifest: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
         verdict,
         bkcg_Verdict::Moved,
-        "a moved manifest re-derived to a lock the door called unmoved"
+        "a moved manifest re-derived to a lock the door called unmoved", //
     );
 
     let after = std::fs::read(&lock).expect("the re-derived lock reads");
 
     assert_ne!(
-        before, after,
+        before,
+        after,
         "the lock at {} did not move under a manifest that did",
-        lock.display()
+        lock.display(), //
     );
 
     // AND IT IS LEFT DIRTY RATHER THAN COMMITTED, which is the door's whole
@@ -340,7 +368,7 @@ fn bktg_a_python_lock_is_re_derived_once_its_manifest_moves() {
     assert!(
         lock.is_file(),
         "no lock stands at {} after a re-derivation the door called moved",
-        lock.display()
+        lock.display(), //
     );
 }
 
@@ -355,23 +383,36 @@ fn bktg_a_python_lock_is_re_derived_once_its_manifest_moves() {
 fn bktg_a_python_gangline_with_uv_unplaced_refuses_naming_the_converge() {
     let seated = bkth_python_seated("gangline-python-unplaced", ">=3.12", "", "");
 
-    bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat).unwrap_or_else(|err| {
+    bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .unwrap_or_else(|err| {
         panic!(
             "the control: the door answers this lure while uv stands at its residence, and it \
              refused instead: {}",
-            err
+            err, //
         )
     });
 
-    seated.station.bktu_uv_seat_unplaced(&seated.lure, ZBKTG_UV_UNPLACED);
+    seated
+        .station
+        .bktu_uv_seat_unplaced(&seated.lure, ZBKTG_UV_UNPLACED);
 
-    let said = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .expect_err("a uv the tackroom never placed refuses the drive");
+    let said = bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .expect_err("a uv the tackroom never placed refuses the drive");
 
     assert!(
         said.contains("heel"),
         "the refusal does not name the door that places a kibble: {}",
-        said
+        said, //
     );
 }
 
@@ -389,17 +430,18 @@ fn bktg_a_first_python_lock_follows_the_converges_install_and_precedes_its_sync(
     let seated = bkth_python_lockless("gangline-python-first", ">=3.12", "", "");
 
     let root = seated.lure.bktu_root();
-    let weaned = seated.lure.bktu_weaned();
+    let weaned = bktr_lured(&seated.lure);
     let lock = seated.project.join(BKCX_LOCK_FILE);
     let venv = seated.seat.environment.join("pyvenv.cfg");
 
     // THE GATE BOTH DOORS READ: nothing bars but the absent lock.
-    let resolved = bkcx_resolve(root, &weaned, &seated.collar.name).expect("the seated collar resolves");
+    let resolved =
+        bkcx_resolve(root, &weaned, &seated.collar.name).expect("the seated collar resolves");
 
     assert!(
         resolved.lockless && resolved.bkcx_findings_but_lock().is_empty(),
         "the control: a conforming project awaiting its first lock leaves nothing barring: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
     let refused = bkch_python_at(root, &weaned, &seated.collar, &seated.seat)
@@ -408,36 +450,44 @@ fn bktg_a_first_python_lock_follows_the_converges_install_and_precedes_its_sync(
     assert!(
         refused.contains(BKCO_VERB_GANGLINE),
         "the converge's refusal does not name the door that writes a first lock: {}",
-        refused
+        refused, //
     );
 
     assert!(
         !lock.exists() && !venv.exists(),
-        "the converge wrote a lock or synced an environment over a project that had no lock"
+        "the converge wrote a lock or synced an environment over a project that had no lock", //
     );
 
-    let verdict = bkcg_python(root, &weaned, &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| panic!("the lock-authoring door refused a first lock: {}", err));
+    let verdict = bkcg_python(root, &weaned, &seated.collar, &seated.seat).unwrap_or_else(|err| {
+        panic!(
+            "the lock-authoring door refused a first lock: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
         verdict,
         bkcg_Verdict::Moved,
-        "a first lock was written and the door called it unmoved"
+        "a first lock was written and the door called it unmoved", //
     );
 
     assert!(
         lock.is_file(),
         "no lock stands at {} after the door wrote one",
-        lock.display()
+        lock.display(), //
     );
 
-    bkch_python_at(root, &weaned, &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| panic!("the converge refused the lock just written: {}", err));
+    bkch_python_at(root, &weaned, &seated.collar, &seated.seat).unwrap_or_else(|err| {
+        panic!(
+            "the converge refused the lock just written: {}",
+            err, //
+        )
+    });
 
     assert!(
         venv.is_file(),
         "no environment stands at {} after the converge synced",
-        venv.display()
+        venv.display(), //
     );
 }
 
@@ -452,20 +502,31 @@ fn bktg_a_first_python_lock_follows_the_converges_install_and_precedes_its_sync(
 fn bktg_a_python_pin_the_store_does_not_hold_refuses_naming_the_converge() {
     let seated = bkth_python_lockless("gangline-python-unplaced-pin", ">=3.12", "", "");
 
-    seated.lure.bktu_write("project/.python-version", &format!("{}\n", ZBKTG_PIN_UNPLACED));
+    seated.lure.bktu_write(
+        "project/.python-version",
+        &format!(
+            "{}\n",
+            ZBKTG_PIN_UNPLACED, //
+        ),
+    );
 
-    let said = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .expect_err("a pin the store does not hold refuses the lock-authoring door");
+    let said = bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .expect_err("a pin the store does not hold refuses the lock-authoring door");
 
     assert!(
         said.contains(ZBKTG_PIN_UNPLACED) && said.contains(BKCO_VERB_HEEL),
         "the refusal does not name the absent pin and the converge that places one: {}",
-        said
+        said, //
     );
 
     assert!(
         !seated.project.join(BKCX_LOCK_FILE).exists(),
-        "a lock was written although the interpreter it resolves against stands nowhere"
+        "a lock was written although the interpreter it resolves against stands nowhere", //
     );
 }
 
@@ -494,19 +555,26 @@ fn zbktg_served(named: &str, declared: bool) -> crate::bkth_heel::bkth_Seated {
         ZBKTG_SERVED,
         &[
             (wheel, bytes),
-            ("lure_bone-1.0.tar.gz".to_string(), b"not an archive\n".to_vec()),
+            (
+                "lure_bone-1.0.tar.gz".to_string(),
+                b"not an archive\n".to_vec(),
+            ),
         ],
     );
 
     let uv = if declared {
-        format!("required-environments = [\"{}\"]\n", ZBKTG_REQUIRED)
+        format!(
+            "required-environments = [\"{}\"]\n",
+            ZBKTG_REQUIRED, //
+        )
     } else {
         String::new()
     };
 
-    seated
-        .lure
-        .bktu_write("project/pyproject.toml", &bkth_served_manifest(ZBKTG_SERVED, &url, &uv));
+    seated.lure.bktu_write(
+        "project/pyproject.toml",
+        &bkth_served_manifest(ZBKTG_SERVED, &url, &uv),
+    );
 
     bkth_python_installed(&seated);
 
@@ -517,12 +585,13 @@ fn zbktg_served(named: &str, declared: bool) -> crate::bkth_heel::bkth_Seated {
 /// hands uv the terminal, so the sentence a hurdle asserts on is taken again
 /// through the same roster and the same spelling.
 fn zbktg_recalled(seated: &crate::bkth_heel::bkth_Seated) -> String {
-    let stated = crate::bkcx_python::bkcx_stated(&seated.seat, crate::bkcx_python::bkcx_Posture::Authoring);
+    let stated =
+        crate::bkcx_python::bkcx_stated(&seated.seat, crate::bkcx_python::bkcx_Posture::Authoring);
     let borne = crate::bkcx_python::bkcx_borne(&stated);
 
     let recalled = super::bkcl_leash::bkcl_uv_recall(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.project,
         [
             std::ffi::OsStr::new("lock"),
@@ -545,32 +614,50 @@ fn zbktg_recalled(seated: &crate::bkth_heel::bkth_Seated) -> String {
 /// the pin and the collar are composed identically, so a refusal on the first
 /// beside a lock on the second is the declaration's doing and nobody else's.
 #[test]
-fn bktg_a_declared_environment_no_wheel_covers_refuses_the_lock_naming_the_package_and_the_marker() {
+fn bktg_a_declared_environment_no_wheel_covers_refuses_the_lock_naming_the_package_and_the_marker()
+{
     let control = zbktg_served("gangline-python-covered", false);
 
-    let verdict = bkcg_python(control.lure.bktu_root(), &control.lure.bktu_weaned(), &control.collar, &control.seat)
-        .unwrap_or_else(|err| panic!("the control: a project declaring no environment locks under the bar, and refused instead: {}", err));
+    let verdict = bkcg_python(
+        control.lure.bktu_root(),
+        &bktr_lured(&control.lure),
+        &control.collar,
+        &control.seat,
+    )
+    .unwrap_or_else(|err| {
+        panic!("the control: a project declaring no environment locks under the bar, and refused instead: {}", err, //
+        )
+    });
 
-    assert_eq!(verdict, bkcg_Verdict::Moved, "the control's first lock was not written");
+    assert_eq!(
+        verdict,
+        bkcg_Verdict::Moved,
+        "the control's first lock was not written", //
+    );
     assert!(
         control.project.join(BKCX_LOCK_FILE).is_file(),
-        "the control's lock stands nowhere after the door wrote it"
+        "the control's lock stands nowhere after the door wrote it", //
     );
 
     let seated = zbktg_served("gangline-python-uncovered", true);
 
-    let said = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .expect_err("a declared environment the wheel does not cover refuses the lock-authoring door");
+    let said = bkcg_python(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .expect_err("a declared environment the wheel does not cover refuses the lock-authoring door");
 
     assert!(
         said.contains("BKr_hpt"),
         "the refusal does not cite the rule the bar serves: {}",
-        said
+        said, //
     );
 
     assert!(
         !seated.project.join(BKCX_LOCK_FILE).exists(),
-        "a lock was written over a resolution the bar refused"
+        "a lock was written over a resolution the bar refused", //
     );
 
     let account = zbktg_recalled(&seated);
@@ -578,7 +665,7 @@ fn bktg_a_declared_environment_no_wheel_covers_refuses_the_lock_naming_the_packa
     assert!(
         account.contains(ZBKTG_SERVED) && account.contains(ZBKTG_REQUIRED),
         "uv's account does not name the package and the environment it cannot cover: {}",
-        account
+        account, //
     );
 }
 
@@ -599,11 +686,28 @@ fn bktg_a_lock_written_plain_is_re_proven_fresh_at_the_door() {
     let lock = control.project.join(BKCX_LOCK_FILE);
     let before = std::fs::read(&lock).expect("the plain lock reads");
 
-    let verdict = bkcg_python(control.lure.bktu_root(), &control.lure.bktu_weaned(), &control.collar, &control.seat)
-        .unwrap_or_else(|err| panic!("the control: a covered plain lock re-derives under the bar, and refused instead: {}", err));
+    let verdict =
+        bkcg_python(
+            control.lure.bktu_root(),
+            &bktr_lured(&control.lure),
+            &control.collar,
+            &control.seat,
+        )
+        .unwrap_or_else(|err| {
+            panic!("the control: a covered plain lock re-derives under the bar, and refused instead: {}", err, //
+            )
+        });
 
-    assert_eq!(verdict, bkcg_Verdict::Unmoved, "a fresh resolution disagreed with a plain lock it should have reproduced");
-    assert_eq!(before, std::fs::read(&lock).expect("the lock still reads"), "the control's lock moved");
+    assert_eq!(
+        verdict,
+        bkcg_Verdict::Unmoved,
+        "a fresh resolution disagreed with a plain lock it should have reproduced", //
+    );
+    assert_eq!(
+        before,
+        std::fs::read(&lock).expect("the lock still reads"),
+        "the control's lock moved", //
+    );
 
     let seated = zbktg_served("gangline-python-plain-uncovered", true);
     zbktg_plain_lock(&seated);
@@ -613,34 +717,35 @@ fn bktg_a_lock_written_plain_is_re_proven_fresh_at_the_door() {
 
     assert!(
         String::from_utf8_lossy(&before).contains(ZBKTG_REQUIRED),
-        "the plain lock did not record the declared environment, so nothing below reads what it claims"
+        "the plain lock did not record the declared environment, so nothing below reads what it claims", //
     );
 
-    let said = bkcg_python(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
+    let said = bkcg_python(seated.lure.bktu_root(), &bktr_lured(&seated.lure), &seated.collar, &seated.seat)
         .expect_err("a plain-written lock whose declared environment no wheel covers refuses the fresh resolution");
 
     assert!(
         said.contains("BKr_hpt"),
         "the refusal does not cite the rule the bar serves: {}",
-        said
+        said, //
     );
 
     assert_eq!(
         before,
         std::fs::read(&lock).expect("the lock still reads"),
-        "the door moved a lock it refused"
+        "the door moved a lock it refused", //
     );
 }
 
 /// Author the lock plain, under no bar and keeping nothing — the lock a hand or
 /// a bare uv writes.
 fn zbktg_plain_lock(seated: &crate::bkth_heel::bkth_Seated) {
-    let reaching = crate::bkcx_python::bkcx_stated(&seated.seat, crate::bkcx_python::bkcx_Posture::Reaching);
+    let reaching =
+        crate::bkcx_python::bkcx_stated(&seated.seat, crate::bkcx_python::bkcx_Posture::Reaching);
     let borne = crate::bkcx_python::bkcx_borne(&reaching);
 
     let authored = super::bkcl_leash::bkcl_uv(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.project,
         [
             std::ffi::OsStr::new("lock"),
@@ -654,9 +759,8 @@ fn zbktg_plain_lock(seated: &crate::bkth_heel::bkth_Seated) {
     assert!(
         authored.bkcl_landed(),
         "the plain lock was not written, so there is nothing for the door to re-prove: {}",
-        authored.spelling
+        authored.spelling, //
     );
 }
-
 
 // eof

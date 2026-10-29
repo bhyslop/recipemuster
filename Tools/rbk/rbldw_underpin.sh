@@ -36,6 +36,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Underpin is capture-pure: it writes no consumer config. It hands the captured
 # touchmark forward through one bare single-form chaining fact
 # (RBF_FACT_LODE_TOUCHMARK) via the depth-1 cross-tabtarget chain; a consumer
@@ -160,7 +165,7 @@ rbldw_underpin() {
   # rather than silently floating on a mutable tag; seise one with rbfls_seise.
   local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
   test -n "${z_substrate_reliquary}" \
-    || buc_reject "${BUBC_band_unseised}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
+    || buc_reject "${RBCG_UNSEISED_DENTIL}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
   zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
 
   buc_step "Authenticating as Director"

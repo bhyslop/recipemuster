@@ -280,16 +280,22 @@ fn zrbvcce_write_station(regulus_parent: &Path) {
     let station_dir = regulus_parent.join(rbvcep_repo::RBVCEP_STATION_SUBDIR);
     let secrets_dir = station_dir.join(rbvcep_repo::RBVCEP_SECRETS_SUBDIR);
     let logs_dir = regulus_parent.join(rbvcep_repo::RBVCEP_LOGS_SUBDIR);
+    let tackroom_dir = regulus_parent.join(rbvcep_repo::RBVCEP_TACKROOM_SUBDIR);
 
     zrbvcce_mkdir(&station_dir);
     zrbvcce_mkdir(&secrets_dir);
     zrbvcce_mkdir(&logs_dir);
+    zrbvcce_mkdir(&tackroom_dir);
 
+    // The station regime names its stores relative to the project root and
+    // refuses an absolute one; the regulus clone is a sibling of both, so each
+    // is named one level up from it.
     let burs = format!(
-        "BURS_USER={}\nBURS_TINCTURE={}\nBURS_LOG_DIR={}\n",
+        "BURS_USER={}\nBURS_TINCTURE={}\nBURS_LOG_DIR=../{}\nBURS_TACKROOM=../{}\n",
         RBVCCE_STATION_USER,
         RBVCCE_STATION_TINCTURE,
-        rbvcep_repo::rbvcep_as_str(&logs_dir),
+        rbvcep_repo::RBVCEP_LOGS_SUBDIR,
+        rbvcep_repo::RBVCEP_TACKROOM_SUBDIR,
     );
     let burs_path = station_dir.join(rbvcep_repo::RBVCEP_STATION_FILE);
     std::fs::write(&burs_path, burs)

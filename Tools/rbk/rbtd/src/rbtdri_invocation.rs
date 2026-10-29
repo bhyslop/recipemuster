@@ -58,6 +58,20 @@ pub const RBTCEI_BURE_CONFIRM_SKIP: &str = "skip";
 /// fails at startup if unset. Set by bud_dispatch.sh on every tabtarget call.
 pub const RBTCEI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
 
+/// A tabtarget's configuration line opens with this, the launcher basename and
+/// any mode words following inside the single quotes.
+const RBTDRI_CONFIGURATION_HEAD: &str = "set -- '";
+
+/// The configuration word selecting no-log mode.
+const RBTDRI_WORD_NOLOG: &str = "buuc_nolog";
+
+/// The trampoline every tabtarget execs, beside it in the tabtarget directory.
+const RBTDRI_TRAMPOLINE: &str = "z-launcher.sh";
+
+/// The run roots a rooted direct launch is handed, beneath its case directory.
+const RBTDRI_ROOTED_OUTPUT_SUBDIR: &str = "burv-o";
+const RBTDRI_ROOTED_TEMP_SUBDIR: &str = "burv-t";
+
 /// Canonical Cygwin bash in POSIX form. theurge nativizes this via RBTDRX
 /// (cygpath) to launch scripts: a bare "bash" from a Windows-native binary
 /// resolves through `CreateProcess` to System32's WSL launcher, never Cygwin's.
@@ -104,6 +118,10 @@ pub struct rbtcei_Context {
     /// invoke's BURV root instead of minting a fresh one (see
     /// `chain_next_invoke`). Consumed and cleared by `rbtcei_invoke_impl`.
     pub(crate) chain_next: bool,
+    /// One-shot flag: when set, the NEXT invoke runs its tabtarget in no-log
+    /// mode through a composed stub (see `nolog_next_invoke`). Consumed and
+    /// cleared by `rbtcei_invoke_impl`.
+    pub(crate) nolog_next: bool,
 }
 
 impl rbtcei_Context {
@@ -120,6 +138,7 @@ impl rbtcei_Context {
             burv_output_root: burv_output_root.to_path_buf(),
             invoke_count: 0,
             chain_next: false,
+            nolog_next: false,
         }
     }
 
@@ -168,6 +187,20 @@ impl rbtcei_Context {
     /// boundary.
     pub fn rbtcei_set_invoke_count(&mut self, count: u32) {
         self.invoke_count = count;
+    }
+
+    /// Mark the NEXT tabtarget invocation to run in no-log mode.
+    ///
+    /// A tabtarget's mode is its configuration line, and nothing crosses an exec
+    /// to choose it, so a child whose stdout must stand clean of the dispatch's
+    /// folded stderr and log headers runs through a stub composed for that one
+    /// invoke: the same launcher its configuration names with `buuc_nolog`
+    /// beside it, written under the invoke's own BURV temp root, reaching this
+    /// repository's own trampoline by absolute path. Its basename is the
+    /// tabtarget's, so the dispatch parses the same colophon, frontispiece and
+    /// imprint.
+    pub fn rbtdri_nolog_next_invoke(&mut self) {
+        self.nolog_next = true;
     }
 }
 
@@ -476,6 +509,71 @@ pub fn rbtcei_tabtarget_command(tabtarget: &Path) -> Command {
     cmd
 }
 
+/// Compose the no-log stub for one invoke: the tabtarget's own launcher with
+/// `buuc_nolog`, written under the invoke's BURV temp root with the
+/// tabtarget's basename, and exec'ing this repository's trampoline by absolute
+/// path. Covers a plain configuration alone: a tabtarget already carrying a
+/// mode word is refused rather than having its mode guessed at.
+fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, String> {
+    let body = std::fs::read_to_string(tabtarget)
+        .map_err(|e| format!("rbtdri: cannot read {}: {}", tabtarget.display(), e))?;
+    let configuration = body
+        .lines()
+        .find_map(|line| line.strip_prefix(RBTDRI_CONFIGURATION_HEAD))
+        .and_then(|rest| rest.split('\'').next())
+        .ok_or_else(|| {
+            format!("rbtdri: {} carries no configuration line", tabtarget.display())
+        })?;
+    let mut words = configuration.split_whitespace();
+    let launcher = words.next().unwrap_or_default();
+    if launcher.is_empty() || words.next().is_some() {
+        return Err(format!(
+            "rbtdri: {} carries configuration '{}' — a no-log stub composes from a plain launcher alone",
+            tabtarget.display(),
+            configuration
+        ));
+    }
+    let name = tabtarget
+        .file_name()
+        .ok_or_else(|| format!("rbtdri: {} has no file name", tabtarget.display()))?;
+    let dir = tabtarget
+        .parent()
+        .ok_or_else(|| format!("rbtdri: {} has no directory", tabtarget.display()))?;
+    let trampoline = rbtcep_native_to_posix(&dir.join(RBTDRI_TRAMPOLINE));
+    if trampoline.contains('\'') {
+        return Err(format!("rbtdri: trampoline path {} carries a single quote", trampoline));
+    }
+    let stub = format!(
+        "#!/bin/bash\n{}{} {}' \"$@\"\nexec '{}' \"${{0##*/}}\" \"${{@}}\"\n",
+        RBTDRI_CONFIGURATION_HEAD, launcher, RBTDRI_WORD_NOLOG, trampoline
+    );
+    let path = burv_temp.join(name);
+    std::fs::write(&path, stub)
+        .map_err(|e| format!("rbtdri: cannot write no-log stub {}: {}", path.display(), e))?;
+    Ok(path)
+}
+
+/// Build a tabtarget launch rooted beneath `root_dir`, for a direct launch that
+/// bypasses the context's per-invoke isolation.
+///
+/// A dispatch withdraws the run-root overrides before its coordinator runs, so
+/// nothing this process holds roots its children: a launch handed no roots of
+/// its own lands on station ground, beside every other dispatch standing there.
+/// This one is handed an output root and a temp root beneath the case's own
+/// directory.
+pub fn rbtdri_rooted_tabtarget_command(tabtarget: &Path, root_dir: &Path) -> Result<Command, String> {
+    let output = root_dir.join(RBTDRI_ROOTED_OUTPUT_SUBDIR);
+    let temp = root_dir.join(RBTDRI_ROOTED_TEMP_SUBDIR);
+    for root in [&output, &temp] {
+        std::fs::create_dir_all(root)
+            .map_err(|e| format!("rbtdri: cannot create run root {}: {}", root.display(), e))?;
+    }
+    let mut cmd = rbtcei_tabtarget_command(tabtarget);
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&output))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&temp));
+    Ok(cmd)
+}
+
 /// Internal: execute a resolved tabtarget with BURV isolation and optional extra env vars.
 ///
 /// Honors the context's one-shot `chain_next` flag (see
@@ -496,6 +594,8 @@ fn rbtcei_invoke_impl(
     args: &[&str],
     extra_env: &[(&str, &str)],
 ) -> Result<rbtcei_InvokeResult, String> {
+    let nolog = std::mem::take(&mut ctx.nolog_next);
+
     if let Some(declared) = rbtcei_census_declared() {
         let permitted = rbtcei_census_permitted();
         if !declared.iter().any(|d| *d == colophon) && !permitted.iter().any(|p| *p == colophon) {
@@ -545,25 +645,17 @@ fn rbtcei_invoke_impl(
         ));
     }
 
-    let mut cmd = rbtcei_tabtarget_command(tabtarget);
+    let launched = if nolog {
+        zrbtdri_nolog_stub(tabtarget, &burv_temp)?
+    } else {
+        tabtarget.to_path_buf()
+    };
+
+    let mut cmd = rbtcei_tabtarget_command(&launched);
     cmd.args(args)
         .current_dir(&ctx.project_root)
         .env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv_output))
         .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&burv_temp));
-
-    // A child tabtarget launch must not inherit the parent's dispatch mode. A
-    // saddled interactive session exports BURD_NO_LOG (so its own TUI escapes
-    // the log tee) and may export BURD_INTERACTIVE; a child rbt that inherits
-    // either takes the wrong bud_dispatch branch — the no-log branch never
-    // folds the child's stderr into stdout, and the interactive branch reroutes
-    // it through the tee — so a black-box surface fixture reading the child's
-    // stdout sees the wrong stream. These two vars are the only dispatch-mode
-    // selectors; clear the inheritance here so mode is chosen per launch. A
-    // deliberate opt-in (a case that WANTS a no-log child) re-sets its key
-    // through extra_env immediately below, so this clears only inheritance.
-    // BUr_q2m: inheritance is never a regime inlet.
-    cmd.env_remove("BURD_NO_LOG");
-    cmd.env_remove("BURD_INTERACTIVE");
 
     for (key, value) in extra_env {
         cmd.env(key, value);
@@ -594,8 +686,9 @@ pub fn rbtcei_invoke(
 }
 
 /// Invoke a fixture-imprinted tabtarget (like `rbtcei_invoke`) with extra
-/// environment variables threaded into the child process — e.g. BURD_NO_LOG
-/// to keep BUK dispatch from folding the tabtarget's stderr into stdout.
+/// environment variables threaded into the child process — e.g. a BURE_ tweak
+/// or BURE_CONFIRM; a child's log mode is its configuration line, chosen
+/// through `rbtdri_nolog_next_invoke`, never a variable.
 pub fn rbtcei_invoke_env(
     ctx: &mut rbtcei_Context,
     colophon: &str,

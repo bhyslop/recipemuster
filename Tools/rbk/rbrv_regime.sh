@@ -103,7 +103,7 @@ zrbrv_enforce() {
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
     local -r z_bind_digest_re='@sha256:[0-9a-f]{64}$'
     [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \
-      || buc_reject "${BUBC_band_regime}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
   fi
 }
 

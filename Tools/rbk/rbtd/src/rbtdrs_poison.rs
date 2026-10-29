@@ -23,9 +23,9 @@
 // the single BUK regime-load membrane crossed at every regime kindle — and
 // asserts the SPECIFIC band code of the gate that rejects:
 //
-//   RBTGEC_BAND_REGIME (100)  a regime module's own enforce rule fired
+//   RBTGEB_BUSX_REGIME_DENTIL (100)  a regime module's own enforce rule fired
 //                             (cross-field, format regex, existence)
-//   RBTGEC_BAND_ENROLL (101)  the buv enrollment pipeline rejected
+//   RBTGEB_BUSX_ENROLL_DENTIL (101)  the buv enrollment pipeline rejected
 //                             (buv_vet type/format/enum/range/presence, or
 //                              buv_scope_sentinel on an unexpected variable)
 //
@@ -44,8 +44,6 @@ use crate::rbtcee_case;
 use crate::rbtgec_consts::{
     BUWGC_RC_VALIDATE,
     BUWGC_RS_VALIDATE,
-    RBTGEC_BAND_ENROLL,
-    RBTGEC_BAND_REGIME,
     RBTGEC_TWEAK_REGIME_POISON,
     RBTGEC_VALIDATE_DEPOT,
     RBTGEC_VALIDATE_NAMEPLATE,
@@ -53,6 +51,10 @@ use crate::rbtgec_consts::{
     RBTGEC_VALIDATE_PAYOR,
     RBTGEC_VALIDATE_REPO,
     RBTGEC_VALIDATE_VESSEL,
+};
+use crate::rbtgeb_breviary::{
+    RBTGEB_BUSX_ENROLL_DENTIL,
+    RBTGEB_BUSX_REGIME_DENTIL,
 };
 use crate::rbtcee_engine::{
     rbtcee_Tariff,
@@ -63,7 +65,7 @@ use crate::rbtcee_engine::{
 };
 use crate::rbtcei_invocation::{
     rbtcei_find_tabtarget_global,
-    rbtcei_tabtarget_command,
+    rbtdri_rooted_tabtarget_command,
     RBTCEI_BURE_TWEAK_NAME_KEY,
     RBTCEI_BURE_TWEAK_VALUE_KEY,
 };
@@ -109,7 +111,11 @@ fn rbtchs_poison(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let output = match rbtcei_tabtarget_command(&tt)
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, dir) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let output = match cmd
         .args(folio)
         .env(RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON)
         .env(RBTCEI_BURE_TWEAK_VALUE_KEY, poison)
@@ -141,26 +147,26 @@ fn rbtchs_rbrr_bad_timeout(dir: &Path) -> rbtcee_Verdict {
     // RBRR_GCB_TIMEOUT enrolls as a plain string; the NNNs format is a
     // zrbrr_enforce regex, so a non-NNNs value rejects in the module → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[], "RBRR_GCB_TIMEOUT=1200",
-        RBTGEC_BAND_REGIME, "rbrr-bad-timeout")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-timeout")
 }
 
 fn rbtchs_rbrr_unexpected_var(dir: &Path) -> rbtcee_Verdict {
     // An unenrolled RBRR_* variable trips buv_scope_sentinel → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[], "RBRR_BOGUS=foo",
-        RBTGEC_BAND_ENROLL, "rbrr-unexpected-var")
+        RBTGEB_BUSX_ENROLL_DENTIL, "rbrr-unexpected-var")
 }
 
 fn rbtchs_rbrr_bad_vessel_dir(dir: &Path) -> rbtcee_Verdict {
     // A nonexistent directory fails the zrbrr_enforce existence check → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         "RBRR_VESSEL_DIR=/tmp/nonexistent-rbtdrs-vessel-dir",
-        RBTGEC_BAND_REGIME, "rbrr-bad-vessel-dir")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-vessel-dir")
 }
 
 fn rbtchs_rbrr_bad_secrets_dir(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         "RBRR_SECRETS_DIR=/tmp/nonexistent-rbtdrs-secrets-dir",
-        RBTGEC_BAND_REGIME, "rbrr-bad-secrets-dir")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-secrets-dir")
 }
 
 fn rbtchs_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtcee_Verdict {
@@ -168,20 +174,20 @@ fn rbtchs_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtcee_Verdict {
     // zrbrr_enforce format regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         &format!("{}=BAD-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
-        RBTGEC_BAND_REGIME, "rbrr-bad-runtime-prefix-uppercase")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-runtime-prefix-uppercase")
 }
 
 fn rbtchs_rbrr_bad_runtime_prefix_no_trailing_hyphen(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         &format!("{}=acme", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
-        RBTGEC_BAND_REGIME, "rbrr-bad-runtime-prefix-no-trailing-hyphen")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-runtime-prefix-no-trailing-hyphen")
 }
 
 fn rbtchs_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtcee_Verdict {
     // 12 chars exceeds the buv_string_enroll max (11) → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         &format!("{}=twelvechars-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
-        RBTGEC_BAND_ENROLL, "rbrr-bad-runtime-prefix-too-long")
+        RBTGEB_BUSX_ENROLL_DENTIL, "rbrr-bad-runtime-prefix-too-long")
 }
 
 fn rbtchs_rbrr_bad_substrate_reliquary(dir: &Path) -> rbtcee_Verdict {
@@ -190,7 +196,7 @@ fn rbtchs_rbrr_bad_substrate_reliquary(dir: &Path) -> rbtcee_Verdict {
     // but fails the format regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
         "RBRR_SUBSTRATE_RELIQUARY=not-a-relic",
-        RBTGEC_BAND_REGIME, "rbrr-bad-substrate-reliquary")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-substrate-reliquary")
 }
 
 // ── RBRD (depot) — verb rbw-rdv against the tracked rbrd.env ─
@@ -198,26 +204,26 @@ fn rbtchs_rbrr_bad_substrate_reliquary(dir: &Path) -> rbtcee_Verdict {
 fn rbtchs_rbrd_missing_moniker(dir: &Path) -> rbtcee_Verdict {
     // Unset a required field → buv presence check → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[], RBTCHS_VAR_RBRD_DEPOT_MONIKER,
-        RBTGEC_BAND_ENROLL, "rbrd-missing-moniker")
+        RBTGEB_BUSX_ENROLL_DENTIL, "rbrd-missing-moniker")
 }
 
 fn rbtchs_rbrd_bad_moniker(dir: &Path) -> rbtcee_Verdict {
     // Uppercase + hyphen fails the zrbrd_enforce moniker regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
         &format!("{}=BAD-MONIKER", RBTCHS_VAR_RBRD_DEPOT_MONIKER),
-        RBTGEC_BAND_REGIME, "rbrd-bad-moniker")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-moniker")
 }
 
 fn rbtchs_rbrd_bad_cloud_prefix_uppercase(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
         &format!("{}=BAD-", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
-        RBTGEC_BAND_REGIME, "rbrd-bad-cloud-prefix-uppercase")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-cloud-prefix-uppercase")
 }
 
 fn rbtchs_rbrd_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
         &format!("{}=acme", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
-        RBTGEC_BAND_REGIME, "rbrd-bad-cloud-prefix-no-trailing-hyphen")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-cloud-prefix-no-trailing-hyphen")
 }
 
 fn rbtchs_rbrd_bad_cloud_prefix_too_long(dir: &Path) -> rbtcee_Verdict {
@@ -225,7 +231,7 @@ fn rbtchs_rbrd_bad_cloud_prefix_too_long(dir: &Path) -> rbtcee_Verdict {
     // joint-length enforce ever runs.
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
         &format!("{}=twelvechars-", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
-        RBTGEC_BAND_ENROLL, "rbrd-bad-cloud-prefix-too-long")
+        RBTGEB_BUSX_ENROLL_DENTIL, "rbrd-bad-cloud-prefix-too-long")
 }
 
 // ── RBRP (payor) — verb rbw-rpv against the tracked rbrp.env ─
@@ -235,7 +241,7 @@ fn rbtchs_rbrp_bad_payor_project(dir: &Path) -> rbtcee_Verdict {
     // payor-project regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_PAYOR, &[],
         "RBRP_PAYOR_PROJECT_ID=not-a-payor-project",
-        RBTGEC_BAND_REGIME, "rbrp-bad-payor-project")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrp-bad-payor-project")
 }
 
 // ── BURC (config) — verb buw-rcv against the tracked burc.env ─
@@ -243,7 +249,7 @@ fn rbtchs_rbrp_bad_payor_project(dir: &Path) -> rbtcee_Verdict {
 fn rbtchs_burc_missing_station_file(dir: &Path) -> rbtcee_Verdict {
     // Unset a required field → buv presence check → enroll.
     rbtchs_poison(dir, BUWGC_RC_VALIDATE, &[], "BURC_STATION_FILE",
-        RBTGEC_BAND_ENROLL, "burc-missing-station-file")
+        RBTGEB_BUSX_ENROLL_DENTIL, "burc-missing-station-file")
 }
 
 // ── RBRN (nameplate) — verb rbw-rnv against a real nameplate ─
@@ -255,46 +261,46 @@ fn rbtchs_burc_missing_station_file(dir: &Path) -> rbtcee_Verdict {
 fn rbtchs_rbrn_missing_moniker(dir: &Path) -> rbtcee_Verdict {
     // Unset a required field → buv presence check → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_MONIKER", RBTGEC_BAND_ENROLL, "rbrn-missing-moniker")
+        "RBRN_MONIKER", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-missing-moniker")
 }
 
 fn rbtchs_rbrn_invalid_runtime(dir: &Path) -> rbtcee_Verdict {
     // Off-enum value fails the buv_enum_enroll check → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_RUNTIME=invalid", RBTGEC_BAND_ENROLL, "rbrn-invalid-runtime")
+        "RBRN_RUNTIME=invalid", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-invalid-runtime")
 }
 
 fn rbtchs_rbrn_invalid_entry_mode(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_ENTRY_MODE=bogus", RBTGEC_BAND_ENROLL, "rbrn-invalid-entry-mode")
+        "RBRN_ENTRY_MODE=bogus", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-invalid-entry-mode")
 }
 
 fn rbtchs_rbrn_invalid_dns_mode(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_UPLINK_DNS_MODE=bogus", RBTGEC_BAND_ENROLL, "rbrn-invalid-dns-mode")
+        "RBRN_UPLINK_DNS_MODE=bogus", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-invalid-dns-mode")
 }
 
 fn rbtchs_rbrn_invalid_access_mode(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_UPLINK_ACCESS_MODE=bogus", RBTGEC_BAND_ENROLL, "rbrn-invalid-access-mode")
+        "RBRN_UPLINK_ACCESS_MODE=bogus", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-invalid-access-mode")
 }
 
 fn rbtchs_rbrn_bad_ip(dir: &Path) -> rbtcee_Verdict {
     // Malformed address fails the buv_ipv4_enroll check → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_ENCLAVE_BASE_IP=not-an-ip", RBTGEC_BAND_ENROLL, "rbrn-bad-ip")
+        "RBRN_ENCLAVE_BASE_IP=not-an-ip", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-bad-ip")
 }
 
 fn rbtchs_rbrn_unexpected_var(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_BOGUS=foo", RBTGEC_BAND_ENROLL, "rbrn-unexpected-var")
+        "RBRN_BOGUS=foo", RBTGEB_BUSX_ENROLL_DENTIL, "rbrn-unexpected-var")
 }
 
 fn rbtchs_rbrn_port_conflict(dir: &Path) -> rbtcee_Verdict {
     // A workstation port at/above the uplink minimum (a valid port number, so it
     // clears the buv enroll) trips the zrbrn_enforce cross-port check → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_NAMEPLATE, &[RBTCHS_NAMEPLATE_TADMOR],
-        "RBRN_ENTRY_PORT_WORKSTATION=10001", RBTGEC_BAND_REGIME, "rbrn-port-conflict")
+        "RBRN_ENTRY_PORT_WORKSTATION=10001", RBTGEB_BUSX_REGIME_DENTIL, "rbrn-port-conflict")
 }
 
 // ── RBRV (vessel) — verb rbw-rvv against a real vessel ───────
@@ -306,24 +312,24 @@ fn rbtchs_rbrn_port_conflict(dir: &Path) -> rbtcee_Verdict {
 fn rbtchs_rbrv_missing_sigil(dir: &Path) -> rbtcee_Verdict {
     // Unset a required field → buv presence check → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_VESSEL, &[RBTCHS_VESSEL_BUSYBOX],
-        "RBRV_SIGIL", RBTGEC_BAND_ENROLL, "rbrv-missing-sigil")
+        "RBRV_SIGIL", RBTGEB_BUSX_ENROLL_DENTIL, "rbrv-missing-sigil")
 }
 
 fn rbtchs_rbrv_unexpected_var(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_VESSEL, &[RBTCHS_VESSEL_BUSYBOX],
-        "RBRV_BOGUS=foo", RBTGEC_BAND_ENROLL, "rbrv-unexpected-var")
+        "RBRV_BOGUS=foo", RBTGEB_BUSX_ENROLL_DENTIL, "rbrv-unexpected-var")
 }
 
 fn rbtchs_rbrv_partial_conjure(dir: &Path) -> rbtcee_Verdict {
     // Unset a conjure-gated required field on a conjure vessel → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_VESSEL, &[RBTCHS_VESSEL_BUSYBOX],
-        "RBRV_CONJURE_PLATFORMS", RBTGEC_BAND_ENROLL, "rbrv-partial-conjure")
+        "RBRV_CONJURE_PLATFORMS", RBTGEB_BUSX_ENROLL_DENTIL, "rbrv-partial-conjure")
 }
 
 fn rbtchs_rbrv_no_bind_image(dir: &Path) -> rbtcee_Verdict {
     // Unset the bind-gated required field on a bind vessel → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_VESSEL, &[RBTCHS_VESSEL_PLANTUML],
-        "RBRV_BIND_IMAGE", RBTGEC_BAND_ENROLL, "rbrv-no-bind-image")
+        "RBRV_BIND_IMAGE", RBTGEB_BUSX_ENROLL_DENTIL, "rbrv-no-bind-image")
 }
 
 fn rbtchs_rbrv_bind_image_tag_only(dir: &Path) -> rbtcee_Verdict {
@@ -331,7 +337,7 @@ fn rbtchs_rbrv_bind_image_tag_only(dir: &Path) -> rbtcee_Verdict {
     // digest, tripping the zrbrv_enforce bind-digest check → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_VESSEL, &[RBTCHS_VESSEL_PLANTUML],
         "RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server:1.2024.7",
-        RBTGEC_BAND_REGIME, "rbrv-bind-image-tag-only")
+        RBTGEB_BUSX_REGIME_DENTIL, "rbrv-bind-image-tag-only")
 }
 
 // ── Operator-local regimes — station, oauth, auth ──
@@ -363,7 +369,11 @@ fn rbtchs_optional(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let baseline = match rbtcei_tabtarget_command(&tt)
+    let mut baseline_cmd = match rbtdri_rooted_tabtarget_command(&tt, dir) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let baseline = match baseline_cmd
         .args(folio)
         .current_dir(&root)
         .output()
@@ -387,13 +397,13 @@ fn rbtchs_optional(
 
 fn rbtchs_rbro_missing_refresh_token(dir: &Path) -> rbtcee_Verdict {
     rbtchs_optional(dir, RBTGEC_VALIDATE_OAUTH, &[], "RBRO_REFRESH_TOKEN",
-        RBTGEC_BAND_ENROLL, "rbro-missing-refresh-token")
+        RBTGEB_BUSX_ENROLL_DENTIL, "rbro-missing-refresh-token")
 }
 
 fn rbtchs_burs_bad_tincture(dir: &Path) -> rbtcee_Verdict {
     // Uppercase clears the length enroll but fails the zburs_enforce regex → regime.
     rbtchs_optional(dir, BUWGC_RS_VALIDATE, &[], "BURS_TINCTURE=A1",
-        RBTGEC_BAND_REGIME, "burs-bad-tincture")
+        RBTGEB_BUSX_REGIME_DENTIL, "burs-bad-tincture")
 }
 
 // ── Fixture ─────────────────────────────────────────────────

@@ -30,6 +30,7 @@ pub const RBVCEP_STATION_SUBDIR: &str = "station-files";
 pub const RBVCEP_STATION_FILE: &str = "burs.env";
 pub const RBVCEP_SECRETS_SUBDIR: &str = "secrets";
 pub const RBVCEP_LOGS_SUBDIR: &str = "logs-buk";
+pub const RBVCEP_TACKROOM_SUBDIR: &str = "tackroom-buk";
 
 /// The maintainer repository root, from git. Fatal if not in a repo, empty, or
 /// non-absolute — every derived path anchors on it, and the seposition guards

@@ -84,9 +84,18 @@ impl bkcs_Position {
     /// kennel's word that it agreed.
     pub fn bkcs_render(&self) -> String {
         let mut said = String::new();
-        said.push_str(&format!("seat      {}\n", self.seat));
-        said.push_str(&format!("pin       {}\n", self.pin));
-        said.push_str(&format!("compiler  {}", self.compiler));
+        said.push_str(&format!(
+            "seat      {}\n",
+            self.seat, //
+        ));
+        said.push_str(&format!(
+            "pin       {}\n",
+            self.pin, //
+        ));
+        said.push_str(&format!(
+            "compiler  {}",
+            self.compiler, //
+        ));
         said
     }
 }

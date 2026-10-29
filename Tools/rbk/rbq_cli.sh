@@ -32,8 +32,6 @@ zrbq_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buq_qualify.sh" || buc_die_now "Failed to source buq_qualify.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
@@ -45,7 +43,6 @@ zrbq_furnish() {
   source "${z_rbk_kit_dir}/rbrn_regime.sh" || buc_die_now "Failed to source rbrn_regime.sh"
   source "${z_rbk_kit_dir}/rbq_qualify.sh" || buc_die_now "Failed to source rbq_qualify.sh"
 
-  zbuv_kindle
   zbuz_kindle
   zrbz_kindle
   zbuwz_kindle

@@ -47,7 +47,10 @@
 //! any call it makes.
 
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::bkce_election;
 use crate::bkch_heel;
@@ -71,7 +74,7 @@ const ZBKCZ_ASKED: [&str; 8] = [
     "--cap-lints",
     "warn",
     "-W",
-    "clippy::disallowed_methods",
+    "clippy::disallowed_methods", //
 ];
 
 /// The mark that tells a muzzle finding from every other the linter emits: the
@@ -129,7 +132,11 @@ pub enum bkcz_Verdict {
 /// the hand roster this door replaces: a crate enters the muzzle by wearing a
 /// collar that names a lint list, and leaves it by naming a different one. No
 /// roster stands anywhere for a crate to be silently absent from.
-pub fn bkcz_lint(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Result<bkcz_Verdict, String> {
+pub fn bkcz_lint(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcr_Collar,
+) -> Result<bkcz_Verdict, String> {
     // AHEAD OF EVERYTHING, because this is the road the defect was found on: the
     // sweep reached a crate whose exergue no door had struck yet, and the lint
     // run died on E0583 — which this door then reported as a build failure and
@@ -151,14 +158,11 @@ pub fn bkcz_lint(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Resu
 
     let mut stated: Vec<(&str, &OsStr)> = vec![(ZBKCZ_CONF_VAR, conf.as_os_str())];
     if let Some(position) = collar_seat.as_deref() {
-        stated.push((
-            bkch_heel::BKCH_COLLAR_POSITION_VAR,
-            OsStr::new(position),
-        ));
+        stated.push((bkch_heel::BKCH_COLLAR_POSITION_VAR, OsStr::new(position)));
     }
 
     let recalled =
-        bkcl_leash::bkcl_recall(repository, weaned, &manifest, ZBKCZ_VERB, asked, &stated)?;
+        bkcl_leash::bkcl_recall(repository, dispatch, &manifest, ZBKCZ_VERB, asked, &stated)?;
 
     // THE LINTER SPEAKS ON STDERR, and its stdout is machine-readable. Both are
     // read here because a compile failure and a muzzle finding can arrive on
@@ -167,7 +171,7 @@ pub fn bkcz_lint(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Resu
     let report = format!(
         "{}{}",
         String::from_utf8_lossy(&recalled.said),
-        recalled.grievance
+        recalled.grievance, //
     );
 
     if report.contains(ZBKCZ_MARK) {
@@ -194,7 +198,9 @@ pub fn bkcz_conf_dir(repository: &Path, collar: &bkcr_Collar) -> Result<PathBuf,
     std::fs::canonicalize(&directory).map_err(|err| {
         format!(
             "the collar '{}' names the muzzle directory '{}', which does not resolve: {}",
-            collar.name, declared, err
+            collar.name,
+            declared,
+            err, //
         )
     })
 }

@@ -138,7 +138,11 @@ impl zbkcj_Reader<'_> {
     /// and column, because cargo answers on one line and a column number would
     /// be the same number said twice.
     fn zbkcj_grievance(&self, why: &str) -> String {
-        format!("the answer is no JSON at byte {}: {}", self.at, why)
+        format!(
+            "the answer is no JSON at byte {}: {}",
+            self.at,
+            why, //
+        )
     }
 
     /// What stands under the cursor, or `None` at the end.
@@ -165,11 +169,12 @@ impl zbkcj_Reader<'_> {
             }
             Some(held) => Err(self.zbkcj_grievance(&format!(
                 "'{}' was expected and '{}' stands there",
-                wanted as char, held as char
+                wanted as char,
+                held as char, //
             ))),
             None => Err(self.zbkcj_grievance(&format!(
                 "'{}' was expected and the answer ended",
-                wanted as char
+                wanted as char, //
             ))),
         }
     }
@@ -184,8 +189,10 @@ impl zbkcj_Reader<'_> {
             Some(b'f') => self.zbkcj_word("false").map(|_| bkcj_Value::Bool(false)),
             Some(b'n') => self.zbkcj_word("null").map(|_| bkcj_Value::Null),
             Some(held) if held == b'-' || held.is_ascii_digit() => self.zbkcj_number(),
-            Some(held) => Err(self
-                .zbkcj_grievance(&format!("'{}' opens no JSON value", held as char))),
+            Some(held) => Err(self.zbkcj_grievance(&format!(
+                "'{}' opens no JSON value",
+                held as char, //
+            ))),
             None => Err(self.zbkcj_grievance("a value was expected and the answer ended")),
         }
     }
@@ -196,7 +203,10 @@ impl zbkcj_Reader<'_> {
             self.at += word.len();
             return Ok(());
         }
-        Err(self.zbkcj_grievance(&format!("'{}' was expected here", word)))
+        Err(self.zbkcj_grievance(&format!(
+            "'{}' was expected here",
+            word, //
+        )))
     }
 
     /// An object, its fields in the order they were written.
@@ -271,7 +281,7 @@ impl zbkcj_Reader<'_> {
             return Err(self.zbkcj_grievance(&format!(
                 "the answer nests deeper than {} levels, which no cargo answer does — reading on \
                  would risk the stack rather than the reading",
-                ZBKCJ_DEPTH_LIMIT
+                ZBKCJ_DEPTH_LIMIT, //
             )));
         }
         Ok(())
@@ -339,8 +349,8 @@ impl zbkcj_Reader<'_> {
             _ => {
                 return Err(self.zbkcj_grievance(&format!(
                     "'\\{}' is no JSON escape",
-                    held as char
-                )))
+                    held as char, //
+                )));
             }
         };
 
@@ -361,9 +371,9 @@ impl zbkcj_Reader<'_> {
             let trail = self.zbkcj_hex()?;
 
             if !(0xdc00..=0xdfff).contains(&trail) {
-                return Err(self.zbkcj_grievance(
-                    "a leading surrogate is not followed by a trailing one",
-                ));
+                return Err(
+                    self.zbkcj_grievance("a leading surrogate is not followed by a trailing one")
+                );
             }
 
             let joined = 0x10000 + ((lead - 0xd800) << 10) + (trail - 0xdc00);
@@ -413,15 +423,16 @@ impl zbkcj_Reader<'_> {
         let text = std::str::from_utf8(&self.bytes[opened..self.at])
             .map_err(|_| self.zbkcj_grievance("a number holds no readable text"))?;
 
-        text.parse::<f64>()
-            .map(bkcj_Value::Number)
-            .map_err(|_| {
-                let at = self.at;
-                self.at = opened;
-                let said = format!("'{}' is no JSON number", text);
-                self.at = at;
-                self.zbkcj_grievance(&said)
-            })
+        text.parse::<f64>().map(bkcj_Value::Number).map_err(|_| {
+            let at = self.at;
+            self.at = opened;
+            let said = format!(
+                "'{}' is no JSON number",
+                text, //
+            );
+            self.at = at;
+            self.zbkcj_grievance(&said)
+        })
     }
 }
 

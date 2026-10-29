@@ -108,19 +108,29 @@ pub fn bkcf_standing(repository: &Path) -> Result<bkcf_Standing, String> {
         .arg("status")
         .arg("--porcelain")
         .output()
-        .map_err(|err| format!("could not run git in {}: {}", repository.display(), err))?;
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
 
     if !out.status.success() {
         let said = String::from_utf8_lossy(&out.stderr);
         return Err(format!(
             "{} is no git repository, or git refused to read it: {}",
             repository.display(),
-            said.trim()
+            said.trim(), //
         ));
     }
 
-    let text = String::from_utf8(out.stdout)
-        .map_err(|err| format!("git status emitted no readable text: {}", err))?;
+    let text = String::from_utf8(out.stdout).map_err(|err| {
+        format!(
+            "git status emitted no readable text: {}",
+            err, //
+        )
+    })?;
 
     Ok(bkcf_Standing {
         entries: text
@@ -187,12 +197,19 @@ impl bkcf_Lyam {
             BKCF_REPOINT, //
         );
         for include in &self.dangling {
-            said.push_str(&format!("\n  {}:{}: @{}", include.file, include.line, include.path));
+            said.push_str(&format!(
+                "\n  {}:{}: @{}",
+                include.file,
+                include.line,
+                include.path, //
+            ));
         }
         for include in &self.skipped {
             said.push_str(&format!(
                 "\n  skipped, outside the repository: {}:{}: @{}",
-                include.file, include.line, include.path
+                include.file,
+                include.line,
+                include.path, //
             ));
         }
         said
@@ -264,27 +281,49 @@ pub fn bkcf_lyam(repository: &Path) -> Result<bkcf_Lyam, String> {
         .arg("ls-files")
         .arg("-z")
         .output()
-        .map_err(|err| format!("could not run git in {}: {}", repository.display(), err))?;
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
 
     if !out.status.success() {
         let said = String::from_utf8_lossy(&out.stderr);
         return Err(format!(
             "could not list the tracked files of {}: {}",
             repository.display(),
-            said.trim()
+            said.trim(), //
         ));
     }
 
-    let text = String::from_utf8(out.stdout)
-        .map_err(|err| format!("git ls-files emitted no readable text: {}", err))?;
+    let text = String::from_utf8(out.stdout).map_err(|err| {
+        format!(
+            "git ls-files emitted no readable text: {}",
+            err, //
+        )
+    })?;
     let tracked: std::collections::BTreeSet<&str> =
         text.split('\0').filter(|path| !path.is_empty()).collect();
 
-    let mut reading = bkcf_Lyam { dangling: Vec::new(), skipped: Vec::new() };
+    let mut reading = bkcf_Lyam {
+        dangling: Vec::new(),
+        skipped: Vec::new(),
+    };
 
-    for file in tracked.iter().filter(|path| path.rsplit('/').next() == Some(ZBKCF_CLAUDE)) {
-        let body = std::fs::read_to_string(repository.join(file))
-            .map_err(|err| format!("could not read {} in {}: {}", file, repository.display(), err))?;
+    for file in tracked
+        .iter()
+        .filter(|path| path.rsplit('/').next() == Some(ZBKCF_CLAUDE))
+    {
+        let body = std::fs::read_to_string(repository.join(file)).map_err(|err| {
+            format!(
+                "could not read {} in {}: {}",
+                file,
+                repository.display(),
+                err, //
+            )
+        })?;
         let directory = file.rsplit_once('/').map(|(dir, _)| dir).unwrap_or("");
 
         let mut fenced = false;
@@ -296,7 +335,9 @@ pub fn bkcf_lyam(repository: &Path) -> Result<bkcf_Lyam, String> {
             if fenced {
                 continue;
             }
-            let Some(path) = zbkcf_include_of(line) else { continue };
+            let Some(path) = zbkcf_include_of(line) else {
+                continue;
+            };
             let include = bkcf_Include {
                 file: file.to_string(),
                 line: index + 1,
@@ -321,8 +362,13 @@ pub fn bkcf_lyam(repository: &Path) -> Result<bkcf_Lyam, String> {
 /// file is the single authoritative statement of what counts as source, and a
 /// reader that second-guessed it would be a second election.
 pub fn bkcf_election(path: &Path) -> Result<Vec<String>, String> {
-    let text = std::fs::read_to_string(path)
-        .map_err(|err| format!("could not read the election at {}: {}", path.display(), err))?;
+    let text = std::fs::read_to_string(path).map_err(|err| {
+        format!(
+            "could not read the election at {}: {}",
+            path.display(),
+            err, //
+        )
+    })?;
 
     let roots: Vec<String> = text
         .lines()
@@ -334,7 +380,7 @@ pub fn bkcf_election(path: &Path) -> Result<Vec<String>, String> {
     if roots.is_empty() {
         return Err(format!(
             "the election at {} names no root — an empty election would measure a position over nothing",
-            path.display()
+            path.display(), //
         ));
     }
 
@@ -363,7 +409,7 @@ pub fn bkcf_seat_position(repository: &Path, election: &[String]) -> Result<Stri
     if election.is_empty() {
         return Err(format!(
             "no election was given for {} — a position measured over nothing is not a position",
-            repository.display()
+            repository.display(), //
         ));
     }
 
@@ -379,25 +425,35 @@ pub fn bkcf_seat_position(repository: &Path, election: &[String]) -> Result<Stri
         .arg("--")
         .args(election)
         .output()
-        .map_err(|err| format!("could not run git in {}: {}", repository.display(), err))?;
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
 
     if !out.status.success() {
         let said = String::from_utf8_lossy(&out.stderr);
         return Err(format!(
             "could not walk the seat's line in {}: {}",
             repository.display(),
-            said.trim()
+            said.trim(), //
         ));
     }
 
-    let text = String::from_utf8(out.stdout)
-        .map_err(|err| format!("git log emitted no readable text: {}", err))?;
+    let text = String::from_utf8(out.stdout).map_err(|err| {
+        format!(
+            "git log emitted no readable text: {}",
+            err, //
+        )
+    })?;
 
     let sha = text.trim();
     if sha.is_empty() {
         return Err(format!(
             "no commit on this seat's line in {} touches any elected root",
-            repository.display()
+            repository.display(), //
         ));
     }
 

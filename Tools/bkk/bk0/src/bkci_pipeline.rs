@@ -42,7 +42,10 @@ use crate::bkcl_leash;
 use crate::bkcm_mush;
 use crate::bkcr_resolve::bkcr_Collar;
 use regex::Regex;
-use std::ffi::{OsStr, OsString};
+use std::ffi::{
+    OsStr,
+    OsString, //
+};
 use std::path::PathBuf;
 
 /// A listing invocation: what the leash is to spawn to make a runner name its
@@ -78,7 +81,11 @@ impl bkci_Narrowing {
     /// the runner's own summary carries the rest until the door that renders a
     /// bounded voice from a captured stream stands.
     pub fn bkci_verdict(&self) -> String {
-        format!("ran {} of {}", self.chosen.len(), self.held.len())
+        format!(
+            "ran {} of {}",
+            self.chosen.len(),
+            self.held.len(), //
+        )
     }
 }
 
@@ -130,7 +137,11 @@ pub fn bkci_listing(
                 .collect();
             rest.push(OsString::from(bkcl_leash::BKCL_SEPARATOR));
             rest.push(OsString::from(ZBKCI_HARNESS_LIST));
-            Ok(bkci_Listing { manifest: launch.manifest, verb: ZBKCI_VERB_TEST.to_string(), rest })
+            Ok(bkci_Listing {
+                manifest: launch.manifest,
+                verb: ZBKCI_VERB_TEST.to_string(),
+                rest,
+            })
         }
         bkcm_mush::BKCM_RUNNER_NEXTEST => {
             // Nextest lists under a subcommand of its own rather than under a
@@ -155,14 +166,20 @@ pub fn bkci_listing(
                     .rest
                     .iter()
                     .skip(1)
-                    .filter(|argument| **argument != no_tests_flag && **argument != no_fail_fast_flag)
+                    .filter(|argument| {
+                        **argument != no_tests_flag && **argument != no_fail_fast_flag
+                    })
                     .cloned(),
             );
-            Ok(bkci_Listing { manifest: launch.manifest, verb: ZBKCI_VERB_NEXTEST.to_string(), rest })
+            Ok(bkci_Listing {
+                manifest: launch.manifest,
+                verb: ZBKCI_VERB_NEXTEST.to_string(),
+                rest,
+            })
         }
         other => Err(format!(
             "the collar declares the runner '{}', which is no runner the kennel spawns",
-            other
+            other, //
         )),
     }
 }
@@ -175,7 +192,7 @@ pub fn bkci_listing(
 /// a parse over the output of a refused invocation would report an empty suite.
 pub fn bkci_recite(
     repository: &std::path::Path,
-    weaned: &std::path::Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_Collar,
     listing: &bkci_Listing,
 ) -> Result<Vec<String>, String> {
@@ -189,11 +206,14 @@ pub fn bkci_recite(
 
     let recall = bkcl_leash::bkcl_recall(
         repository,
-        weaned,
+        dispatch,
         &listing.manifest,
         &listing.verb,
         &listing.rest,
-        &[(crate::bkch_heel::BKCH_COLLAR_POSITION_VAR, OsStr::new(seat.as_str()))],
+        &[(
+            crate::bkch_heel::BKCH_COLLAR_POSITION_VAR,
+            OsStr::new(seat.as_str()),
+        )],
     )?;
 
     if !recall.run.bkcl_landed() {
@@ -206,7 +226,7 @@ pub fn bkci_recite(
                 Some(code) => code.to_string(),
                 None => "on a signal".to_string(),
             },
-            recall.grievance.trim()
+            recall.grievance.trim(), //
         ));
     }
 
@@ -217,7 +237,7 @@ pub fn bkci_recite(
         bkcm_mush::BKCM_RUNNER_NEXTEST => bkci_nextest_listing(&said),
         other => Err(format!(
             "the collar declares the runner '{}', which is no runner the kennel spawns",
-            other
+            other, //
         )),
     }
 }
@@ -249,8 +269,12 @@ pub fn bkci_recite(
 /// membrane turns into a guess, and a hurdle silently dropped from a listing is
 /// a hurdle silently dropped from every narrowing taken against it.
 pub fn bkci_harness_listing(said: &str) -> Result<Vec<String>, String> {
-    let tally = Regex::new(r"^\d+ tests?, \d+ benchmarks?$")
-        .map_err(|err| format!("the harness per-binary count line does not compile: {}", err))?;
+    let tally = Regex::new(r"^\d+ tests?, \d+ benchmarks?$").map_err(|err| {
+        format!(
+            "the harness per-binary count line does not compile: {}",
+            err, //
+        )
+    })?;
 
     let mut named = Vec::new();
 
@@ -278,7 +302,9 @@ pub fn bkci_harness_listing(said: &str) -> Result<Vec<String>, String> {
              shapes it holds are a name suffixed '{}', a name suffixed '{}', and a per-binary \
              tally. Refused rather than skipped: a listing line the kennel cannot read is a \
              hurdle it would silently drop from every narrowing taken against it",
-            trimmed, ZBKCI_HARNESS_TEST_SUFFIX, ZBKCI_HARNESS_BENCH_SUFFIX
+            trimmed,
+            ZBKCI_HARNESS_TEST_SUFFIX,
+            ZBKCI_HARNESS_BENCH_SUFFIX, //
         ));
     }
 
@@ -291,7 +317,7 @@ pub fn bkci_harness_listing(said: &str) -> Result<Vec<String>, String> {
 ///
 /// ```text
 /// vof vofc_registry::tests::vofc_a_known_prefix_finds_its_cipher
-/// vof vofe_emplace::tests::vofe_is_hook_file
+/// vof bpee_emplace::tests::bpee_is_hook_file
 /// ```
 ///
 /// One shape: a binary id, one space, the hurdle's name. NO TALLY AND NO
@@ -302,8 +328,12 @@ pub fn bkci_harness_listing(said: &str) -> Result<Vec<String>, String> {
 /// it; carrying it would put a word into the selection that the runner's own
 /// exact form does not take.
 pub fn bkci_nextest_listing(said: &str) -> Result<Vec<String>, String> {
-    let named_line = Regex::new(r"^(?P<binary>\S+) (?P<hurdle>\S+)$")
-        .map_err(|err| format!("the nextest listing shape does not compile: {}", err))?;
+    let named_line = Regex::new(r"^(?P<binary>\S+) (?P<hurdle>\S+)$").map_err(|err| {
+        format!(
+            "the nextest listing shape does not compile: {}",
+            err, //
+        )
+    })?;
 
     let mut named = Vec::new();
 
@@ -320,7 +350,7 @@ pub fn bkci_nextest_listing(said: &str) -> Result<Vec<String>, String> {
                  holds is a binary id, one space, and the hurdle's name. Refused rather than \
                  skipped: a listing line the kennel cannot read is a hurdle it would silently drop \
                  from every narrowing taken against it",
-                trimmed
+                trimmed, //
             ));
         };
 
@@ -374,8 +404,13 @@ pub fn bkci_nextest_listing(said: &str) -> Result<Vec<String>, String> {
 /// a machine-readable listing without provisioning a plugin. The captured log
 /// stands at `hist-bkmw-k-sh-20260910-145316-1350227-453.txt`.
 pub fn bkci_pytest_listing(said: &str) -> Result<Vec<String>, String> {
-    let tally = Regex::new(r"^(?:\d+ tests?|no tests) collected(?: in [\d.]+s)?$")
-        .map_err(|err| format!("the pytest collection count line does not compile: {}", err))?;
+    let tally =
+        Regex::new(r"^(?:\d+ tests?|no tests) collected(?: in [\d.]+s)?$").map_err(|err| {
+            format!(
+                "the pytest collection count line does not compile: {}",
+                err, //
+            )
+        })?;
 
     let mut named = Vec::new();
 
@@ -400,7 +435,7 @@ pub fn bkci_pytest_listing(said: &str) -> Result<Vec<String>, String> {
              holds are a bare node id on its own line and one closing collection tally. Refused \
              rather than skipped: a listing line the kennel cannot read is a hurdle it would \
              silently drop from every narrowing taken against it",
-            trimmed
+            trimmed, //
         ));
     }
 
@@ -427,7 +462,8 @@ pub fn bkci_choose(held: &[String], patterns: &[String]) -> Result<bkci_Narrowin
                 "the selection pattern {:?} is not a rust regular expression: {}. The dialect is \
                  taken as is and no subset of it is invented here, so a pattern that does not \
                  compile is refused rather than read as a literal",
-                pattern, err
+                pattern,
+                err, //
             )
         })?;
         compiled.push(one);
@@ -439,7 +475,10 @@ pub fn bkci_choose(held: &[String], patterns: &[String]) -> Result<bkci_Narrowin
         .cloned()
         .collect();
 
-    Ok(bkci_Narrowing { held: held.to_vec(), chosen })
+    Ok(bkci_Narrowing {
+        held: held.to_vec(),
+        chosen,
+    })
 }
 
 /// Spell the chosen hurdles as the runner's own EXACT selection.
@@ -462,10 +501,18 @@ pub fn bkci_selection(runner: &str, chosen: &[String]) -> Result<Vec<OsString>, 
         bkcm_mush::BKCM_RUNNER_NEXTEST => {
             let filterset = chosen
                 .iter()
-                .map(|hurdle| format!("test(={})", hurdle))
+                .map(|hurdle| {
+                    format!(
+                        "test(={})",
+                        hurdle, //
+                    )
+                })
                 .collect::<Vec<String>>()
                 .join(" + ");
-            Ok(vec![OsString::from(ZBKCI_NEXTEST_FILTERSET), OsString::from(filterset)])
+            Ok(vec![
+                OsString::from(ZBKCI_NEXTEST_FILTERSET),
+                OsString::from(filterset),
+            ])
         }
         // PYTEST TAKES ITS SELECTION POSITIONALLY AND IS EXACT BY CONSTRUCTION.
         // A node id names one case outright, so there is no exactness flag to
@@ -477,12 +524,10 @@ pub fn bkci_selection(runner: &str, chosen: &[String]) -> Result<Vec<OsString>, 
         // it lists and relative to the INVOCATION DIRECTORY when it runs. The
         // leash states the working directory for exactly this reason
         // (`bkcl_leash::bkcl_uv`), so the two renderings are one.
-        crate::bkcx_python::BKCX_RUNNER_PYTEST => {
-            Ok(chosen.iter().map(OsString::from).collect())
-        }
+        crate::bkcx_python::BKCX_RUNNER_PYTEST => Ok(chosen.iter().map(OsString::from).collect()),
         other => Err(format!(
             "the collar declares the runner '{}', which is no runner the kennel spawns",
-            other
+            other, //
         )),
     }
 }

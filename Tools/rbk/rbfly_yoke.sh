@@ -23,6 +23,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Yoke (rbfly_*)
 
@@ -45,7 +50,7 @@ rbfly_yoke() {
   local z_stamp_status=0
   z_stamp=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") || z_stamp_status=$?
   test "${z_stamp_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before yoke"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No reliquary touchmark — pass one (param1) or run a reliquary conclave immediately before yoke"
 
   # Assert the touchmark is a reliquary kind up front by decoding its kind-letter
   # prefix. yoke validates existence against GAR below but never asserted KIND, so
@@ -56,9 +61,9 @@ rbfly_yoke() {
   local z_kind_status=0
   z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_stamp}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' has no recognizable Lode kind prefix"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "Touchmark '${z_stamp}' has no recognizable Lode kind prefix"
   test "${z_kind}" = "${RBGC_LODE_KIND_RELIQUARY}" \
-    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_stamp}' is kind '${z_kind}', not a reliquary — yoke requires a reliquary Lode (run a reliquary conclave)"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "Touchmark '${z_stamp}' is kind '${z_kind}', not a reliquary — yoke requires a reliquary Lode (run a reliquary conclave)"
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""

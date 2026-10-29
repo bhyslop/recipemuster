@@ -61,9 +61,6 @@ zrbro_furnish() {
   buc_doc_env_done || return 0
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
@@ -72,8 +69,6 @@ zrbro_furnish() {
   source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
   source "${z_rbk_kit_dir}/rbro_regime.sh" || buc_die_now "Failed to source rbro_regime.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zburd_enforce
   zrbcc_kindle
 

@@ -29,8 +29,8 @@
 # does and how it takes its folio, which is the receiver's menu of doors it may
 # yet stand through the create doors.
 #
-# WHAT IS JUDGED. A door is a tabtarget that exports BURD_LAUNCHER naming a
-# launcher and execs a trampoline beside it; a file doing only one of the two is
+# WHAT IS JUDGED. A door is a tabtarget whose configuration line names a
+# launcher as its first word and which execs a trampoline beside it; a file doing only one of the two is
 # a script of the repository's own and is not read. A door is judged only where
 # its launcher's workbench stands in a kit BURC_MANAGED_KITS declares — a door
 # over a workbench the repository wrote for itself is its own business. A kit
@@ -43,9 +43,11 @@
 # not a zipper and is skipped. Nothing here names a kit.
 #
 # KITS BEYOND THE DECLARATION. BUUR_ALSO_KITS, where set, names further kits
-# (comma-separated, as BURC_MANAGED_KITS is) judged exactly as declared ones. It
-# is for a source tree whose own proof reaches a kit no parcel carries, and so
-# no declaration names; a receiver never needs it.
+# (comma-separated, as BURC_MANAGED_KITS is) judged exactly as declared ones.
+# The declaration names only the kits a repository receives by parcel, so a
+# forge's own kits stand outside it: the forge's source-tree proof fills this
+# door with them, and a receiver never needs it. A declaration naming no kit
+# and an unset door judge no door at all.
 
 set -euo pipefail
 
@@ -81,11 +83,11 @@ zbuur_enrolled_predicate() {
 
 # zbuur_door_launcher_capture() - The launcher a door names, or exit 1
 # Args: tabtarget path
-# A door exports BURD_LAUNCHER as a bare launcher basename and execs a sibling
-# trampoline; a file lacking either line is no door.
+# A door's configuration line names a bare launcher basename as its first word,
+# and the door execs a sibling trampoline; a file lacking either line is no door.
 zbuur_door_launcher_capture() {
   local -r z_file="${1:-}"
-  local -r z_launcher_re='^export BURD_LAUNCHER=(launcher\.[A-Za-z0-9_]+\.sh)$'
+  local -r z_launcher_re="^set -- '(launcher\\.[A-Za-z0-9_]+\\.sh)[ ']"
   local -r z_exec_re='^exec "\$\{BASH_SOURCE\[0\]%/\*\}/z-[A-Za-z0-9_]+\.sh"'
 
   local z_lines=()
@@ -151,7 +153,7 @@ buur_roll_call() {
   local -r z_delim="${BURC_TABTARGET_DELIMITER}"
   local -r z_launcher_dir="${BURD_CONFIG_DIR}/${BUBC_launchers_subdir}"
 
-  local z_kits_shown="${z_buur_kit_roll[*]}"
+  local z_kits_shown="${z_buur_kit_roll[*]:-}"
   buc_step "Roll call: ${#z_buur_zipper_roll[@]} zipper(s) of the kits ${z_kits_shown// /,} against ${z_tt_dir}/"
   local z_z=""
   for z_z in "${!z_buur_zipper_roll[@]}"; do
@@ -241,22 +243,10 @@ zbuur_furnish() {
   buc_doc_env_row "BUUR_ALSO_KITS        " "Optional: further kits judged as if declared (comma-separated)"
   buc_doc_env_done || return 0
 
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
 
-  zbuv_kindle
-  zburd_kindle
-
-  # Load BURC configuration (BURD_REGIME_FILE is the dispatch-resolved burc.env path)
-  local z_burc_file="${BURD_REGIME_FILE}"
-  buv_file_exists "${z_burc_file}"
-  source "${z_burc_file}" || buc_die_now "Failed to source BURC file"
-  test -n "${BURC_MANAGED_KITS:-}" || buc_die_now "BURC_MANAGED_KITS names no kit in ${z_burc_file}"
-
   z_buur_kit_roll=()
-  IFS=',' read -r -a z_buur_kit_roll <<< "${BURC_MANAGED_KITS}" \
+  IFS=',' read -r -a z_buur_kit_roll <<< "${BURC_MANAGED_KITS:-}" \
     || buc_die_now "Failed to read the kit list: ${BURC_MANAGED_KITS}"
   if test -n "${BUUR_ALSO_KITS:-}"; then
     local z_also=()

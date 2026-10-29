@@ -88,7 +88,14 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // kennel would ship that collar pointing at what the recipient does not
     // have, which is the dangling reference the launcher rule below refuses for
     // the same reason.
+    //
+    // BPK arrived with number 1089, the parcel kit carrying the install engine
+    // and the templates this tree's trampoline and launcher stubs are written
+    // from, and is ruled on the same argument: the delivered burc.env names it
+    // among the managed kits, so withholding it would ship a settings file
+    // declaring a kit directory the recipient does not have.
     ("Tools/bkk/", Ship),
+    ("Tools/bpk/", Ship),
     ("Tools/buk/", Ship),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
@@ -157,9 +164,10 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     (".claude/", Withhold),
     (".idea/", Withhold),
     ("_slickedit/", Withhold),
-    // The brand seat: this tree's identity to the operator's closed commit
-    // machinery. A consumer holds no brand and reads none.
-    (".vvk/", Withhold),
+    // The tamga record: which parcel this tree last installed, and from which
+    // forge commit. A consumer holds no record of the operator's parcels and
+    // reads none.
+    (".vvm/", Withhold),
     // The delivered face.
     ("README.md", Ship),
     ("CLAUDE.md", Ship),
@@ -173,7 +181,7 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // happened to default to, which is the gap the file was written to close.
     ("rust-toolchain.toml", Ship),
     // The muzzle at the root, on the pin's own argument. A collar names the
-    // directory whose lint governance it wears, and the delivered bun_suite
+    // directory whose lint governance it wears, and the delivered butun_suite
     // collar names `.` — so a consumer linting what ships needs this file in
     // hand, exactly as they need the channel above. A muzzle directory holding
     // no lint list is refused as a muzzle nothing wears; the list is this

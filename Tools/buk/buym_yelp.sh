@@ -32,7 +32,7 @@
 #   buym_   — every public declaration here.  The module is one file, so one
 #             prefix homes all of it and the groups below are section
 #             boundaries rather than sibling prefixes.
-#   zbuym_  — internal (kindle, palette, sentinel, the tabtarget glob).
+#   zbuym_  — internal (kindle, palette, sentinel, the tabtarget globs).
 #   BUYC_   — the color palette, named for color and not for the
 #             configurators that select it.
 #
@@ -40,6 +40,7 @@
 #   configurators (set ZBUYM_CONFIG_MODE, then re-resolve the palette)
 #   yelp yawps    (set z_buym_yelp)
 #   format yawps  (set z_buym_format)
+#   tabtarget paths (set z_buym_tt_path, z_buym_stand_tt_path)
 #
 # Usage pattern — yawp+capture on one line via semicolon:
 #   buym_cmd_yawp "git status";            local -r z_cmd="${z_buym_yelp}"
@@ -141,7 +142,7 @@ zbuym_palette() {
   # Mutable module state, not a kindle constant: the palette re-resolves, so
   # this moves with the mode like the BUYC_* it stands beside.
   local z_hyperlinks=0
-  if test "${z_use_color}" = "1" && test -z "${BURD_NO_HYPERLINKS:-}"; then
+  if test "${z_use_color}" = "1" && test "${BURD_HYPERLINKS:-1}" != "0"; then
     z_hyperlinks=1
   fi
   z_buym_use_hyperlinks="${z_hyperlinks}"
@@ -183,6 +184,14 @@ zbuym_kindle() {
   z_buym_yelp=""
   z_buym_format=""
   z_buym_tt_path=""
+  z_buym_stand_tt_path=""
+
+  # --- The launch stand's fixed dirname beneath a target infield ---
+  # The yard's cadaster member the cosmology composes for the engine's horreum
+  # (`jjdw_horreum`), which the estate's stand-clone step clones a target's
+  # stand into. Bash face of the engine's JJRDS_EQUERRY_HORREUM_DIRNAME, as the
+  # forge's build seats it under ZVOB_SEAT_DIRNAME; this kit sources neither.
+  readonly ZBUYM_STAND_DIRNAME="jjqy_equerry"
 
   zbuym_palette
 
@@ -242,6 +251,36 @@ buym_tt_path() {
   z_buym_tt_path=""
   if test -e "${z_matches[0]}"; then
     z_buym_tt_path="${z_matches[0]}"
+  fi
+}
+
+# buym_stand_tt_path infield colophon [imprint];  matched path -> z_buym_stand_tt_path (empty on no match)
+# The same glob as buym_tt_path, run in the launch stand standing in the named
+# target infield rather than in this tree: the stand's doors lie beneath it
+# under this tree's own tabtarget directory, which is where the forge's build
+# lays them.  Callers own the no-match policy by inspecting the empty result.
+buym_stand_tt_path() {
+  zbuym_sentinel
+  buc_doc_brief "Compose the path of a door in the launch stand of a target infield"
+  buc_doc_param "infield" "The target infield the stand stands in"
+  buc_doc_param "colophon" "The door's colophon"
+  buc_doc_oparm "imprint" "The door's imprint"
+  buc_doc_shown || return 0
+
+  local -r z_infield="${1:-}"
+  local -r z_colophon="${2:-}"
+  local -r z_imprint="${3:-}"
+  test -n "${z_infield}" || buc_die_now "buym_stand_tt_path: a target infield is required"
+  local -r z_dir="${z_infield}/${ZBUYM_STAND_DIRNAME}/${BURD_TABTARGET_DIR}"
+  local z_matches=()
+  if test -n "${z_imprint}"; then
+    z_matches=("${z_dir}/${z_colophon}."*".${z_imprint}.sh")
+  else
+    z_matches=("${z_dir}/${z_colophon}."*)
+  fi
+  z_buym_stand_tt_path=""
+  if test -e "${z_matches[0]}"; then
+    z_buym_stand_tt_path="${z_matches[0]}"
   fi
 }
 
@@ -320,10 +359,12 @@ buym_format_yawp() {
     local z_href_replacement=""
     if test "${z_buym_use_hyperlinks}" = "1"; then
       z_href_replacement="${BUYC_HREF}${ZBUYM_ESC}]8;;${z_href_url}${ZBUYM_ESC}\\${z_href_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
-    elif test -n "${BUYC_HREF}"; then
-      z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient} <${z_href_url}>"
     else
-      z_href_replacement="${z_href_text}"
+      # No escape rendered: the URL stays on screen beside the text, unless the
+      # text is the URL already.
+      local z_href_tail=""
+      test "${z_href_text}" = "${z_href_url}" || z_href_tail=" <${z_href_url}>"
+      z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient}${z_href_tail}"
     fi
     z_str="${z_str%%"${z_href_full}"*}${z_href_replacement}${z_str#*"${z_href_full}"}"
   done
@@ -337,10 +378,12 @@ buym_format_yawp() {
     local z_link_replacement=""
     if test "${z_buym_use_hyperlinks}" = "1"; then
       z_link_replacement="${BUYC_LINK}${ZBUYM_ESC}]8;;${z_link_url}${ZBUYM_ESC}\\${z_link_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
-    elif test -n "${BUYC_LINK}"; then
-      z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient} <${z_link_url}>"
     else
-      z_link_replacement="${z_link_text}"
+      # No escape rendered: the URL stays on screen beside the text, unless the
+      # text is the URL already.
+      local z_link_tail=""
+      test "${z_link_text}" = "${z_link_url}" || z_link_tail=" <${z_link_url}>"
+      z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient}${z_link_tail}"
     fi
     z_str="${z_str%%"${z_link_full}"*}${z_link_replacement}${z_str#*"${z_link_full}"}"
   done

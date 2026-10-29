@@ -20,7 +20,10 @@
 //! null against absent, escapes, strictness — are provable without spending a
 //! cargo invocation apiece.
 
-use super::bkcj_json::{bkcj_read, bkcj_Value};
+use super::bkcj_json::{
+    bkcj_Value,
+    bkcj_read, //
+};
 
 /// The shape the closure reading actually walks, read back field by field.
 #[test]
@@ -34,7 +37,10 @@ fn bktj_a_cargo_shaped_answer_reads_back() {
     )
     .expect("cargo's own shape is readable");
 
-    assert_eq!(answer.bkcj_field("version").unwrap().bkcj_number(), Some(1.0));
+    assert_eq!(
+        answer.bkcj_field("version").unwrap().bkcj_number(),
+        Some(1.0)
+    );
 
     let packages = answer.bkcj_field("packages").unwrap().bkcj_array().unwrap();
     assert_eq!(packages.len(), 2);
@@ -42,14 +48,18 @@ fn bktj_a_cargo_shaped_answer_reads_back() {
     let local = &packages[0];
     assert!(
         local.bkcj_field("source").unwrap().bkcj_null(),
-        "a package cargo reports with no source is one standing in a tree of ours"
+        "a package cargo reports with no source is one standing in a tree of ours", //
     );
     assert_eq!(
         local.bkcj_field("manifest_path").unwrap().bkcj_string(),
         Some("/x/Tools/bkk/bk0/Cargo.toml")
     );
     assert_eq!(
-        local.bkcj_field("dependencies").unwrap().bkcj_array().unwrap()[0]
+        local
+            .bkcj_field("dependencies")
+            .unwrap()
+            .bkcj_array()
+            .unwrap()[0]
             .bkcj_field("name")
             .unwrap()
             .bkcj_string(),
@@ -58,7 +68,7 @@ fn bktj_a_cargo_shaped_answer_reads_back() {
 
     assert!(
         !packages[1].bkcj_field("source").unwrap().bkcj_null(),
-        "a registry package states its origin"
+        "a registry package states its origin", //
     );
 }
 
@@ -90,7 +100,10 @@ fn bktj_escapes_resolve() {
 #[test]
 fn bktj_raw_multibyte_text_survives() {
     let answer = bkcj_read("{\"k\":\"caño/日本\"}").expect("readable");
-    assert_eq!(answer.bkcj_field("k").unwrap().bkcj_string(), Some("caño/日本"));
+    assert_eq!(
+        answer.bkcj_field("k").unwrap().bkcj_string(),
+        Some("caño/日本")
+    );
 }
 
 /// Nesting and emptiness, both directions.
@@ -98,8 +111,14 @@ fn bktj_raw_multibyte_text_survives() {
 fn bktj_containers_nest_and_stand_empty() {
     let answer = bkcj_read(r#"{"a":[],"b":{},"c":[[1,2],{"d":true},false]}"#).expect("readable");
 
-    assert_eq!(answer.bkcj_field("a").unwrap().bkcj_array().unwrap().len(), 0);
-    assert_eq!(answer.bkcj_field("b").unwrap(), &bkcj_Value::Object(Vec::new()));
+    assert_eq!(
+        answer.bkcj_field("a").unwrap().bkcj_array().unwrap().len(),
+        0
+    );
+    assert_eq!(
+        answer.bkcj_field("b").unwrap(),
+        &bkcj_Value::Object(Vec::new())
+    );
 
     let held = answer.bkcj_field("c").unwrap().bkcj_array().unwrap();
     assert_eq!(held[0].bkcj_array().unwrap()[1].bkcj_number(), Some(2.0));
@@ -143,12 +162,15 @@ fn bktj_the_generous_shapes_refuse() {
     ];
 
     for (what, text) in refused {
-        let refusal = bkcj_read(text).expect_err(&format!("{} must refuse", what));
+        let refusal = bkcj_read(text).expect_err(&format!(
+            "{} must refuse",
+            what, //
+        ));
         assert!(
             refusal.contains("byte"),
             "the refusal for {} must name where the reading stopped, and it reads: {}",
             what,
-            refusal
+            refusal, //
         );
     }
 }
@@ -165,9 +187,17 @@ fn bktj_a_duplicate_key_answers_with_the_last() {
 /// meets a report instead of a crash nobody can report on.
 #[test]
 fn bktj_runaway_nesting_refuses() {
-    let deep = format!("{}{}", "[".repeat(500), "]".repeat(500));
+    let deep = format!(
+        "{}{}",
+        "[".repeat(500),
+        "]".repeat(500), //
+    );
     let refusal = bkcj_read(&deep).expect_err("nesting past the cap must refuse");
-    assert!(refusal.contains("nests deeper"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("nests deeper"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 // eof

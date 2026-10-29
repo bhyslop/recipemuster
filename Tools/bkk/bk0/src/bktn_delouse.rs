@@ -31,9 +31,16 @@
 use std::path::Path;
 
 use super::bkcc_record::bkcc_looseboxed;
-use super::bkcn_delouse::{bkcn_read, bkcn_write, BKCN_DAY_FILE};
+use super::bkcn_delouse::{
+    bkcn_read,
+    bkcn_write,
+    BKCN_DAY_FILE, //
+};
+use super::bkg_breviary::{
+    bkg_bus_loosebox_base,
+    BKG_BUS_LOOSEBOX_BASE, //
+};
 use super::bktu_lure::bktu_Lure;
-use super::bkg_breviary::{bkg_bus_loosebox_base, BKG_BUS_LOOSEBOX_BASE};
 
 /// A seat of this hurdle's own to keep a record in.
 ///
@@ -97,7 +104,7 @@ fn bktn_a_record_spelling_no_day_reads_none() {
             bkcn_read(&seat),
             None,
             "'{}' spells no day and must read as no record",
-            held
+            held, //
         );
     }
 }
@@ -128,7 +135,7 @@ fn bktn_the_record_stands_outside_the_repository() {
         !seat.join(BKCN_DAY_FILE).starts_with(lure.bktu_root()),
         "the day stands at {}, which is inside the lure at {}",
         seat.join(BKCN_DAY_FILE).display(),
-        lure.bktu_root().display()
+        lure.bktu_root().display(), //
     );
 }
 
@@ -140,7 +147,10 @@ fn bktn_two_seats_keep_two_records() {
     let (_mine_lure, mine) = zbktn_seat("delouse-mine");
     let (_yours_lure, yours) = zbktn_seat("delouse-yours");
 
-    assert_ne!(mine, yours, "two lures should compose two seats");
+    assert_ne!(
+        mine, yours,
+        "two lures should compose two seats", //
+    );
 
     bkcn_write(&mine, "20260906").expect("the seat should take a record");
 
@@ -158,7 +168,7 @@ fn bktn_a_seat_that_does_not_stand_refuses_the_record() {
 
     assert!(
         bkcn_write(Path::new(&seat), "20260906").is_err(),
-        "a record written where nothing stands should refuse"
+        "a record written where nothing stands should refuse", //
     );
 }
 
@@ -179,12 +189,11 @@ fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
         " it poses", //
     ));
 
-    let answered = bkcc_looseboxed(&loosebox.display().to_string())
-        .expect(concat!(
-            "a ",
-            bkg_bus_loosebox_base!(),
-            " that stands is answered", //
-        ));
+    let answered = bkcc_looseboxed(&loosebox.display().to_string()).expect(concat!(
+        "a ",
+        bkg_bus_loosebox_base!(),
+        " that stands is answered", //
+    ));
 
     assert_eq!(
         answered,
@@ -204,7 +213,7 @@ fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
         bkcn_read(&seat),
         None,
         "nothing was written to {}, the directory the reading this replaces would have climbed to",
-        seat.display()
+        seat.display(), //
     );
 }
 

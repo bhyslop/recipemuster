@@ -23,19 +23,35 @@
 //! readings that go and get those facts are driven over a lure.
 
 use super::bkce_election::{
-    bkce_carried, bkce_concord, bkce_elect, bkce_residence, bkce_seat, bkce_weigh,
-    BKCE_ELECTED_BORROW, BKCE_ELECTED_OWN, BKCE_ELECTED_PINNED, BKCE_EXERGUE_FLAG,
-    BKCE_SEAT_FAR, BKCE_SPEND_WRITER,
+    bkce_Geography,
+    bkce_geography,
+    BKCE_GEOGRAPHY_DISPATCHED,
+    BKCE_GEOGRAPHY_SELF, //
 };
 use super::bkce_election::{
-    bkce_geography, bkce_Geography, BKCE_GEOGRAPHY_DISPATCHED, BKCE_GEOGRAPHY_SELF,
+    bkce_carried,
+    bkce_concord,
+    bkce_elect,
+    bkce_residence,
+    bkce_seat,
+    bkce_weigh,
+    BKCE_ELECTED_BORROW,
+    BKCE_ELECTED_OWN,
+    BKCE_ELECTED_PINNED,
+    BKCE_EXERGUE_FLAG,
+    BKCE_SEAT_FAR,
+    BKCE_SPEND_WRITER, //
 };
 use super::bkch_heel::BKCH_COLLAR_POSITION_VAR;
 use super::bkcr_resolve::bkcr_Collar;
+use super::bktd_preflight::bktd_strike_at;
 use super::bktu_lure::bktu_Lure;
 use bkp::bkprc_catena::bkprc_admit;
 use bkp::bkprs_scrivener::bkprs_program_write;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 /// The spend class that does not pin. Spelled here because every arm below needs
 /// a class to contrast the writer against.
@@ -71,14 +87,14 @@ fn bkte_a_writer_is_pinned_whatever_the_position_says() {
     assert_eq!(
         bkce_weigh(BKCE_SPEND_WRITER, false, None),
         (BKCE_ELECTED_PINNED, true),
-        "a writer never enters the tree question"
+        "a writer never enters the tree question", //
     );
 
     assert_eq!(
         bkce_weigh(ZBKTE_READER, false, None),
         (BKCE_ELECTED_OWN, false),
         "the control: the same fact under a reader elects the seat's own build, so the pin above \
-         is the spend class and not a constant"
+         is the spend class and not a constant", //
     );
 }
 
@@ -96,13 +112,13 @@ fn bkte_the_tree_decides_and_the_spend_class_gates() {
     assert_eq!(
         bkce_weigh(ZBKTE_READER, true, None),
         (BKCE_ELECTED_BORROW, true),
-        "an identical tree makes an identical binary"
+        "an identical tree makes an identical binary", //
     );
 
     assert_eq!(
         bkce_weigh(ZBKTE_READER, false, None),
         (BKCE_ELECTED_OWN, false),
-        "a tree that differs is a binary this seat did not make"
+        "a tree that differs is a binary this seat did not make", //
     );
 }
 
@@ -121,19 +137,33 @@ fn bkte_a_binary_that_states_no_position_stands_in_no_concord() {
     lure.bktu_commit("plant an elected root");
 
     let mute = bkce_concord(lure.bktu_root(), None, BKCE_SEAT_FAR, "src");
-    assert!(!mute.identical, "a binary that states no position is not borrowable");
     assert!(
-        mute.plaint.contains("would not say what it was struck from"),
-        "the plaint names the case: {}",
+        !mute.identical,
+        "a binary that states no position is not borrowable", //
+    );
+    assert!(
         mute.plaint
+            .contains("would not say what it was struck from"),
+        "the plaint names the case: {}",
+        mute.plaint, //
     );
 
-    let unresolvable = bkce_concord(lure.bktu_root(), Some(ZBKTE_ELSEWHERE), BKCE_SEAT_FAR, "src");
-    assert!(!unresolvable.identical, "a position this tree cannot look up is no comparison");
+    let unresolvable = bkce_concord(
+        lure.bktu_root(),
+        Some(ZBKTE_ELSEWHERE),
+        BKCE_SEAT_FAR,
+        "src",
+    );
     assert!(
-        unresolvable.plaint.contains("names no commit in this repository"),
+        !unresolvable.identical,
+        "a position this tree cannot look up is no comparison", //
+    );
+    assert!(
+        unresolvable
+            .plaint
+            .contains("names no commit in this repository"),
         "the plaint parts an unresolvable stamp from an absent one: {}",
-        unresolvable.plaint
+        unresolvable.plaint, //
     );
 
     let standing = zbkte_head(&lure);
@@ -141,7 +171,7 @@ fn bkte_a_binary_that_states_no_position_stands_in_no_concord() {
     assert!(
         control.identical && control.plaint.is_empty(),
         "the control: the same lure stands in concord with its own HEAD, so the refusals above \
-         are the cases and not the reading being unable to answer at all"
+         are the cases and not the reading being unable to answer at all", //
     );
 }
 
@@ -162,21 +192,25 @@ fn bkte_the_walk_is_read_from_the_standing_binary() {
     assert_eq!(
         bkce_carried(&speaking),
         carried,
-        "the binary's own answer, one position per line, the stamp first"
+        "the binary's own answer, one position per line, the stamp first", //
     );
 
-    let mute = zbkte_plant(&lure, "mute", "bkx 0.0.1 — a banner, and no position at all");
+    let mute = zbkte_plant(
+        &lure,
+        "mute",
+        "bkx 0.0.1 — a banner, and no position at all",
+    );
     assert!(
         bkce_carried(&mute).is_empty(),
         "a line that is not position-shaped is no position, and an election handed one would \
-         compare against a banner"
+         compare against a banner", //
     );
 
     let absent = lure.bktu_root().join("nothing-stands-here");
     assert!(
         bkce_carried(&absent).is_empty(),
         "a residence holding no binary states no position, which is the same answer by the same \
-         reasoning"
+         reasoning", //
     );
 }
 
@@ -206,7 +240,7 @@ fn bkte_the_seat_position_moves_only_for_an_elected_root() {
     assert_eq!(
         first, after_unelected,
         "a commit outside the election leaves the position where it stood — otherwise every \
-         commit anywhere in the repository would stale an artifact it did not touch"
+         commit anywhere in the repository would stale an artifact it did not touch", //
     );
 
     lure.bktu_write("src/two.rs", "// elected, and newer\n");
@@ -216,7 +250,7 @@ fn bkte_the_seat_position_moves_only_for_an_elected_root() {
     assert_ne!(
         first, after_elected,
         "the control: a commit the election DOES name moves the position, so the reading above is \
-         the election at work rather than a position that never moves"
+         the election at work rather than a position that never moves", //
     );
 }
 
@@ -229,11 +263,11 @@ fn bkte_an_empty_election_refuses_rather_than_answering() {
 
     assert!(
         bkce_seat(lure.bktu_root(), "   ").is_err(),
-        "an election naming no root is refused, never measured"
+        "an election naming no root is refused, never measured", //
     );
     assert!(
         bkce_seat(lure.bktu_root(), "rust-toolchain.toml").is_ok(),
-        "the control: the same lure answers over a root it does carry"
+        "the control: the same lure answers over a root it does carry", //
     );
 }
 
@@ -253,7 +287,14 @@ fn bkte_an_empty_election_refuses_rather_than_answering() {
 /// plant. The lure's program writer leaves no such handle anywhere
 /// (`bktu_lure.rs` "A PROGRAM IS WRITTEN BY A CHILD").
 fn zbkte_plant(lure: &bktu_Lure, name: &str, answer: &str) -> std::path::PathBuf {
-    bkte_plant_at(lure, &format!("residence/{}", name), answer)
+    bkte_plant_at(
+        lure,
+        &format!(
+            "residence/{}",
+            name, //
+        ),
+        answer,
+    )
 }
 
 /// Plant the same answerer at a path the caller spells whole.
@@ -268,10 +309,16 @@ pub(crate) fn bkte_plant_at(lure: &bktu_Lure, relative: &str, answer: &str) -> s
         &planted,
         format!(
             "#!/bin/sh\ntest \"$1\" = \"{}\" || exit 64\ncat <<'ANSWER'\n{}\nANSWER\n",
-            BKCE_EXERGUE_FLAG, answer
+            BKCE_EXERGUE_FLAG,
+            answer, //
         ),
     )
-    .unwrap_or_else(|err| panic!("{}", err));
+    .unwrap_or_else(|err| {
+        panic!(
+            "{}",
+            err, //
+        )
+    });
 
     planted
 }
@@ -307,7 +354,8 @@ fn bkte_the_residence_joins_the_byname_rather_than_the_target() {
     let collar = bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bkprc_admit(ZBKTE_RENAMED, "composed").expect("the collar stands inside the subset"),
+        regime: bkprc_admit(ZBKTE_RENAMED, "composed")
+            .expect("the collar stands inside the subset"),
     };
 
     let stood = bkce_residence(Path::new("/seat"), &collar);
@@ -315,12 +363,12 @@ fn bkte_the_residence_joins_the_byname_rather_than_the_target() {
     assert_eq!(
         stood,
         PathBuf::from("/seat/kennel/bin/manger"),
-        "the residence joins the name the binary wears there"
+        "the residence joins the name the binary wears there", //
     );
     assert!(
         !stood.ends_with("crib"),
         "the target is what cargo builds and never what the join names: {}",
-        stood.display()
+        stood.display(), //
     );
 }
 
@@ -337,12 +385,17 @@ fn zbkte_head(lure: &bktu_Lure) -> String {
         .arg("rev-parse")
         .arg("HEAD")
         .output()
-        .unwrap_or_else(|err| panic!("could not read the lure's HEAD: {}", err));
+        .unwrap_or_else(|err| {
+            panic!(
+                "could not read the lure's HEAD: {}",
+                err, //
+            )
+        });
 
     assert!(
         out.status.success(),
         "git would not read the lure's HEAD: {}",
-        String::from_utf8_lossy(&out.stderr).trim()
+        String::from_utf8_lossy(&out.stderr).trim(), //
     );
 
     String::from_utf8_lossy(&out.stdout).trim().to_string()
@@ -369,7 +422,7 @@ BKRR_EXERGUE=\"bknre_unstruck\"
 BKRR_RESIDENCE=\"residence\"
 BKRR_BYNAME=\"answerer\"
 ",
-        roots
+        roots, //
     );
 
     bkcr_Collar {
@@ -402,17 +455,25 @@ fn bkte_a_seat_forked_behind_a_moved_trunk_elects_its_own_build() {
     lure.bktu_git(&["checkout", "--quiet", "seat"]);
     zbkte_plant(&lure, "answerer", &struck);
 
-    let verdict =
-        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
+    let verdict = bkce_elect(
+        lure.bktu_root(),
+        &bkce_Geography::Undispatched,
+        &zbkte_app_collar("src"),
+    )
+    .expect("the election answers");
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_OWN,
-        "the binary was struck from a tree this seat does not hold"
+        "the binary was struck from a tree this seat does not hold", //
     );
     assert!(
-        verdict.plaint.as_deref().unwrap_or_default().contains("src/two.rs"),
+        verdict
+            .plaint
+            .as_deref()
+            .unwrap_or_default()
+            .contains("src/two.rs"),
         "the refusal names what the seat is missing: {:?}",
-        verdict.plaint
+        verdict.plaint, //
     );
 }
 
@@ -448,17 +509,21 @@ fn bkte_a_seat_that_merged_the_moved_trunk_borrows() {
         zbkte_head(&lure),
         struck,
         "the refit's own shape: HEAD is a merge commit standing on no trunk line, so a position \
-         comparison has nothing to match"
+         comparison has nothing to match", //
     );
 
     zbkte_plant(&lure, "answerer", &struck);
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src"))
-            .expect("the election answers")
-            .elected,
+        bkce_elect(
+            lure.bktu_root(),
+            &bkce_Geography::Undispatched,
+            &zbkte_app_collar("src")
+        )
+        .expect("the election answers")
+        .elected,
         BKCE_ELECTED_BORROW,
-        "the merge brought the roots to the tree the binary was struck from"
+        "the merge brought the roots to the tree the binary was struck from", //
     );
 }
 
@@ -478,17 +543,25 @@ fn bkte_a_local_commit_under_the_roots_elects_its_own_build() {
 
     zbkte_plant(&lure, "answerer", &struck);
 
-    let verdict =
-        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src")).expect("the election answers");
+    let verdict = bkce_elect(
+        lure.bktu_root(),
+        &bkce_Geography::Undispatched,
+        &zbkte_app_collar("src"),
+    )
+    .expect("the election answers");
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_OWN,
-        "the seat has outrun the binary on its own line"
+        "the seat has outrun the binary on its own line", //
     );
     assert!(
-        verdict.plaint.as_deref().unwrap_or_default().contains("src/one.rs"),
+        verdict
+            .plaint
+            .as_deref()
+            .unwrap_or_default()
+            .contains("src/one.rs"),
         "the refusal names the difference a reader can act on: {:?}",
-        verdict.plaint
+        verdict.plaint, //
     );
 }
 
@@ -508,26 +581,37 @@ fn bkte_a_commit_under_an_excluded_path_borrows() {
     lure.bktu_commit("plant the elected root and the carve-out");
     let struck = zbkte_head(&lure);
 
-    lure.bktu_write("src/bktx_hurdle.rs", "// the hurdle moves, and no artifact is made from it\n");
+    lure.bktu_write(
+        "src/bktx_hurdle.rs",
+        "// the hurdle moves, and no artifact is made from it\n",
+    );
     lure.bktu_commit("touch only what the exclusion carves out");
 
     zbkte_plant(&lure, "answerer", &struck);
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src :(exclude)src/bkt*"))
-            .expect("the election answers")
-            .elected,
+        bkce_elect(
+            lure.bktu_root(),
+            &bkce_Geography::Undispatched,
+            &zbkte_app_collar("src :(exclude)src/bkt*")
+        )
+        .expect("the election answers")
+        .elected,
         BKCE_ELECTED_BORROW,
-        "the exclusion reaches git verbatim, so the carved-out change is no change at all"
+        "the exclusion reaches git verbatim, so the carved-out change is no change at all", //
     );
 
     assert_eq!(
-        bkce_elect(lure.bktu_root(), &bkce_Geography::Undispatched, &zbkte_app_collar("src"))
-            .expect("the election answers")
-            .elected,
+        bkce_elect(
+            lure.bktu_root(),
+            &bkce_Geography::Undispatched,
+            &zbkte_app_collar("src")
+        )
+        .expect("the election answers")
+        .elected,
         BKCE_ELECTED_OWN,
         "the control: the same tree over roots that do NOT carve it out elects own build, so the \
-         borrow above is the exclusion at work rather than a diff that saw nothing"
+         borrow above is the exclusion at work rather than a diff that saw nothing", //
     );
 }
 
@@ -546,21 +630,21 @@ fn bkte_the_own_residence_decides_the_posture_and_never_the_word() {
         bkce_weigh(ZBKTE_READER, false, Some(true)),
         (BKCE_ELECTED_OWN, true),
         "a linked worktree holding a current own build runs it rather than being sent to make one \
-         it already has"
+         it already has", //
     );
 
     assert_eq!(
         bkce_weigh(ZBKTE_READER, false, Some(false)),
         (BKCE_ELECTED_OWN, false),
         "an own build that is absent or outrun refuses, which is the whole of what the second \
-         reading can say against the seat"
+         reading can say against the seat", //
     );
 
     assert_eq!(
         bkce_weigh(ZBKTE_READER, false, None),
         (BKCE_ELECTED_OWN, false),
         "no second residence was asked about, which is the undispatched case and must answer \
-         exactly as it did before there was a second reading at all"
+         exactly as it did before there was a second reading at all", //
     );
 
     // THE BORROW ARM IS UNMOVED BY THE SECOND READING, which is what says the
@@ -569,14 +653,14 @@ fn bkte_the_own_residence_decides_the_posture_and_never_the_word() {
     assert_eq!(
         bkce_weigh(ZBKTE_READER, true, Some(false)),
         (BKCE_ELECTED_BORROW, true),
-        "an equivalent delivered binary is borrowed however stale the seat's own"
+        "an equivalent delivered binary is borrowed however stale the seat's own", //
     );
 
     // AND SO IS THE PIN, which never enters either question.
     assert_eq!(
         bkce_weigh(BKCE_SPEND_WRITER, false, Some(true)),
         (BKCE_ELECTED_PINNED, true),
-        "a writer is pinned to the blessed residence whatever the seat's own build says"
+        "a writer is pinned to the blessed residence whatever the seat's own build says", //
     );
 }
 
@@ -611,16 +695,16 @@ fn bkte_a_dispatched_seat_joins_two_residences_and_a_self_one_joins_one() {
     assert_eq!(
         dispatched.residence,
         bkce_residence(delivered.bktu_root(), &collar),
-        "the borrow candidate joins onto the delivered root"
+        "the borrow candidate joins onto the delivered root", //
     );
     assert_eq!(
         dispatched.own,
         bkce_residence(lure.bktu_root(), &collar),
-        "the own residence joins onto the work tree"
+        "the own residence joins onto the work tree", //
     );
     assert_ne!(
         dispatched.residence, dispatched.own,
-        "under dispatch the two are different files, which is the whole reason there are two"
+        "under dispatch the two are different files, which is the whole reason there are two", //
     );
 
     // THE CONTROL IS THE SAME COLLAR UNDER SELF-GEOGRAPHY, where the two roots
@@ -631,7 +715,7 @@ fn bkte_a_dispatched_seat_joins_two_residences_and_a_self_one_joins_one() {
 
     assert_eq!(
         self_read.residence, self_read.own,
-        "the control: a main worktree has one residence under two names"
+        "the control: a main worktree has one residence under two names", //
     );
 }
 
@@ -664,17 +748,22 @@ fn bkte_a_dispatched_seat_borrows_the_delivered_binary_when_the_trees_match() {
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_BORROW,
-        "the delivered binary was struck from the tree this seat holds"
+        "the delivered binary was struck from the tree this seat holds", //
     );
     assert_eq!(
         verdict.answers.as_deref(),
         Some(verdict.residence.as_path()),
-        "the delivered binary is the one that runs"
+        "the delivered binary is the one that runs", //
     );
     assert!(
         verdict.own_plaint.is_none(),
-        "the own residence is not asked where the delivered one answered: {:?}",
-        verdict.own_plaint
+        "an outrun own build says nothing against a borrow that answered: {:?}",
+        verdict.own_plaint, //
+    );
+    assert!(
+        verdict.plaint.is_none(),
+        "a borrow that answered carries no plaint for the proclamation to say: {:?}",
+        verdict.plaint, //
     );
 }
 
@@ -710,17 +799,17 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
 
     assert_eq!(
         verdict.elected, BKCE_ELECTED_OWN,
-        "the delivered binary was struck from a tree this seat has moved past"
+        "the delivered binary was struck from a tree this seat has moved past", //
     );
     assert!(
         verdict.bkce_runs(),
         "a current own build runs: {:?}",
-        verdict.plaint
+        verdict.plaint, //
     );
     assert_eq!(
         verdict.answers.as_deref(),
         Some(verdict.own.as_path()),
-        "the binary that runs is the seat's OWN and never the delivered one"
+        "the binary that runs is the seat's OWN and never the delivered one", //
     );
 
     // THE CONTROL IS THE SAME LINKED WORKTREE WITH ITS OWN RESIDENCE OUTRUN TOO,
@@ -739,7 +828,187 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
     assert!(
         !outrun.bkce_runs(),
         "the control: the same linked worktree whose own build is outrun too is refused, so the \
-         run above is the own residence's currency and not the geography alone"
+         run above is the own residence's currency and not the geography alone", //
+    );
+}
+
+/// A LINKED WORKTREE RUNS ITS CURRENT OWN BUILD AHEAD OF AN IDENTICAL BORROW,
+/// and the plaint says why. A delivered binary matching the seat's tree was
+/// borrowed whatever the seat had built, which is the road that ran a binary its
+/// own staleness fence then refused while the billet's own fresh build stood
+/// beside it, unasked.
+///
+/// THE CONTROL IS THE SAME SEAT WITH ITS OWN BUILD OUTRUN, which borrows: without
+/// it, a rule that elected the own build whenever one stood would clear the
+/// assertions above whether or not its currency was read.
+#[test]
+fn bkte_a_dispatched_seat_with_a_current_own_build_runs_it_ahead_of_an_identical_borrow() {
+    assert_eq!(
+        bkce_weigh(ZBKTE_READER, true, Some(true)),
+        (BKCE_ELECTED_OWN, true),
+        "a current own build answers ahead of a borrow the trees would allow", //
+    );
+
+    let lure = bktu_Lure::bktu_compose("election-dispatched-own-ahead");
+    let delivered = bktu_Lure::bktu_compose("election-dispatched-own-ahead-delivered");
+
+    lure.bktu_write("src/one.rs", "// the founding source\n");
+    lure.bktu_commit("plant the elected root");
+    let struck = zbkte_head(&lure);
+
+    // BOTH BINARIES ARE STRUCK FROM THE SEAT'S OWN TREE, so the delivered one is
+    // borrowable on the trees alone and only the order of the rule decides.
+    zbkte_plant(&delivered, "answerer", &struck);
+    zbkte_plant(&lure, "answerer", &struck);
+
+    let geography = bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf());
+    let collar = zbkte_app_collar("src");
+
+    let verdict = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+
+    assert_eq!(
+        verdict.elected, BKCE_ELECTED_OWN,
+        "the seat's own build is current, so it is elected over the identical borrow", //
+    );
+    assert_eq!(
+        verdict.answers.as_deref(),
+        Some(verdict.own.as_path()),
+        "the binary that runs is the seat's OWN and never the delivered one", //
+    );
+
+    let why = verdict
+        .plaint
+        .as_deref()
+        .expect("an own build elected over an identical borrow says why");
+    assert!(
+        why.contains("answers ahead of a borrow")
+            && why.contains(&verdict.residence.display().to_string()),
+        "the plaint names the borrow passed over and the reason: {}",
+        why, //
+    );
+
+    zbkte_plant(&lure, "answerer", ZBKTE_ELSEWHERE);
+
+    let outrun = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+
+    assert_eq!(
+        outrun.elected, BKCE_ELECTED_BORROW,
+        "the control: an outrun own build leaves the identical borrow to answer", //
+    );
+    assert_eq!(
+        outrun.answers.as_deref(),
+        Some(outrun.residence.as_path()),
+        "the control: the delivered binary is the one that runs", //
+    );
+}
+
+/// A LINKED WORKTREE WHOSE BORROW CANDIDATE ITS OWN FENCE WOULD REFUSE ELECTS ITS
+/// OWN BUILD. The delivered binary was struck from the very tree this seat holds,
+/// so the trees match; but the trunk has since moved beneath the exergue its
+/// build struck, which is what that binary's staleness fence judges, and a
+/// borrow here is a run refused at the binary's own door.
+///
+/// THREE READINGS OVER ONE SEAT: the trunk unmoved, which is the control and
+/// borrows; the trunk moved beneath the delivered exergue with no own build,
+/// which elects the own build and refuses, naming the fence reading; and the
+/// same with a current own build standing, which runs it.
+#[test]
+fn bkte_a_dispatched_seat_whose_borrow_the_fence_refuses_elects_its_own_build() {
+    let lure = bktu_Lure::bktu_compose("election-dispatched-fenced");
+    let delivered = bktu_Lure::bktu_compose("election-dispatched-fenced-delivered");
+
+    lure.bktu_git(&["branch", "-M", "trunk"]);
+    lure.bktu_write("src/one.rs", "// the founding source\n");
+    lure.bktu_commit("plant the elected root");
+
+    // THE TRUNK COUNTERPART IS A REAL REMOTE with its head recorded, because the
+    // fence reading resolves the remote's recorded head exactly as the striker
+    // and the preflight do.
+    let bare = lure.bktu_temp().join("counterpart.git");
+    let spelled = bare.display().to_string();
+    lure.bktu_git(&["init", "--quiet", "--bare", &spelled]);
+    lure.bktu_git(&["remote", "add", "origin", &spelled]);
+    lure.bktu_git(&["push", "--quiet", "origin", "trunk"]);
+    lure.bktu_git(&["remote", "set-head", "origin", "trunk"]);
+    let landed = zbkte_head(&lure);
+
+    // THE DELIVERED ROOT HOLDS WHAT ITS BUILD LEAVES: a binary stating the seat
+    // position it was built at, and the exergue struck at the landing it was
+    // built against, both of the tree this seat holds.
+    zbkte_plant(&delivered, "answerer", &landed);
+    bktd_strike_at(&delivered, "planchet/gen_exergue.rs", &landed, &["src"]);
+
+    let text = "\
+BKRR_COLLAR=\"app-lure\"
+BKRR_KIND=\"bknre_app\"
+BKRR_MANIFEST=\"Cargo.toml\"
+BKRR_TARGET=\"answerer\"
+BKRR_ROOTS=\"src\"
+BKRR_FEATURES=\"\"
+BKRR_PROFILE=\"release\"
+BKRR_SPEND=\"bknre_reader\"
+BKRR_TAMED_CRATES=\"\"
+BKRR_FERAL_CRATES=\"bknre_tamed\"
+BKRR_MUZZLE=\".\"
+BKRR_EXERGUE=\"planchet/gen_exergue.rs\"
+BKRR_STRIKE=\"tt/lure-b.Strike.sh\"
+BKRR_RESIDENCE=\"residence\"
+BKRR_BYNAME=\"answerer\"
+";
+    let collar = bkcr_Collar {
+        name: "app-lure".to_string(),
+        instance: PathBuf::from("app-lure"),
+        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+    };
+    let geography = bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf());
+
+    let unmoved = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+
+    assert_eq!(
+        unmoved.elected, BKCE_ELECTED_BORROW,
+        "the control: a delivered exergue struck at the trunk's own landing admits the borrow: {:?}",
+        unmoved.plaint, //
+    );
+
+    // THE TRUNK MOVES AND THE SEAT DOES NOT, so the seat still holds the tree the
+    // delivered binary was struck from and only the counterpart has moved.
+    lure.bktu_git(&["checkout", "--quiet", "-b", "seat"]);
+    lure.bktu_git(&["checkout", "--quiet", "trunk"]);
+    lure.bktu_write("src/two.rs", "// the trunk moves an elected root\n");
+    lure.bktu_commit("the trunk moves an elected root");
+    lure.bktu_git(&["push", "--quiet", "origin", "trunk"]);
+    lure.bktu_git(&["checkout", "--quiet", "seat"]);
+
+    let fenced = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+
+    assert_eq!(
+        fenced.elected, BKCE_ELECTED_OWN,
+        "a borrow the fence refuses is not borrowed however identical the trees", //
+    );
+    assert!(
+        !fenced.bkce_runs(),
+        "no own build stands, so the seat is refused rather than handed the fenced binary", //
+    );
+
+    let said = fenced.bkce_grievance("app-lure", "heel");
+    assert!(
+        said.contains("staleness fence refuses it")
+            && said.contains("origin/trunk")
+            && said.contains("src/two.rs"),
+        "the refusal names the fence reading, the counterpart and what moved: {}",
+        said, //
+    );
+
+    let own_landed = zbkte_head(&lure);
+    zbkte_plant(&lure, "answerer", &own_landed);
+
+    let built = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+
+    assert_eq!(built.elected, BKCE_ELECTED_OWN);
+    assert_eq!(
+        built.answers.as_deref(),
+        Some(built.own.as_path()),
+        "a current own build runs where the borrow is fenced", //
     );
 }
 
@@ -773,11 +1042,11 @@ fn bkte_a_dispatched_seat_holding_neither_refuses_naming_both() {
     assert_eq!(verdict.elected, BKCE_ELECTED_OWN);
     assert!(
         !verdict.bkce_runs(),
-        "neither residence holds a binary this seat may run"
+        "neither residence holds a binary this seat may run", //
     );
     assert!(
         verdict.answers.is_none(),
-        "a refused election names no binary to spawn"
+        "a refused election names no binary to spawn", //
     );
 
     let said = verdict.bkce_grievance("app-lure", "heel");
@@ -785,17 +1054,17 @@ fn bkte_a_dispatched_seat_holding_neither_refuses_naming_both() {
     assert!(
         said.contains(&verdict.residence.display().to_string()),
         "the refusal names the delivered binary it could not borrow: {}",
-        said
+        said, //
     );
     assert!(
         said.contains(&verdict.own.display().to_string()),
         "the refusal names the seat's own residence, which is the tree the converge writes: {}",
-        said
+        said, //
     );
     assert!(
         said.contains("heel"),
         "the refusal names the converge rather than performing one: {}",
-        said
+        said, //
     );
 
     // THE CONTROL IS AN UNDISPATCHED REFUSAL OVER THE SAME SEAT, which must NOT
@@ -812,7 +1081,7 @@ fn bkte_a_dispatched_seat_holding_neither_refuses_naming_both() {
         self_read.own_plaint.is_none(),
         "the control: a main worktree put no second question, so its refusal says nothing \
          about a second residence: {:?}",
-        self_read.own_plaint
+        self_read.own_plaint, //
     );
 }
 
@@ -838,15 +1107,20 @@ fn bkte_a_mute_binary_where_the_converge_writes_names_the_contract() {
     let unsaid = empty.bkce_grievance("app-lure", "heel");
     assert!(
         !empty.bkce_runs() && !empty.mute,
-        "the control: nothing stands at the residence, so nothing is mute"
+        "the control: nothing stands at the residence, so nothing is mute", //
     );
     assert!(
-        !unsaid.contains(BKCE_EXERGUE_FLAG) && unsaid.contains("the converge, run deliberately: heel"),
+        !unsaid.contains(BKCE_EXERGUE_FLAG)
+            && unsaid.contains("the converge, run deliberately: heel"),
         "the control names the converge as the act and no contract: {}",
-        unsaid
+        unsaid, //
     );
 
-    zbkte_plant(&lure, "answerer", "hello from a crate that never learned the flag");
+    zbkte_plant(
+        &lure,
+        "answerer",
+        "hello from a crate that never learned the flag",
+    );
 
     for (geography, which) in [
         (bkce_Geography::Undispatched, "a main worktree"),
@@ -855,22 +1129,32 @@ fn bkte_a_mute_binary_where_the_converge_writes_names_the_contract() {
             "a linked worktree whose delivered residence is empty",
         ),
     ] {
-        let verdict = bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
+        let verdict =
+            bkce_elect(lure.bktu_root(), &geography, &collar).expect("the election answers");
         let said = verdict.bkce_grievance("app-lure", "heel");
 
-        assert!(!verdict.bkce_runs(), "{}: a binary that cannot say may not run", which);
-        assert!(verdict.mute, "{}: the binary the converge writes stands mute", which);
+        assert!(
+            !verdict.bkce_runs(),
+            "{}: a binary that cannot say may not run",
+            which, //
+        );
+        assert!(
+            verdict.mute,
+            "{}: the binary the converge writes stands mute",
+            which, //
+        );
         assert!(
             said.contains(BKCE_EXERGUE_FLAG) && said.contains(BKCH_COLLAR_POSITION_VAR),
             "{}: the refusal names the contract the crate owes: {}",
             which,
-            said
+            said, //
         );
         assert!(
-            said.contains("once the crate answers") && !said.contains("the converge, run deliberately"),
+            said.contains("once the crate answers")
+                && !said.contains("the converge, run deliberately"),
             "{}: the converge follows the crate's remedy and is not offered as the cure: {}",
             which,
-            said
+            said, //
         );
     }
 }
@@ -878,8 +1162,13 @@ fn bkte_a_mute_binary_where_the_converge_writes_names_the_contract() {
 /// A lure's root as git names it: resolved, since git answers a directory by its
 /// real path and a temp root may be reached through a symlink.
 fn zbkte_real(path: &Path) -> PathBuf {
-    std::fs::canonicalize(path)
-        .unwrap_or_else(|err| panic!("could not resolve {}: {}", path.display(), err))
+    std::fs::canonicalize(path).unwrap_or_else(|err| {
+        panic!(
+            "could not resolve {}: {}",
+            path.display(),
+            err, //
+        )
+    })
 }
 
 /// A MAIN WORKTREE IS SELF AND ITS LINKED WORKTREE IS DISPATCHED, the delivered
@@ -902,13 +1191,13 @@ fn bkte_a_linked_worktree_derives_its_main_checkout_as_the_delivered_root() {
     assert_eq!(
         bkce_geography(billet.bktu_root()).expect("a linked worktree derives"),
         bkce_Geography::Dispatched(zbkte_real(main.bktu_root())),
-        "a linked worktree's delivered root is its main worktree"
+        "a linked worktree's delivered root is its main worktree", //
     );
 
     assert_eq!(
         bkce_geography(main.bktu_root()).expect("a main worktree derives"),
         bkce_Geography::Undispatched,
-        "the control: the main worktree it was added from is self-geography"
+        "the control: the main worktree it was added from is self-geography", //
     );
 }
 
@@ -921,7 +1210,7 @@ fn bkte_a_plain_clone_is_self_geography() {
     assert_eq!(
         bkce_geography(lure.bktu_root()).expect("a plain repository derives"),
         bkce_Geography::Undispatched,
-        "a repository with no worktrees works the tree it entered"
+        "a repository with no worktrees works the tree it entered", //
     );
 }
 
@@ -937,15 +1226,19 @@ fn bkte_a_derived_geography_states_its_word_and_root() {
 
     assert_eq!(
         read.bkce_stated(),
-        format!("{} {}", BKCE_GEOGRAPHY_DISPATCHED, zbkte_real(main.bktu_root()).display()),
-        "a dispatched geography states its word and its root as one catena"
+        format!(
+            "{} {}",
+            BKCE_GEOGRAPHY_DISPATCHED,
+            zbkte_real(main.bktu_root()).display(), //
+        ),
+        "a dispatched geography states its word and its root as one catena", //
     );
 
     assert_eq!(
         bkce_Geography::Undispatched.bkce_stated(),
         BKCE_GEOGRAPHY_SELF,
         "the control: self-geography states one element and names no root, so the two forms are \
-         told apart by a consumer reading the first element"
+         told apart by a consumer reading the first element", //
     );
 }
 
@@ -967,7 +1260,7 @@ fn bkte_a_worktree_of_a_bare_repository_refuses() {
     assert!(
         said.contains("lure.git"),
         "the refusal names the common directory git answered: {}",
-        said
+        said, //
     );
 
     // THE CONTROL IS A WORKTREE OF THE SAME CONTENT ADDED FROM A MAIN WORKTREE,
@@ -976,7 +1269,7 @@ fn bkte_a_worktree_of_a_bare_repository_refuses() {
 
     assert!(
         bkce_geography(control.bktu_root()).is_ok(),
-        "the control: a worktree added from a main worktree derives"
+        "the control: a worktree added from a main worktree derives", //
     );
 }
 
@@ -995,7 +1288,7 @@ fn bkte_a_worktree_whose_main_checkout_is_gone_refuses() {
     // stands: the refusal below is then the removal and not the worktree.
     assert!(
         bkce_geography(billet.bktu_root()).is_ok(),
-        "the control: the worktree derives while its main worktree stands"
+        "the control: the worktree derives while its main worktree stands", //
     );
 
     std::fs::remove_dir_all(main.bktu_root()).expect("the main worktree comes away");
@@ -1006,7 +1299,7 @@ fn bkte_a_worktree_whose_main_checkout_is_gone_refuses() {
     assert!(
         said.contains(&billet.bktu_root().display().to_string()),
         "the refusal names the tree whose geography could not be derived: {}",
-        said
+        said, //
     );
 }
 

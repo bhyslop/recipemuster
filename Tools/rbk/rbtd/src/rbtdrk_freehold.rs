@@ -43,7 +43,7 @@ use crate::rbtcee_engine::{
     rbtcee_RegimeFile,
     rbtcee_Verdict,
 };
-use crate::rbtcep_platform::rbtcep_path_from_env;
+use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 use crate::rbtcei_invocation::{
     RBTCEI_BURE_CONFIRM_KEY,
     RBTCEI_BURE_CONFIRM_SKIP,
@@ -53,7 +53,6 @@ use crate::rbtcei_invocation::{
     rbtcei_invoke_global,
 };
 use crate::rbtgec_consts::{
-    RBTGEC_BAND_ADMISSION,
     RBTGEC_LIST_DEPOT,
     RBTGEC_PROPAGATION_DEADLINE_SEC,
     RBTGEC_PROPAGATION_INITIAL_DELAY_SEC,
@@ -62,6 +61,7 @@ use crate::rbtgec_consts::{
     RBTGEC_RBRR_FILE,
     RBTGEC_UNMAKE_DEPOT,
 };
+use crate::rbtgeb_breviary::RBTGEB_ADMISSION_DENTIL;
 
 // ── Freehold-scheme identities ───────────────────────────────
 
@@ -106,16 +106,22 @@ pub(crate) const RBTCGF_FIELD_RBRR_RUNTIME_PREFIX: &str = "RBRR_RUNTIME_PREFIX";
 pub(crate) const RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY: &str = "RBRR_SUBSTRATE_RELIQUARY";
 pub(crate) const RBTCGF_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 
-/// BURS station-file env var (exported by bul_launcher.sh) — absolute path
-/// to the developer's burs.env. Source for BURS_TINCTURE.
-const RBTCGF_ENV_STATION_FILE: &str = "BURD_STATION_FILE";
+/// The dispatch member naming the developer's burs.env. Source for
+/// BURS_TINCTURE.
+const RBTDRK_DISPATCH_STATION_FILE: &str = "BURD_STATION_FILE";
 
-/// Read BURS_TINCTURE from the station file resolved via BURD_STATION_FILE.
-/// BURS validation upstream (zburs_enforce) guarantees the value is 1-3 chars
-/// of lowercase alphanumeric starting with a letter.
+/// Read BURS_TINCTURE from the station file the dispatch names, through the
+/// estate's one regime reader. BURS validation upstream (zburs_enforce)
+/// guarantees the value is 1-3 chars of lowercase alphanumeric starting with a
+/// letter.
 pub(crate) fn rbtcgf_burs_tincture() -> Result<String, String> {
-    let path = rbtcep_path_from_env(RBTCGF_ENV_STATION_FILE)?;
-    rbtcgf_read_env_value(&path, "BURS_TINCTURE")
+    let path = rbtdrx_path_from_dispatch(RBTDRK_DISPATCH_STATION_FILE)?;
+    let station = bkp::bkprc_catena::bkprc_read(&path)?;
+    station
+        .bkprc_scalar("BURS_TINCTURE")
+        .map(str::trim)
+        .filter(|v| !v.is_empty())
+        .map(str::to_string)
         .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
 }
 
@@ -378,7 +384,7 @@ pub(crate) fn rbtcgf_invoke_logged(
 }
 
 /// Post-admission-grant invocation: `rbtcgf_invoke_logged`, re-invoked while
-/// the exit is exactly `RBTGEC_BAND_ADMISSION` under the propagation
+/// the exit is exactly `RBTGEB_ADMISSION_DENTIL` under the propagation
 /// budget (RBr_3f4). A fixture invocation issued immediately downstream of a
 /// fresh admission grant (gird, brevet) is a post-grant site: its first don
 /// can draw the Class-C 403 while the just-written binding propagates, and
@@ -401,7 +407,7 @@ pub(crate) fn rbtcgf_invoke_admission_settled(
     let mut bend = 0u32;
     loop {
         let result = rbtcgf_invoke_logged(ctx, colophon, args, &[], dir, label)?;
-        if result.exit_code != RBTGEC_BAND_ADMISSION {
+        if result.exit_code != RBTGEB_ADMISSION_DENTIL {
             return Ok(result);
         }
         if start.elapsed() + delay > deadline {
@@ -411,7 +417,7 @@ pub(crate) fn rbtcgf_invoke_admission_settled(
         crate::rbtcel_info_now!(
             "{}: admission-band exit {} with a fresh grant upstream — propagation bend {} (RBr_3f4); retrying in {}s",
             label,
-            RBTGEC_BAND_ADMISSION,
+            RBTGEB_ADMISSION_DENTIL,
             bend,
             delay.as_secs()
         );

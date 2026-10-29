@@ -29,8 +29,9 @@ pub struct rbvcer_Captured {
 /// Env-var prefixes of inherited BUK dispatch state, scrubbed before a child
 /// tabtarget runs so it starts from the same blank slate a terminal invocation
 /// gives it. The child's own launcher (bul_launcher → bud_dispatch) rebuilds
-/// every one of these.
-const ZRBVCER_SCRUB_PREFIXES: &[&str] = &["BURD_", "BURC_", "BURS_", "BURV_", "BUZ_", "BURE_"];
+/// every one of these. The environment regime (BURE_) is the operator's ambient
+/// and is stripped by nothing, so it is absent here.
+const ZRBVCER_SCRUB_PREFIXES: &[&str] = &["BURD_", "BURC_", "BURS_", "BURV_", "BURX_", "BUZ_", "BUC_"];
 
 fn zrbvcer_command(program: &OsStr, args: &[&str], cwd: &Path) -> Command {
     let mut cmd = Command::new(program);

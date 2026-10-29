@@ -22,10 +22,17 @@
 //! green, which the kennel's door proves over the committed roster.
 
 use super::bkci_pipeline::bkci_listing;
-use super::bkcm_mush::{bkcm_suite, BKCM_RUNNER_CARGO, BKCM_RUNNER_NEXTEST};
+use super::bkcm_mush::{
+    bkcm_suite,
+    BKCM_RUNNER_CARGO,
+    BKCM_RUNNER_NEXTEST, //
+};
 use super::bkcr_resolve::bkcr_Collar;
 use bkp::bkprc_catena::bkprc_admit;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 /// Cargo's own build-profile flag, spelled here INDEPENDENTLY of the module
 /// under test rather than imported from it.
@@ -117,16 +124,29 @@ fn zbktm_collar(text: &str) -> bkcr_Collar {
 fn bktm_the_runner_the_collar_names_is_the_one_spelled() {
     let cargo = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_CARGO))
         .expect("cargo is a runner the kennel spawns");
-    assert_eq!(cargo.verb, "test", "cargo's own harness, spelled: {}", cargo.bkcm_spelling());
+    assert_eq!(
+        cargo.verb,
+        "test",
+        "cargo's own harness, spelled: {}",
+        cargo.bkcm_spelling(), //
+    );
 
     let nextest = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST))
         .expect("nextest is a runner the kennel spawns");
-    assert_eq!(nextest.verb, "nextest", "spelled: {}", nextest.bkcm_spelling());
     assert_eq!(
-        nextest.rest.first().map(|word| word.to_string_lossy().into_owned()),
+        nextest.verb,
+        "nextest",
+        "spelled: {}",
+        nextest.bkcm_spelling(), //
+    );
+    assert_eq!(
+        nextest
+            .rest
+            .first()
+            .map(|word| word.to_string_lossy().into_owned()),
         Some("run".to_string()),
         "nextest's own run word follows the subcommand: {}",
-        nextest.bkcm_spelling()
+        nextest.bkcm_spelling(), //
     );
 }
 
@@ -142,16 +162,19 @@ fn bktm_a_runner_outside_the_declared_pair_refuses() {
         refusal.contains("bknre_ketchtest"),
         "the refusal names the value it read, so a reader is handed the repair rather than a \
          search: {}",
-        refusal
+        refusal, //
     );
 
     for admitted in [BKCM_RUNNER_CARGO, BKCM_RUNNER_NEXTEST] {
         assert!(
-            bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(&ZBKTM_STRANGER.replace("bknre_ketchtest", admitted)))
-                .is_ok(),
+            bkcm_suite(
+                Path::new(ZBKTM_SEAT),
+                &zbktm_collar(&ZBKTM_STRANGER.replace("bknre_ketchtest", admitted))
+            )
+            .is_ok(),
             "the control: {} composes, so the refusal above is about the value and not about the \
              collar around it",
-            admitted
+            admitted, //
         );
     }
 }
@@ -167,14 +190,14 @@ fn bktm_a_named_target_is_spelled_and_the_whole_manifest_is_not() {
     assert!(
         !whole.bkcm_spelling().contains("--test"),
         "the whole manifest's tests name no one target: {}",
-        whole.bkcm_spelling()
+        whole.bkcm_spelling(), //
     );
 
     let named = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST)).expect("composes");
     assert!(
         named.bkcm_spelling().contains("--test lure_integration"),
         "a named target is spelled: {}",
-        named.bkcm_spelling()
+        named.bkcm_spelling(), //
     );
 }
 
@@ -195,15 +218,16 @@ fn bktm_the_declared_shape_is_spelled_and_an_empty_field_is_not() {
             .split_whitespace()
             .any(|word| word == ZBKTM_PROFILE_FLAG_CARGO),
         "the collar's profile, spelled in the flag cargo's own harness reads: {}",
-        plain.bkcm_spelling()
+        plain.bkcm_spelling(), //
     );
     assert!(
         !plain.bkcm_spelling().contains("--features"),
         "an empty selection spells no flag: {}",
-        plain.bkcm_spelling()
+        plain.bkcm_spelling(), //
     );
 
-    let featured = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST)).expect("composes");
+    let featured =
+        bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST)).expect("composes");
 
     // THE SAME DECLARED FIELD, SPELLED WITH THE OTHER RUNNER'S FLAG. Under
     // cargo's own harness `--profile` names the cargo build profile; under
@@ -216,7 +240,7 @@ fn bktm_the_declared_shape_is_spelled_and_an_empty_field_is_not() {
     assert!(
         featured.bkcm_spelling().contains("--cargo-profile release"),
         "the other collar's profile, spelled in the flag ITS runner reads: {}",
-        featured.bkcm_spelling()
+        featured.bkcm_spelling(), //
     );
 
     // THE ASSERTION ABOVE CANNOT BE A SUBSTRING TEST ALONE, which is the defect
@@ -232,13 +256,13 @@ fn bktm_the_declared_shape_is_spelled_and_an_empty_field_is_not() {
             .any(|word| word == ZBKTM_PROFILE_FLAG_CARGO),
         "nextest's own --profile names a NEXTEST profile, a namespace the collar's build shape is \
          not drawn from, and spelling it there is the invocation nextest refuses: {}",
-        featured.bkcm_spelling()
+        featured.bkcm_spelling(), //
     );
     assert!(
         featured.bkcm_spelling().contains("--features alpha beta"),
         "the control: a field carrying elements IS spelled, so the silence above is the emptiness \
          and not a flag nobody spells: {}",
-        featured.bkcm_spelling()
+        featured.bkcm_spelling(), //
     );
 }
 
@@ -254,18 +278,19 @@ fn bktm_the_declared_shape_is_spelled_and_an_empty_field_is_not() {
 /// is a statement rather than a silence.
 #[test]
 fn bktm_the_empty_suite_demand_is_spelled_where_a_runner_can_hear_it() {
-    let nextest = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST)).expect("composes");
+    let nextest =
+        bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_NEXTEST)).expect("composes");
     assert!(
         nextest.bkcm_spelling().contains("--no-tests=fail"),
         "the kennel asks for the refusal rather than inheriting it: {}",
-        nextest.bkcm_spelling()
+        nextest.bkcm_spelling(), //
     );
 
     let cargo = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_CARGO)).expect("composes");
     assert!(
         !cargo.bkcm_spelling().contains("--no-tests"),
         "and spells nothing at a runner that carries no such flag, rather than a word cargo          would refuse: {}",
-        cargo.bkcm_spelling()
+        cargo.bkcm_spelling(), //
     );
 }
 
@@ -286,14 +311,17 @@ fn bktm_the_run_through_demand_rides_both_runs_and_neither_listing() {
         assert!(
             run.bkcm_spelling().contains("--no-fail-fast"),
             "the kennel asks every runner to run through its red cases: {}",
-            run.bkcm_spelling()
+            run.bkcm_spelling(), //
         );
 
         let listing = bkci_listing(Path::new(ZBKTM_SEAT), &collar).expect("composes a listing");
         assert!(
-            listing.rest.iter().all(|argument| argument.to_string_lossy() != "--no-fail-fast"),
+            listing
+                .rest
+                .iter()
+                .all(|argument| argument.to_string_lossy() != "--no-fail-fast"),
             "a listing runs no case, and the run's run-through flag does not cross into it: {:?}",
-            listing.rest
+            listing.rest, //
         );
     }
 }
@@ -305,12 +333,15 @@ fn bktm_the_run_through_demand_rides_both_runs_and_neither_listing() {
 fn bktm_the_manifest_is_joined_from_the_seat_and_rides_no_argument() {
     let launch = bkcm_suite(Path::new(ZBKTM_SEAT), &zbktm_collar(ZBKTM_CARGO)).expect("composes");
 
-    assert_eq!(launch.manifest, PathBuf::from("/seat/Tools/lure/Cargo.toml"));
+    assert_eq!(
+        launch.manifest,
+        PathBuf::from("/seat/Tools/lure/Cargo.toml")
+    );
     assert!(
         !launch.bkcm_spelling().contains("--manifest-path"),
         "the leash spells the manifest, and a second spelling would be refused for the \
          duplication: {}",
-        launch.bkcm_spelling()
+        launch.bkcm_spelling(), //
     );
 }
 

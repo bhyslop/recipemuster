@@ -59,7 +59,10 @@
 //! no "unknown": an unstamped kennel would answer questions about itself with
 //! text that means nothing, which is worse than refusing to exist.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 use std::process::Command;
 
 // THE CRATE'S OWN READING, REACHED AND NEVER COPIED. A build script cannot link
@@ -103,12 +106,17 @@ fn main() {
             .arg("rev-parse")
             .arg("--show-toplevel")
             .output()
-            .unwrap_or_else(|err| panic!("could not run git to find the repository: {}", err));
+            .unwrap_or_else(|err| {
+                panic!(
+                    "could not run git to find the repository: {}",
+                    err, //
+                )
+            });
 
         if !out.status.success() {
             panic!(
                 "git would not name the repository this crate stands in: {}",
-                String::from_utf8_lossy(&out.stderr).trim()
+                String::from_utf8_lossy(&out.stderr).trim(), //
             );
         }
 
@@ -133,7 +141,11 @@ fn main() {
     /// treats an absent watched path as a reason to re-run, which is the right
     /// answer for a ref file that appears on the next commit.
     fn zbkb_watch_git_path(relative: &str) {
-        let Ok(out) = Command::new("git").arg("rev-parse").arg("--git-path").arg(relative).output()
+        let Ok(out) = Command::new("git")
+            .arg("rev-parse")
+            .arg("--git-path")
+            .arg(relative)
+            .output()
         else {
             return;
         };
@@ -144,7 +156,10 @@ fn main() {
 
         let said = String::from_utf8_lossy(&out.stdout).trim().to_string();
         if !said.is_empty() {
-            println!("cargo:rerun-if-changed={}", said);
+            println!(
+                "cargo:rerun-if-changed={}",
+                said, //
+            );
         }
     }
 
@@ -160,18 +175,36 @@ fn main() {
         let out = Command::new(&rustc)
             .arg("--version")
             .output()
-            .unwrap_or_else(|err| panic!("could not run {} --version: {}", rustc, err));
+            .unwrap_or_else(|err| {
+                panic!(
+                    "could not run {} --version: {}",
+                    rustc,
+                    err, //
+                )
+            });
 
         if !out.status.success() {
-            panic!("{} --version exited {}", rustc, out.status);
+            panic!(
+                "{} --version exited {}",
+                rustc,
+                out.status, //
+            );
         }
 
-        let text = String::from_utf8(out.stdout)
-            .unwrap_or_else(|err| panic!("{} --version emitted no readable text: {}", rustc, err));
+        let text = String::from_utf8(out.stdout).unwrap_or_else(|err| {
+            panic!(
+                "{} --version emitted no readable text: {}",
+                rustc,
+                err, //
+            )
+        });
 
         let line = text.trim();
         if line.is_empty() {
-            panic!("{} --version emitted nothing", rustc);
+            panic!(
+                "{} --version emitted nothing",
+                rustc, //
+            );
         }
 
         line.to_string()
@@ -185,8 +218,13 @@ fn main() {
     fn zbkb_pin_channel(pin_file: &str) -> String {
         let path = Path::new(pin_file);
 
-        let text = std::fs::read_to_string(path)
-            .unwrap_or_else(|err| panic!("could not read the pin at {}: {}", pin_file, err));
+        let text = std::fs::read_to_string(path).unwrap_or_else(|err| {
+            panic!(
+                "could not read the pin at {}: {}",
+                pin_file,
+                err, //
+            )
+        });
 
         for line in text.lines() {
             let trimmed = line.trim();
@@ -204,12 +242,18 @@ fn main() {
 
         panic!(
             "the pin at {} names no channel, so this build cannot say what it was asked to run under",
-            pin_file
+            pin_file, //
         )
     }
 
-    println!("cargo:rerun-if-changed={}", ZBKB_PIN_FILE);
-    println!("cargo:rerun-if-changed={}", ZBKB_ELECTION_FILE);
+    println!(
+        "cargo:rerun-if-changed={}",
+        ZBKB_PIN_FILE, //
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
+        ZBKB_ELECTION_FILE, //
+    );
 
     // WHAT MOVES THE POSITION IS A COMMIT, so what cargo must watch is where git
     // records one. Watching the elected roots themselves would be the wrong
@@ -232,20 +276,43 @@ fn main() {
         // states in one place - and would drift the day the crate's own doors
         // reworded theirs.
         Ok(standing) if standing.bkcf_clean() => {}
-        Ok(standing) => panic!("{}", standing.bkcf_grievance(&repository)),
-        Err(said) => panic!("this build could not survey the repository it stands in: {}", said),
+        Ok(standing) => panic!(
+            "{}",
+            standing.bkcf_grievance(&repository), //
+        ),
+        Err(said) => panic!(
+            "this build could not survey the repository it stands in: {}",
+            said, //
+        ),
     }
 
-    let election = bkcf_guard::bkcf_election(Path::new(ZBKB_ELECTION_FILE))
-        .unwrap_or_else(|said| panic!("this build could not read its own election: {}", said));
+    let election =
+        bkcf_guard::bkcf_election(Path::new(ZBKB_ELECTION_FILE)).unwrap_or_else(|said| {
+            panic!(
+                "this build could not read its own election: {}",
+                said, //
+            )
+        });
 
     let seat = bkcf_guard::bkcf_seat_position(&repository, &election).unwrap_or_else(|said| {
-        panic!("this build cannot state the position it was taken at: {}", said)
+        panic!(
+            "this build cannot state the position it was taken at: {}",
+            said, //
+        )
     });
 
-    println!("cargo:rustc-env=BKCS_SEAT={}", seat.trim());
-    println!("cargo:rustc-env=BKCS_COMPILER={}", zbkb_compiler_version());
-    println!("cargo:rustc-env=BKCS_PIN={}", zbkb_pin_channel(ZBKB_PIN_FILE));
+    println!(
+        "cargo:rustc-env=BKCS_SEAT={}",
+        seat.trim(), //
+    );
+    println!(
+        "cargo:rustc-env=BKCS_COMPILER={}",
+        zbkb_compiler_version(), //
+    );
+    println!(
+        "cargo:rustc-env=BKCS_PIN={}",
+        zbkb_pin_channel(ZBKB_PIN_FILE), //
+    );
 }
 
 // eof

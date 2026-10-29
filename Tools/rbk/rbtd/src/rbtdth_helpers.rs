@@ -17,28 +17,24 @@
 //
 // RBTDTH — shared test helpers
 //
-// Tests run via `tt/rbw-tt.Test.sh`, which routes through BUK dispatch and
-// exports BURD_TEMP_DIR pointing under ../temp-buk/. Direct `cargo test`
+// Tests run via `tt/rbw-tt.Test.sh`, which routes through BUK dispatch, whose
+// dispatch file names BURD_TEMP_DIR under ../temp-buk/. Direct `cargo test`
 // invocations from outside BUK dispatch are not a supported workflow and
 // fail loudly here rather than silently leaking scratch under /tmp.
 
 use std::path::PathBuf;
 
 use crate::rbtcei_invocation::RBTCEI_BURD_TEMP_DIR_KEY;
-use crate::rbtcep_platform::rbtcep_posix_to_native;
+use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 
-/// Return the scratch root for test tempdirs. Panics if BURD_TEMP_DIR is
-/// unset — tests must be launched via the BUK tabtarget so artifacts land
-/// under temp-buk and survive reboot.
+/// Return the scratch root for test tempdirs, read from the dispatch file the
+/// pointer names. Panics where the dispatch names none — tests must be
+/// launched via the BUK tabtarget so artifacts land under temp-buk and survive
+/// reboot.
 pub(crate) fn rbtteh_scratch_root() -> PathBuf {
-    match std::env::var(RBTCEI_BURD_TEMP_DIR_KEY) {
-        Ok(v) if !v.is_empty() => rbtcep_posix_to_native(&v)
-            .unwrap_or_else(|e| panic!("rbtdth: cannot nativize {}: {}", RBTCEI_BURD_TEMP_DIR_KEY, e)),
-        _ => panic!(
-            "rbtdth: {} is not set — run tests via `tt/rbw-tt.Test.sh`",
-            RBTCEI_BURD_TEMP_DIR_KEY
-        ),
-    }
+    rbtdrx_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY).unwrap_or_else(|e| {
+        panic!("rbtdth: {} — run tests via `tt/rbw-tt.Test.sh`", e)
+    })
 }
 
 /// Make a fresh, uniquely-named scratch dir under the test scratch root. The

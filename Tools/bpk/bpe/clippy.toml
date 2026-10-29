@@ -1,0 +1,34 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The muzzle, narrowed for this crate - the enumerated calls a door refuses to
+# compile. This file is foreign schema: the keys are clippy's, not the estate's.
+# It is reached by the muzzle directory this crate's collar names, never by
+# clippy's own upward search.
+#
+# THE RUNNABLE-FILE BARS STAND HERE, because their surface is the floor crate's
+# and every crate can take it: Pastern's program writers
+# (bkp::bkprs_scrivener). A repository root's wider list - its working
+# directory and temp root bars among them - is not this crate's to adopt: it
+# holds no surface for either, so a bar on one fired here would name a remedy
+# that does not exist for it.
+
+disallowed-methods = [
+  { path = "std::fs::copy", reason = "a copy carries its source's executable bit, and a sibling thread's fork can inherit the copy's write handle so the copy refuses its exec with ETXTBSY. Use Pastern's bkp::bkprs_scrivener: bkprs_copy carries whether the source is a program, bkprs_program_copy arms the copy, and each copies a program in a child." },
+  { path = "std::fs::set_permissions", reason = "arming a file this process wrote means a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use Pastern's bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::fs::File::set_permissions", reason = "arming a file this process holds open is the ETXTBSY race itself: a sibling thread's fork inherits the handle. Use Pastern's bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::PermissionsExt::set_mode", reason = "an executable mode marks a file this process means to run, and a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use Pastern's bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::OpenOptionsExt::mode", reason = "opening a file with a mode creates it already armed while this process holds it open for writing, which a sibling thread's fork inherits, so its exec refuses with ETXTBSY. Use Pastern's bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+]

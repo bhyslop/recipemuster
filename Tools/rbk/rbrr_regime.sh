@@ -87,18 +87,18 @@ zrbrr_enforce() {
   buv_vet RBRR
 
   test -d "${RBRR_VESSEL_DIR}" \
-    || buc_reject "${BUBC_band_regime}" "RBRR_VESSEL_DIR directory not found: ${RBRR_VESSEL_DIR}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_VESSEL_DIR directory not found: ${RBRR_VESSEL_DIR}"
   test -d "${RBRR_SECRETS_DIR}" \
-    || buc_reject "${BUBC_band_regime}" "RBRR_SECRETS_DIR directory not found: ${RBRR_SECRETS_DIR}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_SECRETS_DIR directory not found: ${RBRR_SECRETS_DIR}"
 
   [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
   [[ "${RBRR_RUNTIME_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
 
   [[ "${RBRR_ACTIVE_FOEDUS}" == rbef_* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRR_ACTIVE_FOEDUS must bear the rbef_ foedus-instance sprue: ${RBRR_ACTIVE_FOEDUS}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_ACTIVE_FOEDUS must bear the rbef_ foedus-instance sprue: ${RBRR_ACTIVE_FOEDUS}"
 
   # Legal-empty until seised: shape-checked only when present (a reliquary
   # touchmark is the kind-letter 'r' followed by 12 stamp digits). An empty
@@ -110,7 +110,7 @@ zrbrr_enforce() {
   # order.
   test -z "${RBRR_SUBSTRATE_RELIQUARY}" \
     || [[ "${RBRR_SUBSTRATE_RELIQUARY}" =~ ^r[0-9]{12}$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRR_SUBSTRATE_RELIQUARY format: ${RBRR_SUBSTRATE_RELIQUARY} (expected a reliquary touchmark rNNNNNNNNNNNN, or empty)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_SUBSTRATE_RELIQUARY format: ${RBRR_SUBSTRATE_RELIQUARY} (expected a reliquary touchmark rNNNNNNNNNNNN, or empty)"
 }
 
 # eof

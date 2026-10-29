@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBRN_SOURCED:-}" || buc_die_now "Module rbrn multiply sourced - check sourcing hierarchy"
 ZRBRN_SOURCED=1
@@ -112,9 +117,9 @@ zrbrn_enforce() {
   # Cross-port check (entry ports must be less than uplink port min)
   if test "${RBRN_ENTRY_MODE}" = "rbnne_enabled"; then
     test "${RBRN_ENTRY_PORT_WORKSTATION}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
-      buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
+      buc_reject "${BUBG_REGIME_DENTIL}" "RBRN_ENTRY_PORT_WORKSTATION must be less than RBRN_UPLINK_PORT_MIN"
     test "${RBRN_ENTRY_PORT_ENCLAVE}" -lt "${RBRN_UPLINK_PORT_MIN}" || \
-      buc_reject "${BUBC_band_regime}" "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
+      buc_reject "${BUBG_REGIME_DENTIL}" "RBRN_ENTRY_PORT_ENCLAVE must be less than RBRN_UPLINK_PORT_MIN"
   fi
 }
 
@@ -231,19 +236,19 @@ zrbrn_ip_in_subnet() {
   local z_ip_int
   z_ip_int=$(zrbrn_ip_int_capture "${z_ip}") || z_ip_status=$?
   test "${z_ip_status}" -eq 0 \
-    || buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "${z_label}=${z_ip} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
   case "${z_ip_int}" in ''|*[!0123456789]*) buc_die_now "Address ${z_ip} for ${z_label} did not convert to a decimal integer: ${z_ip_int}" ;; esac
 
   local z_base_status=0
   local z_base_int
   z_base_int=$(zrbrn_ip_int_capture "${z_base}") || z_base_status=$?
   test "${z_base_status}" -eq 0 \
-    || buc_reject "${BUBC_band_regime}" "Subnet base ${z_base} for ${z_label} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Subnet base ${z_base} for ${z_label} is not a dotted-quad IPv4 address (four octets 0-255, no leading zeros)"
   case "${z_base_int}" in ''|*[!0123456789]*) buc_die_now "Subnet base ${z_base} for ${z_label} did not convert to a decimal integer: ${z_base_int}" ;; esac
 
   local -r z_net_mask=$(( (0xFFFFFFFF << (32 - 10#${z_mask})) & 0xFFFFFFFF ))
   test "$(( 10#${z_ip_int} & z_net_mask ))" -eq "$(( 10#${z_base_int} & z_net_mask ))" \
-    || buc_reject "${BUBC_band_regime}" "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "${z_label}=${z_ip} is not within subnet ${z_base}/${z_mask}"
 }
 
 # Cross-nameplate conflict validation (silent on success, dies on conflict)
@@ -465,7 +470,7 @@ rbrn_mitre() {
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before mitre"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one (param3) or run a build (kludge or ordain) immediately before mitre"
   local z_source="chain"
   test -z "${z_express}" || z_source="express"
 

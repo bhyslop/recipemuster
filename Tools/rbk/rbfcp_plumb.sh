@@ -23,6 +23,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Plumb (zrbfcp_* / rbfcp_*)
 
@@ -47,7 +52,7 @@ zrbfcp_plumb_core() {
   local z_hallmark=""
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
-  test "${z_hallmark_status}" -eq 0 || buc_reject "${BUBC_band_chain}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
+  test "${z_hallmark_status}" -eq 0 || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one or run a build (ordain/kludge) immediately before plumb"
 
   buc_step "Authenticating as Retriever"
   local zSECRET_token=""
@@ -59,7 +64,7 @@ zrbfcp_plumb_core() {
   local z_vouch_code
   z_vouch_code=$(<"${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt") || buc_die_now "Failed to read: ${ZRBFC0_PLUMB_PREFIX}_vouch_head_code.txt"
   test "${z_vouch_code}" = "200" \
-    || buc_reject "${BUBC_band_vacant}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
+    || buc_reject "${RBCG_VACANT_DENTIL}" "Hallmark not found: ${z_hallmark} (no vouch ark at ${z_vouch_pkg}:${z_hallmark})"
 
   buc_step "Resolving vessel from vouch ark"
   local z_vessel=""

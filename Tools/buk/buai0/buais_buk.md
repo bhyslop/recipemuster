@@ -45,7 +45,7 @@ tt/rbw-cC.Charge.pluml.sh
 
 Full spec: `Tools/buk/README.md`
 
-The kit also carries a Rust self-test crate beside the shell modules (`Tools/buk/Cargo.toml`, with `src/` and `tests/`): the harness modules and the tests that exercise BUK itself.
+The kit is bash alone. Where the kennel kit is installed, the Rust hurdles that exercise BUK stand in it at `Tools/bkk/but0`.
 
 ## Forbidden Shell Operations
 
@@ -66,7 +66,7 @@ Rivet `BUr_k7d` governs, cited here rather than restated: tooling never stages o
 
 **Never pipe a tabtarget invocation — into `tee`, `tail`, `head`, `grep`, or anything else — and never send one to `/dev/null`. NO exceptions.**
 
-Tabtargets self-log to the directory the station file's `BURS_LOG_DIR` names, and there are two seats. **Station ground** is the default: `../logs-buk/`, relative to the project root, shared by every clone and worktree on that machine. **A dispatched session is the other seat** — the dispatch provisions `BURV_LOG_DIR`, which overrides the station value, so that session's logs land in its own per-billet scratch container. Three files are written either way, and the seat decides only how wide the race on the first two runs:
+Tabtargets self-log to the directory the station file's `BURS_LOG_DIR` names, and there are two seats. **Station ground** is the default: `../logs-buk/`, relative to the project root, shared by every clone and worktree on that machine — and a door a dispatched session runs from its own shell lands there too. **A door run through the engine's tabtarget door is the other seat** — that door composes `BURV_LOG_DIR` onto the run, which overrides the station value, so its logs land under the kraal's own scratch container. Three files are written either way, and the seat decides only how wide the race on the first two runs:
 - `last.txt` — most recent invocation across **all** tabtargets writing into that directory. **Never read this** — any tabtarget run that shares the directory, between your dispatch and your read, overwrites it out from under you.
 - `same-{cmd}.txt` — most recent invocation of this specific tabtarget. Same race, narrowed to one colophon: another run of the identical tabtarget still overwrites it.
 - `hist-{cmd}-{timestamp}.txt` — one immutable file per invocation. The only race-free pointer, and the only one safe to read at either seat.
@@ -100,9 +100,9 @@ tail -80 ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt
 
 **There is no safe `tee | tail`, and no safe `> /dev/null`.** Do not reason "I'll just truncate the output for readability" — the truncation and the exit-code-eating are inseparable. Do not reason "I don't need this door's output" either: the verdict *is* the output, and a run you silenced is a run you cannot report. Truncate by reading the log file afterward.
 
-**In a dispatched session, run a kennel test door through the engine's tabtarget door — never by bash.** That door hands the child the session's own output roots and reads what the run measured the moment it returns; a door run by bash is a run the engine never sees, so what it measured is discarded rather than recorded. **Never batch such a run beside a bash-run tabtarget either** — the two then share one output slot, and the record the engine reads may be the one it did not launch.
+**Where the kennel kit is installed, in a dispatched session run a kennel test door through the engine's tabtarget door — never by bash.** That door hands the child the session's own output roots and reads what the run measured the moment it returns; a door run by bash is a run the engine never sees, so what it measured is discarded rather than recorded. **Never batch such a run beside a bash-run tabtarget either** — the two then share one output slot, and the record the engine reads may be the one it did not launch.
 
-**Excursus** (`jjsuc_excursus`): where the kennel kit is installed, `Tools/bkk/bkai0/bkaie_kennel.md` carries its doors, its words and its codex acronyms. Read it before you drive a kennel door or declare a collar, and when a kennel refusal or a `BKS` acronym is met.
+**Excursus** (`busa_excursus`): where the kennel kit is installed, `Tools/bkk/bkai0/bkaie_kennel.md` carries its doors, its words and its codex acronyms. Read it before you drive a kennel door or declare a collar, when a kennel refusal or a `BKS` acronym is met, and when a tree's build output must be removed.
 
 ## Test Execution Discipline
 
@@ -126,7 +126,7 @@ Annotations for the acronym homes indexed in `Tools/buk/buai0/buaip_buk.md` — 
 - **BUE**  → `Tools/buk/bue_exergue.sh` (exergue module, bue_* functions — stamps a build with the source position it was struck from: the newest first-parent landing on the trunk counterpart that touched an elected root, written into a gitignored generated Rust module, write-if-changed, dying rather than shipping unstamped)
 - **BUG**  → `Tools/buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree_creed`)
 - **BUH**  → `Tools/buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
-- **BUPE** → `Tools/buk/bupe_cli.sh` (parcel emplacement — the maintenance door for a lit station, colophon `buw-pe`: it takes the extracted parcel directory as an explicit argument, runs the install procedure through that parcel's own bundled engine rather than any binary in the consumer tree, and past the emplace only reads, its own file having stood in the directory just replaced. The parcel's `vvi_install.sh` remains the rescue door for a station too dark to dispatch)
+- **BUPE** → `Tools/buk/bupe_cli.sh` (parcel emplacement — the maintenance door for a lit station, colophon `buw-pe`: it takes the extracted parcel directory as an explicit argument, runs the install procedure through that parcel's own bundled engine rather than any binary in the consumer tree, and past the emplace only reads, its own file having stood in the directory just replaced. The parcel's `bpi_install.sh` remains the rescue door for a station too dark to dispatch)
 - **BUYM** → `Tools/buk/buym_yelp.sh` (yelp module — diastema wire format, yawp functions, format resolver, legacy captures)
 - **BUV**  → `Tools/buk/buv_validation.sh` (validation utilities, buv_* functions)
 - **BUW**  → `Tools/buk/buw_workbench.sh` (workbench utilities, buw_* functions)

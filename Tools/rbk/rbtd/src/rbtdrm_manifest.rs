@@ -90,7 +90,7 @@ pub const RBTCEM_FIXTURE_FOEDUS_LIFECYCLE: &str = "foedus-lifecycle";
 pub const RBTCEM_FIXTURE_FOEDUS_REUSE: &str = "foedus-reuse";
 // Polity-denial fixture — proves the polity verbs reject with the exact precision
 // band across their failure surface. Admission arc: a governor-wielded verb's don is
-// refused when the citizen is not brevetted onto the mantle (RBTGEC_BAND_ADMISSION) —
+// refused when the citizen is not brevetted onto the mantle (RBTGEB_ADMISSION_DENTIL) —
 // don retriever (baseline) -> unseat retriever -> poll the don to the admission band
 // -> isolation (held mantles still reach AR) -> brevet back -> poll positive (restore).
 // Terrier-band arc (the regime-poison analogue for HTTP, folded in to supersede the
@@ -379,6 +379,12 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTCEM_FIXTURE_TOUCHSTONE => Some(&[
             RBTGEC_THEURGE_FIXTURE,
             RBTGEC_THEURGE_SUITE,
+            RBTGEC_THEURGE_CASE,
+        ]),
+        // environment-quiet drives its chain through the single-case runner,
+        // and the probe's relay level drives the leaf through it again.
+        crate::rbtdry_quiet::RBTDRY_NAME_ENVIRONMENT_QUIET
+        | crate::rbtdry_quiet::RBTDRY_NAME_QUIET_HUSH => Some(&[
             RBTGEC_THEURGE_CASE,
         ]),
         RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[

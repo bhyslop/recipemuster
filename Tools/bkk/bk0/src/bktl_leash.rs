@@ -17,13 +17,30 @@
 
 use crate::bkcf_guard;
 use crate::bkcl_leash;
-use crate::bktu_lure::{bktu_Lure, bktu_missing_toolchains, BKTU_REQUIRED_TOOLCHAINS};
+use crate::bkco_output::{
+    bkco_call,
+    BKCO_COLOPHON_REBED,
+    BKCO_VERB_REBED, //
+};
+use crate::bktr_resolve::bktr_lured;
+use crate::bktu_lure::{
+    bktu_Lure,
+    bktu_answering,
+    bktu_answering_marked,
+    bktu_missing_toolchains,
+    bktu_toolchain_gutted,
+    bktu_toolchain_laid,
+    BKTU_PLANTED_HOST,
+    BKTU_REQUIRED_TOOLCHAINS, //
+};
+use std::path::Path;
 
 #[test]
 fn bktl_the_pin_is_read_from_the_repositorys_own_file() {
     let lure = bktu_Lure::bktu_compose("leash-pin");
 
-    let channel = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect("the lure carries a pin");
+    let channel =
+        bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect("the lure carries a pin");
 
     assert_eq!(channel, "1.90.0");
 }
@@ -34,7 +51,8 @@ fn bktl_a_bumped_pin_reads_as_the_bumped_channel() {
     lure.bktu_write("rust-toolchain.toml", "[toolchain]\nchannel = \"1.89.0\"\n");
     lure.bktu_commit("bump the pin");
 
-    let channel = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect("the lure carries a pin");
+    let channel =
+        bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect("the lure carries a pin");
 
     // The pin is READ and then STATED at the invocation. This is the reading
     // half; that the stated channel is the one that runs is proven by the
@@ -47,26 +65,31 @@ fn bktl_a_repository_with_no_pin_refuses_and_says_why() {
     let lure = bktu_Lure::bktu_compose("leash-unpinned");
     std::fs::remove_file(lure.bktu_root().join("rust-toolchain.toml")).expect("the pin stood");
 
-    let refusal = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect_err("an unpinned repository refuses");
+    let refusal = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root())
+        .expect_err("an unpinned repository refuses");
 
     assert!(
         refusal.contains("no pin governs"),
         "the refusal names what is missing: {}",
-        refusal
+        refusal, //
     );
 }
 
 #[test]
 fn bktl_a_pin_naming_no_channel_refuses() {
     let lure = bktu_Lure::bktu_compose("leash-channelless");
-    lure.bktu_write("rust-toolchain.toml", "[toolchain]\nprofile = \"minimal\"\n");
+    lure.bktu_write(
+        "rust-toolchain.toml",
+        "[toolchain]\nprofile = \"minimal\"\n",
+    );
 
-    let refusal = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root()).expect_err("a channelless pin refuses");
+    let refusal = bkcl_leash::bkcl_pin(lure.bktu_root(), lure.bktu_root())
+        .expect_err("a channelless pin refuses");
 
     assert!(
         refusal.contains("names no channel"),
         "the refusal says the file stood but said nothing: {}",
-        refusal
+        refusal, //
     );
 }
 
@@ -76,10 +99,14 @@ fn bktl_the_fence_is_in_force_for_this_run() {
     // (Tools/bkk/bk0/bkcb_tackroom.sh) before anything reaches cargo. So this asserts
     // the inherited redirect rather than performing one: the environment is
     // process-global and a hurdle that mutated it would race every sibling.
-    let root = bkcl_leash::bkcl_fenced()
+    let root = bkcl_leash::bkcl_fenced(&super::bktr_resolve::bktr_suite())
         .expect("the suite runs behind the fence, so both homes stand inside the tackroom");
 
-    assert!(root.is_absolute(), "the tackroom resolves to a real place: {}", root.display());
+    assert!(
+        root.is_absolute(),
+        "the tackroom resolves to a real place: {}",
+        root.display(), //
+    );
 }
 
 #[test]
@@ -89,14 +116,33 @@ fn bktl_the_station_holds_the_toolchains_the_hurdles_require() {
     // bumped pin changes the compiler is what needs a second toolchain present,
     // and a station without one cannot demonstrate the property at all — so the
     // absence is announced as an absence rather than passing quietly.
+    //
+    // AND EACH ONE ANSWERS, which rustup's ledger cannot say: it went on listing a
+    // channel through a purge that took the compiler's own libraries, and the
+    // hurdles met that channel as a compiler aborting mid-suite. So every
+    // required channel is put to the leash's own proof, the one each build takes.
+    //
+    // THE CONVERGE IS A DOOR, never a hand act: the Rebed door,
+    // tt/bkw-r.Rebed.sh, lays the pin's channel and every one this list names.
     let missing = bktu_missing_toolchains();
 
+    let home = bkcl_leash::bkcl_rustup_home(&crate::bktu_lure::bktu_suite_tackroom());
+    let unanswered: Vec<String> = BKTU_REQUIRED_TOOLCHAINS
+        .iter()
+        .filter_map(|channel| {
+            bkcl_leash::bkcl_channel_answers(Path::new(&home), channel, None).err()
+        })
+        .collect();
+
     assert!(
-        missing.is_empty(),
-        "the station is missing {:?} of the required toolchains {:?} — the converge is \
-         `RUSTUP_HOME=<tackroom>/rustup rustup toolchain install <channel> --profile minimal`",
+        missing.is_empty() && unanswered.is_empty(),
+        "the station is missing {:?} of the required toolchains {:?}, and {} of them did not \
+         answer:\n  {}\n— the converge is {}",
         missing,
-        BKTU_REQUIRED_TOOLCHAINS
+        BKTU_REQUIRED_TOOLCHAINS,
+        unanswered.len(),
+        unanswered.join("\n  "),
+        bkco_call(None, BKCO_VERB_REBED, None), //
     );
 }
 
@@ -117,12 +163,15 @@ fn bktl_a_crate_is_answered_by_the_nearest_pin_above_it() {
 fn bktl_a_crates_own_pin_beats_the_one_above_it() {
     let lure = bktu_Lure::bktu_compose("leash-nearer");
     lure.bktu_write("kit/Cargo.toml", "[package]\nname = \"kit\"\n");
-    lure.bktu_write("kit/rust-toolchain.toml", "[toolchain]\nchannel = \"1.89.0\"\n");
+    lure.bktu_write(
+        "kit/rust-toolchain.toml",
+        "[toolchain]\nchannel = \"1.89.0\"\n",
+    );
     lure.bktu_commit("a crate that states its own channel");
 
     let crate_dir = lure.bktu_root().join("kit");
-    let channel = bkcl_leash::bkcl_pin(lure.bktu_root(), &crate_dir)
-        .expect("the crate's own pin stands");
+    let channel =
+        bkcl_leash::bkcl_pin(lure.bktu_root(), &crate_dir).expect("the crate's own pin stands");
 
     // NEAREST WINS, and this is the whole reason the walk is anchored at the
     // crate: a kit that bumps its own pin is answered by the bump rather than by
@@ -146,7 +195,7 @@ fn bktl_a_crate_outside_the_repository_refuses_rather_than_walking_out() {
     assert!(
         refusal.contains("stands outside the repository"),
         "the refusal names the bound rather than reporting some stranger's channel: {}",
-        refusal
+        refusal, //
     );
 }
 
@@ -161,7 +210,7 @@ fn bktl_a_channel_the_tackroom_lacks_refuses_rather_than_downloading() {
     // happily go and get it, over minutes, saying almost nothing.
     let refusal = bkcl_leash::bkcl_drive(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(&lure),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         Vec::<String>::new(),
@@ -172,12 +221,12 @@ fn bktl_a_channel_the_tackroom_lacks_refuses_rather_than_downloading() {
     assert!(
         refusal.contains("never downloads unasked"),
         "the refusal says why it stopped rather than reporting a failed build: {}",
-        refusal
+        refusal, //
     );
     assert!(
-        refusal.contains("rustup toolchain install 1.1.1"),
-        "the refusal carries the converge that supplies what is missing: {}",
-        refusal
+        refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal names the door that re-lays what is missing: {}",
+        refusal, //
     );
 }
 
@@ -197,7 +246,7 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
 
     let recall = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(&lure),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         ["--no-deps", "--format-version", "1", "--offline"],
@@ -208,7 +257,7 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
     assert!(
         recall.run.bkcl_landed(),
         "cargo refused the lure, saying: {}",
-        recall.grievance
+        recall.grievance, //
     );
 
     // THE ANSWER ARRIVES AS DATA, which is the whole difference between the two
@@ -218,12 +267,12 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
     assert!(
         said.contains("recalled"),
         "the answer describes the crate that was asked about: {}",
-        said
+        said, //
     );
     assert!(
         said.contains("Apache-2.0"),
         "the answer carries the field the manifest declares: {}",
-        said
+        said, //
     );
 
     // THE SPELLING IS NOT IN THE ANSWER. The kennel's own account of what it ran
@@ -232,17 +281,17 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
     assert!(
         recall.run.spelling.contains("+1.90.0"),
         "the pin is stated at the invocation: {}",
-        recall.run.spelling
+        recall.run.spelling, //
     );
     assert!(
         recall.run.spelling.contains("--locked"),
         "the lock rides the invocation: {}",
-        recall.run.spelling
+        recall.run.spelling, //
     );
     assert!(
         !said.contains("--locked"),
         "nothing of the leash's own reached the child's stdout: {}",
-        said
+        said, //
     );
 }
 
@@ -259,7 +308,7 @@ fn bktl_a_recalled_run_stands_on_the_same_discipline_as_a_driven_one() {
     // would drift the moment one of them was edited.
     let refusal = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(&lure),
         &lure.bktu_root().join("Cargo.toml"),
         "metadata",
         Vec::<String>::new(),
@@ -270,8 +319,200 @@ fn bktl_a_recalled_run_stands_on_the_same_discipline_as_a_driven_one() {
     assert!(
         refusal.contains("never downloads unasked"),
         "the refusal says why it stopped rather than reporting a failed read: {}",
-        refusal
+        refusal, //
     );
+    assert!(
+        refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal names the door that re-lays what is missing: {}",
+        refusal, //
+    );
+}
+
+/// The channel a posed rustup home lays, and the toolchain directory it lays it
+/// under: a made-up release, so nothing a hurdle poses could be a station's.
+const ZBKTL_POSED_CHANNEL: &str = "7.7.7";
+const ZBKTL_POSED_TOOLCHAIN: &str = "7.7.7-frabjous-host";
+
+/// THE POSITIVE CONTROL for the refusals below: a toolchain whose compiler
+/// answers the pinned release and a host passes the proof, and the host it
+/// hands back is the one the planted compiler declared.
+///
+/// Without it every refusal below could be a proof that refuses everything,
+/// and each would still read green.
+#[test]
+fn bktl_a_toolchain_whose_compiler_answers_proves_its_channel() {
+    let lure = bktu_Lure::bktu_compose("leash-answers");
+    let tackroom = lure.bktu_tackroom("leash-answers");
+    let home = bktu_toolchain_laid(
+        &tackroom,
+        ZBKTL_POSED_TOOLCHAIN,
+        Some(&bktu_answering(ZBKTL_POSED_CHANNEL)),
+    );
+
+    let host = bkcl_leash::bkcl_channel_answers(&home, ZBKTL_POSED_CHANNEL, None)
+        .expect("a compiler answering the pinned release proves the channel");
+
+    assert_eq!(
+        host, BKTU_PLANTED_HOST,
+        "the host is the one the compiler declared", //
+    );
+}
+
+/// A TOOLCHAIN RUSTUP STILL LISTS WHOSE COMPILER IS GONE refuses naming the door
+/// — the storage purge's own shape, which the ledger's answer passed and a build
+/// script then met.
+#[test]
+fn bktl_a_gutted_toolchain_refuses_naming_the_door() {
+    let lure = bktu_Lure::bktu_compose("leash-gutted");
+    let tackroom = lure.bktu_tackroom("leash-gutted");
+    let home = bktu_toolchain_laid(&tackroom, ZBKTL_POSED_TOOLCHAIN, None);
+
+    let refusal = bkcl_leash::bkcl_channel_answers(&home, ZBKTL_POSED_CHANNEL, None)
+        .expect_err("a toolchain whose compiler cannot answer is refused");
+
+    assert!(
+        refusal.contains(bkcl_leash::BKCL_CONVERGE_SENTENCE),
+        "the refusal carries the converge sentence: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal names the door that re-lays the toolchain: {}",
+        refusal, //
+    );
+}
+
+/// A TOOLCHAIN WHOSE DRIVER LIBRARY IS GONE IS REFUSED WITH NOTHING SPAWNED: the
+/// leash reads the library's absence ahead of the compiler, as the whistle does,
+/// so a compiler that would abort at load — and raise the station's crash dialog
+/// — is never run. Its compiler would answer the pin, and leaves a mark when
+/// spawned; the refusal names the door and the mark is never left.
+#[test]
+fn bktl_a_toolchain_whose_driver_library_is_gone_refuses_spawning_nothing() {
+    let lure = bktu_Lure::bktu_compose("leash-unlibraried");
+    let tackroom = lure.bktu_tackroom("leash-unlibraried");
+    let mark = tackroom.join("spawned");
+    let home = bktu_toolchain_gutted(
+        &tackroom,
+        ZBKTL_POSED_TOOLCHAIN,
+        &bktu_answering_marked(ZBKTL_POSED_CHANNEL, &mark),
+    );
+
+    let refusal = bkcl_leash::bkcl_channel_answers(&home, ZBKTL_POSED_CHANNEL, None)
+        .expect_err("a toolchain without its driver library is refused");
+
+    assert!(
+        refusal.contains(bkcl_leash::BKCL_CONVERGE_SENTENCE)
+            && refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal carries the converge sentence and names the door: {}",
+        refusal, //
+    );
+    assert!(
+        !mark.exists(),
+        "no compiler was spawned on the way to the refusal", //
+    );
+}
+
+/// A compiler answering ANOTHER release than the pin refuses naming the door: the
+/// proof is the release the compiler names, never the directory it stands in.
+#[test]
+fn bktl_a_compiler_answering_another_release_refuses_naming_the_door() {
+    let lure = bktu_Lure::bktu_compose("leash-other-release");
+    let tackroom = lure.bktu_tackroom("leash-other-release");
+    let home = bktu_toolchain_laid(
+        &tackroom,
+        ZBKTL_POSED_TOOLCHAIN,
+        Some(&bktu_answering("7.7.8")),
+    );
+
+    let refusal = bkcl_leash::bkcl_channel_answers(&home, ZBKTL_POSED_CHANNEL, None)
+        .expect_err("a compiler answering another release is refused");
+
+    assert!(
+        refusal.contains("7.7.8") && refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal names what answered and the door: {}",
+        refusal, //
+    );
+}
+
+/// AN ABSENT CHANNEL REFUSES BEFORE ANYTHING IS SPAWNED. The home lays another
+/// channel, whose compiler leaves a mark when it runs, so a proof that reached
+/// for any compiler at all — or for a rustup that would fetch the absent one —
+/// would leave the mark or be refused for another reason; the refusal is the
+/// absence's and the mark is never left.
+#[test]
+fn bktl_an_absent_channel_refuses_before_anything_is_spawned() {
+    let lure = bktu_Lure::bktu_compose("leash-absent-posed");
+    let tackroom = lure.bktu_tackroom("leash-absent-posed");
+    let mark = tackroom.join("spawned");
+    let home = bktu_toolchain_laid(
+        &tackroom,
+        ZBKTL_POSED_TOOLCHAIN,
+        Some(&format!(
+            "#!/bin/sh\n: > '{}'\nprintf 'release: 7.7.7\\nhost: {}\\n'\n",
+            mark.display(),
+            BKTU_PLANTED_HOST, //
+        )),
+    );
+
+    let refusal = bkcl_leash::bkcl_channel_answers(&home, "7.7.6", None)
+        .expect_err("a channel the home does not lay is refused");
+
+    assert!(
+        refusal.contains(BKCO_COLOPHON_REBED),
+        "the refusal names the door that lays the channel: {}",
+        refusal, //
+    );
+    assert!(
+        !mark.exists(),
+        "nothing was spawned on the way to refusing an absent channel", //
+    );
+}
+
+/// TWO TOOLCHAIN DIRECTORIES ANSWERING ONE CHANNEL ARE AN AMBIGUITY, refused
+/// rather than resolved: a pick would be the kennel guessing which store a
+/// build stands on.
+#[test]
+fn bktl_two_toolchains_answering_one_channel_refuse_rather_than_pick() {
+    let lure = bktu_Lure::bktu_compose("leash-ambiguous");
+    let tackroom = lure.bktu_tackroom("leash-ambiguous");
+    let answer = bktu_answering(ZBKTL_POSED_CHANNEL);
+    bktu_toolchain_laid(&tackroom, ZBKTL_POSED_TOOLCHAIN, Some(&answer));
+    let home = bktu_toolchain_laid(&tackroom, "7.7.7-galumph-host", Some(&answer));
+
+    let refusal = bkcl_leash::bkcl_channel_answers(&home, ZBKTL_POSED_CHANNEL, None)
+        .expect_err("two toolchains answering one channel are refused");
+
+    assert!(
+        refusal.contains(ZBKTL_POSED_TOOLCHAIN) && refusal.contains("7.7.7-galumph-host"),
+        "the refusal names both toolchains: {}",
+        refusal, //
+    );
+}
+
+/// A PIN THE ANSWER CANNOT EQUAL is refused rather than guessed at: a named
+/// channel and a two-part version resolve to a release only rustup's ledger
+/// knows, which is the ledger the proof stopped trusting.
+#[test]
+fn bktl_a_channel_no_release_can_equal_refuses() {
+    let lure = bktu_Lure::bktu_compose("leash-unequal");
+    let tackroom = lure.bktu_tackroom("leash-unequal");
+    let home = bktu_toolchain_laid(
+        &tackroom,
+        ZBKTL_POSED_TOOLCHAIN,
+        Some(&bktu_answering(ZBKTL_POSED_CHANNEL)),
+    );
+
+    for channel in ["stable", "7.7", "7.7.7.7", "7.x.7"] {
+        let refusal = bkcl_leash::bkcl_channel_answers(&home, channel, None)
+            .expect_err("a channel no release can equal is refused");
+        assert!(
+            refusal.contains(BKCO_COLOPHON_REBED),
+            "the refusal of {} names the door: {}",
+            channel,
+            refusal, //
+        );
+    }
 }
 
 /// THE FLOOR IS A COMPARISON AND NOT A STRING MATCH, read from both sides: a
@@ -288,7 +529,7 @@ fn bktl_a_version_is_read_against_the_floor_from_both_sides() {
             bkcl_leash::bkcl_at_or_above(held, bkcl_leash::BKCL_GIT_FLOOR),
             "{} stands at or above {}",
             held,
-            bkcl_leash::BKCL_GIT_FLOOR
+            bkcl_leash::BKCL_GIT_FLOOR, //
         );
     }
 
@@ -297,7 +538,7 @@ fn bktl_a_version_is_read_against_the_floor_from_both_sides() {
             !bkcl_leash::bkcl_at_or_above(held, bkcl_leash::BKCL_GIT_FLOOR),
             "{} stands below {}",
             held,
-            bkcl_leash::BKCL_GIT_FLOOR
+            bkcl_leash::BKCL_GIT_FLOOR, //
         );
     }
 }
@@ -312,7 +553,7 @@ fn bktl_a_decorated_version_compares_on_the_numbers_it_carries() {
         assert!(
             bkcl_leash::bkcl_at_or_above(decorated, bkcl_leash::BKCL_GIT_FLOOR),
             "{} carries a version above the floor whatever else it carries",
-            decorated
+            decorated, //
         );
     }
 
@@ -321,7 +562,7 @@ fn bktl_a_decorated_version_compares_on_the_numbers_it_carries() {
     // than about a comparison that has stopped reading.
     assert!(
         !bkcl_leash::bkcl_at_or_above("1.7.0.windows.1", bkcl_leash::BKCL_GIT_FLOOR),
-        "decoration does not lift a version over the floor"
+        "decoration does not lift a version over the floor", //
     );
 }
 
@@ -350,7 +591,8 @@ fn bktl_the_station_holds_the_programs_the_kennel_spawns() {
 /// build.
 #[test]
 fn bktl_the_station_holds_a_rustup_the_kennel_trusts() {
-    bkcl_leash::bkcl_rustup_held().expect("the station holds a rustup at or above the floor");
+    bkcl_leash::bkcl_rustup_held(&crate::bktu_lure::bktu_suite_tackroom())
+        .expect("the station holds a rustup at or above the floor");
 }
 
 /// THE FLOOR IS A COMPARISON AND NOT A STRING MATCH, read from both sides
@@ -364,8 +606,13 @@ fn bktl_a_rustup_report_is_judged_against_the_floor_from_both_sides() {
         "rustup 1.30.0 (abcdef0123 2026-09-01)",
         "rustup 2.0.0 (0000000000 2027-01-01)",
     ] {
-        bkcl_leash::bkcl_rustup_judged(said, bkcl_leash::BKCL_RUSTUP_FLOOR)
-            .unwrap_or_else(|err| panic!("{} stands at or above the floor: {}", said, err));
+        bkcl_leash::bkcl_rustup_judged(said, bkcl_leash::BKCL_RUSTUP_FLOOR).unwrap_or_else(|err| {
+            panic!(
+                "{} stands at or above the floor: {}",
+                said,
+                err, //
+            )
+        });
     }
 
     for said in [
@@ -373,12 +620,12 @@ fn bktl_a_rustup_report_is_judged_against_the_floor_from_both_sides() {
         "rustup 1.9.0 (aaaaaaaaaa 2020-01-01)",
         "rustup 0.9.9 (aaaaaaaaaa 2019-01-01)",
     ] {
-        let refusal = bkcl_leash::bkcl_rustup_judged(said, bkcl_leash::BKCL_RUSTUP_FLOOR)
-            .unwrap_err();
+        let refusal =
+            bkcl_leash::bkcl_rustup_judged(said, bkcl_leash::BKCL_RUSTUP_FLOOR).unwrap_err();
         assert!(
             refusal.contains("rustup") && refusal.contains(bkcl_leash::BKCL_RUSTUP_FLOOR),
             "the refusal names rustup and the floor: {}",
-            refusal
+            refusal, //
         );
     }
 }
@@ -389,11 +636,13 @@ fn bktl_a_rustup_report_is_judged_against_the_floor_from_both_sides() {
 fn bktl_an_unrecognized_rustup_report_refuses_naming_rustup() {
     for said in ["", "not rustup at all", "rustc 1.90.0 (abc123 2026-01-01)"] {
         let refusal = bkcl_leash::bkcl_rustup_judged(said, bkcl_leash::BKCL_RUSTUP_FLOOR)
-            .expect_err("a shape rustup does not give is not one this reading parses a version out of");
+            .expect_err(
+                "a shape rustup does not give is not one this reading parses a version out of",
+            );
         assert!(
             refusal.contains("rustup"),
             "the refusal names rustup rather than guessing: {}",
-            refusal
+            refusal, //
         );
     }
 }
@@ -468,7 +717,7 @@ fn bktl_a_tree_holding_the_kennels_election_is_handed_the_position() {
 
     let run = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(&lure),
         &lure.bktu_root().join("Cargo.toml"),
         "build",
         ["--offline"],
@@ -479,18 +728,19 @@ fn bktl_a_tree_holding_the_kennels_election_is_handed_the_position() {
     assert!(
         run.run.bkcl_landed(),
         "cargo refused the lure, saying: {}",
-        run.grievance
+        run.grievance, //
     );
 
-    let election = bkcf_guard::bkcf_election(&lure.bktu_root().join(bkcl_leash::BKCL_KENNEL_ELECTION))
-        .expect("the election the lure just committed reads");
+    let election =
+        bkcf_guard::bkcf_election(&lure.bktu_root().join(bkcl_leash::BKCL_KENNEL_ELECTION))
+            .expect("the election the lure just committed reads");
     let walked = bkcf_guard::bkcf_seat_position(lure.bktu_root(), &election)
         .expect("the lure's own line touches its elected root");
 
     assert_eq!(
         zbktl_seat_said(&lure),
         walked,
-        "the child was handed the position walked over the tree it was built in"
+        "the child was handed the position walked over the tree it was built in", //
     );
 }
 
@@ -509,13 +759,16 @@ fn bktl_a_tree_holding_no_election_is_handed_no_position() {
     lure.bktu_commit("a tree with no kennel in it at all");
 
     assert!(
-        !lure.bktu_root().join(bkcl_leash::BKCL_KENNEL_ELECTION).exists(),
-        "the control's whole variance is that this tree holds no election"
+        !lure
+            .bktu_root()
+            .join(bkcl_leash::BKCL_KENNEL_ELECTION)
+            .exists(),
+        "the control's whole variance is that this tree holds no election", //
     );
 
     let run = bkcl_leash::bkcl_recall(
         lure.bktu_root(),
-        &lure.bktu_weaned(),
+        &bktr_lured(&lure),
         &lure.bktu_root().join("Cargo.toml"),
         "build",
         ["--offline"],
@@ -526,13 +779,13 @@ fn bktl_a_tree_holding_no_election_is_handed_no_position() {
     assert!(
         run.run.bkcl_landed(),
         "cargo refused the lure, saying: {}",
-        run.grievance
+        run.grievance, //
     );
 
     assert_eq!(
         zbktl_seat_said(&lure),
         "unset",
-        "the child of a kennel-less tree carries no position, inherited or otherwise"
+        "the child of a kennel-less tree carries no position, inherited or otherwise", //
     );
 }
 
@@ -561,16 +814,24 @@ fn bktl_a_stream_whose_read_breaks_is_answered_as_cut() {
     let cut = bkcl_leash::zbkcl_carried(std::io::BufReader::new(breaking), post);
     let carried: Vec<String> = arrivals.iter().collect();
 
-    assert_eq!(carried, vec!["test one ... ok", "test two ... ok"], "the lines ahead of the break are carried");
+    assert_eq!(
+        carried,
+        vec!["test one ... ok", "test two ... ok"],
+        "the lines ahead of the break are carried", //
+    );
     let cut = cut.expect("a read that broke is answered as a cut");
-    assert!(cut.contains("planted break"), "the cut names what broke the read: {}", cut);
+    assert!(
+        cut.contains("planted break"),
+        "the cut names what broke the read: {}",
+        cut, //
+    );
 
     // THE CONTROL: a stream read to its end is no cut.
     let (post, _arrivals) = std::sync::mpsc::channel::<String>();
     assert_eq!(
         bkcl_leash::zbkcl_carried(std::io::Cursor::new(b"test one ... ok\n".to_vec()), post),
         None,
-        "a stream read to its end is no cut"
+        "a stream read to its end is no cut", //
     );
 }
 

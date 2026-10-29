@@ -30,18 +30,17 @@ RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 # Source dependencies
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
-source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
 source "${RBW_SCRIPT_DIR}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Kindle dispatch and zipper registry
-zbuv_kindle
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares.
+buv_export_sentinel "${BURD_TARGET}"
+
+# Kindle the zipper registry; the command module kindled the dispatch regime
 zbuz_kindle
 zrbz_kindle
 

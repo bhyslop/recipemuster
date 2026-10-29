@@ -124,8 +124,13 @@ impl bkprc_Regime {
 /// line together and a reader needs no second search to reach the offending
 /// text.
 pub fn bkprc_read(path: &Path) -> Result<bkprc_Regime, String> {
-    let source = std::fs::read_to_string(path)
-        .map_err(|err| format!("could not read the regime file at {}: {}", path.display(), err))?;
+    let source = std::fs::read_to_string(path).map_err(|err| {
+        format!(
+            "could not read the regime file at {}: {}",
+            path.display(),
+            err, //
+        )
+    })?;
 
     bkprc_admit(&source, &path.display().to_string())
 }
@@ -191,7 +196,12 @@ fn zbkprc_assignment<'a>(
     let key = raw[..split].trim_start();
 
     if key.is_empty() {
-        return Err(zbkprc_refusal(whence, line, raw, "the key before the '=' is empty"));
+        return Err(zbkprc_refusal(
+            whence,
+            line,
+            raw,
+            "the key before the '=' is empty",
+        ));
     }
 
     if !zbkprc_named(key) {
@@ -203,7 +213,7 @@ fn zbkprc_assignment<'a>(
                 "'{}' is no shell name: a key runs to the first '=' and carries letters, digits \
                  and underscores alone, so an 'export' prefix, a quoted key, or whitespace \
                  standing against the '=' refuses here",
-                key
+                key, //
             ),
         ));
     }
@@ -321,7 +331,7 @@ fn zbkprc_quoted<'a>(
                         &format!(
                             "the value opened at line {} is quoted at one end alone: this line \
                              neither closes the quote nor ends in a backslash",
-                            opening
+                            opening, //
                         ),
                     )
                 })?;
@@ -341,7 +351,7 @@ fn zbkprc_quoted<'a>(
                         segment,
                         &format!(
                             "the value opened at line {} is never closed — the file ends inside it",
-                            opening
+                            opening, //
                         ),
                     )
                 })?;
@@ -402,7 +412,13 @@ fn zbkprc_unexpanded(body: &str, whence: &str, line: usize, raw: &str) -> Result
 /// The offending text rides the message because a finding a reader has to go and
 /// look up is a finding that costs a second search.
 fn zbkprc_refusal(whence: &str, line: usize, raw: &str, why: &str) -> String {
-    format!("{}:{}: {} — the line reads: {}", whence, line, why, raw.trim())
+    format!(
+        "{}:{}: {} — the line reads: {}",
+        whence,
+        line,
+        why,
+        raw.trim(), //
+    )
 }
 
 // eof

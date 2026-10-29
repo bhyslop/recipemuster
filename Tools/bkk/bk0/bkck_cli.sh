@@ -35,15 +35,12 @@ zbkck_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided)"
   buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory the lures stand under (dispatch-provided)"
-  buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
+  buc_doc_env_row "BURD_TACKROOM         " "The tackroom holding the toolchain and registry store (dispatch-provided)"
   # BKCQ_FEEDROOM is read too, and takes no row: it is the kennel's own variable
   # carrying a kibble root a hurdle poses beneath the dispatch temp directory, no
   # launch states it, and a row warns wherever its variable is unset.
   buc_doc_env_done || return 0
 
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   # The pin, shared with the whistle. The kennelman builds the crate too, and
   # build.rs owes both of them the door law and the position - refused there once
   # rather than in each door's bash.
@@ -52,8 +49,6 @@ zbkck_furnish() {
 
   source "${BURD_TOOLS_DIR}/bkk/bk0/bkck_kennelman.sh" || buc_die_now "Failed to source bkck_kennelman.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zbkcb_kindle
   zbkck_kindle
 }

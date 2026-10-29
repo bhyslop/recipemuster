@@ -66,7 +66,7 @@ use rbt::rbtcei_invocation::{
 };
 use rbt::rbtccd_dowse::rbtccd_dowse;
 use rbt::rbtgec_consts::RBTGEC_CRUCIBLE_ACTIVE;
-use rbt::rbtcep_platform::rbtcep_path_from_env;
+use rbt::rbtcep_platform::rbtdrx_path_from_dispatch;
 
 /// The flag the kennel's election asks a standing binary before it launches or
 /// borrows one. Its home is `BKCE_EXERGUE_FLAG` in the kennel's election
@@ -126,7 +126,7 @@ struct rbtm_Roots {
 }
 
 fn rbtm_allocate_roots() -> Result<rbtm_Roots, String> {
-    let burd_temp = rbtcep_path_from_env(RBTCEI_BURD_TEMP_DIR_KEY)?;
+    let burd_temp = rbtdrx_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY)?;
 
     // Both BURV roots are anchored under the per-run trace dir
     // (BURD_TEMP_DIR/trace), which is stable for the life of the run. The output

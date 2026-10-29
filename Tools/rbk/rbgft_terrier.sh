@@ -30,6 +30,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBGFT_SOURCED:-}" || buc_die_now "Module rbgft multiply sourced - check sourcing hierarchy"
 ZRBGFT_SOURCED=1
@@ -96,7 +101,7 @@ zrbgft_muniment_name_capture() {
 # ifGenerationMatch=0 create — Cloud Storage writes only if absent. Echoes
 # "created" on a fresh write (200/201) or "present" on the 412 precondition
 # (a duplicate create is idempotent success, the muniment already holds).
-# Any other code rejects in the engross band (BUBC_band_engross).
+# Any other code rejects in the engross band (RBCG_ENGROSS_DENTIL).
 rbgft_engross() {
   zrbgft_sentinel
 
@@ -138,14 +143,14 @@ rbgft_engross() {
              local z_err_status=0
              z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err_status=$?
              test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
-             buc_reject "${BUBC_band_engross}" "Failed to engross muniment (HTTP ${z_code}): ${z_err}" ;;
+             buc_reject "${RBCG_ENGROSS_DENTIL}" "Failed to engross muniment (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
 
 # rbgft_expunge <token> <bucket> <depot_project_id> <mantle> <subject>
 # Withdraw the muniment for (subject, mantle). Echoes "deleted" (204) or
 # "absent" (404 — idempotent, already struck from the record). Any other code
-# rejects in the expunge band (BUBC_band_expunge).
+# rejects in the expunge band (RBCG_EXPUNGE_DENTIL).
 rbgft_expunge() {
   zrbgft_sentinel
 
@@ -181,7 +186,7 @@ rbgft_expunge() {
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err_status=$?
          test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
-         buc_reject "${BUBC_band_expunge}" "Failed to expunge muniment (HTTP ${z_code}): ${z_err}" ;;
+         buc_reject "${RBCG_EXPUNGE_DENTIL}" "Failed to expunge muniment (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
 
@@ -192,7 +197,7 @@ rbgft_expunge() {
 # rbgft_ content fields, the depot column from the object key's first segment.
 # A read-after-list 404 (an object expunged between the listing and its fetch)
 # is a benign vanish, skipped, not fatal. Any other list/fetch non-OK, or a body
-# missing the rbgft_ fields, rejects in the peruse band (BUBC_band_peruse).
+# missing the rbgft_ fields, rejects in the peruse band (RBCG_PERUSE_DENTIL).
 # <list_infix> is suffixed with the page number; <get_infix> names the
 # per-object fetch capture; <out_file> is truncated, then takes the lines.
 zrbgft_list_fetch_emit() {
@@ -240,7 +245,7 @@ zrbgft_list_fetch_emit() {
            local z_list_err_status=0
            z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err_status=$?
            test "${z_list_err_status}" -eq 0 || z_list_err="HTTP ${z_list_code}"
-           buc_reject "${BUBC_band_peruse}" "Terrier read: failed to list muniments (HTTP ${z_list_code}): ${z_list_err}" ;;
+           buc_reject "${RBCG_PERUSE_DENTIL}" "Terrier read: failed to list muniments (HTTP ${z_list_code}): ${z_list_err}" ;;
     esac
 
     local z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
@@ -271,12 +276,12 @@ zrbgft_list_fetch_emit() {
              local z_get_err_status=0
              z_get_err=$(rbuh_json_field_capture "${z_get_infix}" '.error.message') || z_get_err_status=$?
              test "${z_get_err_status}" -eq 0 || z_get_err="HTTP ${z_get_code}"
-             buc_reject "${BUBC_band_peruse}" "Terrier read: failed to fetch muniment ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
+             buc_reject "${RBCG_PERUSE_DENTIL}" "Terrier read: failed to fetch muniment ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
       esac
 
       local z_get_file="${ZRBUH_PREFIX}${z_get_infix}${ZRBUH_POSTFIX_JSON}"
       jq -r --arg depot "${z_name%%/*}" '[$depot, .rbgft_mantle, .rbgft_subject] | @tsv' "${z_get_file}" >> "${z_out}" \
-        || buc_reject "${BUBC_band_peruse}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
+        || buc_reject "${RBCG_PERUSE_DENTIL}" "Terrier read: muniment ${z_name} missing rbgft_ fields"
     done
 
     z_page_token=$(jq -r '.nextPageToken // empty' "${z_list_file}") || buc_die_now "Failed to read nextPageToken"
@@ -340,7 +345,7 @@ rbgft_peruse_manor() {
 # CLASSIFIES rather than rejects (contrast the strict zrbgft_list_fetch_emit,
 # whose whole read dies on one bad body). A read-after-list 404 is the benign
 # vanish, skipped. List/fetch deficits reject in the escheat band
-# (BUBC_band_escheat); an absent bucket rejects there naming the manor finisher.
+# (RBCG_MANOR_ESCHEAT_DENTIL); an absent bucket rejects there naming the manor finisher.
 rbgft_escheat_survey() {
   zrbgft_sentinel
 
@@ -384,12 +389,12 @@ rbgft_escheat_survey() {
     z_list_code=$(rbuh_code_capture "${z_list_infix_page}") || buc_die_now "Bad escheat list HTTP code"
     case "${z_list_code}" in
       200) : ;;
-      404) buc_reject "${BUBC_band_escheat}" "Escheat survey: terrier bucket ${z_bucket} absent — instaurate the manor first" ;;
+      404) buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Escheat survey: terrier bucket ${z_bucket} absent — instaurate the manor first" ;;
       *)
            local z_list_err_status=0
            z_list_err=$(rbuh_json_field_capture "${z_list_infix_page}" '.error.message') || z_list_err_status=$?
            test "${z_list_err_status}" -eq 0 || z_list_err="HTTP ${z_list_code}"
-           buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to list terrier objects (HTTP ${z_list_code}): ${z_list_err}" ;;
+           buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Escheat survey: failed to list terrier objects (HTTP ${z_list_code}): ${z_list_err}" ;;
     esac
 
     z_list_file="${ZRBUH_PREFIX}${z_list_infix_page}${ZRBUH_POSTFIX_JSON}"
@@ -455,7 +460,7 @@ rbgft_escheat_survey() {
            local z_get_err_status=0
            z_get_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_GET}" '.error.message') || z_get_err_status=$?
            test "${z_get_err_status}" -eq 0 || z_get_err="HTTP ${z_get_code}"
-           buc_reject "${BUBC_band_escheat}" "Escheat survey: failed to fetch object ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
+           buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Escheat survey: failed to fetch object ${z_name} (HTTP ${z_get_code}): ${z_get_err}" ;;
     esac
 
     z_get_file="${ZRBUH_PREFIX}${ZRBGFT_INFIX_ESCHEAT_GET}${ZRBUH_POSTFIX_JSON}"
@@ -487,7 +492,7 @@ rbgft_escheat_survey() {
 # unconditioned — no muniment-name composition, because an escheat subject's key
 # may be exactly what fails the contract. Echoes "deleted" (204) or "absent"
 # (404 — already vanished, clean). Any other code rejects in the escheat band
-# (BUBC_band_escheat). Logged, not stepped: the sweep loop is one verb step.
+# (RBCG_MANOR_ESCHEAT_DENTIL). Logged, not stepped: the sweep loop is one verb step.
 rbgft_escheat_expunge_raw() {
   zrbgft_sentinel
 
@@ -516,7 +521,7 @@ rbgft_escheat_expunge_raw() {
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err_status=$?
          test "${z_err_status}" -eq 0 || z_err="HTTP ${z_code}"
-         buc_reject "${BUBC_band_escheat}" "Failed to escheat object ${z_name} (HTTP ${z_code}): ${z_err}" ;;
+         buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Failed to escheat object ${z_name} (HTTP ${z_code}): ${z_err}" ;;
   esac
 }
 

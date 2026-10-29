@@ -21,12 +21,19 @@
 //! here is everything answerable without one.
 
 use crate::bkcq_kibble::{
-    bkcq_feedroom_at, bkcq_findings, bkcq_Kibble, BKCQ_FAMILY, BKCQ_FEEDROOM_VAR,
-    BKCQ_FIELDS_BOTH, BKCQ_FIELDS_PREBUILT, BKCQ_FIELDS_SOURCE, BKCQ_KIND_PREBUILT,
-    BKCQ_KIND_SOURCE,
+    bkcq_Kibble,
+    bkcq_feedroom_at,
+    bkcq_findings,
+    BKCQ_FAMILY,
+    BKCQ_FEEDROOM_VAR,
+    BKCQ_FIELDS_BOTH,
+    BKCQ_FIELDS_PREBUILT,
+    BKCQ_FIELDS_SOURCE,
+    BKCQ_KIND_PREBUILT,
+    BKCQ_KIND_SOURCE, //
 };
-use std::path::Path;
 use bkp::bkprc_catena::bkprc_admit;
+use std::path::Path;
 
 /// A kibble composed from text, so a hurdle poses a declaration without a tree.
 ///
@@ -69,7 +76,10 @@ fn zbktq_whole(name: &str) -> String {
          BKRK_CHANNEL=\"1.90.0\"\n\
          BKRK_TARGET=\"cargo-nextest\"\n\
          BKRK_FEATURES=\"default-no-update\"\n",
-        name, BKCQ_KIND_SOURCE, ZBKTQ_VERSION, ZBKTQ_SEAL
+        name,
+        BKCQ_KIND_SOURCE,
+        ZBKTQ_VERSION,
+        ZBKTQ_SEAL, //
     )
 }
 
@@ -81,7 +91,7 @@ fn bktq_a_whole_source_kibble_carries_no_finding() {
     assert!(
         findings.is_empty(),
         "a conforming source kibble reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -92,7 +102,12 @@ fn bktq_every_owed_field_is_reported_when_it_is_absent() {
     for field in BKCQ_FIELDS_BOTH.iter().chain(BKCQ_FIELDS_SOURCE.iter()) {
         let text: String = zbktq_whole("bki_nextest")
             .lines()
-            .filter(|line| !line.starts_with(&format!("{}=", field)))
+            .filter(|line| {
+                !line.starts_with(&format!(
+                    "{}=",
+                    field, //
+                ))
+            })
             .collect::<Vec<&str>>()
             .join("\n");
 
@@ -102,7 +117,7 @@ fn bktq_every_owed_field_is_reported_when_it_is_absent() {
             findings.iter().any(|said| said.starts_with(field)),
             "dropping {} reported {:?}",
             field,
-            findings
+            findings, //
         );
     }
 }
@@ -121,7 +136,7 @@ fn bktq_a_prebuilt_kibble_declaring_a_build_field_is_reported() {
                 .any(|said| said.starts_with(field) && said.contains("source kind")),
             "{} was not reported as foreign to the prebuilt kind: {:?}",
             field,
-            findings
+            findings, //
         );
     }
 }
@@ -136,8 +151,16 @@ fn bktq_a_kind_outside_the_roster_is_reported_and_names_both_values() {
         .find(|said| said.starts_with("BKRK_KIND"))
         .expect("an unadmitted kind is reported");
 
-    assert!(said.contains(BKCQ_KIND_SOURCE), "{}", said);
-    assert!(said.contains(BKCQ_KIND_PREBUILT), "{}", said);
+    assert!(
+        said.contains(BKCQ_KIND_SOURCE),
+        "{}",
+        said, //
+    );
+    assert!(
+        said.contains(BKCQ_KIND_PREBUILT),
+        "{}",
+        said, //
+    );
 }
 
 #[test]
@@ -152,8 +175,16 @@ fn bktq_a_name_disagreeing_with_its_directory_is_reported() {
         .find(|said| said.starts_with("BKRK_KIBBLE"))
         .expect("a disagreeing name is reported");
 
-    assert!(said.contains("bki_uv"), "{}", said);
-    assert!(said.contains("bki_nextest"), "{}", said);
+    assert!(
+        said.contains("bki_uv"),
+        "{}",
+        said, //
+    );
+    assert!(
+        said.contains("bki_nextest"),
+        "{}",
+        said, //
+    );
 }
 
 #[test]
@@ -166,7 +197,7 @@ fn bktq_a_seal_of_the_wrong_width_is_reported_before_anything_is_fetched() {
             .iter()
             .any(|said| said.starts_with("BKRK_SEAL") && said.contains("64")),
         "a short seal reported {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -180,7 +211,7 @@ fn bktq_a_seal_spelled_in_uppercase_is_reported() {
     assert!(
         findings.iter().any(|said| said.starts_with("BKRK_SEAL")),
         "an uppercase seal reported {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -201,10 +232,26 @@ fn bktq_the_residence_carries_the_version_in_its_path() {
     let residence = kibble.bkcq_residence(&store);
     let said = residence.display().to_string();
 
-    assert!(said.starts_with("/posed/tackroom"), "{}", said);
-    assert!(said.contains(ZBKTQ_VERSION), "{}", said);
-    assert!(said.contains("bki_nextest"), "{}", said);
-    assert!(said.ends_with("cargo-nextest"), "{}", said);
+    assert!(
+        said.starts_with("/posed/tackroom"),
+        "{}",
+        said, //
+    );
+    assert!(
+        said.contains(ZBKTQ_VERSION),
+        "{}",
+        said, //
+    );
+    assert!(
+        said.contains("bki_nextest"),
+        "{}",
+        said, //
+    );
+    assert!(
+        said.ends_with("cargo-nextest"),
+        "{}",
+        said, //
+    );
 
     // A BUMPED VERSION MOVES THE PATH, which is the discriminator: without it
     // the assertions above would pass over a residence that ignored the version.
@@ -228,8 +275,16 @@ fn bktq_an_absent_tackroom_refuses_naming_the_fence() {
     let refusal = bkcq_feedroom_at(None, None, None)
         .expect_err("no tackroom and no posed root compose no kibble root");
 
-    assert!(refusal.contains("personal tool home"), "{}", refusal);
-    assert!(refusal.contains("bkcb_tackroom.sh"), "{}", refusal);
+    assert!(
+        refusal.contains("personal tool home"),
+        "{}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains("bkcb_tackroom.sh"),
+        "{}",
+        refusal, //
+    );
 }
 
 #[test]
@@ -246,7 +301,7 @@ fn bktq_a_posed_root_stands_beneath_the_dispatch_temp_or_is_refused() {
     assert!(
         residence.starts_with(temp.join("haynet").join("bki_nextest")),
         "{}",
-        residence.display()
+        residence.display(), //
     );
 
     // A ROOT ANYWHERE ELSE IS REFUSED, the tackroom itself above all: a root
@@ -261,14 +316,26 @@ fn bktq_a_posed_root_stands_beneath_the_dispatch_temp_or_is_refused() {
     ] {
         let refusal = bkcq_feedroom_at(Some(&elsewhere), Some(temp), Some(tackroom))
             .expect_err("a root outside the dispatch temp directory is refused");
-        assert!(refusal.contains(BKCQ_FEEDROOM_VAR), "{}", refusal);
-        assert!(refusal.contains("/posed/dispatch"), "{}", refusal);
+        assert!(
+            refusal.contains(BKCQ_FEEDROOM_VAR),
+            "{}",
+            refusal, //
+        );
+        assert!(
+            refusal.contains("/posed/dispatch"),
+            "{}",
+            refusal, //
+        );
     }
 
     // AND WITH NO DISPATCH TEMP DIRECTORY THERE IS NOTHING TO ADMIT IT BENEATH.
     let refusal = bkcq_feedroom_at(Some(&temp.join("haynet")), None, Some(tackroom))
         .expect_err("a posed root with no dispatch temp directory is refused");
-    assert!(refusal.contains(BKCQ_FEEDROOM_VAR), "{}", refusal);
+    assert!(
+        refusal.contains(BKCQ_FEEDROOM_VAR),
+        "{}",
+        refusal, //
+    );
 }
 
 #[test]
@@ -279,7 +346,7 @@ fn bktq_the_archive_joins_the_version_onto_the_declared_registry() {
         kibble.bkcq_archive(),
         format!(
             "https://static.crates.io/crates/cargo-nextest/cargo-nextest-{}.crate",
-            ZBKTQ_VERSION
+            ZBKTQ_VERSION, //
         )
     );
 
@@ -312,7 +379,10 @@ fn zbktq_whole_prebuilt(name: &str) -> String {
          BKRK_BYNAME=\"uv\"\n\
          BKRK_LARDER=\"https://example.invalid/releases/download\"\n\
          BKRK_BORDEREAU=\"dist-manifest.json\"\n",
-        name, BKCQ_KIND_PREBUILT, ZBKTQ_VERSION, ZBKTQ_SEAL
+        name,
+        BKCQ_KIND_PREBUILT,
+        ZBKTQ_VERSION,
+        ZBKTQ_SEAL, //
     )
 }
 
@@ -324,7 +394,7 @@ fn bktq_a_whole_prebuilt_kibble_carries_no_finding() {
     assert!(
         findings.is_empty(),
         "a conforming prebuilt kibble reported: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -334,7 +404,12 @@ fn bktq_every_field_the_prebuilt_kind_owes_is_reported_when_it_is_absent() {
     for field in BKCQ_FIELDS_BOTH.iter().chain(BKCQ_FIELDS_PREBUILT.iter()) {
         let text: String = zbktq_whole_prebuilt("bki_uv")
             .lines()
-            .filter(|line| !line.starts_with(&format!("{}=", field)))
+            .filter(|line| {
+                !line.starts_with(&format!(
+                    "{}=",
+                    field, //
+                ))
+            })
             .collect::<Vec<&str>>()
             .join("\n");
 
@@ -344,7 +419,7 @@ fn bktq_every_field_the_prebuilt_kind_owes_is_reported_when_it_is_absent() {
             findings.iter().any(|said| said.starts_with(field)),
             "dropping {} reported {:?}",
             field,
-            findings
+            findings, //
         );
     }
 }
@@ -359,7 +434,7 @@ fn bktq_a_source_kibble_declaring_a_release_field_is_reported() {
         "{}\
          BKRK_LARDER=\"https://example.invalid/releases/download\"\n\
          BKRK_BORDEREAU=\"dist-manifest.json\"\n",
-        zbktq_whole("bki_nextest")
+        zbktq_whole("bki_nextest"), //
     );
     let findings = bkcq_findings(&zbktq_posed("bki_nextest", &text));
 
@@ -370,7 +445,7 @@ fn bktq_a_source_kibble_declaring_a_release_field_is_reported() {
                 .any(|said| said.starts_with(field) && said.contains("prebuilt kind")),
             "{} was not reported as foreign to the source kind: {:?}",
             field,
-            findings
+            findings, //
         );
     }
 }
@@ -383,7 +458,7 @@ fn bktq_the_bordereau_and_its_siblings_join_the_version_between_store_and_name()
         kibble.bkcq_bordereau(),
         format!(
             "https://example.invalid/releases/download/{}/dist-manifest.json",
-            ZBKTQ_VERSION
+            ZBKTQ_VERSION, //
         )
     );
 
@@ -393,7 +468,7 @@ fn bktq_the_bordereau_and_its_siblings_join_the_version_between_store_and_name()
         kibble.bkcq_beside("uv-posed-triple.tar.gz"),
         format!(
             "https://example.invalid/releases/download/{}/uv-posed-triple.tar.gz",
-            ZBKTQ_VERSION
+            ZBKTQ_VERSION, //
         )
     );
 

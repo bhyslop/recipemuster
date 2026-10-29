@@ -19,6 +19,12 @@
 # Bash Validation Utility Library
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 
+# The gate codes this module rejects with, from the substrate's generated
+# constants, sourced above the inclusion guard so the tinder block stays the run
+# behind it. The sourced file carries its own inclusion guard, so a sibling
+# sourcing it costs nothing.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
+
 # Multiple inclusion guard
 test -z "${ZBUV_SOURCED:-}" || buc_die_now "Module buv multiply sourced - check sourcing hierarchy"
 ZBUV_SOURCED=1
@@ -27,9 +33,8 @@ ZBUV_SOURCED=1
 readonly BUV_check_gated="gated"
 readonly BUV_check_fail="fail:"
 
-# Band tinder + the regime-poison tweak name: buc_reject (buc_command) and the
-# regime-poison seam below both reference BUBC_* constants at runtime, so every
-# top file sourcing this module sources the band constants beside it.
+# The regime-poison tweak name: the seam below references a BUBC_* constant at
+# runtime, so every top file sourcing this module sources the tinder beside it.
 
 buv_file_exists() {
   zbuv_sentinel
@@ -81,6 +86,10 @@ zbuv_kindle() {
   z_buv_grp_gate_var_roll=()
   z_buv_grp_gate_val_roll=()
 
+  # Koine registry rolls (2 parallel arrays): each scope handed to docker compose, and its carrier
+  z_buv_koine_scope_roll=()
+  z_buv_koine_carrier_roll=()
+
   # Mutable kindle state: regime context (set by buv_regime_enroll / buv_group_enroll / buv_gate_enroll)
   z_buv_current_scope=""
   z_buv_current_group=""
@@ -116,6 +125,10 @@ zbuv_reset_enrollment() {
   z_buv_grp_gate_var_roll=()
   z_buv_grp_gate_val_roll=()
 
+  # Clear koine registry rolls
+  z_buv_koine_scope_roll=()
+  z_buv_koine_carrier_roll=()
+
   # Reset regime context state
   z_buv_current_scope=""
   z_buv_current_group=""
@@ -146,19 +159,29 @@ zbuv_poison_apply() {
 
   local z_spec="${BURE_TWEAK_VALUE:-}"
   test -n "${z_spec}" || buc_die_now "regime poison: BURE_TWEAK_VALUE required ('VAR=value' to set, 'VAR' to unset)"
-  local z_var="${z_spec%%=*}"
-  [[ "${z_var}" =~ ^[A-Z][A-Z0-9_]*$ ]] || buc_die_now "regime poison: invalid variable name '${z_var}'"
+  local -r z_var="${z_spec%%=*}"
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+  [[ "${z_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+    || buc_die_now "regime poison: invalid variable name '${z_var}'"
+  case "${z_var}" in
+    [ABCDEFGHIJKLMNOPQRSTUVWXYZ]*) : ;;
+    *) buc_die_now "regime poison: invalid variable name '${z_var}'" ;;
+  esac
 
   case "${z_var}" in
     "${z_scope}_"*) : ;;
     *) return 0 ;;
   esac
 
+  # The set form assigns without the export attribute, as the file the poison
+  # stands in for would, so the scope sentinel's exported-name rule never
+  # refuses the seam's own poison. printf -v assigns at global scope where a
+  # declare inside this function would scope the name local.
   if test "${z_spec}" = "${z_var}"; then
     unset "${z_var}" || buc_die_now "regime poison: cannot unset ${z_var}"
     buc_log_args "regime poison: unset ${z_var} (scope ${z_scope})"
   else
-    export "${z_var}=${z_spec#*=}" || buc_die_now "regime poison: cannot set ${z_var}"
+    printf -v "${z_var}" '%s' "${z_spec#*=}" || buc_die_now "regime poison: cannot set ${z_var}"
     buc_log_args "regime poison: set ${z_var} (scope ${z_scope})"
   fi
 }
@@ -178,6 +201,23 @@ buv_regime_enroll() {
   z_buv_current_gate_val=""
 
   zbuv_poison_apply "${z_scope}"
+}
+
+# buv_koine_enroll CARRIER — declare the current scope a koine handed to docker compose
+# Compose decodes CARRIER as its env file under a grammar of its own, and no
+# reference fixes where compose resolves a ${ reference, so buv_vet refuses any
+# carrier line carrying one. The declaration is the regime's, never a field's.
+buv_koine_enroll() {
+  zbuv_sentinel
+
+  test -n "${z_buv_current_scope}" || buc_die_now "buv_koine_enroll: call buv_regime_enroll first"
+
+  local -r z_carrier="${1:-}"
+  test -n "${z_carrier}" || buc_die_now "buv_koine_enroll: carrier required"
+  test -f "${z_carrier}" || buc_die_now "buv_koine_enroll: carrier not found: ${z_carrier}"
+
+  z_buv_koine_scope_roll+=("${z_buv_current_scope}")
+  z_buv_koine_carrier_roll+=("${z_carrier}")
 }
 
 # buv_group_enroll TITLE — set current group context
@@ -652,7 +692,8 @@ buv_hallmark_format() {
     || buc_die_now "Invalid hallmark format: '${z_val}' (expected [cbg]YYMMDDHHMMSS-rYYMMDDHHMMSS)"
 }
 
-# buv_scope_sentinel SCOPE PREFIX — die if any PREFIX_ vars exist that are not enrolled in SCOPE
+# buv_scope_sentinel SCOPE PREFIX — die if any PREFIX_ vars exist that are not enrolled in SCOPE,
+# or if any stands exported that is no hand-off (the exported-name rule)
 # Usage: buv_scope_sentinel RBRN RBRN_
 buv_scope_sentinel() {
   zbuv_sentinel
@@ -694,8 +735,85 @@ buv_scope_sentinel() {
   done
 
   if test "${#z_unexpected[@]}" -gt 0; then
-    buc_reject "${BUBC_band_enroll}" "Unexpected ${z_prefix}* variables not enrolled in ${z_scope}: ${z_unexpected[*]}"
+    buc_reject "${BUBG_ENROLL_DENTIL}" "Unexpected ${z_prefix}* variables not enrolled in ${z_scope}: ${z_unexpected[*]}"
   fi
+
+  # The second rule: a name of this scope standing exported is refused save the
+  # hand-offs every level declares. The door is named where this process runs
+  # under one, its dispatch file having been read before any kindle.
+  zbuv_exported_rule "${z_prefix}" "${BURD_TARGET:+${BURD_TARGET}, at }the ${z_scope} ${BUBG_BUKRO_KINDLE_PROSOPON}" ""
+}
+
+# buv_export_sentinel DOOR [ADMITTED] — the exported-name rule at a process's entry
+# Applies the scope sentinel's second rule over every family the kit speaks
+# across an exec. A launcher's entry, each workbench's head and buc_execute call
+# it; ADMITTED is the hand-offs that level declares beside those every level
+# declares, space-separated, a word ending in an underscore admitting its family.
+buv_export_sentinel() {
+  buc_doc_brief "Refuse a name of the kit standing exported that this level declares no hand-off for"
+  buc_doc_param "door" "The ${BUBG_TABTARGET_BASE} basename the refusal names"
+  buc_doc_oparm "admitted" "The hand-offs this level declares beside every level's, space-separated"
+  buc_doc_shown || return 0
+
+  zbuv_sentinel
+
+  local -r z_door="${1:-}"
+  local -r z_admitted="${2:-}"
+  test -n "${z_door}" || buc_die_now "buv_export_sentinel: door required"
+
+  local z_family=""
+  for z_family in BURC_ BURS_ BURD_ BURE_ BURV_ BURX_ BUZ_ BUC_; do
+    zbuv_exported_rule "${z_family}" "${z_door}" "${z_admitted}"
+  done
+}
+
+# zbuv_exported_rule PREFIX WHERE ADMITTED — reject the first name wearing PREFIX
+# that stands exported in this process and is no hand-off
+# The listing is compgen -e: a name that arrived exported keeps its listing after
+# a sourced file reassigns it, so the rule reads the inheritance, never the file.
+# Every level admits the environment regime, the pointer and the kit directory;
+# ADMITTED names what a level declares beside them, a word ending in an
+# underscore admitting its family.
+zbuv_exported_rule() {
+  zbuv_sentinel
+
+  local -r z_prefix="${1:-}"
+  local -r z_where="${2:-}"
+  local -r z_admitted="${3:-}"
+  test -n "${z_prefix}" || buc_die_now "zbuv_exported_rule: prefix required"
+
+  local z_listing=""
+  local z_listing_status=0
+  z_listing=$(compgen -e "${z_prefix}") || z_listing_status=$?
+  test "${z_listing_status}" -le 1 || buc_die_now "zbuv_exported_rule: could not list the exported ${z_prefix} variables"
+  local -r z_newline=$'\n'
+  local -r z_line="${z_listing//"${z_newline}"/ }"
+  local z_names=()
+  read -r -a z_names <<< "${z_line}" || buc_die_now "zbuv_exported_rule: could not split the exported ${z_prefix} listing"
+  test "${#z_names[@]}" -gt 0 || return 0
+
+  local z_words=()
+  read -r -a z_words <<< "${z_admitted}" || buc_die_now "zbuv_exported_rule: could not split the admitted hand-offs"
+
+  local z_n=""
+  local z_w=""
+  local z_handed=""
+  for z_n in "${!z_names[@]}"; do
+    z_handed=""
+    case "${z_names[${z_n}]}" in
+      BURE_*|BURD_BURD_FILE|BURD_BUK_DIR) z_handed=1 ;;
+    esac
+    if test -z "${z_handed}" && test "${#z_words[@]}" -gt 0; then
+      for z_w in "${!z_words[@]}"; do
+        case "${z_words[${z_w}]}" in
+          *_) case "${z_names[${z_n}]}" in "${z_words[${z_w}]}"*) z_handed=1 ;; esac ;;
+          *)  test "${z_names[${z_n}]}" != "${z_words[${z_w}]}" || z_handed=1 ;;
+        esac
+      done
+    fi
+    test -z "${z_handed}" || continue
+    buc_reject "${BUBG_ENROLL_DENTIL}" "${z_names[${z_n}]} arrives exported at ${z_where}, and no value of the kit crosses an exec by inheritance save a hand-off its level declares (the exported-name rule)"
+  done
 }
 
 # buv_docker_env SCOPE ARRAY_VAR — populate ARRAY_VAR with -e VARNAME=val pairs for all enrolled vars in SCOPE
@@ -734,7 +852,7 @@ buv_docker_env() {
 
 # buv_vet SCOPE — iterate all enrolled vars in scope; reject on first failure
 # A failed value check is the buv enrollment-validation gate firing — it
-# rejects with BUBC_band_enroll so negative tests can assert WHICH layer
+# rejects with BUBG_ENROLL_DENTIL so negative tests can assert WHICH layer
 # refused (the band expansion is unguarded on purpose: a vet failure without
 # the bubc tinder dies loud, never soft).
 buv_vet() {
@@ -748,8 +866,48 @@ buv_vet() {
   for z_i in "${!z_buv_scope_roll[@]}"; do
     test "${z_buv_scope_roll[${z_i}]}" = "${z_scope}" || continue
     z_err=$(zbuv_check_capture "${z_i}") || buc_die_now "buv_vet: could not check ${z_buv_varname_roll[${z_i}]}"
-    test -z "${z_err}" || test "${z_err}" = "${BUV_check_gated}" || buc_reject "${BUBC_band_enroll}" "${z_buv_varname_roll[${z_i}]}: ${z_err#"${BUV_check_fail}"}"
+    test -z "${z_err}" || test "${z_err}" = "${BUV_check_gated}" || buc_reject "${BUBG_ENROLL_DENTIL}" "${z_buv_varname_roll[${z_i}]}: ${z_err#"${BUV_check_fail}"}"
   done
+
+  for z_i in "${!z_buv_koine_scope_roll[@]}"; do
+    test "${z_buv_koine_scope_roll[${z_i}]}" = "${z_scope}" || continue
+    zbuv_koine_vet "${z_scope}" "${z_buv_koine_carrier_roll[${z_i}]}"
+  done
+}
+
+# zbuv_koine_vet SCOPE CARRIER — refuse a koine carrier any line of which carries a ${ reference
+# The carrier's text is read because bash expanded every reference when it
+# sourced the carrier, so no sourced value still shows one. The read takes no
+# value from the text: it names the field before a line's first '=' and nothing
+# more, and a blank line or a comment line is no value to either reader.
+zbuv_koine_vet() {
+  zbuv_sentinel
+
+  local -r z_scope="${1:-}"
+  local -r z_carrier="${2:-}"
+  test -n "${z_scope}"   || buc_die_now "zbuv_koine_vet: scope required"
+  test -f "${z_carrier}" || buc_die_now "zbuv_koine_vet: carrier not found: ${z_carrier}"
+
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_carrier}" || buc_die_now "zbuv_koine_vet: could not read ${z_carrier}"
+
+  local z_fields=()
+  local z_bare=""
+  local z_n=""
+  for z_n in "${!z_lines[@]}"; do
+    z_bare="${z_lines[${z_n}]#"${z_lines[${z_n}]%%[![:space:]]*}"}"
+    case "${z_bare}" in
+      ''|'#'*) continue ;;
+      *'${'*)  z_fields+=("${z_bare%%=*}") ;;
+    esac
+  done
+
+  if test "${#z_fields[@]}" -gt 0; then
+    buc_reject "${BUBG_ENROLL_DENTIL}" "Regime ${z_scope} is handed to docker compose and carries a \${ reference in: ${z_fields[*]}"
+  fi
 }
 
 # buv_lock SCOPE — make all enrolled variables in scope readonly

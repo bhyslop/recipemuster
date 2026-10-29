@@ -21,8 +21,12 @@
 //! can go wrong is the linter answering differently than the door reads it, and
 //! only a drive asks that.
 
-use super::bkcz_muzzle::{bkcz_Verdict, bkcz_lint};
 use super::bkcr_resolve::bkcr_resolve;
+use super::bkcz_muzzle::{
+    bkcz_Verdict,
+    bkcz_lint, //
+};
+use super::bktr_resolve::bktr_lured;
 use super::bktu_lure::bktu_Lure;
 
 /// The sentence the lure's lint list teaches, and the surface it names.
@@ -33,7 +37,7 @@ const ZBKTZ_SENTENCE: &str = "reach for the shared seat instead";
 const ZBKTZ_LIST: &str = concat!(
     "disallowed-methods = [\n",
     "  { path = \"std::env::temp_dir\", reason = \"reach for the shared seat instead\" },\n",
-    "]\n"
+    "]\n", //
 );
 
 /// A collar over the lure's crate, with the muzzle directory left to the hurdle.
@@ -56,7 +60,7 @@ BKRR_EXERGUE=\"bknre_unstruck\"
 BKRR_RUNNER=\"bknre_cargo\"
 BKRR_TONGUE=\"bknre_harness\"
 ",
-        muzzle
+        muzzle, //
     )
 }
 
@@ -85,11 +89,17 @@ fn zbktz_kennel(name: &str, muzzle_at: &str, body: &str) -> bktu_Lure {
     let seat = if muzzle_at == "." {
         "clippy.toml".to_string()
     } else {
-        format!("{}/clippy.toml", muzzle_at)
+        format!(
+            "{}/clippy.toml",
+            muzzle_at, //
+        )
     };
     lure.bktu_write(&seat, ZBKTZ_LIST);
 
-    lure.bktu_write(&lure.bktu_weaned_at("suite-lure/bkrr.env"), &zbktz_collar(muzzle_at));
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrr.env"),
+        &zbktz_collar(muzzle_at),
+    );
     lure.bktu_commit("stand the muzzle up");
 
     lure
@@ -97,16 +107,17 @@ fn zbktz_kennel(name: &str, muzzle_at: &str, body: &str) -> bktu_Lure {
 
 /// Lint the lure's one collar.
 fn zbktz_lint(lure: &bktu_Lure) -> bkcz_Verdict {
-    let resolved = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(lure), "suite-lure")
         .expect("the lure's collar should resolve");
 
     assert!(
         resolved.findings.is_empty(),
         "the lure's own collar should conform: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
-    bkcz_lint(lure.bktu_root(), &lure.bktu_weaned(), &resolved.collar).expect("the linter should be reachable")
+    bkcz_lint(lure.bktu_root(), &bktr_lured(lure), &resolved.collar)
+        .expect("the linter should be reachable")
 }
 
 /// A crate calling nothing the list bars lints clean.
@@ -120,7 +131,7 @@ fn bktz_a_crate_calling_nothing_barred_is_clean() {
 
     assert!(
         matches!(zbktz_lint(&lure), bkcz_Verdict::Clean(_)),
-        "a crate calling nothing the list bars should lint clean"
+        "a crate calling nothing the list bars should lint clean", //
     );
 }
 
@@ -142,9 +153,12 @@ fn bktz_a_barred_call_refuses_with_its_sentence() {
         bkcz_Verdict::Refused(report) => assert!(
             report.contains(ZBKTZ_SENTENCE),
             "the refusal should carry the entry's sentence: {}",
-            report
+            report, //
         ),
-        other => panic!("a barred call should refuse: {:?}", other),
+        other => panic!(
+            "a barred call should refuse: {:?}",
+            other, //
+        ),
     }
 }
 
@@ -163,12 +177,15 @@ fn bktz_the_list_governs_from_where_the_collar_names_it() {
 
     assert!(
         !lure.bktu_root().join("clippy.toml").exists(),
-        "the crate root must hold no list, or this hurdle proves nothing"
+        "the crate root must hold no list, or this hurdle proves nothing", //
     );
 
     match zbktz_lint(&lure) {
         bkcz_Verdict::Refused(_) => (),
-        other => panic!("the collar's own muzzle directory should govern: {:?}", other),
+        other => panic!(
+            "the collar's own muzzle directory should govern: {:?}",
+            other, //
+        ),
     }
 }
 
@@ -189,7 +206,7 @@ fn bktz_the_cap_outranks_a_crate_that_denies_warnings() {
 
     assert!(
         matches!(zbktz_lint(&lure), bkcz_Verdict::Clean(_)),
-        "a lint the muzzle does not name must not decide this door's verdict"
+        "a lint the muzzle does not name must not decide this door's verdict", //
     );
 }
 
@@ -197,11 +214,18 @@ fn bktz_the_cap_outranks_a_crate_that_denies_warnings() {
 /// rather than reporting a refusal about calls it never got to read.
 #[test]
 fn bktz_a_crate_that_does_not_compile_is_told_apart() {
-    let lure = zbktz_kennel("unbuilt", ".", "pub fn seated() -> u32 {\n    \"not a number\"\n}\n");
+    let lure = zbktz_kennel(
+        "unbuilt",
+        ".",
+        "pub fn seated() -> u32 {\n    \"not a number\"\n}\n",
+    );
 
     match zbktz_lint(&lure) {
         bkcz_Verdict::Unbuilt(_) => (),
-        other => panic!("a build failure should be told apart from a refusal: {:?}", other),
+        other => panic!(
+            "a build failure should be told apart from a refusal: {:?}",
+            other, //
+        ),
     }
 }
 

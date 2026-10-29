@@ -162,7 +162,7 @@ readonly RBCC_noun_sederunt_lettrine="Sederunt"
 # reason for demanding a clean tree plus a commit-first directive. One creed per
 # rationale family (sites sharing a rationale share a creed). Consumed only by
 # bash gate sites (no theurge assertion), so none is projected to the Rust band —
-# the band itself (BUBC_band_clean_tree) is the theurge stream's assertion target.
+# the band itself (BUBG_CLEAN_DENTIL) is the theurge stream's assertion target.
 #   clean_build   — image builds that stamp HEAD into the image (conjure, mirror, kludge)
 #   clean_capture — Lode captures whose provenance envelope must be committed code (ensconce, conclave, immure, underpin)
 #   clean_inscribe — the tripwire ships committed depot-regime bytes as the drift reference (inscribe)
@@ -200,14 +200,14 @@ readonly RBCC_fact_ext_sederunt="sederunt"
 # sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
 # token mint (rbgp_authenticate_capture) refuses under it before any credential
 # touch, its callers' guard (rbgp_authenticate_die) rejecting with
-# BUBC_band_credless — a passing reveille run can never use credentials.
+# RBCG_CREDLESS_DENTIL — a passing reveille run can never use credentials.
 readonly RBCC_tweak_credless_guard="buorb_credless_guard"
 
 # HTTP fault-injection seam — the regime-poison analogue for HTTP. Under this
 # tweak name, BURE_TWEAK_VALUE is "INFIX=CODE": rbuh's one membrane
 # (zrbuh_fault_apply in rbuh_json) overwrites the captured HTTP code for the
 # named request infix, so a negative case can drive a caller's error path and
-# assert its band code (the terrier gates BUBC_band_engross/expunge/peruse are
+# assert its band code (the terrier gates RBCG_ENGROSS_DENTIL/expunge/peruse are
 # the founding consumers).
 readonly RBCC_tweak_http_fault="buorb_http_fault"
 
@@ -283,16 +283,14 @@ rbcc_source_active_rbrf_flint() {
 # "stay bare" in the bash name without leaking into the Rust mirror). rbtd's
 # lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
-# A second section projects the BUBC precision exit-code band as i32 consts
-# (same mechanical transform, BUBC_ prefix stripped) — theurge asserts exit
-# codes as integers. bubc is sourced by the launcher on every dispatch, so the
-# band values are present at emission time with no cross-module tinder trick.
-# A third section projects BUBC string tinder (the regime-poison tweak name)
-# through the same transform via the string primitive.
+# A second section projects BUBC string tinder (the regime-poison tweak name)
+# through the same transform via the string primitive. The exit codes theurge
+# asserts are not projected here: it cites the gate codes from its own
+# breviary.
 rbcc_emit_consts() {
   zrbcc_sentinel
 
-  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC band as Rust consts on stdout"
+  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC regime-poison name as Rust consts on stdout"
   buc_doc_shown || return 0
 
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)" \
@@ -341,34 +339,6 @@ rbcc_emit_consts() {
     RBCC_tweak_redon_cadence \
   ; do
     zrbcc_emit_const str RBCC_ "${z_name}"
-  done
-
-  printf '%s\n' "" \
-    || buc_die_now "rbcc_emit_consts: failed to write the section break"
-  printf '%s\n' "// BUBC precision exit-code band (bubc_constants.sh) — numeric" \
-    || buc_die_now "rbcc_emit_consts: failed to write the BUBC band header"
-  for z_name in \
-    BUBC_band_base      \
-    BUBC_band_width     \
-    BUBC_band_regime    \
-    BUBC_band_enroll    \
-    BUBC_band_recipe    \
-    BUBC_band_hygiene   \
-    BUBC_band_credless  \
-    BUBC_band_chain     \
-    BUBC_band_descry    \
-    BUBC_band_instate   \
-    BUBC_band_clean_tree \
-    BUBC_band_admission \
-    BUBC_band_vacant    \
-    BUBC_band_engross   \
-    BUBC_band_expunge   \
-    BUBC_band_peruse    \
-    BUBC_band_runway    \
-    BUBC_band_unseised  \
-    BUBC_band_selftest  \
-  ; do
-    zrbcc_emit_const i32 BUBC_ "${z_name}"
   done
 
   printf '%s\n' "" \

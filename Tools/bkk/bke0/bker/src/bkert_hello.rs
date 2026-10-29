@@ -16,27 +16,46 @@
 //! The hello exemplar's suite: the greeting names this crate and this binary,
 //! and the position the binary answers is an object name.
 
-use super::bkera_hello::{bkera_greeting, bkera_position};
+use super::bkera_hello::{
+    bkera_greeting,
+    bkera_position, //
+};
 
 #[test]
 fn bkert_the_position_is_an_object_name() {
     let position = bkera_position();
-    assert_eq!(position.len(), 40, "{position}");
-    assert!(position.chars().all(|c| c.is_ascii_hexdigit()), "{position}");
+    assert_eq!(
+        position.len(),
+        40,
+        "{position}", //
+    );
+    assert!(
+        position.chars().all(|c| c.is_ascii_hexdigit()),
+        "{position}", //
+    );
 }
 
 #[test]
 fn bkert_the_greeting_names_this_crate() {
     let greeting = bkera_greeting().expect("the greeting composes");
-    assert!(greeting.contains(env!("CARGO_PKG_NAME")), "{greeting}");
-    assert!(greeting.contains(env!("CARGO_PKG_VERSION")), "{greeting}");
+    assert!(
+        greeting.contains(env!("CARGO_PKG_NAME")),
+        "{greeting}", //
+    );
+    assert!(
+        greeting.contains(env!("CARGO_PKG_VERSION")),
+        "{greeting}", //
+    );
 }
 
 #[test]
 fn bkert_the_greeting_names_this_binary() {
     let here = std::env::current_exe().expect("the running binary's path resolves");
     let greeting = bkera_greeting().expect("the greeting composes");
-    assert!(greeting.contains(&here.display().to_string()), "{greeting}");
+    assert!(
+        greeting.contains(&here.display().to_string()),
+        "{greeting}", //
+    );
 }
 
 // eof

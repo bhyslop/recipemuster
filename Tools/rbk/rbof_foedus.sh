@@ -37,6 +37,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 test -z "${ZRBOF_SOURCED:-}" || buc_die_now "Module rbof multiply sourced - check sourcing hierarchy"
 ZRBOF_SOURCED=1
 
@@ -131,7 +136,7 @@ rbof_descry() {
   buc_doc_param "foedus" "Foedus identity — the rbef_ subdirectory name of a standing foedus in the moorings foedera library"
   buc_doc_shown || return 0
 
-  zrbof_require_foedus "${z_foedus}" "${BUBC_band_descry}"
+  zrbof_require_foedus "${z_foedus}" "${RBCG_FOEDUS_DESCRY_DENTIL}"
 
   # The manor pool coordinates (org / pool) are manor-level under the one-pool
   # Model — read them from the manor's RBRW regime file, the same for every foedus.
@@ -140,19 +145,19 @@ rbof_descry() {
   local z_rbrf=""
   local z_rbrf_status=0
   z_rbrf=$(rbcc_rbrf_file_flint_capture "${z_foedus}") || z_rbrf_status=$?
-  test "${z_rbrf_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Failed to resolve the regime path for foedus '${z_foedus}'"
+  test "${z_rbrf_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Failed to resolve the regime path for foedus '${z_foedus}'"
   local z_org=""
   local z_pool=""
   local z_provider=""
   local z_org_status=0
   z_org=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_ORG_ID") || z_org_status=$?
-  test "${z_org_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_ORG_ID: ${RBCC_rbrw_file}"
+  test "${z_org_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Manor workforce regime carries no RBRW_ORG_ID: ${RBCC_rbrw_file}"
   local z_pool_status=0
   z_pool=$(zrbof_rbrf_field_capture "${RBCC_rbrw_file}" "RBRW_WORKFORCE_POOL_ID") || z_pool_status=$?
-  test "${z_pool_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
+  test "${z_pool_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Manor workforce regime carries no RBRW_WORKFORCE_POOL_ID: ${RBCC_rbrw_file}"
   local z_provider_status=0
   z_provider=$(zrbof_rbrf_field_capture "${z_rbrf}" "RBRF_PROVIDER_ID") || z_provider_status=$?
-  test "${z_provider_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
+  test "${z_provider_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Foedus '${z_foedus}' rbrf.env carries no RBRF_PROVIDER_ID: ${z_rbrf}"
 
   buc_step "Descry foedus ${z_foedus} — provider ${z_provider} under pool ${z_pool} (organizations/${z_org})"
 
@@ -179,7 +184,7 @@ rbof_descry() {
   local z_pool_code=""
   local z_pool_code_status=0
   z_pool_code=$(rbuh_code_capture "descry_pool_get") || z_pool_code_status=$?
-  test "${z_pool_code_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "No HTTP code from workforcePools.get for pool ${z_pool}"
+  test "${z_pool_code_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "No HTTP code from workforcePools.get for pool ${z_pool}"
 
   local z_pool_state=""
   local z_verdict=""
@@ -196,7 +201,7 @@ rbof_descry() {
       z_verdict="coordinate-drift"
       ;;
     *)
-      buc_reject "${BUBC_band_descry}" "Unexpected HTTP ${z_pool_code} reading workforce pool ${z_pool} — descry cannot determine health"
+      buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Unexpected HTTP ${z_pool_code} reading workforce pool ${z_pool} — descry cannot determine health"
       ;;
   esac
 
@@ -210,11 +215,11 @@ rbof_descry() {
     local z_provider_code=""
     local z_provider_code_status=0
     z_provider_code=$(rbuh_code_capture "descry_provider_get") || z_provider_code_status=$?
-    test "${z_provider_code_status}" -eq 0 || buc_reject "${BUBC_band_descry}" "No HTTP code from providers.get for provider ${z_provider}"
+    test "${z_provider_code_status}" -eq 0 || buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "No HTTP code from providers.get for provider ${z_provider}"
     case "${z_provider_code}" in
       200) z_verdict="healthy" ;;
       404) z_verdict="provider-absent" ;;
-      *)   buc_reject "${BUBC_band_descry}" "Unexpected HTTP ${z_provider_code} reading provider ${z_provider} — descry cannot determine health" ;;
+      *)   buc_reject "${RBCG_FOEDUS_DESCRY_DENTIL}" "Unexpected HTTP ${z_provider_code} reading provider ${z_provider} — descry cannot determine health" ;;
     esac
   fi
 
@@ -432,7 +437,7 @@ rbof_instate() {
   buc_doc_param "foedus" "Foedus identity — the rbef_ subdirectory name of a standing foedus in the moorings foedera library"
   buc_doc_shown || return 0
 
-  zrbof_require_foedus "${z_foedus}" "${BUBC_band_instate}"
+  zrbof_require_foedus "${z_foedus}" "${RBCG_FOEDUS_INSTATE_DENTIL}"
 
   # Atomic single-field rewrite of the active-foedus selector, reusing the
   # durable-config-link mechanics (feoff/yoke/anoint): substitute the matching

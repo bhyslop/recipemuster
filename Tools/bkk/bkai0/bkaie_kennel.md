@@ -2,8 +2,8 @@
 
 Read this before you drive a kennel door or declare a collar, and when a kennel
 refusal or a kennel codex acronym is met. It is an **excursus**
-(`jjsuc_excursus`): held out of the standing session load and read on demand,
-reached from the trigger line in `Tools/buk/volis_buk.md`.
+(`bksa_excursus`): held out of the standing session load and read on demand,
+reached from the trigger line in `Tools/buk/buai0/buais_buk.md`.
 
 What binds without this read stays in the standing load: a kennel door refuses a repository
 carrying an uncommitted file, so notch first, and a dispatched session drives a
@@ -42,12 +42,27 @@ needs no flag.
 | **tattoo** | a collar | the read-only examination: proclamation, findings, election verdict |
 | **muzzle** | nothing | lint every weaned collar at its declared muzzle directory |
 | **gangline** | a collar | re-derive one collar's lock, with the lock flag lifted |
-| **scoop** | nothing | the whole yard's clean, on the operator's word alone |
+| **scoop** | nothing | remove every collar's build output, on the operator's word alone — the kennel's clean |
 | **delouse** | nothing | the day's sweep, taken where none has landed today — a build door calls it ahead of its build |
 
-Two tabtargets stand in `tt/` and are **not** doors of this register: the
-**whistle**, which is the bootstrap and is bash, and the **kennelman**, which
-runs the kennel's own suite when the kennel cannot.
+**Mush over the census tool's app collar is the subject road**, on which a pace
+editing that tool proves its edit from the billet: after the collar it takes the
+census command, then the seat — the kraal's outspan by its absolute path — then
+the sire where that command takes one, as in
+`tt/bkw-m.Mush.sh vomn_app <command> <outspan> [jj]`, the head of
+`vmaie_enchiridion.md` spelling the shape for every command; a billet's own
+build judges no kraal, its own among them.
+
+Three tabtargets stand in `tt/` and are **not** doors of this register: the
+**whistle**, which is the bootstrap and is bash; the **kennelman**, which runs
+the kennel's own suite when the kennel cannot; and **rebed**, which lays only a
+required toolchain whose compiler does not answer, leaving every answering one as
+it stands, then rebuilds the kennel and performs every heel and strike the
+derby's preflight names. It is safe to drive at any time, and it is the one
+converge that every refusal naming a toolchain that cannot answer sends you to,
+as does a derby or futurity refusing on unmet preconditions: run rebed, then the
+walk again, never a heel typed by collar. What rebed cannot supply, a lock that
+must be re-derived and committed, the refusal names as its own act.
 
 ### Vocabulary
 
@@ -59,6 +74,7 @@ runs the kennel's own suite when the kennel cannot.
 | **hurdle** | one test case — a launch carrying an expectation, at the grain of the single case |
 | **course** | a suite — the set of hurdles one collar launches as one unit |
 | **delouse** | the periodic sweep that throws build caches away, once a day, fired from inside derby and heel and from its own door ahead of a build |
+| **scoop** | the clean: every collar's build output removed from the tree the door entered — cargo's target directories and the python environments under the loosebox — leaving no stamp and no record; `cargo clean` for the whole yard. A build restores it. |
 | **kibble** | a program the kennel spawns and did not build: a pin over foreign source or a foreign release |
 | **lure** | a composed seat the kennel is driven over for one hurdle |
 | **tamed** / **feral** | a crate whose build script fetches during compilation is *feral* and is barred, never served |
@@ -81,6 +97,10 @@ runs the kennel's own suite when the kennel cannot.
 - **In a dispatched session, drive a kennel test door through the engine's own
   tabtarget door**, never by bash: a door run by bash is a run the engine never
   sees, so what it measured is discarded rather than recorded.
+- **When a kraal's build output must give its disk back, scoop its work
+  billet** from that billet's own `tt/`. Nothing it removes is tracked, it
+  refuses a dirty tree as every door does, and the next build door rebuilds
+  what it took.
 
 ### Acronym Notes
 

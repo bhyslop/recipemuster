@@ -27,18 +27,20 @@
 //! linked rather than reimplemented: every collar this crate reads is read through it, and the
 //! catena law is honored in exactly one place in rust.
 //!
-//! Two consumers stand already. A name census's manifest corroboration read is
+//! Two consumers stand already. A manifest corroboration read is
 //! one, and it reaches cargo here — the stopgap membrane that stood ahead of
 //! this crate named this library as its removal condition and is struck. The
 //! collar validate door's closure read is the other, and it arrives with the
 //! roster.
 //!
-//! THE LIBRARY HAS TWO FACES AND ONE DISCIPLINE: `bkcl_drive` hands the child
-//! this process's streams, `bkcl_recall` takes them, and both compose the
-//! invocation in the one interior place, so neither can reach cargo with the
-//! discipline half-applied. A consumer that wants cargo's answer as data takes
-//! the recall; one that wants an operator to watch a compiler work takes the
-//! drive.
+//! THE LIBRARY HAS THREE FACES AND ONE DISCIPLINE: `bkcl_drive` hands the child
+//! this process's streams, `bkcl_recall` takes them whole, `bkcl_attend` takes
+//! them line by line, and all compose the invocation in the one interior place,
+//! so none can reach cargo with the discipline half-applied. A consumer that
+//! wants cargo's answer as data takes the recall; one whose operator watches a
+//! compiler work takes the attended face under the voice, which renders the
+//! build as the door's own; the drive is left to a caller that reads cargo's
+//! stream as its own data from outside this process.
 
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
@@ -79,6 +81,7 @@ pub mod bkcz_muzzle;
 // the `bk` grain rather than under `bkc` because it is no module of the
 // kennel's own discipline - a hand has no business in it - on the vok kit's
 // precedent for its generated file.
+#[cfg_attr(rustfmt, rustfmt::skip)]
 pub mod bkg_breviary;
 
 // A TWIN APIECE FOR THE BLANKS ABOVE, and for the same reason: the hurdle file

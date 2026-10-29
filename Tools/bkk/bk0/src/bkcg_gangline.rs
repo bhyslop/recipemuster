@@ -43,11 +43,21 @@
 //! only honest source for "did anything change" is the bytes before against the
 //! bytes after. A caller told merely that cargo succeeded has been told nothing.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::bkcl_leash;
-use crate::bkcr_resolve::{bkcr_closure, bkcr_Collar};
-use crate::bkcx_python::{bkcx_Collar, bkcx_Posture, bkcx_Seat};
+use crate::bkcr_resolve::{
+    bkcr_Collar,
+    bkcr_closure, //
+};
+use crate::bkcx_python::{
+    bkcx_Collar,
+    bkcx_Posture,
+    bkcx_Seat, //
+};
 
 /// The verb that re-derives a lock from its manifest.
 ///
@@ -84,7 +94,7 @@ pub enum bkcg_Verdict {
 /// had one is exactly the case this door is for, and its arrival is a move.
 pub fn bkcg_gangline(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_Collar,
 ) -> Result<bkcg_Verdict, String> {
     let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
@@ -95,7 +105,7 @@ pub fn bkcg_gangline(
             format!(
                 "the manifest the collar '{}' declares stands at no directory: {}",
                 collar.name,
-                manifest.display()
+                manifest.display(), //
             )
         })?
         .to_path_buf();
@@ -104,19 +114,37 @@ pub fn bkcg_gangline(
 
     let before = std::fs::read(&lock).ok();
 
-    let run = bkcl_leash::bkcl_gangline(
-        repository,
-        weaned,
-        &manifest,
-        ZBKCG_VERB,
-        Vec::<&str>::new(),
-        &[],
+    // UNDER THE VOICE IN ITS LOCK READING, which keeps cargo's prose whole on
+    // the console: the packages locked, added and updated are what the operator
+    // reads to see what moved, and the bytes compared below say only whether.
+    let mut voice = crate::bkcv_voice::bkcv_Cargo::bkcv_lock(
+        dispatch,
+        &crate::bkcv_voice::bkcv_Record::bkcv_invocation(),
     )?;
+    voice.bkcv_launch(&format!(
+        "launching: {} over {}",
+        ZBKCG_VERB,
+        manifest.display(), //
+    ))?;
 
-    if !run.bkcl_landed() {
+    let (run, derived) = voice.bkcv_ride(|cadence, heed| {
+        bkcl_leash::bkcl_gangline(
+            repository,
+            dispatch,
+            &manifest,
+            ZBKCG_VERB,
+            Vec::<&str>::new(),
+            &[],
+            cadence,
+            heed,
+        )
+    })?;
+
+    if !derived {
         return Err(format!(
             "cargo could not re-derive the lock of the collar '{}' — the invocation was: {}",
-            collar.name, run.spelling
+            collar.name,
+            run.spelling, //
         ));
     }
 
@@ -124,7 +152,7 @@ pub fn bkcg_gangline(
         format!(
             "cargo reported success and no lock stands at {}: {}",
             lock.display(),
-            err
+            err, //
         )
     })?;
 
@@ -198,7 +226,7 @@ pub struct bkcg_Arrear {
 /// coverage behind it.
 pub fn bkcg_arrears(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     written: &bkcr_Collar,
     roster: &[bkcr_Collar],
 ) -> Result<(usize, Vec<bkcg_Arrear>), String> {
@@ -216,7 +244,7 @@ pub fn bkcg_arrears(
             format!(
                 "the manifest '{}' settles to no real path, so nothing can be said about what stands \
                  downstream of it",
-                declared
+                declared, //
             )
         })?;
 
@@ -230,7 +258,7 @@ pub fn bkcg_arrears(
             continue;
         }
 
-        let closure = bkcr_closure(repository, weaned, &repository.join(&manifest), true)?;
+        let closure = bkcr_closure(repository, dispatch, &repository.join(&manifest), true)?;
 
         let reaches = closure
             .iter()
@@ -243,7 +271,7 @@ pub fn bkcg_arrears(
 
         probed += 1;
 
-        if zbkcg_answers(repository, weaned, &repository.join(&manifest))? {
+        if zbkcg_answers(repository, dispatch, &repository.join(&manifest))? {
             continue;
         }
 
@@ -286,10 +314,14 @@ fn zbkcg_manifests(roster: &[bkcr_Collar]) -> Vec<(String, Vec<String>)> {
 /// face would hand cargo this process's streams, and the verb asked here answers
 /// with a whole metadata document — a page of JSON per collar on the operator's
 /// console, saying nothing the verdict reads.
-fn zbkcg_answers(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bool, String> {
+fn zbkcg_answers(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    manifest: &Path,
+) -> Result<bool, String> {
     let recalled = bkcl_leash::bkcl_recall(
         repository,
-        weaned,
+        dispatch,
         manifest,
         ZBKCG_PROBE,
         [ZBKCG_FORMAT_FLAG, ZBKCG_FORMAT],
@@ -357,11 +389,16 @@ const ZBKCG_UV_LOCK_FILE: &str = "uv.lock";
 /// is banked.
 pub fn bkcg_python(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<bkcg_Verdict, String> {
-    crate::bkcx_python::bkcx_interpreter_stands(repository, collar, seat)?;
+    crate::bkcx_python::bkcx_interpreter_stands(
+        repository,
+        collar,
+        seat,
+        dispatch.bkcr_tabtargets(),
+    )?;
 
     let project = repository.join(collar.bkcx_project());
     let lock = project.join(ZBKCG_UV_LOCK_FILE);
@@ -373,7 +410,7 @@ pub fn bkcg_python(
 
     let run = bkcl_leash::bkcl_uv(
         repository,
-        weaned,
+        dispatch,
         &project,
         [
             std::ffi::OsStr::new(ZBKCG_UV_VERB),
@@ -390,16 +427,16 @@ pub fn bkcg_python(
              fresh under the build bar, so a dependency with no wheel for an environment the \
              project declares, or none anywhere, refuses here in uv's own account above rather \
              than at the converge of the station that lacks it (BKr_hpt). The invocation was: {}",
-            collar.name, run.spelling
+            collar.name,
+            run.spelling, //
         ));
     }
-
 
     let after = std::fs::read(&lock).map_err(|err| {
         format!(
             "uv reported success and no lock stands at {}: {}",
             lock.display(),
-            err
+            err, //
         )
     })?;
 

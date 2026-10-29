@@ -15,17 +15,16 @@ set -euo pipefail
 RBVW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/bubc_constants.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
 source "${BURD_BUK_DIR}/buz_zipper.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh"
 source "${RBVW_SCRIPT_DIR}/rbvz_zipper.sh"
 
 buc_context "${0##*/}"
 
-zbuv_kindle
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares.
+buv_export_sentinel "${BURD_TARGET}"
+
 zbuz_kindle
 zrbvz_kindle
 

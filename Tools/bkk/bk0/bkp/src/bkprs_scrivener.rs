@@ -44,7 +44,10 @@
 
 use std::io::Write;
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::{
+    Command,
+    Stdio, //
+};
 
 /// The shell a writer hands its write to.
 const ZBKPRS_SHELL: &str = "/bin/sh";
@@ -80,22 +83,44 @@ pub fn bkprs_program_copy(from: &Path, to: &Path) -> Result<(), String> {
 /// written here, the target removed first so a copy never keeps the bit of a
 /// program it replaces.
 pub fn bkprs_copy(from: &Path, to: &Path) -> Result<(), String> {
-    let standing = std::fs::metadata(from)
-        .map_err(|err| format!("could not read {}: {}", from.display(), err))?;
+    let standing = std::fs::metadata(from).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            from.display(),
+            err, //
+        )
+    })?;
     zbkprs_apart(from, to)?;
     if zbkprs_armed(&standing) {
         return zbkprs_child(ZBKPRS_CARRY, &[from, to], None);
     }
 
-    let body =
-        std::fs::read(from).map_err(|err| format!("could not read {}: {}", from.display(), err))?;
+    let body = std::fs::read(from).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            from.display(),
+            err, //
+        )
+    })?;
     zbkprs_parent(to)?;
     match std::fs::remove_file(to) {
         Ok(()) => {}
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
-        Err(err) => return Err(format!("could not replace {}: {}", to.display(), err)),
+        Err(err) => {
+            return Err(format!(
+                "could not replace {}: {}",
+                to.display(),
+                err, //
+            ));
+        }
     }
-    std::fs::write(to, body).map_err(|err| format!("could not write {}: {}", to.display(), err))
+    std::fs::write(to, body).map_err(|err| {
+        format!(
+            "could not write {}: {}",
+            to.display(),
+            err, //
+        )
+    })
 }
 
 /// Refuse a copy onto its own source.
@@ -108,7 +133,7 @@ fn zbkprs_apart(from: &Path, to: &Path) -> Result<(), String> {
     match (std::fs::canonicalize(from), std::fs::canonicalize(to)) {
         (Ok(source), Ok(target)) if source == target => Err(format!(
             "{} is its own source, and a copy onto it would remove what it reads",
-            to.display()
+            to.display(), //
         )),
         _ => Ok(()),
     }
@@ -131,8 +156,15 @@ fn zbkprs_armed(_standing: &std::fs::Metadata) -> bool {
 /// Make the directories above `target`.
 fn zbkprs_parent(target: &Path) -> Result<(), String> {
     match target.parent() {
-        Some(parent) if !parent.as_os_str().is_empty() => std::fs::create_dir_all(parent)
-            .map_err(|err| format!("could not make {}: {}", parent.display(), err)),
+        Some(parent) if !parent.as_os_str().is_empty() => {
+            std::fs::create_dir_all(parent).map_err(|err| {
+                format!(
+                    "could not make {}: {}",
+                    parent.display(),
+                    err, //
+                )
+            })
+        }
         _ => Ok(()),
     }
 }
@@ -147,27 +179,47 @@ fn zbkprs_child(script: &str, operands: &[&Path], body: Option<&[u8]>) -> Result
         .arg(script)
         .arg(ZBKPRS_SHELL)
         .args(operands)
-        .stdin(if body.is_some() { Stdio::piped() } else { Stdio::null() })
+        .stdin(if body.is_some() {
+            Stdio::piped()
+        } else {
+            Stdio::null()
+        })
         .stdout(Stdio::null())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|err| format!("could not start the writer of {}: {}", target.display(), err))?;
+        .map_err(|err| {
+            format!(
+                "could not start the writer of {}: {}",
+                target.display(),
+                err, //
+            )
+        })?;
 
     if let Some(bytes) = body {
-        let mut input = child
-            .stdin
-            .take()
-            .ok_or_else(|| format!("the writer of {} took no input", target.display()))?;
+        let mut input = child.stdin.take().ok_or_else(|| {
+            format!(
+                "the writer of {} took no input",
+                target.display(), //
+            )
+        })?;
         if let Err(err) = input.write_all(bytes) {
             drop(input);
             let _ = child.wait();
-            return Err(format!("could not hand {} its body: {}", target.display(), err));
+            return Err(format!(
+                "could not hand {} its body: {}",
+                target.display(),
+                err, //
+            ));
         }
     }
 
-    let out = child
-        .wait_with_output()
-        .map_err(|err| format!("could not wait on the writer of {}: {}", target.display(), err))?;
+    let out = child.wait_with_output().map_err(|err| {
+        format!(
+            "could not wait on the writer of {}: {}",
+            target.display(),
+            err, //
+        )
+    })?;
 
     if out.status.success() {
         return Ok(());
@@ -176,7 +228,7 @@ fn zbkprs_child(script: &str, operands: &[&Path], body: Option<&[u8]>) -> Result
         "the writer of {} failed: {} — {}",
         target.display(),
         out.status,
-        String::from_utf8_lossy(&out.stderr).trim()
+        String::from_utf8_lossy(&out.stderr).trim(), //
     ))
 }
 

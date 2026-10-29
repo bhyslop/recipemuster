@@ -40,24 +40,46 @@
 //! lockfile builds anyway, silently resolving whatever the registry offers that
 //! day, and the position a stamp records stops describing what was built.
 //!
-//! THE FENCE IS STOOD ON, NEVER REBUILT. `Tools/bkk/bk0/bkcb_tackroom.sh` reads the
-//! station's declaration and exports the two homes; the leash INHERITS that
-//! redirect and verifies it held. Neither provisions, because provisioning is a
-//! converge and a routine invocation may not download. A second implementation
-//! of the fence would be a second thing to keep in step, and the one this stands
-//! on carries the station-file refusal a reader needs.
+//! THE HOMES ARE STATED ON EVERY TOOLCHAIN COMMAND, NEVER INHERITED. The tackroom
+//! is read from the dispatch's file and the two homes are derived beneath it in
+//! the layout `Tools/bkk/bk0/bkcb_tackroom.sh` composes, so this process carries
+//! no `CARGO_HOME` or `RUSTUP_HOME` of its own and each cargo, plugin, uv and
+//! rustup it spawns is told the store it stands on. The fence still proves the
+//! redirect: both homes must resolve inside the declared tackroom. Neither the
+//! bash fence nor this one provisions, because provisioning is a converge and a
+//! routine invocation may not download: the pinned toolchain is laid by the rebed
+//! door, the kennel's readiness converge, and every refusal below that finds it
+//! missing or gutted names that door.
 
 use crate::bkcf_guard;
+use crate::bkco_output;
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::path::{
+    Path,
+    PathBuf, //
+};
+use std::process::{
+    Command,
+    Stdio, //
+};
 
-/// The station's shared tool store, carried across the dispatch exec boundary.
+/// The station's shared tool store, as the dispatch's file names it.
 pub const BKCL_TACKROOM_VAR: &str = "BURD_TACKROOM";
 
-/// The two homes the fence redirects, which every cargo invocation inherits.
+/// The two homes the fence redirects, stated on every toolchain command the
+/// leash composes.
 pub const BKCL_CARGO_HOME_VAR: &str = "CARGO_HOME";
 pub const BKCL_RUSTUP_HOME_VAR: &str = "RUSTUP_HOME";
+
+/// Where each home stands beneath the tackroom.
+///
+/// SPELLED ONCE PER REGISTER, and the bash register's spelling stands in
+/// `Tools/bkk/bk0/bkcb_tackroom.sh` (`BKCB_CARGO_HOME`, `BKCB_RUSTUP_HOME`), which
+/// composes the same layout for the whistle before this binary exists. A hurdle
+/// holds the two spellings equal, because a home derived differently at either
+/// seat is a second store the other never fills.
+pub const BKCL_CARGO_DIR: &str = "cargo";
+pub const BKCL_RUSTUP_DIR: &str = "rustup";
 
 /// The file a channel is stated in. A repository states one at its root, so
 /// every crate it holds is answered for; a kit that pins its own stands one
@@ -231,7 +253,7 @@ fn zbkcl_pin_at(home: &Path) -> Result<String, String> {
             "no pin at {}: {} — every crate the kennel builds is answered for by a stated \
              channel, and a build that inherited one would be pinned only by luck",
             path.display(),
-            err
+            err, //
         )
     })?;
 
@@ -251,7 +273,7 @@ fn zbkcl_pin_at(home: &Path) -> Result<String, String> {
 
     Err(format!(
         "the pin at {} names no channel",
-        path.display()
+        path.display(), //
     ))
 }
 
@@ -278,11 +300,19 @@ fn zbkcl_pin_at(home: &Path) -> Result<String, String> {
 /// walk finds it in a step, which is why the reading is the same one whether the
 /// kennel is driven over a lure or over an estate of many kits.
 pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
-    let bound = zbkcl_resolved(repository)
-        .ok_or_else(|| format!("the repository at {} does not resolve", repository.display()))?;
+    let bound = zbkcl_resolved(repository).ok_or_else(|| {
+        format!(
+            "the repository at {} does not resolve",
+            repository.display(), //
+        )
+    })?;
 
-    let mut standing = zbkcl_resolved(crate_dir)
-        .ok_or_else(|| format!("the crate at {} does not resolve", crate_dir.display()))?;
+    let mut standing = zbkcl_resolved(crate_dir).ok_or_else(|| {
+        format!(
+            "the crate at {} does not resolve",
+            crate_dir.display(), //
+        )
+    })?;
 
     // THE BOUND IS PROVEN BEFORE THE WALK, never merely reached during it. A
     // crate standing outside the repository never equals the bound, so a loop
@@ -297,7 +327,7 @@ pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
              governs it and a walk upward would answer with whatever pin happens to stand above \
              the tree. Name the repository the crate belongs to",
             standing.display(),
-            bound.display()
+            bound.display(), //
         ));
     }
 
@@ -323,7 +353,7 @@ pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
          would be pinned only by whatever the station happened to default to",
         crate_dir.display(),
         BKCL_PIN_FILE,
-        bound.display()
+        bound.display(), //
     ))
 }
 /// The rust host triple the pinned toolchain declares for this station.
@@ -337,172 +367,343 @@ pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
 /// did not.
 ///
 /// THROUGH THE PIN LIKE EVERY OTHER TOOLCHAIN QUESTION. The channel is read
-/// from the pin governing the given directory and stated as rustc's own leading
-/// argument, exactly as the cargo faces state it — so the triple answered is the
-/// one the toolchain a build would use declares, and never whatever rustc the
-/// station's path happens to offer.
+/// from the pin governing the given directory, and the compiler asked is that
+/// channel's own in the tackroom — so the triple answered is the one the
+/// toolchain a build would use declares, and never whatever rustc the station's
+/// path happens to offer.
 ///
 /// THE FENCE STANDS FIRST, because a rustc reached outside the tackroom would be
 /// reading a home this kennel does not answer for.
-pub fn bkcl_host(repository: &Path, crate_dir: &Path) -> Result<String, String> {
-    bkcl_fenced()?;
+///
+/// THE ANSWER IS THE VERIFY'S OWN. Proving the channel already asks the
+/// toolchain's compiler for its verbose version, and the host triple is a line
+/// of that answer, so the triple is taken from the proof rather than asked for a
+/// second time.
+pub fn bkcl_host(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    crate_dir: &Path,
+) -> Result<String, String> {
+    let tackroom = bkcl_fenced(dispatch)?;
 
     let channel = bkcl_pin(repository, crate_dir)?;
-    zbkcl_channel_present(&channel)?;
+    zbkcl_channel_answers(dispatch, &tackroom, &channel)
+}
 
-    let pinned = format!("+{}", channel);
+/// The compiler asked for its own making, the flag that asks, and the labels
+/// that answer. Spelled once so the reading and the refusals that name it cannot
+/// drift apart.
+const ZBKCL_RUSTC: &str = "rustc";
+const ZBKCL_VERBOSE_VERSION: &str = "-vV";
+const ZBKCL_HOST_LABEL: &str = "host: ";
+const ZBKCL_RELEASE_LABEL: &str = "release: ";
 
-    let asked = Command::new(ZBKCL_RUSTC)
-        .arg(&pinned)
+/// Where rustup lays a toolchain beneath its home, and where the compiler stands
+/// inside one: rustup's own layout, `<home>/toolchains/<channel>-<host>/bin`.
+const ZBKCL_TOOLCHAINS_DIR: &str = "toolchains";
+const ZBKCL_TOOLCHAIN_BIN: &str = "bin";
+
+/// Where a toolchain keeps the compiler's driver library, and the stem the
+/// library's name opens on: `lib/librustc_driver-<hash>.<ext>`, or
+/// `bin/rustc_driver-<hash>.dll` on Windows.
+const ZBKCL_TOOLCHAIN_LIB: &str = "lib";
+const ZBKCL_DRIVER_STEM: &str = "rustc_driver-";
+
+/// What every refusal of the channel's proof hands its reader, ahead of the door
+/// it names.
+///
+/// SPELLED ONCE PER REGISTER, and the bash register's spelling stands in
+/// `Tools/bkk/bk0/bkcb_tackroom.sh`, where the whistle refuses before this
+/// binary exists. A hurdle holds the two spellings equal, because a reader
+/// meeting the refusal at either seat is being told the same thing.
+pub const BKCL_CONVERGE_SENTENCE: &str = "A routine invocation verifies and refuses; it never \
+     downloads unasked. Every toolchain the kennel requires is laid by its readiness converge,";
+
+/// Prove the tackroom's toolchain for the channel an invocation is about to
+/// state ANSWERS, and refuse naming the door that re-lays it where it does not.
+///
+/// THE PROOF IS THE COMPILER'S OWN ANSWER, NEVER RUSTUP'S LEDGER. A listing says
+/// a channel was installed; it went on saying so through a storage purge that
+/// had removed the compiler's own libraries, and the first thing to run the
+/// compiler was a build script, which panicked. So the toolchain's rustc is
+/// asked at its absolute path for its verbose version, and the proof is that
+/// `release:` names the channel and `host:` names something.
+///
+/// NEVER THROUGH A PROXY. Told to run a channel it does not hold, rustup fetches
+/// one — quietly, and on a slow link for long enough that the build reads as
+/// hung — which is a download the standing ruling forbids of a routine
+/// invocation. A compiler reached at its own path fetches nothing, and an absent
+/// channel refuses here before anything is spawned at all.
+///
+/// THE PURE HALF, AND IT IS PURE SO IT CAN BE HURDLED. The home is taken as a
+/// value, so a hurdle poses one beside it without writing the process
+/// environment its neighbours read — the seam `bkco_tabtarget_in` and
+/// `bkcq_feedroom_at` are split at, for the same reason. Two toolchain
+/// directories answering one channel is an ambiguity this refuses rather than
+/// resolves, on `bkco_tabtarget_in`'s none-on-any-doubt ground.
+///
+/// Answers the host triple the compiler declared, which `bkcl_host` hands on.
+pub fn bkcl_channel_answers(
+    rustup_home: &Path,
+    channel: &str,
+    tabtargets: Option<&Path>,
+) -> Result<String, String> {
+    let door = bkco_output::bkco_call(tabtargets, bkco_output::BKCO_VERB_REBED, None);
+    let refuse = |condition: String| {
+        format!(
+            "{}. {} {}",
+            condition,
+            BKCL_CONVERGE_SENTENCE,
+            door, //
+        )
+    };
+
+    // A CHANNEL THE ANSWER CANNOT EQUAL IS REFUSED, NOT GUESSED AT. The proof
+    // compares the pin against the release the compiler names, and a named
+    // channel or a two-part version resolves to a release only rustup knows,
+    // which is the ledger this proof exists to stop trusting.
+    let numeric = channel.split('.').count() == 3
+        && channel
+            .split('.')
+            .all(|part| !part.is_empty() && part.bytes().all(|byte| byte.is_ascii_digit()));
+    if !numeric {
+        return Err(refuse(format!(
+            "the pin names {}, which is no release a compiler answers with: the kennel proves a \
+             channel by the release its compiler names, so the pin is a three-part version",
+            channel, //
+        )));
+    }
+
+    let toolchains = rustup_home.join(ZBKCL_TOOLCHAINS_DIR);
+    let prefix = format!(
+        "{}-",
+        channel, //
+    );
+
+    let mut laid: Vec<PathBuf> = std::fs::read_dir(&toolchains)
+        .map(|entries| {
+            entries
+                .flatten()
+                .filter(|entry| entry.file_name().to_string_lossy().starts_with(&prefix))
+                .map(|entry| entry.path())
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let toolchain = match laid.len() {
+        0 => {
+            return Err(refuse(format!(
+                "the tackroom holds no toolchain for {} under {}",
+                channel,
+                toolchains.display(), //
+            )));
+        }
+        1 => laid.remove(0),
+        _ => {
+            laid.sort();
+            return Err(refuse(format!(
+                "the tackroom holds {} toolchains answering {} under {} — {} — and the kennel \
+                 will not pick one on the operator's behalf",
+                laid.len(),
+                channel,
+                toolchains.display(),
+                laid.iter()
+                    .map(|path| path.display().to_string())
+                    .collect::<Vec<_>>()
+                    .join(", "), //
+            )));
+        }
+    };
+
+    // THE DRIVER LIBRARY IS READ BEFORE THE COMPILER IS SPAWNED — a membrane at
+    // the Palisade, held alike in the bash register at
+    // `bkcb_channel_answers_predicate`. The signature: on macOS a storage purge
+    // removed `lib/librustc_driver-<hash>.dylib` and left `bin/rustc`, and a
+    // compiler spawned without its driver aborts at load, which the station
+    // answers with a crash dialog a person must dismiss. So a toolchain holding
+    // no driver library is refused as not answering and nothing is spawned.
+    // Windows lays the driver beside the compiler in `bin`, so either seat
+    // admits it. It retires when the station no longer raises a dialog for a
+    // compiler aborting at load; the spawn below then reaches the same verdict.
+    if !zbkcl_driver_stands(&toolchain) {
+        return Err(refuse(format!(
+            "the toolchain for {} stands at {} without its compiler's driver library ({}/lib{}*), so \
+             its compiler would abort at load and is not spawned",
+            channel,
+            toolchain.display(),
+            ZBKCL_TOOLCHAIN_LIB,
+            ZBKCL_DRIVER_STEM, //
+        )));
+    }
+
+    let rustc = toolchain.join(ZBKCL_TOOLCHAIN_BIN).join(ZBKCL_RUSTC);
+
+    let asked = Command::new(&rustc)
         .arg(ZBKCL_VERBOSE_VERSION)
         .stdin(Stdio::null())
         .output()
         .map_err(|err| {
-            format!(
-                "no '{}' answered on this station: {}. The host triple a prebuilt kibble is \
-                 fetched for is rustc's own declaration and is asked for rather than derived",
-                ZBKCL_RUSTC, err
-            )
+            refuse(format!(
+                "the toolchain for {} stands at {} but its compiler did not answer: {}",
+                channel,
+                toolchain.display(),
+                err, //
+            ))
         })?;
 
     if !asked.status.success() {
-        return Err(format!(
-            "'{} {} {}' refused: {}",
-            ZBKCL_RUSTC,
-            pinned,
+        return Err(refuse(format!(
+            "'{} {}' refused: {}",
+            rustc.display(),
             ZBKCL_VERBOSE_VERSION,
-            String::from_utf8_lossy(&asked.stderr).trim()
-        ));
+            String::from_utf8_lossy(&asked.stderr).trim(), //
+        )));
     }
 
     let said = String::from_utf8_lossy(&asked.stdout);
 
-    // THE LABEL IS RUSTC'S OWN AND IS MATCHED RATHER THAN COUNTED TO. The
+    // THE LABELS ARE RUSTC'S OWN AND ARE MATCHED RATHER THAN COUNTED TO. The
     // verbose version answer is a block of `key: value` lines whose order rustc
     // has moved between releases, so a reading that took the nth line would be
     // pinned to a layout nobody promised.
-    for line in said.lines() {
-        let Some(rest) = line.strip_prefix(ZBKCL_HOST_LABEL) else {
-            continue;
-        };
+    let labelled = |label: &str| {
+        said.lines()
+            .find_map(|line| line.strip_prefix(label))
+            .map(|rest| rest.trim().to_string())
+            .filter(|value| !value.is_empty())
+    };
 
-        let triple = rest.trim();
-
-        if !triple.is_empty() {
-            return Ok(triple.to_string());
-        }
+    let release = labelled(ZBKCL_RELEASE_LABEL);
+    if release.as_deref() != Some(channel) {
+        return Err(refuse(format!(
+            "'{} {}' answered release {} where the pin names {}. What it said:\n{}",
+            rustc.display(),
+            ZBKCL_VERBOSE_VERSION,
+            release.as_deref().unwrap_or("<none>"),
+            channel,
+            said.trim(), //
+        )));
     }
 
-    Err(format!(
-        "'{} {} {}' answered no '{}' line, so this station has no host triple to fetch a prebuilt \
-         kibble for. What it said:\n{}",
-        ZBKCL_RUSTC,
-        pinned,
-        ZBKCL_VERBOSE_VERSION,
-        ZBKCL_HOST_LABEL.trim(),
-        said.trim()
-    ))
+    labelled(ZBKCL_HOST_LABEL).ok_or_else(|| {
+        refuse(format!(
+            "'{} {}' answered no '{}' line. What it said:\n{}",
+            rustc.display(),
+            ZBKCL_VERBOSE_VERSION,
+            ZBKCL_HOST_LABEL.trim(),
+            said.trim(), //
+        ))
+    })
 }
 
-/// The compiler asked for the host triple, and the flag and label that answer.
-/// Spelled once so the reading and the refusals that name it cannot drift apart.
-const ZBKCL_RUSTC: &str = "rustc";
-const ZBKCL_VERBOSE_VERSION: &str = "-vV";
-const ZBKCL_HOST_LABEL: &str = "host: ";
-
-/// Prove the tackroom holds the channel an invocation is about to state, and
-/// refuse naming the converge where it does not.
-///
-/// VERIFY IN PATH, CONVERGE ON DEMAND. Told to run under a channel it does not
-/// hold, rustup fetches one — quietly, and on a slow link for long enough that
-/// the build reads as hung. That is a download nobody asked for, which the
-/// standing ruling forbids of a routine invocation. So the store is asked first
-/// and the refusal carries the one command that supplies what is missing.
-///
-/// THE STORE ASKED IS THE TACKROOM'S, because the fence stands proven before this
-/// runs and the redirect it verified is what rustup reads. A listing taken
-/// without that proof would answer for the station user's own homes and say
-/// nothing about the store the build will actually reach.
-///
-/// The whistle holds this same check for the kennel's own pin and cannot share
-/// this one: it runs before the binary carrying it exists.
-fn zbkcl_channel_present(channel: &str) -> Result<(), String> {
-    let listing = Command::new("rustup")
-        .arg("toolchain")
-        .arg("list")
-        .stdin(Stdio::null())
-        .output()
-        .map_err(|err| format!("could not ask rustup what the tackroom holds: {}", err))?;
-
-    if !listing.status.success() {
-        return Err(format!(
-            "rustup could not list the tackroom's toolchains: {}",
-            String::from_utf8_lossy(&listing.stderr).trim()
-        ));
-    }
-
-    if String::from_utf8_lossy(&listing.stdout)
-        .lines()
-        .any(|line| line.contains(channel))
-    {
-        return Ok(());
-    }
-
-    Err(format!(
-        "the tackroom does not hold {}, which this invocation states. A routine invocation \
-         verifies and refuses; it never downloads unasked. The converge, run deliberately: \
-         RUSTUP_HOME={} rustup toolchain install {} --profile minimal --component clippy \
-         --component rustfmt",
-        channel,
-        std::env::var(BKCL_RUSTUP_HOME_VAR).unwrap_or_else(|_| "<the tackroom>".to_string()),
-        channel
-    ))
-}
-
-/// Prove the tackroom redirect the fence exported is still in force, and answer
-/// the store it confined the homes to.
-///
-/// Both homes must be declared and both must resolve inside the declared
-/// tackroom. The check is on the RESOLVED paths, so a home that is itself a
-/// symlink out of the store is caught: the lexical spelling would read as
-/// confined while the bytes landed in the station user's own rustup.
-pub fn bkcl_fenced() -> Result<PathBuf, String> {
-    let tackroom = std::env::var(BKCL_TACKROOM_VAR)
-        .ok()
-        .filter(|value| !value.trim().is_empty())
-        .ok_or_else(|| {
+/// Whether a laid toolchain holds its compiler's driver library: a file
+/// wearing the driver's stem under `lib`, or under `bin` where Windows lays it.
+fn zbkcl_driver_stands(toolchain: &Path) -> bool {
+    [
+        (
+            ZBKCL_TOOLCHAIN_LIB,
             format!(
-                "{} is unset. The kennel homes the pinned toolchain and the cargo registry in the \
-                 station's tackroom and will not fall back to a per-clone copy; the fence that \
-                 declares it is Tools/bkk/bk0/bkcb_tackroom.sh, reached through the whistle",
-                BKCL_TACKROOM_VAR
-            )
-        })?;
+                "lib{}",
+                ZBKCL_DRIVER_STEM, //
+            ),
+        ),
+        (ZBKCL_TOOLCHAIN_BIN, ZBKCL_DRIVER_STEM.to_string()),
+    ]
+    .iter()
+    .any(|(seat, stem)| {
+        std::fs::read_dir(toolchain.join(seat))
+            .map(|entries| {
+                entries.flatten().any(|entry| {
+                    entry.path().is_file()
+                        && entry
+                            .file_name()
+                            .to_string_lossy()
+                            .starts_with(stem.as_str())
+                })
+            })
+            .unwrap_or(false)
+    })
+}
 
-    let root = zbkcl_resolved(Path::new(&tackroom)).ok_or_else(|| {
+/// The proof above, over the rustup home beneath the fenced tackroom.
+///
+/// The fence stands proven before this runs, so the home read here is the
+/// tackroom's, and the proof answers for the store the build will actually reach
+/// rather than the station user's own.
+///
+/// The whistle holds this same proof for the kennel's own pin and cannot share
+/// this one: it runs before the binary carrying it exists.
+fn zbkcl_channel_answers(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    tackroom: &Path,
+    channel: &str,
+) -> Result<String, String> {
+    bkcl_channel_answers(
+        &bkcl_rustup_home(tackroom),
+        channel,
+        dispatch.bkcr_tabtargets(),
+    )
+}
+
+/// The cargo home beneath a tackroom.
+pub fn bkcl_cargo_home(tackroom: &Path) -> PathBuf {
+    tackroom.join(BKCL_CARGO_DIR)
+}
+
+/// The rustup home beneath a tackroom.
+pub fn bkcl_rustup_home(tackroom: &Path) -> PathBuf {
+    tackroom.join(BKCL_RUSTUP_DIR)
+}
+
+/// State both homes beneath the tackroom on one toolchain command.
+///
+/// ON THE COMMAND AND NEVER ON THIS PROCESS. A home this process held would reach
+/// every child it spawns, a course among them, and a course is handed the
+/// dispatch's pointer and nothing else of the kit; a home stated here reaches the
+/// one program that asked for it.
+fn zbkcl_homed(command: &mut Command, tackroom: &Path) {
+    command.env(BKCL_CARGO_HOME_VAR, bkcl_cargo_home(tackroom));
+    command.env(BKCL_RUSTUP_HOME_VAR, bkcl_rustup_home(tackroom));
+}
+
+/// Prove the tackroom the dispatch names is a store the homes stand confined
+/// to, and answer the store.
+///
+/// The tackroom must be declared in the dispatch's file, and both homes beneath
+/// it must resolve inside it. The check is on the RESOLVED paths, so a home that
+/// is itself a symlink out of the store is caught: the lexical spelling would
+/// read as confined while the bytes landed in the station user's own rustup.
+pub fn bkcl_fenced(dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> Result<PathBuf, String> {
+    let tackroom = dispatch.bkcr_said(BKCL_TACKROOM_VAR).ok_or_else(|| {
         format!(
-            "{} names {}, which does not resolve — the station declares a store that is not \
-             there, and neither the fence nor the kennel creates one",
-            BKCL_TACKROOM_VAR, tackroom
+            "{} carries no {}. The kennel homes the pinned toolchain and the cargo registry in \
+             the station's tackroom and will not fall back to a per-clone copy; the station \
+             declares it as BURS_TACKROOM, and the fence that guards it is \
+             Tools/bkk/bk0/bkcb_tackroom.sh, reached through the whistle",
+            dispatch.bkcr_whence(),
+            BKCL_TACKROOM_VAR, //
         )
     })?;
 
-    for var in [BKCL_CARGO_HOME_VAR, BKCL_RUSTUP_HOME_VAR] {
-        let declared = std::env::var(var)
-            .ok()
-            .filter(|value| !value.trim().is_empty())
-            .ok_or_else(|| {
-                format!(
-                    "{} is unset, so this invocation would resolve the pinned channel and the \
-                     crate registry from the station user's own homes. The redirect is the \
-                     fence's (Tools/bkk/bk0/bkcb_tackroom.sh) and the kennel inherits it rather \
-                     than performing it",
-                    var
-                )
-            })?;
+    let root = zbkcl_resolved(Path::new(tackroom)).ok_or_else(|| {
+        format!(
+            "{} names {}, which does not resolve — the station declares a store that is not \
+             there, and neither the fence nor the kennel creates one",
+            BKCL_TACKROOM_VAR,
+            tackroom, //
+        )
+    })?;
 
-        let home = zbkcl_resolved(Path::new(&declared)).ok_or_else(|| {
-            format!("{} names {}, which does not resolve", var, declared)
+    for (var, declared) in [
+        (BKCL_CARGO_HOME_VAR, bkcl_cargo_home(Path::new(tackroom))),
+        (BKCL_RUSTUP_HOME_VAR, bkcl_rustup_home(Path::new(tackroom))),
+    ] {
+        let home = zbkcl_resolved(&declared).ok_or_else(|| {
+            format!(
+                "{} would name {}, which does not resolve",
+                var,
+                declared.display(), //
+            )
         })?;
 
         if !home.starts_with(&root) {
@@ -511,7 +712,7 @@ pub fn bkcl_fenced() -> Result<PathBuf, String> {
                  tackroom {}",
                 var,
                 home.display(),
-                root.display()
+                root.display(), //
             ));
         }
     }
@@ -520,7 +721,7 @@ pub fn bkcl_fenced() -> Result<PathBuf, String> {
     // composition already stands on this fence, so checking rustup's floor here
     // is what makes every door meet it once, cached at `bkcl_rustup_held`
     // rather than re-asked per invocation.
-    bkcl_rustup_held()?;
+    bkcl_rustup_held(&root)?;
 
     Ok(root)
 }
@@ -534,12 +735,16 @@ pub fn bkcl_fenced() -> Result<PathBuf, String> {
 /// cargo with the discipline half-applied, because the parts it could get wrong
 /// are not parameters.
 ///
-/// The child inherits this process's streams: the kennel's own rendering of a
-/// tenant's output is the bounded-output work and arrives with the doors, and
-/// swallowing the stream here in the meantime would hide the very compiler
-/// diagnostics a founding pace is driven by. A caller that wants the child's
-/// answer as data rather than on a terminal takes the recall below; the
-/// discipline the two apply is one composition and is stated at it.
+/// THE CHILD INHERITS THIS PROCESS'S STREAMS, and that is now this face's one
+/// reason to stand. Every cargo act the kennel's voice renders — a build, a
+/// suite, a lock's re-derivation — takes the attended face below and speaks as
+/// the door's own; what is left here is the leash register's verbs other than
+/// a build, whose stdout is the CALLER'S data rather than a console. The engine
+/// build door reads a dependency tree off that stream to prove the shipped
+/// binary links no census crate, and a stream the voice had consumed would
+/// match nothing, which that guard reads as passing. A caller that wants the
+/// child's answer as data inside this process takes the recall below; the
+/// discipline the faces apply is one composition and is stated at it.
 ///
 /// `stated` names environment the child needs and the caller alone knows —
 /// applied at the composition, where the fence already sets the tackroom's own.
@@ -547,7 +752,7 @@ pub fn bkcl_fenced() -> Result<PathBuf, String> {
 /// and arguments in `rest`, and neither road passes the discipline.
 pub fn bkcl_drive<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -557,11 +762,16 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) =
+        zbkcl_composed(repository, dispatch, manifest, verb, rest, stated, true)?;
 
-    let status = command
-        .status()
-        .map_err(|err| format!("could not run cargo: {} ({})", err, spelling))?;
+    let status = command.status().map_err(|err| {
+        format!(
+            "could not run cargo: {} ({})",
+            err,
+            spelling, //
+        )
+    })?;
 
     Ok(bkcl_Run {
         spelling,
@@ -579,11 +789,10 @@ where
 /// exit. What parts the two is the streams and nothing else.
 ///
 /// WHY A SECOND FACE RATHER THAN A FLAG. The postures are not variants of one
-/// act: a driven run exists so an operator watches a compiler work, and swallowing
-/// that stream would hide the diagnostics a build is driven by; a recalled run
-/// exists so a program reads cargo's own answer, and letting that stream reach a
-/// terminal would put a census's data on the operator's screen and nowhere a
-/// caller could read it. A boolean between them would make the caller's most
+/// act: a driven run hands cargo's stream on to whoever spawned this process,
+/// to read as its own; a recalled run exists so a program here reads cargo's own
+/// answer, and letting that stream reach a terminal would put a census's data on
+/// the operator's screen and nowhere a caller could read it. A boolean between them would make the caller's most
 /// consequential choice its least visible one.
 ///
 /// THE EXIT IS THE CHILD'S HERE TOO, and a caller that means to refuse on it
@@ -595,7 +804,7 @@ where
 /// at the driven face.
 pub fn bkcl_recall<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -605,11 +814,16 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) =
+        zbkcl_composed(repository, dispatch, manifest, verb, rest, stated, true)?;
 
-    let out = command
-        .output()
-        .map_err(|err| format!("could not run cargo: {} ({})", err, spelling))?;
+    let out = command.output().map_err(|err| {
+        format!(
+            "could not run cargo: {} ({})",
+            err,
+            spelling, //
+        )
+    })?;
 
     Ok(bkcl_Recall {
         run: bkcl_Run {
@@ -665,28 +879,101 @@ pub enum bkcl_Heard {
 /// returns `Ok` for a cargo that exited nonzero.
 pub fn bkcl_attend<I, S, F>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     manifest: &Path,
     verb: &str,
     rest: I,
     stated: &[(&str, &OsStr)],
     cadence: std::time::Duration,
-    mut heed: F,
+    heed: F,
 ) -> Result<bkcl_Run, String>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
     F: FnMut(bkcl_Heard),
 {
-    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, true)?;
+    let (mut command, spelling) =
+        zbkcl_composed(repository, dispatch, manifest, verb, rest, stated, true)?;
+    zbkcl_coursed(&mut command, dispatch);
 
+    zbkcl_attended(command, spelling, ZBKCL_CARGO, cadence, heed)
+}
+
+/// The kit's families, as the prefixes every name it speaks across an exec
+/// wears.
+const ZBKCL_KIT_FAMILIES: &[&str] = &[
+    "BUC_",
+    "BURC_",
+    "BURD_",
+    "BURE_",
+    "BURS_",
+    "BURV_",
+    "BURX_",
+    "BUZ_", //
+];
+
+/// Hand an attended child — every course a suite door launches, and the heel's
+/// own builds — the dispatch's pointer and nothing else of the kit.
+///
+/// STRIPPED AT THE COURSE LAUNCH, on the two attended faces, and nowhere else:
+/// the app arm hands its tenant this process's streams and environment as the
+/// tenant's own, and rebed's heel and strike spawns are doors of their own. A
+/// course reads its dispatch's values from the file the pointer names, so a value
+/// of the kit this process carried that survived into it would be a second
+/// channel for a fact the file already states — the run-root overrides and the
+/// zipper's folio among them, each of which once made a hurdle's verdict a
+/// function of the door that drove it. The environment regime goes too: a course
+/// is a test, and its verdict must not move with the operator's dial.
+fn zbkcl_coursed(command: &mut Command, dispatch: &crate::bkcr_resolve::bkcr_Dispatch) {
+    for (name, _) in std::env::vars_os() {
+        let spelled = name.to_string_lossy();
+        if ZBKCL_KIT_FAMILIES
+            .iter()
+            .any(|family| spelled.starts_with(family))
+        {
+            command.env_remove(&name);
+        }
+    }
+
+    command.env(
+        crate::bkcr_resolve::BKCR_DISPATCH_FILE_VAR,
+        dispatch.bkcr_whence(),
+    );
+}
+
+/// The program each composition spawns, as a refusal names it.
+const ZBKCL_CARGO: &str = "cargo";
+const ZBKCL_UV: &str = "uv";
+
+/// Spawn a composed command with both streams taken, and hand each line to
+/// `heed` as it arrives and each silence of a whole cadence as a lull.
+///
+/// ONE ATTENDED LOOP FOR EVERY ATTENDED FACE. What parts the faces is the
+/// composition — cargo's discipline with the lock riding or lifted, or uv's —
+/// and what they do with the child once composed is the same act, so it is
+/// spelled once.
+fn zbkcl_attended<F>(
+    mut command: Command,
+    spelling: String,
+    program: &str,
+    cadence: std::time::Duration,
+    mut heed: F,
+) -> Result<bkcl_Run, String>
+where
+    F: FnMut(bkcl_Heard),
+{
     command.stdin(Stdio::null());
     command.stdout(Stdio::piped());
     command.stderr(Stdio::piped());
 
-    let mut child = command
-        .spawn()
-        .map_err(|err| format!("could not run cargo: {} ({})", err, spelling))?;
+    let mut child = command.spawn().map_err(|err| {
+        format!(
+            "could not run {}: {} ({})",
+            program,
+            err,
+            spelling, //
+        )
+    })?;
 
     // A READER PER STREAM, because a single thread reading them in turn
     // DEADLOCKS: a child filling the pipe we are not reading blocks on the
@@ -724,9 +1011,14 @@ where
 
     let cut = zbkcl_joined(porters);
 
-    let status = child
-        .wait()
-        .map_err(|err| format!("could not wait on cargo: {} ({})", err, spelling))?;
+    let status = child.wait().map_err(|err| {
+        format!(
+            "could not wait on {}: {} ({})",
+            program,
+            err,
+            spelling, //
+        )
+    })?;
 
     Ok(bkcl_Run {
         spelling,
@@ -816,8 +1108,8 @@ fn zbkcl_joined(porters: Vec<std::thread::JoinHandle<Option<String>>>) -> Option
     cut
 }
 
-/// Compose and run a cargo invocation with THE LOCK FLAG LIFTED, handing the
-/// child this process's streams.
+/// Compose and run a cargo invocation with THE LOCK FLAG LIFTED, attending the
+/// child's streams line by line as the attended face does.
 ///
 /// THIS IS THE ONE PLACE IN THE KENNEL WHERE `--locked` DOES NOT RIDE, and it
 /// exists because the enforcement above is otherwise total: every invocation
@@ -832,39 +1124,36 @@ fn zbkcl_joined(porters: Vec<std::thread::JoinHandle<Option<String>>>) -> Option
 /// door pace proves that by grep, and a reader who wonders whether the lift has
 /// spread greps this identifier and reads the answer in two lines.
 ///
-/// IT IS THE DRIVEN POSTURE AND NOT THE ATTENDED ONE, deliberately. Re-deriving
-/// a lock is a short act with nothing to be live about, so the cadence the
-/// attended face exists to serve has nothing to mark here.
+/// IT IS THE ATTENDED POSTURE, as every cargo act the kennel's voice renders
+/// is. Re-deriving a lock reaches the registry's index, which on a slow link is
+/// long enough to read as hung, and the cadence marks that wait; what cargo
+/// says of the packages it locked, added and updated is what an operator reads
+/// to see what moved, and the voice that heeds it keeps it on the console.
 ///
 /// The whole rest of the discipline is unchanged and is not the caller's to
 /// spell: the pin is still read from the manifest's own nearest pin file, the
 /// fence is still stood on, and the manifest is still stated rather than
 /// discovered. What lifts is one flag, for one act, at one door.
-pub fn bkcl_gangline<I, S>(
+pub fn bkcl_gangline<I, S, F>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     manifest: &Path,
     verb: &str,
     rest: I,
     stated: &[(&str, &OsStr)],
+    cadence: std::time::Duration,
+    heed: F,
 ) -> Result<bkcl_Run, String>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
+    F: FnMut(bkcl_Heard),
 {
-    let (mut command, spelling) = zbkcl_composed(repository, weaned, manifest, verb, rest, stated, false)?;
+    let (command, spelling) =
+        zbkcl_composed(repository, dispatch, manifest, verb, rest, stated, false)?;
 
-    let status = command
-        .status()
-        .map_err(|err| format!("could not run cargo: {} ({})", err, spelling))?;
-
-    Ok(bkcl_Run {
-        spelling,
-        code: status.code(),
-        cut: None,
-    })
+    zbkcl_attended(command, spelling, ZBKCL_CARGO, cadence, heed)
 }
-
 
 /// Compose and run a UV invocation from the kibble's own residence, handing the
 /// child this process's streams.
@@ -904,7 +1193,7 @@ where
 /// for that flag here is answered at the site.
 pub fn bkcl_uv<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -913,11 +1202,15 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, dispatch, at, rest, stated)?;
 
-    let status = command
-        .status()
-        .map_err(|err| format!("could not run uv: {} ({})", err, spelling))?;
+    let status = command.status().map_err(|err| {
+        format!(
+            "could not run uv: {} ({})",
+            err,
+            spelling, //
+        )
+    })?;
 
     Ok(bkcl_Run {
         spelling,
@@ -941,7 +1234,7 @@ where
 /// nonzero, the refusal being about reaching uv at all.
 pub fn bkcl_uv_recall<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -950,11 +1243,15 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, dispatch, at, rest, stated)?;
 
-    let out = command
-        .output()
-        .map_err(|err| format!("could not run uv: {} ({})", err, spelling))?;
+    let out = command.output().map_err(|err| {
+        format!(
+            "could not run uv: {} ({})",
+            err,
+            spelling, //
+        )
+    })?;
 
     Ok(bkcl_Recall {
         run: bkcl_Run {
@@ -981,61 +1278,22 @@ where
 /// to pick a stream would be picking which half of the run it heard.
 pub fn bkcl_uv_attend<I, S, F>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
     cadence: std::time::Duration,
-    mut heed: F,
+    heed: F,
 ) -> Result<bkcl_Run, String>
 where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
     F: FnMut(bkcl_Heard),
 {
-    let (mut command, spelling) = zbkcl_uv_composed(repository, weaned, at, rest, stated)?;
+    let (mut command, spelling) = zbkcl_uv_composed(repository, dispatch, at, rest, stated)?;
+    zbkcl_coursed(&mut command, dispatch);
 
-    command.stdout(Stdio::piped());
-    command.stderr(Stdio::piped());
-
-    let mut child = command
-        .spawn()
-        .map_err(|err| format!("could not run uv: {} ({})", err, spelling))?;
-
-    let (post, arrivals) = std::sync::mpsc::channel::<String>();
-
-    let mut porters = Vec::new();
-    for stream in [
-        child.stdout.take().map(zbkcl_Stream::Out),
-        child.stderr.take().map(zbkcl_Stream::Err),
-    ]
-    .into_iter()
-    .flatten()
-    {
-        let post = post.clone();
-        porters.push(std::thread::spawn(move || zbkcl_porter(stream, post)));
-    }
-    drop(post);
-
-    loop {
-        match arrivals.recv_timeout(cadence) {
-            Ok(line) => heed(bkcl_Heard::Said(line)),
-            Err(std::sync::mpsc::RecvTimeoutError::Timeout) => heed(bkcl_Heard::Lull),
-            Err(std::sync::mpsc::RecvTimeoutError::Disconnected) => break,
-        }
-    }
-
-    let cut = zbkcl_joined(porters);
-
-    let status = child
-        .wait()
-        .map_err(|err| format!("could not wait on uv: {} ({})", err, spelling))?;
-
-    Ok(bkcl_Run {
-        spelling,
-        code: status.code(),
-        cut,
-    })
+    zbkcl_attended(command, spelling, ZBKCL_UV, cadence, heed)
 }
 
 /// The composition every uv face stands on: the fence, the residence, the
@@ -1046,7 +1304,7 @@ where
 /// which is exactly the reach the chokepoint exists to deny.
 fn zbkcl_uv_composed<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     at: &Path,
     rest: I,
     stated: &[(&str, &OsStr)],
@@ -1055,12 +1313,13 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    bkcl_fenced()?;
+    let tackroom = bkcl_fenced(dispatch)?;
 
-    let residence = zbkcl_placed(repository, weaned, crate::bkcx_python::BKCX_UV)?;
+    let residence = zbkcl_placed(repository, dispatch, crate::bkcx_python::BKCX_UV)?;
 
     let mut command = Command::new(&residence);
     command.current_dir(at);
+    zbkcl_homed(&mut command, &tackroom);
     let mut spelling = residence.display().to_string();
 
     for arg in rest {
@@ -1110,7 +1369,7 @@ where
 /// spelled one, so a test filter never swallows the lock.
 fn zbkcl_composed<I, S>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     manifest: &Path,
     verb: &str,
     rest: I,
@@ -1121,7 +1380,7 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    bkcl_fenced()?;
+    let tackroom = bkcl_fenced(dispatch)?;
 
     // The crate is where its manifest stands, and the pin is read from there
     // upward. The repository is the walk's bound and nothing else here: which
@@ -1133,10 +1392,12 @@ where
     };
 
     let channel = bkcl_pin(repository, &crate_dir)?;
-    zbkcl_channel_present(&channel)?;
+    zbkcl_channel_answers(dispatch, &tackroom, &channel)?;
 
-    let spelled: Vec<std::ffi::OsString> =
-        rest.into_iter().map(|arg| arg.as_ref().to_os_string()).collect();
+    let spelled: Vec<std::ffi::OsString> = rest
+        .into_iter()
+        .map(|arg| arg.as_ref().to_os_string())
+        .collect();
 
     let severed = spelled
         .iter()
@@ -1149,19 +1410,30 @@ where
     // cargo's own, spawned as cargo with the channel stated as its leading
     // argument. The two roads differ in HOW the one channel is said and in
     // nothing else.
-    let (mut command, mut spelling) = match bkcl_kibbled(repository, weaned, verb)? {
+    let (mut command, mut spelling) = match bkcl_kibbled(repository, dispatch, verb)? {
         Some(residence) => {
             let mut command = Command::new(&residence);
             command.arg(verb);
             command.env(ZBKCL_TOOLCHAIN_VAR, &channel);
-            let spelling = format!("{} {}", residence.display(), verb);
+            let spelling = format!(
+                "{} {}",
+                residence.display(),
+                verb, //
+            );
             (command, spelling)
         }
         None => {
-            let pinned = format!("+{}", channel);
+            let pinned = format!(
+                "+{}",
+                channel, //
+            );
             let mut command = Command::new("cargo");
             command.arg(&pinned).arg(verb);
-            let spelling = format!("cargo {} {}", pinned, verb);
+            let spelling = format!(
+                "cargo {} {}",
+                pinned,
+                verb, //
+            );
             (command, spelling)
         }
     };
@@ -1195,6 +1467,8 @@ where
 
     drop(say);
 
+    zbkcl_homed(&mut command, &tackroom);
+
     // THE KENNEL'S OWN SEAT POSITION, STATED FOR EVERY INVOCATION OVER A TREE
     // THAT HOLDS THE KENNEL. The kennel's build script refuses to compile
     // without it, so any crate LINKING the kennel demands it too — and a caller
@@ -1222,8 +1496,8 @@ where
     }
 
     // THE CALLER'S STATED ENVIRONMENT, applied here because the child's
-    // environment is already this composition's to hold — the fence sets the
-    // tackroom's homes a few lines above, and a caller that reached the child by
+    // environment is already this composition's to hold — the fence's homes are
+    // stated a few lines above, and a caller that reached the child by
     // another road would be outside the chokepoint entirely. What a caller may
     // state is environment and never arguments: the flags are the discipline's,
     // and nothing here lets a caller past them.
@@ -1333,27 +1607,28 @@ fn zbkcl_git_read() -> Result<(), String> {
         .stdin(Stdio::null())
         .output();
 
-    let out = match asked {
-        Ok(out) if out.status.success() => out,
-        Ok(out) => {
-            return Err(format!(
-                "'{}' is on this station and would not say what version it is: {}. Every door \
+    let out =
+        match asked {
+            Ok(out) if out.status.success() => out,
+            Ok(out) => {
+                return Err(format!(
+                    "'{}' is on this station and would not say what version it is: {}. Every door \
                  reads the repository it stands in through it, and the kennel expects {} or \
                  above. Converge it through the station's own packaging",
-                BKCL_GIT_PROGRAM,
-                String::from_utf8_lossy(&out.stderr).trim(),
-                BKCL_GIT_FLOOR
-            ))
-        }
-        Err(err) => {
-            return Err(format!(
+                    BKCL_GIT_PROGRAM,
+                    String::from_utf8_lossy(&out.stderr).trim(),
+                    BKCL_GIT_FLOOR, //
+                ));
+            }
+            Err(err) => {
+                return Err(format!(
                 "no '{}' answered on this station: {}. Every door reads the repository it stands \
                  in through it, and the kennel provisions nothing it spawns; it expects {} or \
                  above. Converge it through the station's own packaging",
-                BKCL_GIT_PROGRAM, err, BKCL_GIT_FLOOR
-            ))
-        }
-    };
+                BKCL_GIT_PROGRAM, err, BKCL_GIT_FLOOR, //
+            ));
+            }
+        };
 
     let said = String::from_utf8_lossy(&out.stdout);
 
@@ -1364,7 +1639,7 @@ fn zbkcl_git_read() -> Result<(), String> {
              own packaging",
             BKCL_GIT_PROGRAM,
             said.trim(),
-            BKCL_GIT_FLOOR
+            BKCL_GIT_FLOOR, //
         ));
     };
 
@@ -1376,7 +1651,9 @@ fn zbkcl_git_read() -> Result<(), String> {
         "'{}' on this station answers {}, and the kennel expects {} or above — the floor is what \
          its own invocations need, and below it a door would fail on a flag rather than on the \
          tree it was reading. Converge it through the station's own packaging",
-        BKCL_GIT_PROGRAM, found, BKCL_GIT_FLOOR
+        BKCL_GIT_PROGRAM,
+        found,
+        BKCL_GIT_FLOOR, //
     ))
 }
 
@@ -1430,7 +1707,7 @@ pub fn bkcl_rustup_judged(said: &str, floor: &str) -> Result<(), String> {
              toolchain's trust root and the kennel expects {} or above; it will not guess what \
              it is holding",
             said.trim(),
-            floor
+            floor, //
         ));
     };
 
@@ -1442,16 +1719,18 @@ pub fn bkcl_rustup_judged(said: &str, floor: &str) -> Result<(), String> {
         "rustup on this station answers {}, and the kennel expects {} or above — it is the \
          toolchain's trust root and a version below the floor is not one the kennel trusts to \
          verify what it fetches. Converge it through the station's own packaging",
-        found, floor
+        found,
+        floor, //
     ))
 }
 
-/// Ask rustup what version it is, and judge it against the floor.
-fn zbkcl_rustup_read() -> Result<(), String> {
-    let asked = Command::new("rustup")
-        .arg("--version")
-        .stdin(Stdio::null())
-        .output();
+/// Ask rustup what version it is, and judge it against the floor, the
+/// tackroom's homes stated on the asking.
+fn zbkcl_rustup_read(tackroom: &Path) -> Result<(), String> {
+    let mut command = Command::new("rustup");
+    command.arg("--version").stdin(Stdio::null());
+    zbkcl_homed(&mut command, tackroom);
+    let asked = command.output();
 
     let out = match asked {
         Ok(out) if out.status.success() => out,
@@ -1461,15 +1740,16 @@ fn zbkcl_rustup_read() -> Result<(), String> {
                  and verifies the compiler this kennel's whole discipline stands on, and the \
                  kennel expects {} or above",
                 String::from_utf8_lossy(&out.stderr).trim(),
-                BKCL_RUSTUP_FLOOR
-            ))
+                BKCL_RUSTUP_FLOOR, //
+            ));
         }
         Err(err) => {
             return Err(format!(
                 "no 'rustup' answered on this station: {}. It is the toolchain's trust root and \
                  the kennel provisions nothing it spawns; it expects {} or above",
-                err, BKCL_RUSTUP_FLOOR
-            ))
+                err,
+                BKCL_RUSTUP_FLOOR, //
+            ));
         }
     };
 
@@ -1490,8 +1770,10 @@ static ZBKCL_RUSTUP_VERDICT: std::sync::OnceLock<Result<(), String>> = std::sync
 /// one place every composition already stands on to prove the tackroom
 /// redirect, and rustup is what verified what the redirect points the
 /// toolchain at.
-pub fn bkcl_rustup_held() -> Result<(), String> {
-    ZBKCL_RUSTUP_VERDICT.get_or_init(zbkcl_rustup_read).clone()
+pub fn bkcl_rustup_held(tackroom: &Path) -> Result<(), String> {
+    ZBKCL_RUSTUP_VERDICT
+        .get_or_init(|| zbkcl_rustup_read(tackroom))
+        .clone()
 }
 
 /// The residence a kibbled verb is spawned from, or `None` where the verb is
@@ -1505,12 +1787,16 @@ pub fn bkcl_rustup_held() -> Result<(), String> {
 ///
 /// A VERB OUTSIDE THE TABLE ANSWERS `None` WITHOUT TOUCHING THE FILESYSTEM,
 /// which is what keeps every ordinary cargo invocation free of this reading.
-pub fn bkcl_kibbled(repository: &Path, weaned: &Path, verb: &str) -> Result<Option<PathBuf>, String> {
+pub fn bkcl_kibbled(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    verb: &str,
+) -> Result<Option<PathBuf>, String> {
     let Some((_, named)) = ZBKCL_KIBBLED.iter().find(|(served, _)| *served == verb) else {
         return Ok(None);
     };
 
-    zbkcl_placed(repository, weaned, named).map(Some)
+    zbkcl_placed(repository, dispatch, named).map(Some)
 }
 
 /// The residence a NAMED kibble stands at, proven placed.
@@ -1522,15 +1808,19 @@ pub fn bkcl_kibbled(repository: &Path, weaned: &Path, verb: &str) -> Result<Opti
 /// — and both owe the identical refusals, which are the kibble's own sentences
 /// rather than either caller's. A second copy of this would be a second place
 /// for the placement check to be forgotten.
-fn zbkcl_placed(repository: &Path, weaned: &Path, named: &str) -> Result<PathBuf, String> {
-    let resolved = crate::bkcq_kibble::bkcq_resolve(repository, weaned, named)?;
+fn zbkcl_placed(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    named: &str,
+) -> Result<PathBuf, String> {
+    let resolved = crate::bkcq_kibble::bkcq_resolve(repository, dispatch.bkcr_weaned(), named)?;
 
     if !resolved.findings.is_empty() {
         let mut said = format!(
             "the kibble '{}' carries {} finding(s), and no door spawns a program declared by a \
              kibble that does not conform:",
             named,
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
             said.push_str("\n  ");
@@ -1539,11 +1829,13 @@ fn zbkcl_placed(repository: &Path, weaned: &Path, named: &str) -> Result<PathBuf
         return Err(said);
     }
 
-    let feedroom = crate::bkcq_kibble::bkcq_feedroom()?;
+    let feedroom = crate::bkcq_kibble::bkcq_feedroom(dispatch)?;
     let residence = resolved.kibble.bkcq_residence(&feedroom);
 
     if !residence.is_file() {
-        return Err(resolved.kibble.bkcq_absent(&feedroom));
+        return Err(resolved
+            .kibble
+            .bkcq_absent(&feedroom, dispatch.bkcr_tabtargets()));
     }
 
     Ok(residence)

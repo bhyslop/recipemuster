@@ -38,8 +38,6 @@ zrbho_furnish() {
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
   source "${BURD_BUK_DIR}/buh_handbook.sh"           || buc_die_now "Failed to source buh_handbook.sh"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"         || buc_die_now "Failed to source buv_validation.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh"             || buc_die_now "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die_now "Failed to source buwz_zipper.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"        || buc_die_now "Failed to source rbcc_constants.sh"
@@ -50,7 +48,6 @@ zrbho_furnish() {
   source "${RBCC_rbrd_file}"                         || buc_die_now "Failed to source ${RBCC_rbrd_file}"
   source "${z_rbk_kit_dir}/rbyc_common.sh"            || buc_die_now "Failed to source rbyc_common.sh"
   source "${z_rbk_kit_dir}/rbz_zipper.sh"            || buc_die_now "Failed to source rbz_zipper.sh"
-  zbuv_kindle
   zrbgc_kindle
   zbuz_kindle
   zbuwz_kindle

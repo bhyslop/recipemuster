@@ -36,8 +36,12 @@
 //! reader that produced it.
 
 use crate::bkce_election::bkce_Geography;
+use crate::bkcr_resolve::{
+    bkcr_Collar,
+    BKCR_KIND_APP,
+    BKCR_KIND_SUITE, //
+};
 use crate::bkcx_python::bkcx_Collar;
-use crate::bkcr_resolve::{bkcr_Collar, BKCR_KIND_APP, BKCR_KIND_SUITE};
 
 /// The language field's value for the rust family, in the substrate's enum sprue
 /// form under this kit's plane.
@@ -60,20 +64,20 @@ const ZBKCT_PROCLAIMED: &[(&str, &str)] = &[
     ("BKRC_TARGET", "BKRR_TARGET"),
     ("BKRC_PROFILE", "BKRR_PROFILE"),
     ("BKRC_FEATURES", "BKRR_FEATURES"),
-    ("BKRC_ROOTS", "BKRR_ROOTS"),
+    ("BKRC_ROOTS", "BKRR_ROOTS"), //
 ];
 
 /// The app's own launch coordinates — the directory and the name the binary
 /// wears inside it, which are two facts and not one.
 const ZBKCT_PROCLAIMED_APP: &[(&str, &str)] = &[
     ("BKRC_RESIDENCE", "BKRR_RESIDENCE"),
-    ("BKRC_BYNAME", "BKRR_BYNAME"),
+    ("BKRC_BYNAME", "BKRR_BYNAME"), //
 ];
 
 /// The suite's own launch coordinates.
 const ZBKCT_PROCLAIMED_SUITE: &[(&str, &str)] = &[
     ("BKRC_RUNNER", "BKRR_RUNNER"),
-    ("BKRC_TONGUE", "BKRR_TONGUE"),
+    ("BKRC_TONGUE", "BKRR_TONGUE"), //
 ];
 
 /// The python family's own table, and the seam working as the charter says it
@@ -95,7 +99,7 @@ const ZBKCT_PROCLAIMED_PYTHON: &[(&str, &str)] = &[
     ("BKRC_KIND", "BKRP_KIND"),
     ("BKRC_SPEND", "BKRP_SPEND"),
     ("BKRC_MANIFEST", "BKRP_MANIFEST"),
-    ("BKRC_ROOTS", "BKRP_ROOTS"),
+    ("BKRC_ROOTS", "BKRP_ROOTS"), //
 ];
 
 /// The python app's own launch coordinate — one where the rust family carries
@@ -106,7 +110,7 @@ const ZBKCT_PROCLAIMED_PYTHON_APP: &[(&str, &str)] = &[("BKRC_BYNAME", "BKRP_BYN
 const ZBKCT_PROCLAIMED_PYTHON_SUITE: &[(&str, &str)] = &[
     ("BKRC_TARGET", "BKRP_TARGET"),
     ("BKRC_RUNNER", "BKRP_RUNNER"),
-    ("BKRC_TONGUE", "BKRP_TONGUE"),
+    ("BKRC_TONGUE", "BKRP_TONGUE"), //
 ];
 
 /// The proclamation for one collar, ready to be read or sourced.
@@ -224,10 +228,18 @@ fn zbkct_stated(field: &str, value: &str) -> String {
     let elements: Vec<&str> = value.split_whitespace().collect();
 
     if elements.len() < 2 {
-        return format!("{}=\"{}\"\n", field, value.trim());
+        return format!(
+            "{}=\"{}\"\n",
+            field,
+            value.trim(), //
+        );
     }
 
-    let mut said = format!("{}=\"{}", field, elements[0]);
+    let mut said = format!(
+        "{}=\"{}",
+        field,
+        elements[0], //
+    );
     for element in &elements[1..] {
         said.push_str(" \\\n  ");
         said.push_str(element);

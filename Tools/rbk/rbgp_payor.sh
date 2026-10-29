@@ -31,6 +31,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBGP_SOURCED:-}" || buc_die_now "Module rbgp multiply sourced - check sourcing hierarchy"
 ZRBGP_SOURCED=1
@@ -272,7 +277,7 @@ rbgp_authenticate_die() {
   zrbgp_sentinel
 
   test "${zSECRET_refusal}" != "${RBGP_refusal_credless}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: Payor OAuth token mint refused — this run carries the reveille-tier guard (reveille cases must never reach credentials)"
+    || buc_reject "${RBCG_CREDLESS_DENTIL}" "Credless guard: Payor OAuth token mint refused — this run carries the reveille-tier guard (reveille cases must never reach credentials)"
   test "${zSECRET_refusal}" != "${RBGP_refusal_lapsed}" \
     || buc_die_now "Payor sign-in session lapsed under your organization's sign-in policy - re-run the Install tabtarget with the saved client-secret JSON (Google's description stands in the transcript)"
   test "${zSECRET_refusal}" != "${RBGP_refusal_expired}" \
@@ -2227,7 +2232,7 @@ rbgp_manor_escheat() {
   local z_folders
   z_folders=$(rbgb_managed_folders_capture "${zSECRET_token}" "${z_bucket}") || z_folders_status=$?
   test "${z_folders_status}" -eq 0 \
-    || buc_reject "${BUBC_band_escheat}" "Escheat: failed to list managed folders in ${z_bucket}"
+    || buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Escheat: failed to list managed folders in ${z_bucket}"
   printf '%s\n' "${z_folders}" > "${z_folders_file}" || buc_die_now "Failed to write: ${z_folders_file}"
 
   local -r z_depots_file="${ZRBGP_PREFIX}escheat_depots.txt"
@@ -2309,7 +2314,7 @@ rbgp_manor_escheat() {
   local z_folders_verify
   z_folders_verify=$(rbgb_managed_folders_capture "${zSECRET_token}" "${z_bucket}") || z_folders_verify_status=$?
   test "${z_folders_verify_status}" -eq 0 \
-    || buc_reject "${BUBC_band_escheat}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
+    || buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Escheat verify: failed to re-list managed folders in ${z_bucket}"
   printf '%s\n' "${z_folders_verify}" > "${z_folders_verify_file}" || buc_die_now "Failed to write: ${z_folders_verify_file}"
 
   local -r z_replan_file="${ZRBGP_PREFIX}escheat_replan.txt"

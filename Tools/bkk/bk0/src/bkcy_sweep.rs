@@ -34,9 +34,15 @@
 //! this one cannot, because removal takes only what a sighting yielded.
 
 use std::ffi::OsString;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
-use crate::bkcr_resolve::{bkcr_target_directory, bkcr_Collar};
+use crate::bkcr_resolve::{
+    bkcr_Collar,
+    bkcr_target_directory, //
+};
 use crate::bkcx_python::bkcx_Seat;
 
 /// A collar's build directory, and whether it is one this sweep may delete.
@@ -84,12 +90,12 @@ pub struct bkcy_Swept {
 /// against the repository the collar stands in.
 pub fn bkcy_sight(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     loosebox: Option<&Path>,
     collar: &bkcr_Collar,
 ) -> Result<bkcy_Sighting, String> {
     let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
-    let directory = bkcr_target_directory(repository, weaned, &manifest)?;
+    let directory = bkcr_target_directory(repository, dispatch, &manifest)?;
 
     let root = zbkcy_rooted(repository)?;
 
@@ -138,6 +144,27 @@ pub fn bkcy_sight_python(
     ))
 }
 
+/// Sight one root of what the kennel provisions on the station, for the bleach
+/// that empties it: within the tackroom the fence proved, under the loosebox,
+/// or beyond both.
+///
+/// THE SAME CLASSES AS A BUILD DIRECTORY'S, judged against another root. A
+/// collar's build directory is judged against the repository it stands in; a
+/// provision is judged against the tackroom, which is the store it stands in by
+/// the station's own declaration. So `Within` here is strictly inside the
+/// tackroom, `Loosebox` strictly inside the loosebox, and the tackroom itself,
+/// the loosebox itself and anything outside both are `Beyond` — the rule that
+/// keeps scoop off the tackroom is the rule that keeps bleach off everything
+/// else the station holds.
+pub fn bkcy_sight_provision(tackroom: &Path, loosebox: &Path, directory: PathBuf) -> bkcy_Sighting {
+    bkcy_classed(
+        &zbkcy_settled(tackroom),
+        Some(loosebox),
+        &zbkcy_settled(&directory),
+        directory,
+    )
+}
+
 /// The repository as the filesystem settles it, which is what every class is
 /// judged against.
 fn zbkcy_rooted(repository: &Path) -> Result<PathBuf, String> {
@@ -146,7 +173,7 @@ fn zbkcy_rooted(repository: &Path) -> Result<PathBuf, String> {
             "the repository at {} does not resolve, so no derived directory can be judged against \
              it: {}",
             repository.display(),
-            err
+            err, //
         )
     })
 }
@@ -207,8 +234,8 @@ pub fn bkcy_remove(collar: &str, sighted: &bkcy_Sighting) -> Result<bkcy_Swept, 
                 "the build directory '{}' stands outside the repository the collar '{}' stands \
                  in, and nothing outside the work tree is ever removed",
                 directory.display(),
-                collar
-            ))
+                collar, //
+            ));
         }
     };
 
@@ -219,7 +246,7 @@ pub fn bkcy_remove(collar: &str, sighted: &bkcy_Sighting) -> Result<bkcy_Swept, 
             format!(
                 "the build directory '{}' could not be removed: {}",
                 directory.display(),
-                err
+                err, //
             )
         })?;
     }

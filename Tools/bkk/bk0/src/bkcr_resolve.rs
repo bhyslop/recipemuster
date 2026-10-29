@@ -36,10 +36,19 @@
 //! moorings' weaned set; a file standing anywhere else in the tree is no
 //! declaration to any door.
 
-use crate::bkcj_json::{bkcj_read, bkcj_Value};
+use crate::bkcj_json::{
+    bkcj_Value,
+    bkcj_read, //
+};
 use crate::bkcl_leash;
-use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
-use std::path::{Path, PathBuf};
+use bkp::bkprc_catena::{
+    bkprc_Regime,
+    bkprc_read, //
+};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 /// The rust family's file. Its parent directory is the instance and that
 /// directory's name is the collar name.
@@ -49,7 +58,7 @@ pub const BKCR_FAMILY: &str = "bkrr.env";
 pub const BKCR_FAMILIES: &[&str] = &[
     BKCR_FAMILY,
     crate::bkcx_python::BKCX_FAMILY,
-    crate::bkcq_kibble::BKCQ_FAMILY,
+    crate::bkcq_kibble::BKCQ_FAMILY, //
 ];
 
 /// The directory under a repository's moorings holding the declarations that
@@ -66,7 +75,7 @@ pub const BKCR_BROOD: &str = "bkd_brood";
 pub const BKCR_TOOLS: &str = "Tools";
 
 /// The dispatch's config directory — the moorings — which the weaned set stands
-/// under.
+/// under, read from the dispatch's file.
 pub const BKCR_CONFIG_DIR_VAR: &str = "BURD_CONFIG_DIR";
 
 /// The linter's own file, which a declared muzzle directory must hold. Foreign
@@ -86,7 +95,7 @@ pub const BKCR_FIELDS_BOTH: &[&str] = &[
     "BKRR_TAMED_CRATES",
     "BKRR_FERAL_CRATES",
     "BKRR_MUZZLE",
-    "BKRR_EXERGUE",
+    "BKRR_EXERGUE", //
 ];
 
 /// What `BKRR_EXERGUE` carries where the crate holds no generated source at
@@ -100,10 +109,16 @@ pub const BKCR_UNSTRUCK: &str = "bknre_unstruck";
 pub const BKCR_TAMED: &str = "bknre_tamed";
 
 /// The fields an app declares and a suite does not.
-pub const BKCR_FIELDS_APP: &[&str] = &["BKRR_RESIDENCE", "BKRR_BYNAME"];
+pub const BKCR_FIELDS_APP: &[&str] = &[
+    "BKRR_RESIDENCE",
+    "BKRR_BYNAME", //
+];
 
 /// The fields a suite declares and an app does not.
-pub const BKCR_FIELDS_SUITE: &[&str] = &["BKRR_RUNNER", "BKRR_TONGUE"];
+pub const BKCR_FIELDS_SUITE: &[&str] = &[
+    "BKRR_RUNNER",
+    "BKRR_TONGUE", //
+];
 
 /// The kind values, in the substrate's enum sprue form under this kit's own
 /// plane. No bare word is admitted anywhere in this roster: bare, a value is
@@ -119,10 +134,34 @@ pub const BKCR_TARGET_MANIFEST: &str = "bknre_manifest";
 
 /// The enum-valued fields and the values each admits.
 const ZBKCR_ENUMS: &[(&str, &[&str])] = &[
-    ("BKRR_KIND", &[BKCR_KIND_APP, BKCR_KIND_SUITE]),
-    ("BKRR_SPEND", &["bknre_reader", "bknre_writer"]),
-    ("BKRR_RUNNER", &["bknre_cargo", "bknre_nextest"]),
-    ("BKRR_TONGUE", &["bknre_harness", "bknre_nextest"]),
+    (
+        "BKRR_KIND",
+        &[
+            BKCR_KIND_APP,
+            BKCR_KIND_SUITE, //
+        ],
+    ),
+    (
+        "BKRR_SPEND",
+        &[
+            "bknre_reader",
+            "bknre_writer", //
+        ],
+    ),
+    (
+        "BKRR_RUNNER",
+        &[
+            "bknre_cargo",
+            "bknre_nextest", //
+        ],
+    ),
+    (
+        "BKRR_TONGUE",
+        &[
+            "bknre_harness",
+            "bknre_nextest", //
+        ],
+    ), //
 ];
 
 /// The schema version this module's reading is written against, asked for by
@@ -270,7 +309,7 @@ pub fn bkcr_exergue_stands(repository: &Path, collar: &bkcr_Collar) -> Result<()
         collar.name,
         absent.len(),
         absent.join(", "),
-        collar.bkcr_strike().join(" "),
+        collar.bkcr_strike().join(" "), //
     ))
 }
 
@@ -331,26 +370,132 @@ pub fn bkcr_weaned(config: &Path) -> PathBuf {
     config.join(BKCR_WEANED)
 }
 
-/// The weaned set this process's dispatch names, read from the environment.
+/// The pointer a dispatch hands across its exec: the one name the kennel reads
+/// from its environment for the dispatch's values, naming the file that holds
+/// them all.
+pub const BKCR_DISPATCH_FILE_VAR: &str = "BURD_BURD_FILE";
+
+/// One dispatch's values, as the dispatch wrote them into its file.
+///
+/// READ ONCE, AT A PROCESS'S EDGE, AND CARRIED AS A VALUE. The door face reads
+/// the file the pointer names and every reading below it takes this, so a hurdle
+/// composing a lure hands its own dispatch in rather than inheriting the run
+/// executing it, and no reading beneath a door face asks the environment again.
+///
+/// WHAT A FIELD MEANS IS ITS READER'S, never this type's. Each consumer names the
+/// field it reads and refuses its own absence in its own words; what this type
+/// answers is what the file said, a blank value standing as no value, since the
+/// dispatch writes a field it composed nothing for as an empty assignment.
+///
+/// THE MOORINGS ARE PROVEN AT THE READ. A dispatch names its config directory
+/// always, so a file lacking one was composed by no dispatch and refuses here;
+/// the weaned set beneath it is then carried as a fact rather than re-asked by
+/// every reading that walks it.
+#[derive(Debug, Clone)]
+pub struct bkcr_Dispatch {
+    regime: bkprc_Regime,
+    whence: String,
+    weaned: PathBuf,
+}
+
+impl bkcr_Dispatch {
+    /// The dispatch stated by regime text already in hand, `whence` naming where
+    /// it came from for the refusals — the road a hurdle composing one takes.
+    pub fn bkcr_admit(source: &str, whence: &str) -> Result<bkcr_Dispatch, String> {
+        zbkcr_dispatch(bkp::bkprc_catena::bkprc_admit(source, whence)?, whence)
+    }
+
+    /// The dispatch stated by the file at `path`, read through the estate's one
+    /// regime reader.
+    pub fn bkcr_read(path: &Path) -> Result<bkcr_Dispatch, String> {
+        zbkcr_dispatch(bkprc_read(path)?, &path.display().to_string())
+    }
+
+    /// One field's value, or `None` where the file does not assign it or
+    /// assigns it blank.
+    pub fn bkcr_said(&self, field: &str) -> Option<&str> {
+        self.regime
+            .bkprc_scalar(field)
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+    }
+
+    /// Where these values were read from, for a refusal naming a field the file
+    /// lacks.
+    pub fn bkcr_whence(&self) -> &str {
+        &self.whence
+    }
+
+    /// The weaned set this dispatch names, beneath its config directory.
+    pub fn bkcr_weaned(&self) -> &Path {
+        &self.weaned
+    }
+
+    /// The tabtarget directory this dispatch names, for a refusal naming a door.
+    pub fn bkcr_tabtargets(&self) -> Option<&Path> {
+        self.bkcr_said(crate::bkco_output::BKCO_TABTARGET_DIR_VAR)
+            .map(Path::new)
+    }
+}
+
+/// A dispatch from a regime already read, its moorings proven.
+///
+/// ABSENT MOORINGS ARE A REFUSAL, never a fallback: there is no other weaned set
+/// to read.
+fn zbkcr_dispatch(regime: bkprc_Regime, whence: &str) -> Result<bkcr_Dispatch, String> {
+    let config = regime
+        .bkprc_scalar(BKCR_CONFIG_DIR_VAR)
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .ok_or_else(|| {
+            format!(
+                "{} carries no {}, so no weaned set can be read — the kennel reads the \
+                 declarations a repository runs from its moorings, which the dispatch names",
+                whence,
+                BKCR_CONFIG_DIR_VAR, //
+            )
+        })?;
+
+    let weaned = bkcr_weaned(Path::new(config));
+
+    Ok(bkcr_Dispatch {
+        regime,
+        whence: whence.to_string(),
+        weaned,
+    })
+}
+
+/// The dispatch this process was launched under, read from the file its pointer
+/// names.
 ///
 /// THE ONE ENVIRONMENT READ, TAKEN AT A PROCESS'S EDGE AND NEVER BENEATH IT.
-/// Every reading of the set takes it as a value, so a hurdle composing a lure
-/// hands its own set in rather than inheriting the real moorings of the run
-/// executing it — the same split the kibble root keeps (`bkcq_feedroom_at`). A
-/// caller below a door face that reached for this would be the second road.
+/// Every reading of a dispatch value takes the answer as a value — the same
+/// split the kibble root keeps (`bkcq_feedroom_at`). A caller below a door face
+/// that reached for this would be the second road.
 ///
-/// ABSENT IS A REFUSAL, never a fallback: the dispatch's launcher refuses to run
-/// without this variable, so a process lacking it was not launched through a
-/// tabtarget, and there is no other moorings to read.
-pub fn bkcr_weaned_dispatched() -> Result<PathBuf, String> {
-    match std::env::var_os(BKCR_CONFIG_DIR_VAR) {
-        Some(config) if !config.is_empty() => Ok(bkcr_weaned(Path::new(&config))),
-        _ => Err(format!(
-            "{} is not set, so no weaned set can be read — the kennel reads the declarations a \
-             repository runs from its moorings, which the dispatch names; run it through a tabtarget",
-            BKCR_CONFIG_DIR_VAR
-        )),
-    }
+/// AN ABSENT POINTER, OR ONE NAMING NO READABLE FILE, IS A REFUSAL and never a
+/// fallback: the dispatch hands the pointer to every coordinator, so a process
+/// lacking it was not launched through a tabtarget, and there is no other place
+/// the dispatch's values stand.
+pub fn bkcr_dispatched() -> Result<bkcr_Dispatch, String> {
+    let pointer = std::env::var_os(BKCR_DISPATCH_FILE_VAR)
+        .filter(|pointer| !pointer.is_empty())
+        .ok_or_else(|| {
+            format!(
+                "{} is not set, so no dispatch's values can be read — the kennel reads its roots, \
+                 its log names, its tackroom and its moorings from the file a dispatch names; run \
+                 it through a tabtarget",
+                BKCR_DISPATCH_FILE_VAR, //
+            )
+        })?;
+
+    bkcr_Dispatch::bkcr_read(Path::new(&pointer)).map_err(|err| {
+        format!(
+            "{} names a dispatch file the kennel cannot read: {}",
+            BKCR_DISPATCH_FILE_VAR,
+            err, //
+        )
+    })
 }
 
 /// Prove the whole weaned set conforms, before any door reads a declaration.
@@ -392,7 +537,7 @@ pub fn bkcr_drift(repository: &Path, instance: &Path, family: &str) -> Result<()
             "the name '{}' is declared by {} kits' broods, so a weaned copy of it can be proven \
              against none — one name stands once across every kit:",
             name,
-            broods.len()
+            broods.len(), //
         );
         for brood in &broods {
             said.push_str("\n  ");
@@ -411,7 +556,11 @@ pub fn bkcr_drift(repository: &Path, instance: &Path, family: &str) -> Result<()
     let equal = match (std::fs::read(&copy), std::fs::read(&declared)) {
         (Ok(held), Ok(kit)) => held == kit,
         (Err(err), _) => {
-            return Err(format!("could not read {}: {}", copy.display(), err));
+            return Err(format!(
+                "could not read {}: {}",
+                copy.display(),
+                err, //
+            ));
         }
         (Ok(_), Err(_)) => false,
     };
@@ -430,7 +579,7 @@ pub fn bkcr_drift(repository: &Path, instance: &Path, family: &str) -> Result<()
         copy_shown.display(),
         declared_shown.display(),
         declared_shown.display(),
-        copy_shown.display(),
+        copy_shown.display(), //
     ))
 }
 
@@ -439,20 +588,32 @@ fn zbkcr_instances(weaned: &Path) -> Result<Vec<(PathBuf, &'static str)>, String
     let listing = match std::fs::read_dir(weaned) {
         Ok(listing) => listing,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
-        Err(err) => return Err(format!("could not read {}: {}", weaned.display(), err)),
+        Err(err) => {
+            return Err(format!(
+                "could not read {}: {}",
+                weaned.display(),
+                err, //
+            ));
+        }
     };
 
     let mut instances: Vec<(PathBuf, &'static str)> = Vec::new();
 
     for entry in listing {
-        let entry = entry.map_err(|err| format!("could not read {}: {}", weaned.display(), err))?;
+        let entry = entry.map_err(|err| {
+            format!(
+                "could not read {}: {}",
+                weaned.display(),
+                err, //
+            )
+        })?;
         let instance = entry.path();
 
         if !instance.is_dir() {
             return Err(format!(
                 "{} stands in the weaned set and is no instance directory — the set holds one \
                  directory per declaration and nothing else",
-                instance.display()
+                instance.display(), //
             ));
         }
 
@@ -467,7 +628,7 @@ fn zbkcr_instances(weaned: &Path) -> Result<Vec<(PathBuf, &'static str)>, String
                 "the weaned instance {} holds {} family file(s) where it must hold one — one of {}",
                 instance.display(),
                 held.len(),
-                BKCR_FAMILIES.join(", ")
+                BKCR_FAMILIES.join(", "), //
             ));
         }
 
@@ -486,13 +647,25 @@ fn zbkcr_broods(repository: &Path, name: &str) -> Result<Vec<PathBuf>, String> {
     let listing = match std::fs::read_dir(&tools) {
         Ok(listing) => listing,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
-        Err(err) => return Err(format!("could not read {}: {}", tools.display(), err)),
+        Err(err) => {
+            return Err(format!(
+                "could not read {}: {}",
+                tools.display(),
+                err, //
+            ));
+        }
     };
 
     let mut broods: Vec<PathBuf> = Vec::new();
 
     for entry in listing {
-        let entry = entry.map_err(|err| format!("could not read {}: {}", tools.display(), err))?;
+        let entry = entry.map_err(|err| {
+            format!(
+                "could not read {}: {}",
+                tools.display(),
+                err, //
+            )
+        })?;
         let candidate = entry.path().join(BKCR_BROOD).join(name);
         if candidate.is_dir() {
             broods.push(candidate);
@@ -517,8 +690,12 @@ fn zbkcr_within(repository: &Path, path: &Path) -> PathBuf {
 /// drifted copy refuses rather than being validated: the findings of a copy that
 /// is not the kit's declaration would be findings about a declaration nobody
 /// made.
-pub fn bkcr_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcr_Resolved, String> {
-    let instances = bkcr_walk(repository, weaned)?;
+pub fn bkcr_resolve(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    name: &str,
+) -> Result<bkcr_Resolved, String> {
+    let instances = bkcr_walk(repository, dispatch.bkcr_weaned())?;
 
     let Some(instance) = instances
         .iter()
@@ -528,9 +705,9 @@ pub fn bkcr_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcr
         return Err(format!(
             "no collar named '{}' stands in the weaned set {} — it holds {} collar(s): {}",
             name,
-            zbkcr_within(repository, weaned).display(),
+            zbkcr_within(repository, dispatch.bkcr_weaned()).display(),
             instances.len(),
-            zbkcr_listed(&instances)
+            zbkcr_listed(&instances), //
         ));
     };
 
@@ -544,19 +721,23 @@ pub fn bkcr_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcr
         regime,
     };
 
-    let findings = zbkcr_findings(repository, weaned, &collar);
+    let findings = zbkcr_findings(repository, dispatch, &collar);
 
     Ok(bkcr_Resolved { collar, findings })
 }
 
 /// Every conformance finding against one collar, gathered whole.
-fn zbkcr_findings(repository: &Path, weaned: &Path, collar: &bkcr_Collar) -> Vec<String> {
+fn zbkcr_findings(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    collar: &bkcr_Collar,
+) -> Vec<String> {
     let mut findings: Vec<String> = Vec::new();
 
     zbkcr_declared(collar, &mut findings);
     zbkcr_identity(collar, &mut findings);
     zbkcr_muzzle(repository, collar, &mut findings);
-    zbkcr_cargo(repository, weaned, collar, &mut findings);
+    zbkcr_cargo(repository, dispatch, collar, &mut findings);
 
     findings
 }
@@ -581,7 +762,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
             findings.push(format!(
                 "{} is not declared — every collar declares it, and a door reading a meaning out \
                  of an absence cannot tell a declaration from an omission",
-                field
+                field, //
             ));
         }
     }
@@ -590,7 +771,9 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
         if collar.regime.bkprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the other kind — this collar declares {} = {}",
-                field, "BKRR_KIND", kind
+                field,
+                "BKRR_KIND",
+                kind, //
             ));
         }
     }
@@ -604,7 +787,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
                 "{} carries '{}', which is no admitted value — it takes one of: {}",
                 field,
                 held,
-                admitted.join(", ")
+                admitted.join(", "), //
             ));
         }
     }
@@ -642,7 +825,7 @@ fn zbkcr_exergue(collar: &bkcr_Collar, findings: &mut Vec<String>) {
             "BKRR_STRIKE names {} and BKRR_EXERGUE declares {} — doors that strike nothing are \
              not owed, and the two fields are declared together or not at all",
             strikes.join(" "),
-            BKCR_UNSTRUCK
+            BKCR_UNSTRUCK, //
         ));
     }
 
@@ -651,7 +834,7 @@ fn zbkcr_exergue(collar: &bkcr_Collar, findings: &mut Vec<String>) {
             "BKRR_EXERGUE names {} and BKRR_STRIKE stands vacant — a refusal over an absent \
              exergue exists to name the doors that write it, and one composed from a vacant field \
              would name nothing",
-            exergues.join(" ")
+            exergues.join(" "), //
         ));
     }
 }
@@ -664,7 +847,8 @@ fn zbkcr_identity(collar: &bkcr_Collar, findings: &mut Vec<String>) {
         findings.push(format!(
             "BKRR_COLLAR declares '{}' and the instance directory is named '{}' — a collar's name \
              is its identity, and the two must be one",
-            declared, collar.name
+            declared,
+            collar.name, //
         ));
     }
 }
@@ -682,7 +866,7 @@ fn zbkcr_muzzle(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Stri
     if !directory.is_dir() {
         findings.push(format!(
             "BKRR_MUZZLE names '{}', where no directory stands",
-            declared
+            declared, //
         ));
         return;
     }
@@ -691,7 +875,8 @@ fn zbkcr_muzzle(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Stri
         findings.push(format!(
             "BKRR_MUZZLE names '{}', which holds no {} — a muzzle directory holding no lint list \
              is a muzzle nothing wears",
-            declared, BKCR_MUZZLE_FILE
+            declared,
+            BKCR_MUZZLE_FILE, //
         ));
     }
 }
@@ -720,7 +905,12 @@ fn zbkcr_muzzle(repository: &Path, collar: &bkcr_Collar, findings: &mut Vec<Stri
 /// thereby out of the question by construction, which is also the honest scope:
 /// what the elected roots must reach is the source compiled from OUR trees, and
 /// a registry crate is pinned by the lock rather than elected by a collar.
-fn zbkcr_cargo(repository: &Path, weaned: &Path, collar: &bkcr_Collar, findings: &mut Vec<String>) {
+fn zbkcr_cargo(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    collar: &bkcr_Collar,
+    findings: &mut Vec<String>,
+) {
     let declared = collar.bkcr_field("BKRR_MANIFEST");
 
     if declared.is_empty() {
@@ -732,12 +922,12 @@ fn zbkcr_cargo(repository: &Path, weaned: &Path, collar: &bkcr_Collar, findings:
     if !manifest.is_file() {
         findings.push(format!(
             "BKRR_MANIFEST names '{}', where no manifest stands",
-            declared
+            declared, //
         ));
         return;
     }
 
-    let account = match zbkcr_account(repository, weaned, &manifest) {
+    let account = match zbkcr_account(repository, dispatch, &manifest) {
         Ok(account) => account,
         Err(err) => {
             findings.push(err);
@@ -751,7 +941,7 @@ fn zbkcr_cargo(repository: &Path, weaned: &Path, collar: &bkcr_Collar, findings:
 
     zbkcr_crates(collar, &account, tested, findings);
 
-    match bkcr_closure(repository, weaned, &manifest, tested) {
+    match bkcr_closure(repository, dispatch, &manifest, tested) {
         Ok(closure) => zbkcr_roots(collar, &closure, findings),
         Err(err) => findings.push(err),
     }
@@ -789,8 +979,12 @@ fn zbkcr_kind(dependency: &bkcj_Value) -> &str {
 /// It is a fact about the ANSWER rather than about a package, which is why it is
 /// read from the account's own root: the field stands beside `packages` and not
 /// inside one, and a workspace answers one build directory for every member.
-pub fn bkcr_target_directory(repository: &Path, weaned: &Path, manifest: &Path) -> Result<PathBuf, String> {
-    let answer = zbkcr_answer(repository, weaned, manifest)?;
+pub fn bkcr_target_directory(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    manifest: &Path,
+) -> Result<PathBuf, String> {
+    let answer = zbkcr_answer(repository, dispatch, manifest)?;
 
     answer
         .bkcj_field("target_directory")
@@ -799,7 +993,7 @@ pub fn bkcr_target_directory(repository: &Path, weaned: &Path, manifest: &Path) 
         .ok_or_else(|| {
             format!(
                 "cargo's account of '{}' names no build directory",
-                manifest.display()
+                manifest.display(), //
             )
         })
 }
@@ -809,18 +1003,27 @@ pub fn bkcr_target_directory(repository: &Path, weaned: &Path, manifest: &Path) 
 /// The package asked for is the one whose manifest path is the one asked about,
 /// matched after both are settled: a manifest naming a workspace answers for its
 /// members too, and the answer must be about the crate the collar declares.
-fn zbkcr_account(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
-    let answer = zbkcr_answer(repository, weaned, manifest)?;
+fn zbkcr_account(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    manifest: &Path,
+) -> Result<bkcj_Value, String> {
+    let answer = zbkcr_answer(repository, dispatch, manifest)?;
 
     let packages = answer
         .bkcj_field("packages")
         .and_then(bkcj_Value::bkcj_array)
-        .ok_or_else(|| format!("cargo's account of '{}' names no packages", manifest.display()))?;
+        .ok_or_else(|| {
+            format!(
+                "cargo's account of '{}' names no packages",
+                manifest.display(), //
+            )
+        })?;
 
     let wanted = zbkcr_settled(manifest).ok_or_else(|| {
         format!(
             "'{}' settles to no real path, so cargo's answer cannot be matched to it",
-            manifest.display()
+            manifest.display(), //
         )
     })?;
 
@@ -838,7 +1041,7 @@ fn zbkcr_account(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bk
             format!(
                 "cargo's account names {} package(s) and none of them stands at '{}'",
                 packages.len(),
-                manifest.display()
+                manifest.display(), //
             )
         })
 }
@@ -850,16 +1053,31 @@ fn zbkcr_account(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bk
 /// and homing it here is what keeps a second caller from asking a
 /// differently-shaped question — the flags above say as much, and a second
 /// composition of them would make that sentence false.
-fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkcj_Value, String> {
+fn zbkcr_answer(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    manifest: &Path,
+) -> Result<bkcj_Value, String> {
     let recalled = bkcl_leash::bkcl_recall(
         repository,
-        weaned,
+        dispatch,
         manifest,
         ZBKCR_METADATA,
-        [ZBKCR_NO_DEPS, ZBKCR_FORMAT_FLAG, ZBKCR_FORMAT, ZBKCR_OFFLINE],
+        [
+            ZBKCR_NO_DEPS,
+            ZBKCR_FORMAT_FLAG,
+            ZBKCR_FORMAT,
+            ZBKCR_OFFLINE,
+        ],
         &[],
     )
-    .map_err(|err| format!("cargo could not be asked about '{}': {}", manifest.display(), err))?;
+    .map_err(|err| {
+        format!(
+            "cargo could not be asked about '{}': {}",
+            manifest.display(),
+            err, //
+        )
+    })?;
 
     // THE CODE IS READ BEFORE THE ANSWER IS, which is the shape the recalling
     // face asks of its callers: it answers `Ok` for a cargo that exited nonzero,
@@ -869,7 +1087,7 @@ fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkc
         return Err(format!(
             "cargo refused to describe '{}': {}",
             manifest.display(),
-            recalled.grievance.trim()
+            recalled.grievance.trim(), //
         ));
     }
 
@@ -882,7 +1100,7 @@ fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkc
         format!(
             "cargo's account of '{}' is not text: {}",
             manifest.display(),
-            err
+            err, //
         )
     })?;
 
@@ -890,15 +1108,18 @@ fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkc
         format!(
             "cargo's account of '{}' could not be read: {}",
             manifest.display(),
-            err
+            err, //
         )
     })?;
 
-    if answer.bkcj_field("version").and_then(bkcj_Value::bkcj_number) != Some(ZBKCR_FORMAT_VERSION)
+    if answer
+        .bkcj_field("version")
+        .and_then(bkcj_Value::bkcj_number)
+        != Some(ZBKCR_FORMAT_VERSION)
     {
         return Err(format!(
             "cargo answered about '{}' in a schema this reading was not written against",
-            manifest.display()
+            manifest.display(), //
         ));
     }
 
@@ -923,7 +1144,12 @@ fn zbkcr_answer(repository: &Path, weaned: &Path, manifest: &Path) -> Result<bkc
 /// from the answer: no root of this collar's could elect it, and the leash
 /// already refuses to build a crate that stands outside the tree it is bounded
 /// by.
-pub fn bkcr_closure(repository: &Path, weaned: &Path, manifest: &Path, tested: bool) -> Result<Vec<String>, String> {
+pub fn bkcr_closure(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    manifest: &Path,
+    tested: bool,
+) -> Result<Vec<String>, String> {
     let mut walked: Vec<PathBuf> = Vec::new();
     let mut owed: Vec<(PathBuf, bool)> = vec![(manifest.to_path_buf(), true)];
     let mut local: Vec<String> = Vec::new();
@@ -935,7 +1161,7 @@ pub fn bkcr_closure(repository: &Path, weaned: &Path, manifest: &Path, tested: b
         }
         walked.push(settled);
 
-        let account = zbkcr_account(repository, weaned, &next)?;
+        let account = zbkcr_account(repository, dispatch, &next)?;
 
         if let Some(directory) = zbkcr_relative(repository, next.parent()) {
             if !local.contains(&directory) {
@@ -1002,7 +1228,7 @@ fn zbkcr_roots(collar: &bkcr_Collar, closure: &[String], findings: &mut Vec<Stri
             "BKRR_ROOTS elects nothing reaching '{}', where a local dependency stands — its \
              sources are compiled into what this collar declares, so a position measured over \
              these roots would not move when they do",
-            directory
+            directory, //
         ));
     }
 }
@@ -1048,7 +1274,8 @@ fn zbkcr_crates(
              (BKr_4n2). The kennel provisions nothing for a build script and exports no variable \
              into one, so the field admits {} alone: the crate leaves the closure, or its fetching \
              half is replaced by something the tree holds and the collar declares it tamed",
-            named, BKCR_TAMED
+            named,
+            BKCR_TAMED, //
         ));
 
         if tamed.contains(named) {
@@ -1056,7 +1283,7 @@ fn zbkcr_crates(
                 "'{}' is named in BKRR_TAMED_CRATES and BKRR_FERAL_CRATES both — every direct \
                  dependency stands in exactly one of the two, and the pair the validate door \
                  proves disjoint cannot say both of one crate",
-                named
+                named, //
             ));
         }
     }
@@ -1088,7 +1315,7 @@ fn zbkcr_crates(
             "'{}' is a direct dependency of the manifest and neither BKRR_TAMED_CRATES nor \
              BKRR_FERAL_CRATES names it — every direct dependency is named in allow form, the \
              lock pinning the closure beyond them",
-            named
+            named, //
         ));
     }
 }

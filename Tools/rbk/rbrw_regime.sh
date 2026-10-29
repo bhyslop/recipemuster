@@ -63,22 +63,22 @@ zrbrw_enforce() {
   buv_vet RBRW
 
   [[ "${RBRW_ORG_ID}" =~ ^[0-9]{6,}$ ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRW_ORG_ID must be a numeric GCP organization ID: ${RBRW_ORG_ID}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRW_ORG_ID must be a numeric GCP organization ID: ${RBRW_ORG_ID}"
 
   # GCP workforce-pool id: lowercase letter-led, [a-z0-9-], no trailing hyphen,
   # 4-32 chars, and the gcp- prefix is reserved by GCP.
   [[ "${RBRW_WORKFORCE_POOL_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRW_WORKFORCE_POOL_ID: ${RBRW_WORKFORCE_POOL_ID} (lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRW_WORKFORCE_POOL_ID: ${RBRW_WORKFORCE_POOL_ID} (lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
   [[ "${RBRW_WORKFORCE_POOL_ID}" != gcp-* ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRW_WORKFORCE_POOL_ID must not start with the reserved gcp- prefix: ${RBRW_WORKFORCE_POOL_ID}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRW_WORKFORCE_POOL_ID must not start with the reserved gcp- prefix: ${RBRW_WORKFORCE_POOL_ID}"
 
   # Session duration: NNNs form, bounded 900s (15 min) to 43200s (12 hours).
   [[ "${RBRW_SESSION_DURATION}" =~ ^[0-9]+s$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRW_SESSION_DURATION: ${RBRW_SESSION_DURATION} (expected NNNs, e.g. 3600s)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRW_SESSION_DURATION: ${RBRW_SESSION_DURATION} (expected NNNs, e.g. 3600s)"
   local -r z_duration_sec="${RBRW_SESSION_DURATION%s}"
   case "${z_duration_sec}" in ''|*[!0123456789]*) buc_die_now "RBRW_SESSION_DURATION carries no decimal seconds: ${RBRW_SESSION_DURATION}" ;; esac
   (( 10#${z_duration_sec} >= 900 && 10#${z_duration_sec} <= 43200 )) \
-    || buc_reject "${BUBC_band_regime}" "RBRW_SESSION_DURATION out of bounds: ${RBRW_SESSION_DURATION} (must be 900s-43200s)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRW_SESSION_DURATION out of bounds: ${RBRW_SESSION_DURATION} (must be 900s-43200s)"
 }
 
 # eof

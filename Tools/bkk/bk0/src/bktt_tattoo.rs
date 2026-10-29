@@ -21,9 +21,15 @@
 //! resolver's own hurdles do not already prove.
 
 use super::bkce_election::bkce_Geography;
+use super::bkce_election::{
+    BKCE_ELECTED_BORROW,
+    BKCE_ELECTED_OWN, //
+};
 use super::bkcr_resolve::bkcr_Collar;
-use super::bkce_election::{BKCE_ELECTED_BORROW, BKCE_ELECTED_OWN};
-use super::bkct_tattoo::{bkct_proclamation, BKCT_LANGUAGE_RUST};
+use super::bkct_tattoo::{
+    bkct_proclamation,
+    BKCT_LANGUAGE_RUST, //
+};
 use bkp::bkprc_catena::bkprc_admit;
 use std::path::PathBuf;
 
@@ -81,15 +87,23 @@ fn zbktt_collar(name: &str, text: &str) -> bkcr_Collar {
 #[test]
 fn bktt_the_proclamation_names_no_family_field() {
     for (name, text) in [("suite-lure", ZBKTT_SUITE), ("app-lure", ZBKTT_APP)] {
-        let said = bkct_proclamation(&zbktt_collar(name, text), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
+        let said = bkct_proclamation(
+            &zbktt_collar(name, text),
+            BKCE_ELECTED_OWN,
+            &bkce_Geography::Undispatched,
+        );
 
         assert!(
             !said.contains("BKRR_"),
             "the proclamation for {} must name no family field, and it reads:\n{}",
             name,
-            said
+            said, //
         );
-        assert!(said.contains("BKRC_"), "it reads:\n{}", said);
+        assert!(
+            said.contains("BKRC_"),
+            "it reads:\n{}",
+            said, //
+        );
     }
 }
 
@@ -97,7 +111,11 @@ fn bktt_the_proclamation_names_no_family_field() {
 /// INSIDE the proclamation rather than as a different shape.
 #[test]
 fn bktt_the_proclaimed_core_stands() {
-    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
+    let said = bkct_proclamation(
+        &zbktt_collar("suite-lure", ZBKTT_SUITE),
+        BKCE_ELECTED_OWN,
+        &bkce_Geography::Undispatched,
+    );
 
     for owed in [
         "BKRC_COLLAR=\"suite-lure\"",
@@ -108,13 +126,21 @@ fn bktt_the_proclaimed_core_stands() {
         "BKRC_PROFILE=\"test\"",
         "BKRC_FEATURES=\"\"",
     ] {
-        assert!(said.contains(owed), "'{}' is owed, and it reads:\n{}", owed, said);
+        assert!(
+            said.contains(owed),
+            "'{}' is owed, and it reads:\n{}",
+            owed,
+            said, //
+        );
     }
 
     assert!(
-        said.contains(&format!("BKRC_LANGUAGE=\"{}\"", BKCT_LANGUAGE_RUST)),
+        said.contains(&format!(
+            "BKRC_LANGUAGE=\"{}\"",
+            BKCT_LANGUAGE_RUST, //
+        )),
         "it reads:\n{}",
-        said
+        said, //
     );
 }
 
@@ -122,21 +148,57 @@ fn bktt_the_proclaimed_core_stands() {
 /// other's.
 #[test]
 fn bktt_each_kind_proclaims_its_own_coordinates() {
-    let suite = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
-    assert!(suite.contains("BKRC_RUNNER=\"bknre_cargo\""), "it reads:\n{}", suite);
-    assert!(suite.contains("BKRC_TONGUE=\"bknre_harness\""), "it reads:\n{}", suite);
-    assert!(!suite.contains("BKRC_RESIDENCE"), "it reads:\n{}", suite);
+    let suite = bkct_proclamation(
+        &zbktt_collar("suite-lure", ZBKTT_SUITE),
+        BKCE_ELECTED_OWN,
+        &bkce_Geography::Undispatched,
+    );
+    assert!(
+        suite.contains("BKRC_RUNNER=\"bknre_cargo\""),
+        "it reads:\n{}",
+        suite, //
+    );
+    assert!(
+        suite.contains("BKRC_TONGUE=\"bknre_harness\""),
+        "it reads:\n{}",
+        suite, //
+    );
+    assert!(
+        !suite.contains("BKRC_RESIDENCE"),
+        "it reads:\n{}",
+        suite, //
+    );
 
-    let app = bkct_proclamation(&zbktt_collar("app-lure", ZBKTT_APP), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
+    let app = bkct_proclamation(
+        &zbktt_collar("app-lure", ZBKTT_APP),
+        BKCE_ELECTED_OWN,
+        &bkce_Geography::Undispatched,
+    );
     assert!(
         app.contains("BKRC_RESIDENCE=\"Tools/lure/target/release\""),
         "it reads:\n{}",
-        app
+        app, //
     );
-    assert!(app.contains("BKRC_BYNAME=\"lurid\""), "it reads:\n{}", app);
-    assert!(!suite.contains("BKRC_BYNAME"), "it reads:\n{}", suite);
-    assert!(!app.contains("BKRC_RUNNER"), "it reads:\n{}", app);
-    assert!(!app.contains("BKRC_TONGUE"), "it reads:\n{}", app);
+    assert!(
+        app.contains("BKRC_BYNAME=\"lurid\""),
+        "it reads:\n{}",
+        app, //
+    );
+    assert!(
+        !suite.contains("BKRC_BYNAME"),
+        "it reads:\n{}",
+        suite, //
+    );
+    assert!(
+        !app.contains("BKRC_RUNNER"),
+        "it reads:\n{}",
+        app, //
+    );
+    assert!(
+        !app.contains("BKRC_TONGUE"),
+        "it reads:\n{}",
+        app, //
+    );
 }
 
 /// The election slot is a DECLARED VALUE, not an absent field: a consumer reading
@@ -149,13 +211,20 @@ fn bktt_each_kind_proclaims_its_own_coordinates() {
 #[test]
 fn bktt_the_election_slot_carries_what_the_door_ruled() {
     for elected in [BKCE_ELECTED_OWN, BKCE_ELECTED_BORROW] {
-        let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), elected, &bkce_Geography::Undispatched);
+        let said = bkct_proclamation(
+            &zbktt_collar("suite-lure", ZBKTT_SUITE),
+            elected,
+            &bkce_Geography::Undispatched,
+        );
 
         assert!(
-            said.contains(&format!("BKRC_ELECTION=\"{}\"", elected)),
+            said.contains(&format!(
+                "BKRC_ELECTION=\"{}\"",
+                elected, //
+            )),
             "handed {}, it reads:\n{}",
             elected,
-            said
+            said, //
         );
     }
 }
@@ -167,7 +236,11 @@ fn bktt_the_election_slot_carries_what_the_door_ruled() {
 /// that went in.
 #[test]
 fn bktt_the_answer_reads_back_through_the_reader() {
-    let said = bkct_proclamation(&zbktt_collar("suite-lure", ZBKTT_SUITE), BKCE_ELECTED_OWN, &bkce_Geography::Undispatched);
+    let said = bkct_proclamation(
+        &zbktt_collar("suite-lure", ZBKTT_SUITE),
+        BKCE_ELECTED_OWN,
+        &bkce_Geography::Undispatched,
+    );
 
     let read = bkprc_admit(&said, "the proclamation")
         .expect("the proclamation stands inside the catena law it was rendered to");
@@ -176,13 +249,10 @@ fn bktt_the_answer_reads_back_through_the_reader() {
     assert_eq!(
         read.bkprc_catena("BKRC_ROOTS").unwrap(),
         vec!["Tools/lure/src", "Tools/lure/Cargo.toml"],
-        "a multi-element field is rendered one element per line and reads back as its elements"
+        "a multi-element field is rendered one element per line and reads back as its elements", //
     );
     assert_eq!(read.bkprc_catena("BKRC_FEATURES"), Some(Vec::new()));
-    assert_eq!(
-        read.bkprc_scalar("BKRC_ELECTION"),
-        Some(BKCE_ELECTED_OWN)
-    );
+    assert_eq!(read.bkprc_scalar("BKRC_ELECTION"), Some(BKCE_ELECTED_OWN));
 }
 
 // eof

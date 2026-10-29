@@ -48,14 +48,21 @@
 //! whatever else might be lying around or reporting a converge that did not
 //! happen.
 
-use std::ffi::{OsStr, OsString};
-use std::path::{Path, PathBuf};
 use bkp::bkprs_scrivener::bkprs_program_copy;
+use std::ffi::{
+    OsStr,
+    OsString, //
+};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
-use crate::bkce_election::bkce_Geography;
 use crate::bkce_election;
+use crate::bkce_election::bkce_Geography;
 use crate::bkcl_leash;
 use crate::bkcr_resolve::bkcr_Collar;
+use crate::bkcv_voice;
 
 /// Cargo's own verb for the act, AND IT SPELLS A WORD THIS ESTATE RESERVES. The
 /// standing is accepted rather than repaired, on the ground the pipeline's
@@ -66,9 +73,10 @@ use crate::bkcr_resolve::bkcr_Collar;
 /// than minted. Recorded at the site so the next reader meets the ruling instead
 /// of re-deriving it.
 ///
-/// Private, as the launch seam's own verb words are: it is spelled inside this
-/// module and nowhere else.
-const ZBKCH_VERB_BUILD: &str = "build";
+/// PUBLISHED, because the leash register must recognize the verb in a caller's
+/// arguments to hand it the build road rather than the inherited one, and a
+/// foreign word spelled twice is two things to keep in step.
+pub const BKCH_VERB_BUILD: &str = "build";
 
 /// The flags the collar's declared shape is spelled with, the same pair the
 /// launch seam spells for a suite and for the same reason: the profile and the
@@ -230,7 +238,7 @@ pub fn bkch_compose(
              it from the source this seat holds, so no artifact stands between the source and the \
              verdict for a converge to repair, and a suite collar declares no residence to install \
              into",
-            collar.name
+            collar.name, //
         ));
     }
 
@@ -267,14 +275,14 @@ pub fn bkch_compose(
                  inside its own main worktree is where the two stop being told apart",
                 collar.name,
                 residence.display(),
-                delivered.display()
+                delivered.display(), //
             ));
         }
     }
 
     Ok(bkch_Converge {
         manifest: repository.join(collar.bkcr_field("BKRR_MANIFEST")),
-        verb: ZBKCH_VERB_BUILD.to_string(),
+        verb: BKCH_VERB_BUILD.to_string(),
         rest,
         struck: bkch_struck(repository, collar),
         residence,
@@ -321,11 +329,14 @@ fn zbkch_resolved(path: &Path) -> PathBuf {
     }
 }
 
-/// Build a composed converge through the leash and hand back cargo's own exit.
+/// Build a composed converge through the leash under the voice, and hand back
+/// the run beside whether it built.
 ///
-/// THE DRIVE FACE, NEVER THE RECALL, for the launch seam's own reason: a caller
-/// who typed a converge is watching a compiler work, and taking the streams to
-/// read them would hold the whole build silent and then replay it.
+/// THE BUILD ROAD (`bkch_voiced_build`), never the recall: a caller who typed a
+/// converge is watching a compiler work, so it is told the work as it goes —
+/// the heartbeat, each diagnostic, the verdict — rather than holding the whole
+/// build silent and then replaying it.
+///
 /// THE COLLAR'S POSITION RIDES ACROSS THE EXEC BOUNDARY, because a converged
 /// crate cannot walk it for itself: a build script runs with cargo's environment
 /// and no repository to ask, and the reading wants the collar's declared roots,
@@ -346,10 +357,10 @@ fn zbkch_resolved(path: &Path) -> PathBuf {
 /// reported.
 pub fn bkch_build(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_Collar,
     converge: &bkch_Converge,
-) -> Result<bkcl_leash::bkcl_Run, String> {
+) -> Result<(bkcl_leash::bkcl_Run, bool), String> {
     // AHEAD OF THE SEAT AS WELL AS AHEAD OF CARGO. Walking a position asks git
     // and costs a process; refusing first on a file that is simply not there
     // hands the operator the door to run without spending it.
@@ -357,14 +368,83 @@ pub fn bkch_build(
 
     let seat = bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
 
-    bkcl_leash::bkcl_drive(
+    bkch_voiced_build(
         repository,
-        weaned,
+        dispatch,
         &converge.manifest,
-        &converge.verb,
         &converge.rest,
         &[(BKCH_COLLAR_POSITION_VAR, OsStr::new(seat.as_str()))],
     )
+}
+
+/// Run one cargo build as a captured child under the voice: the launch mark,
+/// the heartbeat, one line per diagnostic and the verdict on the console, and
+/// cargo's whole stream in the record where one stands.
+///
+/// THE BUILD ROAD, AND EVERY BUILD THE KENNEL ISSUES TAKES IT: the converge,
+/// the kibble's build from source, and the leash register's build verb, which
+/// the estate's own build doors reach. Cargo's per-crate progress goes to the
+/// record and never to the console, so a build sounds like a test.
+///
+/// THE MESSAGE FORMAT IS THIS ROAD'S AND NEVER A CALLER'S. The voice reads the
+/// form it asks for, so the flag is spelled here, ahead of whatever the caller
+/// spelled — never past a separator, which would hand it to what cargo launched.
+///
+/// Answers the run, whose exit stays cargo's, beside whether it built by the
+/// voice's verdict.
+pub fn bkch_voiced_build(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    manifest: &Path,
+    rest: &[OsString],
+    stated: &[(&str, &OsStr)],
+) -> Result<(bkcl_leash::bkcl_Run, bool), String> {
+    let voice =
+        bkcv_voice::bkcv_Cargo::bkcv_build(dispatch, &bkcv_voice::bkcv_Record::bkcv_invocation())?;
+
+    zbkch_voiced_build(voice, repository, dispatch, manifest, rest, stated)
+}
+
+/// The build road over a voice the caller opened — the hurdle's seam, where a
+/// voice speaking onto a console the hurdle holds at a cadence it can wait out
+/// is handed in.
+pub(crate) fn zbkch_voiced_build(
+    mut voice: bkcv_voice::bkcv_Cargo,
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    manifest: &Path,
+    rest: &[OsString],
+    stated: &[(&str, &OsStr)],
+) -> Result<(bkcl_leash::bkcl_Run, bool), String> {
+    let mut asked: Vec<OsString> = vec![OsString::from(bkcv_voice::BKCV_MESSAGE_FORMAT)];
+    asked.extend(rest.iter().cloned());
+
+    let mut launch = format!(
+        "launching: {}",
+        BKCH_VERB_BUILD, //
+    );
+    for argument in &asked {
+        launch.push(' ');
+        launch.push_str(&argument.to_string_lossy());
+    }
+    launch.push_str(&format!(
+        " over {}",
+        manifest.display(), //
+    ));
+    voice.bkcv_launch(&launch)?;
+
+    voice.bkcv_ride(|cadence, heed| {
+        bkcl_leash::bkcl_attend(
+            repository,
+            dispatch,
+            manifest,
+            BKCH_VERB_BUILD,
+            &asked,
+            stated,
+            cadence,
+            heed,
+        )
+    })
 }
 
 /// Put the struck artifact at the collar's residence, and say whether anything
@@ -386,7 +466,7 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
              declared profile and the declared target. Refused rather than installing whatever \
              else may stand at the residence: a converge that cannot find what it built has not \
              converged",
-            converge.struck.display()
+            converge.struck.display(), //
         ));
     }
 
@@ -399,7 +479,7 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
             format!(
                 "could not make the residence at {}: {}",
                 home.display(),
-                err
+                err, //
             )
         })?;
     }
@@ -409,7 +489,7 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
             "could not install {} at {}: {}",
             converge.struck.display(),
             converge.residence.display(),
-            err
+            err, //
         )
     })?;
 
@@ -485,9 +565,10 @@ pub enum bkch_Kibbled {
 /// digest the document states. What they share is everything after: the same
 /// lock, the same scratch directory, the same rename onto the same residence.
 ///
-/// THE ONE DOOR THAT WRITES THE TACKROOM, and everything about the act is shaped
-/// by that. Every other door tests the residence path and refuses naming this
-/// one.
+/// THE ONE DOOR THAT WRITES A KIBBLE INTO THE TACKROOM, and everything about the
+/// act is shaped by that. Every other door tests the residence path and refuses
+/// naming this one. Rebed reaches a kibble only by spawning this door; it lays
+/// the toolchains itself and fetches the registry through the leash.
 ///
 /// THE SEAL IS PROVEN BEFORE ANYTHING IS UNPACKED, which is the whole order of
 /// the act rather than a step in it. An archive whose digest does not answer is
@@ -513,7 +594,7 @@ pub enum bkch_Kibbled {
 /// neither with the station's store nor with any other hurdle's.
 pub fn bkch_kibble(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     feedroom: &crate::bkcq_kibble::bkcq_Feedroom,
 ) -> Result<bkch_Kibbled, String> {
@@ -524,7 +605,7 @@ pub fn bkch_kibble(
     }
 
     let held = zbkch_lock(feedroom)?;
-    let landed = zbkch_kibble_held(repository, weaned, kibble, &residence);
+    let landed = zbkch_kibble_held(repository, dispatch, kibble, &residence);
     held.zbkch_release();
 
     landed
@@ -533,7 +614,7 @@ pub fn bkch_kibble(
 /// The converge proper, performed with the lock held.
 fn zbkch_kibble_held(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     residence: &Path,
 ) -> Result<bkch_Kibbled, String> {
@@ -544,15 +625,23 @@ fn zbkch_kibble_held(
         return Ok(bkch_Kibbled::Current);
     }
 
-    let home = residence
-        .parent()
-        .ok_or_else(|| format!("the residence {} names no directory", residence.display()))?;
+    let home = residence.parent().ok_or_else(|| {
+        format!(
+            "the residence {} names no directory",
+            residence.display(), //
+        )
+    })?;
 
     let work = home.join(zbkch_work(kibble));
 
     let _ = std::fs::remove_dir_all(&work);
-    std::fs::create_dir_all(&work)
-        .map_err(|err| format!("could not make {}: {}", work.display(), err))?;
+    std::fs::create_dir_all(&work).map_err(|err| {
+        format!(
+            "could not make {}: {}",
+            work.display(),
+            err, //
+        )
+    })?;
 
     // THE KIND DECIDES THE ROAD AND NOTHING ELSE HERE DOES. Everything around
     // this branch — the lock, the scratch directory, the rename onto the
@@ -560,9 +649,9 @@ fn zbkch_kibble_held(
     // kinds, which is what makes a prebuilt residence indistinguishable from a
     // built one once it stands.
     let (struck, from) = if kibble.bkcq_source() {
-        zbkch_kibble_source(repository, weaned, kibble, &work)?
+        zbkch_kibble_source(repository, dispatch, kibble, &work)?
     } else {
-        zbkch_kibble_prebuilt(repository, kibble, &work)?
+        zbkch_kibble_prebuilt(repository, dispatch, kibble, &work)?
     };
 
     // LANDED BY RENAME, which is what makes a half-written residence
@@ -572,7 +661,7 @@ fn zbkch_kibble_held(
             "could not land {} at {}: {}",
             struck.display(),
             residence.display(),
-            err
+            err, //
         )
     })?;
 
@@ -585,12 +674,15 @@ fn zbkch_kibble_held(
 /// the kibble's own seal, unpack it, and build it through the leash.
 fn zbkch_kibble_source(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     work: &Path,
 ) -> Result<(PathBuf, String), String> {
     let from = kibble.bkcq_archive();
-    let archive = work.join(format!("{}.crate", kibble.bkcq_unpacked()));
+    let archive = work.join(format!(
+        "{}.crate",
+        kibble.bkcq_unpacked(), //
+    ));
 
     zbkch_fetch(&from, &archive)?;
     zbkch_sealed(
@@ -603,7 +695,7 @@ fn zbkch_kibble_source(
     zbkch_unpack(&archive, work)?;
 
     let unpacked = work.join(kibble.bkcq_unpacked());
-    let struck = zbkch_kibble_build(repository, weaned, kibble, &unpacked)?;
+    let struck = zbkch_kibble_build(repository, dispatch, kibble, &unpacked)?;
 
     Ok((struck, from))
 }
@@ -628,10 +720,11 @@ fn zbkch_kibble_source(
 /// TLS library it links.
 fn zbkch_kibble_prebuilt(
     repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     work: &Path,
 ) -> Result<(PathBuf, String), String> {
-    let triple = bkcl_leash::bkcl_host(repository, &repository.join(&kibble.instance))?;
+    let triple = bkcl_leash::bkcl_host(repository, dispatch, &repository.join(&kibble.instance))?;
 
     let source = kibble.bkcq_bordereau();
     let bordereau = work.join(ZBKCH_BORDEREAU_FILE);
@@ -645,8 +738,13 @@ fn zbkch_kibble_prebuilt(
         &source,
     )?;
 
-    let said = std::fs::read_to_string(&bordereau)
-        .map_err(|err| format!("could not read {}: {}", bordereau.display(), err))?;
+    let said = std::fs::read_to_string(&bordereau).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            bordereau.display(),
+            err, //
+        )
+    })?;
 
     let (name, digest) = zbkch_borne(kibble, &said, &triple, &source)?;
 
@@ -662,7 +760,9 @@ fn zbkch_kibble_prebuilt(
              MVP, so NOTHING was fetched. The format is the vendor's own election per triple and \
              not a thing this kibble can restate; what is missing is an unpacker, and the \
              declaration is sound",
-            name, triple, ZBKCH_TARBALL
+            name,
+            triple,
+            ZBKCH_TARBALL, //
         ));
     }
 
@@ -673,8 +773,13 @@ fn zbkch_kibble_prebuilt(
     zbkch_sealed(kibble, &archive, &digest, ZBKCH_THE_ARCHIVE, &from)?;
 
     let unpacked = work.join(ZBKCH_UNPACKED_DIR);
-    std::fs::create_dir_all(&unpacked)
-        .map_err(|err| format!("could not make {}: {}", unpacked.display(), err))?;
+    std::fs::create_dir_all(&unpacked).map_err(|err| {
+        format!(
+            "could not make {}: {}",
+            unpacked.display(),
+            err, //
+        )
+    })?;
 
     zbkch_unpack(&archive, &unpacked)?;
 
@@ -685,7 +790,8 @@ fn zbkch_kibble_prebuilt(
              binary is called — nothing was placed. The declared name is what a residence is \
              composed from and what every door spawns, so a placement under any other name would \
              stand at a path no door looks at",
-            name, byname
+            name,
+            byname, //
         )
     })?;
 
@@ -705,17 +811,22 @@ fn zbkch_borne(
     triple: &str,
     source: &str,
 ) -> Result<(String, String), String> {
-    let read = crate::bkcj_json::bkcj_read(said)
-        .map_err(|err| format!("the bordereau at {} is not readable JSON: {}", source, err))?;
+    let read = crate::bkcj_json::bkcj_read(said).map_err(|err| {
+        format!(
+            "the bordereau at {} is not readable JSON: {}",
+            source,
+            err, //
+        )
+    })?;
 
-    let Some(crate::bkcj_json::bkcj_Value::Object(artifacts)) =
-        read.bkcj_field(ZBKCH_ARTIFACTS)
+    let Some(crate::bkcj_json::bkcj_Value::Object(artifacts)) = read.bkcj_field(ZBKCH_ARTIFACTS)
     else {
         return Err(format!(
             "the bordereau at {} carries no '{}' object, so it names no archive for any host — \
              either the release publishes a document of another shape, or the declared one is not \
              the document that enumerates archives",
-            source, ZBKCH_ARTIFACTS
+            source,
+            ZBKCH_ARTIFACTS, //
         ));
     };
 
@@ -772,7 +883,7 @@ fn zbkch_borne(
             "no triple at all".to_string()
         } else {
             carried.join(", ")
-        }
+        }, //
     ))
 }
 
@@ -827,7 +938,10 @@ const ZBKCH_THE_BORDEREAU: &str = "the bordereau";
 /// The scratch directory one converge unpacks and builds in, named for the
 /// kibble so two converges under one quarter cannot collide.
 fn zbkch_work(kibble: &crate::bkcq_kibble::bkcq_Kibble) -> String {
-    format!("{}.work", kibble.bkcq_unpacked())
+    format!(
+        "{}.work",
+        kibble.bkcq_unpacked(), //
+    )
 }
 
 /// Fetch one archive.
@@ -851,7 +965,7 @@ fn zbkch_fetch(from: &str, to: &Path) -> Result<(), String> {
                 "no '{}' answered on this station: {}. A source kibble is fetched as its published \
                  archive, and the kennel provisions nothing it spawns — converge it through the \
                  station's own packaging",
-                ZBKCH_CURL, err
+                ZBKCH_CURL, err, //
             )
         })?;
 
@@ -859,7 +973,7 @@ fn zbkch_fetch(from: &str, to: &Path) -> Result<(), String> {
         return Err(format!(
             "could not fetch {}: {}",
             from,
-            String::from_utf8_lossy(&asked.stderr).trim()
+            String::from_utf8_lossy(&asked.stderr).trim(), //
         ));
     }
 
@@ -878,8 +992,13 @@ fn zbkch_sealed(
     what: &str,
     from: &str,
 ) -> Result<(), String> {
-    let opened = std::fs::File::open(file)
-        .map_err(|err| format!("could not read {}: {}", file.display(), err))?;
+    let opened = std::fs::File::open(file).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            file.display(),
+            err, //
+        )
+    })?;
 
     let asked = std::process::Command::new(ZBKCH_OPENSSL)
         .arg("dgst")
@@ -891,7 +1010,8 @@ fn zbkch_sealed(
                 "no '{}' answered on this station: {}. A kibble's archive is proven by its sha256 \
                  before anything is unpacked, and the kennel provisions nothing it spawns — \
                  converge it through the station's own packaging",
-                ZBKCH_OPENSSL, err
+                ZBKCH_OPENSSL,
+                err, //
             )
         })?;
 
@@ -900,7 +1020,7 @@ fn zbkch_sealed(
             "'{}' could not hash {}: {}",
             ZBKCH_OPENSSL,
             file.display(),
-            String::from_utf8_lossy(&asked.stderr).trim()
+            String::from_utf8_lossy(&asked.stderr).trim(), //
         ));
     }
 
@@ -910,7 +1030,7 @@ fn zbkch_sealed(
         return Err(format!(
             "'{}' answered something this kennel cannot read a digest out of: {}",
             ZBKCH_OPENSSL,
-            said.trim()
+            said.trim(), //
         ));
     };
 
@@ -924,7 +1044,11 @@ fn zbkch_sealed(
          not answer is an UNKNOWN artifact rather than a wrong one: either the declared version \
          moved under its own name, or what arrived is not what the vendor published, and those \
          are different emergencies — which is why both digests stand here rather than a verdict",
-        what, kibble.name, declared, found, from
+        what,
+        kibble.name,
+        declared,
+        found,
+        from, //
     ))
 }
 
@@ -964,7 +1088,7 @@ fn zbkch_unpack(archive: &Path, into: &Path) -> Result<(), String> {
                 "no '{}' answered on this station: {}. A published crate archive is a gzipped tar, \
                  and the kennel provisions nothing it spawns — converge it through the station's \
                  own packaging",
-                ZBKCH_TAR, err
+                ZBKCH_TAR, err, //
             )
         })?;
 
@@ -972,7 +1096,7 @@ fn zbkch_unpack(archive: &Path, into: &Path) -> Result<(), String> {
         return Err(format!(
             "could not unpack {}: {}",
             archive.display(),
-            String::from_utf8_lossy(&asked.stderr).trim()
+            String::from_utf8_lossy(&asked.stderr).trim(), //
         ));
     }
 
@@ -999,7 +1123,7 @@ fn zbkch_unpack(archive: &Path, into: &Path) -> Result<(), String> {
 /// happens to sit may answer that question.
 fn zbkch_kibble_build(
     _repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     kibble: &crate::bkcq_kibble::bkcq_Kibble,
     unpacked: &Path,
 ) -> Result<PathBuf, String> {
@@ -1007,13 +1131,16 @@ fn zbkch_kibble_build(
 
     std::fs::write(
         unpacked.join(bkcl_leash::BKCL_PIN_FILE),
-        format!("[toolchain]\nchannel = \"{}\"\n", channel),
+        format!(
+            "[toolchain]\nchannel = \"{}\"\n",
+            channel, //
+        ),
     )
     .map_err(|err| {
         format!(
             "could not state the kibble's channel at {}: {}",
             unpacked.display(),
-            err
+            err, //
         )
     })?;
 
@@ -1035,12 +1162,13 @@ fn zbkch_kibble_build(
         ));
     }
 
-    let run = bkcl_leash::bkcl_drive(unpacked, weaned, &manifest, ZBKCH_VERB_BUILD, &rest, &[])?;
+    let (run, built) = bkch_voiced_build(unpacked, dispatch, &manifest, &rest, &[])?;
 
-    if !run.bkcl_landed() {
+    if !built {
         return Err(format!(
             "the kibble '{}' did not build, so nothing was placed: {}",
-            kibble.name, run.spelling
+            kibble.name,
+            run.spelling, //
         ));
     }
 
@@ -1055,7 +1183,7 @@ fn zbkch_kibble_build(
              layout says a release binary of the declared target lands. Refused rather than \
              placing whatever else may be lying around",
             kibble.name,
-            struck.display()
+            struck.display(), //
         ));
     }
 
@@ -1089,8 +1217,13 @@ impl bkch_Held {
 fn zbkch_lock(feedroom: &crate::bkcq_kibble::bkcq_Feedroom) -> Result<bkch_Held, String> {
     let quarter = feedroom.bkcq_root();
 
-    std::fs::create_dir_all(quarter)
-        .map_err(|err| format!("could not make {}: {}", quarter.display(), err))?;
+    std::fs::create_dir_all(quarter).map_err(|err| {
+        format!(
+            "could not make {}: {}",
+            quarter.display(),
+            err, //
+        )
+    })?;
 
     let at = quarter.join(BKCH_HELD);
 
@@ -1099,7 +1232,11 @@ fn zbkch_lock(feedroom: &crate::bkcq_kibble::bkcq_Feedroom) -> Result<bkch_Held,
         match std::fs::create_dir(&at) {
             Ok(()) => return Ok(bkch_Held { at }),
             Err(err) if err.kind() != std::io::ErrorKind::AlreadyExists => {
-                return Err(format!("could not take {}: {}", at.display(), err))
+                return Err(format!(
+                    "could not take {}: {}",
+                    at.display(),
+                    err, //
+                ));
             }
             Err(_) => {}
         }
@@ -1109,7 +1246,7 @@ fn zbkch_lock(feedroom: &crate::bkcq_kibble::bkcq_Feedroom) -> Result<bkch_Held,
                 "timed out after {}s waiting for the tackroom's kibble lock. If no other clone is \
                  converging a kibble, the lock is stale — remove it: {}",
                 ZBKCH_LOCK_WAIT,
-                at.display()
+                at.display(), //
             ));
         }
 
@@ -1165,10 +1302,7 @@ impl bkch_Yard {
 ///
 /// THE LOOSEBOX IS HANDED IN, read at the door's face, so a hurdle poses its own
 /// and shares the yard with no other hurdle's.
-pub fn bkch_yard(
-    loosebox: &Path,
-    waiting: impl FnOnce(&Path),
-) -> Result<bkch_Yard, String> {
+pub fn bkch_yard(loosebox: &Path, waiting: impl FnOnce(&Path)) -> Result<bkch_Yard, String> {
     let at = loosebox.join(BKCH_HEEL_HELD);
 
     let file = std::fs::OpenOptions::new()
@@ -1176,24 +1310,38 @@ pub fn bkch_yard(
         .truncate(false)
         .write(true)
         .open(&at)
-        .map_err(|err| format!("could not open the heel's yard at {}: {}", at.display(), err))?;
+        .map_err(|err| {
+            format!(
+                "could not open the heel's yard at {}: {}",
+                at.display(),
+                err, //
+            )
+        })?;
 
     match file.try_lock() {
         Ok(()) => return Ok(bkch_Yard { zbkch_file: file }),
         Err(std::fs::TryLockError::WouldBlock) => waiting(&at),
         Err(std::fs::TryLockError::Error(err)) => {
-            return Err(format!("could not take the heel's yard at {}: {}", at.display(), err))
+            return Err(format!(
+                "could not take the heel's yard at {}: {}",
+                at.display(),
+                err, //
+            ));
         }
     }
 
-    file.lock()
-        .map_err(|err| format!("could not take the heel's yard at {}: {}", at.display(), err))?;
+    file.lock().map_err(|err| {
+        format!(
+            "could not take the heel's yard at {}: {}",
+            at.display(),
+            err, //
+        )
+    })?;
 
     Ok(bkch_Yard { zbkch_file: file })
 }
 
 // eof
-
 
 /// What a python converge did, reported so a caller can say it without asking
 /// the filesystem a second question.
@@ -1237,12 +1385,12 @@ pub struct bkch_Environed {
 /// uv owns — and would make an absent loosebox look like a converge that worked.
 pub fn bkch_python(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &crate::bkcx_python::bkcx_Collar,
 ) -> Result<bkch_Environed, String> {
-    let seat = crate::bkcx_python::bkcx_seat(collar)?;
+    let seat = crate::bkcx_python::bkcx_seat(dispatch, collar)?;
 
-    bkch_python_at(repository, weaned, collar, &seat)
+    bkch_python_at(repository, dispatch, collar, &seat)
 }
 
 /// The converge performed against a NAMED seat.
@@ -1256,17 +1404,18 @@ pub fn bkch_python(
 /// it was handed.
 pub fn bkch_python_at(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &crate::bkcx_python::bkcx_Collar,
     seat: &crate::bkcx_python::bkcx_Seat,
 ) -> Result<bkch_Environed, String> {
     let pinned = crate::bkcx_python::bkcx_pinned(repository, collar)?;
     let project = repository.join(collar.bkcx_project());
 
-    let installing = crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Fetching);
+    let installing =
+        crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Fetching);
     let install = bkcl_leash::bkcl_uv(
         repository,
-        weaned,
+        dispatch,
         repository,
         [
             OsStr::new(ZBKCH_UV_PYTHON),
@@ -1283,7 +1432,7 @@ pub fn bkch_python_at(
              {} stands as it did: {}",
             pinned,
             seat.environment.display(),
-            install.spelling
+            install.spelling, //
         ));
     }
 
@@ -1299,7 +1448,7 @@ pub fn bkch_python_at(
             pinned,
             collar.bkcx_project().display(),
             crate::bkcx_python::BKCX_LOCK_FILE,
-            crate::bkco_output::bkco_call(crate::bkco_output::BKCO_VERB_GANGLINE, Some(&collar.name)), //
+            crate::bkco_output::bkco_call(dispatch.bkcr_tabtargets(), crate::bkco_output::BKCO_VERB_GANGLINE, Some(&collar.name)), //
         ));
     }
 
@@ -1308,7 +1457,9 @@ pub fn bkch_python_at(
     // environments, leaving it standing hollow; the sealed check refuses with
     // nothing created. It is read here, behind the install it needs an
     // interpreter from.
-    if let Some(unhitched) = crate::bkcx_python::bkcx_unhitched_at(repository, weaned, collar, seat)? {
+    if let Some(unhitched) =
+        crate::bkcx_python::bkcx_unhitched_at(repository, dispatch, collar, seat)?
+    {
         return Err(unhitched.bkcx_refusal(collar));
     }
 
@@ -1319,12 +1470,13 @@ pub fn bkch_python_at(
     // the one build the converge performs — still lands.
     let barred = crate::bkcx_python::bkcx_lock_packages(&project)?;
 
-    let mut syncing = crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Reaching);
+    let mut syncing =
+        crate::bkcx_python::bkcx_stated(seat, crate::bkcx_python::bkcx_Posture::Reaching);
     syncing.push(crate::bkcx_python::bkcx_barred(&barred));
 
     let sync = bkcl_leash::bkcl_uv(
         repository,
-        weaned,
+        dispatch,
         &project,
         [
             OsStr::new(ZBKCH_UV_SYNC),
@@ -1346,10 +1498,9 @@ pub fn bkch_python_at(
             collar.bkcx_project().display(),
             seat.environment.display(),
             crate::bkg_breviary::BKG_CRUDE_BASE,
-            sync.spelling
+            sync.spelling, //
         ));
     }
-
 
     Ok(bkch_Environed {
         environment: seat.environment.clone(),
@@ -1366,7 +1517,9 @@ pub fn bkch_python_at(
 /// leash's face borrows because every other caller of it states literals. This
 /// is the one line that joins the two, kept here rather than widening the leash's
 /// face for one caller's convenience.
-fn zbkch_borne_env<'a>(stated: &'a [(&'static str, std::ffi::OsString)]) -> Vec<(&'static str, &'a OsStr)> {
+fn zbkch_borne_env<'a>(
+    stated: &'a [(&'static str, std::ffi::OsString)],
+) -> Vec<(&'static str, &'a OsStr)> {
     stated
         .iter()
         .map(|(name, value)| (*name, value.as_os_str()))
