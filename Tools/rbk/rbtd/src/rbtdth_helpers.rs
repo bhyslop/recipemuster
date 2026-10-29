@@ -25,14 +25,14 @@
 use std::path::PathBuf;
 
 use crate::rbtcei_invocation::RBTCEI_BURD_TEMP_DIR_KEY;
-use crate::rbtcep_platform::rbtcep_path_from_dispatch;
+use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 
 /// Return the scratch root for test tempdirs, read from the dispatch file the
 /// pointer names. Panics where the dispatch names none — tests must be
 /// launched via the BUK tabtarget so artifacts land under temp-buk and survive
 /// reboot.
 pub(crate) fn rbtteh_scratch_root() -> PathBuf {
-    rbtcep_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY).unwrap_or_else(|e| {
+    rbtdrx_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY).unwrap_or_else(|e| {
         panic!("rbtdth: {} — run tests via `tt/rbw-tt.Test.sh`", e)
     })
 }

@@ -142,7 +142,7 @@ fn zrbtcct_child(
     let mut captured: Option<(rbtcei_InvokeResult, PathBuf)> = None;
     let invoke_verdict = rbtccc_with_ctx(|ctx| {
         if no_log {
-            ctx.rbtcei_nolog_next_invoke();
+            ctx.rbtdri_nolog_next_invoke();
         }
         let invoked = match imprint {
             Some(imp) => rbtcei_invoke_imprint_env(ctx, colophon, imp, args, &env_refs),

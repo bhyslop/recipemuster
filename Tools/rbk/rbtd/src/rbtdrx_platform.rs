@@ -39,18 +39,18 @@ use std::sync::OnceLock;
 use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
 
 static RBTCEP_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
-static RBTCEP_DISPATCH: OnceLock<Result<bkprc_Regime, String>> = OnceLock::new();
+static RBTDRX_DISPATCH: OnceLock<Result<bkprc_Regime, String>> = OnceLock::new();
 
 /// The pointer a dispatch hands across its exec: the one name theurge reads
 /// from its environment for the dispatch's values, naming the file that holds
 /// them all.
-pub const RBTCEP_DISPATCH_FILE_VAR: &str = "BURD_BURD_FILE";
+pub const RBTDRX_DISPATCH_FILE_VAR: &str = "BURD_BURD_FILE";
 
 /// Dispatch member carrying bash's OSTYPE across the process boundary. bash's
 /// own `$OSTYPE` is a shell variable, not exported, so a native binary never
 /// inherits it; `bud_dispatch.sh` reads the live `$OSTYPE` in bash and writes it
 /// into the dispatch file under this name.
-const RBTCEP_DISPATCH_OSTYPE: &str = "BURD_OSTYPE";
+const RBTDRX_DISPATCH_OSTYPE: &str = "BURD_OSTYPE";
 
 /// The dispatch this process was launched under, read once from the file its
 /// pointer names through the estate's one regime reader.
@@ -59,15 +59,15 @@ const RBTCEP_DISPATCH_OSTYPE: &str = "BURD_OSTYPE";
 /// verdict lives inside the file it names, so the pointer cannot wait on that
 /// verdict: a Windows-native theurge is launched only from Cygwin bash, so on a
 /// Windows target the pointer converts as a Cygwin path, and elsewhere as itself.
-fn zrbtcep_dispatch() -> Result<&'static bkprc_Regime, String> {
-    RBTCEP_DISPATCH
+fn zrbtdrx_dispatch() -> Result<&'static bkprc_Regime, String> {
+    RBTDRX_DISPATCH
         .get_or_init(|| {
-            let pointer = match std::env::var(RBTCEP_DISPATCH_FILE_VAR) {
+            let pointer = match std::env::var(RBTDRX_DISPATCH_FILE_VAR) {
                 Ok(v) if !v.is_empty() => v,
                 _ => {
                     return Err(format!(
                         "{} not set in environment — theurge must be launched via BUK dispatch",
-                        RBTCEP_DISPATCH_FILE_VAR
+                        RBTDRX_DISPATCH_FILE_VAR
                     ))
                 }
             };
@@ -84,8 +84,8 @@ fn zrbtcep_dispatch() -> Result<&'static bkprc_Regime, String> {
 /// Absent or blank is a refusal, never a fallback: the dispatch writes a field
 /// it composed nothing for as an empty assignment, and a reader that needs the
 /// field is told the file lacks it.
-pub fn rbtcep_dispatch_value(name: &str) -> Result<String, String> {
-    let regime = zrbtcep_dispatch()?;
+pub fn rbtdrx_dispatch_value(name: &str) -> Result<String, String> {
+    let regime = zrbtdrx_dispatch()?;
     regime
         .bkprc_scalar(name)
         .map(str::trim)
@@ -94,19 +94,19 @@ pub fn rbtcep_dispatch_value(name: &str) -> Result<String, String> {
         .ok_or_else(|| {
             format!(
                 "the dispatch file {} names carries no {} — theurge must be launched via BUK dispatch",
-                RBTCEP_DISPATCH_FILE_VAR, name
+                RBTDRX_DISPATCH_FILE_VAR, name
             )
         })
 }
 
 /// Detect whether we're running on Cygwin.
 ///
-/// Reads `BURD_OSTYPE` from the dispatch file (see `RBTCEP_DISPATCH_OSTYPE`)
+/// Reads `BURD_OSTYPE` from the dispatch file (see `RBTDRX_DISPATCH_OSTYPE`)
 /// rather than bash's own `$OSTYPE`, which a native binary does not inherit.
 /// Result is cached for binary lifetime. A dispatch the process cannot read is
 /// fatal here rather than a silent verdict of "not Cygwin".
 pub fn rbtcep_is_cygwin() -> bool {
-    *RBTCEP_IS_CYGWIN.get_or_init(|| match rbtcep_dispatch_value(RBTCEP_DISPATCH_OSTYPE) {
+    *RBTCEP_IS_CYGWIN.get_or_init(|| match rbtdrx_dispatch_value(RBTDRX_DISPATCH_OSTYPE) {
         Ok(ostype) => ostype == "cygwin",
         Err(e) => panic!("rbtdrx: cannot learn the platform: {}", e),
     })
@@ -133,8 +133,8 @@ pub fn rbtcep_posix_to_native(s: &str) -> Result<PathBuf, String> {
 ///
 /// Returns `Err` when the dispatch file names no value for the field: theurge
 /// is always launched via BUK dispatch, which writes these.
-pub fn rbtcep_path_from_dispatch(name: &str) -> Result<PathBuf, String> {
-    rbtcep_posix_to_native(&rbtcep_dispatch_value(name)?)
+pub fn rbtdrx_path_from_dispatch(name: &str) -> Result<PathBuf, String> {
+    rbtcep_posix_to_native(&rbtdrx_dispatch_value(name)?)
 }
 
 /// Convert a Path from native form to POSIX form suitable for embedding in

@@ -247,7 +247,7 @@ fn rbtccc_invoke_ifrit_with_args(
 /// so dropping the redundant logs-buk transcript for these probe writs costs
 /// no diagnostics.
 fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
-    ctx.rbtcei_nolog_next_invoke();
+    ctx.rbtdri_nolog_next_invoke();
     let result = rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_WRIT, args)?;
     if result.exit_code != 0 {
         return Err(format!(

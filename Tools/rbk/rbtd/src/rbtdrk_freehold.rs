@@ -43,7 +43,7 @@ use crate::rbtcee_engine::{
     rbtcee_RegimeFile,
     rbtcee_Verdict,
 };
-use crate::rbtcep_platform::rbtcep_path_from_dispatch;
+use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 use crate::rbtcei_invocation::{
     RBTCEI_BURE_CONFIRM_KEY,
     RBTCEI_BURE_CONFIRM_SKIP,
@@ -108,14 +108,14 @@ pub(crate) const RBTCGF_FIELD_RBRD_DEPOT_MONIKER: &str = "RBRD_DEPOT_MONIKER";
 
 /// The dispatch member naming the developer's burs.env. Source for
 /// BURS_TINCTURE.
-const RBTCGF_DISPATCH_STATION_FILE: &str = "BURD_STATION_FILE";
+const RBTDRK_DISPATCH_STATION_FILE: &str = "BURD_STATION_FILE";
 
 /// Read BURS_TINCTURE from the station file the dispatch names, through the
 /// estate's one regime reader. BURS validation upstream (zburs_enforce)
 /// guarantees the value is 1-3 chars of lowercase alphanumeric starting with a
 /// letter.
 pub(crate) fn rbtcgf_burs_tincture() -> Result<String, String> {
-    let path = rbtcep_path_from_dispatch(RBTCGF_DISPATCH_STATION_FILE)?;
+    let path = rbtdrx_path_from_dispatch(RBTDRK_DISPATCH_STATION_FILE)?;
     let station = bkp::bkprc_catena::bkprc_read(&path)?;
     station
         .bkprc_scalar("BURS_TINCTURE")

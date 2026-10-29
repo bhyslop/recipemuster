@@ -75,7 +75,7 @@ const RBTCHF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const RBTCHF_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
 const RBTCHF_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
 const RBTCHF_BURD_REGIME: &str = "Tools/buk/burd_regime.sh";
-const RBTCHF_BURD_FILE_KEY: &str = "BURD_BURD_FILE";
+const RBTDRF_BURD_FILE_KEY: &str = "BURD_BURD_FILE";
 const RBTCHF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -146,7 +146,7 @@ pub(crate) fn rbtchf_run_bash(
         .arg("-c")
         .arg(script)
         .current_dir(project_root)
-        .env_remove(RBTCHF_BURD_FILE_KEY)
+        .env_remove(RBTDRF_BURD_FILE_KEY)
         .output()
         .map_err(|e| format!("bash execution failed: {}", e))?;
 

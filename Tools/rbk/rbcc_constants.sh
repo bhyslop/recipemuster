@@ -290,7 +290,7 @@ rbcc_source_active_rbrf_flint() {
 rbcc_emit_consts() {
   zrbcc_sentinel
 
-  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC regime-poison tweak as Rust consts on stdout"
+  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC regime-poison name as Rust consts on stdout"
   buc_doc_shown || return 0
 
   printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)" \

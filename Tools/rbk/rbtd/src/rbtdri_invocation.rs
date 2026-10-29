@@ -60,13 +60,13 @@ pub const RBTCEI_BURD_TEMP_DIR_KEY: &str = "BURD_TEMP_DIR";
 
 /// A tabtarget's configuration line opens with this, the launcher basename and
 /// any mode words following inside the single quotes.
-const RBTCEI_CONFIGURATION_HEAD: &str = "set -- '";
+const RBTDRI_CONFIGURATION_HEAD: &str = "set -- '";
 
 /// The configuration word selecting no-log mode.
-const RBTCEI_WORD_NOLOG: &str = "buuc_nolog";
+const RBTDRI_WORD_NOLOG: &str = "buuc_nolog";
 
 /// The trampoline every tabtarget execs, beside it in the tabtarget directory.
-const RBTCEI_TRAMPOLINE: &str = "z-launcher.sh";
+const RBTDRI_TRAMPOLINE: &str = "z-launcher.sh";
 
 /// Canonical Cygwin bash in POSIX form. theurge nativizes this via RBTDRX
 /// (cygpath) to launch scripts: a bare "bash" from a Windows-native binary
@@ -195,7 +195,7 @@ impl rbtcei_Context {
     /// repository's own trampoline by absolute path. Its basename is the
     /// tabtarget's, so the dispatch parses the same colophon, frontispiece and
     /// imprint.
-    pub fn rbtcei_nolog_next_invoke(&mut self) {
+    pub fn rbtdri_nolog_next_invoke(&mut self) {
         self.nolog_next = true;
     }
 }
@@ -510,38 +510,38 @@ pub fn rbtcei_tabtarget_command(tabtarget: &Path) -> Command {
 /// tabtarget's basename, and exec'ing this repository's trampoline by absolute
 /// path. Covers a plain configuration alone: a tabtarget already carrying a
 /// mode word is refused rather than having its mode guessed at.
-fn zrbtcei_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, String> {
+fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, String> {
     let body = std::fs::read_to_string(tabtarget)
-        .map_err(|e| format!("rbtdri: cannot read tabtarget {}: {}", tabtarget.display(), e))?;
+        .map_err(|e| format!("rbtdri: cannot read {}: {}", tabtarget.display(), e))?;
     let configuration = body
         .lines()
-        .find_map(|line| line.strip_prefix(RBTCEI_CONFIGURATION_HEAD))
+        .find_map(|line| line.strip_prefix(RBTDRI_CONFIGURATION_HEAD))
         .and_then(|rest| rest.split('\'').next())
         .ok_or_else(|| {
-            format!("rbtdri: tabtarget {} carries no configuration line", tabtarget.display())
+            format!("rbtdri: {} carries no configuration line", tabtarget.display())
         })?;
     let mut words = configuration.split_whitespace();
     let launcher = words.next().unwrap_or_default();
     if launcher.is_empty() || words.next().is_some() {
         return Err(format!(
-            "rbtdri: tabtarget {} carries configuration '{}' — a no-log stub composes from a plain launcher alone",
+            "rbtdri: {} carries configuration '{}' — a no-log stub composes from a plain launcher alone",
             tabtarget.display(),
             configuration
         ));
     }
     let name = tabtarget
         .file_name()
-        .ok_or_else(|| format!("rbtdri: tabtarget {} has no file name", tabtarget.display()))?;
+        .ok_or_else(|| format!("rbtdri: {} has no file name", tabtarget.display()))?;
     let dir = tabtarget
         .parent()
-        .ok_or_else(|| format!("rbtdri: tabtarget {} has no directory", tabtarget.display()))?;
-    let trampoline = rbtcep_native_to_posix(&dir.join(RBTCEI_TRAMPOLINE));
+        .ok_or_else(|| format!("rbtdri: {} has no directory", tabtarget.display()))?;
+    let trampoline = rbtcep_native_to_posix(&dir.join(RBTDRI_TRAMPOLINE));
     if trampoline.contains('\'') {
         return Err(format!("rbtdri: trampoline path {} carries a single quote", trampoline));
     }
     let stub = format!(
         "#!/bin/bash\n{}{} {}' \"$@\"\nexec '{}' \"${{0##*/}}\" \"${{@}}\"\n",
-        RBTCEI_CONFIGURATION_HEAD, launcher, RBTCEI_WORD_NOLOG, trampoline
+        RBTDRI_CONFIGURATION_HEAD, launcher, RBTDRI_WORD_NOLOG, trampoline
     );
     let path = burv_temp.join(name);
     std::fs::write(&path, stub)
@@ -621,7 +621,7 @@ fn rbtcei_invoke_impl(
     }
 
     let launched = if nolog {
-        zrbtcei_nolog_stub(tabtarget, &burv_temp)?
+        zrbtdri_nolog_stub(tabtarget, &burv_temp)?
     } else {
         tabtarget.to_path_buf()
     };
@@ -663,7 +663,7 @@ pub fn rbtcei_invoke(
 /// Invoke a fixture-imprinted tabtarget (like `rbtcei_invoke`) with extra
 /// environment variables threaded into the child process — e.g. a BURE_ tweak
 /// or BURE_CONFIRM; a child's log mode is its configuration line, chosen
-/// through `rbtcei_nolog_next_invoke`, never a variable.
+/// through `rbtdri_nolog_next_invoke`, never a variable.
 pub fn rbtcei_invoke_env(
     ctx: &mut rbtcei_Context,
     colophon: &str,

@@ -31,11 +31,6 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
-
-# The gate codes this module rejects with, from rb's generated constants. The
-# sourced file carries its own inclusion guard, so a sibling sourcing it costs
-# nothing.
-source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
@@ -209,6 +204,7 @@ zrbgv_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
+  source "${z_rbk}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
   source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
