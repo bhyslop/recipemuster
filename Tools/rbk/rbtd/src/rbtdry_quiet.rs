@@ -96,9 +96,10 @@ const ZRBTDRY_RULE: &str = "exported-name rule";
 const ZRBTDRY_LEVEL_RELAY: &str = "relay";
 const ZRBTDRY_LEVEL_LEAF: &str = "leaf";
 
-/// The hush cases each level runs, by the single-case runner's name for them.
-const ZRBTDRY_CASE_RELAY: &str = "rbtdry_hush_relay";
-const ZRBTDRY_CASE_LEAF: &str = "rbtdry_hush_leaf";
+/// The hush cases each level runs, by the single-case runner's name for them,
+/// derived from the case functions as `rbtcee_case!` derives it.
+const ZRBTDRY_CASE_RELAY: &str = stringify!(rbtdry_hush_relay);
+const ZRBTDRY_CASE_LEAF: &str = stringify!(rbtdry_hush_leaf);
 
 // ── Readings ─────────────────────────────────────────────────
 
