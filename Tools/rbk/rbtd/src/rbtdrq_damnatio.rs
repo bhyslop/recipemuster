@@ -421,14 +421,15 @@ const ZRBTCHD_MARK_ROLLS: &str = "##ROLLS";
 const ZRBTCHD_MARK_PROSCRIPTION: &str = "##PROSCRIPTION";
 const ZRBTCHD_MARK_HOMES: &str = "##HOMES";
 const ZRBTCHD_MARK_HARDPOINTS: &str = "##HARDPOINTS";
-const ZRBTCHD_MARK_VALUES: &str = "##VALUES";
+const ZRBTDRQ_MARK_HELD: &str = "##HELD";
 
-/// The state words of a value row: what bash found the field to be once the file
-/// was sourced.
-const ZRBTCHD_HELD_SET: &str = "set";
-const ZRBTCHD_HELD_UNSET: &str = "unset";
-const ZRBTCHD_HELD_UNWIREABLE: &str = "unwireable";
-const ZRBTCHD_HELD_UNSOURCED: &str = "unsourced";
+/// The state words of a held row: what bash found the field to be once the file
+/// was sourced. The reach hands them to the value read as shell variables, so the
+/// words have this one home.
+const ZRBTDRQ_STATE_HOLDS: &str = "holds";
+const ZRBTDRQ_STATE_UNSET: &str = "unset";
+const ZRBTDRQ_STATE_UNWIREABLE: &str = "unwireable";
+const ZRBTDRQ_STATE_UNSOURCED: &str = "unsourced";
 
 /// The value read, spliced into the reach after the proscription kindles and
 /// before any regime kindles. Each home and each hardpoint is sourced in a child
@@ -437,24 +438,24 @@ const ZRBTCHD_HELD_UNSOURCED: &str = "unsourced";
 /// assign reads unset rather than inheriting a value. Bash, never a text match,
 /// decides what the file holds. A value carrying a tab or a newline cannot cross
 /// the tab-separated wire and is reported as such rather than split.
-const ZRBTCHD_VALUE_READ: &str = r#"zrbtchd_value_rows() {
+const ZRBTDRQ_VALUE_READ: &str = r#"zrbtdrq_held_rows() {
   local -r z_file="$1"
   shift
   (
     for z_var in "$@"; do unset "${z_var}"; done
     if ! source "${z_file}"; then
-      printf '%s\t\t%s\n' "${z_file}" unsourced
+      printf '%s\t\t%s\n' "${z_file}" "${z_state_unsourced}"
       exit 0
     fi
     for z_var in "$@"; do
       if test -z "${!z_var+x}"; then
-        printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" unset
+        printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" "${z_state_unset}"
         continue
       fi
       z_value="${!z_var}"
       case "${z_value}" in
-        *$'\t'*|*$'\n'*) printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" unwireable ;;
-        *) printf '%s\t%s\t%s\t%s\n' "${z_file}" "${z_var}" set "${z_value}" ;;
+        *$'\t'*|*$'\n'*) printf '%s\t%s\t%s\n' "${z_file}" "${z_var}" "${z_state_unwireable}" ;;
+        *) printf '%s\t%s\t%s\t%s\n' "${z_file}" "${z_var}" "${z_state_holds}" "${z_value}" ;;
       esac
     done
   )
@@ -466,15 +467,15 @@ for z_h in "${!z_rblm_home_file_roll[@]}"; do
     test "${z_rblm_disposition_roll[${z_j}]}" = "${RBLM_disposition_site}" || continue
     z_vars+=("${z_rblm_var_roll[${z_j}]}")
   done
-  test "${#z_vars[@]}" -eq 0 || zrbtchd_value_rows "${z_rblm_home_file_roll[${z_h}]}" "${z_vars[@]}"
+  test "${#z_vars[@]}" -eq 0 || zrbtdrq_held_rows "${z_rblm_home_file_roll[${z_h}]}" "${z_vars[@]}"
 done
 for z_h in "${!z_rblm_hardpoint_var_roll[@]}"; do
-  zrbtchd_value_rows "${z_rblm_hardpoint_path_roll[${z_h}]}" "${z_rblm_hardpoint_var_roll[${z_h}]}"
+  zrbtdrq_held_rows "${z_rblm_hardpoint_path_roll[${z_h}]}" "${z_rblm_hardpoint_var_roll[${z_h}]}"
 done
 "#;
 
 /// What bash found one field to hold.
-enum zrbtchd_Held {
+enum zrbtdrq_Held {
     Set(String),
     Unset,
     Unwireable,
@@ -489,7 +490,7 @@ struct zrbtchd_Reach {
     proscription: Vec<zrbtchd_Judgment>,
     homes: Vec<(String, String)>,
     hardpoints: Vec<(String, String, String)>,
-    values: BTreeMap<(String, String), zrbtchd_Held>,
+    held: BTreeMap<(String, String), zrbtdrq_Held>,
     unsourced: BTreeSet<String>,
 }
 
@@ -539,7 +540,11 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          source '{rbk}/rbrn_regime.sh'\n\
          zbuv_kindle\n\
          zrblm_kindle\n\
-         echo '{mark_values}'\n\
+         z_state_holds='{state_holds}'\n\
+         z_state_unset='{state_unset}'\n\
+         z_state_unwireable='{state_unwireable}'\n\
+         z_state_unsourced='{state_unsourced}'\n\
+         echo '{mark_held}'\n\
          {value_read}\
          source '{moorings}/rbrr.env'\n\
          zrbrr_kindle\n\
@@ -574,8 +579,12 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
         mark_homes = ZRBTCHD_MARK_HOMES,
         mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
-        mark_values = ZRBTCHD_MARK_VALUES,
-        value_read = ZRBTCHD_VALUE_READ,
+        mark_held = ZRBTDRQ_MARK_HELD,
+        state_holds = ZRBTDRQ_STATE_HOLDS,
+        state_unset = ZRBTDRQ_STATE_UNSET,
+        state_unwireable = ZRBTDRQ_STATE_UNWIREABLE,
+        state_unsourced = ZRBTDRQ_STATE_UNSOURCED,
+        value_read = ZRBTDRQ_VALUE_READ,
     );
 
     let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
@@ -590,7 +599,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         proscription: Vec::new(),
         homes: Vec::new(),
         hardpoints: Vec::new(),
-        values: BTreeMap::new(),
+        held: BTreeMap::new(),
         unsourced: BTreeSet::new(),
     };
     let mut section = "";
@@ -601,7 +610,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
             | ZRBTCHD_MARK_PROSCRIPTION
             | ZRBTCHD_MARK_HOMES
             | ZRBTCHD_MARK_HARDPOINTS
-            | ZRBTCHD_MARK_VALUES => {
+            | ZRBTDRQ_MARK_HELD => {
                 section = line;
                 continue;
             }
@@ -633,18 +642,18 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
                     fields[2].to_string(),
                 ));
             }
-            ZRBTCHD_MARK_VALUES if fields.len() >= 3 => {
+            ZRBTDRQ_MARK_HELD if fields.len() >= 3 => {
                 let held = match fields[2] {
-                    ZRBTCHD_HELD_SET => zrbtchd_Held::Set(fields.get(3).unwrap_or(&"").to_string()),
-                    ZRBTCHD_HELD_UNSET => zrbtchd_Held::Unset,
-                    ZRBTCHD_HELD_UNWIREABLE => zrbtchd_Held::Unwireable,
-                    ZRBTCHD_HELD_UNSOURCED => {
+                    ZRBTDRQ_STATE_HOLDS => zrbtdrq_Held::Set(fields.get(3).unwrap_or(&"").to_string()),
+                    ZRBTDRQ_STATE_UNSET => zrbtdrq_Held::Unset,
+                    ZRBTDRQ_STATE_UNWIREABLE => zrbtdrq_Held::Unwireable,
+                    ZRBTDRQ_STATE_UNSOURCED => {
                         reach.unsourced.insert(fields[0].to_string());
                         continue;
                     }
                     other => return Err(format!("the value read printed an unknown state '{}': {}", other, line)),
                 };
-                reach.values.insert((fields[0].to_string(), fields[1].to_string()), held);
+                reach.held.insert((fields[0].to_string(), fields[1].to_string()), held);
             }
             _ => {}
         }
@@ -665,12 +674,12 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
 /// A finding for a field the value read could not judge: a file bash could not
 /// source, a value the wire could not carry, or a row the read never printed.
 /// None of these is passed over — an unjudged field is not a sterile one.
-fn zrbtchd_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbtchx_Finding> {
+fn zrbtdrq_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbtchx_Finding> {
     let detail = if reach.unsourced.contains(file) {
         format!("{} cannot be judged — bash could not source the file", var)
     } else {
-        match reach.values.get(&(file.to_string(), var.to_string())) {
-            Some(zrbtchd_Held::Unwireable) => {
+        match reach.held.get(&(file.to_string(), var.to_string())) {
+            Some(zrbtdrq_Held::Unwireable) => {
                 format!("{} holds a value carrying a tab or a newline, which cannot be judged", var)
             }
             Some(_) => return None,
@@ -711,12 +720,12 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
             if *scope != judgment.scope {
                 continue;
             }
-            if let Some(finding) = zrbtchd_unjudged(&reach, home, &judgment.var) {
+            if let Some(finding) = zrbtdrq_unjudged(&reach, home, &judgment.var) {
                 findings.push(finding);
                 continue;
             }
-            let held = match reach.values.get(&(home.clone(), judgment.var.clone())) {
-                Some(zrbtchd_Held::Set(v)) => v,
+            let held = match reach.held.get(&(home.clone(), judgment.var.clone())) {
+                Some(zrbtdrq_Held::Set(v)) => v,
                 _ => continue,
             };
             inventory.insert(format!("{}\t{}\t{:?}", home, judgment.var, held));
@@ -734,12 +743,12 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     }
 
     for (path, var, sterile) in &reach.hardpoints {
-        if let Some(finding) = zrbtchd_unjudged(&reach, path, var) {
+        if let Some(finding) = zrbtdrq_unjudged(&reach, path, var) {
             findings.push(finding);
             continue;
         }
-        let held = match reach.values.get(&(path.clone(), var.clone())) {
-            Some(zrbtchd_Held::Set(v)) => v,
+        let held = match reach.held.get(&(path.clone(), var.clone())) {
+            Some(zrbtdrq_Held::Set(v)) => v,
             _ => {
                 findings.push(zrbtchx_Finding {
                     file: path.clone(),

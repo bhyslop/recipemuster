@@ -789,14 +789,14 @@ zrbgp_pool_build_submit_await() {
       || buc_die_now "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
     case "${z_poll_code}" in
       200) : ;;
-      429|5[0-9][0-9])
+      429|5[0123456789][0123456789])
         buc_info "  ${z_operation_label} ${z_pool_variant}: HTTP ${z_poll_code}, polling on (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
           || buc_die_now "Failed to print message"
         continue
         ;;
       *)
-        local z_poll_err
         local z_poll_err_status=0
+        local z_poll_err
         z_poll_err=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message') || z_poll_err_status=$?
         test "${z_poll_err_status}" -eq 0 || z_poll_err="no error message"
         buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
