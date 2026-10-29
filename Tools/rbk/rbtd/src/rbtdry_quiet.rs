@@ -21,7 +21,7 @@
 //
 // Two fixtures. `environment-quiet` is the reveille member. Its chain case
 // plants a made-up control exported on an `rbw-tc` child running the relay case
-// of `environment-quiet-probe`; the relay records its own exported names and
+// of `quiet-hush`; the relay records its own exported names and
 // drives `rbw-tc` again into the leaf case, which records its own. The
 // control's value names the directory every level records into, so the
 // readings land beside the case that asserts them, and a reading that misses
@@ -29,7 +29,7 @@
 // with a valid value exported on a child door and asserts the enrollment gate's
 // code and the exported-name rule in the refusal.
 //
-// `environment-quiet-probe` is a member of no suite: its two cases are levels of
+// `quiet-hush` is a member of no suite: its two cases are levels of
 // the chain, meaningful only where the chain reaches them.
 
 use std::path::{Path, PathBuf};
@@ -49,14 +49,14 @@ use crate::rbtgeb_breviary::RBTGEB_BUSX_ENROLL_DENTIL;
 use crate::rbtgec_consts::RBTGEC_THEURGE_CASE;
 
 pub const RBTDRY_NAME_ENVIRONMENT_QUIET: &str = "environment-quiet";
-pub const RBTDRY_NAME_ENVIRONMENT_QUIET_PROBE: &str = "environment-quiet-probe";
+pub const RBTDRY_NAME_QUIET_HUSH: &str = "quiet-hush";
 
 /// The control planted exported at the top of the chain: a made-up name,
 /// matching no governed word and no family the estate seats. Its value names
 /// the directory every level records into.
 const ZRBTDRY_CONTROL: &str = "QUOBRY_PLANTED";
 
-/// The hand-offs a process below a CLI holds, by BUS0's inlet roster.
+/// The hand-offs a process below a CLI holds (BUr_q2m).
 const ZRBTDRY_HANDED: &[&str] = &["BURD_BURD_FILE", "BURD_BUK_DIR"];
 
 /// The environment regime's family: ambient at every level, stripped by nothing.
@@ -96,9 +96,9 @@ const ZRBTDRY_RULE: &str = "exported-name rule";
 const ZRBTDRY_LEVEL_RELAY: &str = "relay";
 const ZRBTDRY_LEVEL_LEAF: &str = "leaf";
 
-/// The probe cases each level runs, by the single-case runner's name for them.
-const ZRBTDRY_CASE_RELAY: &str = "rbtdry_probe_relay";
-const ZRBTDRY_CASE_LEAF: &str = "rbtdry_probe_leaf";
+/// The hush cases each level runs, by the single-case runner's name for them.
+const ZRBTDRY_CASE_RELAY: &str = "rbtdry_hush_relay";
+const ZRBTDRY_CASE_LEAF: &str = "rbtdry_hush_leaf";
 
 // ── Readings ─────────────────────────────────────────────────
 
@@ -113,7 +113,7 @@ fn zrbtdry_reading_path(dir: &Path, level: &str) -> PathBuf {
 fn zrbtdry_record(level: &str) -> Result<(), String> {
     let pointer = std::env::var(ZRBTDRY_CONTROL).map_err(|_| {
         format!(
-            "{} is not in this level's environment — the probe runs only beneath {}'s chain",
+            "{} is not in this level's environment — the hush levels run only beneath {}'s chain",
             ZRBTDRY_CONTROL, RBTDRY_NAME_ENVIRONMENT_QUIET
         )
     })?;
@@ -124,7 +124,7 @@ fn zrbtdry_record(level: &str) -> Result<(), String> {
     names.sort();
     let path = zrbtdry_reading_path(&dir, level);
     std::fs::write(&path, format!("{}\n", names.join("\n")))
-        .map_err(|e| format!("cannot record {}: {}", path.display(), e))
+        .map_err(|e| format!("cannot write the reading {}: {}", path.display(), e))
 }
 
 /// The names a level recorded.
@@ -159,7 +159,7 @@ fn zrbtdry_quiet(level: &str, names: &[String]) -> Result<(), String> {
 
 // ── Child drive ──────────────────────────────────────────────
 
-/// Drive one probe case through the single-case runner, `rbw-tc`, with the
+/// Drive one hush case through the single-case runner, `rbw-tc`, with the
 /// extra names planted exported on that door.
 fn zrbtdry_drive(case: &str, planted: &[(&str, &str)]) -> Result<rbtcei_InvokeResult, String> {
     let mut driven: Option<Result<rbtcei_InvokeResult, String>> = None;
@@ -167,12 +167,12 @@ fn zrbtdry_drive(case: &str, planted: &[(&str, &str)]) -> Result<rbtcei_InvokeRe
         driven = Some(rbtcei_invoke_global(
             ctx,
             RBTGEC_THEURGE_CASE,
-            &[RBTDRY_NAME_ENVIRONMENT_QUIET_PROBE, case],
+            &[RBTDRY_NAME_QUIET_HUSH, case],
             planted,
         ));
         rbtcee_Verdict::Pass
     });
-    driven.unwrap_or_else(|| Err("the probe drive did not run".to_string()))
+    driven.unwrap_or_else(|| Err("the hush drive did not run".to_string()))
 }
 
 /// What a drive said, both streams, for a refusal that names a miss.
@@ -247,10 +247,10 @@ fn rbtdry_eq_refused(dir: &Path) -> rbtcee_Verdict {
     })())
 }
 
-// ── environment-quiet-probe cases ────────────────────────────
+// ── quiet-hush cases ────────────────────────────
 
 /// The relay level: record, then drive the leaf through rb's own door.
-fn rbtdry_probe_relay(_dir: &Path) -> rbtcee_Verdict {
+fn rbtdry_hush_relay(_dir: &Path) -> rbtcee_Verdict {
     zrbtdry_verdict((|| {
         zrbtdry_record(ZRBTDRY_LEVEL_RELAY)?;
         let result = zrbtdry_drive(ZRBTDRY_CASE_LEAF, &[])?;
@@ -266,7 +266,7 @@ fn rbtdry_probe_relay(_dir: &Path) -> rbtcee_Verdict {
 }
 
 /// The leaf level: record.
-fn rbtdry_probe_leaf(_dir: &Path) -> rbtcee_Verdict {
+fn rbtdry_hush_leaf(_dir: &Path) -> rbtcee_Verdict {
     zrbtdry_verdict(zrbtdry_record(ZRBTDRY_LEVEL_LEAF))
 }
 
@@ -277,9 +277,9 @@ pub static RBTDRY_CASES_ENVIRONMENT_QUIET: &[rbtcee_Case] = &[
     rbtcee_case!(rbtdry_eq_refused),
 ];
 
-pub static RBTDRY_CASES_ENVIRONMENT_QUIET_PROBE: &[rbtcee_Case] = &[
-    rbtcee_case!(rbtdry_probe_relay),
-    rbtcee_case!(rbtdry_probe_leaf),
+pub static RBTDRY_CASES_QUIET_HUSH: &[rbtcee_Case] = &[
+    rbtcee_case!(rbtdry_hush_relay),
+    rbtcee_case!(rbtdry_hush_leaf),
 ];
 
 /// credless: a reveille member, so the guard rides every child launch — inert on
@@ -295,12 +295,12 @@ pub static RBTDRY_FIXTURE_ENVIRONMENT_QUIET: rbtcee_Fixture = rbtcee_Fixture {
 };
 
 /// Reached only through the chain, one case at a time, so it carries no tariff.
-pub static RBTDRY_FIXTURE_ENVIRONMENT_QUIET_PROBE: rbtcee_Fixture = rbtcee_Fixture {
-    name: RBTDRY_NAME_ENVIRONMENT_QUIET_PROBE,
+pub static RBTDRY_FIXTURE_QUIET_HUSH: rbtcee_Fixture = rbtcee_Fixture {
+    name: RBTDRY_NAME_QUIET_HUSH,
     disposition: rbtcee_Disposition::Independent,
     setup: None,
     teardown: None,
-    cases: RBTDRY_CASES_ENVIRONMENT_QUIET_PROBE,
+    cases: RBTDRY_CASES_QUIET_HUSH,
     credless: true,
     tariff: rbtcee_Tariff::RBTCEE_UNCHECKED,
 };

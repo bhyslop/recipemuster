@@ -95,9 +95,9 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchl_calibrant::RBTCHL_FIXTURE_TARIFF_DRIFT,
     &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
     &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
-    // environment-quiet-probe: the levels of environment-quiet's chain, reached
+    // quiet-hush: the levels of environment-quiet's chain, reached
     // only through it one case at a time — a member of no suite.
-    &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET_PROBE,
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_QUIET_HUSH,
 ];
 
 /// Resolve a fixture name to its registered Fixture definition. Returns None

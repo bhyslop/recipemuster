@@ -384,7 +384,7 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // environment-quiet drives its chain through the single-case runner,
         // and the probe's relay level drives the leaf through it again.
         crate::rbtdry_quiet::RBTDRY_NAME_ENVIRONMENT_QUIET
-        | crate::rbtdry_quiet::RBTDRY_NAME_ENVIRONMENT_QUIET_PROBE => Some(&[
+        | crate::rbtdry_quiet::RBTDRY_NAME_QUIET_HUSH => Some(&[
             RBTGEC_THEURGE_CASE,
         ]),
         RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
