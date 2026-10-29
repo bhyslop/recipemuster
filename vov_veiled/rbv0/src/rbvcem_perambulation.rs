@@ -72,30 +72,12 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // That is correct — a kit's exposure is a ruling, never a default.
     ("vov_veiled/", Withhold),
     // THE DELIVERED KITS. RBK ships whole, its veiled half having left the kit
-    // for the root; BUK and BKK ship whole outright, having none in this tree —
-    // their closed records home at their own primary home, and the few rows
+    // for the root; BUK ships whole outright, having none in this tree — its
+    // closed record homes at its own primary home, and the few rows
     // recipemuster still cites folded into RBK's veiled index. The shipped
     // surface either way: the .sh surface, the shellcheck config, the READMEs,
     // the agent-context markdown, the theurge crate, the in-pool python step
     // bodies, the ifrit attack corpus.
-    //
-    // BKK arrived with brand 1074 and is ruled here on its first crossing,
-    // since a kit's exposure is a ruling and never a default. It is consumed on
-    // BUK's own terms, from the same forge by the same road; and the judgment
-    // was in part already made, because a file shipping inside Tools/buk/ — the
-    // bun_suite collar — names Tools/bkk among its roots, the kennel crate as
-    // its tamed crate, and the repository root as its muzzle. Withholding the
-    // kennel would ship that collar pointing at what the recipient does not
-    // have, which is the dangling reference the launcher rule below refuses for
-    // the same reason.
-    //
-    // BPK arrived with number 1089, the parcel kit carrying the install engine
-    // and the templates this tree's trampoline and launcher stubs are written
-    // from, and is ruled on the same argument: the delivered burc.env names it
-    // among the managed kits, so withholding it would ship a settings file
-    // declaring a kit directory the recipient does not have.
-    ("Tools/bkk/", Ship),
-    ("Tools/bpk/", Ship),
     ("Tools/buk/", Ship),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
@@ -109,18 +91,36 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // each is a tree the consumer has no seat for.
     ("Tools/vslf-rbw/", Withhold),
     ("Tools/vslk/", Withhold),
+    // The kennel kit and the parcel kit are kept by the full repository for
+    // its maintainers, and are not delivered. The kennel builds, tests and
+    // lints the trees here for their iteration, and the parcel kit carries the
+    // install engine and the templates this tree's trampoline and launcher
+    // stubs were written from; the delivered rb builds, tests, lints and cleans
+    // its Rust through rb's own doors and needs neither. Both are consumed by
+    // parcel, so a ruling on them is a ruling on what arrives, never an edit.
+    //
+    // The floor crate inside the kennel is the exception, and ships: the
+    // theurge links it for the program writers the root lint list points every
+    // barred file-arming call at, and for the estate's one regime reader. It
+    // stands alone, declaring no dependency and inheriting from no workspace,
+    // so withholding its parent leaves nothing it reaches behind.
+    ("Tools/bkk/", Withhold),
+    ("Tools/bkk/bk0/bkp/", Ship),
+    ("Tools/bpk/", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
     // family and the manor raze are the release rig itself; a consumer running
     // any of them holds the wrong end of the tool. The stem rows outrank the
     // family rows by length, so a marshal tabtarget minted tomorrow is
     // withheld without a new row, and the hierophant's own dispatch stem
-    // tt/rbvw- rides the same logic.
+    // tt/rbvw- rides the same logic. The kennel's doors are a withheld family
+    // beside the hierophant's, on its kit's reason above: they drive what the
+    // delivered rb does not carry.
     ("tt/rbw-M", Withhold),
     ("tt/rbw-mR.", Withhold),
     ("tt/rbvw-", Withhold),
+    ("tt/bkw-", Withhold),
     ("tt/rbw-", Ship),
     ("tt/buw-", Ship),
-    ("tt/bkw-", Ship),
     ("tt/z-launcher.sh", Ship),
     ("tt/study-", Withhold),
     ("tt/vslk-", Withhold),
@@ -147,15 +147,12 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     ("rbmm_moorings/rbrp.env", Ship),
     ("rbmm_moorings/rbrr.env", Ship),
     ("rbmm_moorings/rbrw.env", Ship),
-    // THE WEANED COLLARS ship with the crates they declare, on the launchers'
-    // reason: a delivered build door converges through its collar, so a
-    // withheld collar would leave that door pointing at nothing. The
-    // hierophant's are withheld at stem grain, as the crate they declare is.
-    ("rbmm_moorings/bkd_weaned/rbvn_", Withhold),
-    ("rbmm_moorings/bkd_weaned/", Ship),
+    // THE WEANED COLLARS are withheld whole: every collar there is the
+    // kennel's, read only by its doors, which the delivered rb does not carry.
+    // The delivered theurge is built by rb's own doors, which read no collar.
+    ("rbmm_moorings/bkd_weaned/", Withhold),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
-    ("rbmm_moorings/buml_launchers/launcher.bkw_workbench.sh", Ship),
     ("rbmm_moorings/buml_launchers/launcher.buw_workbench.sh", Ship),
     ("rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh", Ship),
     ("rbmm_moorings/buml_launchers/", Withhold),
@@ -180,12 +177,10 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // needs it in hand; withheld, they build on whatever channel their station
     // happened to default to, which is the gap the file was written to close.
     ("rust-toolchain.toml", Ship),
-    // The muzzle at the root, on the pin's own argument. A collar names the
-    // directory whose lint governance it wears, and the delivered butun_suite
-    // collar names `.` — so a consumer linting what ships needs this file in
-    // hand, exactly as they need the channel above. A muzzle directory holding
-    // no lint list is refused as a muzzle nothing wears; the list is this
-    // repository's to state, and empty is a valid statement of it.
+    // The lint list at the root, on the pin's own argument. The theurge's own
+    // lint door reads it, naming this root as clippy's configuration
+    // directory — so a consumer linting what ships needs this file in hand,
+    // exactly as they need the channel above.
     ("clippy.toml", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
     // procedure, the rig's own runbook; the iml is IDE furniture; the gateway
