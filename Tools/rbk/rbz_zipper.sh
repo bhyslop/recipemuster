@@ -48,8 +48,8 @@ zrbz_kindle() {
   buz_enroll RBZ_CHECK_PAYOR             "rbw-ap"  "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
   buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     "param1"  "Check federated access — reuse a live sederunt against the RBRF trust, or refuse naming rbw-aN when none is live (optional arg: required runway seconds)"
   buz_enroll RBZ_CHECK_MANTLE            "rbw-am"  "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
-  buz_enroll RBZ_NOVATE_SEDERUNT          "rbw-aN"  "rba_cli.sh" "rba_novate_sederunt"       ""        "Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the one way to sign in, and the runway gate's named remedy)"
-  buz_enroll RBZ_ESPY_SEDERUNT            "rbw-as"  "rba_cli.sh" "rba_espy_sederunt"         ""        "Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
+  buz_enroll RBZ_NOVATE_SEDERUNT          "rbw-aN"  "rbau_cli.sh" "rbau_novate_sederunt"       ""        "Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the one way to sign in, and the runway gate's named remedy)"
+  buz_enroll RBZ_ESPY_SEDERUNT            "rbw-as"  "rbau_cli.sh" "rbau_espy_sederunt"         ""        "Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
@@ -280,11 +280,13 @@ zrbz_kindle() {
   # tP/tS/tT into rbw-ts imprints (gauntlet/skirmish/siege).
   buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge — Test infrastructure"
   z_mod="rbtd/rbte_cli.sh"
-  # Build/Test carry the imprint channel solely to forward cargo passthrough
+  # Build/Test carry the imprint channel solely to forward the caller's
   # args ("$@"); the 2-segment filename leaves BURD_TOKEN_3 empty, so no folio
   # is consumed. (Empty channel would drop the args; param1 would eat the first.)
   buz_enroll RBZ_THEURGE_BUILD    "rbw-tb"  "${z_mod}" "rbte_build"   "imprint"  "Build the theurge crate"
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
+  buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
+  buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Removes the test engine's build output, so the next door that builds starts from nothing."
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"

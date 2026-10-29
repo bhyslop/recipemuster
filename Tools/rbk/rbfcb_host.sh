@@ -59,7 +59,7 @@ zrbfcb_redon_tick() {
   test "${z_don_rc}" -ne "${BUBC_band_admission}" \
     || buc_reject "${BUBC_band_admission}" "${z_label}: re-don denied mid-build — the director admission was revoked while the build ran; brevet the citizen back onto the mantle, then re-run"
 
-  if zrba_sederunt_live_predicate; then
+  if zrbau_sederunt_live_predicate; then
     buc_warn "${z_label}: mid-flight re-don failed transiently (${z_poll_tag}) — keeping the prior token; retrying next poll"
     return 0
   fi
@@ -213,7 +213,7 @@ zrbfcb_wait_build_completion() {
 
   buc_log_args 'Get fresh token for polling'
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get GCB OAuth token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get GCB OAuth token"
 
   # Re-don cadence — kindled default, or the BURE test seam's override so a
   # short real build exercises the tick (a malformed
@@ -280,7 +280,7 @@ zrbfcb_wait_build_completion() {
     z_polls_since_don=$((z_polls_since_don + 1))
     if test "${z_polls_since_don}" -ge "${z_redon_cadence}"; then
       z_redon_rc=0
-      zSECRET_minted=$(rba_don_capture "${RBCC_mantle_director}") || z_redon_rc=$?
+      zSECRET_minted=$(rbau_don_capture "${RBCC_mantle_director}") || z_redon_rc=$?
       zrbfcb_redon_tick "${z_label}" "poll ${z_polls}; cadence ${z_redon_cadence}" "${z_redon_rc}"
       if test "${z_redon_rc}" -eq 0; then
         zSECRET_token="${zSECRET_minted}"

@@ -1,15 +1,20 @@
-## File Acronym Mappings — RBK Subdirectory (`Tools/rbk/`)
+<!-- Generated file - do not hand-edit; the next render run overwrites it. Source of record: the "Acronym Notes" section of `Tools/rbk/rbai0/rbais_rbk.md`. -->
 
-- **RBA** → `Tools/rbk/rba_auth.sh`
+## File Acronym Mappings — RBK (`Tools/rbk/rbai0/`)
+
+- **RBAU** → `Tools/rbk/rbau_auth.sh`
 - **RBDC** → `Tools/rbk/rbdc_derived.sh`
 - **RBDG** → `diagrams/rbdg*`
+- **RBF** → 
 - **RBFB** → `Tools/rbk/rbfb_beckon.sh`
+- **RBFC** → `Tools/rbk/rbfc*`
 - **RBFCV** → `Tools/rbk/rbfcv_*.sh`
 - **RBFCB** → `Tools/rbk/rbfcb_*.sh`
 - **RBFCA** → `Tools/rbk/rbfca_*.sh`
 - **RBFCG** → `Tools/rbk/rbfcg_*.sh`
 - **RBFCP** → `Tools/rbk/rbfcp_*.sh`
 - **RBFC0** → `Tools/rbk/rbfc0_core.sh`
+- **RBFD** → `Tools/rbk/rbfd*`
 - **RBFDP** → `Tools/rbk/rbfdp_preflight.sh`
 - **RBFDB** → `Tools/rbk/rbfdb_build.sh`
 - **RBFDM** → `Tools/rbk/rbfdm_mirror.sh`
@@ -18,6 +23,7 @@
 - **RBFD0** → `Tools/rbk/rbfd0_director.sh`
 - **RBFH** → `Tools/rbk/rbfh_hygiene.sh`
 - **RBFK** → `Tools/rbk/rbfk_kludge.sh`
+- **RBFL** → `Tools/rbk/rbfl*`
 - **RBFLY** → `Tools/rbk/rbfly_*.sh`
 - **RBFLA** → `Tools/rbk/rbfla_anoint.sh`
 - **RBFLF** → `Tools/rbk/rbflf_feoff.sh`
@@ -27,6 +33,7 @@
 - **RBFLW** → `Tools/rbk/rbflw_*.sh`
 - **RBFL0** → `Tools/rbk/rbfl0_ledger.sh`
 - **RBFR** → `Tools/rbk/rbfr_retriever.sh`
+- **RBFV** → `Tools/rbk/rbfv*`
 - **RBFVG** → `Tools/rbk/rbfvg_gate.sh`
 - **RBFVA** → `Tools/rbk/rbfva_about.sh`
 - **RBFVM** → `Tools/rbk/rbfvm_metadata.sh`
@@ -44,11 +51,14 @@
 - **RBGP** → `Tools/rbk/rbgp_payor.sh`
 - **RBGV** → `Tools/rbk/rbgv_probe.sh`
 - **RBGW** → `Tools/rbk/rbgw_capabilities.sh`
+- **RBGJS** → `Tools/rbk/rbgjs/`
 - **RBH0** → `Tools/rbk/rbh0/`
 - **RBHO0** → `Tools/rbk/rbh0/rbho0_*.sh`
 - **RBHP0** → `Tools/rbk/rbh0/rbhp0_*.sh`
 - **RBID** → `rbmm_moorings/rbmv_vessels/common-ifrit-context/`
+- **RBJ** → 
 - **RBJS** → `rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh`
+- **RBLD** → `Tools/rbk/rbld*`
 - **RBLD0** → `Tools/rbk/rbld0_*.sh`
 - **RBLDS** → `Tools/rbk/rblds_spine.sh`
 - **RBLDB** → `Tools/rbk/rbldb_*.sh`
@@ -57,6 +67,7 @@
 - **RBLDW** → `Tools/rbk/rbldw_underpin.sh`
 - **RBLDV** → `Tools/rbk/rbldv_immure.sh`
 - **RBLM** → `Tools/rbk/rblm*`
+- **RBNNH** → `rbnnh_`
 - **RBOB** → `Tools/rbk/rbob_bottle.sh`
 - **RBOF** → `Tools/rbk/rbof_foedus.sh`
 - **RBPC** → `Tools/rbk/rbpc_constants.sh`

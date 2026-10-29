@@ -1,9 +1,9 @@
-# The repository's muzzle directory — the lint governance a collar wears when it
-# names `.` as its muzzle.
+# The repository's lint list for barred calls: clippy reads it for every crate
+# linted with this root as its configuration directory, the theurge's own lint
+# door (tt/rbw-tm.Lint.sh) among them.
 #
 # This file is foreign schema: the keys are clippy's, not the estate's. The list
-# is this repository's to state, not the kit's, and it governs every crate whose
-# collar names this root.
+# is this repository's to state, and it governs every crate linted against it.
 #
 # THE RULING. The calls that make or carry a runnable file are barred, because
 # the surface that replaces them is the floor crate's: Pastern's program

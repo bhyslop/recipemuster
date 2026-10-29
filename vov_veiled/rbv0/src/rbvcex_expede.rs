@@ -33,50 +33,14 @@ use crate::rbvcel_log;
 use crate::rbvcem_perambulation;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvcew_world;
 
 // ── The cut's constants ─────────────────────────────────────
 
-/// The base remote. The cut clones this — the REAL public repository — and
-/// cuts the regulus one commit atop its live main. It is the ONLY endpoint
-/// the cut knows: it is read (cloned) and never pushed to, and the clone's
-/// origin is severed after cloning so the name cannot be pushed to even by
-/// accident. Its name is loud on purpose (_UPSTREAM, all caps): it can never
-/// be confused with origin, main, or a hand-typed default.
-pub const RBVCEX_BASE_REMOTE: &str = "ENGROSSMENT_UPSTREAM";
-
-/// The base is READ-ONLY, and that is asserted, not merely intended. A
-/// push-capable remote to the public target in the maintainer repo is the one
-/// catastrophe the ceremony forbids, so the base remote's PUSH url must be
-/// neutered to this sentinel, and the cut refuses until it is. The clone
-/// still reads (fetch) the real URL; only the push side is dead.
-pub const RBVCEX_BASE_PUSH_DISABLED: &str = "DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY";
-
-/// The base's expected fetch URL, hardcoded and asserted before anything is
-/// cloned. The base-inventory sweep below is NON-FATAL by design — it
-/// tolerates already-disclosed withheld history because the base is the
-/// genuinely public repository. That tolerance is safe ONLY if the base truly
-/// IS that repository: a fetch URL fat-fingered at the private maintainer
-/// repo would clone the whole private history, the inventory would wave it
-/// through as "already disclosed", the delta sweep would see only the clean
-/// one commit, and the regulus would green-light — then a push would upload
-/// the entire private ancestry (the 292 MiB catastrophe, back through the one
-/// unlocked door). The endpoint is a load-bearing fact, not a runtime input.
-pub const RBVCEX_BASE_URL: &str = "git@github.com:scaleinv/recipebottle.git";
-
-/// The ephemeral private narthex (RBS0 rbshc_narthex; RELEASE.md "The
-/// narthex"): created empty and private by the operator's own hand before
-/// a cut, reached only by explicit URL — never a configured remote. Fixed and
-/// known, unlike the repository's ephemeral CONTENTS: only its existence is
-/// per-cycle. The single home for docimasy and ostend alike — both gate on
-/// the same repository, and a duplicated copy is exactly the drift a
-/// privacy/freshness gate must never carry (RBSHD "Gate the narthex",
-/// RBSHO "Re-assert the ground").
-pub const RBVCEX_NARTHEX_URL: &str = "git@github.com:scaleinv/recipebottle-staging.git";
-
-/// The anonymous-read form of the same repository, for the 404 privacy gate.
-/// A private GitHub repository 404s to an unauthenticated request; a public
-/// or misnamed one does not.
-pub const RBVCEX_NARTHEX_HTTPS: &str = "https://github.com/scaleinv/recipebottle-staging";
+// The world-specific endpoints — the base remote, its push sentinel and URL,
+// and the narthex in both its forms — are the elected bundle's
+// (rbvcew_world), read through the world each entry point takes; none is
+// spelled here.
 
 /// The expected HTTP status of an anonymous read of a private narthex.
 const RBVCEX_NARTHEX_PRIVATE_STATUS: &str = "404";
@@ -98,16 +62,6 @@ const RBVCEX_REGULUS_SUBJECT: &str = "Recipe Bottle release candidate";
 /// the regulus has it (RBSHC: the one boundary deliberately not absorbed).
 const RBVCEX_STERILIZE_PATH: &str = "Tools/rbk/rblm_sterilize.sh";
 
-/// The consumer CLAUDE.md template, repo-relative. The cut transposes THIS
-/// file's committed bytes onto the regulus's root CLAUDE.md between
-/// materialization and the commit: the regulus must carry the consumer's
-/// context, never the maintainer's veiled-path-laden one.
-const RBVCEX_CONSUMER_CLAUDE_PATH: &str = "vov_veiled/CLAUDE.consumer.md";
-
-/// The regulus's root CLAUDE.md — the transposition's target, and a path
-/// the perambulation ships so the sweep expects it in the regulus graph.
-const RBVCEX_REGULUS_CLAUDE_PATH: &str = "CLAUDE.md";
-
 /// The scratch directory beneath the target dir — the archive tar and the
 /// sterilize subprocess's temp root land here, beside the clone and never
 /// inside it, so `git add --all` in the clone can never stage them.
@@ -120,11 +74,13 @@ const RBVCEX_BUK_SUBDIR: &str = "Tools/buk";
 
 // ── The cut ─────────────────────────────────────────────────
 
-/// Cut the delivery regulus by addition into {target_dir}/regulus.
+/// Cut the delivery regulus by addition into {target_dir}/regulus, atop the
+/// elected world's public base.
 /// Fatal on any deficit; returns the regulus clone path only when every
 /// refusal is satisfied: one commit atop the public base on POSTULANT_LOCAL,
 /// no withheld path in the delta, zero remotes.
-pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
+pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_World) -> PathBuf {
+    let bundle = rbvcew_world::rbvcew_bundle(world);
     if !target_dir.is_absolute() {
         crate::rbvcel_fatal!("target directory must be an absolute path: {}", target_dir.display());
     }
@@ -179,37 +135,37 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
     // The base. A regulus is one commit atop the real PUBLIC main, so the
     // base remote is not optional scenery — it is the thing being added to.
     // The cut only ever CLONES it; it is severed from the clone below.
-    let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", RBVCEX_BASE_REMOTE], top);
+    let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", bundle.base_remote], top);
     if fetch.code != 0 {
         crate::rbvcel_fatal!(
             "{} is not configured — the regulus is built by addition atop the real public repository, so a remote pointing at it is required (git remote add {} {}):\n{}",
-            RBVCEX_BASE_REMOTE, RBVCEX_BASE_REMOTE, RBVCEX_BASE_URL, fetch.stderr.trim()
+            bundle.base_remote, bundle.base_remote, bundle.base_url, fetch.stderr.trim()
         );
     }
     let fetch_url = fetch.stdout.trim().to_string();
     if fetch_url.is_empty() {
-        crate::rbvcel_fatal!("{} URL is empty", RBVCEX_BASE_REMOTE);
+        crate::rbvcel_fatal!("{} URL is empty", bundle.base_remote);
     }
 
     // The base's IDENTITY, asserted before anything is cloned — the safety
-    // condition of the non-fatal base inventory (see RBVCEX_BASE_URL).
-    if fetch_url != RBVCEX_BASE_URL {
+    // condition of the non-fatal base inventory (see rbvcew_Bundle base_url).
+    if fetch_url != bundle.base_url {
         crate::rbvcel_fatal!(
             "{} points at {}, not the expected public base {} — refusing to cut atop the wrong repository (the base-inventory sweep is non-fatal ONLY because the base is the genuinely public repo)",
-            RBVCEX_BASE_REMOTE, fetch_url, RBVCEX_BASE_URL
+            bundle.base_remote, fetch_url, bundle.base_url
         );
     }
 
     // The base is read-only, asserted. A live push url to the public target
     // is refused before a single object is cloned.
-    let push = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", "--push", RBVCEX_BASE_REMOTE], top);
+    let push = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", "--push", bundle.base_remote], top);
     if push.code != 0 {
-        crate::rbvcel_fatal!("cannot read {} push url:\n{}", RBVCEX_BASE_REMOTE, push.stderr.trim());
+        crate::rbvcel_fatal!("cannot read {} push url:\n{}", bundle.base_remote, push.stderr.trim());
     }
-    if push.stdout.trim() != RBVCEX_BASE_PUSH_DISABLED {
+    if push.stdout.trim() != bundle.base_push_disabled {
         crate::rbvcel_fatal!(
             "{} has a live push url ({}) — the base must be read-only. Neuter it: git remote set-url --push {} {}",
-            RBVCEX_BASE_REMOTE, push.stdout.trim(), RBVCEX_BASE_REMOTE, RBVCEX_BASE_PUSH_DISABLED
+            bundle.base_remote, push.stdout.trim(), bundle.base_remote, bundle.base_push_disabled
         );
     }
 
@@ -218,18 +174,6 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
         crate::rbvcel_fatal!("git rev-parse HEAD failed:\n{}", head.stderr.trim());
     }
     let head = head.stdout.trim().to_string();
-
-    // The consumer CLAUDE.md template must exist in the committed record
-    // before the cut begins — the transposition below reads its bytes, and a
-    // missing template would surface only after the whole regulus was built.
-    let template_ref = format!("{}:{}", head, RBVCEX_CONSUMER_CLAUDE_PATH);
-    let template_probe = rbvcer_run::rbvcer_capture("git", &["cat-file", "-e", &template_ref], top);
-    if template_probe.code != 0 {
-        crate::rbvcel_fatal!(
-            "the consumer CLAUDE.md template is absent from {}: {}\n{}",
-            head, RBVCEX_CONSUMER_CLAUDE_PATH, template_probe.stderr.trim()
-        );
-    }
 
     let shipped = rbvcem_perambulation::rbvcem_shipped(&tracked);
     if shipped.is_empty() {
@@ -241,7 +185,7 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
 
     rbvcel_log::rbvcel_section("The cut — build the regulus by addition (RBSHE step 3)");
     rbvcel_log::rbvcel_line(&format!("Source commit:        {}", head));
-    rbvcel_log::rbvcel_line(&format!("Public base remote:   {}", RBVCEX_BASE_REMOTE));
+    rbvcel_log::rbvcel_line(&format!("Public base remote:   {}", bundle.base_remote));
     rbvcel_log::rbvcel_line(&format!("Public base URL:      {}", fetch_url));
     rbvcel_log::rbvcel_line(&format!("Regulus clone:      {}", clone_dir.display()));
     rbvcel_log::rbvcel_line(&format!("Regulus branch:     {}", RBVCEX_REGULUS_BRANCH));
@@ -252,8 +196,7 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!("Every shipped path ({}) is materialized from the committed bytes,", shipped.len()));
     rbvcel_log::rbvcel_line("judged by the perambulation's one matcher, then lustrated and");
-    rbvcel_log::rbvcel_line("regenerated by the clone's own copy of rblm_sterilize.sh. The root");
-    rbvcel_log::rbvcel_line("CLAUDE.md is transposed to the consumer template and byte-asserted.");
+    rbvcel_log::rbvcel_line("regenerated by the clone's own copy of rblm_sterilize.sh.");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("The clone receives NO station and NO secrets directory, and it is");
     rbvcel_log::rbvcel_line("SEVERED from its origin: the finished regulus holds zero remotes,");
@@ -423,43 +366,6 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path) -> PathBuf {
         crate::rbvcel_fatal!("sterilization failed in the clone (exit {})", code);
     }
 
-    // Transpose the consumer context onto the regulus's CLAUDE.md. The
-    // perambulation ships CLAUDE.md, so the materialization above wrote the
-    // MAINTAINER's copy into the working tree — veiled paths on its face.
-    // That copy is overwritten now, before the commit, so the maintainer's
-    // CLAUDE.md never enters the regulus's object graph: the committed blob
-    // is the consumer template's.
-    rbvcel_log::rbvcel_step(&format!("Transposing the consumer context onto {}", RBVCEX_REGULUS_CLAUDE_PATH));
-    let template = rbvcer_run::rbvcer_capture_bytes("git", &["show", &template_ref], top);
-    if template.code != 0 {
-        crate::rbvcel_fatal!("failed to read the consumer CLAUDE.md template:\n{}", template.stderr.trim());
-    }
-    let claude_target = clone_dir.join(RBVCEX_REGULUS_CLAUDE_PATH);
-    if let Err(e) = std::fs::write(&claude_target, &template.stdout) {
-        crate::rbvcel_fatal!("failed to transpose the consumer CLAUDE.md template: {}", e);
-    }
-
-    // Byte-assert the result equals the committed template. A transposition
-    // that silently wrote nothing, or wrote a truncated stream, would ship
-    // the wrong context under a green battery. The template is re-read from
-    // the object store and the target re-read from disk, so the assert
-    // compares what was committed against what will be.
-    let expect = rbvcer_run::rbvcer_capture_bytes("git", &["show", &template_ref], top);
-    if expect.code != 0 {
-        crate::rbvcel_fatal!("failed to re-read the consumer CLAUDE.md template for assertion:\n{}", expect.stderr.trim());
-    }
-    let written = std::fs::read(&claude_target)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to re-read {}: {}", claude_target.display(), e));
-    if expect.stdout.is_empty() {
-        crate::rbvcel_fatal!("the consumer CLAUDE.md template read back empty");
-    }
-    if written != expect.stdout {
-        crate::rbvcel_fatal!(
-            "transposition byte-mismatch: {} does not equal {}",
-            RBVCEX_REGULUS_CLAUDE_PATH, RBVCEX_CONSUMER_CLAUDE_PATH
-        );
-    }
-
     rbvcel_log::rbvcel_step("Committing the regulus");
     zrbvcex_git_capture(&clone, &["add", "--all"], top, "stage the regulus");
     zrbvcex_git_capture(&clone, &["commit", "-m", RBVCEX_REGULUS_SUBJECT], top, "commit the regulus");
@@ -585,15 +491,16 @@ fn zrbvcex_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
     }
 }
 
-/// Assert an anonymous read of the narthex 404s — the single privacy gate
-/// shared by docimasy's own narthex gate (RBSHD step 1a) and ostend's
-/// re-assertion of the ground (RBSHO step 2): a private GitHub repository
-/// 404s to an unauthenticated request, so anything else means the narthex
-/// is public or misnamed. Fatal otherwise.
-pub fn rbvcex_assert_narthex_private(top: &Path) {
+/// Assert an anonymous read of the elected world's narthex 404s — the single
+/// privacy gate shared by docimasy's own narthex gate (RBSHD step 1a) and
+/// ostend's re-assertion of the ground (RBSHO step 2): a private GitHub
+/// repository 404s to an unauthenticated request, so anything else means the
+/// narthex is public or misnamed. Fatal otherwise.
+pub fn rbvcex_assert_narthex_private(top: &Path, world: rbvcew_world::rbvcew_World) {
+    let narthex_https = rbvcew_world::rbvcew_bundle(world).narthex_https;
     let status = rbvcer_run::rbvcer_capture(
         "curl",
-        &["-s", "-o", "/dev/null", "-w", "%{http_code}", RBVCEX_NARTHEX_HTTPS],
+        &["-s", "-o", "/dev/null", "-w", "%{http_code}", narthex_https],
         top,
     );
     if status.code != 0 {
@@ -602,7 +509,7 @@ pub fn rbvcex_assert_narthex_private(top: &Path) {
     if status.stdout.trim() != RBVCEX_NARTHEX_PRIVATE_STATUS {
         crate::rbvcel_fatal!(
             "anonymous read of the narthex ({}) returned HTTP {}, not {} — the narthex is public or misnamed",
-            RBVCEX_NARTHEX_HTTPS, status.stdout.trim(), RBVCEX_NARTHEX_PRIVATE_STATUS
+            narthex_https, status.stdout.trim(), RBVCEX_NARTHEX_PRIVATE_STATUS
         );
     }
     rbvcel_log::rbvcel_line("narthex reads anonymous-404: private (or absent), never public");
@@ -619,22 +526,27 @@ pub fn rbvcex_assert_narthex_private(top: &Path) {
 /// Reuses `cut` itself as the matcher — a second, independent freshness check
 /// would be exactly the second matcher the single-matcher rule forbids. The
 /// scratch cut lands at a FIXED sibling location distinct from the standing
-/// regulus's own (RBVCEP_FRESHNESS_DIRNAME), so this can never collide with,
+/// regulus's own (the bundle's freshness_dirname), so this can never collide with,
 /// or dispose of, the regulus it is comparing against; it is disposed by
 /// the same seposition rename discipline as every other sibling artifact,
 /// win or lose.
 ///
+/// The elected world threads into the re-cut and never defaults: a practice
+/// re-cut against the real base would pass by coincidence of trees and prove
+/// nothing.
+///
 /// Fatal on drift, naming the standing remedy: the cycle returns to essai,
 /// never forward.
-pub fn rbvcex_assert_fresh(top: &Path, parent: &Path, regulus_clone: &Path) {
-    let freshness_parent = parent.join(rbvcep_repo::RBVCEP_FRESHNESS_DIRNAME);
-    rbvcep_repo::rbvcep_guard_disposable(&freshness_parent, rbvcep_repo::RBVCEP_FRESHNESS_DIRNAME, top);
+pub fn rbvcex_assert_fresh(top: &Path, parent: &Path, regulus_clone: &Path, world: rbvcew_world::rbvcew_World) {
+    let freshness_dirname = rbvcew_world::rbvcew_bundle(world).freshness_dirname;
+    let freshness_parent = parent.join(freshness_dirname);
+    rbvcep_repo::rbvcep_guard_disposable(&freshness_parent, freshness_dirname, top);
     if !rbvcep_repo::rbvcep_sepose(&freshness_parent, top) {
         rbvcel_log::rbvcel_line("no prior freshness scratch to sepose");
     }
 
     rbvcel_log::rbvcel_step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
-    let scratch_clone = rbvcex_cut(top, &freshness_parent);
+    let scratch_clone = rbvcex_cut(top, &freshness_parent, world);
 
     let standing_tree = rbvcep_repo::rbvcep_tree_hash(regulus_clone, top);
     let scratch_tree = rbvcep_repo::rbvcep_tree_hash(&scratch_clone, top);

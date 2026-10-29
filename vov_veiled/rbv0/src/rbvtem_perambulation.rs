@@ -129,7 +129,7 @@ const ZRBVTEM_SWEEP_PLANTED: &[&str] = &[
 const ZRBVTEM_SWEEP_CLEAN: &[&str] = &[
     "README.md",
     "LICENSE",
-    "Tools/rbk/rba_auth.sh",
+    "Tools/rbk/rbau_auth.sh",
     "Tools/buk/buc_command.sh",
     "tt/rbw-cC.Charge.tadmor.sh",
     "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem",
@@ -186,7 +186,7 @@ fn rbvtem_matcher_longest_wins() {
     let harbinger = rbvcem_judge("Tools/rbk/rblm_harbinger.sh");
     assert!(matches!(harbinger, Some((rbvcem_Disposition::Withhold, _))), "the harbinger must outrank the shipping kit");
 
-    let shipped_code = rbvcem_judge("Tools/rbk/rba_auth.sh");
+    let shipped_code = rbvcem_judge("Tools/rbk/rbau_auth.sh");
     assert!(matches!(shipped_code, Some((rbvcem_Disposition::Ship, _))), "the delivered kit ships");
 
     let marshal_tt = rbvcem_judge("tt/rbw-MZ.MarshalZeroes.sh");

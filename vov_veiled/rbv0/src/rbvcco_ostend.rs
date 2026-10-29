@@ -16,39 +16,39 @@
 // nothing; its acts are remote reads and the operator's own pushes. No `git
 // push` to any real remote lives in this file.
 //
-// Rehearse tolerates an absent cachet with a loud warning and stops before
-// the kerygma line — the reversible stages proven, the irreversible ones
-// never touched.
+// The ostend conducts in the world its one argument elects (RBSHC "The
+// election"): it admits only a cachet granted in that world, in both
+// directions, and in the practice world the kerygma and the promotion land on
+// the private stand-in, never on the public repository.
 
 use std::path::Path;
 use std::process::ExitCode;
 
 use crate::rbvcet_cachet;
+use crate::rbvcew_world;
 use crate::rbvcex_expede;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvgeb_breviary;
 
-/// The kerygma and promotion target is the real public repository — the
-/// same endpoint the cut clones read-only (rbvcex_expede::RBVCEX_BASE_URL).
+/// The kerygma and promotion target is the elected world's public repository
+/// — the same endpoint the cut clones read-only (the bundle's base_url).
 const RBVCCO_MAIN_REF: &str = "refs/heads/main";
 
-/// Conduct the ostend. `rehearse` proves the reversible stages (cachet
-/// tolerant, re-assert the ground, the file-list review) and stops before the
-/// kerygma line — no push shown, nothing irreversible touched. Fatal on
-/// any deficit; ExitCode::SUCCESS only when, outside rehearse, the
-/// kerygma and promotion both verified by remote read.
-pub fn rbvcco_ostend_conduct(rehearse: bool) -> ExitCode {
+/// Conduct the ostend in the elected world. Fatal on any deficit;
+/// ExitCode::SUCCESS only when the kerygma and promotion both verified by
+/// remote read.
+pub fn rbvcco_ostend_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
+    rbvcel_log::rbvcel_elect(world);
+    let bundle = rbvcew_world::rbvcew_bundle(world);
     rbvcel_log::rbvcel_section("Hierophant Ostend — the reveal's irreversible showing (RBSHO)");
-    if rehearse {
-        rbvcel_log::rbvcel_line("REHEARSAL — reversible stages only: stops before the kerygma line.");
-    }
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
     rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
 
-    let regulus_parent = parent.join(rbvcep_repo::RBVCEP_REGULUS_DIRNAME);
+    let regulus_parent = parent.join(bundle.regulus_dirname);
     let regulus_clone = regulus_parent.join(rbvcep_repo::RBVCEP_REGULUS_SUBDIR);
     if !regulus_clone.is_dir() {
         crate::rbvcel_fatal!(
@@ -59,18 +59,12 @@ pub fn rbvcco_ostend_conduct(rehearse: bool) -> ExitCode {
     let regulus_tip = rbvcep_repo::rbvcep_commit_sha(&regulus_clone, &top);
     rbvcel_log::rbvcel_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
 
-    zrbvcco_require_cachet(&regulus_parent, &regulus_clone, &top, rehearse);
-    zrbvcco_reassert_ground(&top, &parent, &regulus_clone, &regulus_tip);
+    zrbvcco_require_cachet(&regulus_parent, &regulus_clone, &top, world);
+    zrbvcco_reassert_ground(&top, &parent, &regulus_clone, &regulus_tip, world);
     zrbvcco_file_list_review(&top, &regulus_clone);
 
-    if rehearse {
-        rbvcel_log::rbvcel_blank();
-        rbvcel_log::rbvcel_success("Ostend rehearsal complete — cachet checked, ground re-asserted, file list reviewed. Stopped before the kerygma line.");
-        return ExitCode::SUCCESS;
-    }
-
-    zrbvcco_kerygma(&top, &regulus_clone, &regulus_tip);
-    zrbvcco_promotion(&top, &regulus_tip);
+    zrbvcco_kerygma(&top, &regulus_clone, &regulus_tip, bundle);
+    zrbvcco_promotion(&top, &regulus_tip, bundle);
     zrbvcco_close();
 
     rbvcel_log::rbvcel_success("Ostend complete — disclosed and promoted, every assert machine-performed, every push human-typed (RBSHO completion).");
@@ -79,25 +73,22 @@ pub fn rbvcco_ostend_conduct(rehearse: bool) -> ExitCode {
 
 // ── Step 1: require the cachet ──────────────────────────────
 
-fn zrbvcco_require_cachet(regulus_parent: &Path, regulus_clone: &Path, top: &Path, rehearse: bool) {
+fn zrbvcco_require_cachet(regulus_parent: &Path, regulus_clone: &Path, top: &Path, world: rbvcew_world::rbvcew_World) {
     rbvcel_log::rbvcel_section("Require the cachet (RBSHO step 1)");
-    if rehearse {
-        rbvcet_cachet::rbvcet_require_rehearse(regulus_parent, regulus_clone, top);
-    } else {
-        rbvcet_cachet::rbvcet_require(regulus_parent, regulus_clone, top);
-    }
+    rbvcet_cachet::rbvcet_require(regulus_parent, regulus_clone, top, world);
 }
 
 // ── Step 2: re-assert the ground ────────────────────────────
 
-fn zrbvcco_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regulus_tip: &str) {
+fn zrbvcco_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regulus_tip: &str, world: rbvcew_world::rbvcew_World) {
     rbvcel_log::rbvcel_section("Re-assert the ground (RBSHO step 2)");
 
-    rbvcex_expede::rbvcex_assert_narthex_private(top);
+    rbvcex_expede::rbvcex_assert_narthex_private(top, world);
 
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
-    let refs = rbvcep_repo::rbvcep_ls_remote(rbvcex_expede::RBVCEX_NARTHEX_URL, top);
+    let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
+    let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
     let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !preview_stands {
         crate::rbvcel_fatal!(
@@ -107,7 +98,7 @@ fn zrbvcco_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regu
     }
     rbvcel_log::rbvcel_line("preview stands: narthex tip equals the regulus tip");
 
-    rbvcex_expede::rbvcex_assert_fresh(top, parent, regulus_clone);
+    rbvcex_expede::rbvcex_assert_fresh(top, parent, regulus_clone, world);
 }
 
 // ── Step 3: file-list review — the operator's own eyes ──────
@@ -126,9 +117,9 @@ fn zrbvcco_file_list_review(top: &Path, regulus_clone: &Path) {
 
 // ── Step 4: the kerygma (irreversible) ───────────────────
 
-fn zrbvcco_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
+fn zrbvcco_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("The kerygma (RBSHO step 4) — IRREVERSIBLE");
-    let public_url = rbvcex_expede::RBVCEX_BASE_URL;
+    let public_url = bundle.base_url;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
     let branch_ref = format!("refs/heads/{}", branch);
 
@@ -164,9 +155,9 @@ fn zrbvcco_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str) {
 
 // ── Step 5: promotion (discoverability) ─────────────────────
 
-fn zrbvcco_promotion(top: &Path, regulus_tip: &str) {
+fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Promotion (RBSHO step 5)");
-    let public_url = rbvcex_expede::RBVCEX_BASE_URL;
+    let public_url = bundle.base_url;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
 
     rbvcel_log::rbvcel_line("Promotion line — from a fresh clone or fetch of the public repository,");
@@ -174,7 +165,12 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str) {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!("        git push {} {}:main", public_url, branch));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_confirm("promoted (fast-forwarded main to the walked staging branch) above?");
+    // Worded to hold in either order: the walk may precede promotion (the
+    // standing doctrine) or follow it (this release's ruled exception).
+    rbvcel_log::rbvcel_confirm(&format!(
+        "promoted (fast-forwarded main to the staging branch at the {} tip) above?",
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE
+    ));
 
     let after = rbvcep_repo::rbvcep_ls_remote(public_url, top);
     let main_sha = after.iter().find(|(_, name)| name == RBVCCO_MAIN_REF).map(|(sha, _)| sha.clone());

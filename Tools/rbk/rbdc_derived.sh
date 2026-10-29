@@ -41,7 +41,7 @@ zrbdc_kindle() {
   readonly RBDC_PAYOR_RBRO_FILE="${RBRR_SECRETS_DIR}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
 
   # Derive the sederunt cache directory — a credential store beside the payor's,
-  # session-lived where the payor's is durable; the path capture in rba makes it.
+  # session-lived where the payor's is durable; the path capture in rbau makes it.
   readonly RBDC_SEDERUNT_DIR="${RBRR_SECRETS_DIR}/${RBCC_noun_sederunt}"
 
   # Derive depot identity from (RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER).

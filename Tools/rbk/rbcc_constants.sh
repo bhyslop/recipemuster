@@ -34,7 +34,7 @@ readonly RBCC_kit_dir="${BASH_SOURCE[0]%/*}"
 # (write-on-change), rbq's gates verify them. Absolute, composed from the
 # readonly kit dir (source-time, no kindle dependency).
 readonly RBCC_rbtdgc_consts_file="${RBCC_kit_dir}/rbtd/src/rbtdgc_consts.rs"
-readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/claude-rbk-tabtarget-context.md"
+readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/rbai0/rbaie_tabtarget.md"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
 # Moorings-relative path values. Source-time literals, no kindle dependency.
@@ -112,12 +112,12 @@ readonly RBCC_account_mantle_director="rbma-director"
 readonly RBCC_account_mantle_retriever="rbma-retriever"
 
 # Mantle identity tokens — THE canonical name for "which mantle to don", carried
-# by every credential-mint surface (rba_token_capture / rba_don_capture, the
+# by every credential-mint surface (rbau_token_capture / rbau_don_capture, the
 # rbw-am folio, and the theurge patrol) as one form, never a bare-vs-sprued
 # two-form. The VALUE carries the pallium value-sprue rbpa_ so an identity token
 # is self-typing under grep and can never be mistaken for an SA-id fragment: the
 # underscore the sprue mandates is forbidden in a GCP SA id (RFC1035), so the
-# token resolves to the mantle SA only through the rba_don_capture case and the
+# token resolves to the mantle SA only through the rbau_don_capture case and the
 # raw sprued form never reaches a resource name. Distinct from the bare
 # RBCC_account_mantle_* SA-name fragments above (which compose rbma-<role>@… SA
 # emails), and from the bare role word the polity and terrier names keep.
@@ -190,7 +190,7 @@ readonly RBCC_fact_ext_foedus_health="foedus-health"
 # when the Manor holds a provider the library does not know), carrying
 # provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
 readonly RBCC_fact_ext_foedus="foedus"
-# Sederunt espy verdict — the read-only probe (rba_espy_sederunt) writes
+# Sederunt espy verdict — the read-only probe (rbau_espy_sederunt) writes
 # <foedus>.sederunt carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
 # gate arc to branch on before the may-prompt baseline avow.

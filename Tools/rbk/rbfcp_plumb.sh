@@ -51,7 +51,7 @@ zrbfcp_plumb_core() {
 
   buc_step "Authenticating as Retriever"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") \
     || buc_die_now "Failed to get Retriever OAuth token"
 
   local -r z_vouch_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH}"

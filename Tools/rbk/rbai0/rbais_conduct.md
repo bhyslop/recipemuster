@@ -2,7 +2,7 @@
 
 Token- and task-triggered conduct rules for working in the RBK codebase: "when you encounter X while editing, do — or never do — Y."
 Each is a membrane against a recurring failure mode.
-The genre is distinct from the acronym lookup table (`claude-rbk-acronyms.md`), which answers "what file is RBFLA?" — not "how do I behave when I see this."
+The genre is distinct from the acronym lookup table (`rbaip_rbk.md`), which answers "what file is RBFLA?" — not "how do I behave when I see this."
 An entry belongs here when it is behavioral, not referential.
 
 ### `RBr_` markers — never restate, never simplify
@@ -26,7 +26,7 @@ Two committed files are **regenerated from the zipper registry** (`rbz_zipper.sh
 Change the **zipper**, then build; never hand-edit these:
 
 - `Tools/rbk/rbtd/src/rbtdgc_consts.rs` — theurge colophon constants (`RBTGEC_*`).
-- `Tools/rbk/claude-rbk-tabtarget-context.md` — the tabtarget Command Reference.
+- `Tools/rbk/rbai0/rbaie_tabtarget.md` — the tabtarget Command Reference.
 
 Both carry a "Do not edit — regenerate via the build" header.
 **If they show as modified in `git status` after you edited the zipper and ran a build, that is expected** — they re-derived from your zipper change; they are *yours* to commit, not another officium's work.

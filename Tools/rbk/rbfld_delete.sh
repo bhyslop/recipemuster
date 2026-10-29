@@ -57,7 +57,7 @@ rbfld_jettison() {
 
   # Get OAuth token using Director credentials
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   buc_require "Will jettison: ${z_locator}" "yes"
 
@@ -107,7 +107,7 @@ rbfld_abjure() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") || buc_die_now "Failed to get OAuth token"
 
   # Enumerate packages under rbi_hm/<hallmark>/ via GAR REST API.
   # Each immediate child of the subtree is one ark (image, vouch, pouch,

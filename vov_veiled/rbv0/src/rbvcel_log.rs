@@ -18,10 +18,20 @@
 //
 // Everything is written to stderr; stdout is left clear for any future
 // machine-readable channel.
+//
+// Every section banner names the elected world (RBSHC "The election"). The
+// world is held here once, set at a command's entry before its first banner,
+// so the banner call sites carry no world of their own and none can forget it.
 
 use std::io::Write;
+use std::sync::OnceLock;
+
+use crate::rbvcew_world;
 
 const ZRBVCEL_FATAL_TAG: &str = "[FATAL]";
+
+/// The world every section banner names, elected once per process.
+static ZRBVCEL_WORLD: OnceLock<rbvcew_world::rbvcew_World> = OnceLock::new();
 
 /// Emit one narration line verbatim to stderr.
 fn zrbvcel_emit(msg: &str) {
@@ -29,10 +39,24 @@ fn zrbvcel_emit(msg: &str) {
     let _ = writeln!(stderr, "{}", msg);
 }
 
-/// A section header — a blank line, the title, and a rule beneath it.
+/// Elect the world the section banners name — once, at a command's entry.
+/// A second election is a fault: one process conducts in one world.
+pub fn rbvcel_elect(world: rbvcew_world::rbvcew_World) {
+    if ZRBVCEL_WORLD.set(world).is_err() {
+        crate::rbvcel_fatal!("the banner world was elected twice in one process");
+    }
+}
+
+/// A section header — a blank line, the elected world and the title, and a
+/// rule beneath it. A banner before the election is a fault, never a banner
+/// naming no world.
 pub fn rbvcel_section(title: &str) {
+    let world = ZRBVCEL_WORLD
+        .get()
+        .copied()
+        .unwrap_or_else(|| crate::rbvcel_fatal!("a section banner before the world was elected"));
     zrbvcel_emit("");
-    zrbvcel_emit(&format!("=== {} ===", title));
+    zrbvcel_emit(&format!("=== [{}] {} ===", rbvcew_world::rbvcew_banner(world), title));
 }
 
 /// A step marker — the active act, as it begins.

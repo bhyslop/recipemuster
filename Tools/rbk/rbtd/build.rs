@@ -39,8 +39,8 @@ fn main() {
         Ok(value) if !value.trim().is_empty() => value,
         _ => panic!(
             "{} is unset, so this build cannot state the position it was taken at. \
-             The theurge is built through the kennel's doors, which state it: \
-             tt/rbw-tb.Build.sh for the app, tt/rbw-tt.Test.sh for the suite",
+             The theurge's own doors state it: \
+             tt/rbw-tb.Build.sh to build, tt/rbw-tt.Test.sh to test",
             ZRBTB_SEAT_VAR, //
         ),
     };

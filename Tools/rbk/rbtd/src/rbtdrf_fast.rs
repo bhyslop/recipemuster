@@ -1229,7 +1229,7 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
 /// verb (rbw-iJ, registry delete) invoked from a reveille-tier fixture must die
 /// at the token-mint chokepoint with the credless band code: the guard env
 /// arrives via `rbtcei_tabtarget_command` because this fixture is
-/// `credless: true`, and `rba_avow` rejects before touching the IdP or
+/// `credless: true`, and `rbau_avow` rejects before touching the IdP or
 /// any credential — so the verdict is identical on credentialed and bare
 /// machines. The junk ref names a nonexistent namespace and the verb's
 /// interactive confirm sits after the mint, so even a broken guard cannot
@@ -1528,7 +1528,7 @@ fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
 // nothing under it, the don's sederunt
 // read misses before any network touch, and the tick must die with the
 // novate advisory. The furnish
-// ceremony mirrors rba_cli's zrba_furnish —
+// ceremony mirrors rbau_cli's zrbau_furnish —
 // committed regime files only; BURD_TEMP_DIR is supplied directly since no
 // dispatch runs here. (The positive — the tick firing on cadence in a real
 // short build — rides the hallmark-lifecycle ordain under the
@@ -1568,7 +1568,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          source '{rbk_p}/rbdc_derived.sh'\n\
          source '{rbk_p}/rbgo_oauth.sh'\n\
          source '{rbk_p}/rbuh_http.sh'\n\
-         source '{rbk_p}/rba_auth.sh'\n\
+         source '{rbk_p}/rbau_auth.sh'\n\
          source '{rbk_p}/rbfcb_host.sh'\n\
          zbuv_kindle\n\
          zburd_kindle\n\
@@ -1585,13 +1585,13 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          zrbdc_kindle\n\
          zrbgo_kindle\n\
          zrbuh_kindle\n\
-         zrba_kindle\n\
+         zrbau_kindle\n\
          rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
          source \"${{RBCC_rbrw_file}}\"\n\
          zrbrf_kindle\n\
          zrbrw_kindle\n\
          z_don_rc=0\n\
-         zSECRET_probe=$(rba_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
+         zSECRET_probe=$(rbau_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
          zrbfcb_redon_tick 'LapseProbe' 'poll 1' \"${{z_don_rc}}\"\n",
         moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
     );
@@ -1616,6 +1616,246 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
         }
         Err(e) => rbtcee_Verdict::Fail(format!("rt-lapse-advisory: {}", e)),
     }
+}
+
+// ── Currency-gate cases ─────────────────────────────────────
+//
+// Drives the pin-currency gate (rbob_bottle.sh `zrbob_kludge_currency_gate`)
+// against a scratch repository that models the sentry's shape: the pinned
+// vessel's directory holds only its rbrv.env, whose declared Dockerfile and
+// build context live in a shared sibling under the vessels root; a second
+// vessel is its own context; a README stands at the vessels root. The
+// baseline commit mints the pin's hallmark, then one edit per case is
+// committed and the gate called. The furnish ceremony mirrors rbob_cli's
+// zrbob_furnish — kindled for real at the repository root — and only the gate
+// call moves into the scratch repository. The compared set is the vessel's
+// rbrv.env plus the Dockerfile and context it declares, so an edit elsewhere
+// under the root leaves the pin current and an edit in the set stales it.
+
+const RBTCHF_BUZ_ZIPPER: &str = "Tools/buk/buz_zipper.sh";
+const RBTCHF_KC_NAMEPLATE: &str = "tadmor";
+const RBTCHF_KC_PIN_VESSEL: &str = "zqpin";
+const RBTCHF_KC_OTHER_VESSEL: &str = "zqoth";
+const RBTCHF_KC_SHARED_CONTEXT: &str = "common-zqshared-context";
+const RBTCHF_KC_README: &str = "README.md";
+const RBTCHF_KC_DOCKERFILE: &str = "Dockerfile";
+const RBTCHF_KC_PAYLOAD: &str = "payload.txt";
+const RBTCHF_KC_STAMP: &str = "000000000000";
+const RBTCHF_KC_SCRATCH_DIR: &str = "scratch";
+const RBTCHF_KC_EDIT_LINE: &str = "\n# edited\n";
+
+/// Marker echoed after the gate returns, so an early exit cannot read as current.
+const RBTCHF_KC_RETURNED_MARKER: &str = "zqmarker-returned-intact";
+
+/// Stale-pin fragment asserted on the gate's refusal. Mirror:
+/// rbob_bottle.sh `zrbob_kludge_currency_gate` refusal text — same literal.
+const RBTCHF_KC_STALE_FRAGMENT: &str = "rather than rebuilding";
+
+const RBTCHF_KC_PIN_RBRV: &str = concat!(
+    "RBRV_SIGIL=zqpin\n",
+    "RBRV_CONJURE_DOCKERFILE=\"${RBRR_VESSEL_DIR}/common-zqshared-context/Dockerfile\"\n",
+    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/common-zqshared-context\"\n",
+);
+const RBTCHF_KC_OTHER_RBRV: &str = concat!(
+    "RBRV_SIGIL=zqoth\n",
+    "RBRV_CONJURE_DOCKERFILE=\"${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile\"\n",
+    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/${RBRV_SIGIL}\"\n",
+);
+
+/// Run git in the scratch repository, returning trimmed stdout.
+fn zrbtchf_kc_git(scratch: &Path, args: &[&str]) -> Result<String, String> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(scratch)
+        .args(args)
+        .output()
+        .map_err(|e| format!("git {:?} failed to start: {}", args, e))?;
+    if !output.status.success() {
+        return Err(format!(
+            "git {:?} exited {:?}: {}",
+            args,
+            output.status.code(),
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+}
+
+fn zrbtchf_kc_write(vessels: &Path, rel: &str, body: &str) -> Result<(), String> {
+    let path = vessels.join(rel);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent).map_err(|e| format!("mkdir {}: {}", parent.display(), e))?;
+    }
+    std::fs::write(&path, body).map_err(|e| format!("write {}: {}", path.display(), e))
+}
+
+/// Stage the scratch repository, commit the baseline, return the baseline's
+/// short sha. The vessels root sits at the relative path the regime resolves.
+fn zrbtchf_kc_stage(scratch: &Path) -> Result<String, String> {
+    let vessels = scratch
+        .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
+        .join(crate::rbtgec_consts::RBTGEC_VESSELS_SUBDIR);
+    let shared = RBTCHF_KC_SHARED_CONTEXT;
+    zrbtchf_kc_write(&vessels, RBTCHF_KC_README, "scratch vessels readme\n")?;
+    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_PIN_VESSEL, RBTGEC_RBRV_FILE), RBTCHF_KC_PIN_RBRV)?;
+    zrbtchf_kc_write(&vessels, &format!("{}/{}", shared, RBTCHF_KC_DOCKERFILE), "FROM scratch\n")?;
+    zrbtchf_kc_write(&vessels, &format!("{}/{}", shared, RBTCHF_KC_PAYLOAD), "payload\n")?;
+    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTGEC_RBRV_FILE), RBTCHF_KC_OTHER_RBRV)?;
+    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTCHF_KC_DOCKERFILE), "FROM scratch\n")?;
+    zrbtchf_kc_git(scratch, &["init", "--quiet"])?;
+    zrbtchf_kc_git(scratch, &["config", "--local", "user.name", "currency-gate-case"])?;
+    zrbtchf_kc_git(scratch, &["config", "--local", "user.email", "currency-gate-case@example.invalid"])?;
+    zrbtchf_kc_git(scratch, &["config", "--local", "commit.gpgsign", "false"])?;
+    zrbtchf_kc_git(scratch, &["add", "--all"])?;
+    zrbtchf_kc_git(scratch, &["commit", "--quiet", "--message", "baseline"])?;
+    zrbtchf_kc_git(scratch, &["rev-parse", "--short", "HEAD"])
+}
+
+/// One case: stage, edit `edit_rel` (relative to the vessels root) in a second
+/// commit, run the gate for the pinned vessel, assert current or stale.
+fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -> rbtcee_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+    };
+    let scratch = dir.join(RBTCHF_KC_SCRATCH_DIR);
+    let sha = match zrbtchf_kc_stage(&scratch) {
+        Ok(s) => s,
+        Err(e) => return rbtcee_Verdict::Fail(format!("{}: staging: {}", label, e)),
+    };
+    let edit_path = scratch
+        .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
+        .join(crate::rbtgec_consts::RBTGEC_VESSELS_SUBDIR)
+        .join(edit_rel);
+    let appended = std::fs::read_to_string(&edit_path)
+        .map_err(|e| format!("read {}: {}", edit_path.display(), e))
+        .and_then(|body| {
+            std::fs::write(&edit_path, format!("{}{}", body, RBTCHF_KC_EDIT_LINE))
+                .map_err(|e| format!("write {}: {}", edit_path.display(), e))
+        });
+    if let Err(e) = appended {
+        return rbtcee_Verdict::Fail(format!("{}: edit: {}", label, e));
+    }
+    let committed = zrbtchf_kc_git(&scratch, &["commit", "--quiet", "--all", "--message", "edit"]);
+    if let Err(e) = committed {
+        return rbtcee_Verdict::Fail(format!("{}: edit commit: {}", label, e));
+    }
+
+    let dir_p = rbtcep_native_to_posix(dir);
+    let tt_p = rbtcep_native_to_posix(&root.join("tt"));
+    let scratch_p = rbtcep_native_to_posix(&scratch);
+    let buc_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUC_COMMAND));
+    let buym_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUYM_YELP));
+    let bubc_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUBC_CONSTANTS));
+    let buv_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
+    let burd_p = rbtcep_native_to_posix(&root.join(RBTCHF_BURD_REGIME));
+    let buz_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUZ_ZIPPER));
+    let rbk_p = rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
+
+    let script = format!(
+        "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{dir_p}'\n\
+         export BURD_TABTARGET_DIR='{tt_p}'\n\
+         source '{buc_p}'\n\
+         source '{buym_p}'\n\
+         source '{bubc_p}'\n\
+         source '{buv_p}'\n\
+         source '{burd_p}'\n\
+         source '{buz_p}'\n\
+         source '{rbk_p}/rbrn_regime.sh'\n\
+         source '{rbk_p}/rbcc_constants.sh'\n\
+         source '{rbk_p}/rbrr_regime.sh'\n\
+         source '{rbk_p}/rbrd_regime.sh'\n\
+         source '{rbk_p}/rbrf_regime.sh'\n\
+         source '{rbk_p}/rbrw_regime.sh'\n\
+         source '{rbk_p}/rbdc_derived.sh'\n\
+         source '{rbk_p}/rbgc_constants.sh'\n\
+         source '{rbk_p}/rbgl_layout.sh'\n\
+         source '{rbk_p}/rbgd_depot.sh'\n\
+         source '{rbk_p}/rbgo_oauth.sh'\n\
+         source '{rbk_p}/rbuh_http.sh'\n\
+         source '{rbk_p}/rbau_auth.sh'\n\
+         source '{rbk_p}/rbob_bottle.sh'\n\
+         source '{rbk_p}/rbz_zipper.sh'\n\
+         zbuv_kindle\n\
+         zburd_kindle\n\
+         zrbcc_kindle\n\
+         source \"${{RBCC_moorings_dir}}/${{RBCC_nameplate_sprue}}{nameplate}/${{RBCC_rbrn_file}}\"\n\
+         zrbrn_kindle\n\
+         source \"${{RBCC_rbrr_file}}\"\n\
+         source \"${{RBCC_rbrd_file}}\"\n\
+         rbcc_source_active_rbrf_flint \"${{RBRR_ACTIVE_FOEDUS:-}}\"\n\
+         source \"${{RBCC_rbrw_file}}\"\n\
+         zrbrr_kindle\n\
+         zrbrd_kindle\n\
+         zrbrf_kindle\n\
+         zrbrw_kindle\n\
+         zrbgc_kindle\n\
+         zrbdc_kindle\n\
+         zrbgl_kindle\n\
+         zrbgd_kindle\n\
+         zrbgo_kindle\n\
+         zrbuh_kindle\n\
+         zrbau_kindle\n\
+         zrbob_kindle\n\
+         zbuz_kindle\n\
+         zrbz_kindle\n\
+         cd '{scratch_p}'\n\
+         zrbob_kludge_currency_gate '{vessel}' \"${{RBGC_HALLMARK_PREFIX_KLUDGE}}{stamp}-{sha}\" \"${{RBZ_CRUCIBLE_KLUDGE_SENTRY}}\"\n\
+         echo '{marker}'\n",
+        nameplate = RBTCHF_KC_NAMEPLATE,
+        vessel = RBTCHF_KC_PIN_VESSEL,
+        stamp = RBTCHF_KC_STAMP,
+        marker = RBTCHF_KC_RETURNED_MARKER,
+    );
+
+    match rbtchf_run_bash(&root, &script, dir, label) {
+        Ok((code, stdout, stderr)) => {
+            let returned = stdout.contains(RBTCHF_KC_RETURNED_MARKER);
+            if expect_stale {
+                if code == 0 || returned {
+                    return rbtcee_Verdict::Fail(format!(
+                        "{}: expected the gate to refuse a moved pin, got exit {} (returned marker: {})",
+                        label, code, returned
+                    ));
+                }
+                if !stdout.contains(RBTCHF_KC_STALE_FRAGMENT) && !stderr.contains(RBTCHF_KC_STALE_FRAGMENT) {
+                    return rbtcee_Verdict::Fail(format!(
+                        "{}: exit {} without the stale-pin fragment '{}':\nstderr:\n{}",
+                        label, code, RBTCHF_KC_STALE_FRAGMENT, stderr
+                    ));
+                }
+                return rbtcee_Verdict::Pass;
+            }
+            if code != 0 || !returned {
+                return rbtcee_Verdict::Fail(format!(
+                    "{}: expected the pin to read current, got exit {} (returned marker: {}):\nstderr:\n{}",
+                    label, code, returned, stderr
+                ));
+            }
+            rbtcee_Verdict::Pass
+        }
+        Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+    }
+}
+
+fn rbtchf_kc_readme_leaves_current(dir: &Path) -> rbtcee_Verdict {
+    zrbtchf_kc_run(dir, "kc-readme-leaves-current", RBTCHF_KC_README, false)
+}
+
+fn rbtchf_kc_other_vessel_leaves_current(dir: &Path) -> rbtcee_Verdict {
+    let edit = format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTCHF_KC_DOCKERFILE);
+    zrbtchf_kc_run(dir, "kc-other-vessel-leaves-current", &edit, false)
+}
+
+fn rbtchf_kc_shared_context_stales(dir: &Path) -> rbtcee_Verdict {
+    let edit = format!("{}/{}", RBTCHF_KC_SHARED_CONTEXT, RBTCHF_KC_PAYLOAD);
+    zrbtchf_kc_run(dir, "kc-shared-context-stales", &edit, true)
+}
+
+fn rbtchf_kc_own_rbrv_stales(dir: &Path) -> rbtcee_Verdict {
+    let edit = format!("{}/{}", RBTCHF_KC_PIN_VESSEL, RBTGEC_RBRV_FILE);
+    zrbtchf_kc_run(dir, "kc-own-rbrv-stales", &edit, true)
 }
 
 // ── Clipboard cases ─────────────────────────────────────────
@@ -1972,6 +2212,10 @@ pub static RBTCHF_CASES_FOUNDRY_PATH: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_np_offcygwin_identity),
     rbtcee_case!(rbtchf_np_bare_absolute_unsurveyed),
     rbtcee_case!(rbtchf_rt_lapse_advisory),
+    rbtcee_case!(rbtchf_kc_readme_leaves_current),
+    rbtcee_case!(rbtchf_kc_other_vessel_leaves_current),
+    rbtcee_case!(rbtchf_kc_shared_context_stales),
+    rbtcee_case!(rbtchf_kc_own_rbrv_stales),
 ];
 
 pub static RBTCHF_FIXTURE_FOUNDRY_PATH: rbtcee_Fixture = rbtcee_Fixture {

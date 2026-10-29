@@ -119,6 +119,9 @@ zrbob_kindle() {
   z_provenance=$(pwd -P) || buc_die_now "Cannot resolve working tree root for provenance"
   readonly ZRBOB_PROVENANCE="${z_provenance}"
 
+  # Temp-file prefix for the currency gate; the gate appends its discriminator.
+  readonly ZRBOB_CURRENCY_PREFIX="${BURD_TEMP_DIR}/zrbob_currency_"
+
   # Container names (for connect and info commands)
   readonly ZRBOB_SENTRY="${ZRBOB_PROJECT}-${RBCC_container_sentry}"
   readonly ZRBOB_PENTACLE="${ZRBOB_PROJECT}-${RBCC_container_pentacle}"
@@ -322,14 +325,16 @@ zrbob_hallmark_is_kludge_predicate() {
 # through the grammar rather than by splitting on a dash, so a mark of another
 # shape refuses instead of yielding a plausible fragment.
 #
-# SCOPE IS THE WHOLE VESSELS ROOT, not the named vessel's own directory, and
-# that width is deliberate. A vessel directory typically holds only rbrv.env;
-# the build context it declares is frequently a shared sibling under the root
-# (common-sentry-context, common-ifrit-context), so a per-vessel scope would
-# be blind to the very source it exists to watch. Root scope over-reports — an
-# unrelated vessel's edit reads every pin stale — and cannot under-report,
-# which is the direction that matters when the remedy is one kludge and the
-# alternative is silently charging a stale image.
+# The compared set is exactly what the pinned vessel's image is built from: its
+# rbrv.env, the Dockerfile that file declares, and the build context it
+# declares. The vessel's own directory is in the set only where it is itself the
+# declared context. A vessel directory typically holds only rbrv.env while its
+# context is a shared sibling under the root (common-sentry-context,
+# common-ifrit-context), so the declared context is in the set whole: an edit to
+# a shared input stales every pin that declares it, and an edit to another
+# vessel's directory or to a file at the root stales none. The rbrv.env is read
+# by sourcing it in an isolation subshell; one that is absent or declares
+# neither path is compared alone, and one that fails to source dies.
 #
 # Refuses and never performs: kludge rewrites the nameplate's hallmark, and
 # charge requires a committed nameplate, so charge cannot remedy this itself.
@@ -356,13 +361,33 @@ zrbob_kludge_currency_gate() {
 
   # Resolve before diffing so an unreachable or ambiguous sha refuses in git's
   # own words rather than surfacing as a diff failure.
-  local -r z_verify_file="${BURD_TEMP_DIR}/zrbob_currency_verify_${z_vessel}.txt"
+  local -r z_verify_file="${ZRBOB_CURRENCY_PREFIX}verify_${z_vessel}.txt"
   git rev-parse --verify --quiet "${z_sha}^{commit}" > "${z_verify_file}" 2>&1 \
     || buc_die_now "Kludge hallmark for vessel ${z_vessel} names an unresolvable commit ${z_sha} — see ${z_verify_file}"
 
-  local -r z_diff_stderr="${BURD_TEMP_DIR}/zrbob_currency_diff_${z_vessel}_stderr.txt"
+  local -r z_rbrv_file="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
+  local -r z_dockerfile_file="${ZRBOB_CURRENCY_PREFIX}dockerfile_${z_vessel}.txt"
+  local -r z_context_file="${ZRBOB_CURRENCY_PREFIX}context_${z_vessel}.txt"
+  local z_dockerfile=""
+  local z_context=""
+  if test -f "${z_rbrv_file}"; then
+    (
+      source "${z_rbrv_file}" || buc_die_now "Failed to source vessel rbrv.env: ${z_rbrv_file}"
+      printf '%s' "${RBRV_CONJURE_DOCKERFILE:-}" > "${z_dockerfile_file}" \
+        || buc_die_now "Failed to write: ${z_dockerfile_file}"
+      printf '%s' "${RBRV_CONJURE_BLDCONTEXT:-}" > "${z_context_file}" \
+        || buc_die_now "Failed to write: ${z_context_file}"
+    ) || buc_die_now "Failed to read the build inputs declared by: ${z_rbrv_file}"
+    z_dockerfile=$(<"${z_dockerfile_file}") || buc_die_now "Failed to read: ${z_dockerfile_file}"
+    z_context=$(<"${z_context_file}") || buc_die_now "Failed to read: ${z_context_file}"
+  fi
+  local z_pathspec=("${z_rbrv_file}")
+  test -z "${z_dockerfile}" || z_pathspec+=("${z_dockerfile}")
+  test -z "${z_context}" || z_pathspec+=("${z_context}")
+
+  local -r z_diff_stderr="${ZRBOB_CURRENCY_PREFIX}diff_${z_vessel}_stderr.txt"
   local z_diff_status=0
-  git diff --quiet "${z_sha}" -- "${RBRR_VESSEL_DIR}" 2>"${z_diff_stderr}" || z_diff_status=$?
+  git diff --quiet "${z_sha}" -- "${z_pathspec[@]}" 2>"${z_diff_stderr}" || z_diff_status=$?
   test "${z_diff_status}" -ne 0 || return 0
   test "${z_diff_status}" -eq 1 \
     || buc_die_now "Currency diff for vessel ${z_vessel} against ${z_sha} failed (status ${z_diff_status}) — see ${z_diff_stderr}"
@@ -398,7 +423,7 @@ zrbob_summon_full_hallmark() {
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   buc_step "Auto-summoning hallmark ${z_hallmark} (image + about + vouch)"
 
@@ -443,7 +468,7 @@ zrbob_vouch_gate_and_summon() {
   local z_registry_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token for auto-summon"
 
   # Pull the image
   buc_step "Auto-summoning ${z_image_ref}"

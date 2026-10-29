@@ -475,7 +475,7 @@ zrbgp_billing_attach() {
   buc_step "Attaching billing account: ${z_billing_account}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_attach.json"
   jq -n --arg billingAccountName "billingAccounts/${z_billing_account}" \
     --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
@@ -502,7 +502,7 @@ zrbgp_billing_detach() {
   buc_step "Detaching billing account from project"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
   local -r z_billing_body="${BURD_TEMP_DIR}/rbgp_billing_detach.json"
   jq -n --arg projectId "${RBDC_DEPOT_PROJECT_ID}" \
     '{
@@ -534,7 +534,7 @@ zrbgp_lien_delete() {
   buc_step "Deleting lien: ${z_lien_name}"
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_governor}") || buc_die_now "Failed to get admin token"
   rbuh_json "DELETE" "${RBGC_API_CRM_DELETE_LIEN}/${z_lien_name}" "${zSECRET_token}" "${ZRBGP_INFIX_DELETE_LIEN}"
   rbuh_require_ok "Delete lien" "${ZRBGP_INFIX_DELETE_LIEN}" 404 "not found (already deleted)"
 
@@ -594,7 +594,7 @@ zrbgp_get_project_number_capture() {
   zrbgp_sentinel
 
   local zSECRET_token
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_governor}") || return 1
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_governor}") || return 1
 
   rbuh_json "GET" "${RBGC_API_ROOT_CRM}${RBGC_CRM_V1}${RBGC_PATH_PROJECTS}/${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" "${ZRBGP_INFIX_PROJECT_INFO}"
   rbuh_require_ok "Get project info" "${ZRBGP_INFIX_PROJECT_INFO}" || return 1
@@ -3216,7 +3216,7 @@ rbgp_depot_recognosce() {
 
 # Polity admission verbs (rbgp_brevet / rbgp_unseat / rbgp_attaint /
 # rbgp_rehearse) — the operator-facing admission surface under the rbw-p
-# launcher family. Each dons the governor mantle (rba_avow then rba_don_capture
+# launcher family. Each dons the governor mantle (rbau_avow then rbau_don_capture
 # governor); the token-agnostic *_core helpers let gird — the one
 # payor-credentialed path — drive the same composition. Muniment mutations
 # precede IAM mutations in every core (RBr_m4d).
@@ -3392,9 +3392,9 @@ rbgp_brevet() {
   # Don the governor mantle — avow runs outside the capture, so a missing or
   # short sederunt rejects this command in its own band naming novate; only the
   # mint is captured.
-  rba_avow
+  rbau_avow
   local zSECRET_token
-  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  zSECRET_token=$(rbau_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_brevet_core "${zSECRET_token}" "${z_mantle}" "${z_subject}"
@@ -3418,9 +3418,9 @@ rbgp_unseat() {
   test -n "${z_subject}" || buc_die_now "Subject required as the first argument"
   test -n "${z_mantle}"  || buc_die_now "Mantle required as the second argument (governor | director | retriever)"
 
-  rba_avow
+  rbau_avow
   local zSECRET_token
-  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  zSECRET_token=$(rbau_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_unseat_core "${zSECRET_token}" "${z_mantle}" "${z_subject}"
@@ -3441,9 +3441,9 @@ rbgp_attaint() {
 
   test -n "${z_subject}" || buc_die_now "Subject required as the first argument"
 
-  rba_avow
+  rbau_avow
   local zSECRET_token
-  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  zSECRET_token=$(rbau_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   zrbgp_attaint_core "${zSECRET_token}" "${z_subject}"
@@ -3459,9 +3459,9 @@ rbgp_rehearse() {
   buc_doc_brief "Rehearse the manor terrier — recount every muniment (who holds what), read-only"
   buc_doc_shown || return 0
 
-  rba_avow
+  rbau_avow
   local zSECRET_token
-  zSECRET_token=$(rba_don_capture "${RBCC_mantle_governor}") \
+  zSECRET_token=$(rbau_don_capture "${RBCC_mantle_governor}") \
     || buc_die_now "Failed to don the governor mantle — avow if the ${RBCC_noun_sederunt} lapsed, or brevet this identity onto the governor mantle if admission is denied"
 
   buc_step 'Rehearse the manor terrier (manor-wide muniment roll)'

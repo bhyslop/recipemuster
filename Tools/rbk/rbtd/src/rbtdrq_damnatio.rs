@@ -106,10 +106,9 @@ pub(crate) const ZRBTCHD_IDENTITY_ROOTS: &[&str] =
     &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
 
 /// The delivered tree's root context document, hunted for site-shaped identity by
-/// the identity sweep below. In the maintainer tree it is the maintainer's own
-/// context; in the candidate it is the consumer template's bytes, transposed onto
-/// it by expede between materialization and the commit and byte-asserted — never
-/// a copy this ceremony performs.
+/// the identity sweep below. It is the consumer's own context in every tree: the
+/// candidate carries the maintainer tree's committed file byte for byte, so the
+/// sweep reads the same document wherever it runs.
 pub(crate) const ZRBTCHD_ROOT_CLAUDE: &str = "CLAUDE.md";
 
 /// Repo-relative single files added to the sweep — the consumer-facing documents

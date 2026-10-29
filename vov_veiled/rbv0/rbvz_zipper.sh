@@ -27,10 +27,10 @@ zrbvz_kindle() {
   buz_group RBVZ__GROUP_CEREMONY "rbvw-" "Hierophant — delivery-ceremony conductor (veiled)"
   buz_enroll RBVZ_BUILD "rbvw-b" "rbve_cli.sh" "rbve_build" "" "Build the hierophant crate"
   buz_enroll RBVZ_TEST  "rbvw-t" "rbve_cli.sh" "rbve_test"  "" "Run the hierophant crate tests — the cut's self-proofs"
-  buz_enroll RBVZ_ESSAI "rbvw-e" "rbve_cli.sh" "rbve_essai" "" "Essai — the reversible repair lap (gate, cut, prove, temenos; zero remote acts)"
-  buz_enroll RBVZ_DOCIMASY "rbvw-d" "rbve_cli.sh" "rbve_docimasy" "param1" "Docimasy — the reveal's reversible proving act (grants the cachet; optional 'rehearse' arg)"
-  buz_enroll RBVZ_OSTEND "rbvw-o" "rbve_cli.sh" "rbve_ostend" "param1" "Ostend — the reveal's irreversible showing (optional 'rehearse' arg)"
-  buz_enroll RBVZ_HARBINGER "rbvw-h" "rbve_cli.sh" "rbve_harbinger" "" "Harbinger — the stranger walk against promoted public main (zero remote acts)"
+  buz_enroll RBVZ_ESSAI "rbvw-e" "rbve_cli.sh" "rbve_essai" "imprint" "Essai — the reversible repair lap (gate, cut, prove, temenos; zero remote acts; the world is the imprint)"
+  buz_enroll RBVZ_DOCIMASY "rbvw-d" "rbve_cli.sh" "rbve_docimasy" "imprint" "Docimasy — the reveal's reversible proving act (grants the cachet; the world is the imprint)"
+  buz_enroll RBVZ_OSTEND "rbvw-o" "rbve_cli.sh" "rbve_ostend" "imprint" "Ostend — the reveal's irreversible showing (the world is the imprint)"
+  buz_enroll RBVZ_HARBINGER "rbvw-h" "rbve_cli.sh" "rbve_harbinger" "imprint" "Harbinger — the stranger walk against promoted public main (zero remote acts; the world is the imprint)"
 
   readonly ZRBVZ_KINDLED=1
 }

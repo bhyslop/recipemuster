@@ -660,7 +660,7 @@ rbfdb_build() {
   # Authenticate as Director
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Quota preflight -- warn if insufficient capacity

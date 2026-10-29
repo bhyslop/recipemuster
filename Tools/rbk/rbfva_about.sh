@@ -56,7 +56,7 @@ rbfva_about() {
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
-  zSECRET_token=$(rba_token_capture "${RBCC_mantle_director}") \
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
     || buc_die_now "Failed to get Director OAuth token"
 
   # Gate: require image exists. Image package = rbi_hm/<H>/image, tag = <H>.
