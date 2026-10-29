@@ -3339,9 +3339,15 @@ pub const RBTGEB_VACANT_DENTIL: i32 = rbtgeb_vacant_dentil!();
 macro_rules! rbtgeb_rbte_build_pediment { () => { "rbw-tb" }; }
 pub(crate) use rbtgeb_rbte_build_pediment;
 pub const RBTGEB_RBTE_BUILD_PEDIMENT: &str = rbtgeb_rbte_build_pediment!();
+macro_rules! rbtgeb_rbte_clean_pediment { () => { "rbw-tx" }; }
+pub(crate) use rbtgeb_rbte_clean_pediment;
+pub const RBTGEB_RBTE_CLEAN_PEDIMENT: &str = rbtgeb_rbte_clean_pediment!();
 macro_rules! rbtgeb_rbte_dowse_pediment { () => { "rbw-td" }; }
 pub(crate) use rbtgeb_rbte_dowse_pediment;
 pub const RBTGEB_RBTE_DOWSE_PEDIMENT: &str = rbtgeb_rbte_dowse_pediment!();
+macro_rules! rbtgeb_rbte_lint_pediment { () => { "rbw-tm" }; }
+pub(crate) use rbtgeb_rbte_lint_pediment;
+pub const RBTGEB_RBTE_LINT_PEDIMENT: &str = rbtgeb_rbte_lint_pediment!();
 macro_rules! rbtgeb_rbte_nihil_pediment { () => { "rbw-tn" }; }
 pub(crate) use rbtgeb_rbte_nihil_pediment;
 pub const RBTGEB_RBTE_NIHIL_PEDIMENT: &str = rbtgeb_rbte_nihil_pediment!();
