@@ -24,6 +24,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # External Functions (rbldl_*)
 
@@ -143,7 +148,7 @@ rbldl_augur() {
   local z_touchmark_status=0
   z_touchmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_LODE_TOUCHMARK}") || z_touchmark_status=$?
   test "${z_touchmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No touchmark — pass one (param1) or run any Lode capture immediately before augur"
 
   # Assert a KNOWN Lode kind by decoding the touchmark's kind-letter prefix — the
   # single home for touchmark kind decode, shared with feoff/yoke/seise. Unlike those
@@ -154,7 +159,7 @@ rbldl_augur() {
   local z_kind_status=0
   z_kind=$(zrbldk_decode_touchmark_kind_capture "${z_touchmark}") || z_kind_status=$?
   test "${z_kind_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "Touchmark '${z_touchmark}' has no recognizable Lode kind prefix (expected <kind><YYMMDDHHMMSS>, e.g. b260602120000)"
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""
@@ -178,7 +183,7 @@ rbldl_augur() {
   z_tags_code=$(rbuh_code_capture "${z_tags_infix}") \
     || buc_die_now "Failed to read tags HTTP code for Lode ${z_touchmark}"
   test "${z_tags_code}" != "404" \
-    || buc_reject "${BUBC_band_vacant}" "No Lode at ${z_pkg} — touchmark names no package in the registry"
+    || buc_reject "${RBCG_VACANT_DENTIL}" "No Lode at ${z_pkg} — touchmark names no package in the registry"
   rbuh_require_ok "List tags for Lode ${z_touchmark}" "${z_tags_infix}"
 
   local -r z_resp_file="${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}"
@@ -186,7 +191,7 @@ rbldl_augur() {
   jq -r '.tags[]?.name | sub(".*/tags/"; "")' "${z_resp_file}" > "${z_tags_file}" \
     || buc_die_now "Failed to extract member tags for Lode ${z_touchmark}"
   test -s "${z_tags_file}" \
-    || buc_reject "${BUBC_band_vacant}" "No member tags found under ${z_pkg} — Lode not present in registry"
+    || buc_reject "${RBCG_VACANT_DENTIL}" "No member tags found under ${z_pkg} — Lode not present in registry"
 
   local z_tags=()
   local z_tag=""

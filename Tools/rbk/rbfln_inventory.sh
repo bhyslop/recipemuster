@@ -23,6 +23,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Inventory (rbfln_*)
 
@@ -157,7 +162,7 @@ rbfln_rekon_hallmark() {
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
 
   buc_step "Authenticating as Director"
   local zSECRET_token=""

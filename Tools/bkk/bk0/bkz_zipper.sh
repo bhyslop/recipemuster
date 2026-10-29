@@ -30,10 +30,11 @@
 # of `tt/`. So each description says what its door DOES, in a line, and the
 # roster below is complete on purpose.
 #
-# TWO ENROLLMENTS ARE NOT DOORS of the collar register: the kennelman, which
-# runs this kit's hurdles outside the kennel, and the whistle, which is the bash
-# bootstrap the envelope names interior. They stand at the foot of the list for
-# that reason.
+# THREE ENROLLMENTS ARE NOT DOORS of the collar register: the kennelman, which
+# runs this kit's hurdles outside the kennel; the whistle, which is the bash
+# bootstrap the envelope names interior; and rebed, the readiness converge,
+# whose toolchain half is bash because a gutted toolchain is exactly when no
+# kennel can be built. They stand at the foot of the list for that reason.
 
 set -euo pipefail
 
@@ -79,6 +80,13 @@ zbkz_kindle() {
   buz_enroll BKZ_GANGLINE  "bkw-g" "${z_mod}" "bkcw_gangline" "param1" "Re-derive one collar's lock: the single act in which the leash lifts the lock flag, writing the lock and leaving it dirty for whoever commits it"
   buz_enroll BKZ_SCOOP     "bkw-s" "${z_mod}" "bkcw_scoop"    "param1" "Remove every collar's target directory, on the operator's word alone - no stamp, no cadence and no record left behind"
 
+  # BLEACH, the station counterpart of scoop: what the kennel provisions on the
+  # station emptied, on the operator's word alone, and laid again by rebed. No
+  # door calls it and no road runs it. The letter is its word's own, in
+  # capital as the release door's is, for an act whose reach is the whole
+  # station rather than one tree.
+  buz_enroll BKZ_BLEACH    "bkw-B" "${z_mod}" "bkcw_bleach"   "param1" "Empties what the kennel keeps on the station for every tree, and this checkout's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
+
   # THE NINTH DOOR, contracted at the nesting lope: the derby's set narrowed by
   # selection patterns across every course at once. The letter is f, its word's
   # own, and none of the standing doors wears it.
@@ -113,6 +121,15 @@ zbkz_kindle() {
   # reaching for it deserves the forwarding address and not a silence. The letter
   # is w, its word's own.
   buz_enroll BKZ_WHISTLE   "bkw-w" "${z_mod}" "bkcw_kennel"   "param1" "The whistle: refuse an uncommitted repository, stand on the toolchain fence, and rebuild the kennel binary where the seat has outrun it - then report the kennel's own making, the position it was built at, the channel its pin asked for and the compiler that answered"
+
+  # REBED IS THE ONE DOOR THAT DOWNLOADS A TOOLCHAIN, and the one converge every
+  # refusal over an unready station or tree names: the channel's proof and the
+  # derby's preflight alike. It lays only what does not answer and performs only
+  # what the preflight names, so it is safe at any time, and the release calls it
+  # ahead of its builds. It stands in the whistle's module because its toolchain
+  # half reads the kennel's pin the same way, before any kennel can be built. The
+  # letter is r, its word's own.
+  buz_enroll BKZ_REBED     "bkw-r" "${z_mod}" "bkcw_rebed"    "param1" "Rebed, the readiness converge, safe at any time: lay every toolchain the kennel requires whose compiler does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every manifest's registry closure under its lock - one act from a cold station and a cold tree to a derby that can run"
 
   readonly ZBKZ_KINDLED=1
 }

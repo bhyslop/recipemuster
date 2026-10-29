@@ -44,8 +44,8 @@
 
 use std::path::Path;
 
-
-/// The dispatch's timestamp, whose leading field is the day.
+/// The dispatch's timestamp, whose leading field is the day, as its file names
+/// it.
 pub const BKCN_NOW_VAR: &str = "BURD_NOW_STAMP";
 
 /// The record's basename in the seat's own scratch.
@@ -55,17 +55,14 @@ pub const BKCN_DAY_FILE: &str = "bkcn_delouse.day";
 const ZBKCN_DAY_WIDTH: usize = 8;
 
 /// The day this dispatch stands in, as the substrate spelled it.
-pub fn bkcn_day() -> Result<String, String> {
-    let said = std::env::var(BKCN_NOW_VAR)
-        .ok()
-        .filter(|stamp| !stamp.trim().is_empty())
-        .ok_or_else(|| {
-            format!(
-                "the delouse has no day to keep: {} names no timestamp. A door reached outside a \
+pub fn bkcn_day(dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> Result<String, String> {
+    let said = dispatch.bkcr_said(BKCN_NOW_VAR).ok_or_else(|| {
+        format!(
+            "the delouse has no day to keep: {} names no timestamp. A door reached outside a \
                  dispatch has no seat and no clock of its own — reach it through its tabtarget",
-                BKCN_NOW_VAR
-            )
-        })?;
+            BKCN_NOW_VAR, //
+        )
+    })?;
 
     let day: String = said.trim().chars().take(ZBKCN_DAY_WIDTH).collect();
 
@@ -75,7 +72,7 @@ pub fn bkcn_day() -> Result<String, String> {
              dispatch's own reckoning and composes none of its own",
             BKCN_NOW_VAR,
             said.trim(),
-            ZBKCN_DAY_WIDTH
+            ZBKCN_DAY_WIDTH, //
         ));
     }
 
@@ -106,12 +103,19 @@ pub fn bkcn_read(seat: &Path) -> Option<String> {
 pub fn bkcn_write(seat: &Path, day: &str) -> Result<(), String> {
     let record = seat.join(BKCN_DAY_FILE);
 
-    std::fs::write(&record, format!("{}\n", day)).map_err(|err| {
+    std::fs::write(
+        &record,
+        format!(
+            "{}\n",
+            day, //
+        ),
+    )
+    .map_err(|err| {
         format!(
             "the yard was swept and the day could not be recorded at {}: {} — the next door will \
              sweep it again",
             record.display(),
-            err
+            err, //
         )
     })
 }

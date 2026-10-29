@@ -26,32 +26,19 @@ VSLW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
-source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
-zbuv_kindle
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares; the command module kindled the dispatch
+# regime.
+buv_export_sentinel "${BURD_TARGET}"
 
 # Verbose output if BURE_VERBOSE is set
 vslw_show() {
   test "${BURE_VERBOSE:-0}" != "1" || echo "VSLWSHOW: $*"
-}
-
-# Load BURC configuration
-vslw_load_burc() {
-  # BURD_REGIME_FILE is the dispatch-resolved burc.env path (exported by bul_launcher).
-  local z_burc_file="${BURD_REGIME_FILE}"
-
-  test -f "${z_burc_file}" || buc_die_now "BURC file not found: ${z_burc_file}"
-
-  vslw_show "Loading BURC from: ${z_burc_file}"
-  source "${z_burc_file}" || buc_die_now "Failed to source BURC file: ${z_burc_file}"
 }
 
 # SlickEdit destination configuration
@@ -70,9 +57,6 @@ vslw_route() {
   test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die_now "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 
   vslw_show "BUD environment verified"
-
-  # Load BURC configuration
-  vslw_load_burc
 
   # Route based on command
   case "${z_command}" in

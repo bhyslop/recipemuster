@@ -16,13 +16,14 @@ STUDYW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies (dispatch exports BURD_BUK_DIR before this body runs)
 source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Verify dispatch completed
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares; the command module kindled the dispatch
+# regime.
+buv_export_sentinel "${BURD_TARGET}"
 
 # Verbose output if BURE_VERBOSE is set
 studyw_show() {

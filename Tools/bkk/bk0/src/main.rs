@@ -28,8 +28,7 @@
 //! doors of this rollout are built in parallel billets, and an arm each of them
 //! opened beside its neighbours' is a merge conflict at every refit — so the
 //! seam is opened once, empty, and each pace fills a blank instead of authoring
-//! one. The same reasoning stands the reserved exit codes and the empty modules
-//! beside them.
+//! one. The same reasoning stands the empty modules beside them.
 //!
 //! A BLANK REFUSES AND NEVER SUCCEEDS QUIETLY. A door word reaching this binary
 //! before its pace lands meets a sentence rather than being handed to cargo,
@@ -57,202 +56,91 @@
 #![allow(private_interfaces)]
 
 // Output discipline: all emission via bkco_*! — no direct println!/eprintln!
-use bkk::{
-    bkco_answer_now, bkco_error_now, bkco_fatal_now, bkco_info_now, bkco_trace_now,
-    bkco_voice_now,
-};
 use bkk::bkco_output;
+use bkk::{
+    bkco_answer_now,
+    bkco_error_now,
+    bkco_fatal_now,
+    bkco_info_now,
+    bkco_trace_now,
+    bkco_voice_now, //
+};
 
 use bkk::bkcc_record;
-use bkk::bkce_election;
 use bkk::bkcd_preflight;
+use bkk::bkce_election;
 use bkk::bkcf_guard;
 use bkk::bkcg_gangline;
 use bkk::bkch_heel;
-use bkk::bkcq_kibble;
 use bkk::bkci_pipeline;
 use bkk::bkcl_leash;
 use bkk::bkcm_mush;
 use bkk::bkcn_delouse;
-use bkk::bkcz_muzzle;
+use bkk::bkcq_kibble;
 use bkk::bkcr_resolve;
 use bkk::bkcs_stamp;
-use bkk::bkcv_voice;
-use bkk::bkcy_sweep;
 use bkk::bkct_tattoo;
+use bkk::bkcv_voice;
 use bkk::bkcx_python;
+use bkk::bkcy_sweep;
+use bkk::bkcz_muzzle;
 use std::ffi::OsString;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
-/// The exit a door takes when the door law refuses it. A named code from the
-/// precision band rather than a bare nonzero, so a caller acting on the exit
-/// alone can tell this refusal from a tenant's own failure.
-const ZBKM_EXIT_UNCOMMITTED: i32 = 71;
-
-/// The exit a door takes when a collar carries findings. A named code from the
-/// precision band beside the refusal above, so a caller can tell a collar that
-/// does not conform from a tree that is not committed without reading prose.
-const ZBKM_EXIT_FINDINGS: i32 = 72;
-
-/// The exit a door takes when the election rules that the blessed binary may not
-/// answer for this seat. A named code beside the two above, so a caller can tell
-/// an outrun artifact — which a converge repairs — from a collar that does not
-/// conform, which an edit repairs.
-const ZBKM_EXIT_OUTRUN: i32 = 73;
-
-/// The exit a door takes when the muzzle refuses. Distinct from the three above
-/// rather than sharing one, because the gates stand in ONE spawn path — every
-/// door validates the collars it reads before acting — and a code at the
-/// boundary that could have come from either says which thing is at fault only
-/// by being read as prose.
-const ZBKM_EXIT_MUZZLE: i32 = 74;
-
-// THE PRECISION BAND PRE-ALLOCATED, one code per door still to be built. Each
-// is a named code from the range this estate reserves for a deliberate refusal
-// rather than a bare nonzero, so a caller reading an exit alone can tell a
-// door's own verdict from a tenant's failure - the discipline the four codes
-// above already keep. Declared here
-// and not by the paces that spend them, because the mint gate reads the billet
-// it is driven in: two paces in concurrent billets both gate clean on one code
-// and meet only at the enfold, which is how a door and a lint step once took 73
-// between them. A pace needing a code beyond these takes the next free one above
-// and records it where these were declared.
-//
-// THE ALLOW RIDES EACH CONSTANT rather than the crate, and a pace spending a
-// code removes its own attribute in the same edit that spends it — so the
-// spending is legible in the diff, and a genuinely dead constant anywhere else
-// still bars the build under deny(warnings).
-
-/// The exit the selection pipeline takes when a pattern set matches nothing.
-const ZBKM_EXIT_EMPTY_MATCH: i32 = 75;
-
-/// The exit gangline takes when it cannot re-derive a collar's lock.
-const ZBKM_EXIT_GANGLINE: i32 = 76;
-
-/// The exit heel takes when it cannot converge a collar's launchable.
-const ZBKM_EXIT_HEEL: i32 = 77;
-
-/// The exit derby takes when it refuses the whole walk before running anything.
-const ZBKM_EXIT_DERBY: i32 = 78;
-
-/// The exit any door takes when a program it would spawn is absent, or answers
-/// at a version the kennel does not expect.
-const ZBKM_EXIT_MISMATCH: i32 = 79;
-
-/// The exit scoop takes when a target directory resolves outside the repository
-/// the collar stands in.
-#[allow(dead_code)]
-const ZBKM_EXIT_OUTSIDE: i32 = 80;
-
-/// The exit the delouse takes when its sweep refuses.
-const ZBKM_EXIT_DELOUSE: i32 = 81;
-
-/// The exit a door takes when the repository's geography does not derive.
-const ZBKM_EXIT_GEOGRAPHY: i32 = 82;
-
-/// The exit a suite door takes when a course LANDED and counted no case at all.
+/// End the door barred: it read its subject and ruled against it on purpose.
 ///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE SKELETON'S BLOCK, and recorded in the
-/// paddock at this pace's close as that block's own sentence directs. It is a
-/// code of its own rather than a share of the red-course path because it reports
-/// the opposite condition: every other red says a case failed, and this one says
-/// no case ran, which a caller acting on the exit alone must be able to tell
-/// apart.
-const ZBKM_EXIT_HOLLOW: i32 = 83;
+/// EVERY DOOR SPEAKS THE FOUR VERDICTS EVERY DOOR SPEAKS, and the kennel declares
+/// no exit code of its own. Sound exits zero. Broke is the standard library's
+/// failure code, reached through `bkco_output::bkco_broke`. Barred and fenced are
+/// the substrate's two verdict codes, which this crate holds by grant in its
+/// generated constants and cites from there.
+///
+/// WHAT PARTED ONE REFUSAL FROM ANOTHER IS SAID, NEVER CODED. A caller acting on
+/// the exit alone acts on the verdict, and a caller that must know which gate
+/// fired reads the line the door printed, which every refusal prints before it
+/// ends. A code per refusal was a contract per refusal, kept in step with every
+/// caller that read one, and no caller read one.
+fn zbkm_barred() -> ! {
+    std::process::exit(bkk::bkg_breviary::BKG_BUSX_BARRED_PSEPHOS)
+}
 
-/// The exit a suite door takes when a course ran GREEN and its record could not
-/// be written.
+/// End the door fenced: it refused before reading any subject at all.
 ///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded in the paddock at
-/// this pace's close as that block's own sentence directs. It reddens a course
-/// whose hurdles all passed, which is deliberate: the measurement is the launch
-/// side's one durable output, and a green that silently lost it would report a
-/// tree as measured on the strength of a file nobody wrote.
-const ZBKM_EXIT_RECORD: i32 = 84;
+/// PARTED FROM BARRED because a caller reading barred acts on a verdict, and a
+/// door that never reached its subject has given none: the door law, a program
+/// the station lacks, a geography that does not derive, a weaned set that does
+/// not conform, an artifact the election rules outrun and a walk's preflight all
+/// refuse here, each ahead of the subject it stands guard over.
+fn zbkm_fenced() -> ! {
+    std::process::exit(bkk::bkg_breviary::BKG_BUSX_FENCED_PSEPHOS)
+}
 
-/// The exit *heel* takes when a KIBBLE converge refuses — the fetch failed, the
-/// seal did not answer, the build did not land, or the residence could not be
-/// written.
+/// End a door on the exit of a program it relayed, answered as a verdict.
 ///
-/// ITS OWN CODE RATHER THAN HEEL'S, and the two are different verdicts about
-/// different acts. `ZBKM_EXIT_HEEL` says a collar's own artifact did not
-/// converge, which a caller repairs by reading a compiler's diagnostics in the
-/// tree it holds; this says a program the kennel did not build could not be put
-/// in the tackroom, which a caller repairs at the declaration or at the station.
-/// A reader handed one code for both would have to guess which tree to look in.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded in the paddock at
-/// this pace's close as that block's own sentence directs.
-const ZBKM_EXIT_KIBBLE: i32 = 85;
-
-/// The exit *gangline* takes when the lock it wrote leaves OTHER locks behind
-/// what they owe.
-///
-/// ITS OWN CODE RATHER THAN THE DOOR'S, and the two say opposite things about
-/// the act just performed. `ZBKM_EXIT_GANGLINE` says the lock was NOT written —
-/// cargo refused, and there is nothing in the tree to notch. This says the lock
-/// WAS written, stands dirty, and must be banked, and that the write left a debt
-/// elsewhere. A caller handed one code for both could not tell whether the thing
-/// it asked for happened, which is the one fact the notch-gangline-notch
-/// sequence turns on.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded in the paddock at
-/// this pace's close as that block's own sentence directs.
-const ZBKM_EXIT_ARREARS: i32 = 86;
-
-/// The exit *derby* takes when the tree does not meet a precondition its own
-/// declarations state, read before any course runs.
-///
-/// ITS OWN CODE RATHER THAN THE DOOR'S, and the two say different things about
-/// the walk. `ZBKM_EXIT_FALLERS` says a course was run and went red, which is a
-/// repair in the tenant's source; this says NO COURSE WAS RUN AT ALL, which is
-/// a repair at the station or at a declaration. A caller handed one code for
-/// both would go looking for a failing test that never ran.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded in the paddock at
-/// this pace's close as that block's own sentence directs.
-const ZBKM_EXIT_PREFLIGHT: i32 = 87;
-
-/// The exit a door takes when a tracked `CLAUDE.md` carries an include naming no
-/// tracked file. ITS OWN CODE RATHER THAN THE DOOR LAW'S: an uncommitted tree
-/// is repaired by a commit, a dangling include by an edit to the line, and a
-/// caller handed one code for both would reach for the wrong act.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded here as that
-/// block's own sentence directs.
-const ZBKM_EXIT_DANGLING: i32 = 88;
-
-/// The exit *derby* and *futurity* take when the walk ran every course and one
-/// or more went red or was refused by the muzzle.
-///
-/// ITS OWN CODE RATHER THAN A COURSE'S, because the walk runs through: with
-/// several red courses there is no one course's exit to pass on, and what failed
-/// is the walk. `ZBKM_EXIT_DERBY` stays the refusal of the whole walk before any
-/// course ran, for an unsound collar; a caller handed one code for both could not
-/// tell a tree that was never tested from one that was tested and went red.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded here as that
-/// block's own sentence directs.
-const ZBKM_EXIT_FALLERS: i32 = 89;
-
-/// The exit a door takes when the weaned set does not conform: a copy drifted
-/// from its brood, a name two kits' broods both declare, or an instance holding
-/// other than one family file. ITS OWN CODE, because its repair is a copy taken
-/// from a kit and never an edit to a tenant or to the station.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded here as that
-/// block's own sentence directs.
-const ZBKM_EXIT_WEANED: i32 = 90;
-
-/// The exit a single course's door takes when its runner exited cleanly over a
-/// stream the kennel could not read to its end. ITS OWN CODE, because the
-/// child's zero would report the run green and a red tenant code would send a
-/// reader looking for a failing case: what failed is the hearing, and its
-/// repair is at the station.
-///
-/// TAKEN FROM THE NEXT FREE CODE ABOVE THE BLOCK, and recorded here as that
-/// block's own sentence directs.
-const ZBKM_EXIT_CUT: i32 = 91;
+/// A RELAYED CODE IS CLASSIFIED, NEVER HANDED ON. Zero is sound, and a program
+/// exiting barred or fenced is relayed as this door's own barred or fenced, so a
+/// verdict the program spoke crosses the door unchanged. Any other code names no
+/// verdict — a usage refusal, a panic, a tool's own failure numbering — and ends
+/// the door broke, the line above saying what the program exited: handed on raw,
+/// a code of 100 or above would read as a gate the band never minted.
+fn zbkm_relayed(code: i32, ran: &str) -> ! {
+    match code {
+        0 => std::process::exit(0),
+        bkk::bkg_breviary::BKG_BUSX_BARRED_PSEPHOS => zbkm_barred(),
+        bkk::bkg_breviary::BKG_BUSX_FENCED_PSEPHOS => zbkm_fenced(),
+        other => {
+            bkco_error_now!(
+                "{} exited {}, which names no verdict, so this door ends broke",
+                ran,
+                other, //
+            );
+            bkco_output::bkco_broke()
+        }
+    }
+}
 
 /// The doors of the collar register, each wearing its word at three seats — the
 /// tabtarget's frontispiece, this subcommand, and the spoken word in the
@@ -279,6 +167,16 @@ const ZBKM_DOOR_MUZZLE: &str = bkco_output::BKCO_VERB_MUZZLE;
 const ZBKM_DOOR_GANGLINE: &str = bkco_output::BKCO_VERB_GANGLINE;
 const ZBKM_DOOR_SCOOP: &str = bkco_output::BKCO_VERB_SCOOP;
 const ZBKM_DOOR_DELOUSE: &str = bkco_output::BKCO_VERB_DELOUSE;
+const ZBKM_DOOR_BLEACH: &str = bkco_output::BKCO_VERB_BLEACH;
+
+/// Rebed's binary half: every heel and strike the derby's preflight names, and
+/// every manifest's registry closure, performed.
+///
+/// A WORD OF THE BINARY AND NO DOOR OF THE REGISTER. Its tabtarget reaches the
+/// whistle's bash first, which lays the toolchains and converges the kennel and
+/// then execs this word, so it takes an arm here for the reason every door does
+/// — a word falling through to the leash register would reach cargo as a verb.
+const ZBKM_REBED: &str = bkco_output::BKCO_VERB_REBED;
 
 /// What fills each blank door, said as the work rather than as the pace that
 /// carries it. A reader who typed a door needs to know what the door will DO
@@ -317,51 +215,161 @@ const ZBKM_CONVERGE: &str = ZBKM_DOOR_HEEL;
 /// bare self-report has already returned. Suites, the muzzle, lineup, gangline,
 /// scoop and the leash register never call it.
 ///
-/// A GEOGRAPHY THAT DOES NOT DERIVE IS FATAL AT ITS OWN EXIT, never a fallback
-/// to self: a fallback would turn a worktree whose main worktree is gone into a
-/// quiet own build, and the borrow candidate would simply never be consulted.
+/// A GEOGRAPHY THAT DOES NOT DERIVE FENCES THE DOOR, never a fallback to self:
+/// a fallback would turn a worktree whose main worktree is gone into a quiet own
+/// build, and the borrow candidate would simply never be consulted.
 fn zbkm_geography(repository: &Path) -> bkce_election::bkce_Geography {
     match bkce_election::bkce_geography(repository) {
         Ok(geography) => geography,
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_GEOGRAPHY);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            zbkm_fenced();
         }
     }
 }
 
-/// The weaned set this dispatch names, proven whole before any door reads it.
+/// The families the substrate speaks across an exec, each a prefix every name
+/// of one wears.
+const ZBKM_KIT_FAMILIES: &[&str] = &[
+    "BUC_",
+    "BURC_",
+    "BURD_",
+    "BURE_",
+    "BURS_",
+    "BURV_",
+    "BURX_",
+    "BUZ_", //
+];
+
+/// The environment regime's family, which every process holds as the operator's
+/// ambient.
+const ZBKM_AMBIENT_FAMILY: &str = "BURE_";
+
+/// The two hand-offs a door holds beside the environment regime: the pointer,
+/// and the kit directory.
+const ZBKM_HANDOFFS: &[&str] = &[
+    bkcr_resolve::BKCR_DISPATCH_FILE_VAR,
+    "BURD_BUK_DIR", //
+];
+
+/// The environment regime's test-seam pair, which no door of the kennel honors.
+const ZBKM_SEAM: &[&str] = &[
+    "BURE_TWEAK_NAME",
+    "BURE_TWEAK_VALUE", //
+];
+
+/// The kennel's start: no name of the substrate stands in its environment save
+/// the environment regime and the two hand-offs, and no test seam is set.
+///
+/// THE EXPORTED-NAME RULE OF THE SUBSTRATE'S SCOPE SENTINEL, applied where the
+/// kennel stands: it is the one program of the estate that stands where a door
+/// stands, so it reads its environment as a door's entry does. A dispatch value
+/// arriving here crossed by inheritance rather than through the file the pointer
+/// names, and a seam set here would ride silently into a door that reads none.
+///
+/// FENCED, AHEAD OF ANY SUBJECT: after the bare self-report, which needs no
+/// environment and whose probe must not counterfeit staleness, and before the
+/// dispatch is read.
+fn zbkm_inherited() {
+    let mut held: Vec<(String, bool)> = std::env::vars_os()
+        .map(|(name, value)| (name.to_string_lossy().into_owned(), !value.is_empty()))
+        .collect();
+    held.sort();
+
+    for (name, set) in &held {
+        if !ZBKM_KIT_FAMILIES
+            .iter()
+            .any(|family| name.starts_with(family))
+        {
+            continue;
+        }
+        if *set && ZBKM_SEAM.contains(&name.as_str()) {
+            bkco_error_now!(
+                "{} is set at the kennel's start, and no door of the kennel honors a test seam: unset it",
+                name, //
+            );
+            zbkm_fenced();
+        }
+        if name.starts_with(ZBKM_AMBIENT_FAMILY) || ZBKM_HANDOFFS.contains(&name.as_str()) {
+            continue;
+        }
+        bkco_error_now!(
+            "{} stands in the kennel's environment at its start, and no value of the substrate crosses an exec by inheritance save the environment regime, {} and {} (the exported-name rule)",
+            name,
+            ZBKM_HANDOFFS[0],
+            ZBKM_HANDOFFS[1], //
+        );
+        zbkm_fenced();
+    }
+}
+
+/// The dispatch this door runs under, its weaned set proven whole before any
+/// door reads it.
 ///
 /// TAKEN AT THE DOOR FACE AND THREADED FROM HERE, the geography's own shape: the
-/// environment is read once at this edge and every reading below takes the set
-/// as a value (`bkcr_weaned_dispatched`).
+/// file the pointer names is read once at this edge and every reading below
+/// takes its values as a value (`bkcr_dispatched`). A pointer absent, or naming
+/// no readable file, is a broken launch contract and ends the door broke.
 ///
-/// A SET THAT DOES NOT CONFORM IS FATAL AT ITS OWN EXIT before any door arm is
+/// A SET THAT DOES NOT CONFORM FENCES THE DOOR before any door arm is
 /// reached — a copy drifted from its brood, a name two kits' broods both
 /// declare, or an instance carrying other than one family file. Fail-fast by
 /// ruling, never a report: the first nonconformance refuses.
 ///
 /// AFTER THE BARE SELF-REPORT, which returns before any door arm and must: a
-/// position probe is not a door, and a set refusal standing ahead of it would
-/// counterfeit staleness at the whistle.
-fn zbkm_weaned(repository: &Path) -> PathBuf {
-    let weaned = match bkcr_resolve::bkcr_weaned_dispatched() {
-        Ok(weaned) => weaned,
-        Err(err) => bkco_fatal_now!("{}", err),
+/// position probe is not a door, and a dispatch or set refusal standing ahead of
+/// it would counterfeit staleness at the whistle.
+fn zbkm_dispatched(repository: &Path) -> bkcr_resolve::bkcr_Dispatch {
+    let dispatch = match bkcr_resolve::bkcr_dispatched() {
+        Ok(dispatch) => dispatch,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    if let Err(err) = bkcr_resolve::bkcr_weaned_audit(repository, &weaned) {
-        bkco_error_now!("{}", err);
-        std::process::exit(ZBKM_EXIT_WEANED);
+    if let Err(err) = bkcr_resolve::bkcr_weaned_audit(repository, dispatch.bkcr_weaned()) {
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
+        zbkm_fenced();
     }
 
-    weaned
+    dispatch
 }
 
-fn main() {
+/// The process's own entry: the door face, run so that broke can reach it.
+///
+/// BROKE ARRIVES HERE AS AN UNWIND and leaves as the standard library's failure
+/// code, the one road the pinned channel offers a door that meets broke at any
+/// depth (`bkco_output::bkco_Broke`). Every other end of a door exits where the
+/// door decides it, sound at zero and barred or fenced at the codes the generated
+/// constants carry, so this match sees a door's return only from the bare
+/// self-report.
+///
+/// A GENUINE PANIC IS NOT BROKE and is not answered as one. Its payload is
+/// handed back to the unwind it came from, which ends the process as a panic
+/// does, its hook having already said where.
+fn main() -> std::process::ExitCode {
+    match std::panic::catch_unwind(zbkm_main) {
+        Ok(()) => std::process::ExitCode::SUCCESS,
+        Err(payload) if payload.is::<bkco_output::bkco_Broke>() => std::process::ExitCode::FAILURE,
+        Err(payload) => std::panic::resume_unwind(payload),
+    }
+}
+
+/// The door face: the door law, then the door the first argument names.
+fn zbkm_main() {
     let repository = match std::env::current_dir() {
         Ok(dir) => dir,
-        Err(err) => bkco_fatal_now!("could not read the working directory: {}", err),
+        Err(err) => bkco_fatal_now!(
+            "could not read the working directory: {}",
+            err, //
+        ),
     };
 
     zbkm_door_law(&repository);
@@ -371,7 +379,10 @@ fn main() {
     if arguments.is_empty() {
         let position = bkcs_stamp::bkcs_position();
         for line in position.bkcs_render().lines() {
-            bkco_info_now!("{}", line);
+            bkco_info_now!(
+                "{}",
+                line, //
+            );
         }
         return;
     }
@@ -383,20 +394,24 @@ fn main() {
     let door = arguments[0].to_string_lossy().into_owned();
     let rest = &arguments[1..];
 
-    let weaned = zbkm_weaned(&repository);
+    zbkm_inherited();
+
+    let dispatch = zbkm_dispatched(&repository);
 
     match door.as_str() {
-        ZBKM_DOOR_MUSH => zbkm_mush(&repository, &weaned, rest),
-        ZBKM_DOOR_TATTOO => zbkm_tattoo(&repository, &weaned, rest),
-        ZBKM_DOOR_MUZZLE => zbkm_muzzle(&repository, &weaned, rest),
-        ZBKM_DOOR_DERBY => zbkm_derby(&repository, &weaned, rest),
-        ZBKM_DOOR_FUTURITY => zbkm_futurity(&repository, &weaned, rest),
-        ZBKM_DOOR_LINEUP => zbkm_lineup(&repository, &weaned, rest),
-        ZBKM_DOOR_HEEL => zbkm_heel(&repository, &weaned, rest),
-        ZBKM_DOOR_GANGLINE => zbkm_gangline(&repository, &weaned, rest),
-        ZBKM_DOOR_SCOOP => zbkm_scoop(&repository, &weaned, rest),
-        ZBKM_DOOR_DELOUSE => zbkm_delouse(&repository, &weaned, rest),
-        _ => zbkm_register(&repository, &weaned, &arguments),
+        ZBKM_DOOR_MUSH => zbkm_mush(&repository, &dispatch, rest),
+        ZBKM_DOOR_TATTOO => zbkm_tattoo(&repository, &dispatch, rest),
+        ZBKM_DOOR_MUZZLE => zbkm_muzzle(&repository, &dispatch, rest),
+        ZBKM_DOOR_DERBY => zbkm_derby(&repository, &dispatch, rest),
+        ZBKM_DOOR_FUTURITY => zbkm_futurity(&repository, &dispatch, rest),
+        ZBKM_DOOR_LINEUP => zbkm_lineup(&repository, &dispatch, rest),
+        ZBKM_DOOR_HEEL => zbkm_heel(&repository, &dispatch, rest),
+        ZBKM_DOOR_GANGLINE => zbkm_gangline(&repository, &dispatch, rest),
+        ZBKM_DOOR_SCOOP => zbkm_scoop(&repository, &dispatch, rest),
+        ZBKM_DOOR_DELOUSE => zbkm_delouse(&repository, &dispatch, rest),
+        ZBKM_DOOR_BLEACH => zbkm_bleach(&dispatch, rest),
+        ZBKM_REBED => zbkm_rebed(&repository, &dispatch, rest),
+        _ => zbkm_register(&repository, &dispatch, &arguments),
     }
 }
 
@@ -426,13 +441,17 @@ fn main() {
 /// not an accident: the gather refuses a register that does not conform, and a
 /// refusal arriving AFTER the lift would leave a lock written into a tree the
 /// door had then declined to finish reading.
-fn zbkm_gangline(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_gangline(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    rest: &[OsString],
+) -> ! {
     if rest.len() != 1 {
         bkco_fatal_now!(
             "'{}' takes exactly one collar as its imprint and was given {} — re-deriving a lock is \
              a deliberate act over one manifest, and this door does not sweep",
             ZBKM_DOOR_GANGLINE,
-            rest.len()
+            rest.len(), //
         );
     }
 
@@ -443,40 +462,46 @@ fn zbkm_gangline(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // and never by a flag, because a caller typing a name knows what it names
     // and a door that made them say twice would be asking them to restate the
     // tree.
-    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, weaned, &name) {
-        zbkm_gangline_python(repository, weaned, resolved);
+    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, dispatch, &name) {
+        zbkm_gangline_python(repository, dispatch, resolved);
     }
 
     // THE REFUSAL ACCOUNTS FOR BOTH COLLAR FAMILIES, on heel's ground: the rust
     // walk names the rust collars and is correct about what it says, but it
     // cannot say the name may have been a python collar's, that family's walk
     // not being its to take.
-    let resolved = match bkcr_resolve::bkcr_resolve(repository, weaned, &name) {
+    let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, &name) {
         Ok(resolved) => resolved,
         Err(err) => {
-            let python = bkcx_python::bkcx_roster(repository, weaned);
+            let python = bkcx_python::bkcx_roster(repository, dispatch);
             if python.is_empty() {
-                bkco_fatal_now!("{}", err);
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                );
             }
             bkco_fatal_now!(
                 "{}\n  and no python collar wears it either — that family carries: {}",
                 err,
-                python
+                python, //
             );
         }
     };
 
-    let roster = zbkm_collars(repository, weaned, ZBKM_EXIT_FINDINGS, "re-derived");
+    let roster = zbkm_collars(repository, dispatch, "re-derived");
 
     bkco_info_now!(
         "re-deriving the lock of {} — the one act in which the leash lifts the lock flag",
-        resolved.collar.name
+        resolved.collar.name, //
     );
 
-    match bkcg_gangline::bkcg_gangline(repository, weaned, &resolved.collar) {
+    match bkcg_gangline::bkcg_gangline(repository, dispatch, &resolved.collar) {
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_GANGLINE);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
         Ok(bkcg_gangline::bkcg_Verdict::Unmoved) => {
             bkco_answer_now!(
@@ -492,7 +517,7 @@ fn zbkm_gangline(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         }
     }
 
-    zbkm_arrears(repository, weaned, &resolved.collar, &roster);
+    zbkm_arrears(repository, dispatch, &resolved.collar, &roster);
 }
 
 /// Re-derive one python collar's lock: the other half of *gangline*.
@@ -506,7 +531,11 @@ fn zbkm_gangline(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// a python project stands in no cargo closure at all: probing rust manifests on
 /// a python collar's account would be answering a question nobody asked, and
 /// going quiet would let a reader take the rust arm's silence for this one's.
-fn zbkm_gangline_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkcx_Resolved) -> ! {
+fn zbkm_gangline_python(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    resolved: bkcx_python::bkcx_Resolved,
+) -> ! {
     let name = resolved.collar.name.clone();
 
     // AN ABSENT LOCK IS THE ONE FINDING THIS DOOR READS PAST, its act being the
@@ -522,9 +551,12 @@ fn zbkm_gangline_python(repository: &Path, weaned: &Path, resolved: bkcx_python:
             barring.len(), //
         );
         for finding in barring {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     if resolved.lockless {
@@ -534,21 +566,27 @@ fn zbkm_gangline_python(repository: &Path, weaned: &Path, resolved: bkcx_python:
         );
     }
 
-    let seat = match bkcx_python::bkcx_seat(&resolved.collar) {
+    let seat = match bkcx_python::bkcx_seat(dispatch, &resolved.collar) {
         Ok(seat) => seat,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     bkco_info_now!(
         "re-deriving the lock of the python collar {} — the one act in which the leash lifts the \
          lock flag",
-        name
+        name, //
     );
 
-    match bkcg_gangline::bkcg_python(repository, weaned, &resolved.collar, &seat) {
+    match bkcg_gangline::bkcg_python(repository, dispatch, &resolved.collar, &seat) {
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_GANGLINE);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
         Ok(bkcg_gangline::bkcg_Verdict::Unmoved) => {
             bkco_answer_now!(
@@ -581,13 +619,17 @@ fn zbkm_gangline_python(repository: &Path, weaned: &Path, resolved: bkcx_python:
 /// gated on `Moved` would go quiet in the one case worth reporting.
 fn zbkm_arrears(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     written: &bkcr_resolve::bkcr_Collar,
     roster: &[bkcr_resolve::bkcr_Collar],
 ) -> ! {
-    let (probed, arrears) = match bkcg_gangline::bkcg_arrears(repository, weaned, written, roster) {
+    let (probed, arrears) = match bkcg_gangline::bkcg_arrears(repository, dispatch, written, roster)
+    {
         Ok(reading) => reading,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     // THE COUNT RIDES BOTH VERDICTS, and on the green one it is the load-bearing
@@ -598,7 +640,7 @@ fn zbkm_arrears(
         bkco_answer_now!(
             "{} downstream lock(s) probed, none behind — every collar whose closure reaches this \
              manifest still answers under the lock flag",
-            probed
+            probed, //
         );
         std::process::exit(0);
     }
@@ -607,7 +649,7 @@ fn zbkm_arrears(
         "{} of {} downstream lock(s) stand behind what they owe — this door names them and writes \
          none:",
         arrears.len(),
-        probed
+        probed, //
     );
 
     // ONE DRIVE IS SPELLED AND THE REST ARE NAMED, because the door takes one
@@ -624,21 +666,24 @@ fn zbkm_arrears(
                     "  {} no longer answers its manifest — drive: {} {}",
                     arrear.manifest,
                     ZBKM_DOOR_GANGLINE,
-                    drive
+                    drive, //
                 );
 
                 if !over.is_empty() {
                     bkco_error_now!(
                         "    (the same manifest is also declared by: {})",
-                        over.join(", ")
+                        over.join(", "), //
                     );
                 }
             }
-            None => bkco_error_now!("  {} no longer answers its manifest", arrear.manifest),
+            None => bkco_error_now!(
+                "  {} no longer answers its manifest",
+                arrear.manifest, //
+            ),
         }
     }
 
-    std::process::exit(ZBKM_EXIT_ARREARS);
+    zbkm_barred();
 }
 
 /// The door law, applied. Every door refuses an uncommitted repository, this one
@@ -660,18 +705,27 @@ fn zbkm_door_law(repository: &PathBuf) {
     // otherwise look like. The verdict is cached for the process, so the four
     // further git spawns a door may make cost nothing.
     if let Err(err) = bkcl_leash::bkcl_git_held() {
-        bkco_error_now!("{}", err);
-        std::process::exit(ZBKM_EXIT_MISMATCH);
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
+        zbkm_fenced();
     }
 
     let standing = match bkcf_guard::bkcf_standing(repository) {
         Ok(standing) => standing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if !standing.bkcf_clean() {
-        bkco_error_now!("{}", standing.bkcf_grievance(repository));
-        std::process::exit(ZBKM_EXIT_UNCOMMITTED);
+        bkco_error_now!(
+            "{}",
+            standing.bkcf_grievance(repository), //
+        );
+        zbkm_fenced();
     }
 
     // THE LYAM IS JUDGED WHERE CLEANLINESS IS, and after it: the listing it reads
@@ -680,12 +734,18 @@ fn zbkm_door_law(repository: &PathBuf) {
     // would launch.
     let lyam = match bkcf_guard::bkcf_lyam(repository) {
         Ok(lyam) => lyam,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if !lyam.bkcf_clean() {
-        bkco_error_now!("{}", lyam.bkcf_grievance(repository));
-        std::process::exit(ZBKM_EXIT_DANGLING);
+        bkco_error_now!(
+            "{}",
+            lyam.bkcf_grievance(repository), //
+        );
+        zbkm_fenced();
     }
 
     for include in &lyam.skipped {
@@ -693,7 +753,7 @@ fn zbkm_door_law(repository: &PathBuf) {
             "include skipped, outside the repository: {}:{}: @{}",
             include.file,
             include.line,
-            include.path
+            include.path, //
         );
     }
 }
@@ -708,14 +768,14 @@ fn zbkm_door_law(repository: &PathBuf) {
 ///
 /// It changes nothing on disk, which is what makes it the resolver's read-only
 /// face.
-fn zbkm_tattoo(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_tattoo(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if rest.len() != 1 {
         bkco_fatal_now!(
             "'{}' takes exactly one collar as its imprint and was given {} — the frozen shape is \
              the verb, the collar, and then what the collar's kind owns, and this door's kind owns \
              nothing",
             ZBKM_DOOR_TATTOO,
-            rest.len()
+            rest.len(), //
         );
     }
 
@@ -724,19 +784,22 @@ fn zbkm_tattoo(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // A PYTHON COLLAR IS PROCLAIMED BY THIS DOOR TOO, its arm standing first on
     // heel's and gangline's precedent: the family is decided by where the name
     // stands and never by a flag.
-    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, weaned, &name) {
-        zbkm_tattoo_python(repository, weaned, resolved);
+    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, dispatch, &name) {
+        zbkm_tattoo_python(repository, dispatch, resolved);
     }
 
     // THE REFUSAL ACCOUNTS FOR BOTH COLLAR FAMILIES, on gangline's ground: the
     // rust walk is correct about what it names, and cannot say the name may have
     // been a python collar's.
-    let resolved = match bkcr_resolve::bkcr_resolve(repository, weaned, &name) {
+    let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, &name) {
         Ok(resolved) => resolved,
         Err(err) => {
-            let python = bkcx_python::bkcx_roster(repository, weaned);
+            let python = bkcx_python::bkcx_roster(repository, dispatch);
             if python.is_empty() {
-                bkco_fatal_now!("{}", err);
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                );
             }
             bkco_fatal_now!(
                 "{}\n  and no python collar wears it either — that family carries: {}",
@@ -757,18 +820,24 @@ fn zbkm_tattoo(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 
     let elected = match bkce_election::bkce_elected(repository, &geography, &resolved.collar) {
         Ok(elected) => elected,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     for line in bkct_tattoo::bkct_proclamation(&resolved.collar, elected, &geography).lines() {
-        bkco_answer_now!("{}", line);
+        bkco_answer_now!(
+            "{}",
+            line, //
+        );
     }
 
     if resolved.findings.is_empty() {
         bkco_info_now!(
             "the collar '{}' at {} conforms: 0 finding(s) stand against it",
             name,
-            resolved.collar.instance.display()
+            resolved.collar.instance.display(), //
         );
         std::process::exit(0);
     }
@@ -778,14 +847,17 @@ fn zbkm_tattoo(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
          refuses:",
         name,
         resolved.collar.instance.display(),
-        resolved.findings.len()
+        resolved.findings.len(), //
     );
 
     for finding in &resolved.findings {
-        bkco_error_now!("  {}", finding);
+        bkco_error_now!(
+            "  {}",
+            finding, //
+        );
     }
 
-    std::process::exit(ZBKM_EXIT_FINDINGS);
+    zbkm_barred();
 }
 
 /// Proclaim one python collar: the other half of *tattoo*.
@@ -795,7 +867,11 @@ fn zbkm_tattoo(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// converge sited under this checkout's own loosebox, so nothing is borrowed and
 /// no standing artifact exists for a vintage question to be asked about — the
 /// fact a rust suite's election already states (`bkce_election::bkce_elected`).
-fn zbkm_tattoo_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkcx_Resolved) -> ! {
+fn zbkm_tattoo_python(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    resolved: bkcx_python::bkcx_Resolved,
+) -> ! {
     let geography = zbkm_geography(repository);
 
     let proclaimed = bkct_tattoo::bkct_proclamation_python(
@@ -805,11 +881,14 @@ fn zbkm_tattoo_python(repository: &Path, weaned: &Path, resolved: bkcx_python::b
     );
 
     for line in proclaimed.lines() {
-        bkco_answer_now!("{}", line);
+        bkco_answer_now!(
+            "{}",
+            line, //
+        );
     }
 
     if resolved.findings.is_empty() {
-        zbkm_tattoo_unhitched(repository, weaned, &resolved.collar);
+        zbkm_tattoo_unhitched(repository, dispatch, &resolved.collar);
 
         bkco_info_now!(
             "the python collar '{}' at {} conforms: 0 finding(s) stand against it",
@@ -828,10 +907,13 @@ fn zbkm_tattoo_python(repository: &Path, weaned: &Path, resolved: bkcx_python::b
     );
 
     for finding in &resolved.findings {
-        bkco_error_now!("  {}", finding);
+        bkco_error_now!(
+            "  {}",
+            finding, //
+        );
     }
 
-    std::process::exit(ZBKM_EXIT_FINDINGS);
+    zbkm_barred();
 }
 
 /// Say whether a conforming python collar is unhitched on this station.
@@ -841,21 +923,25 @@ fn zbkm_tattoo_python(repository: &Path, weaned: &Path, resolved: bkcx_python::b
 /// verdict, which a reader would otherwise take to mean the collar runs here.
 /// A reading that could not be taken — uv unplaced, say — is said as such and
 /// moves nothing either, the door's question being the collar's conformance.
-fn zbkm_tattoo_unhitched(repository: &Path, weaned: &Path, collar: &bkcx_python::bkcx_Collar) {
-    let read = bkcx_python::bkcx_seat(collar)
-        .and_then(|seat| bkcx_python::bkcx_unhitched_at(repository, weaned, collar, &seat));
+fn zbkm_tattoo_unhitched(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcx_python::bkcx_Collar,
+) {
+    let read = bkcx_python::bkcx_seat(dispatch, collar)
+        .and_then(|seat| bkcx_python::bkcx_unhitched_at(repository, dispatch, collar, &seat));
 
     match read {
         Ok(Some(unhitched)) => bkco_info_now!(
             "{}; its courses launch nothing here, and the declaration is no finding",
-            unhitched.bkcx_said(collar)
+            unhitched.bkcx_said(collar), //
         ),
         Ok(None) => {}
         Err(err) => bkco_info_now!(
             "whether the project of the python collar '{}' declares this station out could not \
              be read: {}",
             collar.name,
-            err
+            err, //
         ),
     }
 }
@@ -885,9 +971,12 @@ const ZBKM_MUSH_HELP: &str = "mush <collar> [what the collar's kind owns]\n  \
 /// broken collar most needs to see what it declares; this door has no such
 /// answer to withhold, and launching something a finding stands against is the
 /// act the rule exists to stop.
-fn zbkm_mush(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_mush(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if rest.is_empty() {
-        bkco_fatal_now!("{}", ZBKM_MUSH_HELP);
+        bkco_fatal_now!(
+            "{}",
+            ZBKM_MUSH_HELP, //
+        );
     }
 
     let name = rest[0].to_string_lossy().into_owned();
@@ -906,17 +995,17 @@ fn zbkm_mush(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // face entirely. A branch further down would be one function describing two
     // disciplines, which is the shape the leash's own uv composition already
     // refused.
-    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, weaned, &name) {
-        zbkm_mush_python(repository, weaned, resolved, &name, carried);
+    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, dispatch, &name) {
+        zbkm_mush_python(repository, dispatch, resolved, &name, carried);
     }
 
-    let resolved = zbkm_sound_collar(repository, weaned, &name);
+    let resolved = zbkm_sound_collar(repository, dispatch, &name);
 
     if resolved.collar.bkcr_app() {
-        zbkm_mush_app(repository, &resolved.collar, &name, carried);
+        zbkm_mush_app(repository, dispatch, &resolved.collar, &name, carried);
     }
 
-    zbkm_mush_suite(repository, weaned, &resolved.collar, &name, carried);
+    zbkm_mush_suite(repository, dispatch, &resolved.collar, &name, carried);
 }
 
 /// Launch what one PYTHON collar names: the third arm of *mush*.
@@ -929,7 +1018,7 @@ fn zbkm_mush(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// judged unfit.
 fn zbkm_mush_python(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     resolved: bkcx_python::bkcx_Resolved,
     name: &str,
     carried: &[OsString],
@@ -940,19 +1029,25 @@ fn zbkm_mush_python(
              that does not conform:",
             name,
             resolved.collar.instance.display(),
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     let collar = resolved.collar;
 
-    let seat = match bkcx_python::bkcx_seat(&collar) {
+    let seat = match bkcx_python::bkcx_seat(dispatch, &collar) {
         Ok(seat) => seat,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     // THE VERIFY IS THE FIRST STEP AND IT REFUSES RATHER THAN CONVERGING, which
@@ -960,31 +1055,36 @@ fn zbkm_mush_python(
     // asks whether the environment still answers its declarations and names the
     // converge where it does not. Its refusals already name that door, so nothing
     // here restates it.
-    if let Err(err) = bkcx_python::bkcx_verify_at(repository, weaned, &collar, &seat) {
-        bkco_error_now!("{}", err);
-        std::process::exit(ZBKM_EXIT_OUTRUN);
+    if let Err(err) = bkcx_python::bkcx_verify_at(repository, dispatch, &collar, &seat) {
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
+        zbkm_fenced();
     }
 
     if collar.bkcx_app() {
-        zbkm_mush_python_app(&collar, &seat, name, carried);
+        zbkm_mush_python_app(dispatch, &collar, &seat, name, carried);
     }
 
-    zbkm_mush_python_suite(repository, weaned, &collar, &seat, name, carried);
+    zbkm_mush_python_suite(repository, dispatch, &collar, &seat, name, carried);
 }
 
 /// The python app arm: run the entry point the collar names, under the venv the
 /// kennel sited.
 ///
-/// THE EXIT IS THE TENANT'S, UNCHANGED, exactly as the rust app arm's is. A door
-/// that translated an app's exit would be answering for a program it did not
-/// write, and every caller reading that exit would be reading the kennel's
-/// opinion of a run rather than the run.
+/// THE EXIT IS THE TENANT'S VERDICT, exactly as the rust app arm's is: a tenant
+/// exiting sound, barred or fenced crosses the door as that verdict, and any
+/// other code ends the door broke beside a line naming it (`zbkm_relayed`). The
+/// tenant's output already went to the terminal, so what the kennel adds is the
+/// verdict and never an opinion of the run.
 ///
 /// REACHED BY ABSOLUTE PATH AND NEVER BY ACTIVATION. Nothing here puts the venv
 /// on a `PATH` or exports the venv's prefix: the entry point stands at one place
 /// the kennel itself decided, and it is spawned from there. The one variable it
 /// is handed is the bytecode root (`bkcx_python::bkcx_app_bytecode`).
 fn zbkm_mush_python_app(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_python::bkcx_Collar,
     seat: &bkcx_python::bkcx_Seat,
     name: &str,
@@ -996,7 +1096,7 @@ fn zbkm_mush_python_app(
         "the python collar '{}' runs {} — the entry point its project declares, in the \
          environment the converge sited",
         name,
-        entry.display()
+        entry.display(), //
     );
 
     // THE APP ARM WRITES A RECORD AND NOT A TRANSCRIPT, on the rust arm's own
@@ -1004,11 +1104,15 @@ fn zbkm_mush_python_app(
     // arguments and output passing through verbatim, so the family says plainly
     // that what the tenant said went to the terminal.
     if let Err(err) = zbkm_python_app_record(
+        dispatch,
         &bkcv_voice::bkcv_Record::bkcv_invocation(),
         &entry,
         name,
     ) {
-        bkco_error_now!("{}", err);
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
     }
 
     let (bytecode_var, bytecode_root) = bkcx_python::bkcx_app_bytecode(seat);
@@ -1023,20 +1127,34 @@ fn zbkm_mush_python_app(
                  scripts table declares, so either the project declares no such script or the \
                  environment was synced before it did",
                 entry.display(),
-                err
+                err, //
             )
         });
 
     match status.code() {
-        Some(code) => std::process::exit(code),
-        None => bkco_fatal_now!("a signal took {}", entry.display()),
+        Some(code) => zbkm_relayed(
+            code,
+            &format!(
+                "the python collar '{}'",
+                name, //
+            ),
+        ),
+        None => bkco_fatal_now!(
+            "a signal took {}",
+            entry.display(), //
+        ),
     }
 }
 
 /// Write the python app arm's record: what was run, and the plain statement that
 /// the tenant's own output is not in here.
-fn zbkm_python_app_record(invocation: &str, entry: &Path, name: &str) -> Result<(), String> {
-    let mut record = match bkcv_voice::bkcv_Record::bkcv_open(invocation)? {
+fn zbkm_python_app_record(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    invocation: &str,
+    entry: &Path,
+    name: &str,
+) -> Result<(), String> {
+    let mut record = match bkcv_voice::bkcv_Record::bkcv_open(dispatch, invocation)? {
         Some(record) => record,
         None => return Ok(()),
     };
@@ -1044,7 +1162,7 @@ fn zbkm_python_app_record(invocation: &str, entry: &Path, name: &str) -> Result<
     record.bkcv_write(&format!(
         "the python collar '{}' runs {}",
         name,
-        entry.display()
+        entry.display(), //
     ))?;
     record.bkcv_write(
         "the tenant holds the terminal: an app's arguments and output pass through verbatim, so \
@@ -1069,7 +1187,7 @@ fn zbkm_python_app_record(invocation: &str, entry: &Path, name: &str) -> Result<
 /// costs.
 fn zbkm_mush_python_suite(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_python::bkcx_Collar,
     seat: &bkcx_python::bkcx_Seat,
     name: &str,
@@ -1078,24 +1196,33 @@ fn zbkm_mush_python_suite(
     let (selection, narrowing) = if carried.is_empty() {
         (Vec::new(), None)
     } else {
-        let (spelled, cut) = zbkm_python_narrowed(repository, weaned, collar, seat, name, carried);
+        let (spelled, cut) =
+            zbkm_python_narrowed(repository, dispatch, collar, seat, name, carried);
         (spelled, Some(cut))
     };
 
     let began = std::time::Instant::now();
 
-    let (run, tally) = match bkcm_mush::bkcm_python_suite(repository, weaned, collar, seat, &selection) {
-        Ok(answered) => answered,
-        Err(err) => bkco_fatal_now!("{}", err),
-    };
+    let (run, tally) =
+        match bkcm_mush::bkcm_python_suite(repository, dispatch, collar, seat, &selection) {
+            Ok(answered) => answered,
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+        };
 
     let taken = began.elapsed();
 
-    bkco_trace_now!("{} — {} case(s) counted", run.spelling, tally.ran);
+    bkco_trace_now!(
+        "{} — {} case(s) counted",
+        run.spelling,
+        tally.ran, //
+    );
 
     zbkm_python_hollow(name, &run, &tally);
 
-    zbkm_record(name, &run, &tally, narrowing.as_ref(), taken);
+    zbkm_record(dispatch, name, &run, &tally, narrowing.as_ref(), taken);
 
     zbkm_exit_as_ran(&run)
 }
@@ -1110,7 +1237,7 @@ fn zbkm_mush_python_suite(
 /// count is the kennel's own and the refusal stands ahead of the spawn.
 fn zbkm_python_narrowed(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_python::bkcx_Collar,
     seat: &bkcx_python::bkcx_Seat,
     name: &str,
@@ -1121,14 +1248,20 @@ fn zbkm_python_narrowed(
         .map(|pattern| pattern.to_string_lossy().into_owned())
         .collect();
 
-    let held = match bkcx_python::bkcx_recite(repository, weaned, collar, seat) {
+    let held = match bkcx_python::bkcx_recite(repository, dispatch, collar, seat) {
         Ok(held) => held,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let narrowing = match bkci_pipeline::bkci_choose(&held, &patterns) {
         Ok(narrowing) => narrowing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if narrowing.chosen.is_empty() {
@@ -1143,53 +1276,73 @@ fn zbkm_python_narrowed(
             narrowing.held.len(),
             name,
             ZBKM_DOOR_LINEUP,
-            name
+            name, //
         );
-        std::process::exit(ZBKM_EXIT_EMPTY_MATCH);
+        zbkm_barred();
     }
 
-    let selection = match bkci_pipeline::bkci_selection(
-        collar.bkcx_field("BKRP_RUNNER"),
-        &narrowing.chosen,
-    ) {
-        Ok(selection) => selection,
-        Err(err) => bkco_fatal_now!("{}", err),
-    };
+    let selection =
+        match bkci_pipeline::bkci_selection(collar.bkcx_field("BKRP_RUNNER"), &narrowing.chosen) {
+            Ok(selection) => selection,
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+        };
 
-    bkco_info_now!("the python collar '{}' narrows: {}", name, narrowing.bkci_verdict());
+    bkco_info_now!(
+        "the python collar '{}' narrows: {}",
+        name,
+        narrowing.bkci_verdict(), //
+    );
 
     (selection, narrowing)
 }
 
 /// The app arm: hold the election, then run what it named.
 ///
-/// THE EXIT IS THE TENANT'S, unchanged. A door that translated an app's exit
-/// would be answering for a program it did not write, and every caller reading
-/// that exit would be reading the kennel's opinion of a run rather than the run.
-fn zbkm_mush_app(repository: &Path, collar: &bkcr_resolve::bkcr_Collar, name: &str, carried: &[OsString]) -> ! {
+/// THE EXIT IS THE TENANT'S VERDICT. A tenant exiting sound, barred or fenced
+/// crosses the door as that verdict, so a program that rules on what it reads —
+/// the census tool on its subject road among them — is read by its caller exactly
+/// as it would be run bare. Any other code names no verdict and ends the door
+/// broke beside a line naming it (`zbkm_relayed`): a tenant's own numbering,
+/// passed on raw, would be a contract the kennel never made.
+fn zbkm_mush_app(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcr_resolve::bkcr_Collar,
+    name: &str,
+    carried: &[OsString],
+) -> ! {
     let geography = zbkm_geography(repository);
 
     let verdict = match bkce_election::bkce_elect(repository, &geography, collar) {
         Ok(verdict) => verdict,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let Some(answers) = verdict.answers.clone() else {
-        bkco_error_now!("{}", verdict.bkce_grievance(name, ZBKM_CONVERGE));
+        bkco_error_now!(
+            "{}",
+            verdict.bkce_grievance(name, ZBKM_CONVERGE), //
+        );
 
         // A MUTE BINARY'S GRIEVANCE HAS ALREADY SAID THE ACT IS THE CRATE'S, and
         // a second line naming the converge as the act would undo it.
         if verdict.mute {
-            std::process::exit(ZBKM_EXIT_OUTRUN);
+            zbkm_fenced();
         }
 
         bkco_error_now!(
             "'{} {}' is the converge, and running it is a deliberate act rather than something \
              this door does on your behalf",
             ZBKM_CONVERGE,
-            name
+            name, //
         );
-        std::process::exit(ZBKM_EXIT_OUTRUN);
+        zbkm_fenced();
     };
 
     // WHY THE ELECTION IS SAID OUT LOUD on an ordinary run. The whole property
@@ -1203,12 +1356,24 @@ fn zbkm_mush_app(repository: &Path, collar: &bkcr_resolve::bkcr_Collar, name: &s
     // borrows from that billet's main worktree, and the same door driven in the
     // main worktree itself runs self-geography. Both roads are open on the
     // record, and this line is what makes them legible rather than silent.
+    //
+    // AND IT SAYS WHY THE BORROW DID NOT ANSWER, where it did not: an own build
+    // elected over an identical borrow is a reading nobody could infer from the
+    // word, and the election's plaint is the one sentence that states it.
     bkco_info_now!(
-        "the collar '{}' elects {} under geography {} — running {}",
+        "the collar '{}' elects {} under geography {} — running {}{}",
         name,
         verdict.elected,
         geography.bkce_stated(),
-        answers.display()
+        answers.display(),
+        verdict
+            .plaint
+            .as_deref()
+            .map(|why| format!(
+                "; {}",
+                why, //
+            ))
+            .unwrap_or_default(), //
     );
 
     // THE APP ARM WRITES A RECORD AND NOT A TRANSCRIPT, which is a consequence
@@ -1222,13 +1387,17 @@ fn zbkm_mush_app(repository: &Path, collar: &bkcr_resolve::bkcr_Collar, name: &s
     // here would leave a reader unable to tell a launch that happened from one
     // that never did.
     if let Err(err) = zbkm_app_record(
+        dispatch,
         &bkcv_voice::bkcv_Record::bkcv_invocation(),
         &verdict,
         &geography,
         &answers,
         name,
     ) {
-        bkco_error_now!("{}", err);
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
     }
 
     let status = std::process::Command::new(&answers)
@@ -1240,36 +1409,54 @@ fn zbkm_mush_app(repository: &Path, collar: &bkcr_resolve::bkcr_Collar, name: &s
                  binary stands in and the byname the file it wears there, so either the \
                  launchable was never built or the byname does not spell what stands",
                 answers.display(),
-                err
+                err, //
             )
         });
 
     match status.code() {
-        Some(code) => std::process::exit(code),
-        None => bkco_fatal_now!("a signal took {}", answers.display()),
+        Some(code) => zbkm_relayed(
+            code,
+            &format!(
+                "the collar '{}'",
+                name, //
+            ),
+        ),
+        None => bkco_fatal_now!(
+            "a signal took {}",
+            answers.display(), //
+        ),
     }
 }
 
 /// Write the app arm's record: what was asked, where it stood, and the plain
 /// statement that the tenant's own output is not in here.
 fn zbkm_app_record(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     invocation: &str,
     verdict: &bkce_election::bkce_Verdict,
     geography: &bkce_election::bkce_Geography,
     answers: &Path,
     name: &str,
 ) -> Result<(), String> {
-    let mut record = match bkcv_voice::bkcv_Record::bkcv_open(invocation)? {
+    let mut record = match bkcv_voice::bkcv_Record::bkcv_open(dispatch, invocation)? {
         Some(record) => record,
         None => return Ok(()),
     };
 
     record.bkcv_write(&format!(
-        "the collar '{}' elects {} under geography {} — running {}",
+        "the collar '{}' elects {} under geography {} — running {}{}",
         name,
         verdict.elected,
         geography.bkce_stated(),
-        answers.display()
+        answers.display(),
+        verdict
+            .plaint
+            .as_deref()
+            .map(|why| format!(
+                "; {}",
+                why, //
+            ))
+            .unwrap_or_default(), //
     ))?;
     record.bkcv_write(
         "the tenant holds the terminal: an app's arguments and output pass through verbatim, so          what it said went to the console and stands in no member of this family",
@@ -1294,10 +1481,19 @@ fn zbkm_app_record(
 /// reports a filter that matched nothing as a pass, so a kennel that handed the
 /// selection through and trusted the answer would report a green for a suite it
 /// never ran — which is the one outcome a launch may never produce.
-fn zbkm_mush_suite(repository: &Path, weaned: &Path, collar: &bkcr_resolve::bkcr_Collar, name: &str, carried: &[OsString]) -> ! {
+fn zbkm_mush_suite(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcr_resolve::bkcr_Collar,
+    name: &str,
+    carried: &[OsString],
+) -> ! {
     let launch = match bkcm_mush::bkcm_suite(repository, collar) {
         Ok(launch) => launch,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     // NOTHING IS SPAWNED UNTIL THE PROGRAM THAT WOULD BE SPAWNED IS THE ONE THE
@@ -1313,7 +1509,7 @@ fn zbkm_mush_suite(repository: &Path, weaned: &Path, collar: &bkcr_resolve::bkcr
     // the time it is composed. Checked after, this would be reporting on a
     // program that had already run.
     if launch.nextest {
-        match bkcl_leash::bkcl_kibbled(repository, weaned, bkcm_mush::BKCM_VERB_NEXTEST) {
+        match bkcl_leash::bkcl_kibbled(repository, dispatch, bkcm_mush::BKCM_VERB_NEXTEST) {
             // THE BINARY IS NAMED BEFORE IT IS SPAWNED, and the absolute path is
             // the whole of what the line is for. A program the kennel did not
             // build is the one thing in a launch that a reader cannot otherwise
@@ -1331,12 +1527,15 @@ fn zbkm_mush_suite(repository: &Path, weaned: &Path, collar: &bkcr_resolve::bkcr
                 "spawning {} from {} — a program this kennel did not build, reached at its \
                  kibble's own residence and never on the path",
                 bkcm_mush::BKCM_VERB_NEXTEST,
-                residence.display()
+                residence.display(), //
             ),
             Ok(None) => {}
             Err(err) => {
-                bkco_error_now!("{}", err);
-                std::process::exit(ZBKM_EXIT_MISMATCH);
+                bkco_error_now!(
+                    "{}",
+                    err, //
+                );
+                zbkm_fenced();
             }
         }
     }
@@ -1347,19 +1546,23 @@ fn zbkm_mush_suite(repository: &Path, weaned: &Path, collar: &bkcr_resolve::bkcr
     // narrowing SPAWNS: the pipeline asks the runner for its own listing, so a
     // muzzle asked after it would be barring calls in a crate the toolchain had
     // already been run over.
-    let marks = match zbkm_muzzled(repository, weaned, collar, name) {
+    let marks = match zbkm_muzzled(repository, dispatch, collar, name) {
         Some(marks) => marks,
-        None => std::process::exit(ZBKM_EXIT_MUZZLE),
+        None => zbkm_barred(),
     };
 
     let (launch, narrowing) = if carried.is_empty() {
         (launch, None)
     } else {
-        let (narrowed, cut) = zbkm_narrowed(repository, weaned, collar, name, launch, carried);
+        let (narrowed, cut) = zbkm_narrowed(repository, dispatch, collar, name, launch, carried);
         (narrowed, Some(cut))
     };
 
-    bkco_trace_now!("the collar '{}' runs its suite: {}", name, launch.bkcm_spelling());
+    bkco_trace_now!(
+        "the collar '{}' runs its suite: {}",
+        name,
+        launch.bkcm_spelling(), //
+    );
 
     // THE INVOCATION IS A DIAGNOSTIC AND NOT THE VOICE, so it moved onto the
     // dial: at 2 and above it is the kennel's own diagnostic, which is where the
@@ -1372,18 +1575,32 @@ fn zbkm_mush_suite(repository: &Path, weaned: &Path, collar: &bkcr_resolve::bkcr
     // read to compare.
     let began = std::time::Instant::now();
 
-    let (run, tally) = match bkcm_mush::bkcm_run(repository, weaned, collar, &launch, collar.bkcr_field("BKRR_TONGUE"), &marks) {
+    let (run, tally) = match bkcm_mush::bkcm_run(
+        repository,
+        dispatch,
+        collar,
+        &launch,
+        collar.bkcr_field("BKRR_TONGUE"),
+        &marks,
+    ) {
         Ok(answered) => answered,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let taken = began.elapsed();
 
-    bkco_trace_now!("{} — {} case(s) counted", run.spelling, tally.ran);
+    bkco_trace_now!(
+        "{} — {} case(s) counted",
+        run.spelling,
+        tally.ran, //
+    );
 
     zbkm_hollow(name, &run, &tally);
 
-    zbkm_record(name, &run, &tally, narrowing.as_ref(), taken);
+    zbkm_record(dispatch, name, &run, &tally, narrowing.as_ref(), taken);
 
     zbkm_exit_as_ran(&run)
 }
@@ -1402,9 +1619,12 @@ const ZBKM_LINEUP_HELP: &str = "lineup <collar>\n  \
 /// NO RUN IS SPAWNED, which is the door's whole promise. It takes no pattern:
 /// what a pattern would select is a question for the door that runs, and
 /// answering it here would make this door a dry run rather than a listing.
-fn zbkm_lineup(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_lineup(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if rest.len() != 1 {
-        bkco_fatal_now!("{}", ZBKM_LINEUP_HELP);
+        bkco_fatal_now!(
+            "{}",
+            ZBKM_LINEUP_HELP, //
+        );
     }
 
     let name = rest[0].to_string_lossy().into_owned();
@@ -1412,27 +1632,40 @@ fn zbkm_lineup(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // THE SAME FAMILY SPLIT MUSH HAS, on its own precedent (see zbkm_mush): the
     // family is decided by where the name stands, ahead of the rust walk, since
     // a python collar shares the genus's fields and none of its launch.
-    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, weaned, &name) {
-        zbkm_lineup_python(repository, weaned, resolved, &name);
+    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, dispatch, &name) {
+        zbkm_lineup_python(repository, dispatch, resolved, &name);
     }
 
-    let resolved = zbkm_sound_collar(repository, weaned, &name);
+    let resolved = zbkm_sound_collar(repository, dispatch, &name);
 
     let listing = match bkci_pipeline::bkci_listing(repository, &resolved.collar) {
         Ok(listing) => listing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    let held = match bkci_pipeline::bkci_recite(repository, weaned, &resolved.collar, &listing) {
+    let held = match bkci_pipeline::bkci_recite(repository, dispatch, &resolved.collar, &listing) {
         Ok(held) => held,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     for hurdle in &held {
-        bkco_answer_now!("{}", hurdle);
+        bkco_answer_now!(
+            "{}",
+            hurdle, //
+        );
     }
 
-    bkco_info_now!("the collar '{}' holds {} hurdle(s); nothing ran", name, held.len());
+    bkco_info_now!(
+        "the collar '{}' holds {} hurdle(s); nothing ran",
+        name,
+        held.len(), //
+    );
     std::process::exit(0);
 }
 
@@ -1442,7 +1675,7 @@ fn zbkm_lineup(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// never a second run.
 fn zbkm_lineup_python(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     resolved: bkcx_python::bkcx_Resolved,
     name: &str,
 ) -> ! {
@@ -1452,39 +1685,54 @@ fn zbkm_lineup_python(
              that does not conform:",
             name,
             resolved.collar.instance.display(),
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     let collar = resolved.collar;
 
-    let seat = match bkcx_python::bkcx_seat(&collar) {
+    let seat = match bkcx_python::bkcx_seat(dispatch, &collar) {
         Ok(seat) => seat,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    if let Err(err) = bkcx_python::bkcx_verify_at(repository, weaned, &collar, &seat) {
-        bkco_error_now!("{}", err);
-        std::process::exit(ZBKM_EXIT_OUTRUN);
+    if let Err(err) = bkcx_python::bkcx_verify_at(repository, dispatch, &collar, &seat) {
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
+        zbkm_fenced();
     }
 
-    let held = match bkcx_python::bkcx_recite(repository, weaned, &collar, &seat) {
+    let held = match bkcx_python::bkcx_recite(repository, dispatch, &collar, &seat) {
         Ok(held) => held,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     for hurdle in &held {
-        bkco_answer_now!("{}", hurdle);
+        bkco_answer_now!(
+            "{}",
+            hurdle, //
+        );
     }
 
     bkco_info_now!(
         "the python collar '{}' holds {} hurdle(s); nothing ran",
         name,
-        held.len()
+        held.len(), //
     );
     std::process::exit(0);
 }
@@ -1493,10 +1741,17 @@ fn zbkm_lineup_python(
 /// implicit in every door rather than a step a caller elects. Shared by the
 /// doors that operate on one collar, because a second spelling of this is a
 /// second chance for one door to act on a collar another would have refused.
-fn zbkm_sound_collar(repository: &Path, weaned: &Path, name: &str) -> bkcr_resolve::bkcr_Resolved {
-    let resolved = match bkcr_resolve::bkcr_resolve(repository, weaned, name) {
+fn zbkm_sound_collar(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    name: &str,
+) -> bkcr_resolve::bkcr_Resolved {
+    let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, name) {
         Ok(resolved) => resolved,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if !resolved.findings.is_empty() {
@@ -1505,12 +1760,15 @@ fn zbkm_sound_collar(repository: &Path, weaned: &Path, name: &str) -> bkcr_resol
              does not conform:",
             name,
             resolved.collar.instance.display(),
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     resolved
@@ -1532,7 +1790,7 @@ fn zbkm_sound_collar(repository: &Path, weaned: &Path, name: &str) -> bkcr_resol
 /// step already answered.
 fn zbkm_narrowed(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_resolve::bkcr_Collar,
     name: &str,
     launch: bkcm_mush::bkcm_Launch,
@@ -1545,17 +1803,26 @@ fn zbkm_narrowed(
 
     let listing = match bkci_pipeline::bkci_listing(repository, collar) {
         Ok(listing) => listing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    let held = match bkci_pipeline::bkci_recite(repository, weaned, collar, &listing) {
+    let held = match bkci_pipeline::bkci_recite(repository, dispatch, collar, &listing) {
         Ok(held) => held,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let narrowing = match bkci_pipeline::bkci_choose(&held, &patterns) {
         Ok(narrowing) => narrowing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if narrowing.chosen.is_empty() {
@@ -1570,17 +1837,25 @@ fn zbkm_narrowed(
             narrowing.held.len(),
             name,
             ZBKM_DOOR_LINEUP,
-            name
+            name, //
         );
-        std::process::exit(ZBKM_EXIT_EMPTY_MATCH);
+        zbkm_barred();
     }
 
-    let selection = match bkci_pipeline::bkci_selection(collar.bkcr_field("BKRR_RUNNER"), &narrowing.chosen) {
-        Ok(selection) => selection,
-        Err(err) => bkco_fatal_now!("{}", err),
-    };
+    let selection =
+        match bkci_pipeline::bkci_selection(collar.bkcr_field("BKRR_RUNNER"), &narrowing.chosen) {
+            Ok(selection) => selection,
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+        };
 
-    bkco_info_now!("the collar '{}' narrows: {}", name, narrowing.bkci_verdict());
+    bkco_info_now!(
+        "the collar '{}' narrows: {}",
+        name,
+        narrowing.bkci_verdict(), //
+    );
 
     let mut narrowed = launch;
     narrowed.rest.extend(selection);
@@ -1610,23 +1885,23 @@ fn zbkm_narrowed(
 /// whole sweep naming each. Never operate on an invalid collar is the rule, and
 /// a door that linted the sound collars and reported the rest would have acted on
 /// half a tree while calling the answer whole.
-fn zbkm_muzzle(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_muzzle(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if !rest.is_empty() {
         bkco_fatal_now!(
             "'{}' takes nothing and was given {} argument(s) — it sweeps every collar the walk \
              finds, a muzzle being a statement about the tree rather than about one crate",
             ZBKM_DOOR_MUZZLE,
-            rest.len()
+            rest.len(), //
         );
     }
 
-    let collars = zbkm_collars(repository, weaned, ZBKM_EXIT_FINDINGS, "linted");
+    let collars = zbkm_collars(repository, dispatch, "linted");
 
     if collars.is_empty() {
         bkco_fatal_now!(
             "the walk over {} found no collar at all — a muzzle over nothing says nothing about \
              the tree",
-            repository.display()
+            repository.display(), //
         );
     }
 
@@ -1637,7 +1912,10 @@ fn zbkm_muzzle(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
         let conf = match bkcz_muzzle::bkcz_conf_dir(repository, collar) {
             Ok(conf) => conf,
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         };
 
         // ONE DRIVE PER LIST-AND-MANIFEST PAIR, REPORTED PER COLLAR. Two collars
@@ -1652,32 +1930,45 @@ fn zbkm_muzzle(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         if already {
             bkco_info_now!(
                 "muzzling {} — its crate and lint list are already asked about",
-                collar.name
+                collar.name, //
             );
             continue;
         }
 
-        bkco_info_now!("muzzling {} at {}", collar.name, collar.bkcr_field("BKRR_MUZZLE"));
+        bkco_info_now!(
+            "muzzling {} at {}",
+            collar.name,
+            collar.bkcr_field("BKRR_MUZZLE"), //
+        );
 
-        match bkcz_muzzle::bkcz_lint(repository, weaned, collar) {
-            Err(err) => bkco_fatal_now!("{}", err),
+        match bkcz_muzzle::bkcz_lint(repository, dispatch, collar) {
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
             Ok(bkcz_muzzle::bkcz_Verdict::Clean(_)) => {
                 drives.push((collar.name.clone(), manifest, conf));
             }
             Ok(bkcz_muzzle::bkcz_Verdict::Unbuilt(report)) => {
-                bkco_answer_now!("{}", report.trim_end());
+                bkco_answer_now!(
+                    "{}",
+                    report.trim_end(), //
+                );
                 bkco_fatal_now!(
                     "the crate the collar '{}' declares did not compile — this is a build failure \
                      and not a muzzle finding",
-                    collar.name
+                    collar.name, //
                 );
             }
             Ok(bkcz_muzzle::bkcz_Verdict::Refused(report)) => {
-                bkco_answer_now!("{}", report.trim_end());
+                bkco_answer_now!(
+                    "{}",
+                    report.trim_end(), //
+                );
                 bkco_error_now!(
                     "the muzzle refused the collar '{}' — each finding above names the surface to \
                      adopt",
-                    collar.name
+                    collar.name, //
                 );
                 refused = true;
             }
@@ -1685,12 +1976,12 @@ fn zbkm_muzzle(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     }
 
     if refused {
-        std::process::exit(ZBKM_EXIT_MUZZLE);
+        zbkm_barred();
     }
 
     bkco_info_now!(
         "the muzzle finds nothing across {} collar(s)",
-        collars.len()
+        collars.len(), //
     );
 
     std::process::exit(0);
@@ -1714,14 +2005,14 @@ fn zbkm_muzzle(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// reported even where there was nothing to move, because a reader who cannot
 /// tell an install that was unnecessary from one that was never attempted has
 /// been handed a converge they have to go and verify.
-fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if rest.len() != 1 {
         bkco_fatal_now!(
             "'{}' takes exactly one collar as its imprint and was given {} — the frozen shape is \
              the verb, the collar, and then what the collar's kind owns, and this door's kind owns \
              nothing",
             ZBKM_DOOR_HEEL,
-            rest.len()
+            rest.len(), //
         );
     }
 
@@ -1739,8 +2030,8 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // always reaching for, so its listing is the more useful thing to hand back.
     // The kibble refusal carries its own roster and is reached by naming a
     // kibble that does not conform, which is a different mistake.
-    if let Ok(resolved) = bkcq_kibble::bkcq_resolve(repository, weaned, &name) {
-        zbkm_heel_kibble(repository, weaned, resolved);
+    if let Ok(resolved) = bkcq_kibble::bkcq_resolve(repository, dispatch.bkcr_weaned(), &name) {
+        zbkm_heel_kibble(repository, dispatch, resolved);
     }
 
     // A PYTHON COLLAR IS CONVERGED BY THIS DOOR TOO, and its arm stands HERE —
@@ -1754,14 +2045,14 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // THE FAMILY IS DECIDED BY WHERE THE NAME STANDS and never by a flag, on the
     // kibble arm's precedent: a caller typing a name knows what it names, and a
     // door that made them say twice would be asking them to restate the tree.
-    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, weaned, &name) {
-        zbkm_heel_python(repository, weaned, resolved);
+    if let Ok(resolved) = bkcx_python::bkcx_resolve(repository, dispatch, &name) {
+        zbkm_heel_python(repository, dispatch, resolved);
     }
 
     // THE YARD IS TAKEN AHEAD OF THE SWEEP and held until this door exits, so
     // a second heel in this checkout neither sweeps under this one's build nor
     // copies onto the residence beside it (`bkch_heel::bkch_Yard`).
-    let _yard = zbkm_heel_yard();
+    let _yard = zbkm_heel_yard(dispatch);
 
     // THE SWEEP STANDS AHEAD OF THE BUILD, which is where the forced clean it
     // replaces stood, and it is the only ordering that means anything: a yard
@@ -1774,7 +2065,7 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // there would empty every yard in the tree as a side effect of installing a
     // foreign artifact. It would also gate that install on every collar in the
     // walk conforming, which is a demand the act has no reason to make.
-    zbkm_deloused(repository, weaned);
+    zbkm_deloused(repository, dispatch);
 
     // THE REFUSAL ACCOUNTS FOR BOTH COLLAR FAMILIES, because this door now serves
     // both and a name that reached here was in neither. The rust walk names the
@@ -1782,17 +2073,20 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // the caller may have meant a python collar, that family's walk not being its
     // to take. A refusal listing half the tree sends its reader looking for a
     // typo in the half they did not mean.
-    let resolved = match bkcr_resolve::bkcr_resolve(repository, weaned, &name) {
+    let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, &name) {
         Ok(resolved) => resolved,
         Err(err) => {
-            let python = bkcx_python::bkcx_roster(repository, weaned);
+            let python = bkcx_python::bkcx_roster(repository, dispatch);
             if python.is_empty() {
-                bkco_fatal_now!("{}", err);
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                );
             }
             bkco_fatal_now!(
                 "{}\n  and no python collar wears it either — that family carries: {}",
                 err,
-                python
+                python, //
             );
         }
     };
@@ -1803,19 +2097,25 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
              does not conform — least of all one that writes:",
             name,
             resolved.collar.instance.display(),
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     let geography = zbkm_geography(repository);
 
     let converge = match bkch_heel::bkch_compose(repository, &geography, &resolved.collar) {
         Ok(converge) => converge,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     bkco_info_now!(
@@ -1823,7 +2123,7 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         name,
         geography.bkce_stated(),
         converge.bkch_spelling(),
-        converge.struck.display()
+        converge.struck.display(), //
     );
 
     // THE STRIKE IS NAMED BESIDE THE GEOGRAPHY, and this line is the whole of
@@ -1842,42 +2142,53 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
              a stale exergue builds a stale binary, and the fence that catches that stands in the \
              crate rather than here",
             exergues.join(", "),
-            resolved.collar.bkcr_strike().join(" ")
+            resolved.collar.bkcr_strike().join(" "), //
         );
     }
 
-    let run = match bkch_heel::bkch_build(repository, weaned, &resolved.collar, &converge) {
-        Ok(run) => run,
-        Err(err) => bkco_fatal_now!("{}", err),
-    };
+    let (run, built) =
+        match bkch_heel::bkch_build(repository, dispatch, &resolved.collar, &converge) {
+            Ok(ran) => ran,
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+        };
 
-    bkco_info_now!("{}", run.spelling);
+    bkco_info_now!(
+        "{}",
+        run.spelling, //
+    );
 
-    // A BUILD THAT DID NOT LAND TAKES THIS DOOR'S OWN CODE, not the compiler's.
-    // The exit a caller reads here is a statement about the converge, which
-    // either happened or did not; cargo's own code says which of its many ways
-    // to fail was taken, and that is what the diagnostics above are for.
-    if !run.bkcl_landed() {
+    // A BUILD THAT DID NOT LAND ENDS THE DOOR BROKE, never on the compiler's
+    // code. The converge is an act and not a reading, so its failing rules on
+    // nothing: what a caller reads here is that the act did not happen, and
+    // which of cargo's many ways to fail was taken is what the voice's
+    // diagnostic lines above are for.
+    if !built {
         bkco_error_now!(
             "the collar '{}' did not build, so nothing was installed and {} stands as it did",
             name,
-            converge.residence.display()
+            converge.residence.display(), //
         );
-        std::process::exit(ZBKM_EXIT_HEEL);
+        bkco_output::bkco_broke();
     }
 
     match bkch_heel::bkch_install(&converge) {
         Ok(true) => bkco_info_now!(
             "installed at {} — the collar's declared residence, and the only path this door wrote",
-            converge.residence.display()
+            converge.residence.display(), //
         ),
         Ok(false) => bkco_info_now!(
             "installed at {} — where cargo already leaves it, so nothing was copied",
-            converge.residence.display()
+            converge.residence.display(), //
         ),
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_HEEL);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
     }
 
@@ -1885,12 +2196,11 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         "the collar '{}' is converged: built at {} and standing at {}",
         name,
         converge.struck.display(),
-        converge.residence.display()
+        converge.residence.display(), //
     );
 
     std::process::exit(0);
 }
-
 
 /// Take the checkout's yard for a heel, saying one line if another heel holds
 /// it, and hand back the guard the caller keeps until it exits.
@@ -1899,17 +2209,20 @@ fn zbkm_heel(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// than lenient: every arm that takes one reads the loosebox again for its own
 /// act and refuses there in its own words, so taking the yard first must not
 /// put a second refusal ahead of the one the door already gives.
-fn zbkm_heel_yard() -> Option<bkch_heel::bkch_Yard> {
-    let loosebox = bkcc_record::bkcc_loosebox().ok()?;
+fn zbkm_heel_yard(dispatch: &bkcr_resolve::bkcr_Dispatch) -> Option<bkch_heel::bkch_Yard> {
+    let loosebox = bkcc_record::bkcc_loosebox(dispatch).ok()?;
 
     match bkch_heel::bkch_yard(&loosebox, |at| {
         bkco_info_now!(
             "another heel in this checkout holds its yard at {} — waiting for it to finish",
-            at.display()
+            at.display(), //
         )
     }) {
         Ok(yard) => Some(yard),
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     }
 }
 
@@ -1927,7 +2240,11 @@ fn zbkm_heel_yard() -> Option<bkch_heel::bkch_Yard> {
 /// that is a bare floor, a project missing its lock, a uv table carrying a knob
 /// the kennel states. Converging past a finding would build an environment to a
 /// declaration the kennel had already judged unfit.
-fn zbkm_heel_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkcx_Resolved) -> ! {
+fn zbkm_heel_python(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    resolved: bkcx_python::bkcx_Resolved,
+) -> ! {
     let name = resolved.collar.name.clone();
 
     // AN ABSENT LOCK DOES NOT BAR THE INSTALL STEP, which on a cold store is what
@@ -1944,25 +2261,37 @@ fn zbkm_heel_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkc
             barring.len(), //
         );
         for finding in barring {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     // THE YARD IS HELD THROUGH THE CONVERGE, on the rust arm's ground: two heels
     // of one collar in one checkout sync one environment.
-    let _yard = zbkm_heel_yard();
+    let _yard = zbkm_heel_yard(dispatch);
 
-    let environed = match bkch_heel::bkch_python(repository, weaned, &resolved.collar) {
+    let environed = match bkch_heel::bkch_python(repository, dispatch, &resolved.collar) {
         Ok(environed) => environed,
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_HEEL);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
     };
 
-    bkco_info_now!("{}", environed.installed);
-    bkco_info_now!("{}", environed.synced);
+    bkco_info_now!(
+        "{}",
+        environed.installed, //
+    );
+    bkco_info_now!(
+        "{}",
+        environed.synced, //
+    );
 
     bkco_info_now!(
         "the python collar '{}' is converged: the project at {} stands on CPython {} in the \
@@ -1970,7 +2299,7 @@ fn zbkm_heel_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkc
         name,
         resolved.collar.bkcx_project().display(),
         environed.pinned,
-        environed.environment.display()
+        environed.environment.display(), //
     );
 
     std::process::exit(0);
@@ -1986,7 +2315,11 @@ fn zbkm_heel_python(repository: &Path, weaned: &Path, resolved: bkcx_python::bkc
 /// word because an operator converging something does not care which, and they
 /// share nothing else — least of all a refusal, since the two send their reader
 /// to different trees.
-fn zbkm_heel_kibble(repository: &Path, weaned: &Path, resolved: bkcq_kibble::bkcq_Resolved) -> ! {
+fn zbkm_heel_kibble(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    resolved: bkcq_kibble::bkcq_Resolved,
+) -> ! {
     let kibble = resolved.kibble;
 
     if !resolved.findings.is_empty() {
@@ -1995,20 +2328,26 @@ fn zbkm_heel_kibble(repository: &Path, weaned: &Path, resolved: bkcq_kibble::bkc
              does not conform — least of all one that writes:",
             kibble.name,
             kibble.instance.display(),
-            resolved.findings.len()
+            resolved.findings.len(), //
         );
         for finding in &resolved.findings {
-            bkco_error_now!("  {}", finding);
+            bkco_error_now!(
+                "  {}",
+                finding, //
+            );
         }
-        std::process::exit(ZBKM_EXIT_FINDINGS);
+        zbkm_barred();
     }
 
     // THE ROOT IS READ ONCE, HERE, and the converge is handed what this read, so
     // the residence the console names and the one the converge writes cannot be
     // two readings of the environment.
-    let feedroom = match bkcq_kibble::bkcq_feedroom() {
+    let feedroom = match bkcq_kibble::bkcq_feedroom(dispatch) {
         Ok(feedroom) => feedroom,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let residence = kibble.bkcq_residence(&feedroom);
@@ -2019,23 +2358,26 @@ fn zbkm_heel_kibble(repository: &Path, weaned: &Path, resolved: bkcq_kibble::bkc
         kibble.bkcq_field("BKRK_PROGRAM"),
         kibble.bkcq_field("BKRK_VERSION"),
         kibble.bkcq_field("BKRK_SEAL"),
-        residence.display()
+        residence.display(), //
     );
 
-    match bkch_heel::bkch_kibble(repository, weaned, &kibble, &feedroom) {
+    match bkch_heel::bkch_kibble(repository, dispatch, &kibble, &feedroom) {
         Ok(bkch_heel::bkch_Kibbled::Current) => bkco_info_now!(
             "current at {} — the declared version already stands, so nothing was fetched and \
              nothing was built",
-            residence.display()
+            residence.display(), //
         ),
         Ok(bkch_heel::bkch_Kibbled::Placed(from)) => bkco_info_now!(
             "fetched {}, digest proven, and placed at {}",
             from,
-            residence.display()
+            residence.display(), //
         ),
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_KIBBLE);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
     }
 
@@ -2120,26 +2462,30 @@ impl<'a> zbkm_Bound<'a> {
     fn zbkm_spelled(&self, repository: &Path) -> String {
         match self {
             zbkm_Bound::Rust { launch, .. } => launch.bkcm_spelling(),
-            zbkm_Bound::Python { collar, selection, .. } => {
-                bkcx_python::bkcx_run_call(&bkcx_python::bkcx_at(repository, collar), selection)
-                    .iter()
-                    .map(|one| one.to_string_lossy().into_owned())
-                    .collect::<Vec<String>>()
-                    .join(" ")
-            }
+            zbkm_Bound::Python {
+                collar, selection, ..
+            } => bkcx_python::bkcx_run_call(&bkcx_python::bkcx_at(repository, collar), selection)
+                .iter()
+                .map(|one| one.to_string_lossy().into_owned())
+                .collect::<Vec<String>>()
+                .join(" "),
         }
     }
 
     /// The runner's own listing, read back as the names a pattern is matched
     /// against — the pipeline's first step for either family.
-    fn zbkm_held(&self, repository: &Path, weaned: &Path) -> Result<Vec<String>, String> {
+    fn zbkm_held(
+        &self,
+        repository: &Path,
+        dispatch: &bkcr_resolve::bkcr_Dispatch,
+    ) -> Result<Vec<String>, String> {
         match self {
             zbkm_Bound::Rust { collar, .. } => {
                 let listing = bkci_pipeline::bkci_listing(repository, collar)?;
-                bkci_pipeline::bkci_recite(repository, weaned, collar, &listing)
+                bkci_pipeline::bkci_recite(repository, dispatch, collar, &listing)
             }
             zbkm_Bound::Python { collar, seat, .. } => {
-                bkcx_python::bkcx_recite(repository, weaned, collar, seat)
+                bkcx_python::bkcx_recite(repository, dispatch, collar, seat)
             }
         }
     }
@@ -2148,20 +2494,26 @@ impl<'a> zbkm_Bound<'a> {
     fn zbkm_ran(
         &self,
         repository: &Path,
-        weaned: &Path,
+        dispatch: &bkcr_resolve::bkcr_Dispatch,
     ) -> Result<(bkcl_leash::bkcl_Run, bkcv_voice::bkcv_Tally), String> {
         match self {
-            zbkm_Bound::Rust { collar, launch, marks } => bkcm_mush::bkcm_run(
+            zbkm_Bound::Rust {
+                collar,
+                launch,
+                marks,
+            } => bkcm_mush::bkcm_run(
                 repository,
-                weaned,
+                dispatch,
                 collar,
                 launch,
                 collar.bkcr_field("BKRR_TONGUE"),
                 marks,
             ),
-            zbkm_Bound::Python { collar, seat, selection } => {
-                bkcm_mush::bkcm_python_suite(repository, weaned, collar, seat, selection)
-            }
+            zbkm_Bound::Python {
+                collar,
+                seat,
+                selection,
+            } => bkcm_mush::bkcm_python_suite(repository, dispatch, collar, seat, selection),
         }
     }
 
@@ -2184,15 +2536,22 @@ impl<'a> zbkm_Bound<'a> {
 /// selected yet.
 fn zbkm_bind<'a>(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     course: zbkm_Course<'a>,
 ) -> Result<Option<zbkm_Bound<'a>>, String> {
     match course {
         zbkm_Course::Rust(collar) => {
             let launch = bkcm_mush::bkcm_suite(repository, collar)?;
 
-            Ok(zbkm_muzzled(repository, weaned, collar, &collar.name)
-                .map(|marks| zbkm_Bound::Rust { collar, launch, marks }))
+            Ok(
+                zbkm_muzzled(repository, dispatch, collar, &collar.name).map(|marks| {
+                    zbkm_Bound::Rust {
+                        collar,
+                        launch,
+                        marks,
+                    }
+                }),
+            )
         }
         zbkm_Course::Python(collar, seat) => Ok(Some(zbkm_Bound::Python {
             collar,
@@ -2209,15 +2568,19 @@ fn zbkm_bind<'a>(
 /// app collar with no suite beside it is no course of a walk. The seat is
 /// composed once here, at the door face, and threaded to the preflight and the
 /// launch both, so the two cannot read two environments.
-fn zbkm_seated(
-    python: &[bkcx_python::bkcx_Collar],
-) -> Vec<(&bkcx_python::bkcx_Collar, bkcx_python::bkcx_Seat)> {
+fn zbkm_seated<'a>(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    python: &'a [bkcx_python::bkcx_Collar],
+) -> Vec<(&'a bkcx_python::bkcx_Collar, bkcx_python::bkcx_Seat)> {
     python
         .iter()
         .filter(|collar| !collar.bkcx_app())
-        .map(|collar| match bkcx_python::bkcx_seat(collar) {
+        .map(|collar| match bkcx_python::bkcx_seat(dispatch, collar) {
             Ok(seat) => (collar, seat),
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         })
         .collect()
 }
@@ -2232,7 +2595,11 @@ fn zbkm_courses<'a>(
         .iter()
         .filter(|collar| !collar.bkcr_app())
         .map(zbkm_Course::Rust)
-        .chain(seated.iter().map(|(collar, seat)| zbkm_Course::Python(collar, seat)))
+        .chain(
+            seated
+                .iter()
+                .map(|(collar, seat)| zbkm_Course::Python(collar, seat)),
+        )
         .collect();
 
     courses.sort_by(|one, other| one.zbkm_instance().cmp(other.zbkm_instance()));
@@ -2266,11 +2633,11 @@ fn zbkm_courses<'a>(
 /// IT RUNS EVERY COURSE AND REPORTS EVERY RED (operator, 260929), reversing the
 /// stop it once made on meeting a red course. A course that runs red and a
 /// course the muzzle refuses are each named as they are met, the walk presses
-/// on, and the set verdict names every one of them and exits with the walk's own
-/// code. The tree is still kept green: nothing reports green over a red, and one
+/// on, and the set verdict names every one of them and bars. The tree is still
+/// kept green: nothing reports green over a red, and one
 /// line per red course is a repair list, where a stop hid every red behind the
 /// first until that one was repaired.
-fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_derby(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if !rest.is_empty() {
         bkco_fatal_now!(
             "'{}' takes nothing and was given {} argument(s) — it runs every suite collar the walk \
@@ -2278,17 +2645,17 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
              suite alone is '{} <collar>'",
             ZBKM_DOOR_DERBY,
             rest.len(),
-            ZBKM_DOOR_MUSH
+            ZBKM_DOOR_MUSH, //
         );
     }
 
     // THE SWEEP STANDS AHEAD OF THE WALK. A derby is a statement about a tree,
     // and a course run over artifacts the day's sweep was about to remove is a
     // green about a yard that no longer stands.
-    zbkm_deloused(repository, weaned);
+    zbkm_deloused(repository, dispatch);
 
-    let (collars, python) = zbkm_yard(repository, weaned, ZBKM_EXIT_DERBY, "run");
-    let seated = zbkm_seated(&python);
+    let (collars, python) = zbkm_yard(repository, dispatch, "run");
+    let seated = zbkm_seated(dispatch, &python);
 
     // THE PREFLIGHT STANDS BEHIND THE SWEEP AND AHEAD OF EVERY COURSE, and both
     // halves of that are load-bearing. Ahead of the sweep it would pass over the
@@ -2296,7 +2663,13 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // behind the first course, the condition it reads has already presented as a
     // spawn failure inside a hurdle or as a run of failing cases about nothing,
     // which is the reading this exists to replace.
-    let unhitched = zbkm_preflight(repository, weaned, &collars, &seated, bkco_output::BKCO_COLOPHON_DERBY);
+    let unhitched = zbkm_preflight(
+        repository,
+        dispatch,
+        &collars,
+        &seated,
+        bkco_output::BKCO_COLOPHON_DERBY,
+    );
 
     let mut courses = zbkm_courses(&collars, &seated);
     let walked = collars.len() + python.len();
@@ -2306,7 +2679,7 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             "the walk over {} found {} collar(s) and no suite among them — a derby over nothing is \
              not a green tree",
             repository.display(),
-            walked
+            walked, //
         );
     }
 
@@ -2322,7 +2695,7 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         bkco_info_now!(
             "the derby runs {} course(s), of the {} collar(s) the walk found",
             courses.len(),
-            walked
+            walked, //
         );
     }
 
@@ -2338,15 +2711,23 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         // door has no right to report. A course it refuses is named where it is
         // met and the walk presses on, the muzzle's own findings already
         // standing above.
-        let bound = match zbkm_bind(repository, weaned, *course) {
+        let bound = match zbkm_bind(repository, dispatch, *course) {
             Ok(Some(bound)) => bound,
             Ok(None) => {
                 muzzled.push(name);
                 continue;
             }
             Err(err) => {
-                zbkm_broken(ZBKM_DOOR_DERBY, &red, &muzzled, &zbkm_named(&courses[run_so_far..]));
-                bkco_fatal_now!("{}", err)
+                zbkm_broken(
+                    ZBKM_DOOR_DERBY,
+                    &red,
+                    &muzzled,
+                    &zbkm_named(&courses[run_so_far..]),
+                );
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                )
             }
         };
 
@@ -2363,16 +2744,24 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             run_so_far + 1,
             courses.len(),
             name,
-            bound.zbkm_spelled(repository)
+            bound.zbkm_spelled(repository), //
         );
 
         let began = std::time::Instant::now();
 
-        let (run, tally) = match bound.zbkm_ran(repository, weaned) {
+        let (run, tally) = match bound.zbkm_ran(repository, dispatch) {
             Ok(answered) => answered,
             Err(err) => {
-                zbkm_broken(ZBKM_DOOR_DERBY, &red, &muzzled, &zbkm_named(&courses[run_so_far..]));
-                bkco_fatal_now!("{}", err)
+                zbkm_broken(
+                    ZBKM_DOOR_DERBY,
+                    &red,
+                    &muzzled,
+                    &zbkm_named(&courses[run_so_far..]),
+                );
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                )
             }
         };
 
@@ -2380,7 +2769,7 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 
         // A HOLLOW COURSE AND A GREEN ONE THAT COULD NOT BANK ITS RECORD ARE RED
         // COURSES OF THE WALK, each already named by its own line; they press on
-        // as any red does rather than ending the walk under their own exits,
+        // as any red does rather than ending the walk under their own verdicts,
         // which stay the launch seam's for a single course.
         if bound.zbkm_hollow_read(&run, &tally) {
             red.push(name);
@@ -2391,7 +2780,7 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         // a time. The door takes no pattern at all — a derby is a statement
         // about the tree rather than about one suite — so there is no narrowing
         // to hand on and none to withhold a time for.
-        if !zbkm_banked(name, &run, &tally, None, taken) {
+        if !zbkm_banked(dispatch, name, &run, &tally, None, taken) {
             red.push(name);
             continue;
         }
@@ -2405,13 +2794,25 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         }
 
         // THE COURSE IS NAMED WHERE IT IS MET, a signal's spelling among the
-        // rest, and its exit is not passed on: the walk's exit is its own.
-        bkco_error_now!("course {} is red: {} — {}", name, run.spelling, zbkm_red_said(&run, &tally));
+        // rest, and its exit is not passed on: the walk's verdict is its own.
+        bkco_error_now!(
+            "course {} is red: {} — {}",
+            name,
+            run.spelling,
+            zbkm_red_said(&run, &tally), //
+        );
 
         red.push(name);
     }
 
-    zbkm_fallen(ZBKM_DOOR_DERBY, courses.len(), &red, &muzzled, &[], &unhitched);
+    zbkm_fallen(
+        ZBKM_DOOR_DERBY,
+        courses.len(),
+        &red,
+        &muzzled,
+        &[],
+        &unhitched,
+    );
 
     // THE SET VERDICT SPEAKS AS A VERDICT, on the launch seam's own precedent:
     // it rides the voice channel rather than the info dial, so it stands in the
@@ -2420,7 +2821,7 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     bkco_voice_now!(
         "the derby is green across {} course(s){}",
         courses.len(),
-        zbkm_unhitched_said(&unhitched)
+        zbkm_unhitched_said(&unhitched), //
     );
 
     std::process::exit(0);
@@ -2437,8 +2838,8 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// and a python course's node ids stand in the union beside the rust courses'
 /// test names, each family's listing taken by its own runner.
 ///
-/// A UNION THE PATTERNS MATCH NOTHING IN REFUSES AND SPAWNS NO RUNNER, under the
-/// pipeline's own exit, for the pipeline's own reason: a runner handed a
+/// A UNION THE PATTERNS MATCH NOTHING IN BARS AND SPAWNS NO RUNNER, as the
+/// pipeline bars at the launch seam, for the pipeline's own reason: a runner handed a
 /// selection that matches nothing reports a pass. A course whose share is empty
 /// is not launched and is NAMED in the verdict, so a narrowed walk never reads
 /// as a whole one.
@@ -2458,13 +2859,17 @@ fn zbkm_derby(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// IT TAKES ONE PATTERN OR MORE and refuses none as a pattern. Bare, it
 /// refuses naming the derby: a futurity with nothing to narrow is the derby
 /// without its sweep, which is a door nobody elected.
-fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_futurity(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    rest: &[OsString],
+) -> ! {
     if rest.is_empty() {
         bkco_fatal_now!(
             "'{}' takes one or more selection patterns and was given none — it narrows the set \
              the derby runs, and that set unnarrowed is '{}'",
             ZBKM_DOOR_FUTURITY,
-            ZBKM_DOOR_DERBY
+            ZBKM_DOOR_DERBY, //
         );
     }
 
@@ -2473,10 +2878,16 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         .map(|pattern| pattern.to_string_lossy().into_owned())
         .collect();
 
-    let (collars, python) = zbkm_yard(repository, weaned, ZBKM_EXIT_DERBY, "run");
-    let seated = zbkm_seated(&python);
+    let (collars, python) = zbkm_yard(repository, dispatch, "run");
+    let seated = zbkm_seated(dispatch, &python);
 
-    let unhitched = zbkm_preflight(repository, weaned, &collars, &seated, bkco_output::BKCO_COLOPHON_FUTURITY);
+    let unhitched = zbkm_preflight(
+        repository,
+        dispatch,
+        &collars,
+        &seated,
+        bkco_output::BKCO_COLOPHON_FUTURITY,
+    );
 
     let mut courses = zbkm_courses(&collars, &seated);
 
@@ -2486,7 +2897,7 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
              nothing to narrow",
             repository.display(),
             collars.len() + python.len(),
-            ZBKM_DOOR_FUTURITY
+            ZBKM_DOOR_FUTURITY, //
         );
     }
 
@@ -2498,7 +2909,7 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     for (index, course) in courses.iter().enumerate() {
         let unreached = zbkm_named(&courses[index..]);
 
-        let bound = match zbkm_bind(repository, weaned, *course) {
+        let bound = match zbkm_bind(repository, dispatch, *course) {
             Ok(Some(bound)) => bound,
             Ok(None) => {
                 muzzled.push(course.zbkm_name());
@@ -2506,15 +2917,21 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             }
             Err(err) => {
                 zbkm_broken(ZBKM_DOOR_FUTURITY, &[], &muzzled, &unreached);
-                bkco_fatal_now!("{}", err)
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                )
             }
         };
 
-        let held = match bound.zbkm_held(repository, weaned) {
+        let held = match bound.zbkm_held(repository, dispatch) {
             Ok(held) => held,
             Err(err) => {
                 zbkm_broken(ZBKM_DOOR_FUTURITY, &[], &muzzled, &unreached);
-                bkco_fatal_now!("{}", err)
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                )
             }
         };
 
@@ -2531,7 +2948,10 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 
     let narrowing = match bkci_pipeline::bkci_choose(&union, &patterns) {
         Ok(narrowing) => narrowing,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     if narrowing.chosen.is_empty() {
@@ -2545,15 +2965,22 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             ZBKM_DOOR_FUTURITY,
             narrowing.held.len(),
             entered.len(),
-            ZBKM_DOOR_LINEUP
+            ZBKM_DOOR_LINEUP, //
         );
 
         // A COURSE THE MUZZLE REFUSED WAS NEVER LISTED, so the patterns were
         // never matched against it: the walk is red for that course whatever the
-        // match found, and says so under its own exit.
-        zbkm_fallen(ZBKM_DOOR_FUTURITY, courses.len(), &[], &muzzled, &[], &unhitched);
+        // match found, and the set verdict says so beside the empty match.
+        zbkm_fallen(
+            ZBKM_DOOR_FUTURITY,
+            courses.len(),
+            &[],
+            &muzzled,
+            &[],
+            &unhitched,
+        );
 
-        std::process::exit(ZBKM_EXIT_EMPTY_MATCH);
+        zbkm_barred();
     }
 
     let chosen: std::collections::HashSet<&str> =
@@ -2576,12 +3003,21 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 
         let selection = match bkci_pipeline::bkci_selection(bound.zbkm_runner(), &share) {
             Ok(selection) => selection,
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         };
 
         bound.zbkm_narrow(selection);
 
-        launched.push((bound, bkci_pipeline::bkci_Narrowing { held, chosen: share }));
+        launched.push((
+            bound,
+            bkci_pipeline::bkci_Narrowing {
+                held,
+                chosen: share,
+            },
+        ));
     }
 
     if bkco_output::bkco_verbose() {
@@ -2590,7 +3026,7 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             ZBKM_DOOR_FUTURITY,
             narrowing.bkci_verdict(),
             courses.len(),
-            launched.len()
+            launched.len(), //
         );
     }
 
@@ -2604,10 +3040,10 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             run_so_far + 1,
             launched.len(),
             name,
-            bound.zbkm_spelled(repository)
+            bound.zbkm_spelled(repository), //
         );
 
-        let (run, tally) = match bound.zbkm_ran(repository, weaned) {
+        let (run, tally) = match bound.zbkm_ran(repository, dispatch) {
             Ok(answered) => answered,
             Err(err) => {
                 let unreached: Vec<&str> = launched[run_so_far..]
@@ -2615,7 +3051,10 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
                     .map(|(later, _)| later.zbkm_name())
                     .collect();
                 zbkm_broken(ZBKM_DOOR_FUTURITY, &red, &muzzled, &unreached);
-                bkco_fatal_now!("{}", err)
+                bkco_fatal_now!(
+                    "{}",
+                    err, //
+                )
             }
         };
 
@@ -2627,7 +3066,14 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         // A NARROWED COURSE CARRIES NO TIME, so the clock is not read: the
         // record is handed the course's own cut, and the writer withholds the
         // time for any course that carries one.
-        if !zbkm_banked(name, &run, &tally, Some(cut), std::time::Duration::ZERO) {
+        if !zbkm_banked(
+            dispatch,
+            name,
+            &run,
+            &tally,
+            Some(cut),
+            std::time::Duration::ZERO,
+        ) {
             red.push(name);
             continue;
         }
@@ -2636,12 +3082,24 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             continue;
         }
 
-        bkco_error_now!("course {} is red: {} — {}", name, run.spelling, zbkm_red_said(&run, &tally));
+        bkco_error_now!(
+            "course {} is red: {} — {}",
+            name,
+            run.spelling,
+            zbkm_red_said(&run, &tally), //
+        );
 
         red.push(name);
     }
 
-    zbkm_fallen(ZBKM_DOOR_FUTURITY, launched.len(), &red, &muzzled, &idle, &unhitched);
+    zbkm_fallen(
+        ZBKM_DOOR_FUTURITY,
+        launched.len(),
+        &red,
+        &muzzled,
+        &idle,
+        &unhitched,
+    );
 
     if idle.is_empty() {
         bkco_voice_now!(
@@ -2649,7 +3107,7 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             ZBKM_DOOR_FUTURITY,
             launched.len(),
             narrowing.bkci_verdict(),
-            zbkm_unhitched_said(&unhitched)
+            zbkm_unhitched_said(&unhitched), //
         );
     } else {
         bkco_voice_now!(
@@ -2660,7 +3118,7 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             narrowing.bkci_verdict(),
             idle.len(),
             idle.join(", "),
-            zbkm_unhitched_said(&unhitched)
+            zbkm_unhitched_said(&unhitched), //
         );
     }
 
@@ -2689,17 +3147,49 @@ fn zbkm_futurity(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// beside the courses it runs and launches nothing of them.
 fn zbkm_preflight(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collars: &[bkcr_resolve::bkcr_Collar],
     seated: &[(&bkcx_python::bkcx_Collar, bkcx_python::bkcx_Seat)],
     colophon: &str,
 ) -> Vec<(String, bkcx_python::bkcx_Unhitched)> {
-    let feedroom = match bkcq_kibble::bkcq_feedroom() {
+    let ready = zbkm_ready(repository, dispatch, collars, seated);
+
+    if ready.absent.is_empty() {
+        return ready.unhitched;
+    }
+
+    bkco_error_now!(
+        "{}",
+        bkcd_preflight::bkcd_unready(
+            &ready.absent,
+            &bkco_output::bkco_door(dispatch.bkcr_tabtargets(), colophon),
+            dispatch.bkcr_tabtargets(),
+        ), //
+    );
+
+    zbkm_fenced();
+}
+
+/// The preflight's reading at the door face, refusing nothing: the walk's
+/// preconditions and the unhitched courses, whatever stands.
+///
+/// SPLIT FROM THE REFUSAL so rebed reads the very roster the derby refuses
+/// on, before and after its heels, and never a second account of it.
+fn zbkm_ready(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collars: &[bkcr_resolve::bkcr_Collar],
+    seated: &[(&bkcx_python::bkcx_Collar, bkcx_python::bkcx_Seat)],
+) -> bkcd_preflight::bkcd_Ready {
+    let feedroom = match bkcq_kibble::bkcq_feedroom(dispatch) {
         Ok(feedroom) => feedroom,
         Err(err) => bkco_fatal_now!(
             "{} — the tree's preconditions cannot be read without a kibble root: {}",
             err,
-            bkco_output::bkco_door(bkco_output::BKCO_COLOPHON_WHISTLE)
+            bkco_output::bkco_door(
+                dispatch.bkcr_tabtargets(),
+                bkco_output::BKCO_COLOPHON_WHISTLE
+            ), //
         ),
     };
 
@@ -2710,31 +3200,403 @@ fn zbkm_preflight(
     // root is.
     let geography = zbkm_geography(repository);
 
-    let python: Vec<(&bkcx_python::bkcx_Collar, &bkcx_python::bkcx_Seat)> =
-        seated.iter().map(|(collar, seat)| (*collar, seat)).collect();
+    let python: Vec<(&bkcx_python::bkcx_Collar, &bkcx_python::bkcx_Seat)> = seated
+        .iter()
+        .map(|(collar, seat)| (*collar, seat))
+        .collect();
 
     let ready = match bkcd_preflight::bkcd_preflight_at(
         repository,
-        weaned,
+        dispatch,
         &feedroom,
         &geography,
         collars,
         &python,
     ) {
         Ok(ready) => ready,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    if ready.absent.is_empty() {
-        return ready.unhitched;
+    ready
+}
+
+/// One act rebed performs for an absence the preflight names: a heel of a
+/// collar, or a strike door the collar declares.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum zbkm_Supply {
+    Heel(String),
+    Strike(String),
+}
+
+/// *rebed*, the binary's half — every act the derby's preflight names that a
+/// heel or a strike supplies, performed, every manifest's registry closure
+/// fetched under its lock, and the preflight read again.
+///
+/// THE KENNEL'S ONE READINESS CONVERGE. A derby verifies and refuses; where it
+/// refuses, it names this door and nothing else, and the release calls it ahead
+/// of its builds. The roster of what to perform is the preflight's own reading
+/// rather than a list this verb holds and lets drift. The toolchains it stands
+/// on were laid by its bash half before the kennel could be built.
+///
+/// THE DAY'S SWEEP STANDS FIRST, on the build doors' own ground: a heel the
+/// sweep then emptied would hand the derby the swept shape this verb was called
+/// to cure. The sweep is the day's, so behind a build door that took it this is
+/// a no-op.
+///
+/// THE REGISTRY CLOSURE IS FETCHED NEXT, one cargo fetch per manifest the
+/// weaned set names, through the leash and so under its pin and its lock flag:
+/// the derby compiles what that fetch laid, and a station whose registry was
+/// emptied downloads here rather than inside a course.
+///
+/// EACH HEEL IS THE HEEL DOOR, spawned as this binary's own child with the
+/// collar as its argument. The heel arms end the process they run in, which is
+/// what a door does, and a second spelling of their bodies here would be a
+/// second converge free to drift from the first. A python environment behind
+/// its lock is a heel like any other, so the sync is the heel's.
+///
+/// EACH STRIKE IS THE TREE'S OWN DOOR, spawned from the repository root exactly
+/// as the collar declares it, once per drive however many absences name it. The
+/// kennel holds no idea of what a tree's build door does; it runs the door the
+/// collar says supplies the absence, in the collar's order, and reads the exit.
+/// A heel or strike that fails ends this verb on its verdict, relayed.
+///
+/// ONE ACT, THEN THE ROSTER READ AGAIN, because an act can uncover what it
+/// stood in front of: an environment read only by its record while uv was
+/// unplaced is read whole once uv is placed — and a project declaring this
+/// station out of its environments is then seen unhitched rather than heeled
+/// and refused, as it was when a whole round ran ahead of the re-read. An act is
+/// performed once and never twice, so an absence the acts did not cure ends
+/// the drive rather than looping on it.
+///
+/// WHAT NEITHER SUPPLIES REFUSES, named as the derby names it: a moved lock is
+/// the operator's to re-derive and commit, and no tool commits.
+fn zbkm_rebed(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
+    if !rest.is_empty() {
+        bkco_fatal_now!(
+            "'{}' takes nothing and was given {} argument(s) — it converges whatever the derby's \
+             preflight names across the whole tree, a heel of one collar being '{} <collar>'",
+            ZBKM_REBED,
+            rest.len(),
+            ZBKM_DOOR_HEEL, //
+        );
     }
 
-    bkco_error_now!(
-        "{}",
-        bkcd_preflight::bkcd_unready(&ready.absent, &bkco_output::bkco_door(colophon))
+    zbkm_deloused(repository, dispatch);
+
+    let (collars, python) = zbkm_yard(repository, dispatch, "converged");
+    let seated = zbkm_seated(dispatch, &python);
+
+    let fetched = zbkm_fetched(repository, dispatch, &collars);
+
+    let executable = match std::env::current_exe() {
+        Ok(executable) => executable,
+        Err(err) => {
+            bkco_error_now!(
+                "the running executable's own path could not be read, so no heel can be spawned: {}",
+                err, //
+            );
+            bkco_output::bkco_broke();
+        }
+    };
+
+    let mut performed: Vec<zbkm_Supply> = Vec::new();
+
+    loop {
+        let ready = zbkm_ready(repository, dispatch, &collars, &seated);
+
+        let next = ready.absent.iter().find_map(|absence| {
+            let acts: Vec<zbkm_Supply> = match &absence.heel {
+                Some(name) => vec![zbkm_Supply::Heel(name.clone())],
+                None => absence
+                    .strike
+                    .iter()
+                    .cloned()
+                    .map(zbkm_Supply::Strike)
+                    .collect(),
+            };
+
+            acts.into_iter()
+                .find(|act| !performed.contains(act))
+                .map(|act| (absence.subject.clone(), act))
+        });
+
+        let Some((subject, act)) = next else {
+            if !ready.absent.is_empty() {
+                bkco_error_now!(
+                    "{}",
+                    bkcd_preflight::bkcd_unsupplied(
+                        &ready.absent,
+                        &bkco_output::bkco_call(
+                            dispatch.bkcr_tabtargets(),
+                            bkco_output::BKCO_VERB_REBED,
+                            None
+                        )
+                    ), //
+                );
+                zbkm_fenced();
+            }
+
+            let heeled = performed
+                .iter()
+                .filter(|act| matches!(act, zbkm_Supply::Heel(_)))
+                .count();
+            bkco_info_now!(
+                "the tree is ready for the derby: {} manifest(s) fetched, {} heel(s) and {} \
+                 strike(s) performed",
+                fetched,
+                heeled,
+                performed.len() - heeled, //
+            );
+            std::process::exit(0);
+        };
+
+        let ran = zbkm_supply_said(&act);
+        bkco_info_now!(
+            "supplying {}: {}",
+            subject,
+            ran, //
+        );
+
+        let spawned = match &act {
+            zbkm_Supply::Heel(name) => std::process::Command::new(&executable)
+                .arg(ZBKM_DOOR_HEEL)
+                .arg(name)
+                .status(),
+            zbkm_Supply::Strike(door) => std::process::Command::new(repository.join(door))
+                .current_dir(repository)
+                .status(),
+        };
+
+        let status = match spawned {
+            Ok(status) => status,
+            Err(err) => {
+                bkco_error_now!(
+                    "'{}' could not be spawned: {}",
+                    ran,
+                    err, //
+                );
+                bkco_output::bkco_broke();
+            }
+        };
+
+        match status.code() {
+            Some(0) => performed.push(act),
+            Some(code) => zbkm_relayed(code, &ran),
+            None => {
+                bkco_error_now!(
+                    "'{}' ended on a signal and answered no exit",
+                    ran, //
+                );
+                bkco_output::bkco_broke();
+            }
+        }
+    }
+}
+
+/// One act of rebed's, said as it is performed.
+fn zbkm_supply_said(act: &zbkm_Supply) -> String {
+    match act {
+        zbkm_Supply::Heel(name) => format!(
+            "{} {}",
+            ZBKM_DOOR_HEEL,
+            name, //
+        ),
+        zbkm_Supply::Strike(door) => door.clone(),
+    }
+}
+
+/// The cargo verb that lays a manifest's registry closure without building it.
+const ZBKM_FETCH: &str = "fetch";
+
+/// Every manifest the walk's rust collars name, its registry closure fetched
+/// through the leash under its pin and its lock flag — answering how many.
+///
+/// ONE FETCH PER MANIFEST, however many collars stand over it: an app and its
+/// suite name one manifest between them. A fetch that fails ends rebed on its
+/// verdict, relayed, since a closure that cannot be laid is a derby that cannot
+/// compile.
+fn zbkm_fetched(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collars: &[bkcr_resolve::bkcr_Collar],
+) -> usize {
+    let mut manifests: Vec<PathBuf> = Vec::new();
+
+    for collar in collars {
+        let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
+        if manifests.contains(&manifest) {
+            continue;
+        }
+        manifests.push(manifest);
+    }
+
+    for manifest in &manifests {
+        bkco_info_now!(
+            "fetching the registry closure of {}",
+            manifest.display(), //
+        );
+
+        let run = match bkcl_leash::bkcl_drive(
+            repository,
+            dispatch,
+            manifest,
+            ZBKM_FETCH,
+            std::iter::empty::<&str>(),
+            &[],
+        ) {
+            Ok(run) => run,
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+        };
+
+        match run.code {
+            Some(0) => {}
+            Some(code) => zbkm_relayed(code, &run.spelling),
+            None => {
+                bkco_error_now!(
+                    "'{}' ended on a signal and answered no exit",
+                    run.spelling, //
+                );
+                bkco_output::bkco_broke();
+            }
+        }
+    }
+
+    manifests.len()
+}
+
+/// *bleach* — what the kennel provisions on the station, emptied, on the
+/// operator's word alone.
+///
+/// THE STATION COUNTERPART OF SCOOP. Scoop empties what a tree builds; this
+/// empties what the station holds for every tree: the tackroom's rustup home
+/// and cargo home, the kennel's quarter of the tackroom where the kibbles, the
+/// managed interpreters and uv's cache stand, and this checkout's quarter of
+/// its loosebox where the python environments stand. Rustup itself is never
+/// touched — it stands in the station user's own home, outside every root
+/// here. Rebed lays every one of them again.
+///
+/// NO DOOR CALLS IT AND NO ROAD RUNS IT. It is the operator's act, taken to
+/// prove the road from cold, and a kennel door that emptied a store shared by
+/// every clone on the station unasked would be a hazard to every other session.
+///
+/// EVERY ROOT IS SIGHTED BEFORE ANY IS REMOVED, on scoop's own law: a root that
+/// does not stand strictly inside the tackroom the fence proved, or strictly
+/// inside the loosebox, refuses the whole drive with nothing removed, and a
+/// removal takes only what a sighting yielded.
+fn zbkm_bleach(dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
+    if !rest.is_empty() {
+        bkco_fatal_now!(
+            "'{}' takes nothing and was given {} argument(s) — it empties what the kennel \
+             provisions on the station, the whole of it or none",
+            ZBKM_DOOR_BLEACH,
+            rest.len(), //
+        );
+    }
+
+    let tackroom = match bkcl_leash::bkcl_fenced(dispatch) {
+        Ok(tackroom) => tackroom,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
+    let loosebox = match bkcc_record::bkcc_loosebox(dispatch) {
+        Ok(loosebox) => loosebox,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
+    let feedroom = match bkcq_kibble::bkcq_feedroom(dispatch) {
+        Ok(feedroom) => feedroom,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
+    let mut roots: Vec<PathBuf> = vec![
+        bkcl_leash::bkcl_rustup_home(&tackroom),
+        bkcl_leash::bkcl_cargo_home(&tackroom),
+    ];
+    roots.push(feedroom.bkcq_root().to_path_buf());
+    roots.extend(bkcx_python::bkcx_provisions_at(&loosebox, &tackroom));
+
+    let sighted: Vec<bkcy_sweep::bkcy_Sighting> = roots
+        .into_iter()
+        .map(|root| bkcy_sweep::bkcy_sight_provision(&tackroom, &loosebox, root))
+        .collect();
+
+    let beyond: Vec<&PathBuf> = sighted
+        .iter()
+        .filter_map(|sighting| match sighting {
+            bkcy_sweep::bkcy_Sighting::Beyond(directory) => Some(directory),
+            _ => None,
+        })
+        .collect();
+
+    if !beyond.is_empty() {
+        for directory in &beyond {
+            bkco_error_now!(
+                "{} stands inside neither the tackroom {} nor the loosebox {}, and nothing \
+                 outside them is removed",
+                directory.display(),
+                tackroom.display(),
+                loosebox.display(), //
+            );
+        }
+        bkco_error_now!(
+            "{} of {} root(s) name a directory this door may not remove, so nothing was {}",
+            beyond.len(),
+            sighted.len(),
+            bkk::bkg_breviary::BKG_BLEACH_PAST, //
+        );
+        zbkm_barred();
+    }
+
+    let mut removed = 0usize;
+
+    for sighting in &sighted {
+        match bkcy_sweep::bkcy_remove(ZBKM_DOOR_BLEACH, sighting) {
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+            Ok(taken) if taken.stood => {
+                removed += 1;
+                bkco_info_now!(
+                    "removed {}",
+                    taken.directory.display(), //
+                );
+            }
+            Ok(taken) => bkco_info_now!(
+                "nothing stood at {}",
+                taken.directory.display(), //
+            ),
+        }
+    }
+
+    bkco_info_now!(
+        "the station is {}: {} of {} root(s) removed — {} lays every one of them again",
+        bkk::bkg_breviary::BKG_BLEACH_PAST,
+        removed,
+        sighted.len(),
+        bkco_output::bkco_call(
+            dispatch.bkcr_tabtargets(),
+            bkco_output::BKCO_VERB_REBED,
+            None
+        ), //
     );
 
-    std::process::exit(ZBKM_EXIT_PREFLIGHT);
+    std::process::exit(0);
 }
 
 /// The delouse step the converging and testing doors run first, once a day, and
@@ -2765,20 +3627,26 @@ fn zbkm_preflight(
 /// record it has left the yard in a state the next door cannot reason about, and
 /// a build let through on top of that is exactly the silent staleness the
 /// cadence exists to bound.
-fn zbkm_deloused(repository: &Path, weaned: &Path) {
-    let day = match bkcn_delouse::bkcn_day() {
+fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
+    let day = match bkcn_delouse::bkcn_day(dispatch) {
         Ok(day) => day,
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_DELOUSE);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
     };
 
-    let seat = match bkcc_record::bkcc_loosebox() {
+    let seat = match bkcc_record::bkcc_loosebox(dispatch) {
         Ok(seat) => seat,
         Err(err) => {
-            bkco_error_now!("{}", err);
-            std::process::exit(ZBKM_EXIT_DELOUSE);
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
         }
     };
 
@@ -2787,7 +3655,7 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
             bkco_info_now!(
                 "the yard was swept on {} and nothing is swept again today — the delouse keeps a \
                  day and not a habit",
-                day
+                day, //
             );
         }
         return;
@@ -2804,22 +3672,25 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
             bkco_error_now!(
                 "the running executable's own path could not be read, so the sweep cannot judge \
                  which directory shelters it: {}",
-                err
+                err, //
             );
-            std::process::exit(ZBKM_EXIT_DELOUSE);
+            bkco_output::bkco_broke();
         }
     };
 
-    let collars = zbkm_collars(repository, weaned, ZBKM_EXIT_DELOUSE, "swept");
+    let collars = zbkm_collars(repository, dispatch, "swept");
 
     let mut sighted: Vec<(String, bkcy_sweep::bkcy_Sighting)> = Vec::new();
     let mut beyond = 0usize;
 
     for collar in &collars {
-        match bkcy_sweep::bkcy_sight(repository, weaned, Some(&seat), collar) {
+        match bkcy_sweep::bkcy_sight(repository, dispatch, Some(&seat), collar) {
             Err(err) => {
-                bkco_error_now!("{}", err);
-                std::process::exit(ZBKM_EXIT_DELOUSE);
+                bkco_error_now!(
+                    "{}",
+                    err, //
+                );
+                bkco_output::bkco_broke();
             }
             Ok(bkcy_sweep::bkcy_Sighting::Beyond(directory)) => {
                 beyond += 1;
@@ -2829,7 +3700,7 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
                      of all",
                     collar.name,
                     directory.display(),
-                    repository.display()
+                    repository.display(), //
                 );
             }
             Ok(within) => sighted.push((collar.name.clone(), within)),
@@ -2841,15 +3712,15 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
             "{} of {} collar(s) name a build directory this door may not remove, so nothing was \
              swept and no day was recorded",
             beyond,
-            collars.len()
+            collars.len(), //
         );
-        std::process::exit(ZBKM_EXIT_DELOUSE);
+        bkco_output::bkco_broke();
     }
 
     if bkco_output::bkco_verbose() {
         bkco_info_now!(
             "the delouse takes the yard for {} — no sweep has landed here today",
-            day
+            day, //
         );
     }
 
@@ -2883,7 +3754,7 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
                 bkco_info_now!(
                     "{} — spared {}, which holds the kennel performing this sweep",
                     name,
-                    directory.display()
+                    directory.display(), //
                 );
             }
             swept.push(directory);
@@ -2892,8 +3763,11 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
 
         match bkcy_sweep::bkcy_remove(name, sighting) {
             Err(err) => {
-                bkco_error_now!("{}", err);
-                std::process::exit(ZBKM_EXIT_DELOUSE);
+                bkco_error_now!(
+                    "{}",
+                    err, //
+                );
+                bkco_output::bkco_broke();
             }
             Ok(taken) => {
                 if taken.stood {
@@ -2902,14 +3776,14 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
                         bkco_info_now!(
                             "{} — removed {}",
                             taken.collar,
-                            taken.directory.display()
+                            taken.directory.display(), //
                         );
                     }
                 } else if bkco_output::bkco_verbose() {
                     bkco_info_now!(
                         "{} — nothing stood at {}",
                         taken.collar,
-                        taken.directory.display()
+                        taken.directory.display(), //
                     );
                 }
                 swept.push(directory);
@@ -2920,8 +3794,11 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
     // THE DAY IS WRITTEN LAST, so a crash anywhere above costs a second sweep
     // rather than a skipped one.
     if let Err(err) = bkcn_delouse::bkcn_write(&seat, &day) {
-        bkco_error_now!("{}", err);
-        std::process::exit(ZBKM_EXIT_DELOUSE);
+        bkco_error_now!(
+            "{}",
+            err, //
+        );
+        bkco_output::bkco_broke();
     }
 
     // THE ONE TALLY LINE THE QUIET FLAVOR KEEPS, so a caller sees that a sweep
@@ -2932,7 +3809,7 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
         "the yard is swept for {}: {} build director(ies) removed across {} collar(s)",
         day,
         removed,
-        collars.len()
+        collars.len(), //
     );
 }
 
@@ -2958,35 +3835,44 @@ fn zbkm_deloused(repository: &Path, weaned: &Path) {
 /// their set verdict.
 fn zbkm_muzzled(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &bkcr_resolve::bkcr_Collar,
     name: &str,
 ) -> Option<Vec<String>> {
-    match bkcz_muzzle::bkcz_lint(repository, weaned, collar) {
-        Err(err) => bkco_fatal_now!("{}", err),
+    match bkcz_muzzle::bkcz_lint(repository, dispatch, collar) {
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
         Ok(bkcz_muzzle::bkcz_Verdict::Clean(report)) => {
             let mut marks = vec![format!(
                 "muzzled: {} at {}",
                 name,
-                collar.bkcr_field("BKRR_MUZZLE")
+                collar.bkcr_field("BKRR_MUZZLE"), //
             )];
             marks.extend(report.lines().map(str::to_string));
             Some(marks)
         }
         Ok(bkcz_muzzle::bkcz_Verdict::Unbuilt(report)) => {
-            bkco_answer_now!("{}", report.trim_end());
+            bkco_answer_now!(
+                "{}",
+                report.trim_end(), //
+            );
             bkco_fatal_now!(
                 "the crate the collar '{}' declares did not compile — this is a build failure and \
                  not a muzzle finding",
-                name
+                name, //
             );
         }
         Ok(bkcz_muzzle::bkcz_Verdict::Refused(report)) => {
-            bkco_answer_now!("{}", report.trim_end());
+            bkco_answer_now!(
+                "{}",
+                report.trim_end(), //
+            );
             bkco_error_now!(
                 "the muzzle refused the collar '{}' before any hurdle ran — each finding above \
                  names the surface to adopt",
-                name
+                name, //
             );
             None
         }
@@ -2995,7 +3881,7 @@ fn zbkm_muzzled(
 
 /// The set verdict of a walk that ran through: every red course, every course
 /// the muzzle refused, and — for the futurity — every course the patterns left
-/// idle, then the walk's own exit. Returns only when nothing fell.
+/// idle, then the walk bars. Returns only when nothing fell.
 ///
 /// SHARED BY BOTH WALKS, because the derby and the futurity take one behavior
 /// and a reader owed the courses that went red is owed them the same way by
@@ -3024,18 +3910,22 @@ fn zbkm_fallen(
         door,
         ran + muzzled.len(),
         red.len(),
-        muzzled.len()
+        muzzled.len(), //
     );
 
     if !red.is_empty() {
-        bkco_error_now!("{} course(s) went red: {}", red.len(), red.join(", "));
+        bkco_error_now!(
+            "{} course(s) went red: {}",
+            red.len(),
+            red.join(", "), //
+        );
     }
 
     if !muzzled.is_empty() {
         bkco_error_now!(
             "{} course(s) refused by the muzzle before any hurdle ran: {}",
             muzzled.len(),
-            muzzled.join(", ")
+            muzzled.join(", "), //
         );
     }
 
@@ -3043,20 +3933,26 @@ fn zbkm_fallen(
         bkco_error_now!(
             "{} course(s) not launched, the patterns matching none of their hurdles: {}",
             idle.len(),
-            idle.join(", ")
+            idle.join(", "), //
         );
     }
 
     if !unhitched.is_empty() {
-        bkco_error_now!("{}", zbkm_unhitched_listed(unhitched));
+        bkco_error_now!(
+            "{}",
+            zbkm_unhitched_listed(unhitched), //
+        );
     }
 
-    std::process::exit(ZBKM_EXIT_FALLERS);
+    zbkm_barred();
 }
 
 /// Take the unhitched courses out of a walk: the preflight read their projects'
 /// declarations, and nothing of them is launched, listed or recorded.
-fn zbkm_unhitch(courses: &mut Vec<zbkm_Course<'_>>, unhitched: &[(String, bkcx_python::bkcx_Unhitched)]) {
+fn zbkm_unhitch(
+    courses: &mut Vec<zbkm_Course<'_>>,
+    unhitched: &[(String, bkcx_python::bkcx_Unhitched)],
+) {
     courses.retain(|course| !unhitched.iter().any(|(name, _)| name == course.zbkm_name()));
 }
 
@@ -3065,14 +3961,20 @@ fn zbkm_unhitch(courses: &mut Vec<zbkm_Course<'_>>, unhitched: &[(String, bkcx_p
 fn zbkm_unhitched_listed(unhitched: &[(String, bkcx_python::bkcx_Unhitched)]) -> String {
     let named: Vec<String> = unhitched
         .iter()
-        .map(|(name, declared)| format!("{} ({})", name, declared.environments))
+        .map(|(name, declared)| {
+            format!(
+                "{} ({})",
+                name,
+                declared.environments, //
+            )
+        })
         .collect();
 
     format!(
         "{} course(s) unhitched, their projects declaring environments this station stands \
          outside: {}",
         unhitched.len(),
-        named.join(", ")
+        named.join(", "), //
     )
 }
 
@@ -3086,7 +3988,10 @@ fn zbkm_unhitched_said(unhitched: &[(String, bkcx_python::bkcx_Unhitched)]) -> S
     if unhitched.is_empty() {
         String::new()
     } else {
-        format!("; {}", zbkm_unhitched_listed(unhitched))
+        format!(
+            "; {}",
+            zbkm_unhitched_listed(unhitched), //
+        )
     }
 }
 
@@ -3103,7 +4008,7 @@ fn zbkm_broken(door: &str, red: &[&str], muzzled: &[&str], unreached: &[&str]) {
             "{} course(s) went red before the {} broke off: {}",
             red.len(),
             door,
-            red.join(", ")
+            red.join(", "), //
         );
     }
 
@@ -3112,7 +4017,7 @@ fn zbkm_broken(door: &str, red: &[&str], muzzled: &[&str], unreached: &[&str]) {
             "{} course(s) refused by the muzzle before the {} broke off: {}",
             muzzled.len(),
             door,
-            muzzled.join(", ")
+            muzzled.join(", "), //
         );
     }
 
@@ -3121,7 +4026,7 @@ fn zbkm_broken(door: &str, red: &[&str], muzzled: &[&str], unreached: &[&str]) {
             "the {} broke off, and {} course(s) did not run: {}",
             door,
             unreached.len(),
-            unreached.join(", ")
+            unreached.join(", "), //
         );
     }
 }
@@ -3148,13 +4053,13 @@ fn zbkm_named<'a>(courses: &[zbkm_Course<'a>]) -> Vec<&'a str> {
 /// tree.
 fn zbkm_hollow(collar: &str, run: &bkcl_leash::bkcl_Run, tally: &bkcv_voice::bkcv_Tally) {
     if zbkm_hollowed(collar, run, tally) {
-        std::process::exit(ZBKM_EXIT_HOLLOW);
+        zbkm_barred();
     }
 }
 
 /// The hollow reading without its exit, for a walk that presses on past a red
 /// course: the course is named red here, and the caller counts it among the
-/// walk's reds rather than ending the walk under the single course's code.
+/// walk's reds rather than ending the walk on the single course's verdict.
 fn zbkm_hollowed(collar: &str, run: &bkcl_leash::bkcl_Run, tally: &bkcv_voice::bkcv_Tally) -> bool {
     if !run.bkcl_landed() || tally.ran > 0 {
         return false;
@@ -3172,22 +4077,18 @@ fn zbkm_hollowed(collar: &str, run: &bkcl_leash::bkcl_Run, tally: &bkcv_voice::b
 /// it: an empty collection is already nonzero there, so the gate above could
 /// never fire and a python course asked to run nothing would hand its caller
 /// pytest's number instead of the kennel's. This arm reads that one exit
-/// (`bkcx_python::BKCX_PYTEST_EMPTY`, where the membrane stands) and takes the
-/// kennel's own code, so a caller reading an exit gets one vocabulary whatever
-/// ran underneath.
+/// (`bkcx_python::BKCX_PYTEST_EMPTY`, where the membrane stands) and bars as the
+/// gate above does, so a caller reading an exit gets one verdict whatever ran
+/// underneath.
 ///
 /// THE COUNT IS ASKED TOO, AND IT IS NOT REDUNDANT. A run that collected nothing
 /// counted nothing, so the two agree — but they are two readings of different
 /// things, and requiring both means a future pytest that reused this exit for
 /// something else could not quietly turn a course that DID run cases into a
 /// hollow refusal.
-fn zbkm_python_hollow(
-    collar: &str,
-    run: &bkcl_leash::bkcl_Run,
-    tally: &bkcv_voice::bkcv_Tally,
-) {
+fn zbkm_python_hollow(collar: &str, run: &bkcl_leash::bkcl_Run, tally: &bkcv_voice::bkcv_Tally) {
     if zbkm_python_hollowed(collar, run, tally) {
-        std::process::exit(ZBKM_EXIT_HOLLOW);
+        zbkm_barred();
     }
 }
 
@@ -3211,7 +4112,7 @@ fn zbkm_hollow_say(collar: &str, run: &bkcl_leash::bkcl_Run) {
     bkco_error_now!(
         "the collar '{}' ran and counted no case at all: {} — a suite that ran nothing proved          nothing, and a green here would report the tree as tested on the strength of an empty          run",
         collar,
-        run.spelling
+        run.spelling, //
     );
 }
 
@@ -3224,19 +4125,35 @@ fn zbkm_hollow_say(collar: &str, run: &bkcl_leash::bkcl_Run) {
 fn zbkm_red_said(run: &bkcl_leash::bkcl_Run, tally: &bkcv_voice::bkcv_Tally) -> String {
     match bkcv_voice::bkcv_unfinished(run.code, run.cut.as_deref(), tally) {
         Some(unfinished) => unfinished,
-        None => format!("{} case(s) ran, {} failed", tally.ran, tally.failed.len()),
+        None => format!(
+            "{} case(s) ran, {} failed",
+            tally.ran,
+            tally.failed.len(), //
+        ),
     }
 }
 
 /// End a single course's door on how its run ended.
 ///
-/// A CUT OVER A CLEAN EXIT TAKES THE KENNEL'S OWN CODE, since passing the
-/// child's zero on would report a run nobody heard whole as green.
+/// A COURSE IS A READING OF THE TREE, so its runner's exit is read as one and
+/// never handed on: a clean run is sound, and a run that went red bars, the
+/// voice having already said how it ended. The runner's own code — nextest's,
+/// cargo's 101 for a red test or a failed compile, pytest's — stays in that
+/// line, where a code of 100 or above cannot read as a gate the band minted.
+///
+/// A CUT OVER A CLEAN EXIT ENDS THE DOOR BROKE, since passing the child's zero
+/// on would report a run nobody heard whole as green, and a red verdict would
+/// send a reader looking for a failing case: what failed is the hearing, which
+/// the voice's red line names, and its repair is at the station.
 fn zbkm_exit_as_ran(run: &bkcl_leash::bkcl_Run) -> ! {
     match run.code {
-        Some(0) if run.cut.is_some() => std::process::exit(ZBKM_EXIT_CUT),
-        Some(code) => std::process::exit(code),
-        None => bkco_fatal_now!("a signal took the suite: {}", run.spelling),
+        Some(0) if run.cut.is_some() => bkco_output::bkco_broke(),
+        Some(0) => std::process::exit(0),
+        Some(_) => zbkm_barred(),
+        None => bkco_fatal_now!(
+            "a signal took the suite: {}",
+            run.spelling, //
+        ),
     }
 }
 
@@ -3259,14 +4176,15 @@ fn zbkm_exit_as_ran(run: &bkcl_leash::bkcl_Run) -> ! {
 /// course the suite held exactly what it drove, which is why the held count
 /// falls back to the tally rather than costing a second listing.
 fn zbkm_record(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &str,
     run: &bkcl_leash::bkcl_Run,
     tally: &bkcv_voice::bkcv_Tally,
     narrowing: Option<&bkci_pipeline::bkci_Narrowing>,
     taken: std::time::Duration,
 ) {
-    if !zbkm_banked(collar, run, tally, narrowing, taken) {
-        std::process::exit(ZBKM_EXIT_RECORD);
+    if !zbkm_banked(dispatch, collar, run, tally, narrowing, taken) {
+        bkco_output::bkco_broke();
     }
 }
 
@@ -3274,6 +4192,7 @@ fn zbkm_record(
 /// says the course ran green and its record did not land, already named red
 /// here; true says the record landed or none was owed.
 fn zbkm_banked(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     collar: &str,
     run: &bkcl_leash::bkcl_Run,
     tally: &bkcv_voice::bkcv_Tally,
@@ -3297,10 +4216,14 @@ fn zbkm_banked(
         position: bkcs_stamp::bkcs_position().seat.to_string(),
     };
 
-    match bkcc_record::bkcc_write(&course) {
+    match bkcc_record::bkcc_write(&course, dispatch) {
         Ok(landed) => {
             for seat in landed {
-                bkco_trace_now!("the course record for '{}' stands at {}", collar, seat.display());
+                bkco_trace_now!(
+                    "the course record for '{}' stands at {}",
+                    collar,
+                    seat.display(), //
+                );
             }
             true
         }
@@ -3308,7 +4231,7 @@ fn zbkm_banked(
             bkco_error_now!(
                 "the course '{}' ran green and its record was not banked: {}",
                 collar,
-                err
+                err, //
             );
             false
         }
@@ -3326,24 +4249,24 @@ fn zbkm_banked(
 /// taken.
 ///
 /// IT IS THE SAME STEP DERBY AND HEEL RUN, and nothing else: recorded once a day,
-/// a no-op the second time, and refusing on its own exit. Which yard is stale is
+/// a no-op the second time, and refusing as it refuses there. Which yard is stale is
 /// the kennel's question, so the bash door calling this decides nothing about
 /// staleness and holds no sweep of its own.
 ///
 /// IT TAKES NOTHING, on scoop's ground: the sweep is a statement about the whole
 /// yard, and a door naming one collar would suggest the day could be taken for
 /// part of it.
-fn zbkm_delouse(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_delouse(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if !rest.is_empty() {
         bkco_fatal_now!(
             "'{}' takes nothing and was given {} argument(s) — the day's sweep takes the whole \
              yard or none of it",
             ZBKM_DOOR_DELOUSE,
-            rest.len()
+            rest.len(), //
         );
     }
 
-    zbkm_deloused(repository, weaned);
+    zbkm_deloused(repository, dispatch);
 
     std::process::exit(0);
 }
@@ -3365,13 +4288,13 @@ fn zbkm_delouse(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// one this door may delete. A sweep that removed as it walked would have
 /// emptied half a yard before meeting the refusal that says it should not have
 /// started.
-fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
+fn zbkm_scoop(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
     if !rest.is_empty() {
         bkco_fatal_now!(
             "'{}' takes nothing and was given {} argument(s) — it sweeps every collar the walk \
              finds, and a single crate's build directory is what cargo's own clean removes",
             ZBKM_DOOR_SCOOP,
-            rest.len()
+            rest.len(), //
         );
     }
 
@@ -3380,19 +4303,25 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // one it may reach into. It refuses rather than falling back: a scoop that
     // treated an absent name as "no loosebox today" would report a clean yard
     // over products it never looked at.
-    let loosebox = match bkcc_record::bkcc_loosebox() {
+    let loosebox = match bkcc_record::bkcc_loosebox(dispatch) {
         Ok(loosebox) => loosebox,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
-    let collars = zbkm_collars(repository, weaned, ZBKM_EXIT_FINDINGS, "swept");
+    let collars = zbkm_collars(repository, dispatch, "swept");
 
     let mut sighted: Vec<(String, bkcy_sweep::bkcy_Sighting)> = Vec::new();
     let mut beyond = 0usize;
 
     for collar in &collars {
-        match bkcy_sweep::bkcy_sight(repository, weaned, Some(&loosebox), collar) {
-            Err(err) => bkco_fatal_now!("{}", err),
+        match bkcy_sweep::bkcy_sight(repository, dispatch, Some(&loosebox), collar) {
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
             Ok(bkcy_sweep::bkcy_Sighting::Beyond(directory)) => {
                 beyond += 1;
                 bkco_error_now!(
@@ -3401,7 +4330,7 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
                      of all",
                     collar.name,
                     directory.display(),
-                    repository.display()
+                    repository.display(), //
                 );
             }
             Ok(within) => sighted.push((collar.name.clone(), within)),
@@ -3420,16 +4349,22 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
     // sighting must not: the sweep is reached by the delouse for the same act,
     // and a mechanism that read its own roots would answer differently at the
     // two doors.
-    let python = zbkm_python_collars(repository, weaned, ZBKM_EXIT_FINDINGS, "swept");
+    let python = zbkm_python_collars(repository, dispatch, "swept");
 
     for collar in &python {
-        let seat = match bkcx_python::bkcx_seat(collar) {
+        let seat = match bkcx_python::bkcx_seat(dispatch, collar) {
             Ok(seat) => seat,
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         };
 
         match bkcy_sweep::bkcy_sight_python(repository, &loosebox, &seat) {
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
             Ok(bkcy_sweep::bkcy_Sighting::Beyond(directory)) => {
                 beyond += 1;
                 bkco_error_now!(
@@ -3438,7 +4373,7 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
                      interpreter store and uv's caches least of all",
                     collar.name,
                     directory.display(),
-                    repository.display()
+                    repository.display(), //
                 );
             }
             Ok(within) => sighted.push((collar.name.clone(), within)),
@@ -3452,9 +4387,9 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             "{} of {} collar(s) name a derived directory this door may not remove, so nothing was \
              swept",
             beyond,
-            walked
+            walked, //
         );
-        std::process::exit(ZBKM_EXIT_OUTSIDE);
+        zbkm_barred();
     }
 
     let mut swept: Vec<PathBuf> = Vec::new();
@@ -3476,22 +4411,29 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
             bkco_info_now!(
                 "{} builds into {}, which this drive has already taken",
                 name,
-                directory.display()
+                directory.display(), //
             );
             continue;
         }
 
         match bkcy_sweep::bkcy_remove(name, sighting) {
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
             Ok(taken) => {
                 if taken.stood {
                     removed += 1;
-                    bkco_info_now!("{} — removed {}", taken.collar, taken.directory.display());
+                    bkco_info_now!(
+                        "{} — removed {}",
+                        taken.collar,
+                        taken.directory.display(), //
+                    );
                 } else {
                     bkco_info_now!(
                         "{} — nothing stood at {}",
                         taken.collar,
-                        taken.directory.display()
+                        taken.directory.display(), //
                     );
                 }
                 swept.push(directory);
@@ -3503,14 +4445,14 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
         "the yard is clean: {} derived director(ies) removed across {} collar(s), and the kennel \
          binary went with them — the next door rebuilds through the whistle",
         removed,
-        walked
+        walked, //
     );
 
     std::process::exit(0);
 }
 
 /// Every python collar the walk finds, resolved and validated, or a refusal
-/// naming each unsound one, under the caller's exit.
+/// naming each unsound one.
 ///
 /// THE RUST ARM'S LAW OVER THE OTHER FAMILY — never operate on a collar that
 /// does not conform — held in a reading of its own rather than in a shared body.
@@ -3518,29 +4460,30 @@ fn zbkm_scoop(repository: &Path, weaned: &Path, rest: &[OsString]) -> ! {
 /// types, so a single generic walk would be a type parameter bought to share
 /// nine lines and would put the two rosters' findings in one sentence that could
 /// name neither family.
-///
-/// THE REFUSAL'S EXIT IS THE CALLER'S, on the rust walk's own ground (see
-/// `zbkm_collars`): to scoop an unsound python collar is a finding, and to the
-/// walks it is the whole walk refused before any course runs.
 fn zbkm_python_collars(
     repository: &Path,
-    weaned: &Path,
-    refusal: i32,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     acted: &str,
 ) -> Vec<bkcx_python::bkcx_Collar> {
-    let (collars, unsound) = zbkm_python_read(repository, weaned);
+    let (collars, unsound) = zbkm_python_read(repository, dispatch);
 
-    zbkm_unsound(unsound, collars.len(), refusal, acted);
+    zbkm_unsound(unsound, collars.len(), acted);
 
     collars
 }
 
 /// Every python collar the walk finds, resolved, each unsound one's findings
 /// said where it is met — and the count of them, the refusal being the caller's.
-fn zbkm_python_read(repository: &Path, weaned: &Path) -> (Vec<bkcx_python::bkcx_Collar>, usize) {
-    let instances = match bkcx_python::bkcx_walk(repository, weaned) {
+fn zbkm_python_read(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+) -> (Vec<bkcx_python::bkcx_Collar>, usize) {
+    let instances = match bkcx_python::bkcx_walk(repository, dispatch.bkcr_weaned()) {
         Ok(instances) => instances,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let mut collars: Vec<bkcx_python::bkcx_Collar> = Vec::new();
@@ -3551,13 +4494,16 @@ fn zbkm_python_read(repository: &Path, weaned: &Path) -> (Vec<bkcx_python::bkcx_
             Some(name) => name.to_string_lossy().into_owned(),
             None => bkco_fatal_now!(
                 "the walk found a python collar at {}, which names no instance directory",
-                instance.display()
+                instance.display(), //
             ),
         };
 
-        let resolved = match bkcx_python::bkcx_resolve(repository, weaned, &name) {
+        let resolved = match bkcx_python::bkcx_resolve(repository, dispatch, &name) {
             Ok(resolved) => resolved,
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         };
 
         if !resolved.findings.is_empty() {
@@ -3566,10 +4512,13 @@ fn zbkm_python_read(repository: &Path, weaned: &Path) -> (Vec<bkcx_python::bkcx_
                 "the python collar '{}' at {} carries {} finding(s):",
                 name,
                 resolved.collar.instance.display(),
-                resolved.findings.len()
+                resolved.findings.len(), //
             );
             for finding in &resolved.findings {
-                bkco_error_now!("  {}", finding);
+                bkco_error_now!(
+                    "  {}",
+                    finding, //
+                );
             }
         }
 
@@ -3581,32 +4530,30 @@ fn zbkm_python_read(repository: &Path, weaned: &Path) -> (Vec<bkcx_python::bkcx_
 
 /// Every collar the walk finds, resolved and validated, or a refusal naming each
 /// unsound one.
-///
-/// THE REFUSAL'S EXIT IS THE CALLER'S, because what an unsound collar means
-/// differs by door: to the muzzle it is a collar that does not conform, which is
-/// the finding code every door shares; to derby it is the whole walk refused
-/// before any course runs, which is that door's own verdict about a set. One
-/// code for both would make a caller at the boundary read prose to tell which
-/// thing happened.
 fn zbkm_collars(
     repository: &Path,
-    weaned: &Path,
-    refusal: i32,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     acted: &str,
 ) -> Vec<bkcr_resolve::bkcr_Collar> {
-    let (collars, unsound) = zbkm_rust_read(repository, weaned);
+    let (collars, unsound) = zbkm_rust_read(repository, dispatch);
 
-    zbkm_unsound(unsound, collars.len(), refusal, acted);
+    zbkm_unsound(unsound, collars.len(), acted);
 
     collars
 }
 
 /// Every rust collar the walk finds, resolved, each unsound one's findings said
 /// where it is met — and the count of them, the refusal being the caller's.
-fn zbkm_rust_read(repository: &Path, weaned: &Path) -> (Vec<bkcr_resolve::bkcr_Collar>, usize) {
-    let instances = match bkcr_resolve::bkcr_walk(repository, weaned) {
+fn zbkm_rust_read(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+) -> (Vec<bkcr_resolve::bkcr_Collar>, usize) {
+    let instances = match bkcr_resolve::bkcr_walk(repository, dispatch.bkcr_weaned()) {
         Ok(instances) => instances,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     let mut collars: Vec<bkcr_resolve::bkcr_Collar> = Vec::new();
@@ -3617,13 +4564,16 @@ fn zbkm_rust_read(repository: &Path, weaned: &Path) -> (Vec<bkcr_resolve::bkcr_C
             Some(name) => name.to_string_lossy().into_owned(),
             None => bkco_fatal_now!(
                 "the walk found a collar at {}, which names no instance directory",
-                instance.display()
+                instance.display(), //
             ),
         };
 
-        let resolved = match bkcr_resolve::bkcr_resolve(repository, weaned, &name) {
+        let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, &name) {
             Ok(resolved) => resolved,
-            Err(err) => bkco_fatal_now!("{}", err),
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
         };
 
         if !resolved.findings.is_empty() {
@@ -3632,10 +4582,13 @@ fn zbkm_rust_read(repository: &Path, weaned: &Path) -> (Vec<bkcr_resolve::bkcr_C
                 "the collar '{}' at {} carries {} finding(s):",
                 name,
                 resolved.collar.instance.display(),
-                resolved.findings.len()
+                resolved.findings.len(), //
             );
             for finding in &resolved.findings {
-                bkco_error_now!("  {}", finding);
+                bkco_error_now!(
+                    "  {}",
+                    finding, //
+                );
             }
         }
 
@@ -3654,20 +4607,31 @@ fn zbkm_rust_read(repository: &Path, weaned: &Path) -> (Vec<bkcr_resolve::bkcr_C
 /// would hide the second's behind a repair and a fresh drive.
 fn zbkm_yard(
     repository: &Path,
-    weaned: &Path,
-    refusal: i32,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
     acted: &str,
-) -> (Vec<bkcr_resolve::bkcr_Collar>, Vec<bkcx_python::bkcx_Collar>) {
-    let (rust, rust_unsound) = zbkm_rust_read(repository, weaned);
-    let (python, python_unsound) = zbkm_python_read(repository, weaned);
+) -> (
+    Vec<bkcr_resolve::bkcr_Collar>,
+    Vec<bkcx_python::bkcx_Collar>,
+) {
+    let (rust, rust_unsound) = zbkm_rust_read(repository, dispatch);
+    let (python, python_unsound) = zbkm_python_read(repository, dispatch);
 
-    zbkm_unsound(rust_unsound + python_unsound, rust.len() + python.len(), refusal, acted);
+    zbkm_unsound(
+        rust_unsound + python_unsound,
+        rust.len() + python.len(),
+        acted,
+    );
 
     (rust, python)
 }
 
 /// The walk's one refusal over unsound collars, taken where any stood.
-fn zbkm_unsound(unsound: usize, walked: usize, refusal: i32, acted: &str) {
+///
+/// IT BARS AT EVERY DOOR THAT WALKS, which is what a collar that does not
+/// conform is: a reading of the tree's own declarations, ruled against. Which
+/// act the refusal stopped — a lint, a walk of every course, a sweep — is the
+/// sentence's `acted`, so the line says what the exit no longer distinguishes.
+fn zbkm_unsound(unsound: usize, walked: usize, acted: &str) {
     if unsound == 0 {
         return;
     }
@@ -3676,30 +4640,55 @@ fn zbkm_unsound(unsound: usize, walked: usize, refusal: i32, acted: &str) {
         "{} of {} collar(s) do not conform, so nothing was {} — never operate on an invalid collar",
         unsound,
         walked,
-        acted
+        acted, //
     );
-    std::process::exit(refusal);
+    zbkm_barred();
 }
 
 /// The leash register's dispatch: the verb and what it owns, handed to the leash
-/// over the manifest the arguments name, and the child's exit taken as our own.
+/// over the manifest the arguments name, and the child's exit answered as a
+/// verdict.
 ///
-/// THE EXIT IS THE CHILD'S, unchanged. Every site this replaces tested cargo's
-/// own exit and died on it, so a register that translated the code would silently
-/// move what those sites mean by failure.
+/// THE CHILD'S EXIT IS CLASSIFIED, NEVER HANDED ON (`zbkm_relayed`). Every site
+/// this replaces tested cargo's exit for failure and died on it, so a clean run
+/// stays sound and every failure stays a failure; what changes is that cargo's
+/// 101 and nextest's 100 no longer leave this door as codes the band reads as
+/// gates it minted.
 ///
 /// NOTHING THAT REACHES HERE IS A DOOR. Every door word is taken by its own arm
 /// above, the blanks included, so this function no longer holds a roster to
 /// check one against — a door being built is refused where it is dispatched,
 /// which is also where its own sentence will one day answer.
-fn zbkm_register(repository: &Path, weaned: &Path, arguments: &[OsString]) -> ! {
+///
+/// ONLY THE BUILD VERB TAKES THE VOICE, and every other verb keeps the child's
+/// stdout whole on this process's own. A build is a compiler working, which the
+/// estate's build doors reach through here and which sounds like a test under
+/// the build road (`bkch_heel::bkch_voiced_build`). Any other verb answers its
+/// CALLER: the engine build door reads a dependency tree off this stream to
+/// prove the shipped binary links no census crate, and a stream the voice had
+/// consumed would match nothing — which that guard reads as passing.
+fn zbkm_register(
+    repository: &Path,
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    arguments: &[OsString],
+) -> ! {
     let verb = arguments[0].to_string_lossy().into_owned();
 
     let (manifest, rest) = zbkm_manifest(&arguments[1..]);
 
-    let run = match bkcl_leash::bkcl_drive(repository, weaned, &manifest, &verb, rest, &[]) {
+    let attempt = if verb == bkch_heel::BKCH_VERB_BUILD {
+        bkch_heel::bkch_voiced_build(repository, dispatch, &manifest, &rest, &[])
+            .map(|(run, _)| run)
+    } else {
+        bkcl_leash::bkcl_drive(repository, dispatch, &manifest, &verb, rest, &[])
+    };
+
+    let run = match attempt {
         Ok(run) => run,
-        Err(err) => bkco_fatal_now!("{}", err),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
     };
 
     // WHAT WAS SPELLED IS SAID AFTER IT RAN, and the ordering is the leash's
@@ -3708,11 +4697,17 @@ fn zbkm_register(repository: &Path, weaned: &Path, arguments: &[OsString]) -> ! 
     // caller's reach, and the spelling reaches us only as part of what came back.
     // Said either way, because a reader who needs to know which channel answered
     // needs it most on the run that failed.
-    bkco_info_now!("{}", run.spelling);
+    bkco_info_now!(
+        "{}",
+        run.spelling, //
+    );
 
     match run.code {
-        Some(code) => std::process::exit(code),
-        None => bkco_fatal_now!("a signal took the invocation: {}", run.spelling),
+        Some(code) => zbkm_relayed(code, &run.spelling),
+        None => bkco_fatal_now!(
+            "a signal took the invocation: {}",
+            run.spelling, //
+        ),
     }
 }
 
@@ -3730,7 +4725,10 @@ fn zbkm_register(repository: &Path, weaned: &Path, arguments: &[OsString]) -> ! 
 /// tenant's hands and read it as the leash's — and the tenant most likely to
 /// spell this particular flag is the kennel itself, whose register takes it.
 fn zbkm_manifest(rest: &[OsString]) -> (PathBuf, Vec<OsString>) {
-    let joined = format!("{}=", bkcl_leash::BKCL_MANIFEST_FLAG);
+    let joined = format!(
+        "{}=",
+        bkcl_leash::BKCL_MANIFEST_FLAG, //
+    );
 
     let mut manifest: Option<PathBuf> = None;
     let mut kept: Vec<OsString> = Vec::new();
@@ -3771,7 +4769,10 @@ fn zbkm_manifest(rest: &[OsString]) -> (PathBuf, Vec<OsString>) {
     }
 
     if awaiting {
-        bkco_fatal_now!("{} was given no path", bkcl_leash::BKCL_MANIFEST_FLAG);
+        bkco_fatal_now!(
+            "{} was given no path",
+            bkcl_leash::BKCL_MANIFEST_FLAG, //
+        );
     }
 
     match manifest {
@@ -3781,7 +4782,7 @@ fn zbkm_manifest(rest: &[OsString]) -> (PathBuf, Vec<OsString>) {
              discover one by walking up from the working directory, and a discovered manifest is \
              the same inheritance the stated pin exists to close — a call that meant one crate \
              building another",
-            bkcl_leash::BKCL_MANIFEST_FLAG
+            bkcl_leash::BKCL_MANIFEST_FLAG, //
         ),
     }
 }

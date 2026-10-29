@@ -33,28 +33,49 @@
 //! perfectly visible from the spawned one, where the kennel child stands in the
 //! lure itself. A hurdle here would assert against a redirect cargo never read.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use super::bkcr_resolve::bkcr_resolve;
-use super::bkcx_python::{bkcx_resolve, bkcx_seat_at, bkcx_Seat};
-use super::bkcy_sweep::{
-    bkcy_classed, bkcy_remove, bkcy_shelters, bkcy_sight, bkcy_sight_python, bkcy_Sighting,
+use super::bkcx_python::{
+    bkcx_Seat,
+    bkcx_resolve,
+    bkcx_seat_at, //
 };
-use super::bktu_lure::{bktu_Bent, bktu_Lure};
-use super::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
+use super::bkcy_sweep::{
+    bkcy_Sighting,
+    bkcy_classed,
+    bkcy_remove,
+    bkcy_shelters,
+    bkcy_sight,
+    bkcy_sight_provision,
+    bkcy_sight_python, //
+};
+use super::bkg_breviary::{
+    BKG_BLEACH_BASE,
+    BKG_BUS_LOOSEBOX_BASE, //
+};
+use super::bktr_resolve::bktr_lured;
+use super::bktu_lure::{
+    bktu_Bent,
+    bktu_Lure, //
+};
 
 /// Sight one of a lure's collars.
 fn zbkty_sight(lure: &bktu_Lure, collar: &str) -> bkcy_Sighting {
-    let resolved =
-        bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), collar).expect("the lure's collar should resolve");
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(lure), collar)
+        .expect("the lure's collar should resolve");
 
     assert!(
         resolved.findings.is_empty(),
         "the lure's own collar should conform: {:?}",
-        resolved.findings
+        resolved.findings, //
     );
 
-    bkcy_sight(lure.bktu_root(), &lure.bktu_weaned(), None, &resolved.collar).expect("cargo should be reachable")
+    bkcy_sight(lure.bktu_root(), &bktr_lured(lure), None, &resolved.collar)
+        .expect("cargo should be reachable")
 }
 
 /// THE DIRECTORY IS CARGO'S OWN ANSWER, and the sighting lands within the lure.
@@ -68,9 +89,12 @@ fn bkty_a_crate_in_the_tree_sights_within_it() {
         bkcy_Sighting::Within(directory) => assert!(
             directory.starts_with(lure.bktu_root()),
             "cargo's answer should stand under the lure: {}",
-            directory.display()
+            directory.display(), //
         ),
-        other => panic!("a crate in the tree sights within it: {:?}", other),
+        other => panic!(
+            "a crate in the tree sights within it: {:?}",
+            other, //
+        ),
     }
 }
 
@@ -88,12 +112,12 @@ fn bkty_removal_refuses_a_directory_sighted_beyond() {
 
     assert!(
         bkcy_remove("suite-lure", &sighted).is_err(),
-        "a directory sighted beyond is never removed"
+        "a directory sighted beyond is never removed", //
     );
     assert!(
         beyond.is_dir(),
         "the refusal must leave the directory standing: {}",
-        beyond.display()
+        beyond.display(), //
     );
 }
 
@@ -108,7 +132,11 @@ fn bkty_an_absent_directory_is_swept_without_fault() {
     let taken = bkcy_remove("suite-lure", &bkcy_Sighting::Within(never.clone()))
         .expect("an absent directory is not a fault");
 
-    assert!(!taken.stood, "nothing stood at {}", never.display());
+    assert!(
+        !taken.stood,
+        "nothing stood at {}",
+        never.display(), //
+    );
     assert_eq!(taken.directory, never);
 }
 
@@ -124,20 +152,29 @@ fn bkty_a_warm_directory_is_removed() {
     let sighted = zbkty_sight(&lure, "suite-lure");
     let directory = match &sighted {
         bkcy_Sighting::Within(directory) => directory.clone(),
-        other => panic!("the lure's crate sights within it: {:?}", other),
+        other => panic!(
+            "the lure's crate sights within it: {:?}",
+            other, //
+        ),
     };
 
     std::fs::create_dir_all(directory.join("release"))
         .expect("the hurdle should warm the directory");
-    assert!(directory.is_dir(), "the directory must stand before the sweep");
+    assert!(
+        directory.is_dir(),
+        "the directory must stand before the sweep", //
+    );
 
     let taken = bkcy_remove("suite-lure", &sighted).expect("a warm directory is removable");
 
-    assert!(taken.stood, "the sweep should report that it stood");
+    assert!(
+        taken.stood,
+        "the sweep should report that it stood", //
+    );
     assert!(
         !Path::new(&directory).exists(),
         "the directory should be gone: {}",
-        directory.display()
+        directory.display(), //
     );
 }
 
@@ -157,13 +194,19 @@ fn bkty_a_posed_kennel_directory_survives_the_sweep() {
     let kennel = zbkty_sight(&lure, "suite-lure");
     let kennel_directory = match &kennel {
         bkcy_Sighting::Within(directory) => directory.clone(),
-        other => panic!("the lure's crate sights within it: {:?}", other),
+        other => panic!(
+            "the lure's crate sights within it: {:?}",
+            other, //
+        ),
     };
 
     let neighbour = zbkty_sight(&lure, "suite-neighbour");
     let neighbour_directory = match &neighbour {
         bkcy_Sighting::Within(directory) => directory.clone(),
-        other => panic!("the lure's crate sights within it: {:?}", other),
+        other => panic!(
+            "the lure's crate sights within it: {:?}",
+            other, //
+        ),
     };
 
     // A POSED COPY STANDS IN FOR THE RUNNING EXECUTABLE, on the warm-directory
@@ -181,11 +224,11 @@ fn bkty_a_posed_kennel_directory_survives_the_sweep() {
 
     assert!(
         bkcy_shelters(&kennel_directory, &executable),
-        "the directory holding the posed executable should shelter it"
+        "the directory holding the posed executable should shelter it", //
     );
     assert!(
         !bkcy_shelters(&neighbour_directory, &executable),
-        "a directory holding no copy of the executable should not shelter it"
+        "a directory holding no copy of the executable should not shelter it", //
     );
 
     // THE DELOUSE LOOP'S OWN JUDGMENT: spare a sheltering directory and remove
@@ -196,16 +239,18 @@ fn bkty_a_posed_kennel_directory_survives_the_sweep() {
     assert!(
         kennel_directory.is_dir(),
         "the sweep must leave the sheltering directory standing: {}",
-        kennel_directory.display()
+        kennel_directory.display(), //
     );
 
-    let taken =
-        bkcy_remove("suite-neighbour", &neighbour).expect("the neighbour is removable");
-    assert!(taken.stood, "the neighbour should have stood before removal");
+    let taken = bkcy_remove("suite-neighbour", &neighbour).expect("the neighbour is removable");
+    assert!(
+        taken.stood,
+        "the neighbour should have stood before removal", //
+    );
     assert!(
         !neighbour_directory.exists(),
         "the neighbour should be gone: {}",
-        neighbour_directory.display()
+        neighbour_directory.display(), //
     );
 }
 
@@ -235,14 +280,24 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
     }
 
     assert_eq!(
-        bkcy_classed(&repository, Some(&loosebox), &in_loosebox, in_loosebox.clone()),
+        bkcy_classed(
+            &repository,
+            Some(&loosebox),
+            &in_loosebox,
+            in_loosebox.clone()
+        ),
         bkcy_Sighting::Loosebox(in_loosebox.clone()),
         "a path under the posed {} is one the sweep may delete",
         BKG_BUS_LOOSEBOX_BASE, //
     );
 
     assert_eq!(
-        bkcy_classed(&repository, Some(&loosebox), &in_tackroom, in_tackroom.clone()),
+        bkcy_classed(
+            &repository,
+            Some(&loosebox),
+            &in_tackroom,
+            in_tackroom.clone()
+        ),
         bkcy_Sighting::Beyond(in_tackroom.clone()),
         "the tackroom stands beneath no {} and stays refused",
         BKG_BUS_LOOSEBOX_BASE, //
@@ -252,9 +307,12 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
     // would pass the assertion above and take the station's toolchain store.
     assert!(
         bkcy_remove("suite-lure", &bkcy_Sighting::Beyond(in_tackroom.clone())).is_err(),
-        "nothing sighted beyond is ever removed"
+        "nothing sighted beyond is ever removed", //
     );
-    assert!(in_tackroom.is_dir(), "the tackroom must still stand");
+    assert!(
+        in_tackroom.is_dir(),
+        "the tackroom must still stand", //
+    );
 
     // THE LOOSEBOX ROOT ITSELF IS NOT A LOOSEBOX PATH, on the same reading that
     // spares a repository root: a path equal to the posed root would take every
@@ -284,13 +342,9 @@ const ZBKTY_PYTHON_AT: &str = "project";
 /// shared directory that races its neighbours through one git init.
 fn zbkty_python(named: &str) -> (bktu_Lure, bkcx_Seat, PathBuf) {
     let lure = bktu_Lure::bktu_compose(named);
-    lure.bktu_project(
-        ZBKTY_PYTHON_AT,
-        ZBKTY_PYTHON_COLLAR,
-        &bktu_Bent::default(),
-    );
+    lure.bktu_project(ZBKTY_PYTHON_AT, ZBKTY_PYTHON_COLLAR, &bktu_Bent::default());
 
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTY_PYTHON_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTY_PYTHON_COLLAR)
         .expect("the seated python collar resolves")
         .collar;
 
@@ -322,7 +376,7 @@ fn bkty_a_python_environment_under_the_loosebox_is_sighted_and_removed() {
     assert!(
         matches!(sighted, bkcy_Sighting::Loosebox(_)),
         "an environment under the derived root sighted {:?} rather than at that root's landing",
-        sighted
+        sighted, //
     );
 
     let swept =
@@ -331,13 +385,13 @@ fn bkty_a_python_environment_under_the_loosebox_is_sighted_and_removed() {
     assert!(
         swept.stood,
         "the posed environment at {} was reported absent",
-        seat.environment.display()
+        seat.environment.display(), //
     );
 
     assert!(
         !seat.environment.exists(),
         "the environment at {} stands after the sweep took it",
-        seat.environment.display()
+        seat.environment.display(), //
     );
 }
 
@@ -355,7 +409,7 @@ fn bkty_a_python_environment_under_the_loosebox_is_sighted_and_removed() {
 fn bkty_a_python_environment_in_the_tackroom_is_beyond_and_untouched() {
     let (lure, _seat, tackroom) = zbkty_python("sweep-python-tackroom");
 
-    let collar = bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), ZBKTY_PYTHON_COLLAR)
+    let collar = bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), ZBKTY_PYTHON_COLLAR)
         .expect("the seated python collar resolves")
         .collar;
 
@@ -370,7 +424,7 @@ fn bkty_a_python_environment_in_the_tackroom_is_beyond_and_untouched() {
     assert!(
         matches!(sighted, bkcy_Sighting::Beyond(_)),
         "an environment in the tackroom sighted {:?} rather than beyond",
-        sighted
+        sighted, //
     );
 
     bkcy_remove(ZBKTY_PYTHON_COLLAR, &sighted)
@@ -379,8 +433,56 @@ fn bkty_a_python_environment_in_the_tackroom_is_beyond_and_untouched() {
     assert!(
         strayed.environment.is_dir(),
         "the refused environment at {} was removed anyway",
-        strayed.environment.display()
+        strayed.environment.display(), //
     );
+}
+
+/// A PROVISION IS SIGHTED AGAINST THE TACKROOM AND THE LOOSEBOX, never against
+/// a repository: what bleach may remove stands strictly inside the tackroom the
+/// fence proved or strictly inside the loosebox, and the two roots themselves,
+/// and a sibling of either, sight `Beyond` — so the rule keeping scoop off the
+/// toolchain store keeps bleach off everything else the station holds.
+#[test]
+fn bkty_a_provision_is_sighted_against_the_tackroom_and_the_loosebox() {
+    let lure = bktu_Lure::bktu_compose("sweep-provision");
+    let root = lure.bktu_root();
+
+    let tackroom = root.join("tackroom");
+    let loosebox = root.join(BKG_BUS_LOOSEBOX_BASE).join("checkout");
+    let beside = root.join("beside");
+
+    let rustup = tackroom.join("rustup");
+    let quarter = loosebox.join("bkk");
+    for made in [&rustup, &quarter, &beside] {
+        std::fs::create_dir_all(made).expect("the hurdle composes the directories it poses");
+    }
+
+    assert_eq!(
+        bkcy_sight_provision(&tackroom, &loosebox, rustup.clone()),
+        bkcy_Sighting::Within(rustup.clone()),
+        "a home inside the tackroom is one {} may remove",
+        BKG_BLEACH_BASE, //
+    );
+    assert_eq!(
+        bkcy_sight_provision(&tackroom, &loosebox, quarter.clone()),
+        bkcy_Sighting::Loosebox(quarter.clone()),
+        "the quarter under the posed root is one {} may remove",
+        BKG_BLEACH_BASE, //
+    );
+    assert_eq!(
+        bkcy_sight_provision(&tackroom, &loosebox, tackroom.join("bkk").join("uv-cache")),
+        bkcy_Sighting::Within(tackroom.join("bkk").join("uv-cache")),
+        "a root not yet made is sighted by where it would stand", //
+    );
+    for refused in [tackroom.clone(), loosebox.clone(), beside.clone()] {
+        assert_eq!(
+            bkcy_sight_provision(&tackroom, &loosebox, refused.clone()),
+            bkcy_Sighting::Beyond(refused.clone()),
+            "{} is no provision {} may remove",
+            refused.display(),
+            BKG_BLEACH_BASE, //
+        );
+    }
 }
 
 // eof

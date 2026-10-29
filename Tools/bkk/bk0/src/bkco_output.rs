@@ -78,7 +78,13 @@ pub fn bkco_diagnostic() -> bool {
 /// mistake once already, on a transport where stdout was the wire.
 pub fn bkco_emit(level: &str, site: &str, message: &str) {
     let mut err = std::io::stderr();
-    let _ = writeln!(err, "[{}] [{}] {}", level, site, message);
+    let _ = writeln!(
+        err,
+        "[{}] [{}] {}",
+        level,
+        site,
+        message, //
+    );
     let _ = err.flush();
 }
 
@@ -97,7 +103,11 @@ pub fn bkco_emit(level: &str, site: &str, message: &str) {
 /// answer is a decoration the caller has to strip.
 pub fn bkco_answer(line: &str) {
     let mut out = std::io::stdout();
-    let _ = writeln!(out, "{}", line);
+    let _ = writeln!(
+        out,
+        "{}",
+        line, //
+    );
     let _ = out.flush();
 }
 
@@ -116,7 +126,11 @@ pub fn bkco_answer(line: &str) {
 /// for, so the flush is not belt-and-braces but the thing itself.
 pub fn bkco_voice(line: &str) {
     let mut out = std::io::stdout();
-    let _ = writeln!(out, "{}", line);
+    let _ = writeln!(
+        out,
+        "{}",
+        line, //
+    );
     let _ = out.flush();
 }
 
@@ -144,7 +158,8 @@ macro_rules! bkco_trace_now {
         if $crate::bkco_output::bkco_diagnostic() {
             $crate::bkco_output::bkco_emit(
                 "TRACE",
-                &format!("{}:{}", file!(), line!()),
+                &format!("{}:{}", file!(), line!(), //
+                ),
                 &format!($($arg)*),
             );
         }
@@ -158,7 +173,8 @@ macro_rules! bkco_info_now {
     ($($arg:tt)*) => {{
         $crate::bkco_output::bkco_emit(
             "INFO",
-            &format!("{}:{}", file!(), line!()),
+            &format!("{}:{}", file!(), line!(), //
+            ),
             &format!($($arg)*),
         );
     }};
@@ -170,7 +186,8 @@ macro_rules! bkco_warn_now {
     ($($arg:tt)*) => {{
         $crate::bkco_output::bkco_emit(
             "WARN",
-            &format!("{}:{}", file!(), line!()),
+            &format!("{}:{}", file!(), line!(), //
+            ),
             &format!($($arg)*),
         );
     }};
@@ -182,7 +199,8 @@ macro_rules! bkco_error_now {
     ($($arg:tt)*) => {{
         $crate::bkco_output::bkco_emit(
             "ERROR",
-            &format!("{}:{}", file!(), line!()),
+            &format!("{}:{}", file!(), line!(), //
+            ),
             &format!($($arg)*),
         );
     }};
@@ -197,7 +215,8 @@ macro_rules! bkco_error_if {
         if held {
             $crate::bkco_output::bkco_emit(
                 "ERROR",
-                &format!("{}:{}", file!(), line!()),
+                &format!("{}:{}", file!(), line!(), //
+                ),
                 &format!($($arg)*),
             );
         }
@@ -205,22 +224,44 @@ macro_rules! bkco_error_if {
     }};
 }
 
-/// Unrecoverable. Emits and exits; never returns.
+/// Unrecoverable. Emits and ends the door broke; never returns.
 #[macro_export]
 macro_rules! bkco_fatal_now {
     ($($arg:tt)*) => {{
         $crate::bkco_output::bkco_emit(
             "FATAL",
-            &format!("{}:{}", file!(), line!()),
+            &format!("{}:{}", file!(), line!(), //
+            ),
             &format!($($arg)*),
         );
-        std::process::exit($crate::bkco_output::BKCO_EXIT_FATAL);
+        $crate::bkco_output::bkco_broke();
     }};
 }
 
-/// The exit a fatal takes. Distinct from cargo's own 101 so a caller reading the
-/// exit alone can tell the kennel's refusal from a compile that died under it.
-pub const BKCO_EXIT_FATAL: i32 = 70;
+/// The broke verdict in flight, from wherever a door met it to the binary's
+/// `main`, which ends the process on the standard library's failure code.
+///
+/// BROKE IS THE ONE VERDICT THE KENNEL SPELLS NO INTEGER FOR. The tool failed
+/// before ruling, and the code that says so is the standard library's own
+/// `ExitCode::FAILURE` — the imprecise death every caller already reads — so the
+/// kennel declares nothing here, beside the barred and fenced codes it cites from
+/// its generated constants.
+///
+/// IT TRAVELS AS AN UNWIND BECAUSE THE PINNED CHANNEL OFFERS NO OTHER ROAD. Only
+/// `main`'s return hands the process an `ExitCode`; the method that would exit
+/// with one from any depth is unstable there. So a door that meets broke unwinds
+/// this payload, and `main` answers it with that code. The unwind runs the
+/// destructors standing between, which an exit would have skipped.
+///
+/// THE PANIC HOOK NEVER HEARS IT: `resume_unwind` raises a payload without the
+/// hook, so the fatal's own line is the whole of what is said. A genuine panic
+/// carries no such payload, and `main` lets it continue as the panic it is.
+pub struct bkco_Broke;
+
+/// End the door broke, by the road `bkco_Broke` describes. Never returns.
+pub fn bkco_broke() -> ! {
+    std::panic::resume_unwind(Box::new(bkco_Broke))
+}
 
 // ============================================================================
 // The door roster, and a colophon resolved to the tabtarget that ACTUALLY
@@ -254,15 +295,19 @@ pub const BKCO_VERB_SCOOP: &str = "scoop";
 pub const BKCO_VERB_DELOUSE: &str = "delouse";
 pub const BKCO_VERB_WHISTLE: &str = "whistle";
 pub const BKCO_VERB_KENNELMAN: &str = "kennelman";
+pub const BKCO_VERB_REBED: &str = "rebed";
+pub const BKCO_VERB_BLEACH: &str = crate::bkg_breviary::BKG_BLEACH_BASE;
 
 /// The colophon each door's tabtarget wears — the durable half of its filename,
 /// which a rename of the frontispiece leaves standing.
 ///
-/// THE WHISTLE AND THE KENNELMAN ARE HERE AND ARE NO DOORS OF THE REGISTER.
-/// They stand in `tt/` and a refusal may have to send a reader to either — the
-/// whistle in particular is what a cold seat runs first — so the roster carries
-/// what the lookup must be able to resolve rather than what the binary
-/// dispatches.
+/// THE WHISTLE, THE KENNELMAN AND REBED ARE HERE AND ARE NO DOORS OF THE
+/// REGISTER. They stand in `tt/` and a refusal may have to send a reader to any
+/// of them — the whistle is what a cold seat runs first, and rebed is the one
+/// converge a station or a tree that is not ready is told to run — so the roster
+/// carries what the lookup must be able to resolve rather than what the binary
+/// dispatches. Rebed's word is also a subcommand of the binary, its bash half
+/// execing the binary's half once the kennel can be built.
 pub const BKCO_COLOPHON_MUSH: &str = "bkw-m";
 pub const BKCO_COLOPHON_DERBY: &str = "bkw-d";
 pub const BKCO_COLOPHON_FUTURITY: &str = "bkw-f";
@@ -272,9 +317,11 @@ pub const BKCO_COLOPHON_HEEL: &str = "bkw-h";
 pub const BKCO_COLOPHON_MUZZLE: &str = "bkw-z";
 pub const BKCO_COLOPHON_GANGLINE: &str = "bkw-g";
 pub const BKCO_COLOPHON_SCOOP: &str = "bkw-s";
+pub const BKCO_COLOPHON_BLEACH: &str = "bkw-B";
 pub const BKCO_COLOPHON_DELOUSE: &str = "bkw-n";
 pub const BKCO_COLOPHON_WHISTLE: &str = "bkw-w";
 pub const BKCO_COLOPHON_KENNELMAN: &str = "bkw-k";
+pub const BKCO_COLOPHON_REBED: &str = "bkw-r";
 
 /// Verb beside colophon, which is the one pairing this kit does read
 /// positionally — and reads because a refusal naming a verb must hand its
@@ -290,12 +337,14 @@ const ZBKCO_DOORS: &[(&str, &str)] = &[
     (BKCO_VERB_MUZZLE, BKCO_COLOPHON_MUZZLE),
     (BKCO_VERB_GANGLINE, BKCO_COLOPHON_GANGLINE),
     (BKCO_VERB_SCOOP, BKCO_COLOPHON_SCOOP),
+    (BKCO_VERB_BLEACH, BKCO_COLOPHON_BLEACH),
     (BKCO_VERB_DELOUSE, BKCO_COLOPHON_DELOUSE),
     (BKCO_VERB_WHISTLE, BKCO_COLOPHON_WHISTLE),
     (BKCO_VERB_KENNELMAN, BKCO_COLOPHON_KENNELMAN),
+    (BKCO_VERB_REBED, BKCO_COLOPHON_REBED), //
 ];
 
-/// The tabtarget directory the substrate's dispatch exports to every door.
+/// The tabtarget directory the substrate's dispatch names in its file.
 pub const BKCO_TABTARGET_DIR_VAR: &str = "BURD_TABTARGET_DIR";
 
 /// How a tabtarget is reached from a repository root, which is what an operator
@@ -306,8 +355,8 @@ pub const BKCO_TABTARGET_REACH: &str = "tt";
 /// `None` where none resolves.
 ///
 /// THE PURE HALF, AND IT IS PURE SO IT CAN BE HURDLED. The composition below
-/// reads the directory out of the process's environment, which a hurdle could
-/// only pose by WRITING that environment — and a written environment is shared
+/// takes the directory the dispatch named, which a hurdle could once pose only
+/// by WRITING the process environment — and a written environment is shared
 /// by every hurdle the harness is running in parallel, so a hurdle posing a
 /// directory would be deciding its neighbours' answers. The kibble root
 /// is split at exactly this seam and for exactly this reason
@@ -323,7 +372,10 @@ pub const BKCO_TABTARGET_REACH: &str = "tt";
 /// that would fold them: the distinction lives in the listing's bytes, never in
 /// a path this function asks the filesystem to open.
 pub fn bkco_tabtarget_in(directory: &Path, colophon: &str) -> Option<String> {
-    let prefix = format!("{}.", colophon);
+    let prefix = format!(
+        "{}.",
+        colophon, //
+    );
     let mut found: Option<String> = None;
 
     for entry in std::fs::read_dir(directory).ok()? {
@@ -347,17 +399,19 @@ pub fn bkco_tabtarget_in(directory: &Path, colophon: &str) -> Option<String> {
 /// after `ls`, it names the durable half exactly, and it admits the
 /// frontispiece is unknown instead of inventing one.
 ///
-/// THE ONE LINE THAT CONSULTS THE ENVIRONMENT, and it consults it nowhere else.
-pub fn bkco_door(colophon: &str) -> String {
-    let resolved = std::env::var(BKCO_TABTARGET_DIR_VAR)
-        .ok()
-        .filter(|dir| !dir.trim().is_empty())
-        .and_then(|dir| bkco_tabtarget_in(Path::new(&dir), colophon));
+/// THE DIRECTORY IS THE DISPATCH'S, handed as a value: a door holding a dispatch
+/// hands the directory its file names, and a reading holding none hands `None`
+/// and renders the glob.
+pub fn bkco_door(tabtargets: Option<&Path>, colophon: &str) -> String {
+    let resolved = tabtargets.and_then(|dir| bkco_tabtarget_in(dir, colophon));
 
     format!(
         "{}/{}",
         BKCO_TABTARGET_REACH,
-        resolved.unwrap_or_else(|| format!("{}.*.sh", colophon))
+        resolved.unwrap_or_else(|| format!(
+            "{}.*.sh",
+            colophon, //
+        )), //
     )
 }
 
@@ -381,15 +435,24 @@ pub fn bkco_colophon(verb: &str) -> Option<&'static str> {
 /// A VERB NO ROSTER CARRIES RENDERS AS ITSELF, never as a panic: this composes
 /// operator-facing text, and a refusal that died while explaining a refusal
 /// would lose the condition it was called to report.
-pub fn bkco_call(verb: &str, imprint: Option<&str>) -> String {
+pub fn bkco_call(tabtargets: Option<&Path>, verb: &str, imprint: Option<&str>) -> String {
     let door = match bkco_colophon(verb) {
-        Some(colophon) => bkco_door(colophon),
+        Some(colophon) => bkco_door(tabtargets, colophon),
         None => return verb.to_string(),
     };
 
     match imprint {
-        Some(imprint) => format!("{} — {} {}", verb, door, imprint),
-        None => format!("{} — {}", verb, door),
+        Some(imprint) => format!(
+            "{} — {} {}",
+            verb,
+            door,
+            imprint, //
+        ),
+        None => format!(
+            "{} — {}",
+            verb,
+            door, //
+        ),
     }
 }
 

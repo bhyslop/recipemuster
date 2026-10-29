@@ -40,9 +40,9 @@ bux_band_chain() {
   buc_doc_brief "Raise a band rejection beneath a die chain (self-test survival fixture)"
   buc_doc_shown || return 0
 
-  buc_step "Band chain: raising self-test code ${BUBC_band_selftest} beneath a capture"
+  buc_step "Band chain: raising self-test code ${BUBG_SELFTEST_DENTIL} beneath a capture"
   local z_out
-  z_out=$(buc_reject "${BUBC_band_selftest}" "deliberate self-test rejection") \
+  z_out=$(buc_reject "${BUBG_SELFTEST_DENTIL}" "deliberate self-test rejection") \
     || buc_die_now "band chain: origin rejected beneath capture"
   buc_die_now "band chain: rejection failed to propagate (captured: '${z_out}')"
 }
@@ -53,8 +53,6 @@ bux_band_chain() {
 zbux_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
-
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
 }
 
 buc_execute bux_ "BUK Test Fixtures" zbux_furnish "$@"

@@ -1,0 +1,49 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+[package]
+name = "bpe"
+version = "0.0.1"
+edition = "2021"
+description = "Parcel engine - collects a parcel and records its identity at its forge, and lays it into a target"
+license = "Apache-2.0"
+
+# A LIBRARY, AND THE INSTALL'S BINARY BESIDE IT. A release is driven by its
+# forge's own binary, which hands in what only it can know - the kits the forge
+# may distribute, and the behest the release writes into the parcel. An install
+# and an uninstall are driven by `bpx`, which every parcel carries and which
+# reads that behest from the parcel, so any forge's parcel installs through the
+# engine it brought.
+[lib]
+name = "bpe"
+path = "src/lib.rs"
+
+# THE BINARY ANSWERS THE KENNEL'S --exergue with the position its converge
+# states into the compile, read at compile time. Only the kennel's own doors
+# compile this target, and each states the position; a crate linking the
+# library compiles none of it, so the library needs no build script.
+[[bin]]
+name = "bpx"
+path = "src/main.rs"
+
+# OPEN SOURCE, AND ITS CLOSURE WITH IT. A crate this one depends on ships in
+# every parcel carrying it, so it takes only what is already open: the JSON
+# reader its records are written and read through, and Pastern, the floor
+# crate, for its program writers - a runnable file this crate lays down is
+# written by a child, so no thread of the process holds it open for a
+# sibling's fork.
+[dependencies]
+serde_json = "1"
+bkp = { path = "../../bkk/bk0/bkp" }

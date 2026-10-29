@@ -46,18 +46,36 @@
 //! would let one set hold two answers about what stands in it.
 
 use std::ffi::OsString;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::bkco_output::{
     bkco_call,
     BKCO_VERB_GANGLINE,
-    BKCO_VERB_HEEL,
+    BKCO_VERB_HEEL, //
 };
 use crate::bkcq_kibble::bkcq_resolve;
-use crate::bkcr_resolve::{bkcr_drift, bkcr_weaned_family, BKCR_KIND_APP, BKCR_KIND_SUITE, BKCR_TARGET_MANIFEST};
-use crate::bkg_breviary::{BKG_BAKED_BASE, BKG_CRUDE_BASE};
-use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
-use toml::de::{DeTable, DeValue};
+use crate::bkcr_resolve::{
+    bkcr_drift,
+    bkcr_weaned_family,
+    BKCR_KIND_APP,
+    BKCR_KIND_SUITE,
+    BKCR_TARGET_MANIFEST, //
+};
+use crate::bkg_breviary::{
+    BKG_BAKED_BASE,
+    BKG_CRUDE_BASE, //
+};
+use bkp::bkprc_catena::{
+    bkprc_Regime,
+    bkprc_read, //
+};
+use toml::de::{
+    DeTable,
+    DeValue, //
+};
 use toml::Spanned;
 
 /// The python family's file. Its parent directory is the instance and that
@@ -85,7 +103,7 @@ pub const BKCX_FIELDS_BOTH: &[&str] = &[
     "BKRP_ROOTS",
     "BKRP_SPEND",
     "BKRP_BAKED_PACKAGES",
-    "BKRP_CRUDE_PACKAGES",
+    "BKRP_CRUDE_PACKAGES", //
 ];
 
 /// The one value the second list field admits: every direct dependency arrives
@@ -114,7 +132,11 @@ pub const BKCX_BAKED: &str = "bknre_baked";
 pub const BKCX_FIELDS_APP: &[&str] = &["BKRP_BYNAME"];
 
 /// The fields a suite declares and an app does not.
-pub const BKCX_FIELDS_SUITE: &[&str] = &["BKRP_TARGET", "BKRP_RUNNER", "BKRP_TONGUE"];
+pub const BKCX_FIELDS_SUITE: &[&str] = &[
+    "BKRP_TARGET",
+    "BKRP_RUNNER",
+    "BKRP_TONGUE", //
+];
 
 /// The runner value for this family, in the substrate's enum sprue form under
 /// this kit's own plane.
@@ -136,10 +158,22 @@ pub const BKCX_TONGUE_PYTEST: &str = "bknre_pytest";
 /// here rather than respelled: they are the collar genus's, not any tenant's,
 /// and a second spelling would let one tenant's roster drift from the other's.
 const ZBKCX_ENUMS: &[(&str, &[&str])] = &[
-    ("BKRP_KIND", &[BKCR_KIND_APP, BKCR_KIND_SUITE]),
-    ("BKRP_SPEND", &["bknre_reader", "bknre_writer"]),
+    (
+        "BKRP_KIND",
+        &[
+            BKCR_KIND_APP,
+            BKCR_KIND_SUITE, //
+        ],
+    ),
+    (
+        "BKRP_SPEND",
+        &[
+            "bknre_reader",
+            "bknre_writer", //
+        ],
+    ),
     ("BKRP_RUNNER", &[BKCX_RUNNER_PYTEST]),
-    ("BKRP_TONGUE", &[BKCX_TONGUE_PYTEST]),
+    ("BKRP_TONGUE", &[BKCX_TONGUE_PYTEST]), //
 ];
 
 /// The three files a uv project carries, all of which stand or the project is
@@ -174,7 +208,11 @@ pub const BKCX_UV: &str = "bki_uv";
 /// `index-strategy` is deliberately NOT here though the kennel states it: it
 /// carries a refusal of its own below, beside the index rules it belongs with,
 /// and a key in both rosters would be reported twice for one condition.
-const ZBKCX_KENNEL_KNOBS: &[&str] = &["cache-dir", "python-preference", "python-downloads"];
+const ZBKCX_KENNEL_KNOBS: &[&str] = &[
+    "cache-dir",
+    "python-preference",
+    "python-downloads", //
+];
 
 /// uv's own key for the strategy the kennel states, refused beside the index
 /// rules rather than among the knobs above.
@@ -189,7 +227,12 @@ const ZBKCX_INDEX_STRATEGY: &str = "index-strategy";
 /// stated in both places is the two-authorities failure the knob roster above
 /// refuses, and the two inverse keys would demand the very builds the bar
 /// refuses. The refusal here is for the reader, not the resolver.
-const ZBKCX_BUILD_KNOBS: &[&str] = &["no-build", "no-build-package", "no-binary", "no-binary-package"];
+const ZBKCX_BUILD_KNOBS: &[&str] = &[
+    "no-build",
+    "no-build-package",
+    "no-binary",
+    "no-binary-package", //
+];
 
 /// uv's own key for a flat index — a directory of files — and the index format
 /// word that declares one the modern way.
@@ -211,9 +254,22 @@ const ZBKCX_FORMAT_FLAT: &str = "flat";
 /// ONE PROJECT STANDS PER ENVIRONMENT. Each of these arrives as source the lock
 /// does not hash and is built on the station at install, so it is refused at
 /// the converge by uv's sentence under the bar and here by the kennel's, ahead
-/// of any spawn. A tree-own source trusted by position, the rust family's tamed
-/// local crate, is later work.
-const ZBKCX_BUILT_SOURCES: &[&str] = &["path", "workspace", "git"];
+/// of any spawn.
+///
+/// ONE PATH SOURCE IS ADMITTED, TRUSTED BY POSITION as the rust family's tamed
+/// local crate is: a sibling project inside the same repository, installed
+/// editable, on uv's own backend. Its bytes are the tree's own, committed under
+/// the door law, and its build is the project's own build performed once more
+/// by the backend the pinned uv carries. A copy uv installs from a directory is
+/// refused still, since uv reinstalls one only when its declaration changes,
+/// so an edit to its source would stand unseen in the environment.
+const ZBKCX_BUILT_SOURCES: &[&str] = &[
+    "path",
+    "workspace",
+    "git", //
+];
+const ZBKCX_SOURCE_PATH: &str = "path";
+const ZBKCX_SOURCE_EDITABLE: &str = "editable";
 const ZBKCX_SOURCES: &str = "sources";
 const ZBKCX_WORKSPACE: &str = "workspace";
 
@@ -234,9 +290,18 @@ const ZBKCX_UV_BACKEND: &str = "uv_build";
 
 /// uv's own keys inside its lock, read for the project's own entry, its account
 /// of the manifest, and which packages carry a wheel.
+///
+/// THE OWN KEYS NAME A DIRECTORY, AND THE DIRECTORY PARTS THE TWO TREE-OWN
+/// ENTRIES. The project's own entry stands at the lock's root, `.`; an editable
+/// sibling wears the same key at its own directory, and is no second entry for
+/// the project.
 const ZBKCX_LOCK_PACKAGE: &str = "package";
 const ZBKCX_LOCK_SOURCE: &str = "source";
-const ZBKCX_LOCK_OWN: &[&str] = &["editable", "virtual"];
+const ZBKCX_LOCK_OWN: &[&str] = &[
+    "editable",
+    "virtual", //
+];
+const ZBKCX_LOCK_ROOT: &str = ".";
 const ZBKCX_LOCK_WHEELS: &str = "wheels";
 const ZBKCX_LOCK_METADATA: &str = "metadata";
 const ZBKCX_LOCK_REQUIRES_DIST: &str = "requires-dist";
@@ -314,8 +379,12 @@ pub fn bkcx_walk(repository: &Path, weaned: &Path) -> Result<Vec<PathBuf>, Strin
 /// THE INSTANCE IS PROVEN AGAINST ITS BROOD BEFORE ANYTHING ELSE IS READ, on the
 /// collar resolver's own ground: the findings of a copy that is not the kit's
 /// declaration would be findings about a declaration nobody made.
-pub fn bkcx_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcx_Resolved, String> {
-    let instances = bkcx_walk(repository, weaned)?;
+pub fn bkcx_resolve(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    name: &str,
+) -> Result<bkcx_Resolved, String> {
+    let instances = bkcx_walk(repository, dispatch.bkcr_weaned())?;
 
     let Some(instance) = instances
         .iter()
@@ -325,9 +394,9 @@ pub fn bkcx_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcx
         return Err(format!(
             "no python collar named '{}' stands in the weaned set {} — it holds {} python collar(s): {}",
             name,
-            weaned.display(),
+            dispatch.bkcr_weaned().display(),
             instances.len(),
-            zbkcx_listed(&instances)
+            zbkcx_listed(&instances), //
         ));
     };
 
@@ -341,7 +410,7 @@ pub fn bkcx_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcx
         regime,
     };
 
-    let findings = bkcx_findings(repository, weaned, &collar);
+    let findings = bkcx_findings(repository, dispatch, &collar);
     let lockless = zbkcx_lockless(repository, &collar);
 
     Ok(bkcx_Resolved {
@@ -356,12 +425,16 @@ pub fn bkcx_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcx
 /// EVERY FINDING IS REPORTED BEFORE ANYTHING REFUSES, which is the rust
 /// resolver's discipline held over this family: a first-finding exit hands its
 /// reader one repair at a time and a fresh drive between each.
-pub fn bkcx_findings(repository: &Path, weaned: &Path, collar: &bkcx_Collar) -> Vec<String> {
+pub fn bkcx_findings(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcx_Collar,
+) -> Vec<String> {
     let mut findings: Vec<String> = Vec::new();
 
     zbkcx_declared(collar, &mut findings);
     zbkcx_identity(collar, &mut findings);
-    zbkcx_project(repository, weaned, collar, &mut findings);
+    zbkcx_project(repository, dispatch, collar, &mut findings);
 
     // THE ABSENT LOCK STANDS LAST, which is the order the doors reading past it
     // depend on (`bkcx_Resolved`).
@@ -371,7 +444,11 @@ pub fn bkcx_findings(repository: &Path, weaned: &Path, collar: &bkcx_Collar) -> 
              lock-authoring door, and nothing converges or launches until one stands: {}",
             collar.bkcx_project().display(),
             BKCX_LOCK_FILE,
-            bkco_call(BKCO_VERB_GANGLINE, Some(&collar.name)), //
+            bkco_call(
+                dispatch.bkcr_tabtargets(),
+                BKCO_VERB_GANGLINE,
+                Some(&collar.name)
+            ), //
         ));
     }
 
@@ -385,7 +462,10 @@ pub fn bkcx_findings(repository: &Path, weaned: &Path, collar: &bkcx_Collar) -> 
 /// own declaration's finding bars it, and the lock-authoring door has no project
 /// to author over.
 fn zbkcx_lockless(repository: &Path, collar: &bkcx_Collar) -> bool {
-    if !collar.bkcx_field("BKRP_MANIFEST").ends_with(BKCX_MANIFEST_FILE) {
+    if !collar
+        .bkcx_field("BKRP_MANIFEST")
+        .ends_with(BKCX_MANIFEST_FILE)
+    {
         return false;
     }
 
@@ -411,7 +491,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
             findings.push(format!(
                 "{} is not declared — every python collar of this kind declares it, and a door \
                  reading a meaning out of an absence cannot tell a declaration from an omission",
-                field
+                field, //
             ));
         }
     }
@@ -420,7 +500,10 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
         if collar.regime.bkprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the {} kind — this collar declares {} = {}",
-                field, elsewhere, "BKRP_KIND", kind
+                field,
+                elsewhere,
+                "BKRP_KIND",
+                kind, //
             ));
         }
     }
@@ -434,7 +517,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
                 "{} carries '{}', which is no admitted value — it takes one of: {}",
                 field,
                 held,
-                admitted.join(", ")
+                admitted.join(", "), //
             ));
         }
     }
@@ -444,7 +527,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
             findings.push(format!(
                 "{} stands vacant — the launch coordinate is composed from it, so a vacant one \
                  names nothing for a door to run",
-                field
+                field, //
             ));
         }
     }
@@ -458,7 +541,8 @@ fn zbkcx_identity(collar: &bkcx_Collar, findings: &mut Vec<String>) {
         findings.push(format!(
             "BKRP_COLLAR declares '{}' and the instance directory is named '{}' — a collar's name \
              is its identity, and the two must be one",
-            declared, collar.name
+            declared,
+            collar.name, //
         ));
     }
 }
@@ -470,7 +554,12 @@ fn zbkcx_identity(collar: &bkcx_Collar, findings: &mut Vec<String>) {
 /// from the text it read, which is exactly the shape that keeps the reading
 /// honest: the checks below are handed the table, and nothing downstream holds
 /// a document after the bytes it came from are gone.
-fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, findings: &mut Vec<String>) {
+fn zbkcx_project(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcx_Collar,
+    findings: &mut Vec<String>,
+) {
     let declared = collar.bkcx_field("BKRP_MANIFEST");
 
     if declared.is_empty() {
@@ -481,7 +570,8 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
         findings.push(format!(
             "BKRP_MANIFEST names '{}', which is no {} — a python collar points at the project's \
              own manifest as a rust collar points at its Cargo.toml",
-            declared, BKCX_MANIFEST_FILE
+            declared,
+            BKCX_MANIFEST_FILE, //
         ));
         return;
     }
@@ -515,7 +605,7 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
             absent.join(", "),
             BKCX_MANIFEST_FILE,
             BKCX_LOCK_FILE,
-            BKCX_PIN_FILE
+            BKCX_PIN_FILE, //
         ));
         return;
     }
@@ -525,7 +615,8 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
         Err(err) => {
             findings.push(format!(
                 "the project's {} could not be read: {}",
-                BKCX_MANIFEST_FILE, err
+                BKCX_MANIFEST_FILE,
+                err, //
             ));
             return;
         }
@@ -536,7 +627,8 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
         Err(err) => {
             findings.push(format!(
                 "the project's {} could not be read as toml: {}",
-                BKCX_MANIFEST_FILE, err
+                BKCX_MANIFEST_FILE,
+                err, //
             ));
             return;
         }
@@ -549,7 +641,8 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
         Err(err) => {
             findings.push(format!(
                 "the project's {} could not be read: {}",
-                BKCX_PIN_FILE, err
+                BKCX_PIN_FILE,
+                err, //
             ));
             return;
         }
@@ -558,12 +651,12 @@ fn zbkcx_project(repository: &Path, weaned: &Path, collar: &bkcx_Collar, finding
     zbkcx_pin(&pin, manifest, findings);
     zbkcx_uv_table(manifest, findings);
     zbkcx_indexes(manifest, findings);
-    zbkcx_required(repository, weaned, manifest, findings);
+    zbkcx_required(repository, dispatch, manifest, findings);
     zbkcx_build_knobs(manifest, findings);
     zbkcx_flat(manifest, findings);
-    zbkcx_built_sources(manifest, findings);
+    zbkcx_built_sources(repository, dispatch, &project, manifest, findings);
     zbkcx_dynamic(manifest, findings);
-    zbkcx_backend(repository, weaned, manifest, findings);
+    zbkcx_backend(repository, dispatch, manifest, findings);
     zbkcx_partition(&project, collar, findings);
 }
 
@@ -583,7 +676,7 @@ fn zbkcx_pin(pin: &str, manifest: &DeTable<'_>, findings: &mut Vec<String>) {
         findings.push(format!(
             "{} carries '{}', which names no version at all — the pin is the exact interpreter the \
              environment is built on, and it is read as three numeric components",
-            BKCX_PIN_FILE, pin
+            BKCX_PIN_FILE, pin, //
         ));
         return;
     };
@@ -595,7 +688,7 @@ fn zbkcx_pin(pin: &str, manifest: &DeTable<'_>, findings: &mut Vec<String>) {
              three-layer chain exists to close",
             BKCX_PIN_FILE,
             pin,
-            components.len()
+            components.len(), //
         ));
         return;
     }
@@ -618,7 +711,9 @@ fn zbkcx_pin(pin: &str, manifest: &DeTable<'_>, findings: &mut Vec<String>) {
             "{} carries '{}' and the manifest requires '{}' — the pin falls below the project's \
              own floor, so the environment the pin builds is one the project declares it does not \
              run on",
-            BKCX_PIN_FILE, pin, requirement
+            BKCX_PIN_FILE,
+            pin,
+            requirement, //
         ));
     }
 }
@@ -640,7 +735,7 @@ fn zbkcx_uv_table(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
                 "[tool.uv] carries '{}', which the kennel states in the environment on every uv \
                  invocation — the project's table carries only what is the project's own, a \
                  setting declared in both places being one no reader can say which of the two won",
-                knob
+                knob, //
             ));
         }
     }
@@ -666,7 +761,7 @@ fn zbkcx_indexes(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
             "[tool.uv] carries '{}' — the kennel states the strategy, and a project widening which \
              indexes answer for a package it already located is the reach the explicit-index rule \
              exists to close",
-            ZBKCX_INDEX_STRATEGY
+            ZBKCX_INDEX_STRATEGY, //
         ));
     }
 
@@ -713,7 +808,7 @@ fn zbkcx_indexes(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
             findings.push(format!(
                 "the index '{}' is non-default and not explicit — an implicit index is consulted \
                  for any package at all, including one the default index already answers for",
-                named
+                named, //
             ));
         }
 
@@ -722,7 +817,7 @@ fn zbkcx_indexes(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
                 "the index '{}' is declared and no [tool.uv.sources] entry draws from it — an \
                  explicit index nothing names is an index nothing is fetched from, and the \
                  declaration is either stale or the sources entry was forgotten",
-                named
+                named, //
             ));
         }
     }
@@ -734,7 +829,12 @@ fn zbkcx_indexes(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
 /// project demanding a uv the kibble does not declare is a project that cannot
 /// be converged on this station whatever else is true of it — and it is worth
 /// saying at validation rather than minutes into a converge.
-fn zbkcx_required(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findings: &mut Vec<String>) {
+fn zbkcx_required(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    manifest: &DeTable<'_>,
+    findings: &mut Vec<String>,
+) {
     let Some(uv) = zbkcx_uv(manifest) else {
         return;
     };
@@ -743,12 +843,13 @@ fn zbkcx_required(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, find
         return;
     };
 
-    let kibble = match bkcq_resolve(repository, weaned, BKCX_UV) {
+    let kibble = match bkcq_resolve(repository, dispatch.bkcr_weaned(), BKCX_UV) {
         Ok(resolved) => resolved.kibble,
         Err(err) => {
             findings.push(format!(
                 "[tool.uv] requires uv '{}' and the kibble that pins uv could not be read: {}",
-                requirement, err
+                requirement,
+                err, //
             ));
             return;
         }
@@ -756,8 +857,7 @@ fn zbkcx_required(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, find
 
     let pinned = kibble.bkcq_field("BKRK_VERSION").to_string();
 
-    let (Some(components), Some(floor)) = (zbkcx_version(&pinned), zbkcx_floor(requirement))
-    else {
+    let (Some(components), Some(floor)) = (zbkcx_version(&pinned), zbkcx_floor(requirement)) else {
         // As with the interpreter pin: a specifier shape this reading does not
         // settle defers to uv's own refusal rather than being guessed at.
         return;
@@ -768,7 +868,9 @@ fn zbkcx_required(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, find
             "[tool.uv] requires uv '{}' and the kibble '{}' pins {} — the kennel spawns uv from \
              its own residence and from nowhere else, so a project requiring a version the kibble \
              does not carry cannot be converged here",
-            requirement, BKCX_UV, pinned
+            requirement,
+            BKCX_UV,
+            pinned, //
         ));
     }
 }
@@ -785,7 +887,7 @@ fn zbkcx_build_knobs(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
                 "[tool.uv] carries '{}' — the kennel bars every dependency's build and states the \
                  bar in the environment on every uv invocation (BKr_hpt), so a key that lifts or \
                  demands a build is the kennel's to state and never a project's",
-                knob
+                knob, //
             ));
         }
     }
@@ -802,7 +904,7 @@ fn zbkcx_flat(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
             "[tool.uv] carries '{}' — over a flat index uv proves no declared environment for a \
              package carrying an sdist, even under the build bar, so a missing wheel is found at \
              the converge that lacks it and never at the lock; serve the files from a simple index",
-            ZBKCX_FIND_LINKS
+            ZBKCX_FIND_LINKS, //
         ));
     }
 
@@ -822,14 +924,21 @@ fn zbkcx_flat(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
                  missing wheel is found at the converge that lacks it and never at the lock; serve \
                  the files from a simple index",
                 zbkcx_text(index, "name").unwrap_or(""),
-                ZBKCX_FORMAT_FLAT
+                ZBKCX_FORMAT_FLAT, //
             ));
         }
     }
 }
 
-/// No source the converge would have to build, and no workspace.
-fn zbkcx_built_sources(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
+/// No source the converge would have to build, and no workspace, save an
+/// editable sibling inside the repository.
+fn zbkcx_built_sources(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    project: &Path,
+    manifest: &DeTable<'_>,
+    findings: &mut Vec<String>,
+) {
     let Some(uv) = zbkcx_uv(manifest) else {
         return;
     };
@@ -839,7 +948,8 @@ fn zbkcx_built_sources(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
             "[tool.uv.{}] is declared — one project stands per environment, and a workspace \
              member is built on the station from source the lock does not hash, which is a {} \
              package the converge never builds (BKr_hpt)",
-            ZBKCX_WORKSPACE, BKG_CRUDE_BASE
+            ZBKCX_WORKSPACE,
+            BKG_CRUDE_BASE, //
         ));
     }
 
@@ -860,20 +970,141 @@ fn zbkcx_built_sources(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
 
         for table in tables {
             for key in ZBKCX_BUILT_SOURCES {
-                if table.contains_key(*key) {
-                    findings.push(format!(
-                        "[tool.uv.{}] draws '{}' from a {} source — a dependency built on the \
-                         station from source the lock does not hash is a {} package, which the \
-                         converge never builds (BKr_hpt); one project stands per environment, and \
-                         a sibling project is reached as a wheel or not at all",
-                        ZBKCX_SOURCES,
-                        named.get_ref(),
-                        key,
-                        BKG_CRUDE_BASE
-                    ));
+                if !table.contains_key(*key) {
+                    continue;
                 }
+
+                if *key == ZBKCX_SOURCE_PATH {
+                    zbkcx_sibling(
+                        repository,
+                        dispatch,
+                        project,
+                        named.get_ref(),
+                        table,
+                        findings,
+                    );
+                    continue;
+                }
+
+                findings.push(format!(
+                    "[tool.uv.{}] draws '{}' from a {} source — a dependency built on the \
+                     station from source the lock does not hash is a {} package, which the \
+                     converge never builds (BKr_hpt); one project stands per environment, and \
+                     the one source by path admitted is a sibling inside the repository, \
+                     installed editable",
+                    ZBKCX_SOURCES,
+                    named.get_ref(),
+                    key,
+                    BKG_CRUDE_BASE, //
+                ));
             }
         }
+    }
+}
+
+/// A source by path stands as a sibling of the tree's own: editable, a
+/// directory inside the repository holding a project of its own, and that
+/// project on uv's own backend in the range the project itself is held to.
+///
+/// THE REPOSITORY BOUND IS READ ON SETTLED PATHS, so neither a symlink nor a
+/// `..` can make a directory outside the tree read as one inside it; a path
+/// that settles to nothing is outside by the same reading.
+fn zbkcx_sibling(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    project: &Path,
+    named: &str,
+    table: &DeTable<'_>,
+    findings: &mut Vec<String>,
+) {
+    let declared = zbkcx_text(table, ZBKCX_SOURCE_PATH).unwrap_or("");
+
+    if zbkcx_flag(table, ZBKCX_SOURCE_EDITABLE) != Some(true) {
+        findings.push(format!(
+            "[tool.uv.{}] draws '{}' from a path source not installed editable — uv installs \
+             such a directory as a copy built on the station and reinstalls it only when its \
+             declaration changes, a {} package the converge never builds (BKr_hpt); a sibling \
+             inside the repository is declared with {} = true",
+            ZBKCX_SOURCES,
+            named,
+            BKG_CRUDE_BASE,
+            ZBKCX_SOURCE_EDITABLE, //
+        ));
+        return;
+    }
+
+    let settled = std::fs::canonicalize(project.join(declared)).ok();
+    let root = std::fs::canonicalize(repository).ok();
+
+    let Some(sibling) =
+        settled.filter(|held| root.as_ref().is_some_and(|root| held.starts_with(root)))
+    else {
+        findings.push(format!(
+            "[tool.uv.{}] draws '{}' from the path '{}', which settles to no directory inside \
+             the repository — a source by path is trusted by position or not at all, and \
+             anything outside the tree is a {} package the converge never builds (BKr_hpt)",
+            ZBKCX_SOURCES,
+            named,
+            declared,
+            BKG_CRUDE_BASE, //
+        ));
+        return;
+    };
+
+    let read =
+        match std::fs::read_to_string(sibling.join(BKCX_MANIFEST_FILE)) {
+            Ok(read) => read,
+            Err(err) => {
+                findings.push(format!(
+                "the sibling '{}' at '{}' carries no readable {}: {} — a source by path names a \
+                 project of its own",
+                named, declared, BKCX_MANIFEST_FILE, err, //
+            ));
+                return;
+            }
+        };
+
+    let parsed = match DeTable::parse(&read) {
+        Ok(parsed) => parsed,
+        Err(err) => {
+            findings.push(format!(
+                "the sibling '{}' at '{}' carries a {} that could not be read as toml: {}",
+                named,
+                declared,
+                BKCX_MANIFEST_FILE,
+                err, //
+            ));
+            return;
+        }
+    };
+
+    let manifest = parsed.get_ref();
+
+    // THE PROJECT MAY DECLARE NO BUILD AT ALL AND THE SIBLING MAY NOT: an
+    // editable install is a build, and a manifest naming no backend has uv reach
+    // for a default one it fetches.
+    if zbkcx_sub(manifest, ZBKCX_BUILD_SYSTEM).is_none() {
+        findings.push(format!(
+            "the sibling '{}' at '{}' declares no [{}] — an editable sibling is built by the \
+             converge as the project is, so it names uv's own backend ({})",
+            named,
+            declared,
+            ZBKCX_BUILD_SYSTEM,
+            ZBKCX_UV_BACKEND, //
+        ));
+        return;
+    }
+
+    let mut held: Vec<String> = Vec::new();
+    zbkcx_backend(repository, dispatch, manifest, &mut held);
+
+    for finding in held {
+        findings.push(format!(
+            "the sibling '{}' at '{}': {}",
+            named,
+            declared,
+            finding, //
+        ));
     }
 }
 
@@ -887,7 +1118,10 @@ fn zbkcx_dynamic(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
         return;
     };
 
-    let named: Vec<&str> = dynamic.iter().filter_map(|held| held.get_ref().as_str()).collect();
+    let named: Vec<&str> = dynamic
+        .iter()
+        .filter_map(|held| held.get_ref().as_str())
+        .collect();
 
     if named.is_empty() {
         return;
@@ -897,7 +1131,7 @@ fn zbkcx_dynamic(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
         "[project] declares {} = [{}] — a project whose metadata must be built to be read cannot \
          be locked under the build bar, so every field stands static in the manifest",
         ZBKCX_DYNAMIC,
-        named.join(", ")
+        named.join(", "), //
     ));
 }
 
@@ -906,7 +1140,12 @@ fn zbkcx_dynamic(manifest: &DeTable<'_>, findings: &mut Vec<String>) {
 ///
 /// THE RANGE IS READ AS THE PIN IS: the two unambiguous clauses, a floor and a
 /// ceiling, settled from the bytes, and every other clause left to uv.
-fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findings: &mut Vec<String>) {
+fn zbkcx_backend(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    manifest: &DeTable<'_>,
+    findings: &mut Vec<String>,
+) {
     let Some(system) = zbkcx_sub(manifest, ZBKCX_BUILD_SYSTEM) else {
         return;
     };
@@ -918,14 +1157,21 @@ fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findi
             "[{}] names '{}' as its {} — the project's own build is the one build the converge \
              performs, and its requirements stand in no lock, so the backend is uv's own ({}), \
              which the pinned uv carries built in and fetches nothing for",
-            ZBKCX_BUILD_SYSTEM, backend, ZBKCX_BUILD_BACKEND, ZBKCX_UV_BACKEND
+            ZBKCX_BUILD_SYSTEM,
+            backend,
+            ZBKCX_BUILD_BACKEND,
+            ZBKCX_UV_BACKEND, //
         ));
         return;
     }
 
     let requires: Vec<&str> = zbkcx_at(system, ZBKCX_BUILD_REQUIRES)
         .and_then(DeValue::as_array)
-        .map(|list| list.iter().filter_map(|held| held.get_ref().as_str()).collect())
+        .map(|list| {
+            list.iter()
+                .filter_map(|held| held.get_ref().as_str())
+                .collect()
+        })
         .unwrap_or_default();
 
     let Some(requirement) = requires
@@ -936,7 +1182,9 @@ fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findi
             "[{}] names {} and its {} does not require it — the range that keeps the build on the \
              pinned uv's own copy is the requirement's, and a backend required by nothing is \
              fetched from wherever uv looks",
-            ZBKCX_BUILD_SYSTEM, ZBKCX_UV_BACKEND, ZBKCX_BUILD_REQUIRES
+            ZBKCX_BUILD_SYSTEM,
+            ZBKCX_UV_BACKEND,
+            ZBKCX_BUILD_REQUIRES, //
         ));
         return;
     };
@@ -948,16 +1196,18 @@ fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findi
              in",
             ZBKCX_BUILD_SYSTEM,
             ZBKCX_UV_BACKEND,
-            requires.join(", ")
+            requires.join(", "), //
         ));
     }
 
-    let kibble = match bkcq_resolve(repository, weaned, BKCX_UV) {
+    let kibble = match bkcq_resolve(repository, dispatch.bkcr_weaned(), BKCX_UV) {
         Ok(resolved) => resolved.kibble,
         Err(err) => {
             findings.push(format!(
                 "[{}] requires '{}' and the kibble that pins uv could not be read: {}",
-                ZBKCX_BUILD_SYSTEM, requirement, err
+                ZBKCX_BUILD_SYSTEM,
+                requirement,
+                err, //
             ));
             return;
         }
@@ -970,7 +1220,10 @@ fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findi
             "[{}] requires '{}' and the kibble '{}' pins {} — a range the pinned uv does not \
              satisfy would have uv fetch its backend from an index the lock records nothing of, \
              so the range admits the pin",
-            ZBKCX_BUILD_SYSTEM, requirement, BKCX_UV, pinned
+            ZBKCX_BUILD_SYSTEM,
+            requirement,
+            BKCX_UV,
+            pinned, //
         ));
     }
 }
@@ -979,7 +1232,9 @@ fn zbkcx_backend(repository: &Path, weaned: &Path, manifest: &DeTable<'_>, findi
 fn zbkcx_requirement_name(requirement: &str) -> &str {
     let requirement = requirement.trim();
     let end = requirement
-        .find(|held: char| !(held.is_ascii_alphanumeric() || held == '_' || held == '-' || held == '.'))
+        .find(|held: char| {
+            !(held.is_ascii_alphanumeric() || held == '_' || held == '-' || held == '.')
+        })
         .unwrap_or(requirement.len());
 
     &requirement[..end]
@@ -1050,10 +1305,14 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
                 findings.push(format!(
                     "{} carries no {} — the list says none is one by that value, and an empty \
                      list says nothing",
-                    "BKRP_CRUDE_PACKAGES", BKCX_BAKED
+                    "BKRP_CRUDE_PACKAGES",
+                    BKCX_BAKED, //
                 ));
             }
-            declared.into_iter().filter(|held| *held != BKCX_BAKED).collect()
+            declared
+                .into_iter()
+                .filter(|held| *held != BKCX_BAKED)
+                .collect()
         }
     };
 
@@ -1063,7 +1322,11 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
              installs wheels alone and provisions nothing for a build, so the field admits {} \
              alone: the package leaves the closure, or a wheel is served for it and the collar \
              names it {}",
-            "BKRP_CRUDE_PACKAGES", named, BKG_CRUDE_BASE, BKCX_BAKED, BKG_BAKED_BASE
+            "BKRP_CRUDE_PACKAGES",
+            named,
+            BKG_CRUDE_BASE,
+            BKCX_BAKED,
+            BKG_BAKED_BASE, //
         ));
 
         if baked.contains(named) {
@@ -1071,7 +1334,9 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
                 "'{}' is named in {} and {} both — every direct dependency stands in exactly one \
                  of the two, and the pair the read-only door proves disjoint cannot say both of \
                  one package",
-                named, "BKRP_BAKED_PACKAGES", "BKRP_CRUDE_PACKAGES"
+                named,
+                "BKRP_BAKED_PACKAGES",
+                "BKRP_CRUDE_PACKAGES", //
             ));
         }
     }
@@ -1090,7 +1355,8 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
                 "{} names '{}', which the lock's account of the manifest does not carry as a \
                  direct dependency — the lists name direct dependencies alone, spelled as the \
                  lock spells them, the closure beyond them being the lock's",
-                "BKRP_BAKED_PACKAGES", named
+                "BKRP_BAKED_PACKAGES",
+                named, //
             ));
             continue;
         }
@@ -1100,7 +1366,9 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
                 "{} names '{}' and the lock carries no wheel for it — a package the lock records \
                  as source alone arrives {} on every platform, which the converge never builds \
                  (BKr_hpt)",
-                "BKRP_BAKED_PACKAGES", named, BKG_CRUDE_BASE
+                "BKRP_BAKED_PACKAGES",
+                named,
+                BKG_CRUDE_BASE, //
             ));
         }
     }
@@ -1113,7 +1381,9 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
         findings.push(format!(
             "'{}' is a direct dependency of the manifest and neither {} nor {} names it — every \
              direct dependency is named in allow form, as the lock spells it",
-            named, "BKRP_BAKED_PACKAGES", "BKRP_CRUDE_PACKAGES"
+            named,
+            "BKRP_BAKED_PACKAGES",
+            "BKRP_CRUDE_PACKAGES", //
         ));
     }
 }
@@ -1145,12 +1415,21 @@ fn zbkcx_account(lock: &Path) -> Result<zbkcx_Account, String> {
         }
     }
 
+    // A SIBLING IS NO DIRECT DEPENDENCY THE LISTS NAME: it is the tree's own,
+    // neither baked nor crude, and its own account stands beside the project's
+    // rather than in it.
+    direct.retain(|named| {
+        !packages
+            .iter()
+            .any(|package| package.sibling && package.name == *named)
+    });
+
     if !own {
         return Err(format!(
             "the project's {} carries no entry for the project itself, so the account the two \
              lists are read against stands nowhere — a lock the lock-authoring door writes \
              carries one",
-            BKCX_LOCK_FILE
+            BKCX_LOCK_FILE, //
         ));
     }
 
@@ -1165,6 +1444,9 @@ struct zbkcx_Locked {
     name: String,
     /// Whether this is the project's own entry, sourced from its own directory.
     own: bool,
+    /// Whether this is an editable sibling's entry, sourced from a directory of
+    /// the tree other than the project's.
+    sibling: bool,
     /// Whether the lock carries at least one wheel for it.
     wheeled: bool,
     /// The direct dependencies the entry declares, groups included — populated
@@ -1174,11 +1456,21 @@ struct zbkcx_Locked {
 
 /// Every package entry a lock carries.
 fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
-    let read = std::fs::read_to_string(lock)
-        .map_err(|err| format!("the project's {} could not be read: {}", BKCX_LOCK_FILE, err))?;
+    let read = std::fs::read_to_string(lock).map_err(|err| {
+        format!(
+            "the project's {} could not be read: {}",
+            BKCX_LOCK_FILE,
+            err, //
+        )
+    })?;
 
-    let parsed = DeTable::parse(&read)
-        .map_err(|err| format!("the project's {} could not be read as toml: {}", BKCX_LOCK_FILE, err))?;
+    let parsed = DeTable::parse(&read).map_err(|err| {
+        format!(
+            "the project's {} could not be read as toml: {}",
+            BKCX_LOCK_FILE,
+            err, //
+        )
+    })?;
 
     let table = parsed.get_ref();
 
@@ -1195,9 +1487,14 @@ fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
 
         let name = zbkcx_text(package, "name").unwrap_or("").to_string();
 
-        let own = zbkcx_sub(package, ZBKCX_LOCK_SOURCE)
-            .map(|source| ZBKCX_LOCK_OWN.iter().any(|key| source.contains_key(*key)))
-            .unwrap_or(false);
+        let directory = zbkcx_sub(package, ZBKCX_LOCK_SOURCE).and_then(|source| {
+            ZBKCX_LOCK_OWN
+                .iter()
+                .find_map(|key| zbkcx_text(source, key))
+        });
+
+        let own = directory == Some(ZBKCX_LOCK_ROOT);
+        let sibling = directory.is_some() && !own;
 
         let wheeled = zbkcx_at(package, ZBKCX_LOCK_WHEELS)
             .and_then(DeValue::as_array)
@@ -1208,9 +1505,15 @@ fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
 
         if own {
             if let Some(metadata) = zbkcx_sub(package, ZBKCX_LOCK_METADATA) {
-                if let Some(list) = zbkcx_at(metadata, ZBKCX_LOCK_REQUIRES_DIST).and_then(DeValue::as_array) {
+                if let Some(list) =
+                    zbkcx_at(metadata, ZBKCX_LOCK_REQUIRES_DIST).and_then(DeValue::as_array)
+                {
                     for entry in list.iter() {
-                        if let Some(named) = entry.get_ref().as_table().and_then(|entry| zbkcx_text(entry, "name")) {
+                        if let Some(named) = entry
+                            .get_ref()
+                            .as_table()
+                            .and_then(|entry| zbkcx_text(entry, "name"))
+                        {
                             direct.push(named.to_string());
                         }
                     }
@@ -1222,7 +1525,11 @@ fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
                             continue;
                         };
                         for entry in list.iter() {
-                            if let Some(named) = entry.get_ref().as_table().and_then(|entry| zbkcx_text(entry, "name")) {
+                            if let Some(named) = entry
+                                .get_ref()
+                                .as_table()
+                                .and_then(|entry| zbkcx_text(entry, "name"))
+                            {
                                 direct.push(named.to_string());
                             }
                         }
@@ -1234,6 +1541,7 @@ fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
         read.push(zbkcx_Locked {
             name,
             own,
+            sibling,
             wheeled,
             direct,
         });
@@ -1242,8 +1550,9 @@ fn zbkcx_lock_read(lock: &Path) -> Result<Vec<zbkcx_Locked>, String> {
     Ok(read)
 }
 
-/// Every package the project's lock carries but the project's own entry — the
-/// roster the converge bars from building (BKr_hpt).
+/// Every package the project's lock carries but the tree's own entries — the
+/// project's and an editable sibling's — the roster the converge bars from
+/// building (BKr_hpt).
 ///
 /// READ OFF THE LOCK AND NEVER OFF THE MANIFEST, because the bar is over the
 /// closure and the manifest names only its head. Every entry is named whether or
@@ -1255,14 +1564,13 @@ pub fn bkcx_lock_packages(project: &Path) -> Result<Vec<String>, String> {
 
     Ok(packages
         .into_iter()
-        .filter(|package| !package.own)
+        .filter(|package| !package.own && !package.sibling)
         .map(|package| package.name)
         .collect())
 }
 
 /// The `[tool.uv]` table, where one stands.
 fn zbkcx_uv<'t, 'i>(manifest: &'t DeTable<'i>) -> Option<&'t DeTable<'i>> {
-
     zbkcx_sub(manifest, "tool").and_then(|tool| zbkcx_sub(tool, "uv"))
 }
 
@@ -1442,21 +1750,21 @@ impl bkcx_Unanswered {
             bkcx_Unanswered::Absent => None,
             bkcx_Unanswered::Unmarqued => Some(format!(
                 "its {} carries no '{}' line, so what interpreter built it cannot be read",
-                ZBKCX_MARQUE, ZBKCX_MARQUE_VERSION
+                ZBKCX_MARQUE, ZBKCX_MARQUE_VERSION, //
             )),
             bkcx_Unanswered::Moved { standing, pinned } => Some(format!(
                 "it stands on CPython {}, and its project pins {}",
-                standing, pinned
+                standing, pinned, //
             )),
             bkcx_Unanswered::Unlocked { .. } => Some(format!(
                 "the lock at the project '{}' no longer answers its manifest",
-                collar.bkcx_project().display()
+                collar.bkcx_project().display(), //
             )),
             bkcx_Unanswered::Behind { .. } => Some(format!(
                 "it does not answer the lock the project '{}' carries — the lock moved after {} was \
                  synced, or the environment was changed beside it",
                 collar.bkcx_project().display(),
-                seat.environment.display()
+                seat.environment.display(), //
             )),
         }
     }
@@ -1469,24 +1777,44 @@ impl bkcx_Unanswered {
     /// so a lock behind its manifest is supplied by the lock-authoring door first,
     /// the lock it writes committed — the door law's own remedy, since the
     /// converge refuses a tree carrying it uncommitted — and then converged.
-    pub fn bkcx_supply(&self, collar: &bkcx_Collar) -> String {
-        let converge = bkco_call(BKCO_VERB_HEEL, Some(&collar.name));
+    pub fn bkcx_supply(&self, collar: &bkcx_Collar, tabtargets: Option<&Path>) -> String {
+        let converge = bkco_call(tabtargets, BKCO_VERB_HEEL, Some(&collar.name));
 
         match self {
             bkcx_Unanswered::Unlocked { .. } => format!(
                 "{}, then a {} of the lock it writes, then {}",
-                bkco_call(BKCO_VERB_GANGLINE, Some(&collar.name)),
+                bkco_call(tabtargets, BKCO_VERB_GANGLINE, Some(&collar.name)),
                 crate::bkcf_guard::BKCF_REMEDY,
-                converge
+                converge, //
             ),
             _ => converge,
         }
     }
 
+    /// The collar a heel converges where that heel is the whole of the supply
+    /// above, or `None` where it is not.
+    ///
+    /// A MOVED LOCK IS NOT A HEEL'S TO SUPPLY. Its first act writes a lock, and
+    /// a written lock stands dirty for the operator's notch — no tool commits —
+    /// so a verb that performed the heels a tree is owed would meet that lock's
+    /// door-law refusal on its next act. The reading it is handed is the supply
+    /// above, whole, and the operator's.
+    pub fn bkcx_heel(&self, collar: &bkcx_Collar) -> Option<String> {
+        match self {
+            bkcx_Unanswered::Unlocked { .. } => None,
+            _ => Some(collar.name.clone()),
+        }
+    }
+
     /// The launch door's refusal: the condition, why nothing here repairs it, the
     /// converge named, and uv's own account beneath where uv gave one.
-    pub fn bkcx_refusal(&self, collar: &bkcx_Collar, seat: &bkcx_Seat) -> String {
-        let converge = bkco_call(BKCO_VERB_HEEL, Some(&collar.name));
+    pub fn bkcx_refusal(
+        &self,
+        collar: &bkcx_Collar,
+        seat: &bkcx_Seat,
+        tabtargets: Option<&Path>,
+    ) -> String {
+        let converge = bkco_call(tabtargets, BKCO_VERB_HEEL, Some(&collar.name));
 
         match self {
             bkcx_Unanswered::Absent => format!(
@@ -1497,7 +1825,7 @@ impl bkcx_Unanswered {
                 collar.name,
                 seat.environment.display(),
                 ZBKCX_MARQUE,
-                converge
+                converge, //
             ),
             bkcx_Unanswered::Unmarqued => format!(
                 "{} carries no '{}' line, so what interpreter built this environment cannot be \
@@ -1506,14 +1834,16 @@ impl bkcx_Unanswered {
                  than inspected: {}",
                 seat.environment.join(ZBKCX_MARQUE).display(),
                 ZBKCX_MARQUE_VERSION,
-                converge
+                converge, //
             ),
-            bkcx_Unanswered::Moved { standing, pinned } => format!(
+            bkcx_Unanswered::Moved { standing, pinned } => {
+                format!(
                 "the environment for the python collar '{}' stands on CPython {}, and its project \
                  pins {} — the interpreter has moved out from under it. Nothing here rebuilds it: \
                  the one door that writes an environment is the converge, run deliberately: {}",
-                collar.name, standing, pinned, converge
-            ),
+                collar.name, standing, pinned, converge, //
+            )
+            }
             bkcx_Unanswered::Unlocked { account } => zbkcx_accounted(
                 format!(
                     "the lock at the project '{}' no longer answers its manifest, so the \
@@ -1523,7 +1853,7 @@ impl bkcx_Unanswered {
                      {}",
                     collar.bkcx_project().display(),
                     collar.name,
-                    converge
+                    converge, //
                 ),
                 account,
             ),
@@ -1535,7 +1865,7 @@ impl bkcx_Unanswered {
                      writes an environment is the converge, run deliberately: {}",
                     collar.name,
                     seat.environment.display(),
-                    converge
+                    converge, //
                 ),
                 account,
             ),
@@ -1551,7 +1881,11 @@ fn zbkcx_accounted(said: String, account: &str) -> String {
     if account.is_empty() {
         said
     } else {
-        format!("{}\n{}", said, account)
+        format!(
+            "{}\n{}",
+            said,
+            account, //
+        )
     }
 }
 
@@ -1595,7 +1929,7 @@ impl bkcx_Unhitched {
              environments {}, and this station stands outside them",
             collar.name,
             collar.bkcx_project().display(),
-            self.environments
+            self.environments, //
         )
     }
 
@@ -1606,7 +1940,7 @@ impl bkcx_Unhitched {
             "{}. No environment is built for it here and nothing of it runs: the declaration is \
              the project's own, in its manifest's uv table, and no door of this kennel overrides \
              it",
-            self.bkcx_said(collar)
+            self.bkcx_said(collar), //
         )
     }
 }
@@ -1622,7 +1956,7 @@ impl bkcx_Unhitched {
 /// sentence, the readings behind it then answering for what it is.
 pub fn bkcx_unhitched_at(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<Option<bkcx_Unhitched>, String> {
@@ -1631,7 +1965,7 @@ pub fn bkcx_unhitched_at(
 
     let checked = crate::bkcl_leash::bkcl_uv_recall(
         repository,
-        weaned,
+        dispatch,
         &project,
         [
             std::ffi::OsStr::new(ZBKCX_UV_SYNC),
@@ -1673,30 +2007,34 @@ fn zbkcx_unhitched(account: &str) -> Option<bkcx_Unhitched> {
 /// no — the routine-download ruling's own shape. Nothing here downloads, nothing
 /// here writes, and the sealed posture is what makes that true of the spawn as
 /// well as of the reads.
-pub fn bkcx_verify(repository: &Path, weaned: &Path, collar: &bkcx_Collar) -> Result<(), String> {
-    let seat = bkcx_seat(collar)?;
+pub fn bkcx_verify(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcx_Collar,
+) -> Result<(), String> {
+    let seat = bkcx_seat(dispatch, collar)?;
 
-    bkcx_verify_at(repository, weaned, collar, &seat)
+    bkcx_verify_at(repository, dispatch, collar, &seat)
 }
 
 /// The verify posture taken against a NAMED seat, so a hurdle can pose one
 /// without writing an environment its parallel neighbours also read.
 pub fn bkcx_verify_at(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<(), String> {
     // THE DECLARATION AHEAD OF THE ENVIRONMENT. On a station the project
     // declares itself out of, no environment stands or ever will, so a reading
     // of the environment first would send its reader to a converge that refuses.
-    if let Some(unhitched) = bkcx_unhitched_at(repository, weaned, collar, seat)? {
+    if let Some(unhitched) = bkcx_unhitched_at(repository, dispatch, collar, seat)? {
         return Err(unhitched.bkcx_refusal(collar));
     }
 
-    match bkcx_unanswered_at(repository, weaned, collar, seat)? {
+    match bkcx_unanswered_at(repository, dispatch, collar, seat)? {
         None => Ok(()),
-        Some(unanswered) => Err(unanswered.bkcx_refusal(collar, seat)),
+        Some(unanswered) => Err(unanswered.bkcx_refusal(collar, seat, dispatch.bkcr_tabtargets())),
     }
 }
 
@@ -1725,7 +2063,7 @@ pub fn bkcx_verify_at(
 /// carries it whole.
 pub fn bkcx_unanswered_at(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<Option<bkcx_Unanswered>, String> {
@@ -1741,7 +2079,7 @@ pub fn bkcx_unanswered_at(
     // would name the environment for a condition the lock-authoring door repairs.
     let locked = crate::bkcl_leash::bkcl_uv_recall(
         repository,
-        weaned,
+        dispatch,
         &project,
         [
             std::ffi::OsStr::new(ZBKCX_UV_LOCK),
@@ -1760,7 +2098,7 @@ pub fn bkcx_unanswered_at(
 
     let synced = crate::bkcl_leash::bkcl_uv_recall(
         repository,
-        weaned,
+        dispatch,
         &project,
         [
             std::ffi::OsStr::new(ZBKCX_UV_SYNC),
@@ -1801,8 +2139,13 @@ pub fn bkcx_marque_at(
         return Ok(Some(bkcx_Unanswered::Absent));
     }
 
-    let said = std::fs::read_to_string(&marque)
-        .map_err(|err| format!("could not read {}: {}", marque.display(), err))?;
+    let said = std::fs::read_to_string(&marque).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            marque.display(),
+            err, //
+        )
+    })?;
 
     let Some(standing) = zbkcx_marqued(&said) else {
         return Ok(Some(bkcx_Unanswered::Unmarqued));
@@ -1873,8 +2216,8 @@ fn zbkcx_answers(standing: &str, pinned: &str) -> bool {
 /// A READING THAT REFUSES ANSWERS NOTHING RATHER THAN PROPAGATING. This reader
 /// exists to enrich another refusal, and a refusal that failed to compose because
 /// its enrichment failed would replace a useful sentence with an unrelated one.
-pub fn bkcx_roster(repository: &Path, weaned: &Path) -> String {
-    match bkcx_walk(repository, weaned) {
+pub fn bkcx_roster(repository: &Path, dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> String {
+    match bkcx_walk(repository, dispatch.bkcr_weaned()) {
         Ok(instances) => zbkcx_listed(&instances),
         Err(_) => String::new(),
     }
@@ -1992,10 +2335,24 @@ pub fn bkcx_seat_at(loosebox: &Path, tackroom: &Path, collar: &bkcx_Collar) -> b
         store: tackroom.join(ZBKCX_QUARTER).join(ZBKCX_INTERPRETERS),
         cache: tackroom.join(ZBKCX_QUARTER).join(ZBKCX_CACHE),
         executables: quartered.join(ZBKCX_EXECUTABLES),
-        bytecode: quartered
-            .join(ZBKCX_BYTECODE)
-            .join(collar.bkcx_project()),
+        bytecode: quartered.join(ZBKCX_BYTECODE).join(collar.bkcx_project()),
     }
+}
+
+/// What the python plane provisions under NAMED roots, collar by collar or
+/// not: the managed interpreter store and uv's cache under the tackroom's
+/// quarter, and the checkout's quarter of the loosebox, where every
+/// environment, the fenced executables and the bytecode stand.
+///
+/// THE ROOTS A BLEACH EMPTIES, composed from the same spellings the seat is, so
+/// the door that empties them cannot come to hold a second idea of where they
+/// stand.
+pub fn bkcx_provisions_at(loosebox: &Path, tackroom: &Path) -> Vec<PathBuf> {
+    vec![
+        tackroom.join(ZBKCX_QUARTER).join(ZBKCX_INTERPRETERS),
+        tackroom.join(ZBKCX_QUARTER).join(ZBKCX_CACHE),
+        loosebox.join(ZBKCX_QUARTER),
+    ]
 }
 
 /// Compose one collar's seat from the roots this station declared.
@@ -2004,9 +2361,12 @@ pub fn bkcx_seat_at(loosebox: &Path, tackroom: &Path, collar: &bkcx_Collar) -> b
 /// dispatch that composes it, the tackroom names the fence — so a station
 /// misprovisioned on either axis meets the sentence its own root owns rather
 /// than one this module invented.
-pub fn bkcx_seat(collar: &bkcx_Collar) -> Result<bkcx_Seat, String> {
-    let loosebox = crate::bkcc_record::bkcc_loosebox()?;
-    let tackroom = crate::bkcl_leash::bkcl_fenced()?;
+pub fn bkcx_seat(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcx_Collar,
+) -> Result<bkcx_Seat, String> {
+    let loosebox = crate::bkcc_record::bkcc_loosebox(dispatch)?;
+    let tackroom = crate::bkcl_leash::bkcl_fenced(dispatch)?;
 
     Ok(bkcx_seat_at(&loosebox, &tackroom, collar))
 }
@@ -2124,10 +2484,16 @@ const ZBKCX_OFF: &str = "0";
 /// spawns, on every verb, whether or not that verb was thought about here.
 pub fn bkcx_stated(seat: &bkcx_Seat, posture: bkcx_Posture) -> Vec<(&'static str, OsString)> {
     let mut stated: Vec<(&'static str, OsString)> = vec![
-        (ZBKCX_VAR_ENVIRONMENT, seat.environment.clone().into_os_string()),
+        (
+            ZBKCX_VAR_ENVIRONMENT,
+            seat.environment.clone().into_os_string(),
+        ),
         (ZBKCX_VAR_STORE, seat.store.clone().into_os_string()),
         (ZBKCX_VAR_CACHE, seat.cache.clone().into_os_string()),
-        (ZBKCX_VAR_EXECUTABLES, seat.executables.clone().into_os_string()),
+        (
+            ZBKCX_VAR_EXECUTABLES,
+            seat.executables.clone().into_os_string(),
+        ),
         (ZBKCX_VAR_PREFERENCE, OsString::from(ZBKCX_ONLY_MANAGED)),
         (ZBKCX_VAR_INSTALL_BIN, OsString::from(ZBKCX_OFF)),
         (ZBKCX_VAR_ENV_FILE, OsString::from(ZBKCX_ON)),
@@ -2190,9 +2556,11 @@ pub fn bkcx_stated(seat: &bkcx_Seat, posture: bkcx_Posture) -> Vec<(&'static str
 /// than withheld, uv accepting it, so that a dependency-free project meets the
 /// same variable every other project does.
 pub fn bkcx_barred(packages: &[String]) -> (&'static str, OsString) {
-    (ZBKCX_VAR_NO_BUILD_PACKAGE, OsString::from(packages.join(" ")))
+    (
+        ZBKCX_VAR_NO_BUILD_PACKAGE,
+        OsString::from(packages.join(" ")),
+    )
 }
-
 
 /// The exact patch version this collar's project pins.
 ///
@@ -2204,8 +2572,13 @@ pub fn bkcx_barred(packages: &[String]) -> (&'static str, OsString) {
 pub fn bkcx_pinned(repository: &Path, collar: &bkcx_Collar) -> Result<String, String> {
     let path = repository.join(collar.bkcx_project()).join(BKCX_PIN_FILE);
 
-    let said = std::fs::read_to_string(&path)
-        .map_err(|err| format!("could not read {}: {}", path.display(), err))?;
+    let said = std::fs::read_to_string(&path).map_err(|err| {
+        format!(
+            "could not read {}: {}",
+            path.display(),
+            err, //
+        )
+    })?;
 
     let pinned = said.trim().to_string();
 
@@ -2213,7 +2586,7 @@ pub fn bkcx_pinned(repository: &Path, collar: &bkcx_Collar) -> Result<String, St
         return Err(format!(
             "{} stands but names no version — the pin is what the interpreter install is spelled \
              with, so an empty one would install whatever uv thought newest",
-            path.display()
+            path.display(), //
         ));
     }
 
@@ -2258,7 +2631,10 @@ const ZBKCX_PYTEST_QUIET: &str = "-q";
 /// runner can re-run them, and narrowing is the selection pipeline's act, taken
 /// in the kennel against the runner's own listing. Nothing here would ever read
 /// it.
-const ZBKCX_PYTEST_NO_CACHE: &[&str] = &["-p", "no:cacheprovider"];
+const ZBKCX_PYTEST_NO_CACHE: &[&str] = &[
+    "-p",
+    "no:cacheprovider", //
+];
 
 /// Every warning a run raises made an error, on every invocation the kennel
 /// spells.
@@ -2268,7 +2644,10 @@ const ZBKCX_PYTEST_NO_CACHE: &[&str] = &["-p", "no:cacheprovider"];
 /// in a summary the kennel's reading steps over, so a run that warned read green;
 /// made an error, a warning fails the case that raised it, and one raised at
 /// import fails the collection, so a course cannot pass over one.
-const ZBKCX_PYTEST_WARNINGS_FATAL: &[&str] = &["-W", "error"];
+const ZBKCX_PYTEST_WARNINGS_FATAL: &[&str] = &[
+    "-W",
+    "error", //
+];
 
 /// THE RUN IS VERBOSE BECAUSE THE VOICE READS CASES AND NOT A SUMMARY. pytest's
 /// default is a row of dots carrying no name, so a course rendered from it could
@@ -2348,7 +2727,7 @@ pub fn bkcx_at(repository: &Path, collar: &bkcx_Collar) -> PathBuf {
 /// verify ahead of it already refused naming the converge.
 pub fn bkcx_recite(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
 ) -> Result<Vec<String>, String> {
@@ -2368,7 +2747,7 @@ pub fn bkcx_recite(
 
     let recall = crate::bkcl_leash::bkcl_uv_recall(
         repository,
-        weaned,
+        dispatch,
         &at,
         &spelled,
         &bkcx_borne(&stated),
@@ -2385,7 +2764,7 @@ pub fn bkcx_recite(
                 Some(code) => code.to_string(),
                 None => "on a signal".to_string(),
             },
-            recall.grievance.trim()
+            recall.grievance.trim(), //
         ));
     }
 
@@ -2442,6 +2821,7 @@ pub fn bkcx_interpreter_stands(
     repository: &Path,
     collar: &bkcx_Collar,
     seat: &bkcx_Seat,
+    tabtargets: Option<&Path>,
 ) -> Result<(), String> {
     let pinned = bkcx_pinned(repository, collar)?;
 
@@ -2455,7 +2835,7 @@ pub fn bkcx_interpreter_stands(
             collar.name,
             pinned,
             seat.store.display(),
-            bkco_call(BKCO_VERB_HEEL, Some(&collar.name))
+            bkco_call(tabtargets, BKCO_VERB_HEEL, Some(&collar.name)), //
         )),
     }
 }

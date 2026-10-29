@@ -24,17 +24,36 @@
 
 use super::bkce_election::bkce_Geography;
 use super::bkch_heel::{
-    bkch_compose, bkch_kibble, bkch_profile_dir, bkch_python_at, bkch_struck, bkch_yard,
     bkch_Kibbled,
+    bkch_compose,
+    bkch_kibble,
+    bkch_profile_dir,
+    bkch_python_at,
+    bkch_struck,
+    bkch_yard, //
 };
 use super::bkcl_leash;
 use super::bkcl_leash::bkcl_host;
-use super::bkcq_kibble::{bkcq_feedroom_at, bkcq_findings, bkcq_Feedroom, bkcq_Kibble};
+use super::bkcq_kibble::{
+    bkcq_Feedroom,
+    bkcq_Kibble,
+    bkcq_feedroom_at,
+    bkcq_findings, //
+};
 use super::bkcr_resolve::bkcr_Collar;
+use super::bktr_resolve::bktr_lured;
+use super::bktu_lure::{
+    bktu_Bent,
+    bktu_Haynet,
+    bktu_Lure,
+    bktu_Stationed, //
+};
 use bkp::bkprc_catena::bkprc_admit;
-use super::bktu_lure::{bktu_Bent, bktu_Haynet, bktu_Lure, bktu_Stationed};
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 /// The seat every composition below is joined from. A collar's manifest is a path
 /// reference joined from the repository root, so the root has to be something;
@@ -115,15 +134,31 @@ fn zbkth_collar(name: &str, text: &str) -> bkcr_Collar {
 /// a mapping that returned the profile verbatim would pass on `release` alone.
 #[test]
 fn bkth_a_profile_names_the_directory_cargo_gives_it() {
-    assert_eq!(bkch_profile_dir("dev"), "debug", "dev builds into debug");
-    assert_eq!(bkch_profile_dir("test"), "debug", "test builds into debug");
-    assert_eq!(bkch_profile_dir("release"), "release", "release names its own");
-    assert_eq!(bkch_profile_dir("bench"), "release", "bench names release");
+    assert_eq!(
+        bkch_profile_dir("dev"),
+        "debug",
+        "dev builds into debug", //
+    );
+    assert_eq!(
+        bkch_profile_dir("test"),
+        "debug",
+        "test builds into debug", //
+    );
+    assert_eq!(
+        bkch_profile_dir("release"),
+        "release",
+        "release names its own", //
+    );
+    assert_eq!(
+        bkch_profile_dir("bench"),
+        "release",
+        "bench names release", //
+    );
     assert_eq!(
         bkch_profile_dir("thorough"),
         "thorough",
         "a custom profile takes its own name, which is the general case the two \
-         above are exceptions to"
+         above are exceptions to", //
     );
 }
 
@@ -140,7 +175,7 @@ fn bkth_the_struck_path_is_rooted_at_the_manifest() {
     assert_eq!(
         struck,
         PathBuf::from("/seat/Tools/lure/target/release/lure"),
-        "cargo's own layout, rooted where the manifest stands"
+        "cargo's own layout, rooted where the manifest stands", //
     );
 }
 
@@ -156,11 +191,14 @@ fn bkth_the_collars_declared_shape_is_what_is_spelled() {
     )
     .expect("an app collar is what this door serves");
 
-    assert_eq!(converge.verb, "build", "the converge builds");
+    assert_eq!(
+        converge.verb, "build",
+        "the converge builds", //
+    );
     assert_eq!(
         converge.bkch_spelling(),
         "build --profile release --features alpha beta",
-        "every declared field spelled, and none invented"
+        "every declared field spelled, and none invented", //
     );
 
     // AN EMPTY FIELD IS A DECLARATION AND SPELLS NOTHING, which is the case the
@@ -176,7 +214,7 @@ fn bkth_the_collars_declared_shape_is_what_is_spelled() {
         bare.bkch_spelling(),
         "build --profile release",
         "an empty feature set spells no flag: {}",
-        bare.bkch_spelling()
+        bare.bkch_spelling(), //
     );
 }
 
@@ -198,17 +236,17 @@ fn bkth_a_residence_away_from_the_output_is_told_from_one_at_it() {
         elsewhere.residence,
         PathBuf::from("/seat/Tools/bin/lurex"),
         "the residence is the collar's, joined with the name its binary WEARS there — never the \
-         target cargo built, which is a different declaration and differs here on purpose"
+         target cargo built, which is a different declaration and differs here on purpose", //
     );
     assert_eq!(
         elsewhere.struck,
         PathBuf::from("/seat/Tools/lure/target/release/lure"),
         "and what cargo struck keeps the target's name: the converge is a rename as well as a \
-         move, which is the whole reason the two fields are two"
+         move, which is the whole reason the two fields are two", //
     );
     assert!(
         !elsewhere.bkch_seated(),
-        "the artifact does not already stand at this collar's residence"
+        "the artifact does not already stand at this collar's residence", //
     );
 
     let seated = bkch_compose(
@@ -220,13 +258,13 @@ fn bkth_a_residence_away_from_the_output_is_told_from_one_at_it() {
 
     assert_eq!(
         seated.struck, seated.residence,
-        "this collar's residence IS where cargo leaves the artifact"
+        "this collar's residence IS where cargo leaves the artifact", //
     );
     assert!(
         seated.bkch_seated(),
         "and the door reads it as already seated: {} against {}",
         seated.struck.display(),
-        seated.residence.display()
+        seated.residence.display(), //
     );
 }
 
@@ -246,12 +284,12 @@ fn bkth_a_suite_collar_refuses_the_converge() {
     assert!(
         refusal.contains("suite-lure"),
         "the refusal names the collar: {}",
-        refusal
+        refusal, //
     );
     assert!(
         refusal.contains("residence"),
         "and says what a suite has not got: {}",
-        refusal
+        refusal, //
     );
 }
 
@@ -277,7 +315,7 @@ fn bkth_a_dispatched_converge_writes_the_work_tree_and_refuses_the_delivered_roo
         composed.residence,
         PathBuf::from("/seat/Tools/bin/lurex"),
         "the install target joins onto the work tree the door entered, never onto the delivered \
-         root"
+         root", //
     );
 
     // THE DELIVERED ROOT CONTAINING THE WORK TREE IS THE REFUSAL, and it is the
@@ -293,12 +331,12 @@ fn bkth_a_dispatched_converge_writes_the_work_tree_and_refuses_the_delivered_roo
     assert!(
         refusal.contains("/seat/Tools/bin/lurex"),
         "the refusal names the target it would have written: {}",
-        refusal
+        refusal, //
     );
     assert!(
         refusal.contains("/seat/Tools"),
         "the refusal names the delivered root that contains it: {}",
-        refusal
+        refusal, //
     );
 
     // THE ROOT ITSELF IS INSIDE ITSELF, which is the worst case rather than an
@@ -310,7 +348,7 @@ fn bkth_a_dispatched_converge_writes_the_work_tree_and_refuses_the_delivered_roo
             &zbkth_collar("app-lure", ZBKTH_ELSEWHERE),
         )
         .is_err(),
-        "a delivered root that IS the target contains it"
+        "a delivered root that IS the target contains it", //
     );
 
     // A SIBLING WHOSE NAME IS A PREFIX IS NOT CONTAINMENT. `/seat/Tools/bi` is
@@ -325,7 +363,7 @@ fn bkth_a_dispatched_converge_writes_the_work_tree_and_refuses_the_delivered_roo
             &zbkth_collar("app-lure", ZBKTH_ELSEWHERE),
         )
         .is_ok(),
-        "the control: a path that merely shares an opening with the target contains nothing"
+        "the control: a path that merely shares an opening with the target contains nothing", //
     );
 
     // AND SELF-GEOGRAPHY REACHES NO GUARD AT ALL, there being no delivered root
@@ -338,7 +376,7 @@ fn bkth_a_dispatched_converge_writes_the_work_tree_and_refuses_the_delivered_roo
             &zbkth_collar("app-lure", ZBKTH_ELSEWHERE),
         )
         .is_ok(),
-        "the control: a main worktree has no delivered root, so nothing is asked"
+        "the control: a main worktree has no delivered root, so nothing is asked", //
     );
 }
 
@@ -377,16 +415,6 @@ const ZBKTH_FOREIGN_TRIPLE: &str = "moonstone-unknown-none-posed";
 
 /// The repository these hurdles read a pin and a host triple through, which is
 /// the tree this suite was built from.
-/// The kennel kit's own brood, handed as the set a kibble converge reads: the
-/// declarations the estate weans are these byte for byte, and a converge reaches
-/// the set only for a kibbled verb, which a converge's own build never is.
-fn zbkth_brood() -> PathBuf {
-    zbkth_crate()
-        .parent()
-        .map(|kit| kit.join("bkd_brood"))
-        .expect("the crate stands beneath its kit directory")
-}
-
 fn zbkth_repository() -> PathBuf {
     zbkth_crate()
         .parent()
@@ -414,23 +442,39 @@ fn zbkth_crate() -> PathBuf {
 fn zbkth_host() -> String {
     let repository = zbkth_repository();
 
-    bkcl_host(&repository, &zbkth_crate()).expect("the pinned toolchain declares a host triple")
+    bkcl_host(
+        &repository,
+        &super::bktr_resolve::bktr_suite(),
+        &zbkth_crate(),
+    )
+    .expect("the pinned toolchain declares a host triple")
 }
 
-/// The dispatch's temp directory, which a haynet's root is admitted beneath.
+/// The dispatch's temp directory, which a haynet's root is admitted beneath, as
+/// the suite's own dispatch file names it.
 const ZBKTH_TEMP_VAR: &str = "BURD_TEMP_DIR";
 
 /// The sha256 of one file, taken the way the door takes it.
 fn zbkth_digest(path: &Path) -> String {
-    let opened = std::fs::File::open(path)
-        .unwrap_or_else(|err| panic!("could not read {}: {}", path.display(), err));
+    let opened = std::fs::File::open(path).unwrap_or_else(|err| {
+        panic!(
+            "could not read {}: {}",
+            path.display(),
+            err, //
+        )
+    });
 
     let out = std::process::Command::new("openssl")
         .arg("dgst")
         .arg("-sha256")
         .stdin(std::process::Stdio::from(opened))
         .output()
-        .unwrap_or_else(|err| panic!("could not run openssl: {}", err));
+        .unwrap_or_else(|err| {
+            panic!(
+                "could not run openssl: {}",
+                err, //
+            )
+        });
 
     String::from_utf8_lossy(&out.stdout)
         .split_whitespace()
@@ -457,9 +501,17 @@ fn zbkth_tarball(release: &Path, archive: &str) -> PathBuf {
         .arg(release)
         .arg("nested")
         .output()
-        .unwrap_or_else(|err| panic!("could not run tar: {}", err));
+        .unwrap_or_else(|err| {
+            panic!(
+                "could not run tar: {}",
+                err, //
+            )
+        });
 
-    assert!(out.status.success(), "the posed archive composes");
+    assert!(
+        out.status.success(),
+        "the posed archive composes", //
+    );
 
     at
 }
@@ -515,22 +567,31 @@ const ZBKTH_RELEASE: &str = "release";
 
 /// Converge a posed kibble over its haynet.
 fn zbkth_converge(haynet: &bktu_Haynet, kibble: &bkcq_Kibble) -> Result<bkch_Kibbled, String> {
-    bkch_kibble(&zbkth_repository(), &zbkth_brood(), kibble, &bkth_feedroom(haynet))
+    bkch_kibble(
+        &zbkth_repository(),
+        &super::bktr_resolve::bktr_suite(),
+        kibble,
+        &bkth_feedroom(haynet),
+    )
 }
 
 /// The kibble root a haynet carries, read through the kennel's own admission
 /// against this run's dispatch temp directory — the same reading a child kennel
 /// takes of the root the haynet's drive states.
 pub(crate) fn bkth_feedroom(haynet: &bktu_Haynet) -> bkcq_Feedroom {
-    let temp = std::env::var(ZBKTH_TEMP_VAR).unwrap_or_else(|_| {
+    let temp = super::bktu_lure::bktu_suite_said(ZBKTH_TEMP_VAR).unwrap_or_else(|| {
         panic!(
-            "{} is unset, and a haynet stands beneath it or nowhere",
-            ZBKTH_TEMP_VAR
+            "the suite's dispatch names no {}, and a haynet stands beneath it or nowhere",
+            ZBKTH_TEMP_VAR, //
         )
     });
 
-    bkcq_feedroom_at(Some(haynet.bktu_root()), Some(Path::new(&temp)), None)
-        .unwrap_or_else(|err| panic!("the haynet's root is not admitted: {}", err))
+    bkcq_feedroom_at(Some(haynet.bktu_root()), Some(Path::new(&temp)), None).unwrap_or_else(|err| {
+        panic!(
+            "the haynet's root is not admitted: {}",
+            err, //
+        )
+    })
 }
 
 /// Compose a release served from a local path under `root`, and the kibble that
@@ -563,13 +624,17 @@ fn zbkth_release(
         "{{\n  \"artifacts\": {{\n    \"{}\": {{\n      \"kind\": \"executable-zip\",\n      \
          \"target_triples\": [\"{}\"],\n      \"checksums\": {{ \"sha256\": \"{}\" }}\n    }}\n  \
          }}\n}}\n",
-        archive, triple, stated
+        archive,
+        triple,
+        stated, //
     );
 
     let at = release.join("bordereau.json");
     std::fs::write(&at, &bordereau).expect("the posed bordereau stands");
 
-    let sealed = seal.map(str::to_string).unwrap_or_else(|| zbkth_digest(&at));
+    let sealed = seal
+        .map(str::to_string)
+        .unwrap_or_else(|| zbkth_digest(&at));
 
     let declared = format!(
         "BKRK_KIBBLE=\"{}\"\n\
@@ -585,7 +650,7 @@ fn zbkth_release(
         ZBKTH_POSED_VERSION,
         sealed,
         ZBKTH_POSED_BYNAME,
-        root.display()
+        root.display(), //
     );
 
     let kibble = bkcq_Kibble {
@@ -596,7 +661,7 @@ fn zbkth_release(
 
     assert!(
         bkcq_findings(&kibble).is_empty(),
-        "the control: a posed prebuilt kibble conforms before any converge is asked of it"
+        "the control: a posed prebuilt kibble conforms before any converge is asked of it", //
     );
 
     kibble
@@ -605,24 +670,40 @@ fn zbkth_release(
 #[test]
 fn bkth_a_prebuilt_kibble_is_fetched_against_its_bordereau_and_placed() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", triple);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        triple, //
+    );
     let lure = bktu_Lure::bktu_compose("heel-kibble-placed");
     let haynet = lure.bktu_haynet();
-    let posed = zbkth_pose(&lure, &haynet, ZBKTH_KIBBLE, &archive, &triple, true, None, None);
+    let posed = zbkth_pose(
+        &lure,
+        &haynet,
+        ZBKTH_KIBBLE,
+        &archive,
+        &triple,
+        true,
+        None,
+        None,
+    );
 
-    let landed = zbkth_converge(&haynet, &posed.kibble)
-        .unwrap_or_else(|err| panic!("the converge refused: {}", err));
+    let landed = zbkth_converge(&haynet, &posed.kibble).unwrap_or_else(|err| {
+        panic!(
+            "the converge refused: {}",
+            err, //
+        )
+    });
 
     assert!(
         matches!(landed, bkch_Kibbled::Placed(_)),
         "a cold residence answered {:?} rather than a placement",
-        landed
+        landed, //
     );
 
     assert!(
         posed.residence.is_file(),
         "nothing stands at {}",
-        posed.residence.display()
+        posed.residence.display(), //
     );
 
     // THE VERSION IS IN THE PATH, which is what makes the pin a path test.
@@ -632,7 +713,7 @@ fn bkth_a_prebuilt_kibble_is_fetched_against_its_bordereau_and_placed() {
             .to_string_lossy()
             .contains(ZBKTH_POSED_VERSION),
         "the residence {} does not carry the declared version",
-        posed.residence.display()
+        posed.residence.display(), //
     );
 
     // DRIVEN AGAIN IT FETCHES NOTHING. The store the release was served from is
@@ -641,21 +722,28 @@ fn bkth_a_prebuilt_kibble_is_fetched_against_its_bordereau_and_placed() {
     // a residence test from a repeated download.
     let _ = std::fs::remove_dir_all(lure.bktu_temp().join(ZBKTH_RELEASE));
 
-    let again = zbkth_converge(&haynet, &posed.kibble)
-        .unwrap_or_else(|err| panic!("the second converge refused: {}", err));
+    let again = zbkth_converge(&haynet, &posed.kibble).unwrap_or_else(|err| {
+        panic!(
+            "the second converge refused: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
         again,
         bkch_Kibbled::Current,
         "a standing residence answered {:?} rather than current",
-        again
+        again, //
     );
 }
 
 #[test]
 fn bkth_a_bordereau_that_does_not_answer_its_seal_refuses_naming_both_digests() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", triple);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        triple, //
+    );
 
     // THE ARCHIVE IS NEVER LAID DOWN, so a drive that got past the seal would
     // refuse on a missing file and say so — which is how this hurdle observes
@@ -679,34 +767,37 @@ fn bkth_a_bordereau_that_does_not_answer_its_seal_refuses_naming_both_digests() 
     assert!(
         said.contains(ZBKTH_WRONG_SEAL),
         "the refusal does not name the declared digest: {}",
-        said
+        said, //
     );
     assert!(
         said.contains("bordereau"),
         "the refusal does not say which file failed: {}",
-        said
+        said, //
     );
     assert!(
         !said.contains(&archive),
         "the refusal names the archive, so the fetch was reached: {}",
-        said
+        said, //
     );
     assert!(
         !posed.residence.exists(),
         "something stands at {}",
-        posed.residence.display()
+        posed.residence.display(), //
     );
     assert!(
         haynet.bktu_root().is_dir(),
         "the haynet's root does not stand at {}, so the converge never read it",
-        haynet.bktu_root().display()
+        haynet.bktu_root().display(), //
     );
 }
 
 #[test]
 fn bkth_an_archive_that_does_not_answer_the_bordereau_refuses_and_places_nothing() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", triple);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        triple, //
+    );
 
     // THE SEAL IS TRUE AND THE STATED ARCHIVE DIGEST IS NOT, which is the one
     // variation between this hurdle and the placement above.
@@ -729,29 +820,32 @@ fn bkth_an_archive_that_does_not_answer_the_bordereau_refuses_and_places_nothing
     assert!(
         said.contains(ZBKTH_WRONG_DIGEST),
         "the refusal does not name the stated digest: {}",
-        said
+        said, //
     );
     assert!(
         said.contains(&archive),
         "the refusal does not name the archive it fetched: {}",
-        said
+        said, //
     );
     assert!(
         !posed.residence.exists(),
         "something stands at {}",
-        posed.residence.display()
+        posed.residence.display(), //
     );
     assert!(
         haynet.bktu_root().is_dir(),
         "the haynet's root does not stand at {}, so the converge never read it",
-        haynet.bktu_root().display()
+        haynet.bktu_root().display(), //
     );
 }
 
 #[test]
 fn bkth_a_bordereau_lacking_the_host_triple_refuses_naming_the_triple() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", ZBKTH_FOREIGN_TRIPLE);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        ZBKTH_FOREIGN_TRIPLE, //
+    );
 
     let lure = bktu_Lure::bktu_compose("heel-kibble-hostless");
     let haynet = lure.bktu_haynet();
@@ -772,36 +866,48 @@ fn bkth_a_bordereau_lacking_the_host_triple_refuses_naming_the_triple() {
     assert!(
         said.contains(&triple),
         "the refusal does not name the host triple rustc declared: {}",
-        said
+        said, //
     );
     assert!(
         said.contains(ZBKTH_FOREIGN_TRIPLE),
         "the refusal does not name what the document does carry: {}",
-        said
+        said, //
     );
     assert!(
         !posed.residence.exists(),
         "something stands at {}",
-        posed.residence.display()
+        posed.residence.display(), //
     );
     assert!(
         haynet.bktu_root().is_dir(),
         "the haynet's root does not stand at {}, so the converge never read it",
-        haynet.bktu_root().display()
+        haynet.bktu_root().display(), //
     );
 }
 
 #[test]
 fn bkth_a_zip_archive_refuses_naming_the_format() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.zip", triple);
+    let archive = format!(
+        "posed-{}.zip",
+        triple, //
+    );
 
     // A ZIP IS WHAT UV ACTUALLY PUBLISHES FOR EVERY WINDOWS TRIPLE, so this is
     // the archive a station on the wrong host would really be handed rather than
     // a shape invented to be refused.
     let lure = bktu_Lure::bktu_compose("heel-kibble-zipped");
     let haynet = lure.bktu_haynet();
-    let posed = zbkth_pose(&lure, &haynet, ZBKTH_KIBBLE, &archive, &triple, false, None, None);
+    let posed = zbkth_pose(
+        &lure,
+        &haynet,
+        ZBKTH_KIBBLE,
+        &archive,
+        &triple,
+        false,
+        None,
+        None,
+    );
 
     let said = zbkth_converge(&haynet, &posed.kibble)
         .expect_err("an archive format MVP does not unpack refuses");
@@ -809,22 +915,22 @@ fn bkth_a_zip_archive_refuses_naming_the_format() {
     assert!(
         said.contains(".tar.gz"),
         "the refusal does not name the format the kennel unpacks: {}",
-        said
+        said, //
     );
     assert!(
         said.contains(&archive),
         "the refusal does not name the archive it would have fetched: {}",
-        said
+        said, //
     );
     assert!(
         !posed.residence.exists(),
         "something stands at {}",
-        posed.residence.display()
+        posed.residence.display(), //
     );
     assert!(
         haynet.bktu_root().is_dir(),
         "the haynet's root does not stand at {}, so the converge never read it",
-        haynet.bktu_root().display()
+        haynet.bktu_root().display(), //
     );
 }
 
@@ -835,46 +941,78 @@ const ZBKTH_KIBBLE: &str = "kibble-haynet";
 #[test]
 fn bkth_a_cold_haynet_places_a_kibble_another_haynet_already_holds() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", triple);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        triple, //
+    );
 
     let holding = bktu_Lure::bktu_compose("heel-haynet-holding");
     let held = holding.bktu_haynet();
-    let first = zbkth_pose(&holding, &held, ZBKTH_KIBBLE, &archive, &triple, true, None, None);
+    let first = zbkth_pose(
+        &holding,
+        &held,
+        ZBKTH_KIBBLE,
+        &archive,
+        &triple,
+        true,
+        None,
+        None,
+    );
 
     let cold = bktu_Lure::bktu_compose("heel-haynet-cold");
     let empty = cold.bktu_haynet();
-    let second = zbkth_pose(&cold, &empty, ZBKTH_KIBBLE, &archive, &triple, true, None, None);
+    let second = zbkth_pose(
+        &cold,
+        &empty,
+        ZBKTH_KIBBLE,
+        &archive,
+        &triple,
+        true,
+        None,
+        None,
+    );
 
-    zbkth_converge(&held, &first.kibble)
-        .unwrap_or_else(|err| panic!("the holding haynet's converge refused: {}", err));
+    zbkth_converge(&held, &first.kibble).unwrap_or_else(|err| {
+        panic!(
+            "the holding haynet's converge refused: {}",
+            err, //
+        )
+    });
 
-    let said = zbkth_converge(&empty, &second.kibble)
-        .unwrap_or_else(|err| panic!("the cold haynet's converge refused: {}", err));
+    let said = zbkth_converge(&empty, &second.kibble).unwrap_or_else(|err| {
+        panic!(
+            "the cold haynet's converge refused: {}",
+            err, //
+        )
+    });
 
     // THE ASSERTION THAT REDDENED, asserted before any other: one kibble name
     // standing placed in another seat says nothing about this one.
     assert!(
         matches!(said, bkch_Kibbled::Placed(_)),
         "a cold residence answered {:?} rather than a placement",
-        said
+        said, //
     );
 
     assert!(
         second.residence.is_file(),
         "nothing stands at {}",
-        second.residence.display()
+        second.residence.display(), //
     );
     assert!(
         first.residence.is_file(),
         "the holding haynet's residence is gone from {}",
-        first.residence.display()
+        first.residence.display(), //
     );
 }
 
 #[test]
 fn bkth_a_lock_held_in_one_haynet_does_not_stall_a_converge_in_another() {
     let triple = zbkth_host();
-    let archive = format!("posed-{}.tar.gz", triple);
+    let archive = format!(
+        "posed-{}.tar.gz",
+        triple, //
+    );
 
     // A LOCK STANDS IN ONE ROOT and no converge there is running, which is the
     // shape a converge interrupted mid-act leaves behind.
@@ -885,26 +1023,39 @@ fn bkth_a_lock_held_in_one_haynet_does_not_stall_a_converge_in_another() {
 
     let free = bktu_Lure::bktu_compose("heel-haynet-unlocked");
     let open = free.bktu_haynet();
-    let posed = zbkth_pose(&free, &open, ZBKTH_KIBBLE, &archive, &triple, true, None, None);
+    let posed = zbkth_pose(
+        &free,
+        &open,
+        ZBKTH_KIBBLE,
+        &archive,
+        &triple,
+        true,
+        None,
+        None,
+    );
 
-    let said = zbkth_converge(&open, &posed.kibble)
-        .unwrap_or_else(|err| panic!("the converge in the unlocked haynet refused: {}", err));
+    let said = zbkth_converge(&open, &posed.kibble).unwrap_or_else(|err| {
+        panic!(
+            "the converge in the unlocked haynet refused: {}",
+            err, //
+        )
+    });
 
     assert!(
         posed.residence.is_file(),
         "the converge answered {:?} and nothing stands beneath its own root at {}",
         said,
-        posed.residence.display()
+        posed.residence.display(), //
     );
     assert!(
         matches!(said, bkch_Kibbled::Placed(_)),
         "a cold residence answered {:?} rather than a placement",
-        said
+        said, //
     );
     assert!(
         lock.is_dir(),
         "the lock in the other haynet was released by a converge that never held it: {}",
-        lock.display()
+        lock.display(), //
     );
 }
 
@@ -921,11 +1072,8 @@ fn bkth_the_lures_posed_root_variable_is_the_kennels_own() {
 
 /// Sixty-four hex characters and nothing's sha256, for the two hurdles that
 /// declare a digest deliberately wrong.
-const ZBKTH_WRONG_DIGEST: &str =
-    "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
-const ZBKTH_WRONG_SEAL: &str =
-    "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
-
+const ZBKTH_WRONG_DIGEST: &str = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+const ZBKTH_WRONG_SEAL: &str = "fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210";
 
 /// The pin the converge hurdles' project declares — an exact patch, which the
 /// validation demands and the install is spelled with.
@@ -970,7 +1118,12 @@ fn zbkth_borne<'a>(
 /// Compose a dependency-free project awaiting its first lock: the project, its
 /// collar, the estate's own uv kibble and the seat — and nothing installed or
 /// authored, so the first lock's whole order is the hurdle's own to drive.
-pub(crate) fn bkth_python_lockless(named: &str, requires: &str, dependencies: &str, baked: &str) -> bkth_Seated {
+pub(crate) fn bkth_python_lockless(
+    named: &str,
+    requires: &str,
+    dependencies: &str,
+    baked: &str,
+) -> bkth_Seated {
     let lure = bktu_Lure::bktu_compose(named);
 
     let bent = bktu_Bent {
@@ -993,11 +1146,12 @@ pub(crate) fn bkth_python_lockless(named: &str, requires: &str, dependencies: &s
         lure.bktu_write("project/pyproject.toml", dependencies);
     }
 
-    let collar = crate::bkcx_python::bkcx_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
-        .expect("the seated collar resolves")
-        .collar;
+    let collar =
+        crate::bkcx_python::bkcx_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
+            .expect("the seated collar resolves")
+            .collar;
 
-    let tackroom = bkcl_leash::bkcl_fenced()
+    let tackroom = bkcl_leash::bkcl_fenced(&super::bktr_resolve::bktr_suite())
         .expect("the suite runs through a door that states the tackroom");
 
     let seat = crate::bkcx_python::bkcx_seat_at(lure.bktu_loosebox(), &tackroom, &collar);
@@ -1027,7 +1181,12 @@ pub(crate) fn bkth_python_lockless(named: &str, requires: &str, dependencies: &s
 /// failed quietly would leave the hurdle proving something about an absent lock
 /// while reading as a statement about a stale one — which is exactly the false
 /// green this testbench's own charter warns against.
-pub(crate) fn bkth_python_seated(named: &str, requires: &str, dependencies: &str, baked: &str) -> bkth_Seated {
+pub(crate) fn bkth_python_seated(
+    named: &str,
+    requires: &str,
+    dependencies: &str,
+    baked: &str,
+) -> bkth_Seated {
     let seated = bkth_python_lockless(named, requires, dependencies, baked);
 
     bkth_python_installed(&seated);
@@ -1043,7 +1202,7 @@ pub(crate) fn bkth_python_seated(named: &str, requires: &str, dependencies: &str
 
     let authored = bkcl_leash::bkcl_uv(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.project,
         [
             OsStr::new("lock"),
@@ -1057,7 +1216,7 @@ pub(crate) fn bkth_python_seated(named: &str, requires: &str, dependencies: &str
     assert!(
         authored.bkcl_landed(),
         "the lock was not authored, so there is nothing to converge: {}",
-        authored.spelling
+        authored.spelling, //
     );
 
     seated
@@ -1075,7 +1234,7 @@ pub(crate) fn bkth_python_installed(seated: &bkth_Seated) {
 
     let installed = bkcl_leash::bkcl_uv(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         seated.lure.bktu_root(),
         [
             OsStr::new("python"),
@@ -1090,7 +1249,7 @@ pub(crate) fn bkth_python_installed(seated: &bkth_Seated) {
     assert!(
         installed.bkcl_landed(),
         "the pinned interpreter was not installed, so nothing below proves what it claims: {}",
-        installed.spelling
+        installed.spelling, //
     );
 }
 
@@ -1100,7 +1259,7 @@ pub(crate) fn bkth_served_manifest(dependency: &str, url: &str, uv: &str) -> Str
         "[project]\nname = \"lure\"\nversion = \"0.0.1\"\nrequires-python = \">=3.12\"\n\
          dependencies = [\"{}\"]\n\n[tool.uv]\n{}\n[[tool.uv.index]]\nname = \"served\"\nurl = \"{}\"\n\
          default = true\n",
-        dependency, uv, url
+        dependency, uv, url, //
     )
 }
 
@@ -1120,26 +1279,40 @@ pub(crate) fn bkth_served_manifest(dependency: &str, url: &str, uv: &str) -> Str
 fn bkth_a_python_collar_converges_its_project_into_the_loosebox() {
     let seated = bkth_python_seated("heel-python-converge", ">=3.12", "", "");
 
-    let environed = bkch_python_at(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| panic!("the converge refused: {}", err));
+    let environed = bkch_python_at(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .unwrap_or_else(|err| {
+        panic!(
+            "the converge refused: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
-        environed.pinned, BKTH_PYTHON_PIN,
+        environed.pinned,
+        BKTH_PYTHON_PIN,
         "the converge installed {} where the project pins {}",
-        environed.pinned, BKTH_PYTHON_PIN
+        environed.pinned,
+        BKTH_PYTHON_PIN, //
     );
 
     // THE ENVIRONMENT STANDS UNDER THE LOOSEBOX AND NOWHERE ELSE.
     assert!(
-        environed.environment.starts_with(seated.lure.bktu_loosebox()),
+        environed
+            .environment
+            .starts_with(seated.lure.bktu_loosebox()),
         "the environment landed at {}, outside the checkout's own derived root",
-        environed.environment.display()
+        environed.environment.display(), //
     );
 
     assert!(
         environed.environment.join("pyvenv.cfg").is_file(),
         "no environment stands at {}",
-        environed.environment.display()
+        environed.environment.display(), //
     );
 
     // AND NOTHING LANDED BESIDE THE PROJECT, which is the placement ruling read
@@ -1147,15 +1320,23 @@ fn bkth_a_python_collar_converges_its_project_into_the_loosebox() {
     assert!(
         !seated.project.join(".venv").exists(),
         "an environment landed beside the project at {}, so the stated path did not hold",
-        seated.project.display()
+        seated.project.display(), //
     );
 
     // THE VERIFY POSTURE AGREES WITH THE CONVERGE THAT JUST RAN, which is the
     // only assertion proving the two read one environment rather than two.
-    crate::bkcx_python::bkcx_verify_at(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .unwrap_or_else(|err| {
-            panic!("the verify posture refused a freshly converged tree: {}", err)
-        });
+    crate::bkcx_python::bkcx_verify_at(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .unwrap_or_else(|err| {
+        panic!(
+            "the verify posture refused a freshly converged tree: {}",
+            err, //
+        )
+    });
 
     // DRIVEN AGAIN IT IS CURRENT AND FETCHES NOTHING. The sealed posture can
     // reach neither an index nor a download, so a second converge needing either
@@ -1166,7 +1347,7 @@ fn bkth_a_python_collar_converges_its_project_into_the_loosebox() {
 
     let again = bkcl_leash::bkcl_uv(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.project,
         [
             OsStr::new("sync"),
@@ -1182,7 +1363,7 @@ fn bkth_a_python_collar_converges_its_project_into_the_loosebox() {
         again.bkcl_landed(),
         "a converged environment did not answer a sealed sync, so the first converge left \
          something to fetch: {}",
-        again.spelling
+        again.spelling, //
     );
 }
 
@@ -1206,15 +1387,24 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
 
     let url = seated.lure.bktu_simple_index(
         "lure-marrow",
-        &[("lure_marrow-1.0.tar.gz".to_string(), b"not an archive\n".to_vec())],
+        &[(
+            "lure_marrow-1.0.tar.gz".to_string(),
+            b"not an archive\n".to_vec(),
+        )],
     );
 
-    seated
-        .lure
-        .bktu_write("project/pyproject.toml", &bkth_served_manifest("lure-marrow", &url, ""));
+    seated.lure.bktu_write(
+        "project/pyproject.toml",
+        &bkth_served_manifest("lure-marrow", &url, ""),
+    );
 
     let registry = url.trim_start_matches("file://").to_string();
-    let served = seated.lure.bktu_temp().join("index").join("files").join("lure_marrow-1.0.tar.gz");
+    let served = seated
+        .lure
+        .bktu_temp()
+        .join("index")
+        .join("files")
+        .join("lure_marrow-1.0.tar.gz");
 
     seated.lure.bktu_write(
         "project/uv.lock",
@@ -1226,7 +1416,7 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
              [[package]]\nname = \"lure-marrow\"\nversion = \"1.0\"\nsource = {{ registry = \"{}\" }}\n\
              sdist = {{ path = \"{}\" }}\n",
             registry,
-            served.display()
+            served.display(), //
         ),
     );
 
@@ -1235,20 +1425,25 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
     let lock = seated.project.join("uv.lock");
     let before = std::fs::read(&lock).expect("the fixture lock reads");
 
-    let err = bkch_python_at(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .expect_err("a dependency with no wheel refuses the converge rather than being built");
+    let err = bkch_python_at(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .expect_err("a dependency with no wheel refuses the converge rather than being built");
 
     assert!(
         err.contains("BKr_hpt"),
         "the refusal does not cite the rule that bars the build: {}",
-        err
+        err, //
     );
 
     assert_eq!(
         before,
         std::fs::read(&lock).expect("the lock still reads"),
         "the converge moved the lock at {} while refusing",
-        lock.display()
+        lock.display(), //
     );
 
     // UV'S OWN SENTENCE, under the roster the door states: every lock package
@@ -1256,7 +1451,11 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
     let barred = crate::bkcx_python::bkcx_lock_packages(&seated.project)
         .expect("the fixture lock's packages read");
 
-    assert_eq!(barred, vec!["lure-marrow".to_string()], "the roster is read off the lock");
+    assert_eq!(
+        barred,
+        vec!["lure-marrow".to_string()],
+        "the roster is read off the lock", //
+    );
 
     let mut syncing =
         crate::bkcx_python::bkcx_stated(&seated.seat, crate::bkcx_python::bkcx_Posture::Reaching);
@@ -1264,7 +1463,7 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
 
     let recalled = bkcl_leash::bkcl_uv_recall(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.project,
         [
             OsStr::new("sync"),
@@ -1279,19 +1478,19 @@ fn bkth_the_converge_refuses_a_dependencys_source_build_naming_it_and_the_rivet(
     assert!(
         !recalled.run.bkcl_landed(),
         "uv synced a package it was barred from building: {}",
-        recalled.grievance
+        recalled.grievance, //
     );
 
     assert!(
-        recalled.grievance.contains("lure-marrow") && recalled.grievance.contains("no binary distribution"),
+        recalled.grievance.contains("lure-marrow")
+            && recalled.grievance.contains("no binary distribution"),
         "uv's account does not name the package and the absent wheel: {}",
-        recalled.grievance
+        recalled.grievance, //
     );
 }
 
 #[test]
 fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
-
     let seated = bkth_python_seated("heel-python-stale", ">=3.12", "", "");
 
     let lock = seated.project.join("uv.lock");
@@ -1299,7 +1498,7 @@ fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
     assert!(
         lock.is_file(),
         "the control: a lock stands at {} before the manifest is moved past it",
-        seated.project.display()
+        seated.project.display(), //
     );
 
     let before = std::fs::read(&lock).expect("the authored lock reads");
@@ -1312,8 +1511,13 @@ fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
          dependencies = [\"a-name-no-index-carries\"]\n",
     );
 
-    let err = bkch_python_at(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
-        .expect_err("a manifest the lock does not answer refuses the converge");
+    let err = bkch_python_at(
+        seated.lure.bktu_root(),
+        &bktr_lured(&seated.lure),
+        &seated.collar,
+        &seated.seat,
+    )
+    .expect_err("a manifest the lock does not answer refuses the converge");
 
     // WHAT THIS HURDLE PROVES IS THE KENNEL'S HALF, AND ITS NAME SAYS SO. Which
     // sentence uv gave — a lock that would have to change, a name no index
@@ -1327,14 +1531,14 @@ fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
     assert!(
         err.contains("did not sync"),
         "the refusal is not the converge's own: {}",
-        err
+        err, //
     );
 
     // AND IT NAMES THE DOOR ENTITLED TO RE-DERIVE A LOCK, rather than re-deriving.
     assert!(
         err.contains("lock-authoring door"),
         "the refusal does not name where a lock is authored: {}",
-        err
+        err, //
     );
 
     // THE LOAD-BEARING ASSERTION: THE LOCK IS UNTOUCHED. This is the property the
@@ -1348,7 +1552,7 @@ fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
         after,
         "the converge re-derived the lock at {} instead of refusing, so a resolution nobody \
          reviewed would have landed under a green exit",
-        lock.display()
+        lock.display(), //
     );
 }
 
@@ -1363,13 +1567,13 @@ fn bkth_the_converge_refuses_an_unhitched_project_and_builds_no_environment() {
 
     let refused = match bkch_python_at(
         seated.lure.bktu_root(),
-        &seated.lure.bktu_weaned(),
+        &bktr_lured(&seated.lure),
         &seated.collar,
         &seated.seat,
     ) {
         Ok(environed) => panic!(
             "the converge synced a project whose declaration no station satisfies, at {}",
-            environed.environment.display()
+            environed.environment.display(), //
         ),
         Err(refused) => refused,
     };
@@ -1377,12 +1581,12 @@ fn bkth_the_converge_refuses_an_unhitched_project_and_builds_no_environment() {
     assert!(
         refused.contains(crate::bkg_breviary::BKG_UNHITCHED_BASE) && refused.contains("nowhere"),
         "the converge's refusal does not name the declaration: {}",
-        refused
+        refused, //
     );
     assert!(
         !seated.seat.environment.exists(),
         "the converge left an environment standing at {}",
-        seated.seat.environment.display()
+        seated.seat.environment.display(), //
     );
 }
 
@@ -1402,7 +1606,10 @@ fn bkth_the_converge_refuses_an_unhitched_project_and_builds_no_environment() {
 /// bound and fail here, naming that.
 #[test]
 fn bkth_two_heels_of_one_root_take_the_yard_in_turn_and_both_converge() {
-    use std::sync::{mpsc, Mutex};
+    use std::sync::{
+        mpsc,
+        Mutex, //
+    };
     use std::time::Duration;
 
     let seated = bkth_python_seated("heel-two-at-once", ">=3.12", "", "");
@@ -1410,11 +1617,26 @@ fn bkth_two_heels_of_one_root_take_the_yard_in_turn_and_both_converge() {
     let order: Mutex<Vec<&'static str>> = Mutex::new(Vec::new());
 
     let converge = || {
-        bkch_python_at(seated.lure.bktu_root(), &seated.lure.bktu_weaned(), &seated.collar, &seated.seat)
+        bkch_python_at(
+            seated.lure.bktu_root(),
+            &bktr_lured(&seated.lure),
+            &seated.collar,
+            &seated.seat,
+        )
     };
 
-    let first = bkch_yard(&loosebox, |at| panic!("the first heel met a held yard at {}", at.display()))
-        .unwrap_or_else(|err| panic!("the first heel could not take the yard: {}", err));
+    let first = bkch_yard(&loosebox, |at| {
+        panic!(
+            "the first heel met a held yard at {}",
+            at.display(), //
+        )
+    })
+    .unwrap_or_else(|err| {
+        panic!(
+            "the first heel could not take the yard: {}",
+            err, //
+        )
+    });
 
     let (said, heard) = mpsc::channel::<PathBuf>();
 
@@ -1423,8 +1645,16 @@ fn bkth_two_heels_of_one_root_take_the_yard_in_turn_and_both_converge() {
             let yard = bkch_yard(&loosebox, |at| {
                 let _ = said.send(at.to_path_buf());
             })
-            .unwrap_or_else(|err| panic!("the second heel could not take the yard: {}", err));
-            order.lock().expect("the order reads").push("second took the yard");
+            .unwrap_or_else(|err| {
+                panic!(
+                    "the second heel could not take the yard: {}",
+                    err, //
+                )
+            });
+            order
+                .lock()
+                .expect("the order reads")
+                .push("second took the yard");
             let environed = converge();
             yard.bkch_release();
             environed
@@ -1434,28 +1664,147 @@ fn bkth_two_heels_of_one_root_take_the_yard_in_turn_and_both_converge() {
         assert!(
             line.is_ok(),
             "the second heel said nothing while the first held the yard, so it was not made to \
-             wait"
+             wait", //
         );
         assert_eq!(
             line.expect("the line was said"),
             loosebox.join(super::bkch_heel::BKCH_HEEL_HELD),
-            "the waiting line named some other file than the yard's"
+            "the waiting line named some other file than the yard's", //
         );
 
-        converge().unwrap_or_else(|err| panic!("the first heel's converge refused: {}", err));
-        order.lock().expect("the order reads").push("first converged");
+        converge().unwrap_or_else(|err| {
+            panic!(
+                "the first heel's converge refused: {}",
+                err, //
+            )
+        });
+        order
+            .lock()
+            .expect("the order reads")
+            .push("first converged");
         first.bkch_release();
 
         second
             .join()
             .expect("the second heel ran to its end")
-            .unwrap_or_else(|err| panic!("the second heel's converge refused: {}", err));
+            .unwrap_or_else(|err| {
+                panic!(
+                    "the second heel's converge refused: {}",
+                    err, //
+                )
+            });
     });
 
     assert_eq!(
         *order.lock().expect("the order reads"),
         vec!["first converged", "second took the yard"],
-        "the second heel took the yard before the first had finished converging"
+        "the second heel took the yard before the first had finished converging", //
+    );
+}
+
+/// The cadence the slow build below is attended at — short, so a hurdle can wait
+/// out several of them — and how long its build script sleeps past it.
+const ZBKTH_SLOW_CADENCE: std::time::Duration = std::time::Duration::from_millis(100);
+const ZBKTH_SLOW_SLEEP_MS: u64 = 1500;
+
+/// A SLOW BUILD SPEAKS HEARTBEATS ALONE AT THE CADENCE between its launch mark
+/// and its verdict.
+///
+/// IN-PROCESS, AND THAT IS WHAT MAKES THE CADENCE A HURDLE'S TO CHOOSE. The
+/// door's cadence is ten seconds, which no hurdle should wait out; the build
+/// road takes the voice as a value, so this one hands it a voice attended at a
+/// tenth of a second and speaking onto a console this hurdle holds, rather than
+/// onto the stdout every hurdle thread shares.
+///
+/// THE PLANT IS A BUILD SCRIPT THAT SLEEPS, so the child is genuinely silent past
+/// many cadences — cargo says nothing while a build script runs — and the
+/// heartbeat has a silence of the child's own to answer, as well as the quiet
+/// console's.
+#[test]
+fn bkth_a_slow_build_speaks_heartbeats_alone_at_the_cadence() {
+    use super::bkch_heel::zbkch_voiced_build;
+    use super::bkcv_voice::bkcv_Cargo;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    let lure = bktu_Lure::bktu_compose("heel-slow-build");
+    lure.bktu_write(".gitignore", "target/\n");
+    lure.bktu_write(
+        "Tools/dawdle/Cargo.toml",
+        "[package]\nname = \"dawdle\"\nversion = \"0.0.1\"\nedition = \"2021\"\n",
+    );
+    lure.bktu_write(
+        "Tools/dawdle/Cargo.lock",
+        "version = 4\n\n[[package]]\nname = \"dawdle\"\nversion = \"0.0.1\"\n",
+    );
+    lure.bktu_write("Tools/dawdle/src/main.rs", "fn main() {}\n");
+    lure.bktu_write(
+        "Tools/dawdle/build.rs",
+        &format!(
+            "fn main() {{\n    std::thread::sleep(std::time::Duration::from_millis({}));\n}}\n",
+            ZBKTH_SLOW_SLEEP_MS, //
+        ),
+    );
+    lure.bktu_commit("plant a crate whose build script sleeps past the cadence");
+
+    let heard: Rc<RefCell<Vec<String>>> = Rc::new(RefCell::new(Vec::new()));
+    let console = {
+        let heard = Rc::clone(&heard);
+        Box::new(move |line: &str| heard.borrow_mut().push(line.to_string()))
+    };
+
+    let voice = bkcv_Cargo::zbkcv_build_with(None, None, ZBKTH_SLOW_CADENCE, console);
+    let manifest = lure.bktu_root().join("Tools/dawdle/Cargo.toml");
+
+    let (run, built) = zbkch_voiced_build(
+        voice,
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &manifest,
+        &[],
+        &[],
+    )
+    .expect("the build road reaches cargo");
+
+    let spoken = heard.borrow().clone();
+
+    assert!(
+        built,
+        "the slow build lands: {} {:?}",
+        run.spelling,
+        spoken, //
+    );
+    assert!(
+        spoken
+            .first()
+            .is_some_and(|line| line.starts_with("launching: ")),
+        "the console opens on the launch mark: {:?}",
+        spoken, //
+    );
+    assert!(
+        spoken
+            .last()
+            .is_some_and(|line| line.starts_with("green: ")),
+        "the console closes on the verdict: {:?}",
+        spoken, //
+    );
+
+    let between = &spoken[1..spoken.len() - 1];
+    assert!(
+        between.iter().all(|line| line.starts_with("  · ")),
+        "between the launch mark and the verdict the console carries heartbeats alone: {:?}",
+        spoken, //
+    );
+
+    // AT THE CADENCE: a sleep of fifteen cadences cannot pass under fewer than a
+    // handful of marks, and a voice that marked only once — keyed on something
+    // other than the console's own silence — would fall short of it.
+    assert!(
+        between.len() >= 5,
+        "a build silent for {}ms at a {}ms cadence carries a heartbeat per cadence: {:?}",
+        ZBKTH_SLOW_SLEEP_MS,
+        ZBKTH_SLOW_CADENCE.as_millis(),
+        spoken, //
     );
 }
 

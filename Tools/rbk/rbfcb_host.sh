@@ -27,6 +27,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Sourced-guard (silent skip — reached via rbfc and, later, the capture spine)
 test -z "${ZRBFCB_SOURCED:-}" || return 0
 ZRBFCB_SOURCED=1
@@ -56,8 +61,8 @@ zrbfcb_redon_tick() {
     return 0
   fi
 
-  test "${z_don_rc}" -ne "${BUBC_band_admission}" \
-    || buc_reject "${BUBC_band_admission}" "${z_label}: re-don denied mid-build — the director admission was revoked while the build ran; brevet the citizen back onto the mantle, then re-run"
+  test "${z_don_rc}" -ne "${RBCG_ADMISSION_DENTIL}" \
+    || buc_reject "${RBCG_ADMISSION_DENTIL}" "${z_label}: re-don denied mid-build — the director admission was revoked while the build ran; brevet the citizen back onto the mantle, then re-run"
 
   if zrbau_sederunt_live_predicate; then
     buc_warn "${z_label}: mid-flight re-don failed transiently (${z_poll_tag}) — keeping the prior token; retrying next poll"

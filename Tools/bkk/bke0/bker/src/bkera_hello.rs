@@ -58,7 +58,10 @@ pub fn bkera_greeting() -> Result<String, String> {
 /// it was struck from is never launched.
 pub fn bkera_main() -> ExitCode {
     if std::env::args().nth(1).as_deref() == Some(BKERA_FLAG_EXERGUE) {
-        println!("{}", bkera_position());
+        println!(
+            "{}",
+            bkera_position(), //
+        );
         return ExitCode::SUCCESS;
     }
 

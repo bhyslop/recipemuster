@@ -104,16 +104,16 @@ zrbrf_enforce() {
   # The manor pool's org, pool id, and session duration validate in the sibling
   # RBRW regime, not here — RBRF validates only the per-foedus provider trust.
   [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
 
   [[ "${RBRF_IDP_ISSUER}" =~ ^https:// ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
 
   # https required under both mechanisms (under programmatic GCP still
   # demands the https scheme even though it never resolves the issuer).
   case "${RBRF_ATTRIBUTE_MAPPING}" in
     *google.subject*) ;;
-    *) buc_reject "${BUBC_band_regime}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
+    *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
   esac
 
   # Mechanism-gated checks — only the active group's fields are set (buv gating
@@ -123,17 +123,17 @@ zrbrf_enforce() {
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
       [[ "${RBRF_IDP_DEVICE_ENDPOINT}" =~ ^https:// ]] \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
       [[ "${RBRF_IDP_TOKEN_ENDPOINT}" =~ ^https:// ]] \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
       # OIDC requires openid; the human-present premise forbids offline_access — a
       # refresh token would let a run begin outside a live sederunt.
       case " ${RBRF_IDP_SCOPE} " in
         *" openid "*) ;;
-        *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
       esac
       case " ${RBRF_IDP_SCOPE} " in
-        *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
+        *offline_access*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
       esac
       ;;
     rbnfe_programmatic)
@@ -142,7 +142,7 @@ zrbrf_enforce() {
       # before it writes this value, so affiance uploads it verbatim.
       local -r z_jwks_stderr="${ZRBRF_ENFORCE_PREFIX}jwks_stderr.txt"
       jq -e '(.keys | type) == "array" and (.keys | length) > 0' <<<"${RBRF_IDP_JWKS_JSON}" >/dev/null 2>"${z_jwks_stderr}" \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON} — see ${z_jwks_stderr}"
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON} — see ${z_jwks_stderr}"
 
       # The reachable grant endpoint: https, or a loopback http:// (the
       # loopback-http escape from the https gate) — cleartext tolerated ONLY for
@@ -154,7 +154,7 @@ zrbrf_enforce() {
         https://*) ;;
         http://localhost|http://localhost:*|http://localhost/*) ;;
         http://127.0.0.1|http://127.0.0.1:*|http://127.0.0.1/*) ;;
-        *) buc_reject "${BUBC_band_regime}" "RBRF_GRANT_ENDPOINT must be an https:// URI or a loopback http:// URI (localhost / 127.0.0.1 only): ${RBRF_GRANT_ENDPOINT}" ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_GRANT_ENDPOINT must be an https:// URI or a loopback http:// URI (localhost / 127.0.0.1 only): ${RBRF_GRANT_ENDPOINT}" ;;
       esac
 
       # The two secret-path references are repo-root-relative, never absolute —
@@ -163,10 +163,10 @@ zrbrf_enforce() {
       # are the enrollment floor; this bars an absolute path (a production foedus's
       # ../station-fenced form stays relative and is admitted).
       case "${RBRF_ASSERTER_KEY_FILE}" in
-        /*) buc_reject "${BUBC_band_regime}" "RBRF_ASSERTER_KEY_FILE must be a repo-root-relative path, not absolute: ${RBRF_ASSERTER_KEY_FILE}" ;;
+        /*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must be a repo-root-relative path, not absolute: ${RBRF_ASSERTER_KEY_FILE}" ;;
       esac
       case "${RBRF_CLIENT_SECRET_FILE}" in
-        /*) buc_reject "${BUBC_band_regime}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
+        /*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
       esac
 
       # The three assertion facts (kid, issuer, subject) need only be present and

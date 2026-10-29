@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBAU_SOURCED:-}" || buc_die_now "Module rbau multiply sourced - check sourcing hierarchy"
 ZRBAU_SOURCED=1
@@ -670,20 +675,20 @@ rbau_avow() {
   # Mirrors the Payor OAuth token-mint guard (rbgp_payor.sh) so the federated
   # path honors the same invariant, under either mechanism arm.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${RBCG_CREDLESS_DENTIL}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
   if zrbau_sederunt_live_predicate; then
     local z_runway
     z_runway=$(zrbau_sederunt_runway_capture) \
       || buc_die_now "Live ${RBCC_noun_sederunt} became unreadable while gauging its runway"
     test "${z_runway}" -ge "${z_required_runway}" \
-      || buc_reject "${BUBC_band_runway}" "${RBCC_noun_sederunt_lettrine} runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
+      || buc_reject "${RBCG_RUNWAY_DENTIL}" "${RBCC_noun_sederunt_lettrine} runway too short: ${z_runway}s remain, ${z_required_runway}s required — novate to open a fresh full-window ${RBCC_noun_sederunt} (rbw-aN), then re-run"
     buc_step "${RBCC_noun_sederunt_lettrine} already live — reusing the cached federated token (runway ${z_runway}s)"
     return 0
   fi
 
   test "${RBRF_MECHANISM}" != "rbnfe_interactive" \
-    || buc_reject "${BUBC_band_runway}" "No live ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt} with rbw-aN, the one door that signs in, then re-run"
+    || buc_reject "${RBCG_RUNWAY_DENTIL}" "No live ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt} with rbw-aN, the one door that signs in, then re-run"
 
   buc_step "No live ${RBCC_noun_sederunt} — acquiring a fresh one"
   zrbau_sederunt_open
@@ -704,7 +709,7 @@ rbau_novate() {
   # Credless guard — novation is a sederunt acquisition, so the reveille-tier
   # invariant holds here exactly as at the rbau_avow entry.
   test "${BURE_TWEAK_NAME:-}" != "${RBCC_tweak_credless_guard}" \
-    || buc_reject "${BUBC_band_credless}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
+    || buc_reject "${RBCG_CREDLESS_DENTIL}" "Credless guard: ${RBCC_noun_sederunt} acquisition refused — this run carries the reveille-tier guard (reveille cases must never reach the IdP)"
 
   buc_step "Novating the ${RBCC_noun_sederunt} — opening a fresh one, extinguishing any preexisting ${RBCC_noun_sederunt}"
   zrbau_sederunt_open
@@ -718,7 +723,7 @@ rbau_novate() {
 # here by minting a mantle service-account access token from the cached federated
 # token via iamcredentials generateAccessToken. Emits the mantle token on stdout
 # once on success; failure returns 1, except the Leg-3 403 admission deficit,
-# which returns the distinguished BUBC_band_admission code — never buc_die_now,
+# which returns the distinguished RBCG_ADMISSION_DENTIL code — never buc_die_now,
 # never stderr; the consuming verb supplies the loud
 # buc_die_now (or a band-aware buc_reject) over the returned code, and the
 # forensic lines below carry the operator instruction it dies with
@@ -810,7 +815,7 @@ rbau_don_capture() {
       test "${z_errmsg_status}" -eq 0 || z_errmsg=""
       # Deliberately not retried here (RBr_7a9, RBr_b93).
       buc_log_args "Leg 3 (don) denied (HTTP 403) for mantle ${z_mantle_email}: ${z_errmsg} — either an admission deficit (brevet the avowed citizen onto the mantle: tokenCreator on the mantle SA + serviceUsageConsumer on the depot project) or, immediately after gird/brevet, a just-written grant still propagating (wait a minute and retry); not retried here"
-      return "${BUBC_band_admission}" ;;
+      return "${RBCG_ADMISSION_DENTIL}" ;;
     *)
       local z_failmsg_status=0
       local z_failmsg=""

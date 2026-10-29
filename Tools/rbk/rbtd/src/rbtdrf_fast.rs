@@ -32,10 +32,6 @@ use crate::rbtgec_consts::{
     BUWGC_RC_VALIDATE,
     BUWGC_RS_RENDER,
     BUWGC_RS_VALIDATE,
-    RBTGEC_BAND_CREDLESS,
-    RBTGEC_BAND_ENROLL,
-    RBTGEC_BAND_HYGIENE,
-    RBTGEC_BAND_RECIPE,
     RBTGEC_HYGIENE_CHECK_DOCKERFILE,
     RBTGEC_HYGIENE_CHECK_VESSEL,
     RBTGEC_JETTISON_IMAGE,
@@ -51,6 +47,12 @@ use crate::rbtgec_consts::{
     RBTGEC_VALIDATE_PAYOR,
     RBTGEC_VALIDATE_REPO,
     RBTGEC_VALIDATE_VESSEL,
+};
+use crate::rbtgeb_breviary::{
+    RBTGEB_BUSX_ENROLL_DENTIL,
+    RBTGEB_CREDLESS_DENTIL,
+    RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
+    RBTGEB_RECIPE_DENTIL,
 };
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_CLIPBOARD,
@@ -73,6 +75,7 @@ const RBTCHF_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const RBTCHF_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
 const RBTCHF_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
 const RBTCHF_BURD_REGIME: &str = "Tools/buk/burd_regime.sh";
+const RBTCHF_BURD_FILE_KEY: &str = "BURD_BURD_FILE";
 const RBTCHF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -80,7 +83,7 @@ const RBTCHF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 /// Source lines for the bash kit modules a snippet needs ahead of buv, in the
 /// order every CLI sources them: buc first (the other guards die through
 /// buc_die_now), buym before buc's emitters run, bubc before buv (whose vet
-/// expands BUBC_band_enroll unguarded). No module chains another, so each
+/// expands BUBG_ENROLL_DENTIL unguarded). No module chains another, so each
 /// snippet states the chain itself. Ends with a newline.
 fn rbtchf_tinder_sources(root: &Path) -> String {
     [RBTCHF_BUC_COMMAND, RBTCHF_BUYM_YELP, RBTCHF_BUBC_CONSTANTS, RBTCHF_BUV_VALIDATION]
@@ -98,7 +101,7 @@ const RBTCHF_REPORT_NONZERO: i32 = 1;
 
 /// Sub-assertion within a case: run bash snippet, assert the exact exit code.
 /// `expect_code` is 0 for a positive; for a negative it is the rejection gate's
-/// band code (buv_vet rejects with RBTGEC_BAND_ENROLL). Asserting the precise
+/// band code (buv_vet rejects with RBTGEB_BUSX_ENROLL_DENTIL). Asserting the precise
 /// code, not bare nonzero, closes the wrong-reason hole: a harness breakage
 /// exits off-band and fails the case loud rather than passing as a "rejection".
 struct zrbtchf_Sub {
@@ -113,7 +116,7 @@ impl zrbtchf_Sub {
         Self { label, setup, command: "buv_vet \"TEST\"", expect_code: 0 }
     }
     const fn zrbtdrf_fatal(label: &'static str, setup: &'static str) -> Self {
-        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: RBTGEC_BAND_ENROLL }
+        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: RBTGEB_BUSX_ENROLL_DENTIL }
     }
     const fn zrbtdrf_ok_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
         Self { label, setup, command, expect_code: 0 }
@@ -135,10 +138,15 @@ pub(crate) fn rbtchf_run_bash(
     dir: &Path,
     trace_prefix: &str,
 ) -> Result<(i32, String, String), String> {
+    // A composed harness is a direct-kindle harness: it sources the kit modules
+    // and kindles them itself. The theurge's own dispatch pointer is withheld, so
+    // the command module the harness sources kindles nothing from it and the
+    // harness's own kindles are the only ones.
     let output = Command::new(rbtcei_bash_program())
         .arg("-c")
         .arg(script)
         .current_dir(project_root)
+        .env_remove(RBTCHF_BURD_FILE_KEY)
         .output()
         .map_err(|e| format!("bash execution failed: {}", e))?;
 
@@ -805,11 +813,11 @@ fn rbtchf_ev_multiscope(dir: &Path) -> rbtcee_Verdict {
     // Sub 2: vet BETA fails at the buv enrollment gate (band_enroll)
     let script2 = format!("{}buv_vet \"BETA\"", enrollment);
     match rbtchf_run_bash(&root, &script2, dir, "sub-1") {
-        Ok((code, _, _)) if code == RBTGEC_BAND_ENROLL => {}
+        Ok((code, _, _)) if code == RBTGEB_BUSX_ENROLL_DENTIL => {}
         Ok((code, _, stderr)) => {
             return rbtcee_Verdict::Fail(format!(
                 "beta scope: expected exit {}, got {}\nstderr:\n{}",
-                RBTGEC_BAND_ENROLL, code, stderr
+                RBTGEB_BUSX_ENROLL_DENTIL, code, stderr
             ));
         }
         Err(e) => return rbtcee_Verdict::Fail(format!("beta scope: {}", e)),
@@ -1262,11 +1270,11 @@ fn rbtchf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtcee_Verdict {
     let _ = std::fs::write(dir.join("credless-guard-stdout.txt"), &stdout);
     let _ = std::fs::write(dir.join("credless-guard-stderr.txt"), &stderr);
 
-    if code != RBTGEC_BAND_CREDLESS {
+    if code != RBTGEB_CREDLESS_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "{} under the credless guard exited {} — expected the credless band \
              code {} from the token-mint gate\nstdout:\n{}\n\nstderr:\n{}",
-            RBTGEC_JETTISON_IMAGE, code, RBTGEC_BAND_CREDLESS, stdout, stderr
+            RBTGEC_JETTISON_IMAGE, code, RBTGEB_CREDLESS_DENTIL, stdout, stderr
         ));
     }
 
@@ -1337,15 +1345,15 @@ fn rbtchf_dh_accept_comments_only(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_dh_reject_hardcoded_literal(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTCHF_DH_BODY_HARDCODED_LITERAL, RBTGEC_BAND_HYGIENE)
+    rbtchf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTCHF_DH_BODY_HARDCODED_LITERAL, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
 }
 
 fn rbtchf_dh_reject_tab_in_from(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTCHF_DH_BODY_TAB_IN_FROM, RBTGEC_BAND_HYGIENE)
+    rbtchf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTCHF_DH_BODY_TAB_IN_FROM, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
 }
 
 fn rbtchf_dh_reject_trailing_backslash(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTCHF_DH_BODY_TRAILING_BACKSLASH, RBTGEC_BAND_HYGIENE)
+    rbtchf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTCHF_DH_BODY_TRAILING_BACKSLASH, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
 }
 
 fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
@@ -1553,7 +1561,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
 
     let script = format!(
         "set -euo pipefail\n\
-         export BURD_TEMP_DIR='{dir_p}'\n\
+         BURD_TEMP_DIR='{dir_p}'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -1754,8 +1762,8 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
 
     let script = format!(
         "set -euo pipefail\n\
-         export BURD_TEMP_DIR='{dir_p}'\n\
-         export BURD_TABTARGET_DIR='{tt_p}'\n\
+         BURD_TEMP_DIR='{dir_p}'\n\
+         BURD_TABTARGET_DIR='{tt_p}'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -2037,7 +2045,7 @@ fn rbtchf_rc_accept_all_covered(dir: &Path) -> rbtcee_Verdict {
 
 fn rbtchf_rc_reject_missing_key(dir: &Path) -> rbtcee_Verdict {
     rbtchf_rc_run(dir, "rc-reject-missing-key",
-        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", RBTGEC_BAND_RECIPE)
+        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", RBTGEB_RECIPE_DENTIL)
 }
 
 fn rbtchf_rc_accept_comment_only(dir: &Path) -> rbtcee_Verdict {
@@ -2047,7 +2055,7 @@ fn rbtchf_rc_accept_comment_only(dir: &Path) -> rbtcee_Verdict {
 
 fn rbtchf_rc_reject_substring(dir: &Path) -> rbtcee_Verdict {
     rbtchf_rc_run(dir, "rc-reject-substring",
-        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", RBTGEC_BAND_RECIPE)
+        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", RBTGEB_RECIPE_DENTIL)
 }
 
 fn rbtchf_rc_accept_substring_real(dir: &Path) -> rbtcee_Verdict {
@@ -2067,7 +2075,7 @@ fn rbtchf_rc_accept_multi_token(dir: &Path) -> rbtcee_Verdict {
 
 fn rbtchf_rc_reject_multi_second(dir: &Path) -> rbtcee_Verdict {
     rbtchf_rc_run(dir, "rc-reject-multi-second",
-        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", RBTGEC_BAND_RECIPE)
+        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", RBTGEB_RECIPE_DENTIL)
 }
 
 fn rbtchf_rc_accept_empty_keys(dir: &Path) -> rbtcee_Verdict {
@@ -2077,7 +2085,7 @@ fn rbtchf_rc_accept_empty_keys(dir: &Path) -> rbtcee_Verdict {
 
 fn rbtchf_rc_reject_empty_keys_ref(dir: &Path) -> rbtcee_Verdict {
     rbtchf_rc_run(dir, "rc-reject-empty-keys-ref",
-        "", "echo \"${_RBGL_A}\"\n", RBTGEC_BAND_RECIPE)
+        "", "echo \"${_RBGL_A}\"\n", RBTGEB_RECIPE_DENTIL)
 }
 
 // ── Case arrays ─────────────────────────────────────────────

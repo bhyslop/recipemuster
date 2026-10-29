@@ -69,14 +69,24 @@ fn bktc_a_whole_course_renders_every_field_of_the_roster() {
         "BKRD_WALL=\"42500\"",
         "BKRD_POSITION=\"835f68bf91d6e83a67b8378ac7fc2a8f0c4bdf3f\"",
     ] {
-        assert!(said.contains(owed), "the record carries '{}': {}", owed, said);
+        assert!(
+            said.contains(owed),
+            "the record carries '{}': {}",
+            owed,
+            said, //
+        );
     }
 
     // SEVEN LINES AND NO EIGHTH. A record that grew a field the roster does not
     // name would still carry every string above, so the count is what says the
     // render and the roster are the same set rather than one containing the
     // other.
-    assert_eq!(said.lines().count(), 7, "the roster is seven fields: {}", said);
+    assert_eq!(
+        said.lines().count(),
+        7,
+        "the roster is seven fields: {}",
+        said, //
+    );
 }
 
 #[test]
@@ -86,7 +96,7 @@ fn bktc_a_narrowed_course_carries_its_patterns_and_no_time() {
     assert!(
         said.contains("BKRD_NARROWING=\"bktc_render bktc_admit\""),
         "the patterns ride the narrowing as a catena: {}",
-        said
+        said, //
     );
 
     // WALL TIME IS RECORDED ONLY WHERE THE COURSE RAN WHOLE. A narrowed course's
@@ -96,12 +106,12 @@ fn bktc_a_narrowed_course_carries_its_patterns_and_no_time() {
     assert!(
         said.contains("BKRD_WALL=\"bknre_narrowed\""),
         "a narrowed course takes no time: {}",
-        said
+        said, //
     );
     assert!(
         !said.contains("BKRD_WALL=\"0\""),
         "and does not record a zero, which a reader would take for a fast course: {}",
-        said
+        said, //
     );
 }
 
@@ -110,10 +120,19 @@ fn bktc_a_record_survives_the_round_trip_whichever_shape_it_took() {
     for owed in [zbktc_whole(), zbktc_narrowed()] {
         let said = owed.bkcc_body();
 
-        let read = bkcc_admit(&said, "the hurdle's own record")
-            .unwrap_or_else(|err| panic!("the writer's output is readable: {}", err));
+        let read = bkcc_admit(&said, "the hurdle's own record").unwrap_or_else(|err| {
+            panic!(
+                "the writer's output is readable: {}",
+                err, //
+            )
+        });
 
-        assert_eq!(read, owed, "what was written is what is read back: {}", said);
+        assert_eq!(
+            read,
+            owed,
+            "what was written is what is read back: {}",
+            said, //
+        );
     }
 }
 
@@ -122,7 +141,7 @@ fn bktc_the_leaf_names_the_collar_and_the_regime() {
     assert_eq!(
         zbktc_whole().bkcc_leaf(),
         "suite-alfa.bkrd",
-        "the row is the collar and the type is the extension"
+        "the row is the collar and the type is the extension", //
     );
 }
 
@@ -145,21 +164,27 @@ fn bktc_a_record_that_disagrees_with_itself_refuses() {
             "a narrowed course carrying a time",
         ),
     ] {
-        let err = bkcc_admit(said, "the hurdle's own record")
-            .expect_err(&format!("{} refuses", what));
+        let err = bkcc_admit(said, "the hurdle's own record").expect_err(&format!(
+            "{} refuses",
+            what, //
+        ));
 
         assert!(
             err.contains("disagrees with itself"),
             "the refusal says which rule was broken ({}): {}",
             what,
-            err
+            err, //
         );
     }
 }
 
 #[test]
 fn bktc_a_field_outside_the_roster_refuses_by_name() {
-    let said = format!("{}{}", zbktc_whole().bkcc_body(), "BKRD_STATION=\"beast\"\n");
+    let said = format!(
+        "{}{}",
+        zbktc_whole().bkcc_body(),
+        "BKRD_STATION=\"beast\"\n", //
+    );
 
     let err = bkcc_admit(&said, "the hurdle's own record")
         .expect_err("a record carrying a field the roster does not name refuses");
@@ -171,7 +196,7 @@ fn bktc_a_field_outside_the_roster_refuses_by_name() {
     assert!(
         err.contains("BKRD_STATION"),
         "the refusal names the field it did not expect: {}",
-        err
+        err, //
     );
 }
 
@@ -191,14 +216,20 @@ fn bktc_a_missing_field_refuses_by_name() {
         let without: String = whole
             .lines()
             .filter(|line| !line.starts_with(owed))
-            .map(|line| format!("{}\n", line))
+            .map(|line| {
+                format!(
+                    "{}\n",
+                    line, //
+                )
+            })
             .collect();
 
         let err = match bkcc_admit(&without, "the hurdle's own record") {
             Err(err) => err,
             Ok(admitted) => panic!(
                 "a record missing {} was admitted rather than refused: {:?}",
-                owed, admitted
+                owed,
+                admitted, //
             ),
         };
 
@@ -206,14 +237,16 @@ fn bktc_a_missing_field_refuses_by_name() {
             err.contains(owed),
             "a record missing {} refuses naming it: {}",
             owed,
-            err
+            err, //
         );
     }
 }
 
 #[test]
 fn bktc_a_count_that_is_no_count_refuses() {
-    let said = zbktc_whole().bkcc_body().replace("BKRD_DRIVEN=\"137\"", "BKRD_DRIVEN=\"many\"");
+    let said = zbktc_whole()
+        .bkcc_body()
+        .replace("BKRD_DRIVEN=\"137\"", "BKRD_DRIVEN=\"many\"");
 
     let err = bkcc_admit(&said, "the hurdle's own record")
         .expect_err("a count that is not a count refuses");
@@ -221,7 +254,7 @@ fn bktc_a_count_that_is_no_count_refuses() {
     assert!(
         err.contains("BKRD_DRIVEN") && err.contains("many"),
         "the refusal names the field and what it carried: {}",
-        err
+        err, //
     );
 }
 
@@ -244,7 +277,7 @@ fn bktc_an_absent_loosebox_refuses_naming_the_variable() {
             err.contains(BKCC_LOOSEBOX_DIR_VAR),
             "the refusal names {}: {}",
             BKCC_LOOSEBOX_DIR_VAR,
-            err
+            err, //
         );
     }
 }

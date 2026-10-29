@@ -21,7 +21,9 @@
 #
 # Produce side (buf_write_fact_*): writes fact-files to both BURD_OUTPUT_DIR
 # and BURD_TEMP_DIR. BURD_OUTPUT_DIR (current/) is promoted to BURD_PREVIOUS_DIR
-# (previous/) on next dispatch; BURD_TEMP_DIR is durable.
+# (previous/) on next dispatch; BURD_TEMP_DIR is durable. The dispatch writes
+# its own two files through this side: the dispatch regime (burd.env), written
+# once before the coordinator starts, and the exchange file (burx.env).
 #
 # Consume side (buf_read_fact_capture, buf_elect_fact_capture, buf_relay): a
 # downstream tabtarget reads the prior tabtarget's facts from BURD_PREVIOUS_DIR —
@@ -40,6 +42,7 @@ ZBUF_SOURCED=1
 
 # Tinder constants (pure string literals — available at source time)
 readonly BUF_burx_env="burx.env"
+readonly BUF_burd_env="burd.env"
 
 # Multi-fact extension registry (BUK's own domain only). Constant value matches
 # constant name downcased; the buf_ext_ prefix in the value carries the

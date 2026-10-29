@@ -45,7 +45,7 @@ zbuwz_kindle() {
   buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"
   buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      "param1"  "Create batch tabtarget with logging"
   buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        "param1"  "Create batch tabtarget without logging"
-  buz_enroll BUWZ_TT_BATCH_AMANUENSIS    "buw-tt-cba" "${z_mod}" "buut_tabtarget_batch_amanuensis"   "param1"  "Create batch tabtarget whose command writes its own record"
+  buz_enroll BUWZ_TT_BATCH_AMANUENSIS    "buw-tt-cbo" "${z_mod}" "buut_tabtarget_batch_amanuensis"   "param1"  "Create batch tabtarget whose command writes its own record"
   buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" "param1"  "Create interactive tabtarget with logging"
   buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  "param1"  "Create interactive tabtarget without logging"
   buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     "param1"  "Create launcher script"

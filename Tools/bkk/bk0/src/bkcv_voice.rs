@@ -24,9 +24,9 @@
 //! re-read log has nothing to be live about.
 //!
 //! THE RECORD IS THE SUBSTRATE'S LOG FAMILY AND THE KENNEL WRITES IT. A kennel
-//! tabtarget declares the amanuensis mode, so the dispatch composes the three
-//! names, hands them over, and creates nothing; all three members are written
-//! here or none is. The three curation dicta are implemented from the
+//! tabtarget declares the own-log mode, so the dispatch composes the three
+//! names, writes them into its file, and creates nothing; all three members are
+//! written here or none is. The three curation dicta are implemented from the
 //! substrate's own words rather than by shelling to its curators: the kennel is
 //! a coordinator that owns its stream, and a record assembled by calling back
 //! into bash would put the mode's whole point behind the thing it replaces.
@@ -41,10 +41,11 @@
 use crate::bkco_output;
 use std::io::Write;
 
-/// The three members the dispatch composed and handed over, and the mode's own
-/// declaration. Read from the environment because that is where the amanuensis
-/// mode puts them; composed by nobody here, per the family's law that a writer
-/// downstream of dispatch writes to the paths it was handed.
+/// The three members the dispatch composed and wrote into its file. Composed by
+/// nobody here, per the family's law that a writer downstream of dispatch writes
+/// to the paths it was handed. The historical member stands in the file wherever
+/// a log exists; the last and same members stand there under the own-log mode
+/// alone, so the PAIR is the mode's declaration.
 pub const BKCV_LOG_LAST_VAR: &str = "BURD_LOG_LAST";
 pub const BKCV_LOG_SAME_VAR: &str = "BURD_LOG_SAME";
 pub const BKCV_LOG_HIST_VAR: &str = "BURD_LOG_HIST";
@@ -55,24 +56,18 @@ pub const BKCV_GIT_CONTEXT_VAR: &str = "BURD_GIT_CONTEXT";
 pub const BKCV_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 
 /// The dispatch's two readings of one instant: a LOCAL stamp and the epoch
-/// seconds, taken from a single `date` call and exported together.
+/// seconds, taken from a single `date` call and written together.
 pub const BKCV_NOW_STAMP_VAR: &str = "BURD_NOW_STAMP";
 pub const BKCV_NOW_EPOCH_VAR: &str = "BURD_NOW_EPOCH";
+
+/// The position line a record names where the dispatch wrote no git context.
+pub(crate) const ZBKCV_GIT_UNAVAILABLE: &str = "git-unavailable";
 
 /// The literal the normalized member puts where the ephemeral directory stood.
 const ZBKCV_EPHEMERAL: &str = "BURD_EPHEMERAL_DIR";
 
 /// The marker whose line the normalized member drops whole.
 const ZBKCV_VOLATILE: &str = "VOLATILE";
-
-/// The substrate's declaration that the coordinator writes its own record —
-/// the mode a kennel tabtarget declares. NEVER READ: the kennel never consults
-/// it, the three composed names being the mode's own evidence. It stands as the
-/// census's seat for the spelling the substrate's log family law faces, and
-/// the allow rides it alone
-/// so a genuinely dead constant anywhere else still bars the build.
-#[allow(dead_code)]
-const ZBKCV_AMANUENSIS: &str = "BURD_AMANUENSIS";
 
 /// The digest line that closes the historical member.
 const ZBKCV_CHECKSUM_LEAD: &str = "Same log checksum: ";
@@ -410,7 +405,7 @@ pub fn bkcv_case(tongue: &str, line: &str) -> Result<Option<bkcv_Case>, String> 
             "the collar declares the tongue '{}', which is no output shape the kennel \
              recognizes — it renders what a collar says and infers none, so a value outside \
              the declared roster names a reader nobody wrote",
-            other
+            other, //
         )),
     }
 }
@@ -431,20 +426,80 @@ pub fn bkcv_case(tongue: &str, line: &str) -> Result<Option<bkcv_Case>, String> 
 /// against the standard's published vectors rather than against this code.
 pub(crate) fn zbkcv_sha256(bytes: &[u8]) -> String {
     const K: [u32; 64] = [
-        0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4,
-        0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe,
-        0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f,
-        0x4a7484aa, 0x5cb0a9dc, 0x76f988da, 0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
-        0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc,
-        0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-        0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070, 0x19a4c116,
-        0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-        0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7,
-        0xc67178f2,
+        0x428a2f98,
+        0x71374491,
+        0xb5c0fbcf,
+        0xe9b5dba5,
+        0x3956c25b,
+        0x59f111f1,
+        0x923f82a4,
+        0xab1c5ed5,
+        0xd807aa98,
+        0x12835b01,
+        0x243185be,
+        0x550c7dc3,
+        0x72be5d74,
+        0x80deb1fe,
+        0x9bdc06a7,
+        0xc19bf174,
+        0xe49b69c1,
+        0xefbe4786,
+        0x0fc19dc6,
+        0x240ca1cc,
+        0x2de92c6f,
+        0x4a7484aa,
+        0x5cb0a9dc,
+        0x76f988da,
+        0x983e5152,
+        0xa831c66d,
+        0xb00327c8,
+        0xbf597fc7,
+        0xc6e00bf3,
+        0xd5a79147,
+        0x06ca6351,
+        0x14292967,
+        0x27b70a85,
+        0x2e1b2138,
+        0x4d2c6dfc,
+        0x53380d13,
+        0x650a7354,
+        0x766a0abb,
+        0x81c2c92e,
+        0x92722c85,
+        0xa2bfe8a1,
+        0xa81a664b,
+        0xc24b8b70,
+        0xc76c51a3,
+        0xd192e819,
+        0xd6990624,
+        0xf40e3585,
+        0x106aa070,
+        0x19a4c116,
+        0x1e376c08,
+        0x2748774c,
+        0x34b0bcb5,
+        0x391c0cb3,
+        0x4ed8aa4a,
+        0x5b9cca4f,
+        0x682e6ff3,
+        0x748f82ee,
+        0x78a5636f,
+        0x84c87814,
+        0x8cc70208,
+        0x90befffa,
+        0xa4506ceb,
+        0xbef9a3f7,
+        0xc67178f2, //
     ];
 
     let mut h: [u32; 8] = [
-        0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab,
+        0x6a09e667,
+        0xbb67ae85,
+        0x3c6ef372,
+        0xa54ff53a,
+        0x510e527f,
+        0x9b05688c,
+        0x1f83d9ab,
         0x5be0cd19,
     ];
 
@@ -504,15 +559,22 @@ pub(crate) fn zbkcv_sha256(bytes: &[u8]) -> String {
         }
     }
 
-    h.iter().map(|word| format!("{:08x}", word)).collect()
+    h.iter()
+        .map(|word| {
+            format!(
+                "{:08x}",
+                word, //
+            )
+        })
+        .collect()
 }
 
 /// The local wall-clock stamp for one instant, in the historical member's form.
 ///
-/// THE OFFSET IS DERIVED FROM WHAT THE DISPATCH ALREADY HANDED OVER, and this is
+/// THE OFFSET IS DERIVED FROM WHAT THE DISPATCH ALREADY WROTE, and this is
 /// the whole trick that keeps the kennel's stamps agreeing with a logged
 /// dispatch's without a timezone crate and without spawning `date`. The dispatch
-/// takes ONE reading and exports it twice — a LOCAL stamp and the epoch seconds
+/// takes ONE reading and writes it twice — a LOCAL stamp and the epoch seconds
 /// of the same instant — so the difference between them IS this station's offset,
 /// measured rather than looked up, and correct across a zone the kennel could not
 /// otherwise name.
@@ -520,12 +582,12 @@ pub(crate) fn zbkcv_sha256(bytes: &[u8]) -> String {
 /// Absent either reading the stamp falls back to UTC, and the fallback is
 /// deliberately silent: a coordinator running outside a dispatch has no local
 /// reading to agree with, so there is nothing to warn about.
-fn zbkcv_offset() -> i64 {
-    let stamp = match std::env::var(BKCV_NOW_STAMP_VAR) {
-        Ok(stamp) => stamp,
-        Err(_) => return 0,
+fn zbkcv_offset(stamp: Option<&str>, epoch: Option<&str>) -> i64 {
+    let stamp = match stamp {
+        Some(stamp) => stamp,
+        None => return 0,
     };
-    let epoch: i64 = match std::env::var(BKCV_NOW_EPOCH_VAR).ok().and_then(|raw| raw.trim().parse().ok()) {
+    let epoch: i64 = match epoch.and_then(|raw| raw.trim().parse().ok()) {
         Some(epoch) => epoch,
         None => return 0,
     };
@@ -538,14 +600,33 @@ fn zbkcv_offset() -> i64 {
         return 0;
     }
 
-    let read = |text: &str, from: usize, to: usize| -> Option<i64> { text.get(from..to)?.parse().ok() };
+    let read =
+        |text: &str, from: usize, to: usize| -> Option<i64> { text.get(from..to)?.parse().ok() };
 
-    let year = match read(day, 0, 4) { Some(value) => value, None => return 0 };
-    let month = match read(day, 4, 6) { Some(value) => value, None => return 0 };
-    let date = match read(day, 6, 8) { Some(value) => value, None => return 0 };
-    let hour = match read(time, 0, 2) { Some(value) => value, None => return 0 };
-    let minute = match read(time, 2, 4) { Some(value) => value, None => return 0 };
-    let second = match read(time, 4, 6) { Some(value) => value, None => return 0 };
+    let year = match read(day, 0, 4) {
+        Some(value) => value,
+        None => return 0,
+    };
+    let month = match read(day, 4, 6) {
+        Some(value) => value,
+        None => return 0,
+    };
+    let date = match read(day, 6, 8) {
+        Some(value) => value,
+        None => return 0,
+    };
+    let hour = match read(time, 0, 2) {
+        Some(value) => value,
+        None => return 0,
+    };
+    let minute = match read(time, 2, 4) {
+        Some(value) => value,
+        None => return 0,
+    };
+    let second = match read(time, 4, 6) {
+        Some(value) => value,
+        None => return 0,
+    };
 
     let local = zbkcv_epoch_from_civil(year, month, date, hour, minute, second);
 
@@ -558,7 +639,14 @@ fn zbkcv_offset() -> i64 {
 
 /// Days-from-civil, and its inverse. Both are the standard algorithms, carried
 /// rather than derived, with the era arithmetic left as it is published.
-fn zbkcv_epoch_from_civil(year: i64, month: i64, day: i64, hour: i64, minute: i64, second: i64) -> i64 {
+fn zbkcv_epoch_from_civil(
+    year: i64,
+    month: i64,
+    day: i64,
+    hour: i64,
+    minute: i64,
+    second: i64,
+) -> i64 {
     let shifted = if month <= 2 { year - 1 } else { year };
     let era = if shifted >= 0 { shifted } else { shifted - 399 } / 400;
     let year_of_era = shifted - era * 400;
@@ -573,7 +661,11 @@ fn zbkcv_civil_from_epoch(epoch: i64) -> (i64, i64, i64, i64, i64, i64) {
     let rest = epoch.rem_euclid(86_400);
 
     let shifted = days + 719_468;
-    let era = if shifted >= 0 { shifted } else { shifted - 146_096 } / 146_097;
+    let era = if shifted >= 0 {
+        shifted
+    } else {
+        shifted - 146_096
+    } / 146_097;
     let day_of_era = shifted - era * 146_097;
     let year_of_era =
         (day_of_era - day_of_era / 1_460 + day_of_era / 36_524 - day_of_era / 146_096) / 365;
@@ -603,7 +695,12 @@ fn zbkcv_stamp(offset: i64) -> String {
     let (year, month, day, hour, minute, second) = zbkcv_civil_from_epoch(now + offset);
     format!(
         "[{:04}-{:02}-{:02} {:02}:{:02}:{:02}] ",
-        year, month, day, hour, minute, second
+        year,
+        month,
+        day,
+        hour,
+        minute,
+        second, //
     )
 }
 
@@ -629,43 +726,51 @@ pub struct bkcv_Record {
 
 impl bkcv_Record {
     /// Open the family the dispatch composed, or answer `None` where the
-    /// amanuensis mode is not in force.
+    /// own-log mode is not in force.
     ///
-    /// THE MODE IS DECLARED BY THE THREE PATHS STANDING, not by a flag of its
-    /// own: the dispatch exports them under this mode and under no other, so
-    /// their presence IS the mode. A partial set is a refusal rather than a
-    /// best effort — it means the dispatch composed names this reader does not
-    /// understand, and writing two of three would produce exactly the
-    /// disagreeing family the law forbids.
-    pub fn bkcv_open(invocation: &str) -> Result<Option<bkcv_Record>, String> {
-        let last = std::env::var(BKCV_LOG_LAST_VAR).ok().filter(|path| !path.trim().is_empty());
-        let same = std::env::var(BKCV_LOG_SAME_VAR).ok().filter(|path| !path.trim().is_empty());
-        let hist = std::env::var(BKCV_LOG_HIST_VAR).ok().filter(|path| !path.trim().is_empty());
+    /// THE MODE IS DECLARED BY THE PAIR STANDING, not by a flag of its own: the
+    /// dispatch writes the last and same members into its file under this mode
+    /// and under no other, so their presence IS the mode. The historical member
+    /// stands there in every logged mode and opens no record by itself, which is
+    /// what keeps a kennel run bare inside an ordinary logged dispatch from
+    /// writing into that dispatch's own record. A half pair, or a pair standing
+    /// without the historical member, is a refusal rather than a best effort —
+    /// it means the dispatch composed names this reader does not understand,
+    /// and writing two of three would produce exactly the disagreeing family the
+    /// law forbids.
+    pub fn bkcv_open(
+        dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+        invocation: &str,
+    ) -> Result<Option<bkcv_Record>, String> {
+        let last = dispatch.bkcr_said(BKCV_LOG_LAST_VAR);
+        let same = dispatch.bkcr_said(BKCV_LOG_SAME_VAR);
+        let hist = dispatch.bkcr_said(BKCV_LOG_HIST_VAR);
 
         let (last, same, hist) = match (last, same, hist) {
-            // NO NAMES AT ALL IS NO RECORD, inside a dispatch or outside one.
-            // The mode is a tabtarget's declaration and no caller's: a child
-            // launched bare — a release's derby, a hurdle's spawn — keeps no
-            // record, and its caller reads its passing result and its voice.
-            (None, None, None) => return Ok(None),
+            // NO PAIR IS NO RECORD, inside a dispatch or outside one. The mode
+            // is a tabtarget's declaration and no caller's: a child launched
+            // bare — a release's derby, a hurdle's spawn — keeps no record, and
+            // its caller reads its passing result and its voice.
+            (None, None, _) => return Ok(None),
             (Some(last), Some(same), Some(hist)) => (last, same, hist),
             (last, same, hist) => {
                 let mut absent = Vec::new();
-                for (var, value) in [
+                for (field, value) in [
                     (BKCV_LOG_LAST_VAR, &last),
                     (BKCV_LOG_SAME_VAR, &same),
                     (BKCV_LOG_HIST_VAR, &hist),
                 ] {
                     if value.is_none() {
-                        absent.push(var);
+                        absent.push(field);
                     }
                 }
                 return Err(format!(
-                    "the log family is half-composed: {} stand(s) unset while the others are \
-                     declared. The amanuensis mode exports all three or none, so this is a \
-                     dispatch the kennel does not understand rather than a record it may write \
-                     part of — all three members are written or none is",
-                    absent.join(", ")
+                    "the log family is half-composed in {}: {} stand(s) absent while the others \
+                     are written. The own-log mode writes all three, so this is a dispatch the \
+                     kennel does not understand rather than a record it may write part of — all \
+                     three members are written or none is",
+                    dispatch.bkcr_whence(),
+                    absent.join(", "), //
                 ));
             }
         };
@@ -687,21 +792,29 @@ impl bkcv_Record {
         let reopening = ZBKCV_OPENED.swap(true, std::sync::atomic::Ordering::SeqCst);
 
         bkcv_Record::zbkcv_at(
-            &last,
-            &same,
-            &hist,
-            std::env::var(BKCV_TEMP_DIR_VAR).ok().filter(|dir| !dir.trim().is_empty()),
+            last,
+            same,
+            hist,
+            dispatch.bkcr_said(BKCV_TEMP_DIR_VAR).map(str::to_string),
             reopening,
             invocation,
+            dispatch
+                .bkcr_said(BKCV_GIT_CONTEXT_VAR)
+                .unwrap_or(ZBKCV_GIT_UNAVAILABLE),
+            zbkcv_offset(
+                dispatch.bkcr_said(BKCV_NOW_STAMP_VAR),
+                dispatch.bkcr_said(BKCV_NOW_EPOCH_VAR),
+            ),
         )
         .map(Some)
     }
 
     /// Open the family at the three paths given, truncating unless reopening.
     ///
-    /// THE OPEN ABOVE READS THE ENVIRONMENT AND THIS DOES NOT, which is what
-    /// lets a hurdle stand a record without writing a process-wide variable
-    /// every other hurdle thread would read.
+    /// THE OPEN ABOVE READS THE DISPATCH AND THIS DOES NOT, which is what lets
+    /// a hurdle stand a record from values alone: the position line and the
+    /// station's offset are handed in beside the paths.
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn zbkcv_at(
         last: &str,
         same: &str,
@@ -709,6 +822,8 @@ impl bkcv_Record {
         ephemeral: Option<String>,
         reopening: bool,
         invocation: &str,
+        context: &str,
+        offset: i64,
     ) -> Result<bkcv_Record, String> {
         let open = |path: &str| -> Result<std::fs::File, String> {
             std::fs::OpenOptions::new()
@@ -717,7 +832,13 @@ impl bkcv_Record {
                 .truncate(!reopening)
                 .append(reopening)
                 .open(path)
-                .map_err(|err| format!("could not open the log member {}: {}", path, err))
+                .map_err(|err| {
+                    format!(
+                        "could not open the log member {}: {}",
+                        path,
+                        err, //
+                    )
+                })
         };
 
         let mut record = bkcv_Record {
@@ -726,7 +847,7 @@ impl bkcv_Record {
             hist: open(hist)?,
             same_path: std::path::PathBuf::from(same),
             ephemeral,
-            offset: zbkcv_offset(),
+            offset,
         };
 
         // BUr_fbc — a record opens by naming its own invocation, and the
@@ -739,17 +860,23 @@ impl bkcv_Record {
         // reads "the FIRST line" and "the SECOND line" of the member — a
         // prefixed line is neither, and a reader comparing two records reads the
         // position line by its position.
-        record.zbkcv_bare(&format!("command: {}", invocation))?;
-        let context = std::env::var(BKCV_GIT_CONTEXT_VAR).unwrap_or_else(|_| "git-unavailable".to_string());
-        record.zbkcv_hist_only(&format!("Git context: {}", context))?;
+        record.zbkcv_bare(&format!(
+            "command: {}",
+            invocation, //
+        ))?;
+        record.zbkcv_hist_only(&format!(
+            "Git context: {}",
+            context, //
+        ))?;
 
         Ok(record)
     }
 
     /// The historical member's path, for the failure lines that send a reader to
-    /// the depth.
-    pub fn bkcv_hist_path() -> Option<String> {
-        std::env::var(BKCV_LOG_HIST_VAR).ok().filter(|path| !path.trim().is_empty())
+    /// the depth — the dispatch's own wherever a log exists, the kennel's record
+    /// or the logged dispatch it runs bare inside.
+    pub fn bkcv_hist_path(dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> Option<String> {
+        dispatch.bkcr_said(BKCV_LOG_HIST_VAR).map(str::to_string)
     }
 
     /// Write one line into all three members, each under its own dictum.
@@ -763,34 +890,70 @@ impl bkcv_Record {
 
     fn zbkcv_raw(&mut self, line: &str) -> Result<(), String> {
         // The last member is the raw stream, uncurated.
-        writeln!(self.last, "{}", line).map_err(zbkcv_blame)?;
+        writeln!(
+            self.last,
+            "{}",
+            line, //
+        )
+        .map_err(zbkcv_blame)?;
 
         // BUr_amx — the normalized member carries only what a rerun would
         // reproduce. Each rule removes exactly one run-to-run variable, and the
         // member is diffable in proportion to how completely they are applied.
         for frame in zbkcv_normalized(line, self.ephemeral.as_deref()) {
-            writeln!(self.same, "{}", frame).map_err(zbkcv_blame)?;
+            writeln!(
+                self.same,
+                "{}",
+                frame, //
+            )
+            .map_err(zbkcv_blame)?;
         }
 
         // BUr_yht — the historical member stamps every line, and the bytes after
         // the prefix are the coordinator's own, leading and trailing whitespace
         // preserved.
-        writeln!(self.hist, "{}{}", zbkcv_stamp(self.offset), line).map_err(zbkcv_blame)?;
+        writeln!(
+            self.hist,
+            "{}{}",
+            zbkcv_stamp(self.offset),
+            line, //
+        )
+        .map_err(zbkcv_blame)?;
 
         Ok(())
     }
 
     fn zbkcv_hist_only(&mut self, line: &str) -> Result<(), String> {
-        writeln!(self.hist, "{}", line).map_err(zbkcv_blame)
+        writeln!(
+            self.hist,
+            "{}",
+            line, //
+        )
+        .map_err(zbkcv_blame)
     }
 
     /// The opening lines: into every member the mode creates, and into none of
     /// them stamped or normalized. They are the record's frame rather than part
     /// of the stream it holds.
     fn zbkcv_bare(&mut self, line: &str) -> Result<(), String> {
-        writeln!(self.last, "{}", line).map_err(zbkcv_blame)?;
-        writeln!(self.same, "{}", line).map_err(zbkcv_blame)?;
-        writeln!(self.hist, "{}", line).map_err(zbkcv_blame)?;
+        writeln!(
+            self.last,
+            "{}",
+            line, //
+        )
+        .map_err(zbkcv_blame)?;
+        writeln!(
+            self.same,
+            "{}",
+            line, //
+        )
+        .map_err(zbkcv_blame)?;
+        writeln!(
+            self.hist,
+            "{}",
+            line, //
+        )
+        .map_err(zbkcv_blame)?;
         Ok(())
     }
 
@@ -821,17 +984,31 @@ impl bkcv_Record {
         self.same.flush().map_err(zbkcv_blame)?;
         self.hist.flush().map_err(zbkcv_blame)?;
 
-        let bytes = std::fs::read(&self.same_path)
-            .map_err(|err| format!("could not read {} for its digest: {}", self.same_path.display(), err))?;
+        let bytes = std::fs::read(&self.same_path).map_err(|err| {
+            format!(
+                "could not read {} for its digest: {}",
+                self.same_path.display(),
+                err, //
+            )
+        })?;
 
-        writeln!(self.hist, "{}{}", ZBKCV_CHECKSUM_LEAD, zbkcv_sha256(&bytes)).map_err(zbkcv_blame)?;
+        writeln!(
+            self.hist,
+            "{}{}",
+            ZBKCV_CHECKSUM_LEAD,
+            zbkcv_sha256(&bytes), //
+        )
+        .map_err(zbkcv_blame)?;
         self.hist.flush().map_err(zbkcv_blame)?;
         Ok(())
     }
 }
 
 fn zbkcv_blame(err: std::io::Error) -> String {
-    format!("could not write the log family: {}", err)
+    format!(
+        "could not write the log family: {}",
+        err, //
+    )
 }
 
 /// BUr_amx applied to one line, answering the frames it becomes.
@@ -898,7 +1075,10 @@ pub(crate) fn zbkcv_uncolored(line: &str) -> String {
             }
             Some('(') => {
                 glyphs.next();
-                if glyphs.peek().is_some_and(|inner| inner.is_ascii_alphabetic()) {
+                if glyphs
+                    .peek()
+                    .is_some_and(|inner| inner.is_ascii_alphabetic())
+                {
                     glyphs.next();
                 }
             }
@@ -909,17 +1089,31 @@ pub(crate) fn zbkcv_uncolored(line: &str) -> String {
     clean
 }
 
-/// The whole rendering of one suite launch: the record written, the console
-/// spoken, the tally counted.
-pub struct bkcv_Voice {
-    tongue: String,
+/// Where a voice's console lines go: one line at a time, in the order spoken.
+///
+/// A VALUE AND NOT A CALL SITE, so a hurdle reads what a voice said without
+/// capturing the process's own stdout, which every hurdle thread shares. The
+/// doors hand the substrate's voice throat; nothing else is handed outside a
+/// hurdle.
+pub(crate) type zbkcv_Console = Box<dyn FnMut(&str)>;
+
+/// The console every door's voice speaks onto: stdout, flushed per line.
+fn zbkcv_stdout() -> zbkcv_Console {
+    Box::new(|line: &str| bkco_output::bkco_voice(line))
+}
+
+/// What every voice holds whatever it is reading: the record, the console, and
+/// the cadence the console's silence is measured on.
+///
+/// ONE THROAT FOR EVERY READER. A suite and a build read different shapes off
+/// their child, and nothing else about them differs: both write the child's
+/// whole stream into the record, both mark the console's silence on the same
+/// cadence, and both send a reader to the same depth. Held once, the two cannot
+/// come to keep the record or the heartbeat differently.
+struct zbkcv_Throat {
     record: Option<bkcv_Record>,
     hist: Option<String>,
     verbose: bool,
-    tally: bkcv_Tally,
-    /// Cases already counted, kept only where the tongue recapitulates and its
-    /// names are unique within a run.
-    counted: std::collections::BTreeSet<String>,
     began: std::time::Instant,
     /// When the CONSOLE last carried anything — a case line, a failure, a mark.
     /// The cadence is measured from here and never from the child.
@@ -927,31 +1121,161 @@ pub struct bkcv_Voice {
     /// How long the console may stay silent before the voice marks that the run
     /// is alive.
     cadence: std::time::Duration,
+    console: zbkcv_Console,
+}
+
+impl zbkcv_Throat {
+    fn zbkcv_new(
+        record: Option<bkcv_Record>,
+        hist: Option<String>,
+        cadence: std::time::Duration,
+        console: zbkcv_Console,
+    ) -> zbkcv_Throat {
+        zbkcv_Throat {
+            record,
+            hist,
+            verbose: bkco_output::bkco_verbose(),
+            began: std::time::Instant::now(),
+            spoke: std::time::Instant::now(),
+            cadence,
+            console,
+        }
+    }
+
+    /// One line into the record, where a record stands, and nowhere else.
+    fn zbkcv_write(&mut self, line: &str) -> Result<(), String> {
+        match self.record.as_mut() {
+            Some(record) => record.bkcv_write(line),
+            None => Ok(()),
+        }
+    }
+
+    fn zbkcv_say(&mut self, line: &str) {
+        (self.console)(line);
+        self.spoke = std::time::Instant::now();
+    }
+
+    /// The liveness mark, where the console has been silent a whole cadence.
+    ///
+    /// THE CADENCE IS MEASURED FROM THE CONSOLE AND NEVER FROM THE CHILD, and
+    /// getting this backwards is the failure the mark exists to prevent. A
+    /// green suite streams a line per case and a build a line per crate, so the
+    /// CHILD is never silent — but in the quiet flavor none of that reaches the
+    /// console, and what the operator has in front of them is a blank screen
+    /// for as long as the run takes. A mark keyed on the child falling quiet is
+    /// a mark that never fires on exactly the run that needed it. Fifty seconds
+    /// of a green 1758-case suite is the specimen this was found on.
+    fn zbkcv_pulse(&mut self) {
+        if self.spoke.elapsed() >= self.cadence {
+            self.zbkcv_mark();
+        }
+    }
+
+    /// The liveness mark: a heartbeat on a cadence, never a per-case dot, every
+    /// mark flushed.
+    ///
+    /// A RUN THAT IS TALKING IS NOT ALSO TOLD IT IS ALIVE. The mark answers the
+    /// CONSOLE'S silence, so a verbose run rendering a line per case never
+    /// carries one — there is nothing to reassure anybody about — while a quiet
+    /// run carries one every cadence however loud its child is.
+    ///
+    /// IT IS NEVER WRITTEN TO THE RECORD. A heartbeat is a fact about a terminal
+    /// watching rather than about the run, and a re-read log has nothing to be
+    /// live about.
+    fn zbkcv_mark(&mut self) {
+        let mark = format!(
+            "  · {}s",
+            self.began.elapsed().as_secs(), //
+        );
+        self.zbkcv_say(&mark);
+    }
+
+    /// Where a line about a failure sends its reader: the record's path, or a
+    /// clause saying none stands rather than an empty column.
+    fn zbkcv_beside(&self) -> String {
+        match self.hist.as_deref() {
+            Some(path) => path.to_string(),
+            None => "(no record: this dispatch composed none)".to_string(),
+        }
+    }
+
+    /// Close the record over a run the leash could not attend, answering the
+    /// refusal for the door to report.
+    ///
+    /// THE RECORD IS CLOSED EVEN HERE. What the child said before the leash
+    /// lost it is already written, and a family left open carries no digest and
+    /// no line saying why it stops. The console is the door's, which reports the
+    /// refusal itself.
+    fn zbkcv_abandon(mut self, refusal: String) -> String {
+        if let Some(mut record) = self.record.take() {
+            let closed = record
+                .bkcv_write(&format!(
+                    "RED: the run could not be attended: {}",
+                    refusal, //
+                ))
+                .and_then(|()| record.bkcv_close());
+            if let Err(err) = closed {
+                return format!(
+                    "{}; the record could not be closed: {}",
+                    refusal,
+                    err, //
+                );
+            }
+        }
+        refusal
+    }
+
+    /// Close the throat: the verdict onto the console and into the record, and
+    /// the record's digest onto the historical member.
+    fn zbkcv_close(mut self, verdict: &str) -> Result<(), String> {
+        (self.console)(verdict);
+
+        if let Some(mut record) = self.record.take() {
+            record.bkcv_write(verdict)?;
+            record.bkcv_close()?;
+        }
+
+        Ok(())
+    }
+}
+
+/// The whole rendering of one suite launch: the record written, the console
+/// spoken, the tally counted.
+pub struct bkcv_Voice {
+    throat: zbkcv_Throat,
+    tongue: String,
+    tally: bkcv_Tally,
+    /// Cases already counted, kept only where the tongue recapitulates and its
+    /// names are unique within a run.
+    counted: std::collections::BTreeSet<String>,
 }
 
 impl bkcv_Voice {
     /// Open the voice for one launch, writing the invocation into the record.
-    pub fn bkcv_open(tongue: &str, invocation: &str) -> Result<bkcv_Voice, String> {
+    pub fn bkcv_open(
+        dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+        tongue: &str,
+        invocation: &str,
+    ) -> Result<bkcv_Voice, String> {
         Ok(bkcv_Voice::zbkcv_with(
             tongue,
-            bkcv_Record::bkcv_open(invocation)?,
-            bkcv_Record::bkcv_hist_path(),
+            bkcv_Record::bkcv_open(dispatch, invocation)?,
+            bkcv_Record::bkcv_hist_path(dispatch),
         ))
     }
 
     /// The voice over a record already opened, and the path a failure line
     /// sends its reader to.
-    pub(crate) fn zbkcv_with(tongue: &str, record: Option<bkcv_Record>, hist: Option<String>) -> bkcv_Voice {
+    pub(crate) fn zbkcv_with(
+        tongue: &str,
+        record: Option<bkcv_Record>,
+        hist: Option<String>,
+    ) -> bkcv_Voice {
         bkcv_Voice {
+            throat: zbkcv_Throat::zbkcv_new(record, hist, BKCV_CADENCE, zbkcv_stdout()),
             tongue: tongue.to_string(),
-            record,
-            hist,
-            verbose: bkco_output::bkco_verbose(),
             tally: bkcv_Tally::default(),
             counted: std::collections::BTreeSet::new(),
-            began: std::time::Instant::now(),
-            spoke: std::time::Instant::now(),
-            cadence: BKCV_CADENCE,
         }
     }
 
@@ -959,22 +1283,12 @@ impl bkcv_Voice {
     /// console. The record holds the child's stream interleaved with these; the
     /// console holds the voice alone.
     pub fn bkcv_mark(&mut self, line: &str) -> Result<(), String> {
-        match self.record.as_mut() {
-            Some(record) => record.bkcv_write(line),
-            None => Ok(()),
-        }
+        self.throat.zbkcv_write(line)
     }
 
     /// Take one thing heard from the child.
     pub fn bkcv_heed(&mut self, heard: crate::bkcl_leash::bkcl_Heard) -> Result<(), String> {
-        // THE CADENCE IS MEASURED FROM THE CONSOLE AND NEVER FROM THE CHILD, and
-        // getting this backwards is the failure the mark exists to prevent. A
-        // green suite streams a line per case, so the CHILD is never silent —
-        // but in the quiet flavor none of that reaches the console, and what the
-        // operator has in front of them is a blank screen for as long as the run
-        // takes. A mark keyed on the child falling quiet is a mark that never
-        // fires on exactly the run that needed it. Fifty seconds of a green
-        // 1758-case suite is the specimen this was found on.
+        // The cadence's law stands at `zbkcv_Throat::zbkcv_pulse`.
         if let crate::bkcl_leash::bkcl_Heard::Said(line) = &heard {
             let line = line.clone();
             self.zbkcv_said(&line)?;
@@ -985,9 +1299,7 @@ impl bkcv_Voice {
         // A child that says nothing for a minute and one that says everything
         // are the same case from the console's side, and they take the same
         // road here.
-        if self.spoke.elapsed() >= self.cadence {
-            self.zbkcv_mark();
-        }
+        self.throat.zbkcv_pulse();
 
         Ok(())
     }
@@ -995,9 +1307,7 @@ impl bkcv_Voice {
     fn zbkcv_said(&mut self, line: &str) -> Result<(), String> {
         // INTO THE RECORD GOES THE CHILD'S WHOLE STREAM, whatever the console is
         // shown. The dial moves the console and never the record.
-        if let Some(record) = self.record.as_mut() {
-            record.bkcv_write(line)?;
-        }
+        self.throat.zbkcv_write(line)?;
 
         if let Some(case) = bkcv_case(&self.tongue, line)? {
             // A CASE THE RUNNER REPEATS IS STILL ONE CASE, counted once and
@@ -1019,14 +1329,15 @@ impl bkcv_Voice {
             // case with the depth at a path. An agent reading test output pays
             // for every line out of its working context, so failure output is
             // bounded exactly as green output is.
-            if self.verbose {
-                self.zbkcv_say(&format!(
+            if self.throat.verbose {
+                self.throat.zbkcv_say(&format!(
                     "  {} {}",
                     if case.passed { "pass" } else { "FAIL" },
-                    case.name
+                    case.name, //
                 ));
             } else if !case.passed {
-                self.zbkcv_say(&self.zbkcv_failure(&case.name));
+                let failure = self.zbkcv_failure(&case.name);
+                self.throat.zbkcv_say(&failure);
             }
         }
 
@@ -1034,68 +1345,33 @@ impl bkcv_Voice {
     }
 
     /// One bounded line for a failing case, with the depth at a path beside it.
+    /// A launch outside a logging dispatch has no path to send a reader to, and
+    /// says so rather than printing an empty column.
     fn zbkcv_failure(&self, name: &str) -> String {
-        match self.hist.as_deref() {
-            Some(path) => format!("  FAIL {}  {}", name, path),
-            // A launch outside a logging dispatch has no path to send a reader
-            // to, and says so rather than printing an empty column.
-            None => format!("  FAIL {}  (no record: this dispatch composed none)", name),
-        }
-    }
-
-    fn zbkcv_say(&mut self, line: &str) {
-        bkco_output::bkco_voice(line);
-        self.spoke = std::time::Instant::now();
-    }
-
-    /// The liveness mark: a heartbeat on a cadence, never a per-case dot, every
-    /// mark flushed.
-    ///
-    /// A RUN THAT IS TALKING IS NOT ALSO TOLD IT IS ALIVE. The mark answers the
-    /// CONSOLE'S silence, so a verbose run rendering a line per case never
-    /// carries one — there is nothing to reassure anybody about — while a quiet
-    /// run carries one every cadence however loud its child is.
-    ///
-    /// IT IS NEVER WRITTEN TO THE RECORD. A heartbeat is a fact about a terminal
-    /// watching rather than about the run, and a re-read log has nothing to be
-    /// live about.
-    fn zbkcv_mark(&mut self) {
-        bkco_output::bkco_voice(&format!("  · {}s", self.began.elapsed().as_secs()));
-        self.spoke = std::time::Instant::now();
+        format!(
+            "  FAIL {}  {}",
+            name,
+            self.throat.zbkcv_beside(), //
+        )
     }
 
     /// Close the record over a run the leash could not attend, answering the
-    /// refusal for the door to report.
-    ///
-    /// THE RECORD IS CLOSED EVEN HERE. What the child said before the leash
-    /// lost it is already written, and a family left open carries no digest and
-    /// no line saying why it stops. The console is the door's, which reports the
-    /// refusal itself.
-    pub fn bkcv_abandon(mut self, refusal: String) -> String {
-        if let Some(mut record) = self.record.take() {
-            let closed = record
-                .bkcv_write(&format!("RED: the run could not be attended: {}", refusal))
-                .and_then(|()| record.bkcv_close());
-            if let Err(err) = closed {
-                return format!("{}; the record could not be closed: {}", refusal, err);
-            }
-        }
-        refusal
+    /// refusal for the door to report (`zbkcv_Throat::zbkcv_abandon`).
+    pub fn bkcv_abandon(self, refusal: String) -> String {
+        self.throat.zbkcv_abandon(refusal)
     }
 
     /// Close the voice: the verdict onto the console, the record's digest onto
     /// the historical member. The verdict's own law stands at `zbkcv_verdict`.
-    pub fn bkcv_close(mut self, run: &crate::bkcl_leash::bkcl_Run) -> Result<bkcv_Tally, String> {
-        let verdict = zbkcv_verdict(&self.tally, run.code, run.cut.as_deref(), self.hist.as_deref());
+    pub fn bkcv_close(self, run: &crate::bkcl_leash::bkcl_Run) -> Result<bkcv_Tally, String> {
+        let verdict = zbkcv_verdict(
+            &self.tally,
+            run.code,
+            run.cut.as_deref(),
+            self.throat.hist.as_deref(),
+        );
 
-        bkco_output::bkco_voice(&verdict);
-
-        if let Some(record) = self.record.as_mut() {
-            record.bkcv_write(&verdict)?;
-        }
-        if let Some(record) = self.record.take() {
-            record.bkcv_close()?;
-        }
+        self.throat.zbkcv_close(&verdict)?;
 
         Ok(self.tally)
     }
@@ -1119,19 +1395,20 @@ pub fn bkcv_unfinished(code: Option<i32>, cut: Option<&str>, tally: &bkcv_Tally)
     if let Some(cut) = cut {
         return Some(format!(
             "the stream was cut before the runner finished ({}), {} case(s) heard ahead of the cut",
-            cut, tally.ran
+            cut,
+            tally.ran, //
         ));
     }
 
     match code {
         None => Some(format!(
             "a signal took the runner, which left no exit code, {} case(s) heard before it ended",
-            tally.ran
+            tally.ran, //
         )),
         Some(code) if code != 0 && tally.failed.is_empty() => Some(format!(
             "the runner ended on exit {} without reporting a failing case — it refused or died — {} \
              case(s) heard before it ended",
-            code, tally.ran
+            code, tally.ran, //
         )),
         Some(_) => None,
     }
@@ -1153,16 +1430,490 @@ pub(crate) fn zbkcv_verdict(
 ) -> String {
     match bkcv_unfinished(code, cut, tally) {
         Some(clause) => match hist {
-            Some(path) => format!("RED: {}; the depth is at {}", clause, path),
-            None => format!("RED: {}", clause),
+            Some(path) => format!(
+                "RED: {}; the depth is at {}",
+                clause,
+                path, //
+            ),
+            None => format!(
+                "RED: {}",
+                clause, //
+            ),
         },
         None => format!(
             "{}: {} ran, {} passed, {} failed",
             if code == Some(0) { "green" } else { "RED" },
             tally.ran,
             tally.passed,
-            tally.failed.len()
+            tally.failed.len(), //
         ),
+    }
+}
+
+/// The flag that asks cargo for its machine-readable account of a build.
+///
+/// THE JSON FORM AND NEVER THE SHORT ONE. Both name a diagnostic's file and
+/// position, and only the JSON form carries the diagnostic's whole rendering
+/// beside them — which is the depth a build with no record has nowhere else to
+/// put, so the short form would leave such a build with one line and nothing
+/// beneath it. The one console line is composed here from the record's fields
+/// rather than taken from either rendering.
+///
+/// It spells cargo's own flag, on the lock flag's ground at the leash: cargo
+/// owns the word.
+pub const BKCV_MESSAGE_FORMAT: &str = "--message-format=json";
+
+/// The field every record of cargo's JSON form carries, and the values the
+/// build reading parts by. Cargo's own words, quoted rather than minted.
+const ZBKCV_REASON: &str = "reason";
+const ZBKCV_REASON_ARTIFACT: &str = "compiler-artifact";
+const ZBKCV_REASON_MESSAGE: &str = "compiler-message";
+const ZBKCV_REASON_FINISHED: &str = "build-finished";
+
+/// The two diagnostic levels that reach the console. Every other level — a
+/// note, a help, the failure-note naming an explanation — stays in the record.
+const ZBKCV_LEVEL_ERROR: &str = "error";
+const ZBKCV_LEVEL_WARNING: &str = "warning";
+
+/// How cargo's own prose opens an error or a warning of its own, off the JSON
+/// form: a lock `--locked` refuses, a manifest that does not parse, a build
+/// script's warning.
+const ZBKCV_PROSE_ERROR: &str = "error:";
+const ZBKCV_PROSE_WARNING: &str = "warning:";
+
+/// Cargo's prose summary of a crate whose compiler errors it already reported.
+///
+/// ---- PALISADE MEMBRANE ----
+///
+/// FOREIGN SIGNATURE. A crate that failed to compile ends with cargo's own line
+/// on stderr, beside the JSON records that already carried each error:
+///
+/// ```text
+/// error: could not compile `frabblee` (bin "frabblee") due to 1 previous error
+/// ```
+///
+/// ABSORB ONLY THE SURVEYED SIGNATURE, AND ONLY WHERE IT SUMMARIZES. Stepped
+/// over where a compiler error has already spoken, since it then repeats what
+/// the console just said; forwarded where none has, since it is then the only
+/// line saying why the build failed. Every other prose `error:` is forwarded.
+///
+/// RETIREMENT CONDITION. Retire this membrane when cargo's JSON form carries its
+/// own account of a failed crate as a record. The capture it was written
+/// against is cargo 1.90.0 building a scratch crate planted with one mismatched
+/// type under `--message-format=json`, whose stderr carried that line and the
+/// Compiling line alone.
+const ZBKCV_COULD_NOT_COMPILE: &str = "error: could not compile ";
+
+/// Which cargo act a cargo voice renders.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum zbkcv_Act {
+    /// A build, read through the JSON form: each diagnostic one line, the
+    /// progress to the record.
+    Build,
+    /// A lock's re-derivation. Cargo takes no message format for it, and its
+    /// prose — the packages locked, added and updated — is what an operator
+    /// reads to see what moved, so every line rides the console whole.
+    Lock,
+}
+
+/// The rendering of one cargo act other than a suite: the record written, the
+/// console spoken, the diagnostics counted.
+///
+/// A BUILD SOUNDS LIKE A TEST. The console carries the launch mark, the
+/// heartbeat, one line per diagnostic and the verdict, whatever the compiler
+/// said underneath; cargo's per-crate progress goes to the record and never to
+/// the console, and a green build is quiet.
+///
+/// THE BUILD READER IS THE VOICE'S OWN AND NO COLLAR'S. A suite's tongue is a
+/// collar's declaration because a runner can be asked for another shape; the
+/// shape a build is read in is the one this voice asks cargo for, so there is
+/// nothing for a collar to declare and `bkcv_case` admits no build tongue.
+pub struct bkcv_Cargo {
+    throat: zbkcv_Throat,
+    act: zbkcv_Act,
+    /// Artifacts cargo reported built or found fresh — counted, never printed.
+    artifacts: usize,
+    errors: usize,
+    warnings: usize,
+    /// What cargo's own closing record said of the build, where it spoke one.
+    finished: Option<bool>,
+}
+
+impl bkcv_Cargo {
+    /// Open the voice over one build, writing the invocation into the record.
+    pub fn bkcv_build(
+        dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+        invocation: &str,
+    ) -> Result<bkcv_Cargo, String> {
+        Ok(bkcv_Cargo::zbkcv_build_with(
+            bkcv_Record::bkcv_open(dispatch, invocation)?,
+            bkcv_Record::bkcv_hist_path(dispatch),
+            BKCV_CADENCE,
+            zbkcv_stdout(),
+        ))
+    }
+
+    /// Open the voice over one lock's re-derivation.
+    pub fn bkcv_lock(
+        dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+        invocation: &str,
+    ) -> Result<bkcv_Cargo, String> {
+        Ok(bkcv_Cargo::zbkcv_cargo(
+            zbkcv_Act::Lock,
+            bkcv_Record::bkcv_open(dispatch, invocation)?,
+            bkcv_Record::bkcv_hist_path(dispatch),
+            BKCV_CADENCE,
+            zbkcv_stdout(),
+        ))
+    }
+
+    /// A build voice over a record, cadence and console the caller holds.
+    ///
+    /// THE HURDLE'S SEAM, on `bkcv_Voice::zbkcv_with`'s ground: nothing here
+    /// reads the environment or writes the process's stdout, so a hurdle reads
+    /// what the voice said at a cadence it can wait out.
+    pub(crate) fn zbkcv_build_with(
+        record: Option<bkcv_Record>,
+        hist: Option<String>,
+        cadence: std::time::Duration,
+        console: zbkcv_Console,
+    ) -> bkcv_Cargo {
+        bkcv_Cargo::zbkcv_cargo(zbkcv_Act::Build, record, hist, cadence, console)
+    }
+
+    fn zbkcv_cargo(
+        act: zbkcv_Act,
+        record: Option<bkcv_Record>,
+        hist: Option<String>,
+        cadence: std::time::Duration,
+        console: zbkcv_Console,
+    ) -> bkcv_Cargo {
+        bkcv_Cargo {
+            throat: zbkcv_Throat::zbkcv_new(record, hist, cadence, console),
+            act,
+            artifacts: 0,
+            errors: 0,
+            warnings: 0,
+            finished: None,
+        }
+    }
+
+    /// The launch mark: what is about to run, onto the console and into the
+    /// record alike, so a quiet build still says what it is building.
+    pub fn bkcv_launch(&mut self, line: &str) -> Result<(), String> {
+        self.throat.zbkcv_write(line)?;
+        self.throat.zbkcv_say(line);
+        Ok(())
+    }
+
+    /// Take one thing heard from the child.
+    pub fn bkcv_heed(&mut self, heard: crate::bkcl_leash::bkcl_Heard) -> Result<(), String> {
+        if let crate::bkcl_leash::bkcl_Heard::Said(line) = &heard {
+            // INTO THE RECORD GOES THE CHILD'S WHOLE STREAM, the JSON records
+            // and cargo's prose alike, whatever the console is shown.
+            self.throat.zbkcv_write(line)?;
+
+            match self.act {
+                zbkcv_Act::Build => self.zbkcv_build_said(line)?,
+                zbkcv_Act::Lock => {
+                    if !line.trim().is_empty() {
+                        self.throat.zbkcv_say(line);
+                    }
+                }
+            }
+        }
+
+        self.throat.zbkcv_pulse();
+
+        Ok(())
+    }
+
+    /// Read one line of a build: a JSON record by its reason, or cargo's prose.
+    fn zbkcv_build_said(&mut self, line: &str) -> Result<(), String> {
+        let trimmed = line.trim_start();
+
+        // A LINE THAT IS NOT A RECORD IS CARGO'S PROSE — the per-crate progress
+        // above all, which is what the console is kept clear of. Only an error
+        // or a warning of cargo's own reaches the console, since a build that
+        // failed with no compiler message must still say why.
+        let record = if trimmed.starts_with('{') {
+            crate::bkcj_json::bkcj_read(trimmed).ok()
+        } else {
+            None
+        };
+
+        let Some(record) = record else {
+            if trimmed.starts_with(ZBKCV_COULD_NOT_COMPILE) && self.errors > 0 {
+                return Ok(());
+            }
+            let error = trimmed.starts_with(ZBKCV_PROSE_ERROR);
+            if error || trimmed.starts_with(ZBKCV_PROSE_WARNING) {
+                if error {
+                    self.errors += 1;
+                } else {
+                    self.warnings += 1;
+                }
+                let said = format!(
+                    "  {}  {}",
+                    trimmed,
+                    self.throat.zbkcv_beside(), //
+                );
+                self.throat.zbkcv_say(&said);
+            }
+            return Ok(());
+        };
+
+        match record
+            .bkcj_field(ZBKCV_REASON)
+            .and_then(|reason| reason.bkcj_string())
+        {
+            Some(ZBKCV_REASON_ARTIFACT) => {
+                self.artifacts += 1;
+                // THE VERBOSE FLAVOR'S PER-CASE LINE, which for a build is the
+                // target each artifact was built for. Quiet, it is counted only.
+                if self.throat.verbose {
+                    let name = record
+                        .bkcj_field("target")
+                        .and_then(|target| target.bkcj_field("name"))
+                        .and_then(|name| name.bkcj_string())
+                        .unwrap_or("?");
+                    self.throat.zbkcv_say(&format!(
+                        "  built {}",
+                        name, //
+                    ));
+                }
+            }
+            Some(ZBKCV_REASON_MESSAGE) => {
+                if let Some(message) = record.bkcj_field("message") {
+                    self.zbkcv_diagnostic(message)?;
+                }
+            }
+            Some(ZBKCV_REASON_FINISHED) => {
+                self.finished = match record.bkcj_field("success") {
+                    Some(crate::bkcj_json::bkcj_Value::Bool(success)) => Some(*success),
+                    _ => None,
+                };
+            }
+            // A build script's report and every reason this reading does not
+            // part stand in the record already, and say nothing on the console.
+            _ => {}
+        }
+
+        Ok(())
+    }
+
+    /// One compiler diagnostic: one console line naming its level, file,
+    /// position and message, and its rendering wherever the depth must go.
+    ///
+    /// WHERE NO RECORD STANDS THE RENDERING RIDES THE CONSOLE WHOLE beneath its
+    /// line, errors and warnings alike. A kennel called bare inside a dispatch
+    /// that composed it no family writes the depth nowhere, and the caller's own
+    /// record is the console it tees; a build failing there would otherwise
+    /// leave one line and no account. Where a record stands, the line stays one
+    /// line and the rendering goes into the record beside the raw record it came
+    /// in, readable rather than escaped.
+    fn zbkcv_diagnostic(&mut self, message: &crate::bkcj_json::bkcj_Value) -> Result<(), String> {
+        let text = |field: &str| {
+            message
+                .bkcj_field(field)
+                .and_then(|value| value.bkcj_string())
+        };
+
+        let level = text("level").unwrap_or("");
+        if level == ZBKCV_LEVEL_ERROR || level.starts_with(ZBKCV_PROSE_ERROR) {
+            self.errors += 1;
+        } else if level == ZBKCV_LEVEL_WARNING {
+            self.warnings += 1;
+        } else {
+            return Ok(());
+        }
+
+        let code = message
+            .bkcj_field("code")
+            .and_then(|code| code.bkcj_field("code"))
+            .and_then(|code| code.bkcj_string())
+            .map(|code| {
+                format!(
+                    "[{}]",
+                    code, //
+                )
+            })
+            .unwrap_or_default();
+
+        // THE PRIMARY SPAN IS THE POSITION. A diagnostic carries every span it
+        // points at, and the one the compiler marks primary is where it says the
+        // fault stands; a diagnostic with none — a link failure — names no
+        // position rather than borrowing one.
+        let position = message
+            .bkcj_field("spans")
+            .and_then(|spans| spans.bkcj_array())
+            .and_then(|spans| {
+                spans.iter().find(|span| {
+                    span.bkcj_field("is_primary") == Some(&crate::bkcj_json::bkcj_Value::Bool(true))
+                })
+            })
+            .map(|span| {
+                let number = |field: &str| {
+                    span.bkcj_field(field)
+                        .and_then(|value| value.bkcj_number())
+                        .map(|value| value as u64)
+                        .unwrap_or(0)
+                };
+                format!(
+                    "{}:{}:{} ",
+                    span.bkcj_field("file_name")
+                        .and_then(|file| file.bkcj_string())
+                        .unwrap_or("?"),
+                    number("line_start"),
+                    number("column_start"), //
+                )
+            })
+            .unwrap_or_default();
+
+        let said = text("message")
+            .and_then(|said| said.lines().next())
+            .unwrap_or("");
+
+        let line = format!(
+            "  {}{} {}{}  {}",
+            level,
+            code,
+            position,
+            said,
+            self.throat.zbkcv_beside(), //
+        );
+        self.throat.zbkcv_say(&line);
+
+        if let Some(rendered) = text("rendered") {
+            for depth in rendered.trim_end().lines() {
+                if self.throat.record.is_some() {
+                    self.throat.zbkcv_write(depth)?;
+                } else {
+                    self.throat.zbkcv_say(depth);
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Run the act under this voice: the leash attended through `attend`, every
+    /// line heeded, the verdict spoken, and whether the act landed answered
+    /// beside the run.
+    ///
+    /// THE CALLER NAMES THE LEASH FACE AND THIS HOLDS THE WIRING, so a build and
+    /// a lock attend the same way. The face is handed the cadence the voice
+    /// marks silence on, so the lull that wakes the voice and the cadence it
+    /// measures are one value.
+    ///
+    /// A HEED THAT CANNOT REFUSE, on the launch seam's own ground: a record write
+    /// that fails mid-stream is held and surfaced after the close, where the run
+    /// still exists to be reported, rather than abandoning a child whose output
+    /// is gone the moment it is not taken.
+    ///
+    /// WHAT LANDED IS THE VOICE'S VERDICT, and the exit stays the child's on the
+    /// run: a door acting on the build reads the first, a door relaying cargo
+    /// relays the second.
+    pub fn bkcv_ride<A>(mut self, attend: A) -> Result<(crate::bkcl_leash::bkcl_Run, bool), String>
+    where
+        A: FnOnce(
+            std::time::Duration,
+            &mut dyn FnMut(crate::bkcl_leash::bkcl_Heard),
+        ) -> Result<crate::bkcl_leash::bkcl_Run, String>,
+    {
+        let cadence = self.throat.cadence;
+        let mut grievance: Option<String> = None;
+
+        let attended = {
+            let mut heed = |heard: crate::bkcl_leash::bkcl_Heard| {
+                if let Err(err) = self.bkcv_heed(heard) {
+                    grievance.get_or_insert(err);
+                }
+            };
+            attend(cadence, &mut heed)
+        };
+
+        let run = match attended {
+            Ok(run) => run,
+            Err(err) => return Err(self.throat.zbkcv_abandon(err)),
+        };
+
+        let (verdict, landed) = self.zbkcv_verdict(&run);
+        self.throat.zbkcv_close(&verdict)?;
+
+        if let Some(err) = grievance {
+            return Err(err);
+        }
+
+        Ok((run, landed))
+    }
+
+    /// The verdict line the act closes on, and whether it landed.
+    ///
+    /// THE BUILD'S OWN CLOSING RECORD IS THE GROUND, the exit beside it. A build
+    /// landed where cargo exited clean, the stream was heard whole, and the
+    /// build-finished record — where cargo spoke one — did not say otherwise.
+    /// A RUN THAT DID NOT FINISH IS SAID AS SUCH and never as a count of what
+    /// was built, on `bkcv_unfinished`'s honesty rule.
+    fn zbkcv_verdict(&self, run: &crate::bkcl_leash::bkcl_Run) -> (String, bool) {
+        let depth = match self.throat.hist.as_deref() {
+            Some(path) => format!(
+                "; the depth is at {}",
+                path, //
+            ),
+            None => String::new(),
+        };
+
+        if let Some(cut) = run.cut.as_deref() {
+            return (
+                format!(
+                    "RED: the stream was cut before cargo finished ({}){}",
+                    cut,
+                    depth, //
+                ),
+                false,
+            );
+        }
+
+        let Some(code) = run.code else {
+            return (
+                format!(
+                    "RED: a signal took cargo, which left no exit code{}",
+                    depth, //
+                ),
+                false,
+            );
+        };
+
+        match self.act {
+            zbkcv_Act::Build if code == 0 && self.finished != Some(false) => (
+                format!(
+                    "green: built, {} artifact(s), {} warning(s)",
+                    self.artifacts,
+                    self.warnings, //
+                ),
+                true,
+            ),
+            zbkcv_Act::Build => (
+                format!(
+                    "RED: did not build, {} error(s), {} warning(s), cargo exited {}{}",
+                    self.errors,
+                    self.warnings,
+                    code,
+                    depth, //
+                ),
+                false,
+            ),
+            zbkcv_Act::Lock if code == 0 => ("green: the lock was derived".to_string(), true),
+            zbkcv_Act::Lock => (
+                format!(
+                    "RED: the lock was not derived, cargo exited {}{}",
+                    code,
+                    depth, //
+                ),
+                false,
+            ),
+        }
     }
 }
 

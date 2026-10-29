@@ -34,7 +34,7 @@ fn bktf_a_composed_lure_reads_clean() {
     assert!(
         standing.bkcf_clean(),
         "a freshly composed and committed lure carries nothing: {:?}",
-        standing.entries
+        standing.entries, //
     );
 }
 
@@ -47,11 +47,17 @@ fn bktf_an_untracked_file_is_uncommitted() {
 
     // The untracked arm is the one that matters: a door law admitting untracked
     // files would let a whole unwritten module ride along under a clean verdict.
-    assert!(!standing.bkcf_clean(), "an untracked file is uncommitted");
     assert!(
-        standing.entries.iter().any(|entry| entry.contains("stray.txt")),
+        !standing.bkcf_clean(),
+        "an untracked file is uncommitted", //
+    );
+    assert!(
+        standing
+            .entries
+            .iter()
+            .any(|entry| entry.contains("stray.txt")),
         "the standing names the file it found: {:?}",
-        standing.entries
+        standing.entries, //
     );
 }
 
@@ -64,7 +70,10 @@ fn bktf_a_modified_file_is_uncommitted() {
 
     let standing = bkcf_guard::bkcf_standing(lure.bktu_root()).expect("the lure is a repository");
 
-    assert!(!standing.bkcf_clean(), "a modification is uncommitted");
+    assert!(
+        !standing.bkcf_clean(),
+        "a modification is uncommitted", //
+    );
 }
 
 #[test]
@@ -85,8 +94,16 @@ fn bktf_the_grievance_names_the_remedy_and_every_entry() {
         BKCF_REMEDY,
         said, //
     );
-    assert!(said.contains("one.txt"), "the grievance lists what it found: {}", said);
-    assert!(said.contains("two.txt"), "the grievance lists what it found: {}", said);
+    assert!(
+        said.contains("one.txt"),
+        "the grievance lists what it found: {}",
+        said, //
+    );
+    assert!(
+        said.contains("two.txt"),
+        "the grievance lists what it found: {}",
+        said, //
+    );
 }
 
 #[test]
@@ -98,9 +115,22 @@ fn bktf_a_dangling_include_refuses_naming_file_line_and_remedy() {
     let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
     let said = lyam.bkcf_grievance(lure.bktu_root());
 
-    assert!(!lyam.bkcf_clean(), "an include naming nothing is dangling: {:?}", lyam);
-    assert!(said.contains("CLAUDE.md:3: @Tools/kit/gone.md"), "file, line and path: {}", said);
-    assert!(said.contains(BKCF_REPOINT), "the grievance names the remedy ({}): {}", BKCF_REPOINT, said);
+    assert!(
+        !lyam.bkcf_clean(),
+        "an include naming nothing is dangling: {:?}",
+        lyam, //
+    );
+    assert!(
+        said.contains("CLAUDE.md:3: @Tools/kit/gone.md"),
+        "file, line and path: {}",
+        said, //
+    );
+    assert!(
+        said.contains(BKCF_REPOINT),
+        "the grievance names the remedy ({}): {}",
+        BKCF_REPOINT,
+        said, //
+    );
 }
 
 #[test]
@@ -115,8 +145,16 @@ fn bktf_includes_that_all_resolve_read_clean() {
 
     let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
 
-    assert!(lyam.bkcf_clean(), "every include names a tracked file: {:?}", lyam);
-    assert!(lyam.skipped.is_empty(), "nothing here leaves the tree: {:?}", lyam);
+    assert!(
+        lyam.bkcf_clean(),
+        "every include names a tracked file: {:?}",
+        lyam, //
+    );
+    assert!(
+        lyam.skipped.is_empty(),
+        "nothing here leaves the tree: {:?}",
+        lyam, //
+    );
 }
 
 #[test]
@@ -130,19 +168,35 @@ fn bktf_an_include_reaching_outside_the_tree_is_skipped_not_judged() {
 
     let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
 
-    assert!(lyam.bkcf_clean(), "an include outside the tree is not judged: {:?}", lyam);
-    assert_eq!(lyam.skipped.len(), 3, "each is named as skipped: {:?}", lyam);
+    assert!(
+        lyam.bkcf_clean(),
+        "an include outside the tree is not judged: {:?}",
+        lyam, //
+    );
+    assert_eq!(
+        lyam.skipped.len(),
+        3,
+        "each is named as skipped: {:?}",
+        lyam, //
+    );
 }
 
 #[test]
 fn bktf_a_dangling_path_inside_a_fence_is_no_include() {
     let lure = bktu_Lure::bktu_compose("guard-lyam-fenced");
-    lure.bktu_write("CLAUDE.md", "The form:\n\n```\n@Tools/kit/example.md\n```\n\n~~~\n@also/example.md\n~~~\n");
+    lure.bktu_write(
+        "CLAUDE.md",
+        "The form:\n\n```\n@Tools/kit/example.md\n```\n\n~~~\n@also/example.md\n~~~\n",
+    );
     lure.bktu_commit("bank a CLAUDE.md showing the include form");
 
     let lyam = bkcf_guard::bkcf_lyam(lure.bktu_root()).expect("the lure is a repository");
 
-    assert!(lyam.bkcf_clean(), "a fenced path is an example, never an include: {:?}", lyam);
+    assert!(
+        lyam.bkcf_clean(),
+        "a fenced path is an example, never an include: {:?}",
+        lyam, //
+    );
 }
 
 #[test]
@@ -157,7 +211,11 @@ fn bktf_an_ignored_file_on_disk_still_dangles() {
 
     // THE CASE THE SALUTATION WAS. The file stands on the author's disk, so a
     // reading of the disk would pass it; every fresh clone lacks it.
-    assert!(!lyam.bkcf_clean(), "an ignored file answers no include: {:?}", lyam);
+    assert!(
+        !lyam.bkcf_clean(),
+        "an ignored file answers no include: {:?}",
+        lyam, //
+    );
 }
 
 #[test]
@@ -169,14 +227,22 @@ fn bktf_the_position_moves_when_the_election_is_touched() {
     let election = vec!["src".to_string()];
     let first = bkcf_guard::bkcf_seat_position(lure.bktu_root(), &election)
         .expect("a commit touches the election");
-    assert_eq!(first.len(), 40, "a resolved sha, not a symbolic name: {}", first);
+    assert_eq!(
+        first.len(),
+        40,
+        "a resolved sha, not a symbolic name: {}",
+        first, //
+    );
 
     lure.bktu_write("src/held.rs", "// second\n");
     lure.bktu_commit("touch the election again");
     let second = bkcf_guard::bkcf_seat_position(lure.bktu_root(), &election)
         .expect("a commit touches the election");
 
-    assert_ne!(first, second, "a commit touching the election moves the position");
+    assert_ne!(
+        first, second,
+        "a commit touching the election moves the position", //
+    );
 }
 
 #[test]
@@ -197,7 +263,10 @@ fn bktf_the_position_stands_still_for_a_commit_outside_the_election() {
     let after = bkcf_guard::bkcf_seat_position(lure.bktu_root(), &election)
         .expect("the earlier elected commit still stands");
 
-    assert_eq!(before, after, "a commit outside the election leaves the position alone");
+    assert_eq!(
+        before, after,
+        "a commit outside the election leaves the position alone", //
+    );
 }
 
 #[test]
@@ -217,7 +286,10 @@ fn bktf_an_exclusion_carves_back_out_of_an_elected_root() {
     let after = bkcf_guard::bkcf_seat_position(lure.bktu_root(), &election)
         .expect("the earlier elected commit still stands");
 
-    assert_eq!(before, after, "an excluded path does not move the position");
+    assert_eq!(
+        before, after,
+        "an excluded path does not move the position", //
+    );
 }
 
 #[test]
@@ -251,7 +323,7 @@ fn bktf_an_election_naming_nothing_refuses() {
     assert!(
         refusal.contains("names no root"),
         "the refusal says the file stood but elected nothing: {}",
-        refusal
+        refusal, //
     );
 }
 

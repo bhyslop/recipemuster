@@ -25,10 +25,53 @@
 //! posed in the lure's own weaned set, and its brood where a hurdle proves the
 //! drift refusals.
 
+use super::bkcr_resolve::bkcr_Dispatch;
 use super::bkcr_resolve::{
-    bkcr_resolve, bkcr_walk, bkcr_weaned_audit, BKCR_BROOD, BKCR_TOOLS, BKCR_WEANED,
+    bkcr_resolve,
+    bkcr_walk,
+    bkcr_weaned_audit,
+    BKCR_BROOD,
+    BKCR_TOOLS,
+    BKCR_WEANED, //
 };
-use super::bktu_lure::bktu_Lure;
+use super::bktu_lure::{
+    bktu_Lure,
+    bktu_suite_withheld,
+    BKTU_DISPATCH_FILE_VAR, //
+};
+
+/// A lure's own dispatch, read the way a door face reads one: the plain file the
+/// lure hands every drive over it, through the kennel's own reader.
+///
+/// THE IN-PROCESS READING TAKES EXACTLY WHAT A CHILD IS HANDED, so a hurdle
+/// calling a library face over a lure stands on the lure's moorings, output pair
+/// and loosebox and the station's tackroom, and on nothing the run executing it
+/// carries.
+pub(crate) fn bktr_lured(lure: &bktu_Lure) -> bkcr_Dispatch {
+    let file = lure.bktu_dispatch_file();
+    bkcr_Dispatch::bkcr_read(&file).unwrap_or_else(|err| {
+        panic!(
+            "the lure's dispatch file at {} reads: {}",
+            file.display(),
+            err, //
+        )
+    })
+}
+
+/// The suite's own dispatch, for a hurdle reading over the host tree itself, its
+/// log family withheld so no in-process voice opens the driving kennel's record
+/// (`bktu_suite_withheld`).
+pub(crate) fn bktr_suite() -> bkcr_Dispatch {
+    let pointer = std::env::var_os(BKTU_DISPATCH_FILE_VAR).unwrap_or_default();
+    bkcr_Dispatch::bkcr_admit(&bktu_suite_withheld(), &pointer.to_string_lossy()).unwrap_or_else(
+        |err| {
+            panic!(
+                "the suite's dispatch file reads: {}",
+                err, //
+            )
+        },
+    )
+}
 
 /// The collar the lure carries when nothing is inverted.
 const ZBKTR_SOUND: &str = "\
@@ -117,8 +160,14 @@ fn zbktr_kennel(name: &str) -> bktu_Lure {
 
 /// Every finding against the lure's collar, as one string a hurdle can read.
 fn zbktr_findings(lure: &bktu_Lure, name: &str) -> Vec<String> {
-    bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), name)
-        .unwrap_or_else(|err| panic!("'{}' should resolve in the lure: {}", name, err))
+    bkcr_resolve(lure.bktu_root(), &bktr_lured(lure), name)
+        .unwrap_or_else(|err| {
+            panic!(
+                "'{}' should resolve in the lure: {}",
+                name,
+                err, //
+            )
+        })
         .findings
 }
 
@@ -138,10 +187,15 @@ fn bktr_discovery_reads_the_weaned_set_and_nothing_else() {
         .map(|held| held.file_name().unwrap().to_string_lossy().into_owned())
         .collect();
 
-    assert_eq!(named, vec!["suite-lure".to_string()], "found: {:?}", found);
+    assert_eq!(
+        named,
+        vec!["suite-lure".to_string()],
+        "found: {:?}",
+        found, //
+    );
     assert!(
-        bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "app-inner").is_err(),
-        "a declaration outside the weaned set resolves to no collar"
+        bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "app-inner").is_err(),
+        "a declaration outside the weaned set resolves to no collar", //
     );
 }
 
@@ -153,7 +207,11 @@ fn bktr_an_absent_weaned_set_holds_nothing() {
 
     let found = bkcr_walk(lure.bktu_root(), &lure.bktu_weaned()).expect("an absent set reads");
 
-    assert!(found.is_empty(), "found: {:?}", found);
+    assert!(
+        found.is_empty(),
+        "found: {:?}",
+        found, //
+    );
 }
 
 /// THE LURE SPELLS THE KENNEL'S OWN SET NAMES, read from the other side — the
@@ -163,12 +221,19 @@ fn bktr_an_absent_weaned_set_holds_nothing() {
 fn bktr_the_lure_spells_the_kennels_own_set_names() {
     let lure = bktu_Lure::bktu_compose("set-names");
 
-    assert!(lure.bktu_weaned().ends_with(BKCR_WEANED), "{}", lure.bktu_weaned().display());
     assert!(
-        lure.bktu_brood_at("lk", "suite-lure")
-            .starts_with(&format!("{}/lk/{}/", BKCR_TOOLS, BKCR_BROOD)),
+        lure.bktu_weaned().ends_with(BKCR_WEANED),
         "{}",
-        lure.bktu_brood_at("lk", "suite-lure")
+        lure.bktu_weaned().display(), //
+    );
+    assert!(
+        lure.bktu_brood_at("lk", "suite-lure").starts_with(&format!(
+            "{}/lk/{}/",
+            BKCR_TOOLS,
+            BKCR_BROOD, //
+        )),
+        "{}",
+        lure.bktu_brood_at("lk", "suite-lure"), //
     );
 }
 
@@ -183,7 +248,7 @@ fn bktr_a_sound_collar_carries_no_finding() {
     assert!(
         findings.is_empty(),
         "the sound collar must carry no finding, and it carries: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -199,9 +264,22 @@ fn bktr_an_identity_mismatch_is_a_finding() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("suite-elsewhere"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("BKRR_COLLAR"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("suite-elsewhere"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("BKRR_COLLAR"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// A local dependency the elected roots do not reach is a finding, because a
@@ -217,9 +295,22 @@ fn bktr_an_unelected_local_dependency_is_a_finding() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("BKRR_ROOTS"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("inner"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKRR_ROOTS"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("inner"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// A direct dependency NEITHER LIST NAMES is a finding, local or not: the
@@ -231,20 +322,40 @@ fn bktr_an_unpermitted_direct_dependency_is_a_finding() {
 
     assert!(
         zbktr_findings(&lure, "suite-lure").is_empty(),
-        "the sound collar names every direct dependency and owes no finding"
+        "the sound collar names every direct dependency and owes no finding", //
     );
 
     lure.bktu_write(
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
-        &ZBKTR_SOUND.replace("BKRR_TAMED_CRATES=\"inner probe\"", "BKRR_TAMED_CRATES=\"probe\""),
+        &ZBKTR_SOUND.replace(
+            "BKRR_TAMED_CRATES=\"inner probe\"",
+            "BKRR_TAMED_CRATES=\"probe\"",
+        ),
     );
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("BKRR_TAMED_CRATES"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("BKRR_FERAL_CRATES"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("inner"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKRR_TAMED_CRATES"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("BKRR_FERAL_CRATES"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("inner"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// A FERAL CRATE IS REFUSED, NEVER PROVISIONED (BKr_4n2).
@@ -257,7 +368,7 @@ fn bktr_a_feral_crate_is_refused_citing_the_rivet() {
 
     assert!(
         zbktr_findings(&lure, "suite-lure").is_empty(),
-        "the sound collar declares nothing feral and owes no finding"
+        "the sound collar declares nothing feral and owes no finding", //
     );
 
     lure.bktu_write(
@@ -270,9 +381,22 @@ fn bktr_a_feral_crate_is_refused_citing_the_rivet() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("BKr_4n2"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("fetcher"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKr_4n2"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("fetcher"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// THE FIELD IS ASKED AT EVERY COLLAR, which is the whole reason a list admitting
@@ -284,7 +408,7 @@ fn bktr_a_collar_lacking_the_feral_field_is_a_finding() {
 
     assert!(
         zbktr_findings(&lure, "suite-lure").is_empty(),
-        "the sound collar declares the field and owes no finding"
+        "the sound collar declares the field and owes no finding", //
     );
 
     lure.bktu_write(
@@ -294,9 +418,22 @@ fn bktr_a_collar_lacking_the_feral_field_is_a_finding() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("BKRR_FERAL_CRATES"), "it reads: {}", findings[0]);
-    assert!(findings[0].contains("is not declared"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKRR_FERAL_CRATES"),
+        "it reads: {}",
+        findings[0], //
+    );
+    assert!(
+        findings[0].contains("is not declared"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// THE UNION IS WHAT THE GUARD READS, and this is the arm that proves it: a
@@ -310,13 +447,16 @@ fn bktr_the_feral_half_of_the_union_is_a_declaration() {
 
     assert!(
         zbktr_findings(&lure, "suite-lure").is_empty(),
-        "the sound collar names every direct dependency and owes no finding"
+        "the sound collar names every direct dependency and owes no finding", //
     );
 
     lure.bktu_write(
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
         &ZBKTR_SOUND
-            .replace("BKRR_TAMED_CRATES=\"inner probe\"", "BKRR_TAMED_CRATES=\"probe\"")
+            .replace(
+                "BKRR_TAMED_CRATES=\"inner probe\"",
+                "BKRR_TAMED_CRATES=\"probe\"",
+            )
             .replace(
                 "BKRR_FERAL_CRATES=\"bknre_tamed\"",
                 "BKRR_FERAL_CRATES=\"inner\"",
@@ -325,12 +465,21 @@ fn bktr_the_feral_half_of_the_union_is_a_declaration() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("BKr_4n2"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKr_4n2"),
+        "it reads: {}",
+        findings[0], //
+    );
     assert!(
         !findings.iter().any(|held| held.contains("neither")),
         "a crate the feral list names is declared, whatever else is owed about it: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -343,7 +492,7 @@ fn bktr_a_crate_in_both_lists_is_a_finding() {
 
     assert!(
         zbktr_findings(&lure, "suite-lure").is_empty(),
-        "the sound collar's two lists are disjoint and owe no finding"
+        "the sound collar's two lists are disjoint and owe no finding", //
     );
 
     lure.bktu_write(
@@ -359,7 +508,12 @@ fn bktr_a_crate_in_both_lists_is_a_finding() {
     // The rivet refuses the name as well, which is no duplicate: one reading is
     // about the class the name was put in, the other about its standing in two
     // lists at once.
-    assert_eq!(findings.len(), 2, "findings: {:?}", findings);
+    assert_eq!(
+        findings.len(),
+        2,
+        "findings: {:?}",
+        findings, //
+    );
     assert!(
         findings.iter().any(|held| {
             held.contains("BKRR_TAMED_CRATES")
@@ -367,7 +521,7 @@ fn bktr_a_crate_in_both_lists_is_a_finding() {
                 && held.contains("inner")
         }),
         "findings: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -382,8 +536,17 @@ fn bktr_a_muzzle_that_is_not_there_is_a_finding() {
     );
 
     let absent = zbktr_findings(&lure, "suite-lure");
-    assert_eq!(absent.len(), 1, "findings: {:?}", absent);
-    assert!(absent[0].contains("no directory stands"), "it reads: {}", absent[0]);
+    assert_eq!(
+        absent.len(),
+        1,
+        "findings: {:?}",
+        absent, //
+    );
+    assert!(
+        absent[0].contains("no directory stands"),
+        "it reads: {}",
+        absent[0], //
+    );
 
     lure.bktu_write("bare/keep.txt", "\n");
     lure.bktu_write(
@@ -392,8 +555,17 @@ fn bktr_a_muzzle_that_is_not_there_is_a_finding() {
     );
 
     let empty = zbktr_findings(&lure, "suite-lure");
-    assert_eq!(empty.len(), 1, "findings: {:?}", empty);
-    assert!(empty[0].contains("clippy.toml"), "it reads: {}", empty[0]);
+    assert_eq!(
+        empty.len(),
+        1,
+        "findings: {:?}",
+        empty, //
+    );
+    assert!(
+        empty[0].contains("clippy.toml"),
+        "it reads: {}",
+        empty[0], //
+    );
 }
 
 /// A missing field is a finding, and so is one belonging to the other kind — the
@@ -405,7 +577,10 @@ fn bktr_the_declared_roster_is_held_to_the_kind() {
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
         &ZBKTR_SOUND
             .replace("BKRR_TONGUE=\"bknre_harness\"\n", "")
-            .replace("BKRR_PROFILE=\"test\"", "BKRR_PROFILE=\"test\"\nBKRR_RESIDENCE=\"target\""),
+            .replace(
+                "BKRR_PROFILE=\"test\"",
+                "BKRR_PROFILE=\"test\"\nBKRR_RESIDENCE=\"target\"",
+            ),
     );
 
     let findings = zbktr_findings(&lure, "suite-lure");
@@ -413,12 +588,12 @@ fn bktr_the_declared_roster_is_held_to_the_kind() {
     assert!(
         findings.iter().any(|held| held.contains("BKRR_TONGUE")),
         "a missing field of this kind is a finding: {:?}",
-        findings
+        findings, //
     );
     assert!(
         findings.iter().any(|held| held.contains("BKRR_RESIDENCE")),
         "a field of the other kind is a finding: {:?}",
-        findings
+        findings, //
     );
 }
 
@@ -433,8 +608,17 @@ fn bktr_a_bare_enum_value_is_a_finding() {
 
     let findings = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(findings.len(), 1, "findings: {:?}", findings);
-    assert!(findings[0].contains("bknre_cargo"), "it reads: {}", findings[0]);
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("bknre_cargo"),
+        "it reads: {}",
+        findings[0], //
+    );
 }
 
 /// A weaned copy equal to the brood carrying its name resolves — the control for
@@ -442,9 +626,12 @@ fn bktr_a_bare_enum_value_is_a_finding() {
 #[test]
 fn bktr_a_copy_equal_to_its_brood_resolves() {
     let lure = zbktr_kennel("brood-equal");
-    lure.bktu_write(&lure.bktu_brood_at("lk", "suite-lure/bkrr.env"), ZBKTR_SOUND);
+    lure.bktu_write(
+        &lure.bktu_brood_at("lk", "suite-lure/bkrr.env"),
+        ZBKTR_SOUND,
+    );
 
-    bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
         .expect("a copy equal to its brood resolves");
     bkcr_weaned_audit(lure.bktu_root(), &lure.bktu_weaned())
         .expect("a set of copies equal to their broods conforms");
@@ -461,18 +648,38 @@ fn bktr_a_copy_drifted_from_its_brood_refuses_naming_the_repair() {
         &ZBKTR_SOUND.replace("BKRR_SPEND=\"bknre_reader\"", "BKRR_SPEND=\"bknre_writer\""),
     );
 
-    let refusal = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
         .expect_err("a drifted copy refuses");
 
     let brood = lure.bktu_brood_at("lk", "suite-lure/bkrr.env");
     let copy = lure.bktu_weaned_at("suite-lure/bkrr.env");
-    assert!(refusal.contains(&brood), "it reads: {}", refusal);
-    assert!(refusal.contains(&copy), "it reads: {}", refusal);
-    assert!(refusal.contains(&format!("cp {} {}", brood, copy)), "it reads: {}", refusal);
+    assert!(
+        refusal.contains(&brood),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(&copy),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(&format!(
+            "cp {} {}",
+            brood,
+            copy, //
+        )),
+        "it reads: {}",
+        refusal, //
+    );
 
     let audited = bkcr_weaned_audit(lure.bktu_root(), &lure.bktu_weaned())
         .expect_err("the audit refuses the same drift");
-    assert!(audited.contains(&brood), "it reads: {}", audited);
+    assert!(
+        audited.contains(&brood),
+        "it reads: {}",
+        audited, //
+    );
 }
 
 /// A brood carrying the name under ANOTHER family is a difference, never a
@@ -480,12 +687,19 @@ fn bktr_a_copy_drifted_from_its_brood_refuses_naming_the_repair() {
 #[test]
 fn bktr_a_brood_of_another_family_is_a_drift() {
     let lure = zbktr_kennel("brood-family");
-    lure.bktu_write(&lure.bktu_brood_at("lk", "suite-lure/bkrp.env"), ZBKTR_SOUND);
+    lure.bktu_write(
+        &lure.bktu_brood_at("lk", "suite-lure/bkrp.env"),
+        ZBKTR_SOUND,
+    );
 
-    let refusal = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
         .expect_err("a brood of another family is no match");
 
-    assert!(refusal.contains("differs from its brood"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("differs from its brood"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// Two kits' broods carrying one name refuse, naming both — a copy can be proven
@@ -493,14 +707,28 @@ fn bktr_a_brood_of_another_family_is_a_drift() {
 #[test]
 fn bktr_two_broods_carrying_one_name_refuse_naming_both() {
     let lure = zbktr_kennel("brood-twice");
-    lure.bktu_write(&lure.bktu_brood_at("lk", "suite-lure/bkrr.env"), ZBKTR_SOUND);
-    lure.bktu_write(&lure.bktu_brood_at("mk", "suite-lure/bkrr.env"), ZBKTR_SOUND);
+    lure.bktu_write(
+        &lure.bktu_brood_at("lk", "suite-lure/bkrr.env"),
+        ZBKTR_SOUND,
+    );
+    lure.bktu_write(
+        &lure.bktu_brood_at("mk", "suite-lure/bkrr.env"),
+        ZBKTR_SOUND,
+    );
 
-    let refusal = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
         .expect_err("a name two broods declare refuses");
 
-    assert!(refusal.contains(&lure.bktu_brood_at("lk", "suite-lure")), "it reads: {}", refusal);
-    assert!(refusal.contains(&lure.bktu_brood_at("mk", "suite-lure")), "it reads: {}", refusal);
+    assert!(
+        refusal.contains(&lure.bktu_brood_at("lk", "suite-lure")),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(&lure.bktu_brood_at("mk", "suite-lure")),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// One instance directory holds one family file: a second refuses the whole
@@ -508,12 +736,19 @@ fn bktr_two_broods_carrying_one_name_refuse_naming_both() {
 #[test]
 fn bktr_an_instance_holding_two_family_files_refuses() {
     let lure = zbktr_kennel("two-families");
-    lure.bktu_write(&lure.bktu_weaned_at("suite-lure/bkrk.env"), "BKRK_KIBBLE=\"suite-lure\"\n");
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrk.env"),
+        "BKRK_KIBBLE=\"suite-lure\"\n",
+    );
 
     let refusal = bkcr_walk(lure.bktu_root(), &lure.bktu_weaned())
         .expect_err("an instance of two families refuses");
 
-    assert!(refusal.contains("holds 2 family file(s)"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("holds 2 family file(s)"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// A file standing loose in the weaned set is no instance and refuses — the set
@@ -523,10 +758,14 @@ fn bktr_a_loose_file_in_the_weaned_set_refuses() {
     let lure = zbktr_kennel("loose");
     lure.bktu_write(&lure.bktu_weaned_at("bkrr.env"), ZBKTR_SOUND);
 
-    let refusal = bkcr_walk(lure.bktu_root(), &lure.bktu_weaned())
-        .expect_err("a loose file refuses");
+    let refusal =
+        bkcr_walk(lure.bktu_root(), &lure.bktu_weaned()).expect_err("a loose file refuses");
 
-    assert!(refusal.contains("no instance directory"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("no instance directory"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// A name that stands nowhere refuses and says what DOES stand, so the reader is
@@ -535,11 +774,19 @@ fn bktr_a_loose_file_in_the_weaned_set_refuses() {
 fn bktr_an_unknown_name_refuses_saying_what_stands() {
     let lure = zbktr_kennel("unknown");
 
-    let refusal = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-elsewhere")
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-elsewhere")
         .expect_err("a name that stands nowhere must refuse");
 
-    assert!(refusal.contains("suite-elsewhere"), "it reads: {}", refusal);
-    assert!(refusal.contains("suite-lure"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("suite-elsewhere"),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains("suite-lure"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// A collar file outside the catena law refuses at the reader, before any proof
@@ -553,10 +800,14 @@ fn bktr_a_collar_outside_the_catena_law_refuses_at_the_reader() {
         &ZBKTR_SOUND.replace("BKRR_PROFILE=\"test\"", "BKRR_PROFILE='test'"),
     );
 
-    let refusal = bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure")
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
         .expect_err("a file outside the subset must refuse");
 
-    assert!(refusal.contains("single-quoted"), "it reads: {}", refusal);
+    assert!(
+        refusal.contains("single-quoted"),
+        "it reads: {}",
+        refusal, //
+    );
 }
 
 /// THE KIND DECIDES WHICH DEPENDENCIES COUNT, and this is the pair that shows
@@ -579,27 +830,37 @@ fn bktr_the_kind_decides_whether_a_dev_dependency_counts() {
         app.is_empty(),
         "an app is not compiled with its crate's dev-dependencies, so it owes no declaration \
          about one: {:?}",
-        app
+        app, //
     );
 
     lure.bktu_write(
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
-        &ZBKTR_SOUND
-            .replace("  probe \\\n", "")
-            .replace("BKRR_TAMED_CRATES=\"inner probe\"", "BKRR_TAMED_CRATES=\"inner\""),
+        &ZBKTR_SOUND.replace("  probe \\\n", "").replace(
+            "BKRR_TAMED_CRATES=\"inner probe\"",
+            "BKRR_TAMED_CRATES=\"inner\"",
+        ),
     );
     let suite = zbktr_findings(&lure, "suite-lure");
 
-    assert_eq!(suite.len(), 2, "findings: {:?}", suite);
-    assert!(
-        suite.iter().any(|held| held.contains("BKRR_TAMED_CRATES") && held.contains("probe")),
+    assert_eq!(
+        suite.len(),
+        2,
         "findings: {:?}",
-        suite
+        suite, //
     );
     assert!(
-        suite.iter().any(|held| held.contains("BKRR_ROOTS") && held.contains("probe")),
-        "findings: {:?}",
         suite
+            .iter()
+            .any(|held| held.contains("BKRR_TAMED_CRATES") && held.contains("probe")),
+        "findings: {:?}",
+        suite, //
+    );
+    assert!(
+        suite
+            .iter()
+            .any(|held| held.contains("BKRR_ROOTS") && held.contains("probe")),
+        "findings: {:?}",
+        suite, //
     );
 }
 
@@ -622,11 +883,16 @@ fn bktr_an_exergue_without_its_door_is_a_finding() {
     );
 
     let orphan = zbktr_findings(&lure, "suite-lure");
-    assert_eq!(orphan.len(), 1, "findings: {:?}", orphan);
+    assert_eq!(
+        orphan.len(),
+        1,
+        "findings: {:?}",
+        orphan, //
+    );
     assert!(
         orphan[0].contains("BKRR_STRIKE"),
         "it names the vacant field: {}",
-        orphan[0]
+        orphan[0], //
     );
 
     lure.bktu_write(
@@ -638,11 +904,16 @@ fn bktr_an_exergue_without_its_door_is_a_finding() {
     );
 
     let idle = zbktr_findings(&lure, "suite-lure");
-    assert_eq!(idle.len(), 1, "findings: {:?}", idle);
+    assert_eq!(
+        idle.len(),
+        1,
+        "findings: {:?}",
+        idle, //
+    );
     assert!(
         idle[0].contains("strike nothing"),
         "it names the door that writes nothing: {}",
-        idle[0]
+        idle[0], //
     );
 }
 
@@ -665,20 +936,20 @@ fn bktr_an_absent_exergue_refuses_and_names_the_doors() {
         ),
     );
 
-    let resolved =
-        bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure").expect("the collar should resolve");
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
+        .expect("the collar should resolve");
 
     let refusal = super::bkcr_resolve::bkcr_exergue_stands(lure.bktu_root(), &resolved.collar)
         .expect_err("an exergue that does not stand refuses");
     assert!(
         refusal.contains("src/gen_exergue.rs"),
         "it names the file that is missing: {}",
-        refusal
+        refusal, //
     );
     assert!(
         refusal.contains("tt/lure-b.Build.sh"),
         "it names the door that writes it, which is the whole reason this reading exists: {}",
-        refusal
+        refusal, //
     );
 
     // THE SAME COLLAR, THE FILE NOW STANDING. Nothing else moves, so a reading
@@ -694,11 +965,11 @@ fn bktr_an_absent_exergue_refuses_and_names_the_doors() {
     // collar, whose declaration is the unstruck token and whose named file was
     // never written.
     lure.bktu_write(&lure.bktu_weaned_at("suite-lure/bkrr.env"), ZBKTR_SOUND);
-    let unstruck =
-        bkcr_resolve(lure.bktu_root(), &lure.bktu_weaned(), "suite-lure").expect("the collar should resolve");
+    let unstruck = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
+        .expect("the collar should resolve");
     assert!(
         unstruck.collar.bkcr_exergue().is_empty(),
-        "the unstruck token declares no exergue to stand"
+        "the unstruck token declares no exergue to stand", //
     );
     super::bkcr_resolve::bkcr_exergue_stands(lure.bktu_root(), &unstruck.collar)
         .expect("a collar declaring no exergue is never refused for one");

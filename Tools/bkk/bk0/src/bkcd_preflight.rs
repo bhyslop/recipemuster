@@ -36,6 +36,14 @@
 // tenant's crate to satisfy a precondition: a door reports what is absent and
 // names the act that supplies it, and the act is the operator's.
 //
+// THE ROSTER IS ALSO THE CONVERGE'S READING, which is why each absence says
+// whether a heel or the collar's own strike doors are the whole of its supplying
+// act. Rebed performs exactly those and nothing else, so it converges what a
+// derby would otherwise name without holding a list of its own, and the derby's
+// refusal names it as the one act; an absence neither supplies — a lock that
+// must be re-derived and committed first — stays the operator's, named as it
+// always was.
+//
 // A PYTHON COURSE'S ENVIRONMENT IS ONE MORE SUCH PRECONDITION. It stands outside
 // the tree under the seat's loosebox and the converge alone writes it, so a walk
 // that met it absent or behind its lock inside a course would report a refusal
@@ -44,13 +52,15 @@
 //
 // A BINARY'S CURRENCY IS ASKED THROUGH THE ELECTION AND NEVER BY A READ OF THIS
 // MODULE'S OWN. The election already holds the whole rule — a writer pinned
-// with no position asked, a reader borrowed while the trees match, the own
-// residence consulted under dispatch — and a second comparison here would have
+// with no position asked, a current own residence first under dispatch, a reader
+// borrowed while the trees match and the borrow's fence reading admits it — and
+// a second comparison here would have
 // re-derived it and got the pin wrong: the engine's binary answers no seat
 // reading at all, and a read that asked it one would call it outrun forever.
 //
 // A STRUCK EXERGUE FILE IS ASKED A DIFFERENT QUESTION, against a different far
-// side. It carries the LANDED reading — the newest trunk landing over its
+// side, and the election module holds its reader (`bkce_struck`), its fence
+// reading putting the same question to a borrow candidate's. It carries the LANDED reading — the newest trunk landing over its
 // roots, written by `Tools/buk/bue_exergue.sh` — so what stales it is the trunk
 // moving beneath those roots, and its comparison runs against the trunk
 // counterpart and never `HEAD`. Asking the landed reading the seat's question
@@ -58,15 +68,26 @@
 // strike able to clear it.
 // ============================================================================
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::bkce_election;
 use crate::bkce_election::bkce_Geography;
-use crate::bkco_output::{bkco_call, BKCO_VERB_HEEL};
+use crate::bkco_output::{
+    bkco_call,
+    BKCO_VERB_HEEL,
+    BKCO_VERB_REBED, //
+};
 use crate::bkcq_kibble;
 use crate::bkcr_resolve::bkcr_Collar;
 use crate::bkcx_python;
-use crate::bkcx_python::{bkcx_Collar, bkcx_Seat, BKCX_UV};
+use crate::bkcx_python::{
+    bkcx_Collar,
+    bkcx_Seat,
+    BKCX_UV, //
+};
 
 /// One precondition the tree does not meet, and the act that would supply it.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -88,6 +109,18 @@ pub struct bkcd_Absence {
     pub stands: Option<String>,
     /// The act that supplies it, already composed as a reader would type it.
     pub supply: String,
+    /// The name a heel converges to supply it, where that heel is the WHOLE of
+    /// the supplying act: a kibble, an app collar declaring no strike door, a
+    /// python environment whose lock still answers its manifest. `None` where
+    /// the act is a door the kennel does not hold, or a write that must be
+    /// committed before any converge — the report names those, and nothing
+    /// performs them on the operator's behalf.
+    pub heel: Option<String>,
+    /// The tree's own build doors that supply it, in the order its collar
+    /// declares them, where running them is the WHOLE of the supplying act: an
+    /// app collar's residence or a declared exergue, its collar naming a strike.
+    /// Empty where a heel supplies it or nothing the converge runs does.
+    pub strike: Vec<String>,
 }
 
 /// What the preflight reads of a tree: every precondition it does not meet, and
@@ -135,7 +168,7 @@ pub struct bkcd_Ready {
 /// writing.
 pub fn bkcd_preflight_at(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     feedroom: &bkcq_kibble::bkcq_Feedroom,
     geography: &bkce_Geography,
     collars: &[bkcr_Collar],
@@ -146,7 +179,7 @@ pub fn bkcd_preflight_at(
     let mut uv_absent = false;
     let mut uv_declared = false;
 
-    for instance in bkcq_kibble::bkcq_walk(repository, weaned)? {
+    for instance in bkcq_kibble::bkcq_walk(repository, dispatch.bkcr_weaned())? {
         let name = match instance.file_name() {
             Some(name) => name.to_string_lossy().into_owned(),
             None => continue,
@@ -154,7 +187,7 @@ pub fn bkcd_preflight_at(
 
         uv_declared |= name == BKCX_UV;
 
-        let resolved = bkcq_kibble::bkcq_resolve(repository, weaned, &name)?;
+        let resolved = bkcq_kibble::bkcq_resolve(repository, dispatch.bkcr_weaned(), &name)?;
 
         // AN UNSOUND KIBBLE IS NOT AN ABSENCE, and is stepped over here rather
         // than reported as one. Its findings are the collar walk's to report and
@@ -176,14 +209,13 @@ pub fn bkcd_preflight_at(
                     "the kibble '{}' — {} {}",
                     name,
                     resolved.kibble.bkcq_field("BKRK_PROGRAM"),
-                    resolved.kibble.bkcq_field("BKRK_VERSION")
+                    resolved.kibble.bkcq_field("BKRK_VERSION"), //
                 ),
                 at: residence,
                 stands: None,
-                supply: bkco_call(
-                    BKCO_VERB_HEEL,
-                    Some(&name),
-                ),
+                supply: bkco_call(dispatch.bkcr_tabtargets(), BKCO_VERB_HEEL, Some(&name)),
+                heel: Some(name.clone()),
+                strike: Vec::new(),
             });
         }
     }
@@ -193,12 +225,26 @@ pub fn bkcd_preflight_at(
             continue;
         }
 
-        zbkcd_residence(repository, geography, collar, &mut absent)?;
+        zbkcd_residence(
+            repository,
+            geography,
+            collar,
+            dispatch.bkcr_tabtargets(),
+            &mut absent,
+        )?;
     }
 
-    zbkcd_exergues(repository, collars, &mut absent)?;
+    zbkcd_exergues(repository, collars, dispatch.bkcr_tabtargets(), &mut absent)?;
 
-    zbkcd_environments(repository, weaned, python, uv_absent, uv_declared, &mut absent, &mut unhitched)?;
+    zbkcd_environments(
+        repository,
+        dispatch,
+        python,
+        uv_absent,
+        uv_declared,
+        &mut absent,
+        &mut unhitched,
+    )?;
 
     Ok(bkcd_Ready { absent, unhitched })
 }
@@ -231,7 +277,7 @@ pub fn bkcd_preflight_at(
 /// declaration reading either, the environment's record standing alone.
 fn zbkcd_environments(
     repository: &Path,
-    weaned: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
     python: &[(&bkcx_Collar, &bkcx_Seat)],
     uv_absent: bool,
     uv_declared: bool,
@@ -241,7 +287,10 @@ fn zbkcd_environments(
     let mut seen: Vec<(&Path, Option<bkcx_python::bkcx_Unhitched>)> = Vec::new();
 
     for (collar, seat) in python {
-        if let Some((_, declared)) = seen.iter().find(|(at, _)| *at == seat.environment.as_path()) {
+        if let Some((_, declared)) = seen
+            .iter()
+            .find(|(at, _)| *at == seat.environment.as_path())
+        {
             if let Some(declared) = declared {
                 unhitched.push((collar.name.clone(), declared.clone()));
             }
@@ -251,7 +300,7 @@ fn zbkcd_environments(
         let declared = if uv_absent || !uv_declared {
             None
         } else {
-            bkcx_python::bkcx_unhitched_at(repository, weaned, collar, seat)?
+            bkcx_python::bkcx_unhitched_at(repository, dispatch, collar, seat)?
         };
 
         seen.push((seat.environment.as_path(), declared.clone()));
@@ -264,7 +313,7 @@ fn zbkcd_environments(
         let unanswered = if uv_absent {
             bkcx_python::bkcx_marque_at(repository, collar, seat)?
         } else {
-            bkcx_python::bkcx_unanswered_at(repository, weaned, collar, seat)?
+            bkcx_python::bkcx_unanswered_at(repository, dispatch, collar, seat)?
         };
 
         let Some(unanswered) = unanswered else {
@@ -272,10 +321,15 @@ fn zbkcd_environments(
         };
 
         absent.push(bkcd_Absence {
-            subject: format!("the environment of the python collar '{}'", collar.name),
+            subject: format!(
+                "the environment of the python collar '{}'",
+                collar.name, //
+            ),
             at: seat.environment.clone(),
             stands: unanswered.bkcx_plaint(collar, seat),
-            supply: unanswered.bkcx_supply(collar),
+            supply: unanswered.bkcx_supply(collar, dispatch.bkcr_tabtargets()),
+            heel: unanswered.bkcx_heel(collar),
+            strike: Vec::new(),
         });
     }
 
@@ -290,14 +344,40 @@ fn zbkcd_environments(
 /// names the doors that strike this collar, in the order the tree fixes, and
 /// every one of them is named. A collar declaring none is handed the kennel's
 /// own converge, which is the one act this kit can promise.
-fn zbkcd_supply(collar: &bkcr_Collar) -> String {
+fn zbkcd_supply(collar: &bkcr_Collar, tabtargets: Option<&Path>) -> String {
     let strike = collar.bkcr_strike();
 
     if strike.is_empty() {
-        bkco_call(BKCO_VERB_HEEL, Some(&collar.name))
+        bkco_call(tabtargets, BKCO_VERB_HEEL, Some(&collar.name))
     } else {
         strike.join(", ")
     }
+}
+
+/// The heel that supplies an app collar's residence, where heel is the act the
+/// collar is handed — the same reading as `zbkcd_supply` above, as a name.
+///
+/// A COLLAR DECLARING A STRIKE IS HANDED ITS STRIKE AND NEVER A HEEL, even
+/// though heel would build its crate: the strike is the tree's own build door,
+/// and a heel standing in for it would skip whatever else that door does — an
+/// exergue struck, a seat laid — and seat a residence the tree never asked for.
+fn zbkcd_heel(collar: &bkcr_Collar) -> Option<String> {
+    if collar.bkcr_strike().is_empty() {
+        Some(collar.name.clone())
+    } else {
+        None
+    }
+}
+
+/// The strike doors that supply an app collar's residence or its exergues, as
+/// the collar declares them — the reading `zbkcd_supply` renders, as names a
+/// converge runs.
+fn zbkcd_strike(collar: &bkcr_Collar) -> Vec<String> {
+    collar
+        .bkcr_strike()
+        .into_iter()
+        .map(str::to_string)
+        .collect()
 }
 
 /// An app collar's residence: absent, standing and outrun, or standing and
@@ -320,6 +400,7 @@ fn zbkcd_residence(
     repository: &Path,
     geography: &bkce_Geography,
     collar: &bkcr_Collar,
+    tabtargets: Option<&Path>,
     absent: &mut Vec<bkcd_Absence>,
 ) -> Result<(), String> {
     let own = bkce_election::bkce_residence(repository, collar);
@@ -327,14 +408,19 @@ fn zbkcd_residence(
         Some(delivered) => bkce_election::bkce_residence(delivered, collar),
         None => own.clone(),
     };
-    let subject = format!("the app collar '{}'", collar.name);
+    let subject = format!(
+        "the app collar '{}'",
+        collar.name, //
+    );
 
     if !own.is_file() && !blessed.is_file() {
         absent.push(bkcd_Absence {
             subject,
             at: own,
             stands: None,
-            supply: zbkcd_supply(collar),
+            supply: zbkcd_supply(collar, tabtargets),
+            heel: zbkcd_heel(collar),
+            strike: zbkcd_strike(collar),
         });
         return Ok(());
     }
@@ -352,7 +438,9 @@ fn zbkcd_residence(
                 subject,
                 at: answers,
                 stands: None,
-                supply: zbkcd_supply(collar),
+                supply: zbkcd_supply(collar, tabtargets),
+                heel: zbkcd_heel(collar),
+                strike: zbkcd_strike(collar),
             });
             Ok(())
         }
@@ -371,7 +459,7 @@ fn zbkcd_residence(
                 why.push_str(&format!(
                     "; nothing stands at the seat's own residence {}, which is where the \
                      supplying act writes",
-                    own.display()
+                    own.display(), //
                 ));
             }
 
@@ -381,7 +469,9 @@ fn zbkcd_residence(
                 subject,
                 at,
                 stands: Some(why),
-                supply: zbkcd_supply(collar),
+                supply: zbkcd_supply(collar, tabtargets),
+                heel: zbkcd_heel(collar),
+                strike: zbkcd_strike(collar),
             });
             Ok(())
         }
@@ -391,7 +481,7 @@ fn zbkcd_residence(
 /// Every exergue the collars declare: absent, or standing and outrun by the
 /// trunk, or standing and current.
 ///
-/// ONE READING PER FILE, HOWEVER MANY COLLARS DECLARE IT. The matricula's two
+/// ONE READING PER FILE, HOWEVER MANY COLLARS DECLARE IT. Two
 /// collars declare the same struck module and three declare the `equerry's`, so
 /// a preflight reporting per declaration would hand its reader one repair three
 /// times over. The first declaring collar in walk order names the supplying
@@ -405,6 +495,7 @@ fn zbkcd_residence(
 fn zbkcd_exergues(
     repository: &Path,
     collars: &[bkcr_Collar],
+    tabtargets: Option<&Path>,
     absent: &mut Vec<bkcd_Absence>,
 ) -> Result<(), String> {
     let mut seen: Vec<&str> = Vec::new();
@@ -420,9 +511,11 @@ fn zbkcd_exergues(
             let at = repository.join(declared);
             let subject = format!(
                 "the exergue '{}' declared by the collar '{}'",
-                declared, collar.name
+                declared,
+                collar.name, //
             );
-            let supply = zbkcd_supply(collar);
+            let supply = zbkcd_supply(collar, tabtargets);
+            let strike = zbkcd_strike(collar);
 
             if !at.is_file() {
                 absent.push(bkcd_Absence {
@@ -430,11 +523,13 @@ fn zbkcd_exergues(
                     at,
                     stands: None,
                     supply,
+                    heel: None,
+                    strike: strike.clone(),
                 });
                 continue;
             }
 
-            let struck = match zbkcd_struck(&at) {
+            let struck = match bkce_election::bkce_struck(&at) {
                 Ok(struck) => struck,
                 Err(why) => {
                     absent.push(bkcd_Absence {
@@ -442,6 +537,8 @@ fn zbkcd_exergues(
                         at,
                         stands: Some(why),
                         supply,
+                        heel: None,
+                        strike: strike.clone(),
                     });
                     continue;
                 }
@@ -455,6 +552,8 @@ fn zbkcd_exergues(
                         at,
                         stands: Some(why.clone()),
                         supply,
+                        heel: None,
+                        strike: strike.clone(),
                     });
                     continue;
                 }
@@ -470,9 +569,13 @@ fn zbkcd_exergues(
                     stands: Some(format!(
                         "struck at {} over the roots it carries, and {} has since moved the tree \
                          beneath them — {}",
-                        struck.sha, far, concord.plaint
+                        struck.sha,
+                        far,
+                        concord.plaint, //
                     )),
                     supply,
+                    heel: None,
+                    strike: strike.clone(),
                 });
             }
         }
@@ -481,142 +584,117 @@ fn zbkcd_exergues(
     Ok(())
 }
 
-/// What a struck exergue file says about its own striking: the sha, and the
-/// roots it was measured over.
-struct zbkcd_Struck {
-    sha: String,
-    /// The roots, whitespace-joined into the form `bkce_concord` splits.
-    roots: String,
-}
-
-/// Read the sha and the roots off a struck exergue file.
-///
-/// THE SHAPE IS THE STRIKER'S AND THE CONSTANT'S NAME IS THE CALLER'S.
-/// `Tools/buk/bue_exergue.sh` writes `pub const <NAME>: &str = "<sha>";` and
-/// `pub const <NAME>_ROOTS: &[&str] = &[ ... ];` with one quoted root per line,
-/// exclusion pathspecs included, and the striker's caller states `<NAME>`. So
-/// the sha is the first string constant shaped like a position, and the roots
-/// are the quoted elements of the `_ROOTS` block; the ancestry block is stepped
-/// over, being the record-holding reader's instrument and not this one's.
-///
-/// CONSUMED AND NEVER RE-DERIVED. The file states what it was struck from;
-/// walking the trunk a second time here would be a second striker, and the two
-/// would part the day the walk changed. What the kennel asks is whether what the
-/// file states is still the tree, and that question consumes the sha and the
-/// roots as they stand.
-///
-/// A FILE THAT DOES NOT SAY REFUSES, fail-closed like a binary that states no
-/// position: an exergue whose shape has moved from under this reader cannot be
-/// presumed current, and the plaint says what was not found.
-fn zbkcd_struck(at: &Path) -> Result<zbkcd_Struck, String> {
-    let text = std::fs::read_to_string(at)
-        .map_err(|err| format!("could not read the exergue at {}: {}", at.display(), err))?;
-
-    let mut sha: Option<String> = None;
-    let mut roots: Vec<String> = Vec::new();
-    let mut within_roots = false;
-
-    for line in text.lines() {
-        let line = line.trim();
-
-        if within_roots {
-            if line.starts_with("];") {
-                within_roots = false;
-            } else if let Some(root) = zbkcd_quoted(line) {
-                roots.push(root);
-            }
-            continue;
-        }
-
-        let Some(declared) = line.strip_prefix("pub const ") else {
-            continue;
-        };
-
-        if declared.contains("_ROOTS:") && declared.ends_with("&[") {
-            within_roots = true;
-            continue;
-        }
-
-        if sha.is_none() && declared.contains(": &str = ") {
-            if let Some(value) = zbkcd_quoted(declared) {
-                if bkce_election::bkce_position_shaped(&value) {
-                    sha = Some(value);
-                }
-            }
-        }
-    }
-
-    let Some(sha) = sha else {
-        return Err(format!(
-            "the exergue at {} carries no position constant in the striker's shape — `pub const \
-             <NAME>: &str = \"<sha>\";` — so what it was struck from cannot be read, and it may not \
-             be presumed current",
-            at.display()
-        ));
-    };
-
-    if roots.is_empty() {
-        return Err(format!(
-            "the exergue at {} carries no roots constant in the striker's shape — `pub const \
-             <NAME>_ROOTS: &[&str] = &[ ... ];` — so the set its sha was measured over cannot be \
-             read, and it may not be presumed current",
-            at.display()
-        ));
-    }
-
-    Ok(zbkcd_Struck {
-        sha,
-        roots: roots.join(" "),
-    })
-}
-
-/// The text between the first pair of double quotes on a line, where the line
-/// carries one.
-fn zbkcd_quoted(line: &str) -> Option<String> {
-    let open = line.find('"')?;
-    let rest = &line[open + 1..];
-    let close = rest.find('"')?;
-    Some(rest[..close].to_string())
-}
-
 /// The report a door hands its reader for a tree that cannot be green as it
 /// stands.
 ///
-/// IT NAMES EVERY ABSENCE AND THEN THE RE-RUN, in that order. The re-run is the
-/// door the reader was already running, resolved through the same lookup as
-/// every supplying act above, so a reader who has worked the list has the whole
-/// sequence in front of them and never a remembered filename.
+/// IT NAMES EVERY ABSENCE, THEN THE ONE CONVERGE, THEN THE RE-RUN. Each absence
+/// keeps the truth of what supplies it — the heel or the strike doors rebed
+/// performs for it, or the act no converge performs — and the closing line
+/// names rebed as the one act to take before the door the reader was already
+/// running, both resolved through the same lookup, so a reader is handed one
+/// converge and never a list of acts to type.
 ///
 /// THE TWO SHAPES RENDER AS TWO SENTENCES. "Nothing stands" is what the delouse
 /// leaves behind and any strike cures it; "stands, and may not be presumed
 /// current" carries the plaint saying which roots moved, and is what a pull
 /// leaves behind. A reader who has met the first on a morning that opened on a
 /// derby must not read the second as more of the same.
-pub fn bkcd_unready(absent: &[bkcd_Absence], rerun: &str) -> String {
-    let mut said = format!(
+pub fn bkcd_unready(absent: &[bkcd_Absence], rerun: &str, tabtargets: Option<&Path>) -> String {
+    let lead = format!(
         "{} precondition(s) this tree declares are not met, so no course is run — a walk over a \
-         tree that cannot be green would spend a compile proving it. The kennel verifies and \
-         never provisions, so each is supplied by the act beside it:",
-        absent.len()
+         tree that cannot be green would spend a compile proving it. The walk verifies and \
+         never provisions; each is supplied by the act beside it:",
+        absent.len(), //
     );
+
+    zbkcd_listed(
+        lead,
+        absent,
+        &format!(
+            "then the one converge, performing every act above that it can: {}\n  and after \
+             it, the walk again: {}",
+            bkco_call(tabtargets, BKCO_VERB_REBED, None),
+            rerun, //
+        ),
+    )
+}
+
+/// The report rebed hands its reader for what still stands unmet once every
+/// heel and strike it could perform has run.
+///
+/// THE SAME LIST UNDER ANOTHER LEAD, and the lead is the whole difference: the
+/// derby's says the walk never provisions, which is false of a converge that
+/// just did. What remains is what rebed does not supply, so the lead says that,
+/// the list beside it names each act exactly as the derby would, and the
+/// re-run is rebed itself.
+pub fn bkcd_unsupplied(absent: &[bkcd_Absence], rerun: &str) -> String {
+    let lead = format!(
+        "{} precondition(s) this tree declares stand unmet after every heel and strike the \
+         kennel could perform — each is supplied by the act beside it:",
+        absent.len(), //
+    );
+
+    zbkcd_listed(
+        lead,
+        absent,
+        &format!(
+            "then, once every one of them stands: {}",
+            rerun, //
+        ),
+    )
+}
+
+/// A lead, then every absence with its shape and its act, then the closing.
+///
+/// AN ACT REBED PERFORMS IS SAID AS REBED'S, never as a door to type: rebed
+/// first, then a heel by its verb and collar or a strike by the doors the
+/// collar names. Only an act no
+/// converge performs is handed over whole, as its supply composes it.
+fn zbkcd_listed(lead: String, absent: &[bkcd_Absence], closing: &str) -> String {
+    let mut said = lead;
 
     for absence in absent {
         let stood = match &absence.stands {
-            None => format!("nothing stands at {}", absence.at.display()),
+            None => format!(
+                "nothing stands at {}",
+                absence.at.display(), //
+            ),
             Some(why) => format!(
                 "stands at {}, and may not be presumed current: {}",
                 absence.at.display(),
-                why
+                why, //
             ),
+        };
+
+        let supplied = match &absence.heel {
+            Some(name) => format!(
+                "{}, which performs {} {}",
+                BKCO_VERB_REBED,
+                BKCO_VERB_HEEL,
+                name, //
+            ),
+            None if !absence.strike.is_empty() => {
+                format!(
+                    "{}, which runs {}",
+                    BKCO_VERB_REBED,
+                    absence.strike.join(", "), //
+                )
+            }
+            None => absence.supply.clone(),
         };
 
         said.push_str(&format!(
             "\n  {}\n    {}\n    supplied by: {}",
-            absence.subject, stood, absence.supply
+            absence.subject,
+            stood,
+            supplied, //
         ));
     }
 
-    said.push_str(&format!("\n  then, once every one of them stands: {}", rerun));
+    said.push_str(&format!(
+        "\n  {}",
+        closing, //
+    ));
 
     said
 }

@@ -1,0 +1,50 @@
+Copyright 2026 Scale Invariant, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+================================================================================
+TEMPLATE — the header form a proprietary source file wears.
+
+The three lines below go at the top of every source file you write, in whatever
+comment syntax that file's language uses. Fill «year» and «holder» once and use
+the same pair everywhere; they are the same pair your root licensing statement
+names.
+
+    Copyright «year» «holder»
+    All rights reserved.
+    SPDX-License-Identifier: LicenseRef-Proprietary
+
+Worked, in the two comment syntaxes most files want:
+
+    # Copyright 2026 Example Holdings, Inc.
+    # All rights reserved.
+    # SPDX-License-Identifier: LicenseRef-Proprietary
+
+    // Copyright 2026 Example Holdings, Inc.
+    // All rights reserved.
+    // SPDX-License-Identifier: LicenseRef-Proprietary
+
+Three notes on the form:
+
+The identifier is `LicenseRef-Proprietary` and not a bare word. SPDX reserves
+the `LicenseRef-` prefix for exactly this — a licence with no public identifier
+— so a tool reading your tree can tell "deliberately not open" from "nobody
+filled this in".
+
+`All rights reserved.` stands on its own line, and the file names no licence
+text. There is nothing for it to point at: the terms are whatever agreement
+covers the work, not a document in the repository.
+
+This header never goes on a file inside an installed kit directory. Those files
+are not yours and carry their own.
+================================================================================

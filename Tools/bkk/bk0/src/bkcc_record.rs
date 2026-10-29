@@ -41,7 +41,10 @@
 //! a serializer, and the writer proves its own output readable by admitting it
 //! through that reader before either copy lands.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use bkp::bkprc_catena;
 
@@ -66,7 +69,7 @@ pub const BKCC_LOOSEBOX_DIR_VAR: &str = "BURD_LOOSEBOX_DIR";
 /// would be a record no later door could ever find, and the sweep would fire at
 /// every build exactly as the forced clean it replaces did.
 ///
-/// IT READS A VARIABLE AND COMPOSES NOTHING. The loosebox is the substrate's own
+/// IT READS A FIELD AND COMPOSES NOTHING. The loosebox is the substrate's own
 /// composition — the root a regime field names, keyed by the checkout's dirname
 /// — and this door takes it whole. It stood on the temp root's parent before
 /// there was a root to name, and that reading is gone: a door deriving a
@@ -79,7 +82,7 @@ pub fn bkcc_looseboxed(said: &str) -> Result<PathBuf, String> {
         return Err(format!(
             "this door has no loosebox to work in: {} names no directory. A door reached \
              outside a dispatch has no seat, and this one writes into no ambient directory",
-            BKCC_LOOSEBOX_DIR_VAR
+            BKCC_LOOSEBOX_DIR_VAR, //
         ));
     }
 
@@ -91,18 +94,22 @@ pub fn bkcc_looseboxed(said: &str) -> Result<PathBuf, String> {
              seats, so a name pointing at nothing is a misprovisioned seat rather than a \
              directory to create",
             BKCC_LOOSEBOX_DIR_VAR,
-            seat.display()
+            seat.display(), //
         ));
     }
 
     Ok(seat)
 }
 
-/// The one line of this module that consults the environment, so every reading
-/// above it can be posed a value and driven without touching a process-wide
-/// setting its neighbours also read.
-pub fn bkcc_loosebox() -> Result<PathBuf, String> {
-    bkcc_looseboxed(&std::env::var(BKCC_LOOSEBOX_DIR_VAR).unwrap_or_default())
+/// The loosebox the dispatch names, so every reading above it can be posed a
+/// value and driven without touching a process-wide setting its neighbours also
+/// read.
+pub fn bkcc_loosebox(dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> Result<PathBuf, String> {
+    bkcc_looseboxed(
+        dispatch
+            .bkcr_said(BKCC_LOOSEBOX_DIR_VAR)
+            .unwrap_or_default(),
+    )
 }
 
 /// The extension that classifies a fact file as a course record.
@@ -188,7 +195,11 @@ impl bkcc_Course {
     /// The file this course's record lands as, under the multi-form's
     /// type-as-extension naming: the collar is the row, the regime is the type.
     pub fn bkcc_leaf(&self) -> String {
-        format!("{}.{}", self.collar, BKCC_EXTENSION)
+        format!(
+            "{}.{}",
+            self.collar,
+            BKCC_EXTENSION, //
+        )
     }
 }
 
@@ -212,7 +223,8 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
                 "{} declares '{}', which no field of the course record's roster names — the \
                  roster is the one definition of what the studbook keeps about a test \
                  disposition, so a field outside it is a record this reader cannot vouch for",
-                whence, key
+                whence,
+                key, //
             ));
         }
     }
@@ -230,13 +242,15 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
 
     let wall = match zbkcc_demand(&regime, BKCC_WALL, whence)? {
         BKCC_NARROWED => None,
-        taken => Some(std::time::Duration::from_millis(taken.parse().map_err(|_| {
-            format!(
+        taken => Some(std::time::Duration::from_millis(taken.parse().map_err(
+            |_| {
+                format!(
                 "{} carries '{}' as {}, which is neither a count of milliseconds nor the token \
                  '{}' that stands where a narrowed course took no time",
-                whence, taken, BKCC_WALL, BKCC_NARROWED
+                whence, taken, BKCC_WALL, BKCC_NARROWED, //
             )
-        })?)),
+            },
+        )?)),
     };
 
     let position = zbkcc_demand(&regime, BKCC_POSITION, whence)?.to_string();
@@ -251,7 +265,10 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
             "{} disagrees with itself: {} and {} carry one fact between them — a whole course \
              takes a time and a narrowed one takes the token '{}' — and this record spells the \
              two halves differently",
-            whence, BKCC_NARROWING, BKCC_WALL, BKCC_NARROWED
+            whence,
+            BKCC_NARROWING,
+            BKCC_WALL,
+            BKCC_NARROWED, //
         ));
     }
 
@@ -281,7 +298,10 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
 /// kennel's doors report and refuse rather than converging on their own. A
 /// hurdle driving a green course therefore states its own two directories, which
 /// is the same discipline the composing surface already holds for the temp root.
-pub fn bkcc_write(course: &bkcc_Course) -> Result<Vec<PathBuf>, String> {
+pub fn bkcc_write(
+    course: &bkcc_Course,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+) -> Result<Vec<PathBuf>, String> {
     let body = course.bkcc_body();
     let leaf = course.bkcc_leaf();
 
@@ -295,14 +315,15 @@ pub fn bkcc_write(course: &bkcc_Course) -> Result<Vec<PathBuf>, String> {
         format!(
             "the course record composed for '{}' is not readable under the catena law, so it was \
              not written: {}",
-            course.collar, err
+            course.collar,
+            err, //
         )
     })?;
 
     let mut landed = Vec::new();
 
-    for variable in [BKCC_OUTPUT_DIR_VAR, BKCC_TEMP_DIR_VAR] {
-        let directory = zbkcc_directory(variable)?;
+    for field in [BKCC_OUTPUT_DIR_VAR, BKCC_TEMP_DIR_VAR] {
+        let directory = zbkcc_directory(dispatch, field)?;
         let seat = directory.join(&leaf);
 
         if seat.exists() {
@@ -311,12 +332,16 @@ pub fn bkcc_write(course: &bkcc_Course) -> Result<Vec<PathBuf>, String> {
                  whole cardinality of a fact file, so a second means two courses claimed the \
                  collar '{}'",
                 seat.display(),
-                course.collar
+                course.collar, //
             ));
         }
 
         std::fs::write(&seat, &body).map_err(|err| {
-            format!("could not write the course record at {}: {}", seat.display(), err)
+            format!(
+                "could not write the course record at {}: {}",
+                seat.display(),
+                err, //
+            )
         })?;
 
         landed.push(seat);
@@ -327,7 +352,11 @@ pub fn bkcc_write(course: &bkcc_Course) -> Result<Vec<PathBuf>, String> {
 
 /// One assignment line in the substrate's form.
 fn zbkcc_line(key: &str, value: &str) -> String {
-    format!("{}=\"{}\"\n", key, value)
+    format!(
+        "{}=\"{}\"\n",
+        key,
+        value, //
+    )
 }
 
 /// The roster, in the order a record renders it.
@@ -361,7 +390,8 @@ fn zbkcc_demand<'a>(
             "{} carries no {} — every field of the course record's roster is required and never \
              vacant, a reader deriving a value from an absence being unable to tell a declaration \
              from an omission",
-            whence, key
+            whence,
+            key, //
         )
     })
 }
@@ -375,25 +405,30 @@ fn zbkcc_counted(
     let said = zbkcc_demand(regime, key, whence)?;
 
     said.parse().map_err(|_| {
-        format!("{} carries '{}' as {}, which is no count", whence, said, key)
+        format!(
+            "{} carries '{}' as {}, which is no count",
+            whence,
+            said,
+            key, //
+        )
     })
 }
 
 /// The directory one copy lands in, refused where the dispatch named none.
-fn zbkcc_directory(variable: &str) -> Result<PathBuf, String> {
-    let said = std::env::var(variable)
-        .ok()
-        .filter(|path| !path.trim().is_empty())
-        .ok_or_else(|| {
-            format!(
-                "the course ran green and its record has nowhere to land: {} names no directory. \
+fn zbkcc_directory(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    variable: &str,
+) -> Result<PathBuf, String> {
+    let said = dispatch.bkcr_said(variable).ok_or_else(|| {
+        format!(
+            "the course ran green and its record has nowhere to land: {} names no directory. \
                  A door reached outside a dispatch has no output seat, and this one writes into no \
                  ambient directory — a record written where nothing looks is indistinguishable \
                  from a record never written. Reach the door through its tabtarget, or state the \
                  directory the record is to land in",
-                variable
-            )
-        })?;
+            variable, //
+        )
+    })?;
 
     let directory = PathBuf::from(said);
 
@@ -403,7 +438,7 @@ fn zbkcc_directory(variable: &str) -> Result<PathBuf, String> {
              output seats, so a name pointing at nothing is a misprovisioned seat rather than a \
              directory to create",
             variable,
-            directory.display()
+            directory.display(), //
         ));
     }
 

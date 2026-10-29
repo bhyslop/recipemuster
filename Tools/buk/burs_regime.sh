@@ -21,6 +21,12 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from the substrate's generated
+# constants, sourced above the inclusion guard so the tinder block stays the run
+# behind it. The sourced file carries its own inclusion guard, so a sibling
+# sourcing it costs nothing.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZBURS_SOURCED:-}" || buc_die_now "Module burs multiply sourced - check sourcing hierarchy"
 ZBURS_SOURCED=1
@@ -40,13 +46,13 @@ zburs_kindle() {
 
   buv_group_enroll "Developer Identity"
   buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to ${BURD_MOORINGS_DIR}/${BUBC_rbmu_users_subdir}/ profiles)"
-  buv_string_enroll  BURS_TINCTURE 1    3  "Per-station tincture composed by test fixtures into cloud/runtime prefixes and family stems for parallel-run disjointness on a shared payor manor (lowercase alphanumeric, leading letter, no hyphen)"
+  buv_string_enroll  BURS_TINCTURE 1    3  "Per-station tincture, under two charters: test fixtures compose it into cloud/runtime prefixes and family stems for parallel-run disjointness on a shared payor manor, and a kit keeping a per-station record names this station's share by it, so it must stay stable for the station's life and unique across the estate; a reader outside bash takes it from this file directly (lowercase alphanumeric, leading letter, no hyphen)"
 
   buv_group_enroll "Developer Logging"
-  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs"
+  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs, relative to the project root"
 
   buv_group_enroll "Shared Tooling"
-  buv_string_enroll  BURS_TACKROOM 0  512  "Station-shared root for large immutable tool stores every clone on this station draws from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here). Absolute, or relative to the project root as the log directory is. Optional to BUK and required by any kit that homes a store here, so a clone that builds no Rust may leave it unset"
+  buv_string_enroll  BURS_TACKROOM 1  512  "Required. Root for large immutable tool stores the clones beside this one draw from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here). Relative to the project root, as the log directory is"
 
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_
@@ -68,7 +74,17 @@ zburs_enforce() {
   buv_vet BURS
 
   [[ "${BURS_TINCTURE}" =~ ^[a-z][a-z0-9]{0,2}$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid BURS_TINCTURE format: ${BURS_TINCTURE} (expected 1-3 chars, lowercase alphanumeric starting with letter; no hyphens)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid BURS_TINCTURE format: ${BURS_TINCTURE} (expected 1-3 chars, lowercase alphanumeric starting with letter; no hyphens)"
+
+  # A station file names its stores relative to the project root, and the
+  # refusal is the whole mechanism: there is no override. The values read here
+  # are the station file's own, the launcher folding no BURV_ override over
+  # them ahead of this check — a dispatch's override is absolute by
+  # construction and is the dispatch's, never the station's.
+  [[ "${BURS_LOG_DIR}" != /* ]] \
+    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_LOG_DIR is absolute (${BURS_LOG_DIR}) - the station file names it relative to the project root, e.g. BURS_LOG_DIR=../logs-buk"
+  [[ "${BURS_TACKROOM}" != /* ]] \
+    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_TACKROOM is absolute (${BURS_TACKROOM}) - the station file names it relative to the project root, e.g. BURS_TACKROOM=../tackroom-buk"
 }
 
 # eof

@@ -27,7 +27,10 @@ use super::bkci_pipeline::*;
 use super::bkcm_mush;
 use super::bkcr_resolve::bkcr_Collar;
 use bkp::bkprc_catena::bkprc_admit;
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 /// The harness's listing, as captured over `suite-bkmk` — several hurdles, a
 /// per-binary tally, an empty binary's tally, and a second block.
@@ -47,7 +50,7 @@ bktd_the_door_stands_over_a_clean_lure: test
 /// hurdle's name, and no tally at all.
 const ZBKTI_NEXTEST: &str = "\
 vof vofc_registry::tests::vofc_a_known_prefix_finds_its_cipher
-vof vofe_emplace::tests::vofe_is_hook_file
+vof bpee_emplace::tests::bpee_is_hook_file
 ";
 
 #[test]
@@ -68,8 +71,9 @@ fn bkti_the_harness_listing_reads_every_block_and_steps_past_the_tallies() {
 
 #[test]
 fn bkti_a_benchmark_is_not_a_hurdle() {
-    let named = bkci_harness_listing("a_bench: benchmark\na_hurdle: test\n\n0 tests, 1 benchmark\n")
-        .expect("a benchmark line is a surveyed shape");
+    let named =
+        bkci_harness_listing("a_bench: benchmark\na_hurdle: test\n\n0 tests, 1 benchmark\n")
+            .expect("a benchmark line is a surveyed shape");
 
     assert_eq!(named, vec!["a_hurdle"]);
 }
@@ -85,7 +89,7 @@ fn bkti_an_unsurveyed_harness_line_refuses_rather_than_being_skipped() {
     assert!(
         grievance.contains("has not surveyed"),
         "the refusal names the membrane's own limit: {}",
-        grievance
+        grievance, //
     );
 }
 
@@ -97,7 +101,7 @@ fn bkti_the_nextest_listing_drops_the_binary_id_and_keeps_the_name() {
         named,
         vec![
             "vofc_registry::tests::vofc_a_known_prefix_finds_its_cipher",
-            "vofe_emplace::tests::vofe_is_hook_file",
+            "bpee_emplace::tests::bpee_is_hook_file",
         ]
     );
 }
@@ -110,7 +114,7 @@ fn bkti_an_unsurveyed_nextest_line_refuses_rather_than_being_skipped() {
     assert!(
         grievance.contains("has not surveyed"),
         "the refusal names the membrane's own limit: {}",
-        grievance
+        grievance, //
     );
 }
 
@@ -129,7 +133,10 @@ fn bkti_a_pattern_matches_where_it_appears_and_the_order_is_the_runners() {
 
     let narrowing = bkci_choose(&held, &["json".to_string()]).expect("the pattern compiles");
 
-    assert_eq!(narrowing.chosen, vec!["bktj_json::alpha", "bktj_json::beta"]);
+    assert_eq!(
+        narrowing.chosen,
+        vec!["bktj_json::alpha", "bktj_json::beta"]
+    );
     assert_eq!(narrowing.held.len(), 4);
     assert_eq!(narrowing.bkci_verdict(), "ran 2 of 4");
 }
@@ -158,7 +165,10 @@ fn bkti_the_dialect_is_the_rust_one_taken_as_is() {
     // compared.
     let narrowing = bkci_choose(&held, &[r"::(alpha|gamma)$".to_string()]).expect("it compiles");
 
-    assert_eq!(narrowing.chosen, vec!["bktj_json::alpha", "bktl_leash::alpha"]);
+    assert_eq!(
+        narrowing.chosen,
+        vec!["bktj_json::alpha", "bktl_leash::alpha"]
+    );
 }
 
 #[test]
@@ -170,7 +180,7 @@ fn bkti_a_pattern_that_does_not_compile_refuses_rather_than_reading_as_a_literal
     assert!(
         grievance.contains("taken as is"),
         "the refusal names the ruling it stands on: {}",
-        grievance
+        grievance, //
     );
 }
 
@@ -192,11 +202,18 @@ fn bkti_each_runner_spells_the_selection_its_own_exact_way() {
     let chosen = vec!["alpha".to_string(), "beta".to_string()];
 
     let harness = bkci_selection(bkcm_mush::BKCM_RUNNER_CARGO, &chosen).expect("cargo spells it");
-    let harness: Vec<String> = harness.iter().map(|word| word.to_string_lossy().into_owned()).collect();
+    let harness: Vec<String> = harness
+        .iter()
+        .map(|word| word.to_string_lossy().into_owned())
+        .collect();
     assert_eq!(harness, vec!["--", "--exact", "alpha", "beta"]);
 
-    let nextest = bkci_selection(bkcm_mush::BKCM_RUNNER_NEXTEST, &chosen).expect("nextest spells it");
-    let nextest: Vec<String> = nextest.iter().map(|word| word.to_string_lossy().into_owned()).collect();
+    let nextest =
+        bkci_selection(bkcm_mush::BKCM_RUNNER_NEXTEST, &chosen).expect("nextest spells it");
+    let nextest: Vec<String> = nextest
+        .iter()
+        .map(|word| word.to_string_lossy().into_owned())
+        .collect();
     assert_eq!(nextest, vec!["-E", "test(=alpha) + test(=beta)"]);
 }
 
@@ -253,19 +270,26 @@ fn zbkti_collar(text: &str) -> bkcr_Collar {
 fn bkti_the_listing_drops_the_run_s_empty_suite_flag_and_the_run_keeps_it() {
     let collar = zbkti_collar(ZBKTI_NEXTEST_COLLAR);
 
-    let run = bkcm_mush::bkcm_suite(Path::new(ZBKTI_SEAT), &collar).expect("the collar composes a run");
+    let run =
+        bkcm_mush::bkcm_suite(Path::new(ZBKTI_SEAT), &collar).expect("the collar composes a run");
     assert!(
-        run.rest.iter().any(|argument| argument == bkcm_mush::BKCM_NO_TESTS_FLAG),
+        run.rest
+            .iter()
+            .any(|argument| argument == bkcm_mush::BKCM_NO_TESTS_FLAG),
         "the run carries the operator's fail-on-empty demand: {}",
-        run.bkcm_spelling()
+        run.bkcm_spelling(), //
     );
 
-    let listing = bkci_listing(Path::new(ZBKTI_SEAT), &collar).expect("the collar composes a listing");
+    let listing =
+        bkci_listing(Path::new(ZBKTI_SEAT), &collar).expect("the collar composes a listing");
     assert!(
-        listing.rest.iter().all(|argument| argument != bkcm_mush::BKCM_NO_TESTS_FLAG),
+        listing
+            .rest
+            .iter()
+            .all(|argument| argument != bkcm_mush::BKCM_NO_TESTS_FLAG),
         "nextest's list subcommand refuses this flag as an unexpected argument, so the listing \
          must not carry it across from the run: {:?}",
-        listing.rest
+        listing.rest, //
     );
 }
 

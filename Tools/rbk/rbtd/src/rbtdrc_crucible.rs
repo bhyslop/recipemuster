@@ -35,7 +35,7 @@ use crate::rbtcee_engine::{
     rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Verdict,
 };
 use crate::rbtcei_invocation::{
-    rbtcei_Context, rbtcei_invoke, rbtcei_invoke_env, rbtcei_invoke_global,
+    rbtcei_Context, rbtcei_invoke, rbtcei_invoke_global,
     rbtcei_parse_ifrit_verdict,
 };
 use crate::rbtgec_consts::{
@@ -237,8 +237,9 @@ fn rbtccc_invoke_ifrit_with_args(
 
 /// Execute a command in the sentry via writ, returning captured stdout.
 ///
-/// Runs under BURD_NO_LOG so the BUK dispatch does not fold the tabtarget's
-/// stderr into stdout (nor emit log-path headers). The captured stdout is then
+/// Runs in no-log mode, through a stub composed for the invoke, so the BUK
+/// dispatch does not fold the tabtarget's stderr into stdout (nor emit log-path
+/// headers). The captured stdout is then
 /// exactly the sentry command's output — rbob_writ's "Writ to sentry" status
 /// line (buc_step, stderr) stays out of it, so a value-read needs no header or
 /// ANSI filtering and is independent of terminal color (NO_COLOR, dumb TERM,
@@ -246,7 +247,8 @@ fn rbtccc_invoke_ifrit_with_args(
 /// so dropping the redundant logs-buk transcript for these probe writs costs
 /// no diagnostics.
 fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String> {
-    let result = rbtcei_invoke_env(ctx, RBTGEC_CRUCIBLE_WRIT, args, &[("BURD_NO_LOG", "1")])?;
+    ctx.rbtcei_nolog_next_invoke();
+    let result = rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_WRIT, args)?;
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
@@ -323,7 +325,7 @@ fn rbtccc_extract_iptables_rules(output: &str) -> String {
 }
 
 /// Read a named environment variable from sentry's process environment via writ.
-/// writ runs under BURD_NO_LOG, so its stdout is the clean command output —
+/// writ runs in no-log mode, so its stdout is the clean command output —
 /// the first non-empty line is the value, with no header/ANSI stripping needed.
 fn rbtccc_read_sentry_env(ctx: &mut rbtcei_Context, var: &str) -> Result<String, String> {
     let output = rbtccc_writ(ctx, &["printenv", var])?;
@@ -966,7 +968,7 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
         };
         let _ = std::fs::write(dir.join("dnsmasq-log.txt"), &log_output);
 
-        // writ runs under BURD_NO_LOG, so log_output is the raw dnsmasq log.
+        // writ runs in no-log mode, so log_output is the raw dnsmasq log.
         let log_content = &log_output;
 
         // Verify connectivity domain query appears in log

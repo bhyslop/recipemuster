@@ -67,8 +67,9 @@ zbkck_kindle() {
   # hurdles that would say so - and the substrate's suite is where the WHISTLE's
   # own behaviours are proven, the whistle being the door that builds the kennel.
   # Launching that suite through the kennel would ask a broken artifact to prove
-  # the door that builds it.
-  readonly ZBKCK_SUBSTRATE_MANIFEST="${ZBKCK_REPO_ROOT}/${BURC_TOOLS_DIR}/buk/Cargo.toml"
+  # the door that builds it. The substrate is bash alone, so its hurdles stand in
+  # this kit beside the kennel's, at the kit's own `but` address.
+  readonly ZBKCK_SUBSTRATE_MANIFEST="${ZBKCK_KIT_DIR}/but0/Cargo.toml"
 
   readonly ZBKCK_PIN_FILE="${ZBKCK_CRATE_DIR}/rust-toolchain.toml"
 
@@ -116,7 +117,15 @@ zbkck_required_toolchains_capture() {
   done
   test -n "${z_declaration}" || return 1
 
-  # Each quoted literal on the declaration line, in order, walked off its front.
+  # The declaration runs on through the line that closes it, since the formatter
+  # holds a list of two or more one item per line.
+  while [[ "${z_declaration}" != *";"* ]]; do
+    z_i=$(( z_i + 1 ))
+    test "${z_i}" -lt "${#z_lines[@]}" || return 1
+    z_declaration="${z_declaration} ${z_lines[${z_i}]}"
+  done
+
+  # Each quoted literal in the declaration, in order, walked off its front.
   local -r z_quoted_pattern='"([^"]*)"(.*)'
   local -r z_newline=$'\n'
   local z_rest="${z_declaration}"
@@ -147,12 +156,17 @@ zbkck_toolchain_fence_or_die() {
   z_required=$(zbkck_required_toolchains_capture) \
     || buc_die_now "Could not read ${ZBKCK_TOOLCHAINS_CONST} from ${ZBKCK_SURFACE} - the kennelman reads the hurdles' own declaration rather than holding a list of its own, and an unread requirement would clear every station without asking one"
 
+  # Asked only of a home that stands, on the fence's own ground: rustup creates
+  # the RUSTUP_HOME it is pointed at, and a home that does not stand holds none
+  # of the required toolchains, which the refusal below then names.
   local z_held=""
   local z_held_status=0
-  z_held=$(rustup toolchain list) \
-    || z_held_status=$?
+  if test -d "${BKCB_RUSTUP_HOME}"; then
+    z_held=$(CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" rustup toolchain list) \
+      || z_held_status=$?
+  fi
   test "${z_held_status}" -eq 0 \
-    || buc_die_now "Could not ask rustup what the tackroom at ${RUSTUP_HOME:-<unset>} holds (exit ${z_held_status})"
+    || buc_die_now "Could not ask rustup what the tackroom at ${BKCB_RUSTUP_HOME:-<unset>} holds (exit ${z_held_status})"
 
   # A channel name carries no whitespace, so the one-per-line requirement splits
   # on one line; each is matched against rustup's listing as a fixed substring.
@@ -171,7 +185,7 @@ zbkck_toolchain_fence_or_die() {
   done
 
   test -z "${z_missing}" \
-    || buc_die_now "The station is missing the toolchain(s) the kennel's hurdles require: ${z_missing} - the converge is RUSTUP_HOME=${RUSTUP_HOME:-<tackroom>/rustup} rustup toolchain install <channel> --profile minimal"
+    || buc_die_now "The station is missing the toolchain(s) the kennel's hurdles require: ${z_missing} - the converge is rebed - tt/bkw-r.Rebed.sh, which lays the pin's channel and every one the hurdles demand"
 
   buc_step "The station holds every toolchain the hurdles require"
 }
@@ -196,10 +210,12 @@ zbkck_hurdles_or_die() {
 
   local z_cargo_status=0
   if test -n "${z_filter}"; then
-    cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked -- "${z_filter}" \
+    CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
+      cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked -- "${z_filter}" \
       || z_cargo_status=$?
   else
-    cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked \
+    CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
+      cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked \
       || z_cargo_status=$?
   fi
   test "${z_cargo_status}" -eq 0 \
@@ -227,7 +243,7 @@ bkck_suite() {
   bkcb_ensure
 
   # AHEAD OF THE CARGO CALL, and after the fence: the reading is of the tackroom
-  # the fence exported rather than of whatever rustup the station user holds, and
+  # the fence proved rather than of whatever rustup the station user holds, and
   # a station that cannot run the hurdles is told so before it spends a compile
   # finding out.
   zbkck_toolchain_fence_or_die

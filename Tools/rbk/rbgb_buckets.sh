@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBGB_SOURCED:-}" || buc_die_now "Module rbgb multiply sourced - check sourcing hierarchy"
 ZRBGB_SOURCED=1
@@ -552,7 +557,7 @@ rbgb_managed_folder_purge() {
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGB_INFIX_MF_DELETE}" '.error.message') || z_err_status=$?
          test "${z_err_status}" -eq 0 || z_err="HTTP ${z_del_code}"
-         buc_reject "${BUBC_band_escheat}" "Failed to purge managed folder ${z_folder} in ${z_bucket_name}: ${z_err}" ;;
+         buc_reject "${RBCG_MANOR_ESCHEAT_DENTIL}" "Failed to purge managed folder ${z_folder} in ${z_bucket_name}: ${z_err}" ;;
   esac
 }
 

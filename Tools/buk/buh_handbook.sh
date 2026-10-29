@@ -31,6 +31,11 @@
 #   buh_link   — OSC-8 hyperlink with prefix/suffix
 #   buh_tt     — resolved tabtarget display
 #
+# A generated track renders through these beside them, printing its
+# performance and running none of it:
+#   buh_control_*   — one per handbook control motif, its label at the line's head
+#   buh_ending      — the line that closes a track
+#
 # Callers compose lines from yelp yawp captures (buym_*_yawp)
 # and pass the pre-rendered string to buh_line:
 #   buym_cmd_yawp "gcloud"; local -r z_cmd="${z_buym_yelp}"
@@ -41,6 +46,15 @@ set -euo pipefail
 # Multiple inclusion guard
 test -z "${ZBUH_SOURCED:-}" || buc_die_now "Module buh multiply sourced - check sourcing hierarchy"
 ZBUH_SOURCED=1
+
+# Handbook control labels — the word a rendered track prints for a handbook
+# control, one per control kind. Each name's tail is the kind's own word, so
+# a renderer finds the label by the kind it renders.
+readonly BUH_label_fatal="STOP"
+readonly BUH_label_warn="CAUTION"
+readonly BUH_label_store="RECORD"
+readonly BUH_label_require="VERIFY"
+readonly BUH_label_show="NOTE"
 
 ######################################################################
 # Internal: Kindle and Sentinel
@@ -119,7 +133,8 @@ buh_step2() {
 # Public: Hyperlinks
 #
 # buh_link "prefix text" "link text" "url" "suffix text"
-# Renders clickable hyperlink with OSC-8 escape sequences
+# Renders through the yelp module's one hyperlink decision: an OSC-8 escape
+# where the palette renders one, the URL beside the text where it does not.
 
 buh_link() {
   zbuh_sentinel
@@ -128,18 +143,9 @@ buh_link() {
   local z_url="${3:-}"
   local z_suffix="${4:-}"
 
-  # Blue + underline style
-  local z_link_style="${ZBUYM_ESC}[34;4m"
-
-  if test -n "${BURD_NO_HYPERLINKS:-}"; then
-    # Fallback: styled text with URL in angle brackets
-    printf '%s%s%s%s%s <%s>%s\n' \
-      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_text}" "${ZBUH_R}" "${z_url}" "${z_suffix}" >&2 || buc_die_now
-  else
-    # OSC-8 hyperlink with styling
-    printf '%s%s%s\033]8;;%s\033\\%s\033]8;;\033\\%s%s\n' \
-      "${z_buh_body_indent}" "${z_prefix}" "${z_link_style}" "${z_url}" "${z_text}" "${ZBUH_R}" "${z_suffix}" >&2 || buc_die_now
-  fi
+  buym_href_yawp "${z_url}" "${z_text}"; local -r z_href="${z_buym_yelp}"
+  buym_format_yawp "${BUYC_RESET}" "${z_prefix}${z_href}${z_suffix}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
 }
 
 ######################################################################
@@ -217,51 +223,6 @@ buh_ternary() {
 }
 
 ######################################################################
-# Public: User prompts
-#
-# Every prompt below is newline-terminated by necessity: the non-interactive
-# dispatch relay forwards this stream a whole line at a time, so a partial line
-# never reaches the terminal — the operator would face a blocked read with no
-# visible prompt. Input is typed on the line beneath. Do not rejoin them.
-
-# buh_prompt_plain "prompt text"
-# Displays prompt and reads user input, returns via stdout
-buh_prompt_plain() {
-  zbuh_sentinel
-  printf '%s\n' "${1:-}" >&2 || buc_die_now
-  local z_input
-  read -r z_input || buc_die_now "Failed to read input"
-  printf '%s' "${z_input}" || buc_die_now
-}
-
-# buh_prompt_secret "prompt text"
-# Like buh_prompt_plain but suppresses terminal echo of typed/pasted input.
-# Emits a trailing newline to stderr so subsequent output starts on a fresh line.
-buh_prompt_secret() {
-  zbuh_sentinel
-  printf '%s\n' "${1:-}" >&2 || buc_die_now
-  local z_input
-  read -rs z_input || buc_die_now "Failed to read input"
-  printf '\n' >&2 || buc_die_now
-  printf '%s' "${z_input}" || buc_die_now
-}
-
-# buh_prompt_required "prompt text" "error message"
-# Like buh_prompt_plain but dies if input is empty
-buh_prompt_required() {
-  zbuh_sentinel
-  printf '%s\n' "${1:-}" >&2 || buc_die_now
-  # read answers 1 at an end of input: a final line lacking its newline still
-  # answers, and one carrying nothing is refused below as an empty answer.
-  local z_input=""
-  local z_read_status=0
-  read -r z_input || z_read_status=$?
-  test "${z_read_status}" -eq 0 || buc_log_args "buh_prompt_required: input ended without a newline (read status ${z_read_status})"
-  test -n "${z_input}" || buc_die_now "${2:-Input required}"
-  printf '%s' "${z_input}" || buc_die_now
-}
-
-######################################################################
 # Public: Critical warnings (box format)
 
 buh_critical() {
@@ -271,6 +232,85 @@ buh_critical() {
   printf '%s\n' "${z_buh_body_indent}${ZBUH_E}  CRITICAL: ${1}${ZBUH_R}" >&2 || buc_die_now
   printf '%s\n' "${z_buh_body_indent}${ZBUH_E}===============================================${ZBUH_R}" >&2 || buc_die_now
   printf '\n' >&2 || buc_die_now
+}
+
+######################################################################
+# Public: Handbook controls
+#
+# buh_control_«motif» text
+#   One renderer per control motif, printing that motif's label at the head
+#   of the text it governs: "STOP: text". Indent-aware, as buh_line is. Each
+#   renders and nothing more — a fatal control tells the performer to stop,
+#   and the track's own drives are what stop it.
+
+zbuh_control() {
+  zbuh_sentinel
+  buym_format_yawp "${1:-}" "${2:-}: ${3:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_buh_body_indent}${z_formatted}" >&2 || buc_die_now
+}
+
+buh_control_fatal() {
+  buc_doc_brief "Render the fatal control: the performer stops here"
+  buc_doc_param "text" "What the performer must not go past"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  zbuh_control "${BUYC_BRIGHT_RED}" "${BUH_label_fatal}" "${1:-}"
+}
+
+buh_control_warn() {
+  buc_doc_brief "Render the warn control: a caution the performer acknowledges"
+  buc_doc_param "text" "The caution"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  zbuh_control "${BUYC_BRIGHT_YELLOW}" "${BUH_label_warn}" "${1:-}"
+}
+
+buh_control_store() {
+  buc_doc_brief "Render the store control: a value the performer records"
+  buc_doc_param "text" "What to record and where"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  zbuh_control "${BUYC_CYAN}" "${BUH_label_store}" "${1:-}"
+}
+
+buh_control_require() {
+  buc_doc_brief "Render the require control: a condition the performer confirms"
+  buc_doc_param "text" "The condition to confirm"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  zbuh_control "${BUYC_BRIGHT_WHITE}" "${BUH_label_require}" "${1:-}"
+}
+
+buh_control_show() {
+  buc_doc_brief "Render the show control: teaching text set off from the procedure"
+  buc_doc_param "text" "One line of the shown text"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  zbuh_control "${BUYC_RESET}" "${BUH_label_show}" "${1:-}"
+}
+
+######################################################################
+# Public: The ending
+#
+# buh_ending text
+#   Closes a track, after its last step: what stands once the performance
+#   is done, at the left margin.
+
+buh_ending() {
+  buc_doc_brief "Close a track with what stands once the performance is done"
+  buc_doc_param "text" "What stands"
+  buc_doc_shown || return 0
+
+  zbuh_sentinel
+  z_buh_body_indent=""
+  buym_pass_yawp " [*] "; local -r z_pass="${z_buym_yelp}"
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "${z_pass}Done: ${1:-}"; local -r z_formatted="${z_buym_format}"
+  printf '%s\n' "${z_formatted}" >&2 || buc_die_now
 }
 
 # eof

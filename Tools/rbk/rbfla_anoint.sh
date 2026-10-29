@@ -23,6 +23,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Anoint (rbfla_*)
 
@@ -58,17 +63,17 @@ rbfla_anoint() {
   local z_hallmark_status=0
   z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
   test "${z_hallmark_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
   local z_gar_root=""
   local z_gar_root_status=0
   z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") || z_gar_root_status=$?
   test "${z_gar_root_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No gar_root fact from the previous dispatch"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No gar_root fact from the previous dispatch"
   local z_ark_stem=""
   local z_ark_stem_status=0
   z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") || z_ark_stem_status=$?
   test "${z_ark_stem_status}" -eq 0 \
-    || buc_reject "${BUBC_band_chain}" "No ark_stem fact from the previous dispatch"
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No ark_stem fact from the previous dispatch"
 
   local -r z_image_ref="${z_gar_root}/${z_ark_stem}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
   buc_info "Hallmark: ${z_hallmark}"

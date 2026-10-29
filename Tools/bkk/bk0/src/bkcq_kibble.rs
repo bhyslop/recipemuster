@@ -42,12 +42,24 @@
 //! is this module — the same seat the rust family's roster takes in
 //! `bkcr_resolve`.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::bkcl_leash;
-use crate::bkco_output::{bkco_call, BKCO_VERB_HEEL};
-use crate::bkcr_resolve::{bkcr_drift, bkcr_weaned_family};
-use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
+use crate::bkco_output::{
+    bkco_call,
+    BKCO_VERB_HEEL, //
+};
+use crate::bkcr_resolve::{
+    bkcr_drift,
+    bkcr_weaned_family, //
+};
+use bkp::bkprc_catena::{
+    bkprc_Regime,
+    bkprc_read, //
+};
 
 /// The kibble family's file. Its parent directory is the instance and that
 /// directory's name is the kibble's name, on the rust family's precedent
@@ -61,7 +73,7 @@ pub const BKCQ_FIELDS_BOTH: &[&str] = &[
     "BKRK_PROGRAM",
     "BKRK_VERSION",
     "BKRK_SEAL",
-    "BKRK_BYNAME",
+    "BKRK_BYNAME", //
 ];
 
 /// The fields a source kibble declares and a prebuilt one does not.
@@ -74,7 +86,7 @@ pub const BKCQ_FIELDS_SOURCE: &[&str] = &[
     "BKRK_REGISTRY",
     "BKRK_CHANNEL",
     "BKRK_TARGET",
-    "BKRK_FEATURES",
+    "BKRK_FEATURES", //
 ];
 
 /// The fields a prebuilt kibble declares and a source one does not.
@@ -87,7 +99,10 @@ pub const BKCQ_FIELDS_SOURCE: &[&str] = &[
 /// THE VERSION IS IN NEITHER OF THEM, on the source kind's own law: the door
 /// joins the declared version between the store and the document, so a bump is
 /// one line and cannot leave a stale URL standing behind it.
-pub const BKCQ_FIELDS_PREBUILT: &[&str] = &["BKRK_LARDER", "BKRK_BORDEREAU"];
+pub const BKCQ_FIELDS_PREBUILT: &[&str] = &[
+    "BKRK_LARDER",
+    "BKRK_BORDEREAU", //
+];
 
 /// The kind values, in the substrate's enum sprue form under this kit's own
 /// plane, as every enum-valued field of this kit wears.
@@ -102,8 +117,13 @@ pub const BKCQ_KIND_SOURCE: &str = "bknre_source";
 pub const BKCQ_KIND_PREBUILT: &str = "bknre_prebuilt";
 
 /// The enum-valued fields and the values each admits.
-const ZBKCQ_ENUMS: &[(&str, &[&str])] =
-    &[("BKRK_KIND", &[BKCQ_KIND_SOURCE, BKCQ_KIND_PREBUILT])];
+const ZBKCQ_ENUMS: &[(&str, &[&str])] = &[(
+    "BKRK_KIND",
+    &[
+        BKCQ_KIND_SOURCE,
+        BKCQ_KIND_PREBUILT, //
+    ],
+)];
 
 /// The kennel's own quarter of the tackroom, under which every kibble residence
 /// stands.
@@ -158,28 +178,35 @@ pub struct bkcq_Feedroom {
 }
 
 impl bkcq_Feedroom {
-    /// The directory this root is, for the converge that writes beneath it.
-    pub(crate) fn bkcq_root(&self) -> &Path {
+    /// The directory this root is, for the converge that writes beneath it and
+    /// for the bleach that empties it.
+    pub fn bkcq_root(&self) -> &Path {
         &self.root
     }
 }
 
-/// The kibble root this invocation stands on, read out of the environment.
+/// The kibble root this invocation stands on: a posed root read out of the
+/// environment, admitted beneath the dispatch's temp directory, or the
+/// station's tackroom the dispatch names.
 ///
 /// THE ONE AMBIENT READER, and every door reads it once at its face: the
 /// converge, the derby's preflight and the launch-side placement test take what
 /// it answered rather than asking again, so one invocation cannot compose two
 /// roots. A posed root is announced, since an invocation standing on one is
-/// standing somewhere other than the station's store.
-pub fn bkcq_feedroom() -> Result<bkcq_Feedroom, String> {
+/// standing somewhere other than the station's store. The posed root is the
+/// kennel's own variable and stays environment; the temp directory and the
+/// tackroom are the dispatch's, and come from its file.
+pub fn bkcq_feedroom(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+) -> Result<bkcq_Feedroom, String> {
     let posed = zbkcq_stated(BKCQ_FEEDROOM_VAR);
-    let temp = zbkcq_stated(crate::bkcc_record::BKCC_TEMP_DIR_VAR);
-    let tackroom = zbkcq_stated(bkcl_leash::BKCL_TACKROOM_VAR);
+    let temp = dispatch.bkcr_said(crate::bkcc_record::BKCC_TEMP_DIR_VAR);
+    let tackroom = dispatch.bkcr_said(bkcl_leash::BKCL_TACKROOM_VAR);
 
     let feedroom = bkcq_feedroom_at(
         posed.as_deref().map(Path::new),
-        temp.as_deref().map(Path::new),
-        tackroom.as_deref().map(Path::new),
+        temp.map(Path::new),
+        tackroom.map(Path::new),
     )?;
 
     if posed.is_some() {
@@ -187,7 +214,7 @@ pub fn bkcq_feedroom() -> Result<bkcq_Feedroom, String> {
             "the kibble root is posed at {} by {}, so no residence this invocation reads or \
              places stands in the station's store",
             feedroom.root.display(),
-            BKCQ_FEEDROOM_VAR
+            BKCQ_FEEDROOM_VAR, //
         );
     }
 
@@ -228,7 +255,7 @@ pub fn bkcq_feedroom_at(
              nothing to admit it beneath. A posed root stands beneath the invocation's own temp \
              directory or nowhere: drive the kennel through its own door",
             BKCQ_FEEDROOM_VAR,
-            root.display()
+            root.display(), //
         ));
     };
 
@@ -248,7 +275,7 @@ pub fn bkcq_feedroom_at(
              second name, which is the race a posed root exists to end",
             BKCQ_FEEDROOM_VAR,
             root.display(),
-            temp.display()
+            temp.display(), //
         ));
     }
 
@@ -290,7 +317,7 @@ fn zbkcq_unstationed() -> String {
          station's shared tackroom and NEVER in a personal tool home: the fence that declares the \
          store is Tools/bkk/bk0/bkcb_tackroom.sh, reached through the whistle, and a kennel \
          reaching an absent store was not launched through it",
-        bkcl_leash::BKCL_TACKROOM_VAR
+        bkcl_leash::BKCL_TACKROOM_VAR, //
     )
 }
 
@@ -364,18 +391,19 @@ impl bkcq_Kibble {
     /// sentence that drifts: the doors would come to name different remedies for
     /// one condition, and the remedy is the only part of a refusal a reader
     /// acts on.
-    pub fn bkcq_absent(&self, feedroom: &bkcq_Feedroom) -> String {
+    pub fn bkcq_absent(&self, feedroom: &bkcq_Feedroom, tabtargets: Option<&Path>) -> String {
         let residence = self.bkcq_residence(feedroom);
 
         format!(
             "the kibble '{}' declares {} {} and nothing stands at {} — the kennel spawns a program \
              it did not build only from its own residence, never from whatever the station's path \
-             happens to hold. The converge is the one door that writes the tackroom: {}",
+             happens to hold. The converge is the one door that writes a kibble into the \
+             tackroom: {}",
             self.name,
             self.bkcq_field("BKRK_PROGRAM"),
             self.bkcq_field("BKRK_VERSION"),
             residence.display(),
-            bkco_call(BKCO_VERB_HEEL, Some(&self.name))
+            bkco_call(tabtargets, BKCO_VERB_HEEL, Some(&self.name)), //
         )
     }
 
@@ -401,7 +429,7 @@ impl bkcq_Kibble {
             self.bkcq_field("BKRK_REGISTRY").trim_end_matches('/'),
             program,
             program,
-            self.bkcq_field("BKRK_VERSION")
+            self.bkcq_field("BKRK_VERSION"), //
         )
     }
 
@@ -428,7 +456,7 @@ impl bkcq_Kibble {
             "{}/{}/{}",
             self.bkcq_field("BKRK_LARDER").trim_end_matches('/'),
             self.bkcq_field("BKRK_VERSION"),
-            name
+            name, //
         )
     }
 
@@ -438,7 +466,7 @@ impl bkcq_Kibble {
         format!(
             "{}-{}",
             self.bkcq_field("BKRK_PROGRAM"),
-            self.bkcq_field("BKRK_VERSION")
+            self.bkcq_field("BKRK_VERSION"), //
         )
     }
 }
@@ -475,7 +503,7 @@ pub fn bkcq_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcq
             name,
             weaned.display(),
             instances.len(),
-            zbkcq_listed(&instances)
+            zbkcq_listed(&instances), //
         ));
     };
 
@@ -533,7 +561,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
             findings.push(format!(
                 "{} is not declared — every kibble of this kind declares it, and a door reading a \
                  meaning out of an absence cannot tell a declaration from an omission",
-                field
+                field, //
             ));
         }
     }
@@ -544,7 +572,10 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
                 "{} is declared and belongs to the {} kind — this kibble declares {} = {}, and \
                  the two kinds are fetched by roads that share no fact: a source kibble has a \
                  build to declare things about and no release store, a prebuilt one the reverse",
-                field, elsewhere, "BKRK_KIND", kind
+                field,
+                elsewhere,
+                "BKRK_KIND",
+                kind, //
             ));
         }
     }
@@ -558,7 +589,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
                 "{} carries '{}', which is no admitted value — it takes one of: {}",
                 field,
                 held,
-                admitted.join(", ")
+                admitted.join(", "), //
             ));
         }
     }
@@ -568,7 +599,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
             findings.push(format!(
                 "{} stands vacant — the residence is composed from these three, so a vacant one \
                  makes the pin a path that answers for nothing",
-                field
+                field, //
             ));
         }
     }
@@ -584,7 +615,8 @@ fn zbkcq_identity(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
             "BKRK_KIBBLE declares '{}' and the instance directory is named '{}' — a kibble's name \
              is its identity, and a declaration disagreeing with the directory it stands in leaves \
              a reader no way to say which one a collar meant",
-            declared, kibble.name
+            declared,
+            kibble.name, //
         ));
     }
 }
@@ -609,12 +641,15 @@ fn zbkcq_seal(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
             "BKRK_SEAL carries {} character(s) and a sha256 is {} — the seal is the archive's \
              sha256 and no other digest is kept",
             seal.len(),
-            ZBKCQ_SEAL_WIDTH
+            ZBKCQ_SEAL_WIDTH, //
         ));
         return;
     }
 
-    if !seal.chars().all(|held| held.is_ascii_hexdigit() && !held.is_ascii_uppercase()) {
+    if !seal
+        .chars()
+        .all(|held| held.is_ascii_hexdigit() && !held.is_ascii_uppercase())
+    {
         findings.push(
             "BKRK_SEAL carries a character no lowercase hex digest carries — openssl answers in \
              lowercase hex, and a seal compared against that answer must be spelled the way the \

@@ -4,7 +4,7 @@
 # dynamic sourcing via BURD_* paths, cross-module kindle/literal constants,
 # and indirect function invocation via source/dispatch.
 #
-# Policy: No inline shellcheck directives anywhere in the codebase.
+# Policy: No inline shellcheck directives in the files BCG governs (BCG "Scope").
 # All structural suppressions live here. Genuine findings must be fixed.
 
 # ─── Optional checks enabled (BCG rules shellcheck can hold) ───
@@ -18,14 +18,6 @@
 #   checklists names its operator, so the question the line asks stands on the
 #   page; this check holds the code to the form the guide writes.
 enable=avoid-nullary-conditions
-
-# check-extra-masked-returns (SC2312): a command whose status nothing reads,
-#   inside a substitution not in BCG's one form or inside a process
-#   substitution. BCG states a substitution as the whole right-hand side of a
-#   plain assignment, one command, guarded, and bars process substitution, so
-#   every status this check reports as masked is one the guide says must reach
-#   a guard.
-enable=check-extra-masked-returns
 
 # SC1090: Can't follow non-constant source.
 #   BCG furnish pattern sources via "${BURD_BUK_DIR}/module.sh" —

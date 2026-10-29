@@ -31,6 +31,11 @@
 set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
@@ -162,8 +167,8 @@ rbgv_check_mantle() {
   local zSECRET_mantle_token
   local z_don_status=0
   zSECRET_mantle_token=$(rbau_don_capture "${z_mantle}") || z_don_status=$?
-  if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
-    buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
+  if test "${z_don_status}" -eq "${RBCG_ADMISSION_DENTIL}"; then
+    buc_reject "${RBCG_ADMISSION_DENTIL}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
     buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed ${RBCC_noun_sederunt} or transport/HTTP failure)"
   fi
@@ -204,9 +209,6 @@ zrbgv_furnish() {
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
   source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
   source "${z_rbk}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
@@ -224,8 +226,6 @@ zrbgv_furnish() {
   source "${z_rbk}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
   source "${z_rbk}/rbgv_probe.sh" || buc_die_now "Failed to source rbgv_probe.sh"
 
-  zbuv_kindle
-  zburd_kindle
 
   source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
   source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"

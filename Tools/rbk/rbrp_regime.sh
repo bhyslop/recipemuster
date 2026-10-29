@@ -75,16 +75,16 @@ zrbrp_enforce() {
   # Custom format checks beyond buv_ type system
   zrbgc_sentinel
   [[ "${RBRP_PAYOR_PROJECT_ID}" =~ ${RBGC_GLOBAL_PAYOR_REGEX} ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRP_PAYOR_PROJECT_ID does not match payor project pattern"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRP_PAYOR_PROJECT_ID does not match payor project pattern"
 
   if test -n "${RBRP_BILLING_ACCOUNT_ID}"; then
     [[ "${RBRP_BILLING_ACCOUNT_ID}" =~ ^[A-Z0-9]{6}-[A-Z0-9]{6}-[A-Z0-9]{6}$ ]] \
-      || buc_reject "${BUBC_band_regime}" "RBRP_BILLING_ACCOUNT_ID must be XXXXXX-XXXXXX-XXXXXX format"
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRP_BILLING_ACCOUNT_ID must be XXXXXX-XXXXXX-XXXXXX format"
   fi
 
   if test -n "${RBRP_OAUTH_CLIENT_ID}"; then
     [[ "${RBRP_OAUTH_CLIENT_ID}" =~ \.apps\.googleusercontent\.com$ ]] \
-      || buc_reject "${BUBC_band_regime}" "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRP_OAUTH_CLIENT_ID must end with .apps.googleusercontent.com"
   fi
 }
 

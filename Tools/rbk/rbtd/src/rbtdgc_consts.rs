@@ -126,7 +126,7 @@ pub const RBTGEC_QUALIFY_SHELLCHECK: &str = "rbw-tl";
 pub const BUWGC_TT_LIST_LAUNCHERS: &str = "buw-tt-ll";
 pub const BUWGC_TT_BATCH_LOGGING: &str = "buw-tt-cbl";
 pub const BUWGC_TT_BATCH_NOLOG: &str = "buw-tt-cbn";
-pub const BUWGC_TT_BATCH_AMANUENSIS: &str = "buw-tt-cba";
+pub const BUWGC_TT_BATCH_AMANUENSIS: &str = "buw-tt-cbo";
 pub const BUWGC_TT_INTERACTIVE_LOGGING: &str = "buw-tt-cil";
 pub const BUWGC_TT_INTERACTIVE_NOLOG: &str = "buw-tt-cin";
 pub const BUWGC_TT_LAUNCHER: &str = "buw-tt-cl";
@@ -181,27 +181,6 @@ pub const RBTGEC_CONTAINER_SENTRY: &str = "sentry";
 pub const RBTGEC_TWEAK_CREDLESS_GUARD: &str = "buorb_credless_guard";
 pub const RBTGEC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
 pub const RBTGEC_TWEAK_REDON_CADENCE: &str = "buorb_redon_cadence";
-
-// BUBC precision exit-code band (bubc_constants.sh) — numeric
-pub const RBTGEC_BAND_BASE: i32 = 100;
-pub const RBTGEC_BAND_WIDTH: i32 = 24;
-pub const RBTGEC_BAND_REGIME: i32 = 100;
-pub const RBTGEC_BAND_ENROLL: i32 = 101;
-pub const RBTGEC_BAND_RECIPE: i32 = 102;
-pub const RBTGEC_BAND_HYGIENE: i32 = 103;
-pub const RBTGEC_BAND_CREDLESS: i32 = 104;
-pub const RBTGEC_BAND_CHAIN: i32 = 105;
-pub const RBTGEC_BAND_DESCRY: i32 = 106;
-pub const RBTGEC_BAND_INSTATE: i32 = 107;
-pub const RBTGEC_BAND_CLEAN_TREE: i32 = 108;
-pub const RBTGEC_BAND_ADMISSION: i32 = 109;
-pub const RBTGEC_BAND_VACANT: i32 = 110;
-pub const RBTGEC_BAND_ENGROSS: i32 = 111;
-pub const RBTGEC_BAND_EXPUNGE: i32 = 112;
-pub const RBTGEC_BAND_PERUSE: i32 = 113;
-pub const RBTGEC_BAND_RUNWAY: i32 = 115;
-pub const RBTGEC_BAND_UNSEISED: i32 = 116;
-pub const RBTGEC_BAND_SELFTEST: i32 = 123;
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
 pub const RBTGEC_TWEAK_REGIME_POISON: &str = "buost_regime_poison";

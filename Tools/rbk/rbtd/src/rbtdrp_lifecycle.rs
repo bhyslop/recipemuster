@@ -49,7 +49,6 @@ use crate::rbtcei_invocation::{
     RBTCEI_BURE_CONFIRM_SKIP,
 };
 use crate::rbtgec_consts::{
-    RBTGEC_BAND_CLEAN_TREE,
     RBTGEC_COLLATE_DEPOT,
     RBTGEC_INCUSE_DEPOT,
     RBTGEC_LEVY_DEPOT,
@@ -57,6 +56,7 @@ use crate::rbtgec_consts::{
     RBTGEC_RBRD_FILE,
     RBTGEC_UNMAKE_DEPOT,
 };
+use crate::rbtgeb_breviary::RBTGEB_BUSX_CLEAN_DENTIL;
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_DEPOT_LIFECYCLE;
 use crate::rbtcga_attest::rbtcga_marshal_zero_attestation;
 use crate::rbtcgf_freehold::{
@@ -211,11 +211,11 @@ fn zrbtcgl_depot_stand_up_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(format!("depot levy: {}", e)),
     };
-    if levy.exit_code != RBTGEC_BAND_CLEAN_TREE {
+    if levy.exit_code != RBTGEB_BUSX_CLEAN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "depot levy exit {} — expected the clean-tree band {} from the \
              tripwire inscription refusal at the levy tail\n{}",
-            levy.exit_code, RBTGEC_BAND_CLEAN_TREE, levy.stderr
+            levy.exit_code, RBTGEB_BUSX_CLEAN_DENTIL, levy.stderr
         ));
     }
 

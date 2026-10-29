@@ -37,26 +37,62 @@ use crate::rbtcei_invocation::{
     RBTCEI_BURE_TWEAK_NAME_KEY, RBTCEI_BURE_TWEAK_VALUE_KEY,
 };
 use crate::rbtgec_consts::{
-    RBTGEC_ABJURE_HALLMARK, RBTGEC_ACCOUNT_PAYOR,
-    RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_AFFIANCE_MANOR, RBTGEC_AUDIT_HALLMARKS,
-    RBTGEC_AUGUR_LODE, RBTGEC_BAND_ADMISSION, RBTGEC_BAND_ENGROSS, RBTGEC_BAND_EXPUNGE,
-    RBTGEC_BAND_PERUSE, RBTGEC_BAND_RUNWAY, RBTGEC_BAND_UNSEISED, RBTGEC_BAND_VACANT, RBTGEC_BANISH_LODE,
+    RBTGEC_ABJURE_HALLMARK,
+    RBTGEC_ACCOUNT_PAYOR,
+    RBTGEC_ACCOUNT_RETRIEVER,
+    RBTGEC_AFFIANCE_MANOR,
+    RBTGEC_AUDIT_HALLMARKS,
+    RBTGEC_AUGUR_LODE,
+    RBTGEC_BANISH_LODE,
     RBTGEC_BREVET_POLITY,
     RBTGEC_CANVASS_FOEDUS,
-    RBTGEC_CHECK_AVOWAL, RBTGEC_CHECK_MANTLE,
-    RBTGEC_CHECK_PAYOR, RBTGEC_CONCLAVE_RELIQUARY, RBTGEC_DESCRY_FOEDUS,
-    RBTGEC_DIVINE_LODES, RBTGEC_ENSCONCE_BOLE, RBTGEC_ESPY_SEDERUNT, RBTGEC_FACT_EXT_FOEDUS, RBTGEC_FACT_EXT_FOEDUS_HEALTH, RBTGEC_FACT_EXT_SEDERUNT, RBTGEC_FEOFF_BOLE,
-    RBTGEC_FREEHOLD_SUBJECT, RBTGEC_IMMURE_PODVM, RBTGEC_INSTATE_FOEDUS,
-    RBTGEC_JETTISON_HALLMARK_IMAGE, RBTGEC_JETTISON_IMAGE, RBTGEC_JILT_MANOR, RBTGEC_LIST_IMAGES,
-    RBTGEC_MANTLE_DIRECTOR, RBTGEC_MANTLE_GOVERNOR, RBTGEC_MANTLE_RETRIEVER,
+    RBTGEC_CHECK_AVOWAL,
+    RBTGEC_CHECK_MANTLE,
+    RBTGEC_CHECK_PAYOR,
+    RBTGEC_CONCLAVE_RELIQUARY,
+    RBTGEC_DESCRY_FOEDUS,
+    RBTGEC_DIVINE_LODES,
+    RBTGEC_ENSCONCE_BOLE,
+    RBTGEC_ESPY_SEDERUNT,
+    RBTGEC_FACT_EXT_FOEDUS,
+    RBTGEC_FACT_EXT_FOEDUS_HEALTH,
+    RBTGEC_FACT_EXT_SEDERUNT,
+    RBTGEC_FEOFF_BOLE,
+    RBTGEC_FREEHOLD_SUBJECT,
+    RBTGEC_IMMURE_PODVM,
+    RBTGEC_INSTATE_FOEDUS,
+    RBTGEC_JETTISON_HALLMARK_IMAGE,
+    RBTGEC_JETTISON_IMAGE,
+    RBTGEC_JILT_MANOR,
+    RBTGEC_LIST_IMAGES,
+    RBTGEC_MANTLE_DIRECTOR,
+    RBTGEC_MANTLE_GOVERNOR,
+    RBTGEC_MANTLE_RETRIEVER,
     RBTGEC_NOUN_SEDERUNT,
     RBTGEC_NOVATE_SEDERUNT,
-    RBTGEC_PLUMB_FULL, RBTGEC_RBRD_FILE, RBTGEC_RBRR_FILE, RBTGEC_RBRV_FILE, RBTGEC_REHEARSE_POLITY, RBTGEC_REKON_HALLMARK,
+    RBTGEC_PLUMB_FULL,
+    RBTGEC_RBRD_FILE,
+    RBTGEC_RBRR_FILE,
+    RBTGEC_RBRV_FILE,
+    RBTGEC_REHEARSE_POLITY,
+    RBTGEC_REKON_HALLMARK,
     RBTGEC_SUMMON_HALLMARK,
     RBTGEC_TALLY_HALLMARKS,
     RBTGEC_TWEAK_HTTP_FAULT,
-    RBTGEC_TWEAK_REGIME_POISON, RBTGEC_TWEAK_REDON_CADENCE, RBTGEC_UNDERPIN_WSL,
-    RBTGEC_UNSEAT_POLITY, RBTGEC_VOUCH_HALLMARKS,
+    RBTGEC_TWEAK_REGIME_POISON,
+    RBTGEC_TWEAK_REDON_CADENCE,
+    RBTGEC_UNDERPIN_WSL,
+    RBTGEC_UNSEAT_POLITY,
+    RBTGEC_VOUCH_HALLMARKS,
+};
+use crate::rbtgeb_breviary::{
+    RBTGEB_ADMISSION_DENTIL,
+    RBTGEB_ENGROSS_DENTIL,
+    RBTGEB_EXPUNGE_DENTIL,
+    RBTGEB_PERUSE_DENTIL,
+    RBTGEB_RUNWAY_DENTIL,
+    RBTGEB_UNSEISED_DENTIL,
+    RBTGEB_VACANT_DENTIL,
 };
 use crate::rbtcem_manifest::rbtcem_credential_check_colophon;
 
@@ -398,7 +434,7 @@ const RBTCGP_REDON_ANNOUNCE: &str = "Re-donned the director mantle mid-flight";
 const RBTCGP_DEB_VESSEL_DIR: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_sentry_deb_tether");
 
 /// Assert a read verb (summon/plumb/augur) exited the vacant band — the named
-/// hallmark or Lode is absent from the registry (buc_reject BUBC_band_vacant),
+/// hallmark or Lode is absent from the registry (buc_reject RBCG_VACANT_DENTIL),
 /// the read-side absent-artifact signature rather than a bare death. Shared
 /// bookend for the two lifecycle fixtures' post-abjure and post-banish absent
 /// moments. No propagation poll (unlike polity-denial's IAM revocation): abjure
@@ -412,12 +448,12 @@ fn zrbtcgp_expect_vacant(
     stamp: &str,
 ) -> Option<rbtcee_Verdict> {
     let _ = std::fs::write(dir.join(stamp), &result.stderr);
-    if result.exit_code == RBTGEC_BAND_VACANT {
+    if result.exit_code == RBTGEB_VACANT_DENTIL {
         None
     } else {
         Some(rbtcee_Verdict::Fail(format!(
             "{}: expected vacant band {} (named artifact absent from registry), got exit {}\nstderr:\n{}",
-            label, RBTGEC_BAND_VACANT, result.exit_code, result.stderr
+            label, RBTGEB_VACANT_DENTIL, result.exit_code, result.stderr
         )))
     }
 }
@@ -1728,7 +1764,7 @@ pub static RBTCGP_CASES_FOEDUS_REUSE: &[rbtcee_Case] = &[rbtcee_case!(rbtcgp_foe
 // governor-wielded verb's don is refused, and the three terrier bands when a
 // muniment sub-op meets an unexpected HTTP code. One credentialed setup, two arcs.
 //
-// Admission arc — proves BUBC_band_admission / RBTGEC_BAND_ADMISSION is the actual
+// Admission arc — proves RBCG_ADMISSION_DENTIL / RBTGEB_ADMISSION_DENTIL is the actual
 // exit code a governor-wielded polity verb's don (rbw-am) returns when the wielding
 // citizen is NOT brevetted onto the target mantle, AND that admission is per-mantle
 // (the leave-one-out isolation matrix). Don retriever (positive baseline) -> unseat
@@ -1779,8 +1815,8 @@ fn zrbtcgp_mantle_don_status(
 }
 
 /// Poll the retriever don until its exit status equals `want`, bounded by the
-/// same propagation-deadline magnitude the bash IAM-grant loops use
-/// (RBGC_PROPAGATION_DEADLINE_SEC=420s, rbgc_constants.sh) — IAM admission
+/// propagation deadline the bash IAM-grant loops use (RBGC_PROPAGATION_DEADLINE_SEC
+/// in rbgc_constants.sh, generated here as RBTGEC_PROPAGATION_DEADLINE_SEC) — IAM admission
 /// changes are eventually consistent, never instant, whether revoking or
 /// re-granting. Returns Ok on reaching `want`, or a Fail naming the last-seen
 /// status once the deadline passes.
@@ -1790,7 +1826,7 @@ fn zrbtcgp_mantle_denial_poll_until(
     label_prefix: &str,
     want: i32,
 ) -> Result<(), rbtcee_Verdict> {
-    const ZRBTCGP_DEADLINE_SECS: u64 = 420;
+    const ZRBTCGP_DEADLINE_SECS: u64 = crate::rbtgec_consts::RBTGEC_PROPAGATION_DEADLINE_SEC as u64;
     const ZRBTCGP_POLL_INTERVAL_SECS: u64 = 10;
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(ZRBTCGP_DEADLINE_SECS);
     let mut attempt = 0u32;
@@ -1957,7 +1993,7 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // Step 3: poll the don until it exits the EXACT admission band — never
         // weaken to bare-nonzero; the whole point of this fixture is proving
         // the specific code, not merely "it failed".
-        if let Err(v) = zrbtcgp_mantle_denial_poll_until(ctx, dir, "03-poll-denied", RBTGEC_BAND_ADMISSION) {
+        if let Err(v) = zrbtcgp_mantle_denial_poll_until(ctx, dir, "03-poll-denied", RBTGEB_ADMISSION_DENTIL) {
             // Best-effort restore before surfacing the failure, so a mid-run
             // failure doesn't leave the freehold subject unseated for the next
             // picket run.
@@ -2036,7 +2072,7 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         if let Err(v) = zrbtcgp_terrier_poison_drive(
             ctx, dir, RBTGEC_BREVET_POLITY,
             &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
-            RBTCGP_TERRIER_FAULT_ENGROSS, RBTGEC_BAND_ENGROSS, "07-brevet-engross-poison",
+            RBTCGP_TERRIER_FAULT_ENGROSS, RBTGEB_ENGROSS_DENTIL, "07-brevet-engross-poison",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "07-sweep-on-fail");
             return v;
@@ -2061,7 +2097,7 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         if let Err(v) = zrbtcgp_terrier_poison_drive(
             ctx, dir, RBTGEC_UNSEAT_POLITY,
             &[RBTCGP_TERRIER_POISON_SUBJECT, RBTGEC_ACCOUNT_RETRIEVER],
-            RBTCGP_TERRIER_FAULT_EXPUNGE, RBTGEC_BAND_EXPUNGE, "08-unseat-expunge-poison",
+            RBTCGP_TERRIER_FAULT_EXPUNGE, RBTGEB_EXPUNGE_DENTIL, "08-unseat-expunge-poison",
         ) {
             zrbtcgp_terrier_poison_sweep(ctx, dir, "08-sweep-on-fail");
             return v;
@@ -2085,7 +2121,7 @@ fn rbtcgp_polity_denial(dir: &Path) -> rbtcee_Verdict {
         // reject in this single band. Read-only, so no state to sweep.
         if let Err(v) = zrbtcgp_terrier_poison_drive(
             ctx, dir, RBTGEC_REHEARSE_POLITY, &[],
-            RBTCGP_TERRIER_FAULT_PERUSE, RBTGEC_BAND_PERUSE, "09-rehearse-peruse-poison",
+            RBTCGP_TERRIER_FAULT_PERUSE, RBTGEB_PERUSE_DENTIL, "09-rehearse-peruse-poison",
         ) {
             return v;
         }
@@ -2349,10 +2385,10 @@ fn zrbtcgp_assert_unseised(
     };
     let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
     let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
-    if result.exit_code != RBTGEC_BAND_UNSEISED {
+    if result.exit_code != RBTGEB_UNSEISED_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "{}: {} under empty RBRR_SUBSTRATE_RELIQUARY exited {} — expected band_unseised {}\nstdout:\n{}\n\nstderr:\n{}",
-            label, colophon, result.exit_code, RBTGEC_BAND_UNSEISED, result.stdout, result.stderr
+            label, colophon, result.exit_code, RBTGEB_UNSEISED_DENTIL, result.stdout, result.stderr
         ));
     }
     rbtcee_Verdict::Pass
@@ -2865,10 +2901,10 @@ fn zrbtcgp_runway_gate_arc(ctx: &mut rbtcei_Context, dir: &Path) -> Result<(), r
     };
     let _ = std::fs::write(dir.join("02-runway-demand-stdout.txt"), &short.stdout);
     let _ = std::fs::write(dir.join("02-runway-demand-stderr.txt"), &short.stderr);
-    if short.exit_code != RBTGEC_BAND_RUNWAY {
+    if short.exit_code != RBTGEB_RUNWAY_DENTIL {
         return Err(rbtcee_Verdict::Fail(format!(
             "avow under impossible runway demand {}s exited {} — expected runway band {}\nstdout:\n{}\nstderr:\n{}",
-            RBTCGP_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTGEC_BAND_RUNWAY, short.stdout, short.stderr
+            RBTCGP_RUNWAY_IMPOSSIBLE_SEC, short.exit_code, RBTGEB_RUNWAY_DENTIL, short.stdout, short.stderr
         )));
     }
     if !short.stdout.contains(RBTGEC_NOVATE_SEDERUNT) && !short.stderr.contains(RBTGEC_NOVATE_SEDERUNT) {

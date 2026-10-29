@@ -40,15 +40,14 @@ use std::ffi::OsStr;
 use std::path::Path;
 use std::process::Output;
 
-/// The exit the kennel takes when a pattern set matches nothing.
+/// The barred verdict a pattern set matching nothing ends on, which the kennel's
+/// generated constants declare as `BKG_BUSX_BARRED_PSEPHOS`, spelled here as a
+/// literal on purpose (BUr_vsm).
 ///
-/// SPELLED HERE BECAUSE THE BAND MAKES IT AN ASSERTION AND NOT AN INTERNAL. A
-/// door's refusal codes are declared private to the binary, and the drive hurdle
-/// beside this one deliberately asserts only non-zero for that reason — but this
-/// code is the one the pipeline's contract NAMES: a caller distinguishes "your
-/// patterns matched nothing" from every other refusal by reading it, so a hurdle
-/// that accepted any non-zero would not be proving the contract at all.
-const ZBKTI_EXIT_EMPTY_MATCH: i32 = 75;
+/// THE VERDICT IS ASSERTED AND THE SENTENCE BESIDE IT. What parts "your patterns
+/// matched nothing" from every other bar is the refusal's printed line, which
+/// this hurdle reads; the exit says only that the door ruled against the call.
+const ZBKTI_VERDICT_BARRED: i32 = 3;
 
 /// The kennel this drive judges: the binary cargo just built.
 fn zbkti_kennel() -> &'static Path {
@@ -124,7 +123,7 @@ fn zbkti_said(out: &Output) -> String {
     format!(
         "{}{}",
         String::from_utf8_lossy(&out.stdout),
-        String::from_utf8_lossy(&out.stderr)
+        String::from_utf8_lossy(&out.stderr), //
     )
 }
 
@@ -162,7 +161,11 @@ fn zbkti_drive_at(lure: &bktu_Lure, args: &[&str], dial: &str) -> Output {
 /// asserting the shape the voice actually renders and not a second copy of it
 /// free to drift.
 fn zbkti_green(ran: usize) -> String {
-    format!("green: {} ran, {} passed, 0 failed", ran, ran)
+    format!(
+        "green: {} ran, {} passed, 0 failed",
+        ran,
+        ran, //
+    )
 }
 
 #[test]
@@ -172,10 +175,22 @@ fn bkti_a_pattern_runs_exactly_the_hurdles_it_matched() {
     // THE LISTING, TAKEN IN THIS HURDLE, over this lure and this compile. The
     // run below is asserted against THIS, never against a remembered suite.
     let listed = zbkti_drive(&lure, &["lineup", "suite-lure"]);
-    assert!(listed.status.success(), "the listing lands: {}", zbkti_said(&listed));
+    assert!(
+        listed.status.success(),
+        "the listing lands: {}",
+        zbkti_said(&listed), //
+    );
     let listing = String::from_utf8_lossy(&listed.stdout);
-    let held: Vec<&str> = listing.lines().filter(|line| !line.trim().is_empty()).collect();
-    assert_eq!(held.len(), 4, "the lure's suite holds four hurdles: {:?}", held);
+    let held: Vec<&str> = listing
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .collect();
+    assert_eq!(
+        held.len(),
+        4,
+        "the lure's suite holds four hurdles: {:?}",
+        held, //
+    );
     assert!(held.iter().any(|hurdle| hurdle.ends_with("alpha::one")));
     assert!(held.iter().any(|hurdle| hurdle.ends_with("beta::three")));
 
@@ -184,27 +199,46 @@ fn bkti_a_pattern_runs_exactly_the_hurdles_it_matched() {
     let ran = zbkti_drive_at(&lure, &["mush", "suite-lure", "^alpha::"], "1");
     let said = zbkti_said(&ran);
 
-    assert!(ran.status.success(), "the narrowed run lands: {}", said);
+    assert!(
+        ran.status.success(),
+        "the narrowed run lands: {}",
+        said, //
+    );
 
     // THE VERDICT NAMES THE NARROWING, and the count on its right is the one the
     // listing above reported rather than a number this hurdle knows some other
     // way.
     assert!(
-        said.contains(&format!("ran 2 of {}", held.len())),
+        said.contains(&format!(
+            "ran 2 of {}",
+            held.len(), //
+        )),
         "the verdict names the narrowing: {}",
-        said
+        said, //
     );
 
     // AND THE RUN IS THE NARROWING, observed in the door's own verdict and its
     // per-case reporting: the two matched hurdles ran and the two that did not
     // match were never handed to the runner at all.
-    assert!(said.contains(&zbkti_green(2)), "exactly two ran: {}", said);
-    assert!(said.contains("alpha::one"), "the matched hurdles ran: {}", said);
-    assert!(said.contains("alpha::two"), "the matched hurdles ran: {}", said);
+    assert!(
+        said.contains(&zbkti_green(2)),
+        "exactly two ran: {}",
+        said, //
+    );
+    assert!(
+        said.contains("alpha::one"),
+        "the matched hurdles ran: {}",
+        said, //
+    );
+    assert!(
+        said.contains("alpha::two"),
+        "the matched hurdles ran: {}",
+        said, //
+    );
     assert!(
         !said.contains("beta::three"),
         "an unmatched hurdle did not run: {}",
-        said
+        said, //
     );
 }
 
@@ -217,9 +251,9 @@ fn bkti_a_pattern_set_matching_nothing_refuses_and_spawns_no_runner() {
 
     assert_eq!(
         out.status.code(),
-        Some(ZBKTI_EXIT_EMPTY_MATCH),
-        "the refusal takes its named code from the band: {}",
-        said
+        Some(ZBKTI_VERDICT_BARRED),
+        "a pattern set matching nothing bars: {}",
+        said, //
     );
 
     // NO RUNNER WAS SPAWNED, proven from the transcript rather than asserted: a
@@ -227,13 +261,25 @@ fn bkti_a_pattern_set_matching_nothing_refuses_and_spawns_no_runner() {
     // the claim that matters — cargo's harness reports a filter matching nothing
     // as a PASS, so a kennel that handed the selection through would have
     // produced a green for a suite it never ran.
-    assert!(!said.contains("green:"), "no runner reported: {}", said);
-    assert!(!said.contains("RED"), "no runner reported: {}", said);
-    assert!(!said.contains(" ran, "), "no runner reported: {}", said);
     assert!(
-        said.contains("NOTHING WAS SPAWNED"),
-        "the refusal says what it did not do: {}",
-        said
+        !said.contains("green:"),
+        "no runner reported: {}",
+        said, //
+    );
+    assert!(
+        !said.contains("RED"),
+        "no runner reported: {}",
+        said, //
+    );
+    assert!(
+        !said.contains(" ran, "),
+        "no runner reported: {}",
+        said, //
+    );
+    assert!(
+        said.contains("NOTHING WAS SPAWNED") && said.contains("matched none of the"),
+        "the refusal says the patterns matched nothing and what it did not do: {}",
+        said, //
     );
 }
 
@@ -247,8 +293,16 @@ fn bkti_the_bare_drive_is_the_whole_suite_and_asks_for_no_listing() {
     let out = zbkti_drive_at(&lure, &["mush", "suite-lure"], "2");
     let said = zbkti_said(&out);
 
-    assert!(out.status.success(), "the bare drive lands: {}", said);
-    assert!(said.contains(&zbkti_green(4)), "the whole suite ran: {}", said);
+    assert!(
+        out.status.success(),
+        "the bare drive lands: {}",
+        said, //
+    );
+    assert!(
+        said.contains(&zbkti_green(4)),
+        "the whole suite ran: {}",
+        said, //
+    );
 
     // THE PIPELINE IS WHAT A NARROWING COSTS, and a bare drive does not pay it.
     // The verdict line a bare drive prints is the one it printed before this
@@ -256,17 +310,17 @@ fn bkti_the_bare_drive_is_the_whole_suite_and_asks_for_no_listing() {
     assert!(
         !said.contains("narrows:"),
         "a bare drive announces no narrowing: {}",
-        said
+        said, //
     );
     assert!(
         !said.contains("--exact"),
         "a bare drive spells no selection: {}",
-        said
+        said, //
     );
     assert!(
         said.contains("runs its suite: test --no-fail-fast --profile test"),
         "the bare drive's verdict line stands unchanged: {}",
-        said
+        said, //
     );
 }
 
@@ -277,16 +331,40 @@ fn bkti_lineup_lists_and_runs_nothing() {
     let out = zbkti_drive(&lure, &["lineup", "suite-lure"]);
     let said = zbkti_said(&out);
 
-    assert!(out.status.success(), "the listing door lands: {}", said);
-    assert!(said.contains("alpha::one"), "it names the hurdles: {}", said);
-    assert!(said.contains("holds 4 hurdle(s)"), "it counts them: {}", said);
+    assert!(
+        out.status.success(),
+        "the listing door lands: {}",
+        said, //
+    );
+    assert!(
+        said.contains("alpha::one"),
+        "it names the hurdles: {}",
+        said, //
+    );
+    assert!(
+        said.contains("holds 4 hurdle(s)"),
+        "it counts them: {}",
+        said, //
+    );
 
     // THE NO-RUN, PROVEN BY THE TRANSCRIPT. A door that listed and then ran
     // would say so on the runner's own stream, in the two sentences a harness
     // always prints; neither is here.
-    assert!(!said.contains("green:"), "nothing ran: {}", said);
-    assert!(!said.contains("RED"), "nothing ran: {}", said);
-    assert!(!said.contains(" ran, "), "nothing ran: {}", said);
+    assert!(
+        !said.contains("green:"),
+        "nothing ran: {}",
+        said, //
+    );
+    assert!(
+        !said.contains("RED"),
+        "nothing ran: {}",
+        said, //
+    );
+    assert!(
+        !said.contains(" ran, "),
+        "nothing ran: {}",
+        said, //
+    );
 }
 
 #[test]
@@ -298,7 +376,10 @@ fn bkti_lineup_takes_a_collar_and_no_pattern() {
     // word.
     let out = zbkti_drive(&lure, &["lineup", "suite-lure", "alpha"]);
 
-    assert!(!out.status.success(), "the door refuses a second word");
+    assert!(
+        !out.status.success(),
+        "the door refuses a second word", //
+    );
 }
 
 /// A NARROWED GREEN COURSE RECORDS ITS NARROWING AND NO TIME, which is the half
@@ -318,27 +399,62 @@ fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
     let lure = zbkti_lure("selection-record");
 
     let out = zbkti_drive(&lure, &["mush", "suite-lure", "^alpha::"]);
-    assert!(out.status.success(), "the narrowed run lands: {}", zbkti_said(&out));
+    assert!(
+        out.status.success(),
+        "the narrowed run lands: {}",
+        zbkti_said(&out), //
+    );
 
-    let leaf = format!("suite-lure.{}", bkk::bkcc_record::BKCC_EXTENSION);
+    let leaf = format!(
+        "suite-lure.{}",
+        bkk::bkcc_record::BKCC_EXTENSION, //
+    );
     let banked = lure.bktu_output().join(&leaf);
 
-    let said = std::fs::read_to_string(&banked)
-        .unwrap_or_else(|err| panic!("the record stands at {}: {}", banked.display(), err));
+    let said = std::fs::read_to_string(&banked).unwrap_or_else(|err| {
+        panic!(
+            "the record stands at {}: {}",
+            banked.display(),
+            err, //
+        )
+    });
 
-    let read = bkk::bkcc_record::bkcc_admit(&said, &leaf)
-        .unwrap_or_else(|err| panic!("the door's own record admits: {}", err));
+    let read = bkk::bkcc_record::bkcc_admit(&said, &leaf).unwrap_or_else(|err| {
+        panic!(
+            "the door's own record admits: {}",
+            err, //
+        )
+    });
 
     assert_eq!(
         read.narrowing.as_deref(),
         Some(&["alpha::one".to_string(), "alpha::two".to_string()][..]),
         "the record names the hurdles the patterns chose: {}",
-        said
+        said, //
     );
-    assert_eq!(read.driven, 2, "two hurdles ran: {}", said);
-    assert_eq!(read.passed, 2, "and both passed: {}", said);
-    assert_eq!(read.held, 4, "out of the four the suite holds: {}", said);
-    assert!(read.wall.is_none(), "a narrowed course takes no time: {}", said);
+    assert_eq!(
+        read.driven,
+        2,
+        "two hurdles ran: {}",
+        said, //
+    );
+    assert_eq!(
+        read.passed,
+        2,
+        "and both passed: {}",
+        said, //
+    );
+    assert_eq!(
+        read.held,
+        4,
+        "out of the four the suite holds: {}",
+        said, //
+    );
+    assert!(
+        read.wall.is_none(),
+        "a narrowed course takes no time: {}",
+        said, //
+    );
 }
 
 // eof

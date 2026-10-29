@@ -26,9 +26,19 @@ use crate::bkcs_stamp;
 fn bkts_the_position_carries_every_fact() {
     let position = bkcs_stamp::bkcs_position();
 
-    assert_eq!(position.seat.len(), 40, "the position is a resolved sha");
-    assert!(!position.pin.is_empty(), "the pin names a channel");
-    assert!(!position.compiler.is_empty(), "the compiler names itself");
+    assert_eq!(
+        position.seat.len(),
+        40,
+        "the position is a resolved sha", //
+    );
+    assert!(
+        !position.pin.is_empty(),
+        "the pin names a channel", //
+    );
+    assert!(
+        !position.compiler.is_empty(),
+        "the compiler names itself", //
+    );
 }
 
 #[test]
@@ -43,7 +53,7 @@ fn bkts_the_compiler_answers_the_pin_it_was_asked_for() {
         position.compiler.contains(position.pin),
         "the rustc that ran ({}) is the channel the pin named ({})",
         position.compiler,
-        position.pin
+        position.pin, //
     );
 }
 
@@ -52,7 +62,12 @@ fn bkts_the_render_names_each_fact() {
     let said = bkcs_stamp::bkcs_position().bkcs_render();
 
     for expected in ["seat", "pin", "compiler"] {
-        assert!(said.contains(expected), "the report names {}: {}", expected, said);
+        assert!(
+            said.contains(expected),
+            "the report names {}: {}",
+            expected,
+            said, //
+        );
     }
 }
 

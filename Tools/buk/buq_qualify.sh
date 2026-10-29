@@ -20,6 +20,10 @@
 
 set -euo pipefail
 
+# The surface forms of the governed words this module speaks. The sourced file
+# carries its own inclusion guard, so a sibling sourcing it costs nothing.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
+
 # Multiple inclusion guard
 test -z "${ZBUQ_SOURCED:-}" || buc_die_now "Module buq multiply sourced - check sourcing hierarchy"
 ZBUQ_SOURCED=1
@@ -45,7 +49,7 @@ readonly BUQ_SHELLCHECK_VERSION="0.11.0"
 buq_tabtargets() {
   local z_tt_dir="${1:-}"
   local z_project_root="${2:-}"
-  test -n "${z_tt_dir}"       || buc_die_now "buq_tabtargets: tabtarget directory required"
+  test -n "${z_tt_dir}"       || buc_die_now "buq_tabtargets: ${BUBG_TABTARGET_BASE} directory required"
   test -n "${z_project_root}" || buc_die_now "buq_tabtargets: project root required"
   test -d "${z_tt_dir}"       || buc_die_now "buq_tabtargets: directory not found: ${z_tt_dir}"
   test "$#" -lt 2 || shift 2
@@ -89,18 +93,25 @@ buq_tabtargets() {
   local z_count=0
   local z_exempt_count=0
 
-  # Prescribed tabtarget form (from buut_tabtarget.sh generator):
-  #   Line 1:       #!/bin/bash
-  #   Line 2:       export BURD_LAUNCHER=launcher.<id>_workbench.sh
-  #   Lines 3..N-1: optional export BURD_*=* flag lines
-  #   Last line:    exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"
-  # BURD_LAUNCHER names the moorings launcher as a bare basename; z-launcher.sh
-  # resolves it directly under the launcher dir. The exec line is a byte-
-  # identical constant in every tabtarget.
-  local z_prescribed_shebang='#!/bin/bash'
-  local z_launcher_prefix='export BURD_LAUNCHER='
-  local z_prescribed_exec='exec "${BASH_SOURCE[0]%/*}/z-launcher.sh" "${0##*/}" "${@}"'
+  # Prescribed tabtarget form (from buut_tabtarget.sh generator), three lines:
+  #   Line 1: #!/bin/bash
+  #   Line 2: set -- 'launcher.<id>_workbench.sh[ buuc_…]' "$@"
+  #   Line 3: exec "${BASH_SOURCE[0]%/*}/<trampoline>" "${0##*/}" "${@}"
+  # The configuration line names the moorings launcher as a bare basename and at
+  # most two buuc_ words, the own-log word standing alone; the trampoline
+  # resolves the launcher directly under the launcher dir. The exec line is a
+  # byte-identical constant within its trampoline's family: the trampoline is a
+  # z-*.sh standing beside the tabtargets, one exec form per trampoline. A
+  # tabtarget exports nothing, and an export line is refused by name.
+  local -r z_prescribed_shebang='#!/bin/bash'
+  local -r z_config_prefix="set -- '"
+  local -r z_config_suffix="' \"\$@\""
+  local -r z_exec_prefix='exec "${BASH_SOURCE[0]%/*}/'
+  local -r z_exec_suffix='" "${0##*/}" "${@}"'
 
+  local z_num_lines=0
+  local z_config_line=""
+  local z_exec_line=""
   local z_file=""
   for z_file in "${z_tt_dir}"/*.sh; do
     test -e "${z_file}" || continue
@@ -126,12 +137,25 @@ buq_tabtargets() {
       z_lines+=("${z_line}")
     done < "${z_file}"
 
-    local z_num_lines=${#z_lines[@]}
+    z_num_lines="${#z_lines[@]}"
 
-    # Must have at least 3 lines: shebang, BURD_LAUNCHER, exec
-    test "${z_num_lines}" -ge 3 || {
+    # An export line, wherever it stands, is refused by name ahead of the shape.
+    local z_export_line=""
+    for z_line in "${z_lines[@]+"${z_lines[@]}"}"; do
+      case "${z_line}" in
+        'export '*|*[[:space:]]'export '*) z_export_line="${z_line}" ;;
+      esac
+    done
+    test -z "${z_export_line}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("too few lines: ${z_num_lines} (minimum 3)")
+      z_fail_reasons+=("carries an export line, which no tabtarget carries: '${z_export_line}'")
+      continue
+    }
+
+    # Exactly three lines: shebang, configuration, exec
+    test "${z_num_lines}" -eq 3 || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("expected 3 lines (shebang, configuration, exec), got ${z_num_lines}")
       continue
     }
 
@@ -142,46 +166,59 @@ buq_tabtargets() {
       continue
     }
 
-    # Line 2: export BURD_LAUNCHER=<basename> resolving to a moorings launcher.
-    local z_launcher_line="${z_lines[1]}"
-    case "${z_launcher_line}" in
-      "${z_launcher_prefix}"launcher.*_workbench.sh) ;;
-      *)
-        z_fail_files+=("${z_basename}")
-        z_fail_reasons+=("line 2: expected '${z_launcher_prefix}launcher.<id>_workbench.sh', got '${z_launcher_line}'")
-        continue
+    # Line 2: the configuration line, its first word resolving to a moorings
+    # launcher and every further word a buuc_ word.
+    z_config_line="${z_lines[1]}"
+    local z_configuration=""
+    case "${z_config_line}" in
+      "${z_config_prefix}"*"${z_config_suffix}")
+        z_configuration="${z_config_line#"${z_config_prefix}"}"
+        z_configuration="${z_configuration%"${z_config_suffix}"}"
         ;;
     esac
-    local z_launcher_basename="${z_launcher_line#"${z_launcher_prefix}"}"
-    local z_launcher_path="${BURD_MOORINGS_DIR}/${BUBC_launchers_subdir}/${z_launcher_basename}"
+    local z_words=()
+    read -r -a z_words <<< "${z_configuration}" || buc_die_now "Failed to split the configuration of ${z_basename}"
+    local z_config_ok=1
+    case "${z_words[0]:-}" in
+      launcher.*_workbench.sh) ;;
+      *) z_config_ok=0 ;;
+    esac
+    test "${#z_words[@]}" -le 3 || z_config_ok=0
+    local z_w=0
+    for z_w in "${!z_words[@]}"; do
+      test "${z_w}" -gt 0 || continue
+      case "${z_words[${z_w}]}" in
+        "${BUBC_word_interactive}"|"${BUBC_word_nolog}") ;;
+        "${BUBC_word_ownlog}") test "${#z_words[@]}" -eq 2 || z_config_ok=0 ;;
+        *) z_config_ok=0 ;;
+      esac
+    done
+    test "${z_config_ok}" = "1" || {
+      z_fail_files+=("${z_basename}")
+      z_fail_reasons+=("line 2: expected \"${z_config_prefix}launcher.<id>_workbench.sh[ buuc_…]${z_config_suffix}\", got '${z_config_line}'")
+      continue
+    }
+    local z_launcher_path="${BURD_MOORINGS_DIR}/${BUBC_launchers_subdir}/${z_words[0]}"
     test -f "${z_project_root}/${z_launcher_path}" || {
       z_fail_files+=("${z_basename}")
       z_fail_reasons+=("launcher not found: ${z_launcher_path}")
       continue
     }
 
-    # Middle lines (3..N-1): must be export BURD_*=*
-    local z_middle_ok=1
-    local z_i=2
-    local z_last_idx=$((z_num_lines - 1))
-    while test "${z_i}" -lt "${z_last_idx}"; do
-      case "${z_lines[${z_i}]}" in
-        'export BURD_'*'='*) ;;
-        *)
-          z_fail_files+=("${z_basename}")
-          z_fail_reasons+=("line $((z_i + 1)): expected 'export BURD_*=*', got '${z_lines[${z_i}]}'")
-          z_middle_ok=0
-          break
-          ;;
-      esac
-      z_i=$((z_i + 1))
-    done
-    test "${z_middle_ok}" = "1" || continue
-
-    # Last line: the byte-identical constant exec through the z-launcher trampoline.
-    test "${z_lines[${z_last_idx}]}" = "${z_prescribed_exec}" || {
+    # Line 3: the byte-identical exec of a trampoline standing beside it.
+    z_exec_line="${z_lines[2]}"
+    local z_trampoline=""
+    case "${z_exec_line}" in
+      "${z_exec_prefix}"z-*.sh"${z_exec_suffix}")
+        z_trampoline="${z_exec_line#"${z_exec_prefix}"}"
+        z_trampoline="${z_trampoline%"${z_exec_suffix}"}"
+        ;;
+    esac
+    # An unmatched line leaves the name empty, and the test then names the
+    # directory itself, which is no file.
+    test -f "${z_tt_dir}/${z_trampoline}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("last line: expected '${z_prescribed_exec}', got '${z_lines[${z_last_idx}]}'")
+      z_fail_reasons+=("line 3: expected '${z_exec_prefix}z-<trampoline>.sh${z_exec_suffix}' naming a trampoline beside it, got '${z_exec_line}'")
       continue
     }
   done

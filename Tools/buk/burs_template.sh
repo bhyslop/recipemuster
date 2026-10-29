@@ -31,18 +31,21 @@ ZBURS_TEMPLATE_NAMES=(
   "BURS_LOG_DIR"
   "BURS_USER"
   "BURS_TINCTURE"
+  "BURS_TACKROOM"
 )
 
 ZBURS_TEMPLATE_VALUES=(
   "../logs-buk"
   "<your-username>"
   "a"
+  "../tackroom-buk"
 )
 
 ZBURS_TEMPLATE_COMMENTS=(
   "Directory for BUK operation logs. All tabtargets run from the project root, so relative paths resolve from there."
   "Local developer username (1-32 chars). Per-user profile lookups under the moorings users directory key on this name."
   "1-3 char tag (lowercase alphanumeric, leading letter, no hyphen). Use 'a' until you have a reason to change it; downstream tooling may compose it into per-station resource names so concurrent stations sharing an upstream account stay disjoint."
+  "Root for the large immutable tool stores shared by the clones beside this one (pinned toolchain, registry cache). Relative to the project root, as the log directory is."
 )
 
 # eof

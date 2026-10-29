@@ -41,9 +41,6 @@ zrbte_furnish() {
   local -r z_command="${1:-}"
 
   local z_cli_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/bubc_constants.sh" || buc_die_now "Failed to source bubc_constants.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh" || buc_die_now "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh" || buc_die_now "Failed to source burd_regime.sh"
   source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
   source "${z_cli_dir}/../rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
@@ -52,8 +49,6 @@ zrbte_furnish() {
   source "${z_cli_dir}/../rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
   source "${z_cli_dir}/rbte_engine.sh" || buc_die_now "Failed to source rbte_engine.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zbuz_kindle
   zrbz_kindle
   zbuwz_kindle
