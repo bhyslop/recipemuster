@@ -434,14 +434,20 @@ const ZRBTDRQ_STATE_UNSOURCED: &str = "unsourced";
 /// The value read, spliced into the reach after the proscription kindles and
 /// before any regime kindles. Each home and each hardpoint is sourced in a child
 /// shell that holds no kindled regime, so no readonly mark stands in the way of
-/// its assignments; every field is unset first, so a field the file does not
-/// assign reads unset rather than inheriting a value. Bash, never a text match,
-/// decides what the file holds. A value carrying a tab or a newline cannot cross
-/// the tab-separated wire and is reported as such rather than split.
+/// its assignments. The child reads the file as the regimes read it, after the
+/// repo regime file, which a vessel's paths expand from; then every judged field
+/// is unset, so a field the file does not assign reads unset rather than
+/// inheriting a value. Bash, never a text match, decides what the file holds. A
+/// value carrying a tab or a newline cannot cross the tab-separated wire and is
+/// reported as such rather than split.
 const ZRBTDRQ_VALUE_READ: &str = r#"zrbtdrq_held_rows() {
   local -r z_file="$1"
   shift
   (
+    if ! source "${RBCC_rbrr_file}"; then
+      printf '%s\t\t%s\n' "${z_file}" "${z_state_unsourced}"
+      exit 0
+    fi
     for z_var in "$@"; do unset "${z_var}"; done
     if ! source "${z_file}"; then
       printf '%s\t\t%s\n' "${z_file}" "${z_state_unsourced}"
