@@ -515,10 +515,15 @@ struct zrbtchd_Reach {
 /// The proscription, the scope-to-file mapping and the hardpoints are read back
 /// from the lustration module — the same table the transform writes from, so the
 /// judgment the fixture enforces and the judgment the verb applies cannot drift.
-/// The values those homes and hardpoints hold are read by bash sourcing each file,
-/// before any regime kindles, so the case compares what bash would hold and never
-/// a line shape.
-fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
+///
+/// The reach takes one of two shapes, since its two cases ask different things of
+/// the tree. Kindling the regimes reads the live rolls, which the completeness
+/// case needs; it also validates the tree, so a planted or malformed value stops
+/// it before anything is judged. The value case therefore takes the other shape:
+/// no regime kindles, and the values the homes and hardpoints hold are read by
+/// bash sourcing each file, so the case compares what bash would hold, never a
+/// line shape, and names every field it finds unsanctioned.
+fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtchd_Reach, String> {
     let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
     let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
     let moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR;
@@ -530,7 +535,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         .map_err(|e| format!("failed to write the RBRO probe store: {}", e))?;
     let rbro_probe_p = crate::rbtcep_platform::rbtcep_native_to_posix(&rbro_probe);
 
-    let script = format!(
+    let prologue = format!(
         "set -euo pipefail\n\
          export BURD_TEMP_DIR='{dir_p}'\n\
          source '{buv}'\n\
@@ -546,13 +551,35 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          source '{rbk}/rbrn_regime.sh'\n\
          zbuv_kindle\n\
          zrblm_kindle\n\
-         z_state_holds='{state_holds}'\n\
+         echo '{mark_proscription}'\n\
+         rblm_emit_proscription\n\
+         echo '{mark_homes}'\n\
+         rblm_emit_homes\n\
+         echo '{mark_hardpoints}'\n\
+         rblm_emit_hardpoints\n",
+        dir_p = dir_p,
+        buv = buv,
+        rbk = rbk,
+        mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
+        mark_homes = ZRBTCHD_MARK_HOMES,
+        mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
+    );
+    let held = format!(
+        "z_state_holds='{state_holds}'\n\
          z_state_unset='{state_unset}'\n\
          z_state_unwireable='{state_unwireable}'\n\
          z_state_unsourced='{state_unsourced}'\n\
          echo '{mark_held}'\n\
-         {value_read}\
-         source '{moorings}/rbrr.env'\n\
+         {value_read}",
+        mark_held = ZRBTDRQ_MARK_HELD,
+        state_holds = ZRBTDRQ_STATE_HOLDS,
+        state_unset = ZRBTDRQ_STATE_UNSET,
+        state_unwireable = ZRBTDRQ_STATE_UNWIREABLE,
+        state_unsourced = ZRBTDRQ_STATE_UNSOURCED,
+        value_read = ZRBTDRQ_VALUE_READ,
+    );
+    let rolls = format!(
+        "source '{moorings}/rbrr.env'\n\
          zrbrr_kindle\n\
          source '{moorings}/rbrd.env'\n\
          zrbrd_kindle\n\
@@ -569,29 +596,12 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
          zrbrn_kindle\n\
          echo '{mark_rolls}'\n\
          for z_i in \"${{!z_buv_scope_roll[@]}}\"; do \
-           printf '%s\\t%s\\n' \"${{z_buv_scope_roll[$z_i]}}\" \"${{z_buv_varname_roll[$z_i]}}\"; done\n\
-         echo '{mark_proscription}'\n\
-         rblm_emit_proscription\n\
-         echo '{mark_homes}'\n\
-         rblm_emit_homes\n\
-         echo '{mark_hardpoints}'\n\
-         rblm_emit_hardpoints\n",
-        dir_p = dir_p,
+           printf '%s\\t%s\\n' \"${{z_buv_scope_roll[$z_i]}}\" \"${{z_buv_varname_roll[$z_i]}}\"; done\n",
         rbro_probe_p = rbro_probe_p,
-        buv = buv,
-        rbk = rbk,
         moorings = moorings,
         mark_rolls = ZRBTCHD_MARK_ROLLS,
-        mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
-        mark_homes = ZRBTCHD_MARK_HOMES,
-        mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
-        mark_held = ZRBTDRQ_MARK_HELD,
-        state_holds = ZRBTDRQ_STATE_HOLDS,
-        state_unset = ZRBTDRQ_STATE_UNSET,
-        state_unwireable = ZRBTDRQ_STATE_UNWIREABLE,
-        state_unsourced = ZRBTDRQ_STATE_UNSOURCED,
-        value_read = ZRBTDRQ_VALUE_READ,
     );
+    let script = format!("{}{}", prologue, if kindle_regimes { rolls } else { held });
 
     let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
         (0, stdout, _) => stdout,
@@ -665,7 +675,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path) -> Result<zrbtchd_Reach, String> {
         }
     }
 
-    if reach.rolls.is_empty() {
+    if kindle_regimes && reach.rolls.is_empty() {
         return Err("the enrollment rolls came back empty — the reach kindled nothing".to_string());
     }
     if reach.proscription.is_empty() {
@@ -710,7 +720,7 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtchd_reach(&root, dir) {
+    let reach = match zrbtchd_reach(&root, dir, false) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -794,7 +804,7 @@ fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtchd_reach(&root, dir) {
+    let reach = match zrbtchd_reach(&root, dir, true) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
