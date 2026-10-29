@@ -44,8 +44,9 @@ zrbte_kindle() {
   readonly ZRBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_PIN_FILE="${ZRBTE_REPO_ROOT}/rust-toolchain.toml"
 
-  # The position's roots: the crate's own source and manifests and the root pin,
-  # its cfg(test) modules carved out. The position is the seat's newest
+  # The position's roots: the crate's own source and manifests, the root pin, and
+  # the floor crate it reads its dispatch through, the cfg(test) modules of both
+  # carved out. The position is the seat's newest
   # first-parent commit touching them: the seat's own line, not a landed walk,
   # so a billet carrying unlanded commits states where it actually stands.
   ZRBTE_ROOTS=(
@@ -54,7 +55,9 @@ zrbte_kindle() {
     "Tools/rbk/rbtd/Cargo.toml"
     "Tools/rbk/rbtd/Cargo.lock"
     "rust-toolchain.toml"
+    "Tools/bkk/bk0/bkp"
     ":(exclude)Tools/rbk/rbtd/src/rbtdt*"
+    ":(exclude)Tools/bkk/bk0/bkp/src/bkpt*"
   )
   readonly ZRBTE_ROOTS
 
