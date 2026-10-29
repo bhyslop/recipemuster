@@ -111,7 +111,7 @@ fn rbtchs_poison(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(label)) {
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, dir) {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -369,7 +369,7 @@ fn rbtchs_optional(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let mut baseline_cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(format!("{}-baseline", label))) {
+    let mut baseline_cmd = match rbtdri_rooted_tabtarget_command(&tt, dir) {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };

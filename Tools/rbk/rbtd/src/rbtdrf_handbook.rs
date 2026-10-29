@@ -49,7 +49,7 @@ fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(label)) {
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, dir) {
         Ok(c) => c,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
