@@ -24,7 +24,7 @@ use std::path::Path;
 
 use crate::rbtcee_case;
 use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
-use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtcei_tabtarget_command};
+use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtdri_rooted_tabtarget_command};
 use crate::rbtgec_consts::{
     RBTGEC_ONBOARD_CRASH_COURSE, RBTGEC_ONBOARD_DIR_FIRST_BUILD,
     RBTGEC_ONBOARD_FIRST_CRUCIBLE,
@@ -49,7 +49,11 @@ fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let output = match rbtcei_tabtarget_command(&tt).current_dir(&root).output() {
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(label)) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let output = match cmd.current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
             return rbtcee_Verdict::Fail(format!(

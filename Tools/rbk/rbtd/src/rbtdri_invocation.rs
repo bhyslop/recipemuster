@@ -68,6 +68,10 @@ const RBTDRI_WORD_NOLOG: &str = "buuc_nolog";
 /// The trampoline every tabtarget execs, beside it in the tabtarget directory.
 const RBTDRI_TRAMPOLINE: &str = "z-launcher.sh";
 
+/// The run roots a rooted direct launch is handed, beneath its case directory.
+const RBTDRI_ROOTED_OUTPUT_SUBDIR: &str = "burv-output";
+const RBTDRI_ROOTED_TEMP_SUBDIR: &str = "burv-temp";
+
 /// Canonical Cygwin bash in POSIX form. theurge nativizes this via RBTDRX
 /// (cygpath) to launch scripts: a bare "bash" from a Windows-native binary
 /// resolves through `CreateProcess` to System32's WSL launcher, never Cygwin's.
@@ -547,6 +551,27 @@ fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, Str
     std::fs::write(&path, stub)
         .map_err(|e| format!("rbtdri: cannot write no-log stub {}: {}", path.display(), e))?;
     Ok(path)
+}
+
+/// Build a tabtarget launch rooted beneath `root_dir`, for a direct launch that
+/// bypasses the context's per-invoke isolation.
+///
+/// A dispatch withdraws the run-root overrides before its coordinator runs, so
+/// nothing this process holds roots its children: a launch handed no roots of
+/// its own lands on station ground, beside every other dispatch standing there.
+/// This one is handed an output root and a temp root beneath the case's own
+/// directory.
+pub fn rbtdri_rooted_tabtarget_command(tabtarget: &Path, root_dir: &Path) -> Result<Command, String> {
+    let output = root_dir.join(RBTDRI_ROOTED_OUTPUT_SUBDIR);
+    let temp = root_dir.join(RBTDRI_ROOTED_TEMP_SUBDIR);
+    for root in [&output, &temp] {
+        std::fs::create_dir_all(root)
+            .map_err(|e| format!("rbtdri: cannot create run root {}: {}", root.display(), e))?;
+    }
+    let mut cmd = rbtcei_tabtarget_command(tabtarget);
+    cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&output))
+        .env("BURV_TEMP_ROOT_DIR", rbtcep_native_to_posix(&temp));
+    Ok(cmd)
 }
 
 /// Internal: execute a resolved tabtarget with BURV isolation and optional extra env vars.

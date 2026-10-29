@@ -65,7 +65,7 @@ use crate::rbtcee_engine::{
 };
 use crate::rbtcei_invocation::{
     rbtcei_find_tabtarget_global,
-    rbtcei_tabtarget_command,
+    rbtdri_rooted_tabtarget_command,
     RBTCEI_BURE_TWEAK_NAME_KEY,
     RBTCEI_BURE_TWEAK_VALUE_KEY,
 };
@@ -111,7 +111,11 @@ fn rbtchs_poison(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let output = match rbtcei_tabtarget_command(&tt)
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(label)) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let output = match cmd
         .args(folio)
         .env(RBTCEI_BURE_TWEAK_NAME_KEY, RBTGEC_TWEAK_REGIME_POISON)
         .env(RBTCEI_BURE_TWEAK_VALUE_KEY, poison)
@@ -365,7 +369,11 @@ fn rbtchs_optional(
         Ok(p) => p,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let baseline = match rbtcei_tabtarget_command(&tt)
+    let mut baseline_cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join(format!("{}-baseline", label))) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let baseline = match baseline_cmd
         .args(folio)
         .current_dir(&root)
         .output()

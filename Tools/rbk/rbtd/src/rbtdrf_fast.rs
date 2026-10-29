@@ -26,7 +26,7 @@ use std::process::Command;
 
 use crate::rbtcee_case;
 use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
-use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtcei_tabtarget_command, rbtcei_bash_program};
+use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtdri_rooted_tabtarget_command, rbtcei_bash_program};
 use crate::rbtgec_consts::{
     BUWGC_RC_RENDER,
     BUWGC_RC_VALIDATE,
@@ -208,7 +208,7 @@ fn rbtchf_run_tt(
     label: &str,
 ) -> Result<(), String> {
     let tt = rbtcei_find_tabtarget_global(project_root, colophon)?;
-    let output = rbtcei_tabtarget_command(&tt)
+    let output = rbtdri_rooted_tabtarget_command(&tt, &dir.join(label))?
         .args(args)
         .current_dir(project_root)
         .output()
@@ -243,7 +243,7 @@ fn rbtchf_run_tt_neg(
     expect_code: i32,
 ) -> Result<(), String> {
     let tt = rbtcei_find_tabtarget_global(project_root, colophon)?;
-    let output = rbtcei_tabtarget_command(&tt)
+    let output = rbtdri_rooted_tabtarget_command(&tt, &dir.join(label))?
         .args(args)
         .current_dir(project_root)
         .output()
@@ -1197,7 +1197,11 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let output = match rbtcei_tabtarget_command(&tt).current_dir(&root).output() {
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join("unmake-empty-arg")) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let output = match cmd.current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
             return rbtcee_Verdict::Fail(format!(
@@ -1253,7 +1257,11 @@ fn rbtchf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtcee_Verdict {
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
 
-    let output = match rbtcei_tabtarget_command(&tt)
+    let mut cmd = match rbtdri_rooted_tabtarget_command(&tt, &dir.join("credless-guard")) {
+        Ok(c) => c,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+    let output = match cmd
         .arg("rbi_xx/credless-guard-proof:none")
         .current_dir(&root)
         .output()
@@ -2298,7 +2306,8 @@ fn rbtchf_pr_invoke(
         Ok(p) => p,
         Err(e) => return Err(rbtcee_Verdict::Fail(e)),
     };
-    let output = match rbtcei_tabtarget_command(&tt)
+    let mut cmd = rbtdri_rooted_tabtarget_command(&tt, &dir.join(label)).map_err(rbtcee_Verdict::Fail)?;
+    let output = match cmd
         .args(args)
         .current_dir(&root)
         .output()
