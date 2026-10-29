@@ -1562,6 +1562,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
     let script = format!(
         "set -euo pipefail\n\
          BURD_TEMP_DIR='{dir_p}'\n\
+         BURD_MOORINGS_DIR='{moorings}'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -1764,6 +1765,7 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
         "set -euo pipefail\n\
          BURD_TEMP_DIR='{dir_p}'\n\
          BURD_TABTARGET_DIR='{tt_p}'\n\
+         BURD_MOORINGS_DIR='{moorings}'\n\
          source '{buc_p}'\n\
          source '{buym_p}'\n\
          source '{bubc_p}'\n\
@@ -1812,6 +1814,7 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
          zrbob_kludge_currency_gate '{vessel}' \"${{RBGC_HALLMARK_PREFIX_KLUDGE}}{stamp}-{sha}\" \"${{RBZ_CRUCIBLE_KLUDGE_SENTRY}}\"\n\
          echo '{marker}'\n",
         nameplate = RBTCHF_KC_NAMEPLATE,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
         vessel = RBTCHF_KC_PIN_VESSEL,
         stamp = RBTCHF_KC_STAMP,
         marker = RBTCHF_KC_RETURNED_MARKER,
