@@ -40,7 +40,7 @@ Windows host support works — [Recipe Bottle](#RecipeBottle) runs on Windows vi
 Podman support is architecturally accommodated by the spec but deferred — see [Podman Support](#PodmanSupport).
 
 One dependency note for evaluators: [Recipe Bottle's](#RecipeBottle) regression and adversarial test suites — including the [Theurge](#Theurge) orchestrator — are written in Rust.
-Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs a Rust toolchain; running Recipe Bottle does not.
+Validating the [Crucible's](#Crucible) containment yourself, or contributing, additionally needs `rustup` carrying the Rust channel the root `rust-toolchain.toml` pins, since the [Theurge](#Theurge) doors name that channel to cargo; running Recipe Bottle does not.
 
 ### Regimes and Tabtargets
 
