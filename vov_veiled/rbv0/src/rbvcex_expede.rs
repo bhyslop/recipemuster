@@ -67,9 +67,11 @@ const RBVCEX_STERILIZE_PATH: &str = "Tools/rbk/rblm_sterilize.sh";
 /// inside it, so `git add --all` in the clone can never stage them.
 const RBVCEX_SCRATCH_SUBDIR: &str = "scratch";
 
-/// The BUK module subtree, relative to a repo root — handed to the sterilize
-/// subprocess as its BURD_BUK_DIR (utility modules only; every
-/// identity-bearing module the script sources resolves from its own tree).
+/// The BUK module subtree, relative to a repo root — joined onto the CLONE and
+/// handed to the sterilize subprocess as its BURD_BUK_DIR, in the dispatch file
+/// and in the exported pair alike. The script sources BUK from its own tree and
+/// refuses a kit directory that is not that tree's own, so the clone's kit is the
+/// only one it accepts.
 const RBVCEX_BUK_SUBDIR: &str = "Tools/buk";
 
 /// The dispatch file the cut composes for the sterilize subprocess, written
@@ -79,6 +81,8 @@ const RBVCEX_BURD_FILE: &str = "burd.env";
 
 /// The config regime of a repo root, relative to it — the dispatch file names
 /// the regulus's own, which the command module sources beside the dispatch file.
+/// Its directory is the moorings directory the dispatch file names as well, which
+/// BUK's dispatch regime reads when it kindles.
 const RBVCEX_BURC_PATH: &str = "rbmm_moorings/burc.env";
 
 // ── The cut ─────────────────────────────────────────────────
@@ -347,10 +351,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // lustrated values unless its modules are the lustrated modules (see
     // rblm_sterilize.sh). The one subprocess of the cut, by design. Its
     // dispatch values are provided explicitly: the hierophant's stream() scrubs
-    // the inherited BURD_ state, and the script needs exactly four values —
-    // a temp root (the cut's scratch), the BUK utility modules, the RELATIVE
-    // tabtarget dir it regenerates the context from, and the regulus's config
-    // regime. They cross as a dispatch file, the kit refusing a dispatch name
+    // the inherited BURD_ state, and the script needs exactly five values —
+    // a temp root (the cut's scratch), the clone's own BUK utility modules, the
+    // RELATIVE tabtarget dir it regenerates the context from, the regulus's
+    // config regime, and the moorings directory that regime stands in. They cross as a dispatch file, the kit refusing a dispatch name
     // that arrives exported; the subprocess is handed the pointer naming that
     // file and the kit directory, the two hand-offs a coordinator takes.
     rbvcel_log::rbvcel_step("Lustrating and regenerating in the clone");
@@ -363,8 +367,12 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     }
     let sterilize = rbvcep_repo::rbvcep_as_str(&sterilize);
     let scratch = rbvcep_repo::rbvcep_as_str(&scratch_dir);
-    let buk_dir = rbvcep_repo::rbvcep_as_str(&top.join(RBVCEX_BUK_SUBDIR));
+    let buk_dir = rbvcep_repo::rbvcep_as_str(&clone_dir.join(RBVCEX_BUK_SUBDIR));
     let burc = rbvcep_repo::rbvcep_as_str(&clone_dir.join(RBVCEX_BURC_PATH));
+    let moorings = std::path::Path::new(RBVCEX_BURC_PATH)
+        .parent()
+        .and_then(|p| p.to_str())
+        .unwrap_or_else(|| crate::rbvcel_fatal!("the config regime path names no directory: {}", RBVCEX_BURC_PATH));
     let burd_path = scratch_dir.join(RBVCEX_BURD_FILE);
     let mut burd = String::new();
     for (name, value) in [
@@ -372,6 +380,7 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         ("BURD_BUK_DIR", buk_dir.as_str()),
         ("BURD_TABTARGET_DIR", RBVCCD_TT_SUBDIR),
         ("BURD_REGIME_FILE", burc.as_str()),
+        ("BURD_MOORINGS_DIR", moorings),
     ] {
         if value.contains(['"', '\\', '$', '`', '\n']) {
             crate::rbvcel_fatal!("the sterilize dispatch value {} cannot stand on a dispatch file line: {}", name, value);

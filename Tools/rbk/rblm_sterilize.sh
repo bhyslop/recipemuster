@@ -48,28 +48,49 @@
 
 set -euo pipefail
 
-# The tree this script belongs to. Every path below is resolved from here, so the
-# script works the tree it sits in and no other. A whole process of its own, so the
-# directory change cannot leak into a caller.
+# The tree this script belongs to; every path below is resolved from it.
 ZRBLM_STERILIZE_KIT_DIR="${BASH_SOURCE[0]%/*}"
+# RBr_ufc
 cd "${ZRBLM_STERILIZE_KIT_DIR}/../.." || exit 1
 ZRBLM_STERILIZE_ROOT="${PWD}"
+ZRBLM_STERILIZE_BUK_DIR="${ZRBLM_STERILIZE_ROOT}/Tools/buk"
 
 test -n "${BURD_BURD_FILE:-}" || { echo "rblm_sterilize: BURD_BURD_FILE not set" >&2 || exit 1; exit 1; }
 test -n "${BURD_BUK_DIR:-}"   || { echo "rblm_sterilize: BURD_BUK_DIR not set"   >&2 || exit 1; exit 1; }
 
-# The kit this process will source from must be the one beneath the tree it is
-# about to rewrite. Named plainly rather than assumed: this is the assertion that
-# the maintainer's modules are out of reach.
-test -f "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh" \
-  || { echo "rblm_sterilize: no rbpc_constants.sh beneath ${ZRBLM_STERILIZE_ROOT}" >&2 || exit 1; exit 1; }
+# The kit this process sources is the one beneath the tree it is about to rewrite,
+# and the kit it is handed must be that same one: a caller handing another tree's
+# kit has mistaken which tree this is.
+test "${BURD_BUK_DIR}" -ef "${ZRBLM_STERILIZE_BUK_DIR}" \
+  || { echo "rblm_sterilize: BURD_BUK_DIR (${BURD_BUK_DIR}) is not this tree's own kit (${ZRBLM_STERILIZE_BUK_DIR})" >&2 || exit 1; exit 1; }
 
-source "${BURD_BUK_DIR}/buc_command.sh" || { echo "rblm_sterilize: failed to source buc_command.sh" >&2 || exit 1; exit 1; }
+source "${ZRBLM_STERILIZE_BUK_DIR}/buc_command.sh" || { echo "rblm_sterilize: failed to source buc_command.sh" >&2 || exit 1; exit 1; }
+test "${BURD_BUK_DIR}" -ef "${ZRBLM_STERILIZE_BUK_DIR}" \
+  || buc_die_now "The dispatch file's BURD_BUK_DIR (${BURD_BUK_DIR}) is not this tree's own kit (${ZRBLM_STERILIZE_BUK_DIR})"
 test -n "${BURD_TEMP_DIR:-}" || buc_die_now "The dispatch file names no temp dir: ${BURD_BURD_FILE}"
-source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
-source "${BURD_BUK_DIR}/buh_handbook.sh" || buc_die_now "Failed to source buh_handbook.sh"
-source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
-source "${BURD_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
+source "${ZRBLM_STERILIZE_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
+source "${ZRBLM_STERILIZE_BUK_DIR}/buh_handbook.sh" || buc_die_now "Failed to source buh_handbook.sh"
+source "${ZRBLM_STERILIZE_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+source "${ZRBLM_STERILIZE_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
+
+# Only the cut's clone may be lustrated, and the cut severs it from its origin
+# before it sterilizes: a tree still naming a remote is some other tree.
+ZRBLM_STERILIZE_REMOTES=$(git -C "${ZRBLM_STERILIZE_ROOT}" remote) \
+  || buc_die_now "Failed to read the remotes of ${ZRBLM_STERILIZE_ROOT}"
+test -z "${ZRBLM_STERILIZE_REMOTES}" \
+  || buc_die_now "Refusing to lustrate ${ZRBLM_STERILIZE_ROOT}: it names remote(s) ${ZRBLM_STERILIZE_REMOTES//$'\n'/ }, and only the severed clone may be lustrated"
+
+# The tabtarget directory the context is regenerated from is the dispatch-provided
+# BURD_TABTARGET_DIR, and it must stand inside this tree: an absolute path or a
+# parent segment would resolve out of it, and a missing directory would regenerate
+# an empty reference. Checked here so a refusal leaves the tree as it stood.
+test -n "${BURD_TABTARGET_DIR:-}" || buc_die_now "BURD_TABTARGET_DIR not set - launch via tabtarget"
+case "${BURD_TABTARGET_DIR}" in
+  /*) buc_die_now "BURD_TABTARGET_DIR is absolute (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
+  ..|../*|*/..|*/../*) buc_die_now "BURD_TABTARGET_DIR carries a parent segment (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
+esac
+test -d "${BURD_TABTARGET_DIR}" \
+  || buc_die_now "BURD_TABTARGET_DIR names no directory beneath ${ZRBLM_STERILIZE_ROOT}: ${BURD_TABTARGET_DIR}"
 
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
 source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
@@ -100,16 +121,7 @@ source "${ZRBLM_STERILIZE_ROOT}/Tools/rbk/rbpc_constants.sh" || buc_die_now "Fai
 # what makes the delivered reference document the delivered tabtargets — the
 # withheld families are absent from it because they are absent from the tree, not
 # because a list said to drop them.
-#
-# The tabtarget directory is the dispatch-provided BURD_TABTARGET_DIR, and it must
-# be RELATIVE: an absolute one would resolve out of this tree and back into the
-# maintainer's, and the whole point of this process is that it cannot reach there.
 buc_step "Regenerating derived files"
-
-test -n "${BURD_TABTARGET_DIR:-}" || buc_die_now "BURD_TABTARGET_DIR not set - launch via tabtarget"
-case "${BURD_TABTARGET_DIR}" in
-  /*) buc_die_now "BURD_TABTARGET_DIR is absolute (${BURD_TABTARGET_DIR}) — it would resolve outside the tree being sterilized" ;;
-esac
 
 rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
   || buc_die_now "Failed to regenerate tabtarget context"

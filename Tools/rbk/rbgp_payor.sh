@@ -711,7 +711,10 @@ zrbgp_write_posture_check() {
 # default queueTtl=3600s. Synchronous: the levy/info caller blocks until
 # terminal, since a probe left queued can clear minutes later and wedge the next
 # build behind it until queueTtl expires. Any non-2xx submission is fatal, and so
-# is any terminal but SUCCESS, the build named for its console link.
+# is any terminal but SUCCESS, the build named for its console link. A poll is
+# judged by its HTTP code before its body: a 429 or a 5xx is polled past within
+# the same ceiling, a 200 must carry a status, and any other code is fatal,
+# naming the code and the server's error message.
 # Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref
 #   artifact_ref empty → omit the "  Artifact: …" line (posture path)
 zrbgp_pool_build_submit_await() {
@@ -781,9 +784,31 @@ zrbgp_pool_build_submit_await() {
       || buc_die_now "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
     rbuh_json "GET" "${z_build_get_url}" "${zSECRET_token}" "${z_poll_infix}" || buc_die_now "HTTP GET request failed (${z_poll_infix})"
+    local z_poll_code
+    z_poll_code=$(rbuh_code_capture "${z_poll_infix}") \
+      || buc_die_now "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
+    case "${z_poll_code}" in
+      200) : ;;
+      429|5[0123456789][0123456789])
+        buc_info "  ${z_operation_label} ${z_pool_variant}: HTTP ${z_poll_code}, polling on (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
+          || buc_die_now "Failed to print message"
+        continue
+        ;;
+      *)
+        local z_poll_err_status=0
+        local z_poll_err
+        z_poll_err=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message') || z_poll_err_status=$?
+        test "${z_poll_err_status}" -eq 0 || z_poll_err="no error message"
+        buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
+        ;;
+    esac
     local z_status_status=0
     z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status_status=$?
-    test "${z_status_status}" -eq 0 || z_status="UNKNOWN"
+    if test "${z_status_status}" -ne 0; then
+      test "${z_status}" != "${RBUH_refusal_absent}" \
+        || buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 carrying no status"
+      buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 whose status could not be read"
+    fi
     buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" || buc_die_now "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
