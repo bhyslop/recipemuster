@@ -198,6 +198,18 @@ fn rbvtem_matcher_longest_wins() {
     let shipped_tt = rbvcem_judge("tt/rbw-cC.Charge.tadmor.sh");
     assert!(matches!(shipped_tt, Some((rbvcem_Disposition::Ship, _))), "the shipped tabtarget family ships");
 
+    let floor_crate = rbvcem_judge("Tools/bkk/bk0/bkp/src/lib.rs");
+    assert!(matches!(floor_crate, Some((rbvcem_Disposition::Ship, _))), "the floor crate must outrank the withheld kennel");
+
+    let kennel = rbvcem_judge("Tools/bkk/bk0/bkw_workbench.sh");
+    assert!(matches!(kennel, Some((rbvcem_Disposition::Withhold, _))), "the kennel kit is withheld");
+
+    let parcel_kit = rbvcem_judge("Tools/bpk/bpi_install.sh");
+    assert!(matches!(parcel_kit, Some((rbvcem_Disposition::Withhold, _))), "the parcel kit is withheld");
+
+    let kennel_tt = rbvcem_judge("tt/bkw-w.Whistle.sh");
+    assert!(matches!(kennel_tt, Some((rbvcem_Disposition::Withhold, _))), "the kennel's doors are withheld");
+
     assert!(rbvcem_judge("no-such-root/file.txt").is_none(), "an unjudged path must be None, not a default");
 }
 
