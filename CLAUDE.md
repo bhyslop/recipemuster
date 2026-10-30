@@ -225,6 +225,9 @@ Suites, fixtures and cases each have a colophon: `rbw-ts` runs a suite, `rbw-tf`
 - List the suites with `ls tt/rbw-ts.TestSuite.*`.
 - Run one fixture with `tt/rbw-tf.FixtureRun.sh <fixture>`, and run `tt/rbw-tc.FixtureCase.sh` with no argument to list the fixtures.
 
+The Theurge has four doors of its own: `tt/rbw-tb.Build.sh` builds it, `tt/rbw-tt.Test.sh` runs its unit tests, `tt/rbw-tm.Lint.sh` lints it and `tt/rbw-tx.Clean.sh` removes its build output.
+Each calls cargo directly, under the channel the root `rust-toolchain.toml` pins.
+
 For crucible testing work, editing test cases, adding security probes or debugging a failure, read `Tools/rbk/rbai0/rbaie_theurge.md` first: it covers the two-binary architecture, the kludge, Charge, test and ordain loop, and how to add a case.
 
 ## Kit Context
