@@ -3027,9 +3027,6 @@ pub const RBTGEB_RBLM_FEIGN_PEDIMENT: &str = rbtgeb_rblm_feign_pediment!();
 macro_rules! rbtgeb_rblm_harbinger_pediment { () => { "rbw-MH" }; }
 pub(crate) use rbtgeb_rblm_harbinger_pediment;
 pub const RBTGEB_RBLM_HARBINGER_PEDIMENT: &str = rbtgeb_rblm_harbinger_pediment!();
-macro_rules! rbtgeb_rblm_lustrate_pediment { () => { "rbw-ML" }; }
-pub(crate) use rbtgeb_rblm_lustrate_pediment;
-pub const RBTGEB_RBLM_LUSTRATE_PEDIMENT: &str = rbtgeb_rblm_lustrate_pediment!();
 macro_rules! rbtgeb_rblm_zero_pediment { () => { "rbw-MZ" }; }
 pub(crate) use rbtgeb_rblm_zero_pediment;
 pub const RBTGEB_RBLM_ZERO_PEDIMENT: &str = rbtgeb_rblm_zero_pediment!();
@@ -3324,6 +3321,9 @@ pub const RBTGEB_CHAIN_DENTIL: i32 = rbtgeb_chain_dentil!();
 macro_rules! rbtgeb_credless_dentil { () => { 104 }; }
 pub(crate) use rbtgeb_credless_dentil;
 pub const RBTGEB_CREDLESS_DENTIL: i32 = rbtgeb_credless_dentil!();
+macro_rules! rbtgeb_marshal_dentil { () => { 122 }; }
+pub(crate) use rbtgeb_marshal_dentil;
+pub const RBTGEB_MARSHAL_DENTIL: i32 = rbtgeb_marshal_dentil!();
 macro_rules! rbtgeb_recipe_dentil { () => { 102 }; }
 pub(crate) use rbtgeb_recipe_dentil;
 pub const RBTGEB_RECIPE_DENTIL: i32 = rbtgeb_recipe_dentil!();
