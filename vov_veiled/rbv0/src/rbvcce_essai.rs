@@ -380,7 +380,7 @@ fn zrbvcce_probe_branch(regulus_clone: &Path, top: &Path) -> String {
     if branch.is_empty() {
         crate::rbvcel_fatal!("the probe branch read from {} is empty", module);
     }
-    rbvcel_log::rbvcel_line(&format!("probe branch, from the regulus's own declaration: {}", branch));
+    rbvcel_log::rbvcel_line(&format!("probe branch read from {}: {}", module, branch));
     branch
 }
 

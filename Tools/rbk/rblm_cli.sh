@@ -23,6 +23,7 @@ set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
 # Command: zero - Zero regime to blank template for release
 
@@ -295,9 +296,10 @@ rblm_zero() {
 # rewrite of FILE never met. FOUND is the space-separated list of field names the
 # rewrite counted. Zero calls it before any file is replaced.
 zrblm_zero_require_found() {
-  local -r z_file="${1}"
-  local -r z_found="${2}"
-  shift 2
+  local -r z_file="${1:-}"
+  local -r z_found="${2:-}"
+  test -n "${z_file}" || buc_die_now "zrblm_zero_require_found: the rewritten file is required"
+  shift 2 || buc_die_now "zrblm_zero_require_found: the field list is required"
   local z_field=""
   for z_field in "$@"; do
     case " ${z_found} " in
@@ -392,7 +394,6 @@ zrblm_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die_now "Failed to source rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbcg_breviary.sh"       || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk_kit_dir}/rblm_proscription.sh"       || buc_die_now "Failed to source rblm_proscription.sh"
 
   # Differential furnish: a withheld verb's module is sourced only for that verb.
