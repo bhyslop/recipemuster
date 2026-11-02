@@ -32,11 +32,13 @@
 // probe. On Linux and macOS both conversions are identity, so call sites
 // can be unconditional.
 
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, //
+};
 use std::process::Command;
 use std::sync::OnceLock;
 
-use bkp::bkprc_catena::{bkprc_read, bkprc_Regime};
+use bkp::bkprc_catena::{bkprc_read, bkprc_Regime, //
+};
 
 static RBTCEP_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
 static RBTDRX_DISPATCH: OnceLock<Result<bkprc_Regime, String>> = OnceLock::new();
@@ -67,7 +69,7 @@ fn zrbtdrx_dispatch() -> Result<&'static bkprc_Regime, String> {
                 _ => {
                     return Err(format!(
                         "{} not set in environment — theurge must be launched via BUK dispatch",
-                        RBTDRX_DISPATCH_FILE_VAR
+                        RBTDRX_DISPATCH_FILE_VAR, //
                     ))
                 }
             };
@@ -94,7 +96,7 @@ pub fn rbtdrx_dispatch_value(name: &str) -> Result<String, String> {
         .ok_or_else(|| {
             format!(
                 "the dispatch file {} names carries no {} — theurge must be launched via BUK dispatch",
-                RBTDRX_DISPATCH_FILE_VAR, name
+                RBTDRX_DISPATCH_FILE_VAR, name, //
             )
         })
 }
@@ -108,7 +110,8 @@ pub fn rbtdrx_dispatch_value(name: &str) -> Result<String, String> {
 pub fn rbtcep_is_cygwin() -> bool {
     *RBTCEP_IS_CYGWIN.get_or_init(|| match rbtdrx_dispatch_value(RBTDRX_DISPATCH_OSTYPE) {
         Ok(ostype) => ostype == "cygwin",
-        Err(e) => panic!("rbtdrx: cannot learn the platform: {}", e),
+        Err(e) => panic!("rbtdrx: cannot learn the platform: {}", e, //
+),
     })
 }
 
@@ -169,7 +172,8 @@ pub(crate) fn rbtcep_posix_to_native_for(s: &str, is_cygwin: bool) -> Result<Pat
     // Slow path: bare POSIX (/home/..., /tmp/...) needs cygpath
     rbtcep_cygpath(s, "-w")
         .map(PathBuf::from)
-        .ok_or_else(|| format!("rbtdrx: cygpath -w failed for '{}'", s))
+        .ok_or_else(|| format!("rbtdrx: cygpath -w failed for '{}'", s, //
+))
 }
 
 pub(crate) fn rbtcep_native_to_posix_for(s: &str, is_cygwin: bool) -> String {
@@ -210,7 +214,8 @@ pub(crate) fn rbtcep_cygdrive_to_native(s: &str) -> Option<PathBuf> {
     }
     let drive_upper = drive.to_ascii_uppercase();
     let win_tail = tail.replace('/', "\\");
-    Some(PathBuf::from(format!("{}:{}", drive_upper, win_tail)))
+    Some(PathBuf::from(format!("{}:{}", drive_upper, win_tail, //
+)))
 }
 
 /// Match a drive-letter native path (`X:\foo`, `X:/foo`, or bare `X:`) and
@@ -226,15 +231,18 @@ pub(crate) fn rbtcep_drive_to_cygdrive(s: &str) -> Option<String> {
     let drive = (bytes[0] as char).to_ascii_lowercase();
     let tail = &s[2..];
     if tail.is_empty() {
-        return Some(format!("/cygdrive/{}", drive));
+        return Some(format!("/cygdrive/{}", drive, //
+));
     }
     let posix_tail = tail.replace('\\', "/");
     let posix_tail = if posix_tail.starts_with('/') {
         posix_tail
     } else {
-        format!("/{}", posix_tail)
+        format!("/{}", posix_tail, //
+)
     };
-    Some(format!("/cygdrive/{}{}", drive, posix_tail))
+    Some(format!("/cygdrive/{}{}", drive, posix_tail, //
+))
 }
 
 pub(crate) fn rbtcep_looks_native_windows(s: &str) -> bool {

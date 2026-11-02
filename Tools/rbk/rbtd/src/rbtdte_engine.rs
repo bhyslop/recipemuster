@@ -49,7 +49,7 @@ fn rbttee_counts_all_verdict_types() {
         rbtcee_Case { name: "p1", func: rbttee_pass },
         rbtcee_Case { name: "p2", func: rbttee_pass },
         rbtcee_Case { name: "s1", func: rbttee_skip },
-        rbtcee_Case { name: "f1", func: rbttee_fail },
+        rbtcee_Case { name: "f1", func: rbttee_fail }, //
     ];
 
     let tmp = rbtteh_make_scratch("counts");
@@ -64,7 +64,7 @@ fn rbttee_counts_all_verdict_types() {
 fn rbttee_fail_fast_stops_after_first_failure() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "ff-f1", func: rbttee_fail },
-        rbtcee_Case { name: "ff-p1", func: rbttee_pass },
+        rbtcee_Case { name: "ff-p1", func: rbttee_pass }, //
     ];
 
     let tmp = rbtteh_make_scratch("failfast");
@@ -79,7 +79,7 @@ fn rbttee_fail_fast_reports_unreached_cases() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "un-f1", func: rbttee_fail },
         rbtcee_Case { name: "un-p1", func: rbttee_pass },
-        rbtcee_Case { name: "un-p2", func: rbttee_pass },
+        rbtcee_Case { name: "un-p2", func: rbttee_pass }, //
     ];
 
     let tmp = rbtteh_make_scratch("unreached");
@@ -93,7 +93,7 @@ fn rbttee_fail_fast_reports_unreached_cases() {
 fn rbttee_full_reach_leaves_unreached_empty() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "full-p1", func: rbttee_pass },
-        rbtcee_Case { name: "full-p2", func: rbttee_pass },
+        rbtcee_Case { name: "full-p2", func: rbttee_pass }, //
     ];
 
     let tmp = rbtteh_make_scratch("fullreach");
@@ -113,7 +113,7 @@ fn rbttee_trace_files_written() {
         rbtcee_Case {
             name: "traced-fail",
             func: rbttee_fail,
-        },
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("trace");
@@ -136,7 +136,7 @@ fn rbttee_cases_run_in_declaration_order() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "ord-a", func: rbttee_pass },
         rbtcee_Case { name: "ord-b", func: rbttee_pass },
-        rbtcee_Case { name: "ord-c", func: rbttee_skip },
+        rbtcee_Case { name: "ord-c", func: rbttee_skip }, //
     ];
 
     let tmp = rbtteh_make_scratch("order");
@@ -165,7 +165,7 @@ fn rbttee_all_skip() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "sk1", func: rbttee_skip },
         rbtcee_Case { name: "sk2", func: rbttee_skip },
-        rbtcee_Case { name: "sk3", func: rbttee_skip },
+        rbtcee_Case { name: "sk3", func: rbttee_skip }, //
     ];
 
     let tmp = rbtteh_make_scratch("allskip");
@@ -214,7 +214,7 @@ fn rbttee_run_all_executes_every_case_despite_failures() {
         rbtcee_Case { name: "ra-f1", func: rbttee_fail },
         rbtcee_Case { name: "ra-p1", func: rbttee_pass },
         rbtcee_Case { name: "ra-f2", func: rbttee_fail },
-        rbtcee_Case { name: "ra-p2", func: rbttee_pass },
+        rbtcee_Case { name: "ra-p2", func: rbttee_pass }, //
     ];
 
     let tmp = rbtteh_make_scratch("runall");
@@ -240,7 +240,7 @@ fn rbttee_write_marker(dir: &Path) -> rbtcee_Verdict {
 fn rbttee_temp_dirs_are_distinct_and_isolated() {
     static CASES: &[rbtcee_Case] = &[
         rbtcee_Case { name: "iso-a", func: rbttee_write_marker },
-        rbtcee_Case { name: "iso-b", func: rbttee_write_marker },
+        rbtcee_Case { name: "iso-b", func: rbttee_write_marker }, //
     ];
 
     let tmp = rbtteh_make_scratch("isolation");
@@ -451,7 +451,8 @@ fn rbttee_commit_nameplates_scopes_to_named_class_only() {
     // not merely that some path was found.
     let np_dir = tmp
         .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
-        .join(format!("{}testnp", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE));
+        .join(format!("{}testnp", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE, //
+));
     std::fs::create_dir_all(&np_dir).unwrap();
     let rbrn = np_dir.join(crate::rbtgec_consts::RBTGEC_RBRN_FILE);
     std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=\n").unwrap();
@@ -473,13 +474,13 @@ fn rbttee_commit_nameplates_scopes_to_named_class_only() {
     assert!(
         !out.contains("rbrn.env"),
         "nameplate file must be committed; status: {:?}",
-        out
+        out, //
     );
     // ...and the surprise edit survives uncommitted — never swept into the commit.
     assert!(
         out.contains("surprise.txt"),
         "surprise edit must survive uncommitted; status: {:?}",
-        out
+        out, //
     );
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -569,7 +570,8 @@ fn zrbttee_census_invoke_used(_dir: &Path) -> rbtcee_Verdict {
     crate::rbtccc_crucible::rbtccc_with_ctx(|ctx| {
         match crate::rbtcei_invocation::rbtcei_invoke_global(ctx, ZRBTTEE_CENSUS_COL_USED, &[], &[]) {
             Ok(r) if r.exit_code == 0 => rbtcee_Verdict::Pass,
-            Ok(r) => rbtcee_Verdict::Fail(format!("exit {}", r.exit_code)),
+            Ok(r) => rbtcee_Verdict::Fail(format!("exit {}", r.exit_code, //
+)),
             Err(e) => rbtcee_Verdict::Fail(e),
         }
     })
@@ -593,7 +595,8 @@ fn zrbttee_census_scratch(label: &str) -> std::path::PathBuf {
     let tmp = rbtteh_make_scratch(label);
     let tt = tmp.join("tt");
     std::fs::create_dir_all(&tt).unwrap();
-    let script = tt.join(format!("{}.Foo.sh", ZRBTTEE_CENSUS_COL_USED));
+    let script = tt.join(format!("{}.Foo.sh", ZRBTTEE_CENSUS_COL_USED, //
+));
     bkprs_program_write(&script, "#!/bin/bash\nexit 0\n").unwrap();
     tmp
 }
@@ -613,7 +616,8 @@ fn rbttee_run_fixture_passes_when_declared_colophons_all_used() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.failed, 0, "every declared colophon was invoked — must not fail");
+    assert_eq!(result.failed, 0, "every declared colophon was invoked — must not fail", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -637,7 +641,8 @@ fn rbttee_run_fixture_fails_on_declared_but_unused_colophon() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert!(result.failed > 0, "a declared-but-never-invoked colophon must fail the fixture");
+    assert!(result.failed > 0, "a declared-but-never-invoked colophon must fail the fixture", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -664,7 +669,8 @@ fn rbttee_run_single_case_ignores_unused_declared_colophons() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.failed, 0, "single-case run must not enforce the negative census direction");
+    assert_eq!(result.failed, 0, "single-case run must not enforce the negative census direction", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -689,8 +695,10 @@ fn rbttee_run_fixture_permitted_colophon_invocation_not_refused() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.passed, 1, "a permitted colophon's invoke must not be refused");
-    assert_eq!(result.failed, 0, "a permitted colophon's invoke must not be refused");
+    assert_eq!(result.passed, 1, "a permitted colophon's invoke must not be refused", //
+);
+    assert_eq!(result.failed, 0, "a permitted colophon's invoke must not be refused", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -729,7 +737,8 @@ fn rbttee_run_fixture_permitted_colophon_unused_does_not_fail() {
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
     assert_eq!(result.passed, 1);
-    assert_eq!(result.failed, 0, "an unused permitted colophon must not fail the fixture");
+    assert_eq!(result.failed, 0, "an unused permitted colophon must not fail the fixture", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -771,7 +780,8 @@ fn rbttee_run_fixture_skip_suppresses_negative_census() {
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
     assert_eq!(result.skipped, 1);
-    assert_eq!(result.failed, 0, "a skipped run must suppress the negative census check");
+    assert_eq!(result.failed, 0, "a skipped run must suppress the negative census check", //
+);
 
     let _ = std::fs::remove_dir_all(&tmp);
 }

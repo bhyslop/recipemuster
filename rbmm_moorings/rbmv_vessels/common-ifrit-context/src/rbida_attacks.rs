@@ -387,7 +387,8 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         rbtica_Attack::DnsAllowedExample => rbtica_expect_command_succeeds(
             "getent",
             &["hosts", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS resolution of {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!("DNS resolution of {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN, //
+),
         ),
         rbtica_Attack::DnsAllowedExampleOrg => rbtica_expect_command_succeeds(
             "getent",
@@ -412,12 +413,14 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         rbtica_Attack::DnsTcp => rbtica_expect_command_succeeds(
             "dig",
             &["+tcp", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS over TCP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!("DNS over TCP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN, //
+),
         ),
         rbtica_Attack::DnsUdp => rbtica_expect_command_succeeds(
             "dig",
             &["+notcp", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS over UDP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!("DNS over UDP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN, //
+),
         ),
         rbtica_Attack::DnsBlockDirect => rbtica_expect_all_fail(
             &[
@@ -479,7 +482,8 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
             rbtica_expect_command_succeeds(
                 "nc",
                 &["-w", "2", "-zv", ip, "443"],
-                &format!("TCP 443 connection to {} (should be allowed)", ip),
+                &format!("TCP 443 connection to {} (should be allowed)", ip, //
+),
             )
         }
         rbtica_Attack::Tcp443Block => {
@@ -493,7 +497,8 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
             rbtica_expect_command_fails(
                 "nc",
                 &["-w", "2", "-zv", ip, "443"],
-                &format!("TCP 443 connection to {} (should be blocked)", ip),
+                &format!("TCP 443 connection to {} (should be blocked)", ip, //
+),
             )
         }
         rbtica_Attack::IcmpFirstHop => rbtica_check_icmp_first_hop(),
@@ -549,7 +554,8 @@ fn rbtica_expect_command_succeeds(cmd: &str, args: &[&str], description: &str) -
             if output.status.success() {
                 rbtica_Verdict {
                     passed: true,
-                    detail: format!("SECURE: {}", description),
+                    detail: format!("SECURE: {}", description, //
+),
                 }
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
@@ -559,14 +565,15 @@ fn rbtica_expect_command_succeeds(cmd: &str, args: &[&str], description: &str) -
                         "BREACH: {} — command failed (exit {}): {}",
                         description,
                         output.status.code().unwrap_or(-1),
-                        stderr.trim()
+                        stderr.trim(), //
                     ),
                 }
             }
         }
         Err(e) => rbtica_Verdict {
             passed: false,
-            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e),
+            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e, //
+),
         },
     }
 }
@@ -579,18 +586,21 @@ fn rbtica_expect_command_fails(cmd: &str, args: &[&str], description: &str) -> r
             if output.status.success() {
                 rbtica_Verdict {
                     passed: false,
-                    detail: format!("BREACH: {} — command succeeded unexpectedly", description),
+                    detail: format!("BREACH: {} — command succeeded unexpectedly", description, //
+),
                 }
             } else {
                 rbtica_Verdict {
                     passed: true,
-                    detail: format!("SECURE: {}", description),
+                    detail: format!("SECURE: {}", description, //
+),
                 }
             }
         }
         Err(e) => rbtica_Verdict {
             passed: false,
-            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e),
+            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e, //
+),
         },
     }
 }
@@ -606,7 +616,7 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
                         passed: false,
                         detail: format!(
                             "BREACH: {} — '{}' succeeded unexpectedly",
-                            description, cmd
+                            description, cmd, //
                         ),
                     };
                 }
@@ -617,7 +627,7 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
                     passed: false,
                     detail: format!(
                         "ERROR: {} — failed to execute '{}': {}",
-                        description, cmd, e
+                        description, cmd, e, //
                     ),
                 };
             }
@@ -625,7 +635,8 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
     }
     rbtica_Verdict {
         passed: true,
-        detail: format!("SECURE: {}", description),
+        detail: format!("SECURE: {}", description, //
+),
     }
 }
 
@@ -638,7 +649,8 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         Err(e) => {
             return rbtica_Verdict {
                 passed: false,
-                detail: format!("ERROR: icmp-first-hop — cannot read sentry IP: {}", e),
+                detail: format!("ERROR: icmp-first-hop — cannot read sentry IP: {}", e, //
+),
             }
         }
     };
@@ -651,7 +663,8 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         Err(e) => {
             return rbtica_Verdict {
                 passed: false,
-                detail: format!("ERROR: icmp-first-hop — failed to execute traceroute: {}", e),
+                detail: format!("ERROR: icmp-first-hop — failed to execute traceroute: {}", e, //
+),
             }
         }
     };
@@ -659,7 +672,7 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
     let combined = format!(
         "{}{}",
         String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
+        String::from_utf8_lossy(&output.stderr), //
     );
 
     // Accept sentry IP visible OR fully blocked (* * *)
@@ -668,7 +681,7 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
             passed: true,
             detail: format!(
                 "SECURE: icmp-first-hop — sentry IP {} visible in traceroute",
-                sentry_ip
+                sentry_ip, //
             ),
         };
     }
@@ -690,7 +703,7 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         passed: false,
         detail: format!(
             "BREACH: icmp-first-hop — unexpected traceroute output (expected sentry IP {} or * * *):\n{}",
-            sentry_ip, combined
+            sentry_ip, combined, //
         ),
     }
 }
@@ -707,7 +720,7 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
                 passed: false,
                 detail: format!(
                     "ERROR: icmp-second-hop-blocked — failed to execute traceroute: {}",
-                    e
+                    e, //
                 ),
             }
         }
@@ -716,7 +729,7 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
     let combined = format!(
         "{}{}",
         String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
+        String::from_utf8_lossy(&output.stderr), //
     );
 
     // Check for "2  * * *" pattern
@@ -736,7 +749,7 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
         passed: false,
         detail: format!(
             "BREACH: icmp-second-hop-blocked — expected blocked second hop (* * *) in traceroute:\n{}",
-            combined
+            combined, //
         ),
     }
 }
@@ -745,7 +758,8 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
 /// Returns the first nameserver entry found.
 fn rbtica_read_nameserver() -> Result<String, String> {
     let content = std::fs::read_to_string("/etc/resolv.conf")
-        .map_err(|e| format!("cannot read /etc/resolv.conf: {}", e))?;
+        .map_err(|e| format!("cannot read /etc/resolv.conf: {}", e, //
+))?;
 
     for line in content.lines() {
         let trimmed = line.trim();

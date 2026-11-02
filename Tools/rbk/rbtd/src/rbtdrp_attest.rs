@@ -27,14 +27,15 @@
 
 use std::path::Path;
 
-use crate::rbtcee_engine::{rbtcee_tree_clean, rbtcee_Verdict};
+use crate::rbtcee_engine::{rbtcee_tree_clean, rbtcee_Verdict, //
+};
 use crate::rbtgec_consts::{
-    RBTGEC_MOORINGS_DIR, RBTGEC_RBRD_FILE, RBTGEC_RBRN_FILE, RBTGEC_RBRR_FILE, RBTGEC_RBRV_FILE,
+    RBTGEC_MOORINGS_DIR, RBTGEC_RBRD_FILE, RBTGEC_RBRN_FILE, RBTGEC_RBRR_FILE, RBTGEC_RBRV_FILE, //
 };
 use crate::rbtcgf_freehold::{
     rbtcgf_read_env_value, rbtcgf_resolve, RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
     RBTCGF_FIELD_RBRD_DEPOT_MONIKER, RBTCGF_FIELD_RBRR_RUNTIME_PREFIX,
-    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY,
+    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY, //
 };
 
 /// Site-specific RBRR fields rblm_zero blanks: the runtime prefix and the
@@ -43,7 +44,7 @@ use crate::rbtcgf_freehold::{
 /// moved to RBRD.
 const RBTCGA_RBRR_BLANK_FIELDS: &[&str] = &[
     RBTCGF_FIELD_RBRR_RUNTIME_PREFIX,
-    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY,
+    RBTCGF_FIELD_RBRR_SUBSTRATE_RELIQUARY, //
 ];
 
 /// Site-specific RBRD fields rblm_zero blanks. Both define the depot-bound
@@ -52,11 +53,12 @@ const RBTCGA_RBRR_BLANK_FIELDS: &[&str] = &[
 /// marshal-zero invariant.
 const RBTCGA_RBRD_BLANK_FIELDS: &[&str] = &[
     RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
-    RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
+    RBTCGF_FIELD_RBRD_DEPOT_MONIKER, //
 ];
 
 /// Nameplate hallmark fields rblm_zero blanks.
-const RBTCGA_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
+const RBTCGA_RBRN_BLANK_FIELDS: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK", //
+];
 
 // ── Violation-class checks ───────────────────────────────────
 
@@ -78,7 +80,7 @@ fn rbtcga_check_rbrr_fields(rbrr: &Path, violations: &mut Vec<String>) {
                     "RBRR field non-blank: {}={} (in {})",
                     field,
                     value,
-                    rbrr.display()
+                    rbrr.display(), //
                 ));
             }
         }
@@ -93,7 +95,7 @@ fn rbtcga_check_rbrd_fields(rbrd: &Path, violations: &mut Vec<String>) {
                     "RBRD field non-blank: {}={} (in {})",
                     field,
                     value,
-                    rbrd.display()
+                    rbrd.display(), //
                 ));
             }
         }
@@ -107,7 +109,8 @@ fn rbtcga_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
     let entries = match std::fs::read_dir(&dot_dir) {
         Ok(e) => e,
         Err(e) => {
-            violations.push(format!("cannot read {}: {}", dot_dir.display(), e));
+            violations.push(format!("cannot read {}: {}", dot_dir.display(), e, //
+));
             return;
         }
     };
@@ -127,7 +130,7 @@ fn rbtcga_check_nameplate_hallmarks(root: &Path, violations: &mut Vec<String>) {
                         "nameplate hallmark non-blank: {}={} (in {})",
                         field,
                         value,
-                        rbrn.display()
+                        rbrn.display(), //
                     ));
                 }
             }
@@ -150,7 +153,8 @@ fn rbtcga_check_vessel_depot_fields(
     let entries = match std::fs::read_dir(&vroot) {
         Ok(e) => e,
         Err(e) => {
-            violations.push(format!("cannot read {}: {}", vroot.display(), e));
+            violations.push(format!("cannot read {}: {}", vroot.display(), e, //
+));
             return;
         }
     };
@@ -173,7 +177,8 @@ fn rbtcga_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
     let content = match std::fs::read_to_string(rbrv) {
         Ok(c) => c,
         Err(e) => {
-            violations.push(format!("cannot read {}: {}", rbrv.display(), e));
+            violations.push(format!("cannot read {}: {}", rbrv.display(), e, //
+));
             return;
         }
     };
@@ -193,7 +198,7 @@ fn rbtcga_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
                 "vessel depot-scoped field non-blank: {}={} (in {})",
                 key,
                 value,
-                rbrv.display()
+                rbrv.display(), //
             ));
         }
     }
@@ -207,16 +212,19 @@ fn rbtcga_scan_rbrv_file(rbrv: &Path, violations: &mut Vec<String>) {
 pub(crate) fn rbtcga_marshal_zero_attestation(_dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot resolve project root: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot resolve project root: {}", e, //
+)),
     };
 
     let rbrr = root.join(RBTGEC_RBRR_FILE);
     if !rbrr.exists() {
-        return rbtcee_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display()));
+        return rbtcee_Verdict::Fail(format!("RBRR file not found: {}", rbrr.display(), //
+));
     }
     let rbrd = root.join(RBTGEC_RBRD_FILE);
     if !rbrd.exists() {
-        return rbtcee_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display()));
+        return rbtcee_Verdict::Fail(format!("RBRD file not found: {}", rbrd.display(), //
+));
     }
 
     let vessel_dir = rbtcgf_read_env_value(&rbrr, "RBRR_VESSEL_DIR").unwrap_or_default();
@@ -235,13 +243,14 @@ pub(crate) fn rbtcga_marshal_zero_attestation(_dir: &Path) -> rbtcee_Verdict {
 
     let body = violations
         .iter()
-        .map(|v| format!("  - {}", v))
+        .map(|v| format!("  - {}", v, //
+))
         .collect::<Vec<_>>()
         .join("\n");
     rbtcee_Verdict::Fail(format!(
         "marshal-zero attestation failed — {} violation(s):\n{}\n\n\
          remedy: tt/rbw-MZ.MarshalZeroes.sh, then notch (commit) and rerun.",
         violations.len(),
-        body
+        body, //
     ))
 }

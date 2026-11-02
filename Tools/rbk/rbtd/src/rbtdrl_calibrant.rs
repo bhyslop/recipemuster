@@ -51,15 +51,17 @@ use std::path::Path;
 
 use crate::rbtcee_case;
 use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
-use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
+use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe, //
+};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
+use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict, //
+};
 use crate::rbtcei_invocation::rbtcei_invoke_global;
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
     RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST,
     RBTCEM_FIXTURE_CALIBRANT_PROGRESSING, RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
-    RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTCEM_FIXTURE_CALIBRANT_VERDICTS,
+    RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTCEM_FIXTURE_CALIBRANT_VERDICTS, //
 };
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
@@ -76,7 +78,8 @@ pub(crate) const RBTCHL_OUTPUT_FILE: &str = "output.txt";
 
 fn rbtchl_write_sentinel(dir: &Path) -> Result<(), rbtcee_Verdict> {
     std::fs::write(dir.join(RBTCHL_SENTINEL_FILE), "")
-        .map_err(|e| rbtcee_Verdict::Fail(format!("sentinel write failed: {}", e)))
+        .map_err(|e| rbtcee_Verdict::Fail(format!("sentinel write failed: {}", e, //
+)))
 }
 
 // ── calibrant-verdicts ──────────────────────────────────────
@@ -98,7 +101,8 @@ fn rbtchl_verdicts_pass_with_output(dir: &Path) -> rbtcee_Verdict {
         dir.join(RBTCHL_OUTPUT_FILE),
         "calibrant case-written output\n",
     ) {
-        return rbtcee_Verdict::Fail(format!("output write failed: {}", e));
+        return rbtcee_Verdict::Fail(format!("output write failed: {}", e, //
+));
     }
     rbtcee_Verdict::Pass
 }
@@ -107,7 +111,7 @@ pub static RBTCHL_CASES_VERDICTS: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchl_verdicts_pass),
     rbtcee_case!(rbtchl_verdicts_fail),
     rbtcee_case!(rbtchl_verdicts_skip),
-    rbtcee_case!(rbtchl_verdicts_pass_with_output),
+    rbtcee_case!(rbtchl_verdicts_pass_with_output), //
 ];
 
 // ── calibrant-fail-fast ─────────────────────────────────────
@@ -133,7 +137,7 @@ fn rbtchl_failfast_not_reached(dir: &Path) -> rbtcee_Verdict {
 pub static RBTCHL_CASES_FAIL_FAST: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchl_failfast_pass),
     rbtcee_case!(rbtchl_failfast_fail),
-    rbtcee_case!(rbtchl_failfast_not_reached),
+    rbtcee_case!(rbtchl_failfast_not_reached), //
 ];
 
 // ── calibrant-progressing ───────────────────────────────────
@@ -178,7 +182,7 @@ fn rbtchl_progressing_probe_err(_dir: &Path) -> rbtcee_Verdict {
 
 pub static RBTCHL_CASES_PROGRESSING: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchl_progressing_probe_ok),
-    rbtcee_case!(rbtchl_progressing_probe_err),
+    rbtcee_case!(rbtchl_progressing_probe_err), //
 ];
 
 // ── calibrant-sentinel ──────────────────────────────────────
@@ -211,7 +215,8 @@ pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentine
 fn zrbtchl_invoke_nihil() -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| match rbtcei_invoke_global(ctx, RBTGEC_THEURGE_NIHIL, &[], &[]) {
         Ok(result) if result.exit_code == 0 => rbtcee_Verdict::Pass,
-        Ok(result) => rbtcee_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code)),
+        Ok(result) => rbtcee_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code, //
+)),
         Err(e) => rbtcee_Verdict::Fail(e),
     })
 }

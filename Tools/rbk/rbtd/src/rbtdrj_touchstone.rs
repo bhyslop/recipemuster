@@ -44,14 +44,15 @@
 // that is a fingerprint no-op, which is what keeps a Windows relink over the
 // running binary out of reach.
 
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, //
+};
 
 use crate::rbtcee_case;
 use crate::rbtgec_consts::{
     RBTGEC_THEURGE_CASE,
     RBTGEC_THEURGE_FIXTURE,
     RBTGEC_THEURGE_NIHIL,
-    RBTGEC_THEURGE_SUITE,
+    RBTGEC_THEURGE_SUITE, //
 };
 use crate::rbtcea_almanac::RBTCEA_SUITE_NAME_CALIBRANT;
 use crate::rbtccc_crucible::rbtccc_with_ctx;
@@ -65,12 +66,12 @@ use crate::rbtcee_engine::{
     rbtcee_Disposition,
     rbtcee_Fixture,
     rbtcee_Tariff,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
 use crate::rbtcei_invocation::{
     rbtcei_InvokeResult,
     rbtcei_invoke_global,
-    rbtcei_invoke_imprint_env,
+    rbtcei_invoke_imprint_env, //
 };
 use crate::rbtchl_calibrant::{
     RBTCHL_CASES_COVERAGE_UNDECLARED,
@@ -80,7 +81,7 @@ use crate::rbtchl_calibrant::{
     RBTCHL_CASES_SENTINEL,
     RBTCHL_CASES_VERDICTS,
     RBTCHL_OUTPUT_FILE,
-    RBTCHL_SENTINEL_FILE,
+    RBTCHL_SENTINEL_FILE, //
 };
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
@@ -90,7 +91,7 @@ use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_CALIBRANT_PROGRESSING,
     RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
     RBTCEM_FIXTURE_CALIBRANT_VERDICTS,
-    RBTCEM_FIXTURE_TOUCHSTONE,
+    RBTCEM_FIXTURE_TOUCHSTONE, //
 };
 use crate::rbtcep_platform::rbtcep_native_to_posix;
 
@@ -129,9 +130,11 @@ fn zrbtcct_child(
     let log_dir = if no_log {
         None
     } else {
-        let d = dir.join(format!("{}-logs", label));
+        let d = dir.join(format!("{}-logs", label, //
+));
         std::fs::create_dir_all(&d).map_err(|e| {
-            rbtcee_Verdict::Fail(format!("{}: create child log dir: {}", label, e))
+            rbtcee_Verdict::Fail(format!("{}: create child log dir: {}", label, e, //
+))
         })?;
         env.push(("BURV_LOG_DIR".to_string(), rbtcep_native_to_posix(&d)));
         Some(d)
@@ -156,7 +159,7 @@ fn zrbtcct_child(
                         return rbtcee_Verdict::Fail(format!(
                             "{}: burv_output has no dir name: {}",
                             label,
-                            result.burv_output.display()
+                            result.burv_output.display(), //
                         ))
                     }
                 };
@@ -164,7 +167,8 @@ fn zrbtcct_child(
                 captured = Some((result, burv_temp));
                 rbtcee_Verdict::Pass
             }
-            Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+            Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e, //
+)),
         }
     });
     if !matches!(invoke_verdict, rbtcee_Verdict::Pass) {
@@ -172,8 +176,10 @@ fn zrbtcct_child(
     }
     let (result, burv_temp) = captured.expect("captured set on Pass verdict");
 
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
+)), &result.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
+)), &result.stderr);
 
     Ok(zrbtcct_Child {
         exit_code: result.exit_code,
@@ -205,7 +211,8 @@ fn zrbtcct_tail(s: &str) -> String {
     while !s.is_char_boundary(start) {
         start += 1;
     }
-    format!("…{}", &s[start..])
+    format!("…{}", &s[start..], //
+)
 }
 
 fn zrbtcct_expect_contains(hay: &str, needle: &str, what: &str) -> Result<(), rbtcee_Verdict> {
@@ -215,7 +222,7 @@ fn zrbtcct_expect_contains(hay: &str, needle: &str, what: &str) -> Result<(), rb
             "{}: expected to contain '{}'\n--- observed tail ---\n{}",
             what,
             needle,
-            zrbtcct_tail(hay)
+            zrbtcct_tail(hay), //
         ),
     )
 }
@@ -227,7 +234,7 @@ fn zrbtcct_expect_lacks(hay: &str, needle: &str, what: &str) -> Result<(), rbtce
             "{}: expected NOT to contain '{}'\n--- observed tail ---\n{}",
             what,
             needle,
-            zrbtcct_tail(hay)
+            zrbtcct_tail(hay), //
         ),
     )
 }
@@ -238,7 +245,7 @@ fn zrbtcct_expect_nonzero(child: &zrbtcct_Child, what: &str) -> Result<(), rbtce
         format!(
             "{}: expected nonzero child exit, got 0\n--- stdout tail ---\n{}",
             what,
-            zrbtcct_tail(&child.stdout)
+            zrbtcct_tail(&child.stdout), //
         ),
     )
 }
@@ -251,7 +258,7 @@ fn zrbtcct_expect_zero(child: &zrbtcct_Child, what: &str) -> Result<(), rbtcee_V
             what,
             child.exit_code,
             zrbtcct_tail(&child.stdout),
-            zrbtcct_tail(&child.stderr)
+            zrbtcct_tail(&child.stderr), //
         ),
     )
 }
@@ -268,7 +275,7 @@ fn zrbtcct_child_temp_gen(
             "{}: read child temp root {}: {}",
             label,
             child.burv_temp.display(),
-            e
+            e, //
         ))
     })?;
     let gens: Vec<PathBuf> = entries
@@ -287,7 +294,7 @@ fn zrbtcct_child_temp_gen(
             "{}: expected exactly one temp-* generation under {}, found {}",
             label,
             child.burv_temp.display(),
-            n
+            n, //
         ))),
     }
 }
@@ -306,7 +313,8 @@ fn zrbtcct_child_case_dir(
 
 fn zrbtcct_read(path: &Path, what: &str) -> Result<String, rbtcee_Verdict> {
     std::fs::read_to_string(path)
-        .map_err(|e| rbtcee_Verdict::Fail(format!("{}: read {}: {}", what, path.display(), e)))
+        .map_err(|e| rbtcee_Verdict::Fail(format!("{}: read {}: {}", what, path.display(), e, //
+)))
 }
 
 /// Fold a Result-style case body into the engine's Verdict shape.
@@ -401,7 +409,7 @@ fn rbtcct_verdict_fail_exits_nonzero(dir: &Path) -> rbtcee_Verdict {
             !skip_dir.exists(),
             format!(
                 "verdicts-default: case after the failure ran under default fail-fast — {} exists",
-                skip_dir.display()
+                skip_dir.display(), //
             ),
         )
     })
@@ -434,7 +442,8 @@ fn rbtcct_verdict_keep_going_runs_all(dir: &Path) -> rbtcee_Verdict {
                 zrbtcct_child_case_dir(&child, label, case.name)?.join(RBTCEE_TRACE_FILE);
             zrbtcct_expect(
                 trace.is_file(),
-                format!("verdicts-keep-going: missing trace {}", trace.display()),
+                format!("verdicts-keep-going: missing trace {}", trace.display(), //
+),
             )?;
         }
         let output =
@@ -471,7 +480,7 @@ fn rbtcct_failfast_default_halts_trailing(dir: &Path) -> rbtcee_Verdict {
             !sentinel.exists(),
             format!(
                 "failfast-default: trailing case ran under fail-fast — sentinel {} exists",
-                sentinel.display()
+                sentinel.display(), //
             ),
         )
     })
@@ -498,7 +507,7 @@ fn rbtcct_failfast_keep_going_reaches_trailing(dir: &Path) -> rbtcee_Verdict {
             sentinel.is_file(),
             format!(
                 "failfast-keep-going: trailing case did not run — sentinel {} absent",
-                sentinel.display()
+                sentinel.display(), //
             ),
         )
     })
@@ -555,7 +564,7 @@ fn rbtcct_progressing_keep_going_refused(dir: &Path) -> rbtcee_Verdict {
                 !case_dir.exists(),
                 format!(
                     "progressing-refused: case ran despite policy refusal — {} exists",
-                    case_dir.display()
+                    case_dir.display(), //
                 ),
             )?;
         }
@@ -612,7 +621,8 @@ fn rbtcct_suite_abort_halts_sentinel(dir: &Path) -> rbtcee_Verdict {
         zrbtcct_expect_contains(&child.stdout, fail_case, "suite-abort stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
-            &format!("Suite '{}': 1 fixture(s) run", RBTCEA_SUITE_NAME_CALIBRANT),
+            &format!("Suite '{}': 1 fixture(s) run", RBTCEA_SUITE_NAME_CALIBRANT, //
+),
             "suite-abort stdout",
         )?;
         let sentinel_dir = zrbtcct_child_case_dir(&child, label, sentinel_case)?;
@@ -620,7 +630,7 @@ fn rbtcct_suite_abort_halts_sentinel(dir: &Path) -> rbtcee_Verdict {
             !sentinel_dir.exists(),
             format!(
                 "suite-abort: sentinel fixture ran after the aborting failure — {} exists",
-                sentinel_dir.display()
+                sentinel_dir.display(), //
             ),
         )
     })
@@ -716,7 +726,8 @@ fn rbtcct_coverage_aligned_exits_zero(dir: &Path) -> rbtcee_Verdict {
         zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "coverage-aligned stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
-            &format!("colophon '{}' used", RBTGEC_THEURGE_NIHIL),
+            &format!("colophon '{}' used", RBTGEC_THEURGE_NIHIL, //
+),
             "coverage-aligned stdout",
         )
     })
@@ -743,7 +754,7 @@ fn rbtcct_coverage_undeclared_fails_naming_colophon(dir: &Path) -> rbtcee_Verdic
             &child.stdout,
             &format!(
                 "invoked colophon '{}' which is not declared in its required-colophons census",
-                RBTGEC_THEURGE_NIHIL
+                RBTGEC_THEURGE_NIHIL, //
             ),
             "coverage-undeclared stdout",
         )
@@ -771,7 +782,7 @@ fn rbtcct_coverage_unused_fails_naming_colophon(dir: &Path) -> rbtcee_Verdict {
             &child.stdout,
             &format!(
                 "census — colophon '{}' declared but never invoked",
-                RBTGEC_THEURGE_NIHIL
+                RBTGEC_THEURGE_NIHIL, //
             ),
             "coverage-unused stdout",
         )
@@ -909,7 +920,7 @@ fn rbtcct_log_override_isolates(dir: &Path) -> rbtcee_Verdict {
                 rbtcee_Verdict::Fail(format!(
                     "log-isolation: read override log dir {}: {}",
                     log_dir.display(),
-                    e
+                    e, //
                 ))
             })?
             .filter_map(|e| e.ok())
@@ -917,15 +928,18 @@ fn rbtcct_log_override_isolates(dir: &Path) -> rbtcee_Verdict {
             .collect();
         zrbtcct_expect(
             names.iter().any(|n| n.starts_with("hist-")),
-            format!("log-isolation: no hist-* self-log in override dir (found: {:?})", names),
+            format!("log-isolation: no hist-* self-log in override dir (found: {:?})", names, //
+),
         )?;
         zrbtcct_expect(
             names.iter().any(|n| n.starts_with("same-")),
-            format!("log-isolation: no same-* self-log in override dir (found: {:?})", names),
+            format!("log-isolation: no same-* self-log in override dir (found: {:?})", names, //
+),
         )?;
         zrbtcct_expect(
             names.len() >= 3,
-            format!("log-isolation: expected ≥3 self-logs in override dir, found {:?}", names),
+            format!("log-isolation: expected ≥3 self-logs in override dir, found {:?}", names, //
+),
         )
     })
 }
@@ -963,7 +977,7 @@ pub static RBTCCT_CASES_TOUCHSTONE: &[rbtcee_Case] = &[
     // stream-placement
     rbtcee_case!(rbtcct_stream_placement_diags_on_stderr),
     // log-isolation
-    rbtcee_case!(rbtcct_log_override_isolates),
+    rbtcee_case!(rbtcct_log_override_isolates), //
 ];
 
 /// credless: touchstone is a reveille member, so the guard rides every child

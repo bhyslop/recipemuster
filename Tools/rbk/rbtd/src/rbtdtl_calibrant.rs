@@ -28,21 +28,25 @@ use std::path::PathBuf;
 
 use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
 use crate::rbtcea_almanac::rbtcea_lookup_fixture;
-use crate::rbtcee_engine::{rbtcee_find_case, rbtcee_Disposition, rbtcee_Verdict};
-use crate::rbtchl_calibrant::{RBTCHL_OUTPUT_FILE, RBTCHL_SENTINEL_FILE};
+use crate::rbtcee_engine::{rbtcee_find_case, rbtcee_Disposition, rbtcee_Verdict, //
+};
+use crate::rbtchl_calibrant::{RBTCHL_OUTPUT_FILE, RBTCHL_SENTINEL_FILE, //
+};
 use crate::rbtcem_manifest::{
     rbtcem_required_colophons, RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
     RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED, RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
     RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST, RBTCEM_FIXTURE_CALIBRANT_PROGRESSING,
-    RBTCEM_FIXTURE_CALIBRANT_SENTINEL, RBTCEM_FIXTURE_CALIBRANT_VERDICTS,
+    RBTCEM_FIXTURE_CALIBRANT_SENTINEL, RBTCEM_FIXTURE_CALIBRANT_VERDICTS, //
 };
 use crate::rbtteh_helpers::rbtteh_make_scratch;
 
 fn rbtthl_run_case(fixture: &'static str, case_name: &str) -> (rbtcee_Verdict, PathBuf) {
     let fix = rbtcea_lookup_fixture(fixture)
-        .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
+        .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture, //
+));
     let case = rbtcee_find_case(fix.cases, case_name)
-        .unwrap_or_else(|| panic!("case '{}' not found in fixture '{}'", case_name, fixture));
+        .unwrap_or_else(|| panic!("case '{}' not found in fixture '{}'", case_name, fixture, //
+));
     let dir = rbtteh_make_scratch(case_name);
     let verdict = (case.func)(&dir);
     (verdict, dir)
@@ -51,8 +55,10 @@ fn rbtthl_run_case(fixture: &'static str, case_name: &str) -> (rbtcee_Verdict, P
 fn rbtthl_assert_pass(verdict: &rbtcee_Verdict, label: &str) {
     match verdict {
         rbtcee_Verdict::Pass => (),
-        rbtcee_Verdict::Fail(d) => panic!("{}: expected Pass, got Fail({})", label, d),
-        rbtcee_Verdict::Skip(d) => panic!("{}: expected Pass, got Skip({})", label, d),
+        rbtcee_Verdict::Fail(d) => panic!("{}: expected Pass, got Fail({})", label, d, //
+),
+        rbtcee_Verdict::Skip(d) => panic!("{}: expected Pass, got Skip({})", label, d, //
+),
     }
 }
 
@@ -63,15 +69,17 @@ fn rbtthl_assert_fail_with(verdict: &rbtcee_Verdict, needle: &str, label: &str) 
             "{}: Fail detail did not contain '{}': {}",
             label,
             needle,
-            d
+            d, //
         ),
-        other => panic!("{}: expected Fail, got {:?}", label, zrbtthl_fmt_other(other)),
+        other => panic!("{}: expected Fail, got {:?}", label, zrbtthl_fmt_other(other), //
+),
     }
 }
 
 fn rbtthl_assert_skip(verdict: &rbtcee_Verdict, label: &str) {
     if !matches!(verdict, rbtcee_Verdict::Skip(_)) {
-        panic!("{}: expected Skip, got {:?}", label, zrbtthl_fmt_other(verdict));
+        panic!("{}: expected Skip, got {:?}", label, zrbtthl_fmt_other(verdict), //
+);
     }
 }
 
@@ -98,12 +106,13 @@ fn rbtthl_verdict_family_declares_no_colophons() {
         RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
     ] {
         let req = rbtcem_required_colophons(fixture)
-            .unwrap_or_else(|| panic!("fixture '{}' not registered in manifest", fixture));
+            .unwrap_or_else(|| panic!("fixture '{}' not registered in manifest", fixture, //
+));
         assert!(
             req.is_empty(),
             "fixture '{}' must declare empty required-colophons (no shell-outs); got {:?}",
             fixture,
-            req
+            req, //
         );
     }
 }
@@ -116,11 +125,11 @@ fn rbtthl_verdicts_pass_returns_pass() {
     rbtthl_assert_pass(&verdict, "verdicts_pass");
     assert!(
         !dir.join(RBTCHL_OUTPUT_FILE).exists(),
-        "pass case must not write output.txt"
+        "pass case must not write output.txt", //
     );
     assert!(
         !dir.join(RBTCHL_SENTINEL_FILE).exists(),
-        "pass case must not write sentinel"
+        "pass case must not write sentinel", //
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -150,10 +159,11 @@ fn rbtthl_verdicts_pass_with_output_writes_output_file() {
     assert!(
         output.exists(),
         "pass_with_output must write {}",
-        RBTCHL_OUTPUT_FILE
+        RBTCHL_OUTPUT_FILE, //
     );
     let body = std::fs::read_to_string(&output).expect("read output.txt");
-    assert!(!body.is_empty(), "output.txt must be non-empty");
+    assert!(!body.is_empty(), "output.txt must be non-empty", //
+);
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -166,7 +176,7 @@ fn rbtthl_failfast_pass_writes_no_sentinel() {
     rbtthl_assert_pass(&verdict, "failfast_pass");
     assert!(
         !dir.join(RBTCHL_SENTINEL_FILE).exists(),
-        "failfast_pass must not write sentinel"
+        "failfast_pass must not write sentinel", //
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -188,7 +198,7 @@ fn rbtthl_failfast_not_reached_writes_sentinel_when_run() {
     rbtthl_assert_pass(&verdict, "not_reached");
     assert!(
         dir.join(RBTCHL_SENTINEL_FILE).exists(),
-        "not_reached must write sentinel when run"
+        "not_reached must write sentinel when run", //
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -200,7 +210,7 @@ fn rbtthl_sentinel_marks_writes_sentinel() {
     rbtthl_assert_pass(&verdict, "sentinel_marks");
     assert!(
         dir.join(RBTCHL_SENTINEL_FILE).exists(),
-        "calibrant-sentinel must write sentinel"
+        "calibrant-sentinel must write sentinel", //
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -242,23 +252,24 @@ fn rbtthl_progressing_probe_err_fails_with_diagnostic() {
 
 fn rbtthl_assert_registered_single_case(fixture: &'static str, case_name: &str) {
     let fix = rbtcea_lookup_fixture(fixture)
-        .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture));
+        .unwrap_or_else(|| panic!("fixture '{}' not registered", fixture, //
+));
     assert!(
         matches!(fix.disposition, rbtcee_Disposition::Independent),
         "fixture '{}' must be Independent",
-        fixture
+        fixture, //
     );
     assert_eq!(
         fix.cases.len(),
         1,
         "fixture '{}' must register exactly one case",
-        fixture
+        fixture, //
     );
     assert!(
         rbtcee_find_case(fix.cases, case_name).is_some(),
         "fixture '{}' must register case '{}'",
         fixture,
-        case_name
+        case_name, //
     );
 }
 
@@ -273,7 +284,7 @@ fn rbtthl_coverage_aligned_declares_and_registers_nihil() {
     assert_eq!(
         req,
         &[RBTGEC_THEURGE_NIHIL],
-        "coverage-aligned must declare exactly the nihil colophon"
+        "coverage-aligned must declare exactly the nihil colophon", //
     );
 }
 
@@ -288,7 +299,7 @@ fn rbtthl_coverage_undeclared_declares_empty_and_registers() {
     assert!(
         req.is_empty(),
         "coverage-undeclared must declare no colophons; got {:?}",
-        req
+        req, //
     );
 }
 
@@ -303,7 +314,7 @@ fn rbtthl_coverage_unused_declares_and_registers_nihil() {
     assert_eq!(
         req,
         &[RBTGEC_THEURGE_NIHIL],
-        "coverage-unused must declare exactly the nihil colophon"
+        "coverage-unused must declare exactly the nihil colophon", //
     );
 }
 

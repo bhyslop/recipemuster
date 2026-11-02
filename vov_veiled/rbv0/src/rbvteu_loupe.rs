@@ -46,7 +46,7 @@ use crate::rbvceu_loupe::{
     zrbvceu_veil_self_proof_by,
     zrbvceu_Finding,
     ZRBVCEU_HOST_CENSUS,
-    ZRBVCEU_HOST_EXEMPT,
+    ZRBVCEU_HOST_EXEMPT, //
 };
 
 /// A synthetic one-document census: the withheld-basename half of the matcher is
@@ -68,7 +68,7 @@ fn zrbvteu_scan(probe: &str, census: &BTreeSet<String>) -> Vec<zrbvceu_Finding> 
 const ZRBVTEU_SCAN_PLANTED: &[&str] = &[
     "  - see vov_veiled/whatever.sh for the rule",
     "# Contract: ZZQ-Example.adoc.",
-    "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context row)",
+    "- **ZZQ**  → `zzk/vov_veiled/ZZQ-Example.adoc` (a maintainer-context row)", //
 ];
 
 /// Benign lines a coarser scanner might redden on: a shipping README mention, a
@@ -76,7 +76,7 @@ const ZRBVTEU_SCAN_PLANTED: &[&str] = &[
 const ZRBVTEU_SCAN_CLEAN: &[&str] = &[
     "start with the README.md at the project root",
     "the terrier records which citizens hold which mantles",
-    "ZZQ-Example.txt is not a withheld document",
+    "ZZQ-Example.txt is not a withheld document", //
 ];
 
 #[test]
@@ -87,7 +87,7 @@ fn rbvteu_veil_scan_catches_planted_leaks() {
         assert!(
             !hits.is_empty(),
             "the veil matcher missed a planted leak: {:?} — it would ride a regulus",
-            planted
+            planted, //
         );
     }
 }
@@ -101,7 +101,7 @@ fn rbvteu_veil_scan_silent_on_clean_lines() {
             hits.is_empty(),
             "the veil matcher reddened on a benign line {:?}: {:?} — a matcher that cries wolf gets disabled",
             clean,
-            hits.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+            hits.iter().map(|f| f.detail.clone()).collect::<Vec<_>>(), //
         );
     }
 }
@@ -116,7 +116,7 @@ fn rbvteu_veil_self_proof_holds() {
     assert!(
         findings.is_empty(),
         "the veil matcher self-proof failed — the live-tree verdict cannot be trusted: {:?}",
-        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>(), //
     );
 }
 
@@ -136,13 +136,15 @@ fn zrbvteu_blind_scan(
 /// veiled tree and no shipping file at all, the leak scan raises nothing.
 #[test]
 fn rbvteu_veil_leak_admits_an_empty_census() {
-    let root = std::env::temp_dir().join(format!("rbvteu-absent-root-{}", std::process::id()));
-    assert!(!root.exists(), "the absent root {:?} stands — the hurdle needs a tree holding nothing", root);
+    let root = std::env::temp_dir().join(format!("rbvteu-absent-root-{}", std::process::id(), //
+));
+    assert!(!root.exists(), "the absent root {:?} stands — the hurdle needs a tree holding nothing", root, //
+);
     let findings = zrbvceu_veil_leak(&root);
     assert!(
         findings.is_empty(),
         "an empty census reddened the assay: {:?}",
-        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>(), //
     );
 }
 
@@ -151,11 +153,12 @@ fn rbvteu_veil_leak_admits_an_empty_census() {
 #[test]
 fn rbvteu_veil_self_proof_fails_a_leaking_matcher() {
     let findings = zrbvceu_veil_self_proof_by(zrbvteu_blind_scan);
-    assert!(!findings.is_empty(), "the self-proof passed a matcher that catches nothing");
+    assert!(!findings.is_empty(), "the self-proof passed a matcher that catches nothing", //
+);
     assert!(
         findings.iter().all(|f| f.detail.starts_with("veil matcher missed a known leak")),
         "the self-proof failed a leaking matcher for the wrong reason: {:?}",
-        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>()
+        findings.iter().map(|f| f.detail.clone()).collect::<Vec<_>>(), //
     );
 }
 
@@ -173,31 +176,35 @@ fn rbvteu_hostname_census_is_live() {
 
     assert!(
         !effective.is_empty(),
-        "the hostname census is empty after exemptions — the scan would pass every tree vacuously"
+        "the hostname census is empty after exemptions — the scan would pass every tree vacuously", //
     );
 
     // A needle the matcher cannot fire on is a needle that protects nothing: an
     // empty or whitespace-bearing entry would sit in the list looking like cover.
     for name in &effective {
         assert!(
-            zrbvceu_names_token(&format!("host is {} today", name), name),
+            zrbvceu_names_token(&format!("host is {} today", name, //
+), name),
             "census entry {:?} is not a token the matcher can catch",
-            name
+            name, //
         );
     }
 }
 
 #[test]
 fn rbvteu_hostname_names_token_word_boundary() {
-    assert!(zrbvceu_names_token("host is falcon today", "falcon"), "a whole-word match is a leak");
-    assert!(zrbvceu_names_token("falcon", "falcon"), "the bare token is a leak");
-    assert!(zrbvceu_names_token("BURN_HOST=falcon", "falcon"), "a value after = is a leak");
+    assert!(zrbvceu_names_token("host is falcon today", "falcon"), "a whole-word match is a leak", //
+);
+    assert!(zrbvceu_names_token("falcon", "falcon"), "the bare token is a leak", //
+);
+    assert!(zrbvceu_names_token("BURN_HOST=falcon", "falcon"), "a value after = is a leak", //
+);
     assert!(
         !zrbvceu_names_token("the falconry mews stands empty", "falcon"),
-        "a substring of a longer word is not a leak"
+        "a substring of a longer word is not a leak", //
     );
     assert!(
         !zrbvceu_names_token("gyrfalcon circles", "falcon"),
-        "a trailing substring of a longer word is not a leak"
+        "a trailing substring of a longer word is not a leak", //
     );
 }

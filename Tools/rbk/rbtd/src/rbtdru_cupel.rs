@@ -50,7 +50,7 @@
 use std::collections::BTreeSet;
 use std::path::{
     Path,
-    PathBuf,
+    PathBuf, //
 };
 
 use crate::rbtcee_case;
@@ -59,7 +59,7 @@ use crate::rbtcee_engine::{
     rbtcee_Case,
     rbtcee_Disposition,
     rbtcee_Fixture,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_CUPEL;
 use crate::rbtchb_bash::zrbtchb_scan_domain;
@@ -74,7 +74,8 @@ pub(crate) const ZRBTCHC_TOOLS_SUBDIR: &str = "Tools";
 /// kits ship in the recipe-bottle consumer release,
 /// so only these are held to the discipline. Names are directory basenames under
 /// Tools/; adding one opts that kit into the lint deliberately.
-pub(crate) const ZRBTCHC_KIT_ROOTS: &[&str] = &["buk", "rbk"];
+pub(crate) const ZRBTCHC_KIT_ROOTS: &[&str] = &["buk", "rbk", //
+];
 
 /// Extension (no dot) selecting bash files from the corpus walk.
 pub(crate) const ZRBTCHC_SH_EXT: &str = "sh";
@@ -99,7 +100,8 @@ pub(crate) const ZRBTCHC_UNIVERSE_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED"
 /// Lint-target directory prefixes — additionally exclude `FUTURE*`. Not-yet-live
 /// code is present on disk (so its functions stay visible for pass-1 collection,
 /// resolving live code that sources it) but is not itself held to the discipline.
-pub(crate) const ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE"];
+pub(crate) const ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES: &[&str] = &["ABANDONED", "FUTURE", //
+];
 
 /// Filename affixes for the per-domain trace files written into the case dir:
 /// `cupel-<label>-findings.txt` (violations) and `cupel-<label>-inventory.txt`
@@ -121,7 +123,7 @@ pub(crate) const ZRBTCHC_LABEL_PY: &str = "py";
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
 pub(crate) const ZRBTCHC_POSIX_FLOOR: &[&str] = &[
     "chmod", "cp", "date", "find", "mkdir", "mv", "rm",
-    "sleep", "sort", "stty",
+    "sleep", "sort", "stty", //
 ];
 
 /// Declared dependencies — (consumer + developer
@@ -131,7 +133,7 @@ pub(crate) const ZRBTCHC_DECLARED_DEPS: &[&str] = &[
     "shellcheck", "ssh", "ssh-keygen", "stat", "tar", "tee", "timeout",
     // Optional probe-and-skip clipboard tier (one inventory row): probed
     // by buc_clipboard_copy_predicate, never required on any host.
-    "clip.exe", "pbcopy", "wl-copy", "xclip",
+    "clip.exe", "pbcopy", "wl-copy", "xclip", //
 ];
 
 /// Curated GCB container-tool allowlist — the external commands present in the
@@ -163,7 +165,7 @@ pub(crate) const ZRBTCHC_GCB_ALLOWED: &[&str] = &[
     // kit-bash — evicted from the kit floor, kept here.
     "mktemp",
     "openssl", "sha256sum", "shasum",
-    "tar", "tr", "wget",
+    "tar", "tr", "wget", //
 ];
 
 /// Python stdlib import floor — the module roots a python cloud step may
@@ -176,7 +178,7 @@ pub(crate) const ZRBTCHC_GCB_ALLOWED: &[&str] = &[
 /// outright in the scan, never via this list.
 pub(crate) const ZRBTCHC_PY_IMPORT_ALLOWED: &[&str] = &[
     "base64", "datetime", "io", "json", "os", "re", "socket", "subprocess",
-    "sys", "tarfile", "time", "urllib",
+    "sys", "tarfile", "time", "urllib", //
 ];
 
 /// Bash builtins and command-position keywords that name no external command —
@@ -191,7 +193,7 @@ pub(crate) const ZRBTCHC_BUILTINS: &[&str] = &[
     "jobs", "kill", "let", "local", "logout", "mapfile", "popd", "printf",
     "pushd", "pwd", "read", "readarray", "readonly", "return", "set", "shift",
     "shopt", "source", "suspend", "test", "times", "trap", "true", "type",
-    "typeset", "ulimit", "umask", "unalias", "unset", "wait",
+    "typeset", "ulimit", "umask", "unalias", "unset", "wait", //
 ];
 
 /// One evicted command and the prescribed replacement reported in its
@@ -216,7 +218,7 @@ pub(crate) const ZRBTCHC_EVICTIONS: &[zrbtchc_Eviction] = &[
     zrbtchc_Eviction { command: "sha256sum", replacement: "openssl dgst -sha256 -r" },
     zrbtchc_Eviction { command: "shasum", replacement: "openssl dgst -sha256 -r" },
     zrbtchc_Eviction { command: "tr", replacement: "${var//old/new} parameter expansion" },
-    zrbtchc_Eviction { command: "wc", replacement: "${#var} / ${#arr[@]}" },
+    zrbtchc_Eviction { command: "wc", replacement: "${#var} / ${#arr[@]}" }, //
 ];
 
 // ── Domain and findings ─────────────────────────────────────
@@ -294,7 +296,8 @@ pub(crate) fn zrbtchc_is_gcb(path: &Path) -> bool {
 fn zrbtchc_render(findings: &[zrbtchc_Finding]) -> String {
     let mut report = String::new();
     for f in findings {
-        report.push_str(&format!("{}:{}: {} — {}\n", f.file, f.line, f.command, f.detail));
+        report.push_str(&format!("{}:{}: {} — {}\n", f.file, f.line, f.command, f.detail, //
+));
     }
     report
 }
@@ -305,7 +308,8 @@ fn zrbtchc_render(findings: &[zrbtchc_Finding]) -> String {
 fn zrbtchc_report(dir: &Path, label: &str, scan: &zrbtchc_ScanResult, what: &str) -> rbtcee_Verdict {
     let findings = &scan.findings;
     let report = zrbtchc_render(findings);
-    let findings_name = format!("{}{}{}", ZRBTCHC_TRACE_PREFIX, label, ZRBTCHC_FINDINGS_SUFFIX);
+    let findings_name = format!("{}{}{}", ZRBTCHC_TRACE_PREFIX, label, ZRBTCHC_FINDINGS_SUFFIX, //
+);
     let _ = std::fs::write(dir.join(findings_name), &report);
 
     let mut inventory_report = String::new();
@@ -313,13 +317,15 @@ fn zrbtchc_report(dir: &Path, label: &str, scan: &zrbtchc_ScanResult, what: &str
         inventory_report.push_str(cmd);
         inventory_report.push('\n');
     }
-    let inventory_name = format!("{}{}{}", ZRBTCHC_TRACE_PREFIX, label, ZRBTCHC_INVENTORY_SUFFIX);
+    let inventory_name = format!("{}{}{}", ZRBTCHC_TRACE_PREFIX, label, ZRBTCHC_INVENTORY_SUFFIX, //
+);
     let _ = std::fs::write(dir.join(inventory_name), &inventory_report);
 
     if findings.is_empty() {
         rbtcee_Verdict::Pass
     } else {
-        rbtcee_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
+        rbtcee_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report, //
+))
     }
 }
 
@@ -328,14 +334,16 @@ fn zrbtchc_report(dir: &Path, label: &str, scan: &zrbtchc_ScanResult, what: &str
 fn zrbtchc_run_domain(dir: &Path, domain: zrbtchc_Domain, label: &str) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
+)),
     };
     let tools = root.join(ZRBTCHC_TOOLS_SUBDIR);
     let scan = match zrbtchb_scan_domain(&tools, domain) {
         Ok(s) => s,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let what = format!("command-discipline violation(s) in {}-bash", label);
+    let what = format!("command-discipline violation(s) in {}-bash", label, //
+);
     zrbtchc_report(dir, label, &scan, &what)
 }
 
@@ -344,7 +352,8 @@ fn zrbtchc_run_domain(dir: &Path, domain: zrbtchc_Domain, label: &str) -> rbtcee
 fn zrbtchc_run_python(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
+)),
     };
     let tools = root.join(ZRBTCHC_TOOLS_SUBDIR);
     let scan = match zrbtchy_scan_python(&tools) {
@@ -376,7 +385,7 @@ fn rbtchc_gcb_python(dir: &Path) -> rbtcee_Verdict {
 pub static RBTCHC_CASES_CUPEL: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchc_kit_bash),
     rbtcee_case!(rbtchc_gcb_bash),
-    rbtcee_case!(rbtchc_gcb_python),
+    rbtcee_case!(rbtchc_gcb_python), //
 ];
 
 pub static RBTCHC_FIXTURE_CUPEL: rbtcee_Fixture = rbtcee_Fixture {

@@ -23,14 +23,16 @@
 use std::path::Path;
 
 use crate::rbtcee_case;
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
-use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtdri_rooted_tabtarget_command};
+use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict, //
+};
+use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtdri_rooted_tabtarget_command, //
+};
 use crate::rbtgec_consts::{
     RBTGEC_ONBOARD_CRASH_COURSE, RBTGEC_ONBOARD_DIR_FIRST_BUILD,
     RBTGEC_ONBOARD_FIRST_CRUCIBLE,
     RBTGEC_ONBOARD_PAYOR_HB, RBTGEC_ONBOARD_START_HERE,
     RBTGEC_PAYOR_ESTABLISH,
-    RBTGEC_QUOTA_BUILD,
+    RBTGEC_QUOTA_BUILD, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_HANDBOOK_RENDER;
 
@@ -41,7 +43,8 @@ use crate::rbtcem_manifest::RBTCEM_FIXTURE_HANDBOOK_RENDER;
 fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
+)),
     };
 
     let tt = match rbtcei_find_tabtarget_global(&root, colophon) {
@@ -60,14 +63,16 @@ fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
                 "{}: failed to run {}: {}",
                 label,
                 tt.display(),
-                e
+                e, //
             ));
         }
     };
 
     let code = output.status.code().unwrap_or(-1);
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
+)), &output.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
+)), &output.stderr);
 
     if code != 0 {
         return rbtcee_Verdict::Fail(format!(
@@ -75,7 +80,7 @@ fn rbtchh_hb_render(dir: &Path, colophon: &str, label: &str) -> rbtcee_Verdict {
             label,
             colophon,
             code,
-            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stderr), //
         ));
     }
     rbtcee_Verdict::Pass
@@ -122,7 +127,7 @@ pub static RBTCHH_CASES_HANDBOOK_RENDER: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchh_hb_onboard_dir_first_build),
     rbtcee_case!(rbtchh_hb_onboard_payor_hb),
     rbtcee_case!(rbtchh_hb_payor_establish),
-    rbtcee_case!(rbtchh_hb_quota_build),
+    rbtcee_case!(rbtchh_hb_quota_build), //
 ];
 
 // ── Fixture static ───────────────────────────────────────────

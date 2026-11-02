@@ -31,27 +31,30 @@
 // and commits. Downstream cases verify it ran by reading RBRV_RELIQUARY from
 // a stable yoked vessel's rbrv.env — no out-of-source-tree scratch state.
 
-use std::io::{BufRead, BufReader};
-use std::path::{Path, PathBuf};
+use std::io::{BufRead, BufReader, //
+};
+use std::path::{Path, PathBuf, //
+};
 
 use crate::rbtcee_case;
-use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
+use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe, //
+};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
 use crate::rbtcgp_patrol::{
     rbtcgp_docker_inspect, rbtcgp_docker_layers_capture, rbtcgp_docker_rmi,
     rbtcgp_rekon_basename_yes, RBTCGP_ARK_BASENAME_ABOUT,
     RBTCGP_ARK_BASENAME_ATTEST, RBTCGP_ARK_BASENAME_IMAGE, RBTCGP_ARK_BASENAME_POUCH,
-    RBTCGP_ARK_BASENAME_VOUCH, RBTCGP_GAR_CATEGORY_HALLMARKS,
+    RBTCGP_ARK_BASENAME_VOUCH, RBTCGP_GAR_CATEGORY_HALLMARKS, //
 };
 use crate::rbtcee_engine::{
     rbtcee_Tariff,
     rbtcee_commit_nameplates, rbtcee_commit_vessels, rbtcee_commit_vessels_all,
-    rbtcee_config_set_field, rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Verdict,
+    rbtcee_config_set_field, rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Verdict, //
 };
 use crate::rbtcei_invocation::{
     rbtcei_gar_ref_categorical, rbtcei_gar_ref_fact, rbtcei_invoke_or_fail, rbtcei_ordain_capture,
     rbtcei_ordain_capture_full, rbtcei_read_burv_fact, rbtcei_Context, RBTCEI_BURE_CONFIRM_KEY,
-    RBTCEI_BURE_CONFIRM_SKIP,
+    RBTCEI_BURE_CONFIRM_SKIP, //
 };
 use crate::rbtgec_consts::{
     RBTGEC_ABJURE_HALLMARK,
@@ -75,22 +78,28 @@ use crate::rbtgec_consts::{
     RBTGEC_VERB_KLUDGE,
     RBTGEC_VERB_YOKE,
     RBTGEC_WREST_HALLMARK_IMAGE,
-    RBTGEC_YOKE_RELIQUARY,
+    RBTGEC_YOKE_RELIQUARY, //
 };
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_KLUDGE_TADMOR,
-    RBTCEM_FIXTURE_ONBOARDING_SEQUENCE,
+    RBTCEM_FIXTURE_ONBOARDING_SEQUENCE, //
 };
 
 // ── Vessel directories ────────────────────────────────────────
 
 // Vessel dirs composed from the crate-canonical vessels dir (single source).
-const RBTCGO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_sentry_deb_tether");
-const RBTCGO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_forge");
-const RBTCGO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_airgap");
-const RBTCGO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_plantuml");
-const RBTCGO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_anthropic_jupyter");
-const RBTCGO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_graft_demo");
+const RBTCGO_VESSEL_DIR_SENTRY_TETHER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_sentry_deb_tether", //
+);
+const RBTCGO_VESSEL_DIR_AIRGAP_FORGE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_forge", //
+);
+const RBTCGO_VESSEL_DIR_AIRGAP_BOTTLE: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_ifrit_airgap", //
+);
+const RBTCGO_VESSEL_DIR_PLANTUML: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_plantuml", //
+);
+const RBTCGO_VESSEL_DIR_JUPYTER: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_bottle_anthropic_jupyter", //
+);
+const RBTCGO_VESSEL_DIR_GRAFT: &str = concat!(crate::rbtcee_vessels_dir!(), "/rbev_graft_demo", //
+);
 
 // ── Nameplate monikers ────────────────────────────────────────
 
@@ -106,7 +115,7 @@ const RBTCGO_NAMEPLATE_PLUML: &str = "pluml";
 const RBTCGO_CONSUMERS_SENTRY_TETHER: &[&str] = &[
     RBTCGO_NAMEPLATE_MORIAH,
     RBTCGO_NAMEPLATE_SRJCL,
-    RBTCGO_NAMEPLATE_PLUML,
+    RBTCGO_NAMEPLATE_PLUML, //
 ];
 
 /// Nameplates that receive the airgap-bottle hallmark from ordain-airgap.
@@ -182,14 +191,16 @@ const RBTCGO_FIELD_RBRV_GRAFT_IMAGE: &str = "RBRV_GRAFT_IMAGE";
 // always launches from the project root.
 
 fn rbtcgo_probe_root() -> Result<PathBuf, String> {
-    std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e))
+    std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e, //
+))
 }
 
 /// Read an env-file value or None if absent. Mirrors the helpers in rbtdrk
 /// and rbtdrp — kept local to avoid cross-module coupling.
 fn rbtcgo_read_env_value(path: &Path, key: &str) -> Option<String> {
     let content = std::fs::read_to_string(path).ok()?;
-    let prefix = format!("{}=", key);
+    let prefix = format!("{}=", key, //
+);
     for line in content.lines() {
         let trimmed = line.trim_start();
         if trimmed.starts_with('#') {
@@ -217,14 +228,14 @@ fn rbtcgo_probe_reliquary_touchmark() -> Result<(), String> {
         format!(
             "{} missing from {}",
             RBTCGO_FIELD_RBRV_RELIQUARY,
-            rbrv.display()
+            rbrv.display(), //
         )
     })?;
     if value.trim().is_empty() {
         return Err(format!(
             "{} is empty in {}",
             RBTCGO_FIELD_RBRV_RELIQUARY,
-            rbrv.display()
+            rbrv.display(), //
         ));
     }
     Ok(())
@@ -256,7 +267,7 @@ fn rbtcgo_probe_graft_anointed() -> Result<(), String> {
         format!(
             "{} missing from {}",
             RBTCGO_FIELD_RBRV_GRAFT_IMAGE,
-            rbrv.display()
+            rbrv.display(), //
         )
     })?;
     if !value.contains(':') {
@@ -264,7 +275,7 @@ fn rbtcgo_probe_graft_anointed() -> Result<(), String> {
             "{} in {} is not a tagged image ref (unanointed?): {}",
             RBTCGO_FIELD_RBRV_GRAFT_IMAGE,
             rbrv.display(),
-            value
+            value, //
         ));
     }
     Ok(())
@@ -320,9 +331,11 @@ fn rbtcgo_ensconce(
     // dispatch promotes this current/ into its previous/ (where feoff reads the
     // fact), moving it out of current/ where this read looks.
     let touchmark = rbtcei_read_burv_fact(&result, RBTCGO_FACT_LODE_TOUCHMARK).map_err(|e| {
-        rbtcee_Verdict::Fail(format!("read touchmark fact after ensconce {}: {}", vessel_sigil, e))
+        rbtcee_Verdict::Fail(format!("read touchmark fact after ensconce {}: {}", vessel_sigil, e, //
+))
     })?;
-    let _ = std::fs::write(dir.join(format!("{}-touchmark.txt", label)), &touchmark);
+    let _ = std::fs::write(dir.join(format!("{}-touchmark.txt", label, //
+)), &touchmark);
     Ok(touchmark)
 }
 
@@ -374,15 +387,19 @@ fn rbtcgo_read_vessel_env(
 ) -> Result<String, String> {
     let rbrv_path = root.join(vessel_dir).join(RBTGEC_RBRV_FILE);
     let file = std::fs::File::open(&rbrv_path)
-        .map_err(|e| format!("open rbrv.env for {}: {}", vessel_dir, e))?;
-    let prefix = format!("{}=", var_name);
+        .map_err(|e| format!("open rbrv.env for {}: {}", vessel_dir, e, //
+))?;
+    let prefix = format!("{}=", var_name, //
+);
     for line in BufReader::new(file).lines() {
-        let line = line.map_err(|e| format!("read rbrv.env for {}: {}", vessel_dir, e))?;
+        let line = line.map_err(|e| format!("read rbrv.env for {}: {}", vessel_dir, e, //
+))?;
         if let Some(value) = line.strip_prefix(&prefix) {
             return Ok(value.to_string());
         }
     }
-    Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir))
+    Err(format!("variable {} not found in {}/rbrv.env", var_name, vessel_dir, //
+))
 }
 
 /// Mitre a freshly-built hallmark into a nameplate's RBRN_{BOTTLE,SENTRY}_HALLMARK
@@ -401,13 +418,15 @@ fn rbtcgo_mitre_nameplate(
 ) -> Result<(), rbtcee_Verdict> {
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTGEC_VERB_MITRE, field),
+        &format!("{} {}", RBTGEC_VERB_MITRE, field, //
+),
         nameplate,
         RBTGEC_MITRE_HALLMARK,
         &[nameplate, field, hallmark],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTGEC_VERB_MITRE, field, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_MITRE, field, nameplate, //
+),
     )?;
     Ok(())
 }
@@ -426,13 +445,15 @@ fn rbtcgo_kludge_nameplate(
 
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY),
+        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY, //
+),
         nameplate,
         RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_SENTRY, nameplate, //
+),
     )?;
 
     // Commit sentry hallmark before bottle kludge — kludge asserts clean tree.
@@ -441,20 +462,22 @@ fn rbtcgo_kludge_nameplate(
         &[nameplate],
         &format!(
             "{}-{}: {} hallmark",
-            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_SENTRY
+            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_SENTRY, //
         ),
     )
     .map_err(rbtcee_Verdict::Fail)?;
 
     rbtcei_invoke_or_fail(
         ctx,
-        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE),
+        &format!("{} {}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE, //
+),
         nameplate,
         RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
         &[nameplate],
         &[],
         dir,
-        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE, nameplate),
+        &format!("{}-{}-{}", RBTGEC_VERB_KLUDGE, RBTGEC_CONTAINER_BOTTLE, nameplate, //
+),
     )?;
 
     rbtcee_commit_nameplates(
@@ -462,7 +485,7 @@ fn rbtcgo_kludge_nameplate(
         &[nameplate],
         &format!(
             "{}-{}: {} hallmark",
-            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_BOTTLE
+            RBTGEC_VERB_KLUDGE, nameplate, RBTGEC_CONTAINER_BOTTLE, //
         ),
     )
     .map_err(rbtcee_Verdict::Fail)?;
@@ -497,7 +520,8 @@ fn zrbtcgo_conclave_reliquary_impl(
 
     let touchmark = match rbtcei_read_burv_fact(&result, RBTCGO_FACT_LODE_TOUCHMARK) {
         Ok(s) => s,
-        Err(e) => return rbtcee_Verdict::Fail(format!("read reliquary fact: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("read reliquary fact: {}", e, //
+)),
     };
     let _ = std::fs::write(dir.join("reliquary-touchmark.txt"), &touchmark);
 
@@ -514,7 +538,7 @@ fn zrbtcgo_conclave_reliquary_impl(
         &root,
         &format!(
             "conclave-reliquary: {} touchmark across all vessels",
-            RBTGEC_VERB_YOKE
+            RBTGEC_VERB_YOKE, //
         ),
     ) {
         return rbtcee_Verdict::Fail(e);
@@ -613,7 +637,7 @@ fn zrbtcgo_kludge_ccyolo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Ve
         &[RBTCGO_VESSEL_DIR_GRAFT],
         &format!(
             "{}: graft-demo image from ccyolo {}",
-            RBTGEC_VERB_ANOINT, RBTGEC_VERB_KLUDGE
+            RBTGEC_VERB_ANOINT, RBTGEC_VERB_KLUDGE, //
         ),
     ) {
         return rbtcee_Verdict::Fail(e);
@@ -687,7 +711,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         if !rbtcgp_docker_inspect(ark_ref) {
             return rbtcee_Verdict::Fail(format!(
                 "summon: ark not local after pull: {}",
-                ark_ref
+                ark_ref, //
             ));
         }
     }
@@ -709,7 +733,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         if !plumb_full.stdout.contains(marker) {
             return rbtcee_Verdict::Fail(format!(
                 "plumb_full: marker '{}' not in stdout",
-                marker
+                marker, //
             ));
         }
     }
@@ -736,7 +760,7 @@ fn zrbtcgo_ordain_conjure_sentry_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         if !rbtcgp_rekon_basename_yes(&rekon.stdout, basename) {
             return rbtcee_Verdict::Fail(format!(
                 "rekon: basename '{}' not marked yes\nstdout:\n{}",
-                basename, rekon.stdout
+                basename, rekon.stdout, //
             ));
         }
     }
@@ -854,7 +878,8 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     // touchmark the ensconce just minted. A broken chain or a no-op (the bug this
     // case guards) leaves the prior committed anchor — a different, older
     // touchmark — so this comparison fails, turning the false green red.
-    let expected_anchor = format!("{}/{}:{}", RBTCGO_LODE_ROOT, touchmark, RBTCGO_LODE_TAG_BOLE);
+    let expected_anchor = format!("{}/{}:{}", RBTCGO_LODE_ROOT, touchmark, RBTCGO_LODE_TAG_BOLE, //
+);
     match rbtcgo_read_vessel_env(&root, RBTCGO_VESSEL_DIR_AIRGAP_FORGE, RBTCGO_FORGE_BASE_ANCHOR_VAR) {
         Ok(actual) if actual == expected_anchor => {
             let _ = std::fs::write(dir.join("forge-elected-anchor.txt"), &actual);
@@ -863,10 +888,11 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
             return rbtcee_Verdict::Fail(format!(
                 "feoff did not fire: forge {} is '{}', expected '{}' \
                  (the ensconce->feoff chain did not carry the touchmark to feoff)",
-                RBTCGO_FORGE_BASE_ANCHOR_VAR, actual, expected_anchor
+                RBTCGO_FORGE_BASE_ANCHOR_VAR, actual, expected_anchor, //
             ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("read forge base anchor: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("read forge base anchor: {}", e, //
+)),
     }
 
     // Commit the elected ANCHOR that feoff wrote into the forge vessel — feoff is
@@ -908,7 +934,8 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
         RBTCGO_AIRGAP_BASE_ANCHOR_VAR,
         &airgap_anchor,
     ) {
-        return rbtcee_Verdict::Fail(format!("write airgap-bottle anchor: {}", e));
+        return rbtcee_Verdict::Fail(format!("write airgap-bottle anchor: {}", e, //
+));
     }
     let _ = std::fs::write(dir.join("airgap-anchor.txt"), &airgap_anchor);
 
@@ -1016,7 +1043,7 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
     if !plumb_compact.stdout.contains(&hallmark) {
         return rbtcee_Verdict::Fail(format!(
             "plumb_compact: hallmark '{}' not in stdout",
-            hallmark
+            hallmark, //
         ));
     }
     if !plumb_compact.stdout.contains("HALLMARK PLUMB:") {
@@ -1059,13 +1086,13 @@ fn zrbtcgo_ordain_bind_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rb
     if rbtcgp_rekon_basename_yes(&rekon_after.stdout, RBTCGP_ARK_BASENAME_POUCH) {
         return rbtcee_Verdict::Fail(format!(
             "rekon: pouch still present after jettison\nstdout:\n{}",
-            rekon_after.stdout
+            rekon_after.stdout, //
         ));
     }
     if !rbtcgp_rekon_basename_yes(&rekon_after.stdout, RBTCGP_ARK_BASENAME_IMAGE) {
         return rbtcee_Verdict::Fail(format!(
             "rekon: image disappeared after pouch jettison (collateral damage)\nstdout:\n{}",
-            rekon_after.stdout
+            rekon_after.stdout, //
         ));
     }
 
@@ -1118,7 +1145,7 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
             return rbtcee_Verdict::Fail(format!(
                 "{} absent from {}",
                 RBTCGO_FIELD_RBRV_GRAFT_IMAGE,
-                rbrv.display()
+                rbrv.display(), //
             ))
         }
     };
@@ -1132,7 +1159,7 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
         Err(e) => {
             return rbtcee_Verdict::Fail(format!(
                 "anointed image {} inspect: {}",
-                graft_image, e
+                graft_image, e, //
             ))
         }
     };
@@ -1172,18 +1199,20 @@ fn zrbtcgo_ordain_graft_demo_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtce
     let image_ref = rbtcei_gar_ref_fact(&gar_root, &ark_stem, RBTCGP_ARK_BASENAME_IMAGE, &hallmark);
     let wrested_layers = match rbtcgp_docker_layers_capture(&image_ref) {
         Ok(v) => v,
-        Err(e) => return rbtcee_Verdict::Fail(format!("wrested image inspect: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("wrested image inspect: {}", e, //
+)),
     };
     let _ = std::fs::write(dir.join("wrested-layers.txt"), &wrested_layers);
     if source_layers != wrested_layers {
         return rbtcee_Verdict::Fail(format!(
             "graft round-trip layer mismatch:\n  source:  {}\n  wrested: {}",
-            source_layers, wrested_layers
+            source_layers, wrested_layers, //
         ));
     }
 
     if let Err(e) = rbtcgp_docker_rmi(&[&image_ref]) {
-        return rbtcee_Verdict::Fail(format!("rmi: {}", e));
+        return rbtcee_Verdict::Fail(format!("rmi: {}", e, //
+));
     }
 
     if let Err(v) = rbtcei_invoke_or_fail(
@@ -1212,7 +1241,7 @@ pub static RBTCGO_CASES_ONBOARDING_SEQUENCE: &[rbtcee_Case] = &[
     rbtcee_case!(rbtcgo_ordain_conjure_jupyter),
     rbtcee_case!(rbtcgo_ordain_airgap_chain),
     rbtcee_case!(rbtcgo_ordain_bind_plantuml),
-    rbtcee_case!(rbtcgo_ordain_graft_demo),
+    rbtcee_case!(rbtcgo_ordain_graft_demo), //
 ];
 
 pub static RBTCGO_FIXTURE_ONBOARDING_SEQUENCE: rbtcee_Fixture = rbtcee_Fixture {

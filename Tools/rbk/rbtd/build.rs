@@ -33,7 +33,8 @@ fn main() {
     /// rather than leaving it claiming a position it no longer holds.
     const ZRBTB_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
 
-    println!("cargo:rerun-if-env-changed={}", ZRBTB_SEAT_VAR);
+    println!("cargo:rerun-if-env-changed={}", ZRBTB_SEAT_VAR, //
+);
 
     let seat = match std::env::var(ZRBTB_SEAT_VAR) {
         Ok(value) if !value.trim().is_empty() => value,
@@ -47,7 +48,8 @@ fn main() {
 
     // RE-EMITTED UNDER THE NAME IT ARRIVED UNDER, so `env!` reads what cargo set
     // for this compile and never whatever the ambient environment held.
-    println!("cargo:rustc-env={}={}", ZRBTB_SEAT_VAR, seat.trim());
+    println!("cargo:rustc-env={}={}", ZRBTB_SEAT_VAR, seat.trim(), //
+);
 }
 
 // eof

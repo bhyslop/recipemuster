@@ -32,16 +32,17 @@
 // mints a FRESH moniker and tears that down — only the deliberate, suiteless
 // freehold-churn ever destroys the freehold itself.
 
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, //
+};
 use std::time::{
     Duration,
-    Instant,
+    Instant, //
 };
 
 use crate::rbtcee_engine::{
     rbtcee_commit_regime,
     rbtcee_RegimeFile,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
 use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 use crate::rbtcei_invocation::{
@@ -50,7 +51,7 @@ use crate::rbtcei_invocation::{
     RBTCEI_BURV_OUTPUT_SUBDIR,
     rbtcei_Context,
     rbtcei_InvokeResult,
-    rbtcei_invoke_global,
+    rbtcei_invoke_global, //
 };
 use crate::rbtgec_consts::{
     RBTGEC_LIST_DEPOT,
@@ -59,7 +60,7 @@ use crate::rbtgec_consts::{
     RBTGEC_PROPAGATION_MAX_DELAY_SEC,
     RBTGEC_RBRD_FILE,
     RBTGEC_RBRR_FILE,
-    RBTGEC_UNMAKE_DEPOT,
+    RBTGEC_UNMAKE_DEPOT, //
 };
 use crate::rbtgeb_breviary::RBTGEB_ADMISSION_DENTIL;
 
@@ -122,22 +123,26 @@ pub(crate) fn rbtcgf_burs_tincture() -> Result<String, String> {
         .map(str::trim)
         .filter(|v| !v.is_empty())
         .map(str::to_string)
-        .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display()))
+        .ok_or_else(|| format!("BURS_TINCTURE not in {}", path.display(), //
+))
 }
 
 /// Compose freehold RBRD_CLOUD_PREFIX with the given tincture.
 pub(crate) fn rbtcgf_freehold_cloud_prefix(tincture: &str) -> String {
-    format!("{}{}-", RBTCGF_FREEHOLD_CLOUD_BASE, tincture)
+    format!("{}{}-", RBTCGF_FREEHOLD_CLOUD_BASE, tincture, //
+)
 }
 
 /// Compose freehold RBRR_RUNTIME_PREFIX with the given tincture.
 pub(crate) fn rbtcgf_freehold_runtime_prefix(tincture: &str) -> String {
-    format!("{}{}-", RBTCGF_FREEHOLD_RUNTIME_BASE, tincture)
+    format!("{}{}-", RBTCGF_FREEHOLD_RUNTIME_BASE, tincture, //
+)
 }
 
 /// Compose freehold family stem with the given tincture.
 pub(crate) fn rbtcgf_family_stem(tincture: &str) -> String {
-    format!("{}{}", RBTCGF_FREEHOLD_STEM_BASE, tincture)
+    format!("{}{}", RBTCGF_FREEHOLD_STEM_BASE, tincture, //
+)
 }
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -146,7 +151,8 @@ pub(crate) fn rbtcgf_family_stem(tincture: &str) -> String {
 /// `KEY=value` lines (unquoted); comment and blank lines are skipped.
 pub(crate) fn rbtcgf_read_env_value(path: &Path, key: &str) -> Option<String> {
     let content = std::fs::read_to_string(path).ok()?;
-    let prefix = format!("{}=", key);
+    let prefix = format!("{}=", key, //
+);
     for line in content.lines() {
         let trimmed = line.trim_start();
         if trimmed.starts_with('#') {
@@ -173,9 +179,11 @@ fn rbtcgf_replace_env_fields(content: &str, pairs: &[(&str, &str)]) -> String {
         .lines()
         .map(|line| {
             for (key, value) in pairs {
-                let assign = format!("{}=", key);
+                let assign = format!("{}=", key, //
+);
                 if line.starts_with(&assign) {
-                    return format!("{}{}", assign, value);
+                    return format!("{}{}", assign, value, //
+);
                 }
             }
             line.to_string()
@@ -210,29 +218,33 @@ pub(crate) fn rbtcgf_install_freehold_prefixes(root: &Path) -> Result<(), String
 
     if cloud != cloud_target {
         let content = std::fs::read_to_string(&rbrd)
-            .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e))?;
+            .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e, //
+))?;
         let new_content = rbtcgf_replace_env_fields(
             &content,
             &[(RBTCGF_FIELD_RBRD_CLOUD_PREFIX, cloud_target.as_str())],
         );
         std::fs::write(&rbrd, &new_content)
-            .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e))?;
+            .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e, //
+))?;
     }
 
     if runtime != runtime_target {
         let content = std::fs::read_to_string(&rbrr)
-            .map_err(|e| format!("rbtdrk: read {}: {}", rbrr.display(), e))?;
+            .map_err(|e| format!("rbtdrk: read {}: {}", rbrr.display(), e, //
+))?;
         let new_content = rbtcgf_replace_env_fields(
             &content,
             &[(RBTCGF_FIELD_RBRR_RUNTIME_PREFIX, runtime_target.as_str())],
         );
         std::fs::write(&rbrr, &new_content)
-            .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e))?;
+            .map_err(|e| format!("rbtdrk: write {}: {}", rbrr.display(), e, //
+))?;
     }
 
     let commit_msg = format!(
         "freehold fixture: install freehold prefixes ({}/{})",
-        cloud_target, runtime_target
+        cloud_target, runtime_target, //
     );
     rbtcee_commit_regime(
         root,
@@ -244,14 +256,16 @@ pub(crate) fn rbtcgf_install_freehold_prefixes(root: &Path) -> Result<(), String
 pub(crate) fn rbtcgf_install_depot_moniker(root: &Path, moniker: &str) -> Result<(), String> {
     let rbrd = root.join(RBTGEC_RBRD_FILE);
     let content = std::fs::read_to_string(&rbrd)
-        .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e))?;
+        .map_err(|e| format!("rbtdrk: read {}: {}", rbrd.display(), e, //
+))?;
     let new_content =
         rbtcgf_replace_env_fields(&content, &[(RBTCGF_FIELD_RBRD_DEPOT_MONIKER, moniker)]);
     std::fs::write(&rbrd, &new_content)
-        .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e))?;
+        .map_err(|e| format!("rbtdrk: write {}: {}", rbrd.display(), e, //
+))?;
     let commit_msg = format!(
         "freehold fixture: set {}={}",
-        RBTCGF_FIELD_RBRD_DEPOT_MONIKER, moniker
+        RBTCGF_FIELD_RBRD_DEPOT_MONIKER, moniker, //
     );
     rbtcee_commit_regime(root, &[rbtcee_RegimeFile::Rbrd], &commit_msg)
 }
@@ -260,8 +274,10 @@ pub(crate) fn rbtcgf_install_depot_moniker(root: &Path, moniker: &str) -> Result
 pub(crate) fn rbtcgf_compose_project_id(root: &Path, moniker: &str) -> Result<String, String> {
     let rbrd = root.join(RBTGEC_RBRD_FILE);
     let cloud_prefix = rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
-    Ok(format!("{}d-{}", cloud_prefix, moniker))
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display(), //
+))?;
+    Ok(format!("{}d-{}", cloud_prefix, moniker, //
+))
 }
 
 /// Cloud-prefix subdir name used in depot fact-file layout
@@ -271,7 +287,8 @@ pub(crate) fn rbtcgf_compose_project_id(root: &Path, moniker: &str) -> Result<St
 pub(crate) fn rbtcgf_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
     let rbrd = root.join(RBTGEC_RBRD_FILE);
     let cloud_prefix = rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_CLOUD_PREFIX)
-        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
+        .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display(), //
+))?;
     Ok(cloud_prefix.trim_end_matches('-').to_string())
 }
 
@@ -302,7 +319,8 @@ pub(crate) fn rbtcgf_depot_fact_path(
     moniker: &str,
     ext: &str,
 ) -> PathBuf {
-    rbtcgf_depot_fact_dir(list_result, prefix_dir).join(format!("{}.{}", moniker, ext))
+    rbtcgf_depot_fact_dir(list_result, prefix_dir).join(format!("{}.{}", moniker, ext, //
+))
 }
 
 /// Pick the next free moniker for `family_stem` by walking the depot_list
@@ -331,10 +349,12 @@ pub(crate) fn rbtcgf_pick_next_moniker(
     let entries = match std::fs::read_dir(&dir) {
         Ok(e) => e,
         Err(_) => {
-            return Ok(format!("{}{}", family_stem, RBTCGF_FAMILY_NUMERIC_FLOOR));
+            return Ok(format!("{}{}", family_stem, RBTCGF_FAMILY_NUMERIC_FLOOR, //
+));
         }
     };
-    let suffix_ext = format!(".{}", RBTCGF_FACT_EXT_DEPOT);
+    let suffix_ext = format!(".{}", RBTCGF_FACT_EXT_DEPOT, //
+);
     let mut max_suffix: Option<u32> = None;
     for entry in entries.flatten() {
         let name = match entry.file_name().into_string() {
@@ -362,7 +382,8 @@ pub(crate) fn rbtcgf_pick_next_moniker(
         Some(m) => m + 1,
         None => RBTCGF_FAMILY_NUMERIC_FLOOR,
     };
-    Ok(format!("{}{}", family_stem, next))
+    Ok(format!("{}{}", family_stem, next, //
+))
 }
 
 /// Wrapper invocation: call `rbtcei_invoke_global` and tee stdout/stderr to
@@ -378,8 +399,10 @@ pub(crate) fn rbtcgf_invoke_logged(
     label: &str,
 ) -> Result<rbtcei_InvokeResult, String> {
     let result = rbtcei_invoke_global(ctx, colophon, args, extra_env)?;
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &result.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &result.stderr);
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
+)), &result.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
+)), &result.stderr);
     Ok(result)
 }
 
@@ -419,7 +442,7 @@ pub(crate) fn rbtcgf_invoke_admission_settled(
             label,
             RBTGEB_ADMISSION_DENTIL,
             bend,
-            delay.as_secs()
+            delay.as_secs(), //
         );
         std::thread::sleep(delay);
         delay = std::cmp::min(delay * 2, max_delay);
@@ -432,7 +455,8 @@ pub(crate) fn rbtcgf_invoke_admission_settled(
 /// have no context, so they read the project root from current_dir() — theurge
 /// always launches from the project root.
 fn rbtcgf_probe_root() -> Result<PathBuf, String> {
-    std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e))
+    std::env::current_dir().map_err(|e| format!("cannot resolve project root: {}", e, //
+))
 }
 
 /// rbrr.env exists. Sanity precondition — the establish cases presume the regime
@@ -441,7 +465,8 @@ pub(crate) fn rbtcgf_probe_rbrr_present() -> Result<(), String> {
     let root = rbtcgf_probe_root()?;
     let rbrr = root.join(RBTGEC_RBRR_FILE);
     if !rbrr.exists() {
-        return Err(format!("rbrr.env not found at {}", rbrr.display()));
+        return Err(format!("rbrr.env not found at {}", rbrr.display(), //
+));
     }
     Ok(())
 }
@@ -458,7 +483,7 @@ pub(crate) fn rbtcgf_probe_freehold_moniker() -> Result<(), String> {
     if !moniker.starts_with(&family_stem) {
         return Err(format!(
             "{}={:?} does not begin with '{}' — freehold depot moniker not installed",
-            RBTCGF_FIELD_RBRD_DEPOT_MONIKER, moniker, family_stem
+            RBTCGF_FIELD_RBRD_DEPOT_MONIKER, moniker, family_stem, //
         ));
     }
     Ok(())
@@ -499,27 +524,28 @@ pub(crate) fn rbtcgf_crosscheck_project_id(
             return Some(rbtcee_Verdict::Fail(format!(
                 "read depot-project fact '{}': {}",
                 fact_path.display(),
-                e
+                e, //
             )))
         }
     };
     if fact_project_id.is_empty() {
         return Some(rbtcee_Verdict::Fail(format!(
             "depot-project fact is empty: {}",
-            fact_path.display()
+            fact_path.display(), //
         )));
     }
     let _ = std::fs::write(dir.join("project-id.txt"), &fact_project_id);
 
     let composed = match rbtcgf_compose_project_id(root, moniker) {
         Ok(p) => p,
-        Err(e) => return Some(rbtcee_Verdict::Fail(format!("compose project_id: {}", e))),
+        Err(e) => return Some(rbtcee_Verdict::Fail(format!("compose project_id: {}", e, //
+))),
     };
     if composed != fact_project_id {
         return Some(rbtcee_Verdict::Fail(format!(
             "project_id mismatch: RBDC compose='{}' vs depot-list fact='{}' \
              (RBDC kindle derivation diverged from payor creation)",
-            composed, fact_project_id
+            composed, fact_project_id, //
         )));
     }
     None
@@ -579,14 +605,15 @@ pub(crate) fn rbtcgf_unmake_preamble(
 
     let project_id = match rbtcgf_compose_project_id(&root, &moniker) {
         Ok(p) => p,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("compose project_id: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("compose project_id: {}", e, //
+))),
     };
     let _ = std::fs::write(dir.join(spec.project_id_filename), &project_id);
 
     if let Err(e) = rbtcgf_install_depot_moniker(&root, spec.placeholder_moniker) {
         return Err(rbtcee_Verdict::Fail(format!(
             "rotate moniker before unmake: {}",
-            e
+            e, //
         )));
     }
 
@@ -599,12 +626,13 @@ pub(crate) fn rbtcgf_unmake_preamble(
         spec.unmake_label,
     ) {
         Ok(r) => r,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot unmake: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot unmake: {}", e, //
+))),
     };
     if unmake.exit_code != 0 {
         return Err(rbtcee_Verdict::Fail(format!(
             "depot unmake exit {}\n{}",
-            unmake.exit_code, unmake.stderr
+            unmake.exit_code, unmake.stderr, //
         )));
     }
 
@@ -613,15 +641,17 @@ pub(crate) fn rbtcgf_unmake_preamble(
         Ok(r) => {
             return Err(rbtcee_Verdict::Fail(format!(
                 "depot list (after unmake) exit {}\n{}",
-                r.exit_code, r.stderr
+                r.exit_code, r.stderr, //
             )))
         }
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot list (after unmake): {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("depot list (after unmake): {}", e, //
+))),
     };
 
     let prefix_dir = match rbtcgf_cloud_prefix_subdir(&root) {
         Ok(p) => p,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e))),
+        Err(e) => return Err(rbtcee_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e, //
+))),
     };
     let state_fact = rbtcgf_depot_fact_path(&list_after, &prefix_dir, &moniker, RBTCGF_FACT_EXT_DEPOT);
 

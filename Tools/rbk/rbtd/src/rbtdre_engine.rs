@@ -19,11 +19,13 @@
 
 // all emission via rbtdrg_*! — no direct println!/eprintln!
 
-use std::io::{BufRead, BufReader, Write};
+use std::io::{BufRead, BufReader, Write, //
+};
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::mpsc;
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, //
+};
 
 // ── Vessels directory ──────────────────────────────────────────
 
@@ -74,7 +76,8 @@ fn rbtcee_run_with_heartbeat(case: &rbtcee_Case, case_dir: &Path) -> rbtcee_Verd
             Ok(_) | Err(mpsc::RecvTimeoutError::Disconnected) => return,
             // Interval elapsed with the case still running — emit progress.
             Err(mpsc::RecvTimeoutError::Timeout) => {
-                crate::rbtcel_info_now!("running {} ({}s elapsed)", name, start.elapsed().as_secs());
+                crate::rbtcel_info_now!("running {} ({}s elapsed)", name, start.elapsed().as_secs(), //
+);
             }
         }
     });
@@ -151,7 +154,7 @@ pub fn rbtcee_parse_keep_going(args: &[String]) -> Result<(Vec<String>, bool), S
         } else if arg.starts_with("--") {
             return Err(format!(
                 "unknown flag '{}' (known: {})",
-                arg, RBTCEE_FLAG_KEEP_GOING
+                arg, RBTCEE_FLAG_KEEP_GOING, //
             ));
         } else {
             positionals.push(arg.clone());
@@ -187,16 +190,17 @@ pub fn rbtcee_tree_clean(root: &Path) -> Result<(), String> {
             } else {
                 Err(format!(
                     "working tree not clean — uncommitted changes:\n{}",
-                    trimmed
+                    trimmed, //
                 ))
             }
         }
         Ok(out) => Err(format!(
             "git status --porcelain failed (exit {}): {}",
             out.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&out.stderr).trim()
+            String::from_utf8_lossy(&out.stderr).trim(), //
         )),
-        Err(e) => Err(format!("git status invocation failed: {}", e)),
+        Err(e) => Err(format!("git status invocation failed: {}", e, //
+)),
     }
 }
 
@@ -238,12 +242,13 @@ fn rbtcee_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(
         .args(&status_args)
         .current_dir(root)
         .output()
-        .map_err(|e| format!("git status --porcelain exec failed: {}", e))?;
+        .map_err(|e| format!("git status --porcelain exec failed: {}", e, //
+))?;
     if !status.status.success() {
         return Err(format!(
             "git status --porcelain exited {}: {}",
             status.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&status.stderr).trim()
+            String::from_utf8_lossy(&status.stderr).trim(), //
         ));
     }
     if String::from_utf8_lossy(&status.stdout).trim().is_empty() {
@@ -257,12 +262,13 @@ fn rbtcee_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(
         .args(&add_args)
         .current_dir(root)
         .output()
-        .map_err(|e| format!("git add exec failed: {}", e))?;
+        .map_err(|e| format!("git add exec failed: {}", e, //
+))?;
     if !add.status.success() {
         return Err(format!(
             "git add exited {}: {}",
             add.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&add.stderr).trim()
+            String::from_utf8_lossy(&add.stderr).trim(), //
         ));
     }
 
@@ -270,12 +276,13 @@ fn rbtcee_commit_paths(root: &Path, paths: &[String], message: &str) -> Result<(
         .args(["commit", "-m", message])
         .current_dir(root)
         .output()
-        .map_err(|e| format!("git commit exec failed: {}", e))?;
+        .map_err(|e| format!("git commit exec failed: {}", e, //
+))?;
     if !commit.status.success() {
         return Err(format!(
             "git commit exited {}: {}",
             commit.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&commit.stderr).trim()
+            String::from_utf8_lossy(&commit.stderr).trim(), //
         ));
     }
     Ok(())
@@ -297,7 +304,7 @@ pub fn rbtcee_commit_nameplates(
                 crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
                 crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
                 np,
-                crate::rbtgec_consts::RBTGEC_RBRN_FILE
+                crate::rbtgec_consts::RBTGEC_RBRN_FILE, //
             )
         })
         .collect();
@@ -313,7 +320,8 @@ pub fn rbtcee_commit_vessels(
 ) -> Result<(), String> {
     let paths: Vec<String> = vessel_dirs
         .iter()
-        .map(|dir| format!("{}/{}", dir, crate::rbtgec_consts::RBTGEC_RBRV_FILE))
+        .map(|dir| format!("{}/{}", dir, crate::rbtgec_consts::RBTGEC_RBRV_FILE, //
+))
         .collect();
     rbtcee_commit_paths(root, &paths, message)
 }
@@ -327,16 +335,18 @@ pub fn rbtcee_commit_vessels_all(root: &Path, message: &str) -> Result<(), Strin
     let vessels_abs = root.join(vessels_rel);
     let mut paths: Vec<String> = Vec::new();
     let entries = std::fs::read_dir(&vessels_abs)
-        .map_err(|e| format!("read vessels dir {}: {}", vessels_abs.display(), e))?;
+        .map_err(|e| format!("read vessels dir {}: {}", vessels_abs.display(), e, //
+))?;
     for entry in entries {
-        let entry = entry.map_err(|e| format!("read vessels dir entry: {}", e))?;
+        let entry = entry.map_err(|e| format!("read vessels dir entry: {}", e, //
+))?;
         if entry.path().is_dir() {
             let name = entry.file_name();
             let rbrv_rel = format!(
                 "{}/{}/{}",
                 vessels_rel,
                 name.to_string_lossy(),
-                crate::rbtgec_consts::RBTGEC_RBRV_FILE
+                crate::rbtgec_consts::RBTGEC_RBRV_FILE, //
             );
             if root.join(&rbrv_rel).is_file() {
                 paths.push(rbrv_rel);
@@ -381,20 +391,24 @@ pub fn rbtcee_commit_regime(
 /// vessel-env write embryo (rbtcgo_write_vessel_env), and the shared core of the
 /// config-zero seam below.
 pub fn rbtcee_config_set_field(file: &Path, field: &str, value: &str) -> Result<(), String> {
-    let f = std::fs::File::open(file).map_err(|e| format!("open {}: {}", file.display(), e))?;
+    let f = std::fs::File::open(file).map_err(|e| format!("open {}: {}", file.display(), e, //
+))?;
     let lines: Vec<String> = BufReader::new(f)
         .lines()
         .collect::<Result<_, _>>()
-        .map_err(|e| format!("read {}: {}", file.display(), e))?;
+        .map_err(|e| format!("read {}: {}", file.display(), e, //
+))?;
 
-    let prefix = format!("{}=", field);
+    let prefix = format!("{}=", field, //
+);
     let mut found = false;
     let rewritten: Vec<String> = lines
         .into_iter()
         .map(|line| {
             if line.starts_with(&prefix) {
                 found = true;
-                format!("{}={}", field, value)
+                format!("{}={}", field, value, //
+)
             } else {
                 line
             }
@@ -402,7 +416,8 @@ pub fn rbtcee_config_set_field(file: &Path, field: &str, value: &str) -> Result<
         .collect();
 
     if !found {
-        return Err(format!("field {} not found in {}", field, file.display()));
+        return Err(format!("field {} not found in {}", field, file.display(), //
+));
     }
 
     let mut tmp = file.to_path_buf().into_os_string();
@@ -410,14 +425,18 @@ pub fn rbtcee_config_set_field(file: &Path, field: &str, value: &str) -> Result<
     let tmp = PathBuf::from(tmp);
     {
         let mut out = std::fs::File::create(&tmp)
-            .map_err(|e| format!("create tmp for {}: {}", file.display(), e))?;
+            .map_err(|e| format!("create tmp for {}: {}", file.display(), e, //
+))?;
         for line in &rewritten {
-            writeln!(out, "{}", line)
-                .map_err(|e| format!("write tmp for {}: {}", file.display(), e))?;
+            writeln!(out, "{}", line, //
+)
+                .map_err(|e| format!("write tmp for {}: {}", file.display(), e, //
+))?;
         }
     }
     std::fs::rename(&tmp, file)
-        .map_err(|e| format!("atomic replace {}: {}", file.display(), e))?;
+        .map_err(|e| format!("atomic replace {}: {}", file.display(), e, //
+))?;
     Ok(())
 }
 
@@ -533,7 +552,8 @@ pub fn rbtcee_evaluate_tariff(
 /// Render one optional wall-clock bound for display — a declared value as
 /// `Ns`, an unchecked bound as an em-dash.
 fn rbtcee_fmt_secs(o: Option<u64>) -> String {
-    o.map_or_else(|| "—".to_string(), |v| format!("{}s", v))
+    o.map_or_else(|| "—".to_string(), |v| format!("{}s", v, //
+))
 }
 
 /// Render one optional count bound for display — a declared value, or an
@@ -550,7 +570,7 @@ pub fn rbtcee_tariff_declared(tariff: &rbtcee_Tariff) -> String {
         "min={} max={} inv={}",
         rbtcee_fmt_secs(tariff.min_secs),
         rbtcee_fmt_secs(tariff.max_secs),
-        rbtcee_fmt_count(tariff.invocations),
+        rbtcee_fmt_count(tariff.invocations), //
     )
 }
 
@@ -576,33 +596,33 @@ pub fn rbtcee_print_tariff(
         "{} {}: elapsed={}s invocations={} [declared min={} max={} invocations={}]",
         RBTCEE_TARIFF_TOKEN, name, report.elapsed_secs, report.invocations,
         rbtcee_fmt_secs(tariff.min_secs), rbtcee_fmt_secs(tariff.max_secs),
-        rbtcee_fmt_count(tariff.invocations),
+        rbtcee_fmt_count(tariff.invocations), //
     );
     if report.too_fast {
         crate::rbtcel_info_now!(
             "{}{}{} {} tariff too-fast — elapsed {}s below declared min {} (vacuous green)",
             colors.red, RBTCEE_WORD_FAILED, colors.reset, name, report.elapsed_secs,
-            rbtcee_fmt_secs(tariff.min_secs),
+            rbtcee_fmt_secs(tariff.min_secs), //
         );
     }
     if report.too_slow {
         crate::rbtcel_info_now!(
             "{}WARNING:{} {} tariff too-slow — elapsed {}s above declared max {} (advisory)",
             colors.yellow, colors.reset, name, report.elapsed_secs,
-            rbtcee_fmt_secs(tariff.max_secs),
+            rbtcee_fmt_secs(tariff.max_secs), //
         );
     }
     if report.count_drift && drift_fails {
         crate::rbtcel_info_now!(
             "{}{}{} {} tariff count-drift — {} invocations vs declared {} (declared work did not run)",
             colors.red, RBTCEE_WORD_FAILED, colors.reset, name, report.invocations,
-            rbtcee_fmt_count(tariff.invocations),
+            rbtcee_fmt_count(tariff.invocations), //
         );
     } else if report.count_drift {
         crate::rbtcel_info_now!(
             "{}WARNING:{} {} tariff count-drift — {} invocations vs declared {} (suppressed — the fixture already failed)",
             colors.yellow, colors.reset, name, report.invocations,
-            rbtcee_fmt_count(tariff.invocations),
+            rbtcee_fmt_count(tariff.invocations), //
         );
     }
 }
@@ -629,7 +649,8 @@ pub fn rbtcee_print_tariff_table(rows: &[rbtcee_TariffRow]) {
     if rows.is_empty() {
         return;
     }
-    crate::rbtcel_info_now!("{} drift table (observed vs declared):", RBTCEE_TARIFF_TOKEN);
+    crate::rbtcel_info_now!("{} drift table (observed vs declared):", RBTCEE_TARIFF_TOKEN, //
+);
     for r in rows {
         let report = rbtcee_evaluate_tariff(&r.tariff, r.elapsed_secs, r.invocations);
         let flag = if report.too_fast {
@@ -645,7 +666,7 @@ pub fn rbtcee_print_tariff_table(rows: &[rbtcee_TariffRow]) {
             "{}  {:<28} elapsed={:>4}s inv={:>3}  decl[min={} max={} inv={}]{}",
             RBTCEE_TARIFF_TOKEN, r.name, r.elapsed_secs, r.invocations,
             rbtcee_fmt_secs(r.tariff.min_secs), rbtcee_fmt_secs(r.tariff.max_secs),
-            rbtcee_fmt_count(r.tariff.invocations), flag,
+            rbtcee_fmt_count(r.tariff.invocations), flag, //
         );
     }
 }
@@ -681,12 +702,12 @@ pub fn rbtcee_check_census(fixture_name: &str, colors: &rbtcee_Colors) -> bool {
     for colophon in declared {
         if used.contains(*colophon) {
             crate::rbtcel_info_now!(
-                "{} {}: colophon '{}' used", RBTCEE_CENSUS_TOKEN, fixture_name, colophon
+                "{} {}: colophon '{}' used", RBTCEE_CENSUS_TOKEN, fixture_name, colophon, //
             );
         } else {
             crate::rbtcel_info_now!(
                 "{}{}{} {} census — colophon '{}' declared but never invoked",
-                colors.red, RBTCEE_WORD_FAILED, colors.reset, fixture_name, colophon
+                colors.red, RBTCEE_WORD_FAILED, colors.reset, fixture_name, colophon, //
             );
             all_used = false;
         }
@@ -694,7 +715,7 @@ pub fn rbtcee_check_census(fixture_name: &str, colors: &rbtcee_Colors) -> bool {
     for colophon in crate::rbtcei_invocation::rbtcei_census_permitted() {
         if used.contains(*colophon) {
             crate::rbtcel_info_now!(
-                "{} {}: colophon '{}' used (permitted)", RBTCEE_CENSUS_TOKEN, fixture_name, colophon
+                "{} {}: colophon '{}' used (permitted)", RBTCEE_CENSUS_TOKEN, fixture_name, colophon, //
             );
         }
     }
@@ -814,12 +835,15 @@ pub const RBTCEE_WORD_UNREACHED: &str = "UNREACHED:";
 /// Write verdict and detail to a trace file in the case temp directory.
 fn rbtcee_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtcee_Verdict) {
     let content = match verdict {
-        rbtcee_Verdict::Pass => format!("{} {}\n", RBTCEE_WORD_PASSED, display_name),
+        rbtcee_Verdict::Pass => format!("{} {}\n", RBTCEE_WORD_PASSED, display_name, //
+),
         rbtcee_Verdict::Fail(detail) => {
-            format!("{} {}\n\n{}\n", RBTCEE_WORD_FAILED, display_name, detail)
+            format!("{} {}\n\n{}\n", RBTCEE_WORD_FAILED, display_name, detail, //
+)
         }
         rbtcee_Verdict::Skip(reason) => {
-            format!("{} {}\n\nReason: {}\n", RBTCEE_WORD_SKIPPED, display_name, reason)
+            format!("{} {}\n\nReason: {}\n", RBTCEE_WORD_SKIPPED, display_name, reason, //
+)
         }
     };
     let _ = std::fs::write(case_dir.join(RBTCEE_TRACE_FILE), content);
@@ -864,7 +888,8 @@ pub fn rbtcee_run_cases(
     for (index, case) in cases.iter().enumerate() {
         let case_dir = root_temp.join(case.name);
         std::fs::create_dir_all(&case_dir).map_err(|e| {
-            format!("rbt: failed to create case dir '{}': {}", case.name, e)
+            format!("rbt: failed to create case dir '{}': {}", case.name, e, //
+)
         })?;
 
         let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
@@ -874,16 +899,17 @@ pub fn rbtcee_run_cases(
             rbtcee_Verdict::Pass => {
                 crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name
+                    colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name, //
                 );
                 passed += 1;
             }
             rbtcee_Verdict::Fail(msg) => {
                 crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name
+                    colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name, //
                 );
-                crate::rbtcel_info_now!("{}", msg);
+                crate::rbtcel_info_now!("{}", msg, //
+);
                 failed += 1;
                 if fail_fast {
                     unreached = cases[index + 1..].iter().map(|c| c.name).collect();
@@ -893,7 +919,7 @@ pub fn rbtcee_run_cases(
             rbtcee_Verdict::Skip(_) => {
                 crate::rbtcel_info_now!(
                     "{}{}{} {}",
-                    colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name
+                    colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name, //
                 );
                 skipped += 1;
             }
@@ -923,21 +949,22 @@ pub fn rbtcee_print_summary(result: &rbtcee_RunResult, colors: &rbtcee_Colors) {
 
     crate::rbtcel_info_now!(
         "{}{} passed, {} failed, {} skipped ({} total){}",
-        color, result.passed, result.failed, result.skipped, total, end_color,
+        color, result.passed, result.failed, result.skipped, total, end_color, //
     );
     if !result.unreached.is_empty() {
         crate::rbtcel_info_now!(
             "{}{} reached of {} registered{}",
-            color, total, result.registered, end_color,
+            color, total, result.registered, end_color, //
         );
         for name in &result.unreached {
             crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                color, RBTCEE_WORD_UNREACHED, end_color, name
+                color, RBTCEE_WORD_UNREACHED, end_color, name, //
             );
         }
     }
-    crate::rbtcel_info_now!("Trace dir: {}", result.temp_dir.display());
+    crate::rbtcel_info_now!("Trace dir: {}", result.temp_dir.display(), //
+);
 }
 
 // ── Single-case operations ───────────────────────────────────
@@ -953,7 +980,8 @@ pub fn rbtcee_find_case<'a>(
 /// List all cases by name.
 pub fn rbtcee_list_cases(cases: &[rbtcee_Case]) {
     for case in cases {
-        crate::rbtcel_info_now!("  {}", case.name);
+        crate::rbtcel_info_now!("  {}", case.name, //
+);
     }
 }
 
@@ -990,7 +1018,8 @@ pub fn rbtcee_run_fixture(
 
     let mut run_result = match setup_result {
         Ok(()) => rbtcee_run_cases(fixture.cases, colors, fail_fast, root_temp),
-        Err(msg) => Err(format!("rbt: fixture '{}' setup failed: {}", fixture.name, msg)),
+        Err(msg) => Err(format!("rbt: fixture '{}' setup failed: {}", fixture.name, msg, //
+)),
     };
 
     if let Some(f) = fixture.teardown {
@@ -1047,7 +1076,8 @@ pub fn rbtcee_run_single_case(
 ) -> Result<rbtcee_RunResult, String> {
     let case_dir = root_temp.join(case.name);
     std::fs::create_dir_all(&case_dir)
-        .map_err(|e| format!("rbt: failed to create case dir '{}': {}", case.name, e))?;
+        .map_err(|e| format!("rbt: failed to create case dir '{}': {}", case.name, e, //
+))?;
 
     let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
     rbtcee_write_trace(&case_dir, case.name, &verdict);
@@ -1056,21 +1086,21 @@ pub fn rbtcee_run_single_case(
         rbtcee_Verdict::Pass => {
             crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name
+                colors.green, RBTCEE_WORD_PASSED, colors.reset, case.name, //
             );
             (1, 0, 0)
         }
         rbtcee_Verdict::Fail(_) => {
             crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name
+                colors.red, RBTCEE_WORD_FAILED, colors.reset, case.name, //
             );
             (0, 1, 0)
         }
         rbtcee_Verdict::Skip(_) => {
             crate::rbtcel_info_now!(
                 "{}{}{} {}",
-                colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name
+                colors.yellow, RBTCEE_WORD_SKIPPED, colors.reset, case.name, //
             );
             (0, 0, 1)
         }

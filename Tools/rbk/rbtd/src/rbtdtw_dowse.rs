@@ -21,7 +21,7 @@
 // filename classifier must reject everything but theurge suite/fixture logs.
 
 use super::rbtccd_dowse::{
-    rbtccd_parse_log_name, rbtccd_parse_tariff_line, rbtccd_LogKind, rbtccd_Observation,
+    rbtccd_parse_log_name, rbtccd_parse_tariff_line, rbtccd_LogKind, rbtccd_Observation, //
 };
 
 #[test]

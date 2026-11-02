@@ -43,7 +43,7 @@
 use std::collections::BTreeSet;
 use std::path::{
     Path,
-    PathBuf,
+    PathBuf, //
 };
 
 use crate::rbtchc_cupel::{
@@ -60,7 +60,7 @@ use crate::rbtchc_cupel::{
     ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
     ZRBTCHC_POSIX_FLOOR,
     ZRBTCHC_SH_EXT,
-    ZRBTCHC_UNIVERSE_EXCLUDED_DIR_PREFIXES,
+    ZRBTCHC_UNIVERSE_EXCLUDED_DIR_PREFIXES, //
 };
 
 // ── Lexer ───────────────────────────────────────────────────
@@ -629,7 +629,8 @@ pub(crate) fn zrbtchb_classify(
             }
             for ev in ZRBTCHC_EVICTIONS {
                 if ev.command == base {
-                    return Some(format!("evicted command — use {}", ev.replacement));
+                    return Some(format!("evicted command — use {}", ev.replacement, //
+));
                 }
             }
             Some("unknown command — not in POSIX floor or declared dependencies".to_string())
@@ -681,7 +682,8 @@ pub(crate) fn zrbtchb_scan_domain(tools: &Path, domain: zrbtchc_Domain) -> Resul
     let mut locals: BTreeSet<String> = BTreeSet::new();
     for f in &universe_files {
         let src = std::fs::read_to_string(f)
-            .map_err(|e| format!("read {} failed: {}", f.display(), e))?;
+            .map_err(|e| format!("read {} failed: {}", f.display(), e, //
+))?;
         zrbtchb_collect_functions(&src, &mut locals);
     }
 
@@ -710,7 +712,8 @@ pub(crate) fn zrbtchb_scan_domain(tools: &Path, domain: zrbtchc_Domain) -> Resul
             zrbtchc_Domain::Kit
         };
         let src = std::fs::read_to_string(path)
-            .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
+            .map_err(|e| format!("read {} failed: {}", path.display(), e, //
+))?;
         let rel = crate::rbtcep_platform::rbtcep_repo_rel(root, path);
         for (line, command) in zrbtchb_command_words(&src) {
             if zrbtchb_is_external(&command, &locals) {

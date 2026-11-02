@@ -14,11 +14,15 @@
 // scratch global, no system config and the file protocol alone, set per
 // command and never on the process, the harness running cases as threads.
 
-use std::path::{Path, PathBuf};
-use std::process::{Command, Output};
+use std::path::{Path, PathBuf, //
+};
+use std::process::{Command, Output, //
+};
 
-use crate::rbvceg_temenos::{rbvceg_stand_up, RBVCEG_TEMENOS_HOOK_REFUSAL, RBVCEG_TEMENOS_REFUSED_DESTINATION};
-use crate::rbvcew_world::{RBVCEW_AGORA, RBVCEW_PALAESTRA};
+use crate::rbvceg_temenos::{rbvceg_stand_up, RBVCEG_TEMENOS_HOOK_REFUSAL, RBVCEG_TEMENOS_REFUSED_DESTINATION, //
+};
+use crate::rbvcew_world::{RBVCEW_AGORA, RBVCEW_PALAESTRA, //
+};
 
 /// The walk branch the temenos cuts and every push below names.
 const ZRBVTEG_WALK_BRANCH: &str = "coldwalk";
@@ -45,7 +49,7 @@ fn zrbvteg_git_ok(dir: &Path, args: &[&str], global: &Path) -> String {
         "git {:?} in {} failed: {}",
         args,
         dir.display(),
-        String::from_utf8_lossy(&out.stderr)
+        String::from_utf8_lossy(&out.stderr), //
     );
     String::from_utf8_lossy(&out.stdout).into_owned()
 }
@@ -63,7 +67,8 @@ fn zrbvteg_scratch_root() -> PathBuf {
         .as_nanos();
     let root = Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("target")
-        .join(format!("rbvteg_temenos_{}_{}", std::process::id(), nanos));
+        .join(format!("rbvteg_temenos_{}_{}", std::process::id(), nanos, //
+));
     std::fs::create_dir_all(&root).expect("scratch root must be creatable");
     root
 }
@@ -96,7 +101,7 @@ fn rbvteg_temenos_refuses_plain_and_no_verify_pushes_past_a_relocating_global() 
             bogus_hooks.display(),
             bare_str,
             RBVCEW_AGORA.harbinger_url,
-            RBVCEW_PALAESTRA.harbinger_url
+            RBVCEW_PALAESTRA.harbinger_url, //
         ),
     )
     .expect("scratch global must be writable");
@@ -116,17 +121,18 @@ fn rbvteg_temenos_refuses_plain_and_no_verify_pushes_past_a_relocating_global() 
     let refs_before = zrbvteg_git_ok(&bare, &["for-each-ref"], &global);
     assert!(
         zrbvteg_git_ok(&clone, &["remote"], &global).trim().is_empty(),
-        "the stood-up clone names a remote"
+        "the stood-up clone names a remote", //
     );
 
     // A re-added remote: the plain push dies at the clone's own hook.
     zrbvteg_git_ok(&clone, &["remote", "add", "probe", &bare_str], &global);
     let plain = zrbvteg_git(&clone, &["push", "probe", ZRBVTEG_WALK_BRANCH], &global);
-    assert!(!plain.status.success(), "a plain push to a re-added remote landed");
+    assert!(!plain.status.success(), "a plain push to a re-added remote landed", //
+);
     assert!(
         zrbvteg_stderr(&plain).contains(RBVCEG_TEMENOS_HOOK_REFUSAL),
         "the plain push did not refuse with the hook's text: {}",
-        zrbvteg_stderr(&plain)
+        zrbvteg_stderr(&plain), //
     );
 
     // An explicit-URL push past the hook: each world's address dies at the
@@ -134,18 +140,21 @@ fn rbvteg_temenos_refuses_plain_and_no_verify_pushes_past_a_relocating_global() 
     for url in [RBVCEW_AGORA.harbinger_url, RBVCEW_PALAESTRA.harbinger_url] {
         let skipped = zrbvteg_git(&clone, &["push", "--no-verify", url, ZRBVTEG_WALK_BRANCH], &global);
         let err = zrbvteg_stderr(&skipped);
-        assert!(!skipped.status.success(), "a --no-verify push to {} landed", url);
+        assert!(!skipped.status.success(), "a --no-verify push to {} landed", url, //
+);
         assert!(
             err.contains(RBVCEG_TEMENOS_REFUSED_DESTINATION),
             "the --no-verify push to {} did not name the refused destination: {}",
             url,
-            err
+            err, //
         );
-        assert!(!err.contains("transport"), "the push to {} met a transport, not the redirect: {}", url, err);
+        assert!(!err.contains("transport"), "the push to {} met a transport, not the redirect: {}", url, err, //
+);
     }
 
     let refs_after = zrbvteg_git_ok(&bare, &["for-each-ref"], &global);
-    assert_eq!(refs_before, refs_after, "the bare's refs moved under refused pushes");
+    assert_eq!(refs_before, refs_after, "the bare's refs moved under refused pushes", //
+);
 
     // Control: lift the pin, and the relocating global lets the plain push land.
     zrbvteg_git_ok(&clone, &["config", "--local", "--unset", "core.hooksPath"], &global);
@@ -153,12 +162,13 @@ fn rbvteg_temenos_refuses_plain_and_no_verify_pushes_past_a_relocating_global() 
     assert!(
         landed.status.success(),
         "with the pin lifted the plain push still refused: {}",
-        zrbvteg_stderr(&landed)
+        zrbvteg_stderr(&landed), //
     );
-    let walk_ref = format!("refs/heads/{}", ZRBVTEG_WALK_BRANCH);
+    let walk_ref = format!("refs/heads/{}", ZRBVTEG_WALK_BRANCH, //
+);
     assert!(
         !zrbvteg_git_ok(&bare, &["for-each-ref", &walk_ref], &global).trim().is_empty(),
-        "the control push left no walk branch in the bare"
+        "the control push left no walk branch in the bare", //
     );
 
     std::fs::remove_dir_all(&root).expect("scratch root must be removable");

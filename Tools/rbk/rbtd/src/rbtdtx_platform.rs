@@ -26,7 +26,7 @@ use std::path::PathBuf;
 
 use crate::rbtcep_platform::{
     rbtcep_cygdrive_to_native, rbtcep_drive_to_cygdrive, rbtcep_looks_native_windows,
-    rbtcep_native_to_posix_for, rbtcep_posix_to_native_for, rbtcep_repo_rel,
+    rbtcep_native_to_posix_for, rbtcep_posix_to_native_for, rbtcep_repo_rel, //
 };
 
 // ── Identity behaviour on non-Cygwin platforms ─────────────────────────
@@ -36,7 +36,8 @@ fn rbttep_identity_posix_to_native_when_not_cygwin() {
     let cases = ["/home/brad/projects/foo", "/tmp/x", "/cygdrive/c/foo", "relative/path"];
     for c in cases {
         let got = rbtcep_posix_to_native_for(c, false).expect("non-cygwin should never error");
-        assert_eq!(got, PathBuf::from(c), "identity broken for {}", c);
+        assert_eq!(got, PathBuf::from(c), "identity broken for {}", c, //
+);
     }
 }
 
@@ -45,7 +46,8 @@ fn rbttep_identity_native_to_posix_when_not_cygwin() {
     let cases = ["C:\\foo", "C:/foo", "/home/brad", "relative\\path"];
     for c in cases {
         let got = rbtcep_native_to_posix_for(c, false);
-        assert_eq!(got, c, "identity broken for {}", c);
+        assert_eq!(got, c, "identity broken for {}", c, //
+);
     }
 }
 
@@ -234,6 +236,7 @@ fn rbttep_round_trip_drive_paths() {
             .expect("/cygdrive uses fast path");
         let native_str = native.to_string_lossy();
         let round = rbtcep_native_to_posix_for(&native_str, true);
-        assert_eq!(round, orig, "round-trip broke for {}", orig);
+        assert_eq!(round, orig, "round-trip broke for {}", orig, //
+);
     }
 }

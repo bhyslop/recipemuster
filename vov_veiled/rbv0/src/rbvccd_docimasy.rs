@@ -22,7 +22,8 @@
 // and two payor projects a round — and the cachet granted records the
 // practice world, so it admits a showing there alone.
 
-use std::path::{Path, PathBuf};
+use std::path::{Path, PathBuf, //
+};
 use std::process::ExitCode;
 
 use crate::rbvcet_cachet;
@@ -66,18 +67,20 @@ pub fn rbvccd_docimasy_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
-    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
+    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display(), //
+));
 
     let regulus_parent = parent.join(bundle.regulus_dirname);
     let regulus_clone = regulus_parent.join(rbvcep_repo::RBVCEP_REGULUS_SUBDIR);
     if !regulus_clone.is_dir() {
         crate::rbvcel_fatal!(
             "no standing regulus at {} — run essai first (RBSHE)",
-            regulus_clone.display()
+            regulus_clone.display(), //
         );
     }
     let regulus_tip = rbvcep_repo::rbvcep_commit_sha(&regulus_clone, &top);
-    rbvcel_log::rbvcel_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
+    rbvcel_log::rbvcel_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip, //
+));
 
     zrbvccd_gate_narthex(&top, &regulus_tip, world);
     rbvcex_expede::rbvcex_assert_fresh(&top, &parent, &regulus_clone, world);
@@ -94,7 +97,7 @@ pub fn rbvccd_docimasy_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
                 "In the {} the credential preflight and the gauntlet stage are skipped; the {} written below admits a showing in the {} alone.",
                 rbvcew_world::rbvcew_word(world),
                 rbvgeb_breviary::RBVGEB_CACHET_BASE,
-                rbvcew_world::rbvcew_word(world)
+                rbvcew_world::rbvcew_word(world), //
             ));
         }
     }
@@ -110,7 +113,7 @@ pub fn rbvccd_docimasy_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
             rbvgeb_breviary::RBVGEB_DOCIMASY_BASE_LETTRINE,
             rbvcew_world::rbvcew_word(world),
             rbvgeb_breviary::RBVGEB_REGULUS_BASE,
-            rbvgeb_breviary::RBVGEB_CACHET_BASE
+            rbvgeb_breviary::RBVGEB_CACHET_BASE, //
         ));
         return ExitCode::SUCCESS;
     }
@@ -128,7 +131,8 @@ fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str, world: rbvcew_world::rbvc
 
     let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
     let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
-    let branch_ref = format!("refs/heads/{}", rbvcex_expede::RBVCEX_REGULUS_BRANCH);
+    let branch_ref = format!("refs/heads/{}", rbvcex_expede::RBVCEX_REGULUS_BRANCH, //
+);
     let fresh = refs.is_empty()
         || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip);
     if !fresh {
@@ -136,7 +140,8 @@ fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str, world: rbvcew_world::rbvc
             "the narthex is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
             refs.len(),
             rbvcex_expede::RBVCEX_REGULUS_BRANCH,
-            refs.iter().map(|(sha, name)| format!("  {} {}", sha, name)).collect::<Vec<_>>().join("\n")
+            refs.iter().map(|(sha, name)| format!("  {} {}", sha, name, //
+)).collect::<Vec<_>>().join("\n"), //
         );
     }
     rbvcel_log::rbvcel_line("narthex fresh: no refs, or exactly this cut's own preview");
@@ -149,7 +154,8 @@ fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str, world: rbvcew_world::rbvc
 fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Preview into the narthex (RBSHD step 3)");
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
-    let branch_ref = format!("refs/heads/{}", branch);
+    let branch_ref = format!("refs/heads/{}", branch, //
+);
     let narthex_url = bundle.narthex_url;
 
     let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
@@ -163,7 +169,8 @@ fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: 
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Preview push line — type this yourself:");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&format!("        git -C {} push {} {}:{}", clone, narthex_url, branch, branch));
+    rbvcel_log::rbvcel_raw(&format!("        git -C {} push {} {}:{}", clone, narthex_url, branch, branch, //
+));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_confirm("pushed the preview line above?");
 
@@ -172,7 +179,7 @@ fn zrbvccd_preview(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: 
     if !landed {
         crate::rbvcel_fatal!(
             "the narthex's {} tip does not equal the regulus tip {} after the reported push — resolve and re-run docimasy",
-            branch, regulus_tip
+            branch, regulus_tip, //
         );
     }
     rbvcel_log::rbvcel_line("narthex previews the regulus: tip verified by remote read");
@@ -204,7 +211,8 @@ fn zrbvccd_gauntlet_stage(top: &Path) {
     let basename = top
         .file_name()
         .and_then(|n| n.to_str())
-        .unwrap_or_else(|| crate::rbvcel_fatal!("cannot read the maintainer tree's basename: {}", top.display()));
+        .unwrap_or_else(|| crate::rbvcel_fatal!("cannot read the maintainer tree's basename: {}", top.display(), //
+));
 
     // The prompt above is the operator's one answer: marshal zero is handed it,
     // so its own typed gate does not stop the unattended hour a second time.
@@ -226,8 +234,10 @@ fn zrbvccd_gauntlet_stage(top: &Path) {
 /// and, if given, embeds `.{imprint}.`. Fatal on zero or multiple matches.
 pub(crate) fn zrbvccd_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) -> PathBuf {
     let entries = std::fs::read_dir(tt)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("cannot read tabtarget dir {}: {}", tt.display(), e));
-    let needle = imprint.map(|i| format!(".{}.", i));
+        .unwrap_or_else(|e| crate::rbvcel_fatal!("cannot read tabtarget dir {}: {}", tt.display(), e, //
+));
+    let needle = imprint.map(|i| format!(".{}.", i, //
+));
     let mut hits: Vec<PathBuf> = Vec::new();
     for entry in entries.flatten() {
         let name = entry.file_name();
@@ -247,15 +257,17 @@ pub(crate) fn zrbvccd_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) 
         0 => crate::rbvcel_fatal!(
             "no tabtarget '{}*{}' under {}",
             colophon,
-            imprint.map(|i| format!("{}.", i)).unwrap_or_default(),
-            tt.display()
+            imprint.map(|i| format!("{}.", i, //
+)).unwrap_or_default(),
+            tt.display(), //
         ),
         n => crate::rbvcel_fatal!(
             "ambiguous: {} tabtargets match '{}*{}' under {}",
             n,
             colophon,
-            imprint.map(|i| format!("{}.", i)).unwrap_or_default(),
-            tt.display()
+            imprint.map(|i| format!("{}.", i, //
+)).unwrap_or_default(),
+            tt.display(), //
         ),
     }
 }
@@ -263,6 +275,7 @@ pub(crate) fn zrbvccd_find_tt(tt: &Path, colophon: &str, imprint: Option<&str>) 
 /// A red worker: the fault is on the maintainer tree or its credentials.
 fn zrbvccd_require(code: i32, what: &str) {
     if code != 0 {
-        crate::rbvcel_fatal!("{} failed (exit {}) — resolve on the maintainer tree, then run docimasy again (RBSHD)", what, code);
+        crate::rbvcel_fatal!("{} failed (exit {}) — resolve on the maintainer tree, then run docimasy again (RBSHD)", what, code, //
+);
     }
 }

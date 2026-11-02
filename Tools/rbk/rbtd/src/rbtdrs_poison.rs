@@ -50,24 +50,24 @@ use crate::rbtgec_consts::{
     RBTGEC_VALIDATE_OAUTH,
     RBTGEC_VALIDATE_PAYOR,
     RBTGEC_VALIDATE_REPO,
-    RBTGEC_VALIDATE_VESSEL,
+    RBTGEC_VALIDATE_VESSEL, //
 };
 use crate::rbtgeb_breviary::{
     RBTGEB_BUSX_ENROLL_DENTIL,
-    RBTGEB_BUSX_REGIME_DENTIL,
+    RBTGEB_BUSX_REGIME_DENTIL, //
 };
 use crate::rbtcee_engine::{
     rbtcee_Tariff,
     rbtcee_Case,
     rbtcee_Disposition,
     rbtcee_Fixture,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
 use crate::rbtcei_invocation::{
     rbtcei_find_tabtarget_global,
     rbtdri_rooted_tabtarget_command,
     RBTCEI_BURE_TWEAK_NAME_KEY,
-    RBTCEI_BURE_TWEAK_VALUE_KEY,
+    RBTCEI_BURE_TWEAK_VALUE_KEY, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_REGIME_POISON;
 
@@ -105,7 +105,8 @@ fn rbtchs_poison(
 ) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
+)),
     };
     let tt = match rbtcei_find_tabtarget_global(&root, validate_colophon) {
         Ok(p) => p,
@@ -124,18 +125,21 @@ fn rbtchs_poison(
     {
         Ok(o) => o,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("{}: failed to run {}: {}", label, tt.display(), e));
+            return rbtcee_Verdict::Fail(format!("{}: failed to run {}: {}", label, tt.display(), e, //
+));
         }
     };
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
     let code = output.status.code().unwrap_or(-1);
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &stderr);
+    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
+)), &stdout);
+    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
+)), &stderr);
     if code != expected_band {
         return rbtcee_Verdict::Fail(format!(
             "{}: {} under poison '{}' exited {} — expected band {}\nstdout:\n{}\n\nstderr:\n{}",
-            label, validate_colophon, poison, code, expected_band, stdout, stderr
+            label, validate_colophon, poison, code, expected_band, stdout, stderr, //
         ));
     }
     rbtcee_Verdict::Pass
@@ -173,20 +177,23 @@ fn rbtchs_rbrr_bad_runtime_prefix_uppercase(dir: &Path) -> rbtcee_Verdict {
     // Valid length, so it clears the buv enroll; uppercase fails the
     // zrbrr_enforce format regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
-        &format!("{}=BAD-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
+        &format!("{}=BAD-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX, //
+),
         RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-runtime-prefix-uppercase")
 }
 
 fn rbtchs_rbrr_bad_runtime_prefix_no_trailing_hyphen(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
-        &format!("{}=acme", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
+        &format!("{}=acme", RBTCHS_VAR_RBRR_RUNTIME_PREFIX, //
+),
         RBTGEB_BUSX_REGIME_DENTIL, "rbrr-bad-runtime-prefix-no-trailing-hyphen")
 }
 
 fn rbtchs_rbrr_bad_runtime_prefix_too_long(dir: &Path) -> rbtcee_Verdict {
     // 12 chars exceeds the buv_string_enroll max (11) → enroll.
     rbtchs_poison(dir, RBTGEC_VALIDATE_REPO, &[],
-        &format!("{}=twelvechars-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX),
+        &format!("{}=twelvechars-", RBTCHS_VAR_RBRR_RUNTIME_PREFIX, //
+),
         RBTGEB_BUSX_ENROLL_DENTIL, "rbrr-bad-runtime-prefix-too-long")
 }
 
@@ -210,19 +217,22 @@ fn rbtchs_rbrd_missing_moniker(dir: &Path) -> rbtcee_Verdict {
 fn rbtchs_rbrd_bad_moniker(dir: &Path) -> rbtcee_Verdict {
     // Uppercase + hyphen fails the zrbrd_enforce moniker regex → regime.
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
-        &format!("{}=BAD-MONIKER", RBTCHS_VAR_RBRD_DEPOT_MONIKER),
+        &format!("{}=BAD-MONIKER", RBTCHS_VAR_RBRD_DEPOT_MONIKER, //
+),
         RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-moniker")
 }
 
 fn rbtchs_rbrd_bad_cloud_prefix_uppercase(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
-        &format!("{}=BAD-", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
+        &format!("{}=BAD-", RBTCHS_VAR_RBRD_CLOUD_PREFIX, //
+),
         RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-cloud-prefix-uppercase")
 }
 
 fn rbtchs_rbrd_bad_cloud_prefix_no_trailing_hyphen(dir: &Path) -> rbtcee_Verdict {
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
-        &format!("{}=acme", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
+        &format!("{}=acme", RBTCHS_VAR_RBRD_CLOUD_PREFIX, //
+),
         RBTGEB_BUSX_REGIME_DENTIL, "rbrd-bad-cloud-prefix-no-trailing-hyphen")
 }
 
@@ -230,7 +240,8 @@ fn rbtchs_rbrd_bad_cloud_prefix_too_long(dir: &Path) -> rbtcee_Verdict {
     // 12 chars exceeds the buv_string_enroll max (11) → enroll, before the
     // joint-length enforce ever runs.
     rbtchs_poison(dir, RBTGEC_VALIDATE_DEPOT, &[],
-        &format!("{}=twelvechars-", RBTCHS_VAR_RBRD_CLOUD_PREFIX),
+        &format!("{}=twelvechars-", RBTCHS_VAR_RBRD_CLOUD_PREFIX, //
+),
         RBTGEB_BUSX_ENROLL_DENTIL, "rbrd-bad-cloud-prefix-too-long")
 }
 
@@ -363,7 +374,8 @@ fn rbtchs_optional(
 ) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
+)),
     };
     let tt = match rbtcei_find_tabtarget_global(&root, validate_colophon) {
         Ok(p) => p,
@@ -380,16 +392,19 @@ fn rbtchs_optional(
     {
         Ok(o) => o,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("{}: failed to run {}: {}", label, tt.display(), e));
+            return rbtcee_Verdict::Fail(format!("{}: failed to run {}: {}", label, tt.display(), e, //
+));
         }
     };
     let base_code = baseline.status.code().unwrap_or(-1);
-    let _ = std::fs::write(dir.join(format!("{}-baseline-stdout.txt", label)), &baseline.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-baseline-stderr.txt", label)), &baseline.stderr);
+    let _ = std::fs::write(dir.join(format!("{}-baseline-stdout.txt", label, //
+)), &baseline.stdout);
+    let _ = std::fs::write(dir.join(format!("{}-baseline-stderr.txt", label, //
+)), &baseline.stderr);
     if base_code != 0 {
         return rbtcee_Verdict::Skip(format!(
             "{}: {} baseline not green (exit {}) — operator-local regime not configured here",
-            label, validate_colophon, base_code
+            label, validate_colophon, base_code, //
         ));
     }
     rbtchs_poison(dir, validate_colophon, folio, poison, expected_band, label)
@@ -438,7 +453,7 @@ pub static RBTCHS_CASES_REGIME_POISON: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchs_rbrv_no_bind_image),
     rbtcee_case!(rbtchs_rbrv_bind_image_tag_only),
     rbtcee_case!(rbtchs_rbro_missing_refresh_token),
-    rbtcee_case!(rbtchs_burs_bad_tincture),
+    rbtcee_case!(rbtchs_burs_bad_tincture), //
 ];
 
 pub static RBTCHS_FIXTURE_REGIME_POISON: rbtcee_Fixture = rbtcee_Fixture {

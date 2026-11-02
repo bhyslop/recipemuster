@@ -30,7 +30,8 @@ const SUBPROCESS_TIMEOUT_SECS: u64 = 90;
 // Trial Definitions — all experimental parameters live here
 // =========================================================================
 
-const MODELS: &[&str] = &["haiku", "sonnet", "opus"];
+const MODELS: &[&str] = &["haiku", "sonnet", "opus", //
+];
 
 /// The test table: left-aligned text, right-aligned numbers, consistent spacing.
 /// This is the canonical content that must survive round-trip through each model.
@@ -81,7 +82,7 @@ const SYSTEM_PROMPTS: &[(&str, &str)] = &[
          ```\n\
          \n\
          Always use the GOOD pattern. Never use markdown table syntax.",
-    ),
+    ), //
 ];
 
 // =========================================================================
@@ -93,23 +94,27 @@ fn flush() {
 }
 
 fn separator() {
-    println!("{}", "=".repeat(72));
+    println!("{}", "=".repeat(72), //
+);
     flush();
 }
 
 fn thin_separator() {
-    println!("{}", "-".repeat(72));
+    println!("{}", "-".repeat(72), //
+);
     flush();
 }
 
 fn print_boxed(label: &str, content: &str) {
     thin_separator();
-    println!("[{}]", label);
+    println!("[{}]", label, //
+);
     if content.is_empty() {
         println!("  (empty — using Claude Code default)");
     } else {
         for line in content.lines() {
-            println!("  {}", line);
+            println!("  {}", line, //
+);
         }
     }
     flush();
@@ -233,7 +238,8 @@ fn evaluate(response: &str, expected: &str) -> (bool, String) {
         issues.join(", ")
     };
 
-    let detail = format!("FAIL: {}", diagnosis);
+    let detail = format!("FAIL: {}", diagnosis, //
+);
 
     (false, detail)
 }
@@ -286,9 +292,11 @@ fn build_claude_args(model: &str, system_prompt: &str, user_message: &str) -> (V
         if arg == "--system-prompt" && i + 1 < args.len() {
             let val = &args[i + 1];
             if val.len() > 60 {
-                display_parts.push(format!("--system-prompt \"{}...\"", &val[..57]));
+                display_parts.push(format!("--system-prompt \"{}...\"", &val[..57], //
+));
             } else {
-                display_parts.push(format!("--system-prompt \"{}\"", val));
+                display_parts.push(format!("--system-prompt \"{}\"", val, //
+));
             }
             i += 2;
         } else if arg == "--" {
@@ -339,7 +347,8 @@ struct JsonParsed {
 /// Falls back to raw stdout if JSON parsing fails.
 fn parse_json_response(stdout: &str) -> Result<JsonParsed, String> {
     let json: serde_json::Value = serde_json::from_str(stdout)
-        .map_err(|e| format!("JSON parse error: {}", e))?;
+        .map_err(|e| format!("JSON parse error: {}", e, //
+))?;
 
     let result_text = json.get("result")
         .and_then(|v| v.as_str())
@@ -380,7 +389,8 @@ fn parse_json_response(stdout: &str) -> Result<JsonParsed, String> {
 
 /// Invoke claude subprocess and evaluate response. No output printed.
 async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
-    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE, //
+);
     let (args, _display_cmd) = build_claude_args(model, system_prompt, &user_message);
 
     let mut cmd = Command::from(zsmpt_claude_command());
@@ -412,13 +422,16 @@ async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
     };
 
     match output {
-        Err(_) => empty_result(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS)),
-        Ok(Err(e)) => empty_result(format!("SPAWN ERROR: {}", e)),
+        Err(_) => empty_result(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS, //
+)),
+        Ok(Err(e)) => empty_result(format!("SPAWN ERROR: {}", e, //
+)),
         Ok(Ok(output)) => {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
             if !output.status.success() {
-                return empty_result(format!("EXIT {}", output.status));
+                return empty_result(format!("EXIT {}", output.status, //
+));
             }
 
             match parse_json_response(&stdout) {
@@ -443,7 +456,8 @@ async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
                     InvokeResult {
                         passed,
                         elapsed,
-                        detail: format!("{} ({})", detail, e),
+                        detail: format!("{} ({})", detail, e, //
+),
                         response: stdout,
                         input_tokens: 0,
                         output_tokens: 0,
@@ -464,11 +478,13 @@ async fn invoke_trial(model: &str, system_prompt: &str) -> InvokeResult {
 
 /// Run a single trial with full verbose output. Returns (passed, elapsed_secs).
 async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prompt: &str) -> (bool, f64) {
-    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE, //
+);
     let (_args, display_cmd) = build_claude_args(model, system_prompt, &user_message);
 
     separator();
-    println!("TRIAL {}: model={} prompt={}", n, model, prompt_name);
+    println!("TRIAL {}: model={} prompt={}", n, model, prompt_name, //
+);
     separator();
 
     print_boxed("SYSTEM PROMPT", system_prompt);
@@ -476,20 +492,24 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
 
     thin_separator();
     println!("[COMMAND]");
-    println!("  {}", display_cmd);
+    println!("  {}", display_cmd, //
+);
     flush();
 
     thin_separator();
-    println!("[INVOKING claude... timeout={}s]", SUBPROCESS_TIMEOUT_SECS);
+    println!("[INVOKING claude... timeout={}s]", SUBPROCESS_TIMEOUT_SECS, //
+);
     flush();
 
     let result = invoke_trial(model, system_prompt).await;
 
-    println!("[ELAPSED] {:.1}s", result.elapsed);
+    println!("[ELAPSED] {:.1}s", result.elapsed, //
+);
     flush();
 
     if result.response.is_empty() {
-        println!("[{}]", result.detail);
+        println!("[{}]", result.detail, //
+);
         println!();
         flush();
     } else {
@@ -500,19 +520,28 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
 
         thin_separator();
         println!("[RESPONSE STATS]");
-        println!("  bytes: {}", result.response.len());
-        println!("  lines: {}", result.response.lines().count());
+        println!("  bytes: {}", result.response.len(), //
+);
+        println!("  lines: {}", result.response.lines().count(), //
+);
         println!(
             "  has code fences: {}",
-            result.response.trim().starts_with("```")
+            result.response.trim().starts_with("```"), //
         );
-        println!("  has pipe chars: {}", result.response.contains('|'));
-        println!("  has horiz rules: {}", result.response.contains("---"));
-        println!("  input_tokens: {}", result.input_tokens);
-        println!("  cache_read_tokens: {}", result.cache_read_tokens);
-        println!("  output_tokens: {}", result.output_tokens);
-        println!("  cost_usd: ${:.6}", result.cost_usd);
-        println!("  duration_api_ms: {}", result.duration_api_ms);
+        println!("  has pipe chars: {}", result.response.contains('|'), //
+);
+        println!("  has horiz rules: {}", result.response.contains("---"), //
+);
+        println!("  input_tokens: {}", result.input_tokens, //
+);
+        println!("  cache_read_tokens: {}", result.cache_read_tokens, //
+);
+        println!("  output_tokens: {}", result.output_tokens, //
+);
+        println!("  cost_usd: ${:.6}", result.cost_usd, //
+);
+        println!("  duration_api_ms: {}", result.duration_api_ms, //
+);
         flush();
 
         // Show full JSON envelope if available
@@ -521,7 +550,8 @@ async fn run_trial_verbose(n: usize, model: &str, prompt_name: &str, system_prom
         }
 
         thin_separator();
-        println!("[EVALUATION] {}", result.detail);
+        println!("[EVALUATION] {}", result.detail, //
+);
         println!();
         flush();
     }
@@ -561,13 +591,14 @@ async fn run_trial_repeats(
     system_prompt: &str,
     repeats: usize,
 ) -> TrialAggregate {
-    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE, //
+);
     let (_args, display_cmd) = build_claude_args(model, system_prompt, &user_message);
 
     separator();
     println!(
         "TRIAL {}: model={} prompt={} repeats={}",
-        n, model, prompt_name, repeats
+        n, model, prompt_name, repeats, //
     );
     separator();
 
@@ -575,7 +606,8 @@ async fn run_trial_repeats(
 
     thin_separator();
     println!("[COMMAND]");
-    println!("  {}", display_cmd);
+    println!("  {}", display_cmd, //
+);
     flush();
 
     println!();
@@ -589,7 +621,8 @@ async fn run_trial_repeats(
     let mut total_cost: f64 = 0.0;
 
     for r in 1..=repeats {
-        print!("  [rep {}/{}] ", r, repeats);
+        print!("  [rep {}/{}] ", r, repeats, //
+);
         flush();
 
         let result = invoke_trial(model, system_prompt).await;
@@ -605,7 +638,7 @@ async fn run_trial_repeats(
             println!(
                 "PASS  {:.2}s  in:{} cache:{} out:{} ${:.4}",
                 result.elapsed, result.input_tokens, result.cache_read_tokens,
-                result.output_tokens, result.cost_usd
+                result.output_tokens, result.cost_usd, //
             );
         } else {
             let reason = result
@@ -615,7 +648,7 @@ async fn run_trial_repeats(
             println!(
                 "FAIL  {:.2}s  in:{} cache:{} out:{} ${:.4}  ({})",
                 result.elapsed, result.input_tokens, result.cache_read_tokens,
-                result.output_tokens, result.cost_usd, reason
+                result.output_tokens, result.cost_usd, reason, //
             );
         }
         flush();
@@ -632,11 +665,11 @@ async fn run_trial_repeats(
     println!();
     println!(
         "  RESULT: {}/{} pass | median {:.2}s (api {}ms) | range {:.2}s - {:.2}s",
-        pass_count, repeats, median_secs, median_api, min_secs, max_secs
+        pass_count, repeats, median_secs, median_api, min_secs, max_secs, //
     );
     println!(
         "  TOKENS: in:{} cache:{} out:{} | total cost ${:.4}",
-        median_input, median_cache, median_output, total_cost
+        median_input, median_cache, median_output, total_cost, //
     );
     println!();
     flush();
@@ -690,7 +723,7 @@ async fn main() {
             eprintln!("  plan          Show trial matrix with full prompt text");
             eprintln!(
                 "  trial N [R]   Run single trial (1-{}), R repeats (default 1)",
-                trial_count()
+                trial_count(), //
             );
             eprintln!("  run [R]       All trials via claude CLI, R repeats each");
             eprintln!("  smoke         Run 1 trial (haiku+minimal) via claude CLI");
@@ -707,28 +740,34 @@ fn cmd_plan() {
     separator();
 
     println!();
-    println!("Models: {:?}", MODELS);
-    println!("Total trials: {}", trial_count());
+    println!("Models: {:?}", MODELS, //
+);
+    println!("Total trials: {}", trial_count(), //
+);
 
     println!();
     println!("TEST TABLE (canonical content that must survive round-trip):");
     thin_separator();
-    println!("{}", TEST_TABLE);
+    println!("{}", TEST_TABLE, //
+);
     thin_separator();
 
     println!();
-    println!("USER MESSAGE PREFIX: {:?}", USER_MESSAGE_PREFIX);
+    println!("USER MESSAGE PREFIX: {:?}", USER_MESSAGE_PREFIX, //
+);
 
     println!();
     println!("SYSTEM PROMPT VARIANTS:");
     for (i, (name, text)) in SYSTEM_PROMPTS.iter().enumerate() {
         println!();
-        println!("  [{}] \"{}\"", i, name);
+        println!("  [{}] \"{}\"", i, name, //
+);
         if text.is_empty() {
             println!("      (no --system-prompt flag; Claude Code default)");
         } else {
             for line in text.lines() {
-                println!("      {}", line);
+                println!("      {}", line, //
+);
             }
         }
     }
@@ -740,7 +779,7 @@ fn cmd_plan() {
         let (mi, pi) = trial_params(n).unwrap();
         println!(
             "  trial {:2}: model={:<7} prompt={}",
-            n, MODELS[mi], SYSTEM_PROMPTS[pi].0
+            n, MODELS[mi], SYSTEM_PROMPTS[pi].0, //
         );
     }
     println!();
@@ -750,7 +789,8 @@ fn parse_trial_number(args: &[String]) -> usize {
     args.get(2)
         .and_then(|s| s.parse().ok())
         .unwrap_or_else(|| {
-            eprintln!("Usage: smpt trial <N> [R]  (N: 1-{}, R: repeats)", trial_count());
+            eprintln!("Usage: smpt trial <N> [R]  (N: 1-{}, R: repeats)", trial_count(), //
+);
             std::process::exit(1);
         })
 }
@@ -767,7 +807,8 @@ fn parse_repeat_count(args: &[String], pos: usize) -> usize {
 
 async fn cmd_trial(n: usize, repeats: usize) {
     let (mi, pi) = trial_params(n).unwrap_or_else(|| {
-        eprintln!("Trial {} out of range (1-{})", n, trial_count());
+        eprintln!("Trial {} out of range (1-{})", n, trial_count(), //
+);
         std::process::exit(1);
     });
 
@@ -802,9 +843,11 @@ async fn cmd_smoke() {
 
     separator();
     if passed {
-        println!("SMOKE: OK ({:.1}s) — claude -p invocation works", elapsed);
+        println!("SMOKE: OK ({:.1}s) — claude -p invocation works", elapsed, //
+);
     } else {
-        println!("SMOKE: FAILED ({:.1}s) — see output above for diagnosis", elapsed);
+        println!("SMOKE: FAILED ({:.1}s) — see output above for diagnosis", elapsed, //
+);
     }
     println!();
 }
@@ -863,7 +906,8 @@ async fn invoke_api_trial(
     model: &str,
     system_prompt: &str,
 ) -> ApiInvokeResult {
-    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE, //
+);
     let model_id = api_model_id(model);
 
     let mut body = serde_json::json!({
@@ -900,19 +944,24 @@ async fn invoke_api_trial(
     };
 
     match response {
-        Err(_) => fail(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS)),
-        Ok(Err(e)) => fail(format!("HTTP ERROR: {}", e)),
+        Err(_) => fail(format!("TIMEOUT after {}s", SUBPROCESS_TIMEOUT_SECS, //
+)),
+        Ok(Err(e)) => fail(format!("HTTP ERROR: {}", e, //
+)),
         Ok(Ok(resp)) => {
             if !resp.status().is_success() {
-                return fail(format!("HTTP {}", resp.status()));
+                return fail(format!("HTTP {}", resp.status(), //
+));
             }
             let body_text = match resp.text().await {
                 Ok(t) => t,
-                Err(e) => return fail(format!("BODY READ ERROR: {}", e)),
+                Err(e) => return fail(format!("BODY READ ERROR: {}", e, //
+)),
             };
             let json: serde_json::Value = match serde_json::from_str(&body_text) {
                 Ok(v) => v,
-                Err(e) => return fail(format!("JSON PARSE ERROR: {}", e)),
+                Err(e) => return fail(format!("JSON PARSE ERROR: {}", e, //
+)),
             };
 
             let result_text = json.get("content")
@@ -947,7 +996,7 @@ async fn run_api_trial_repeats(
     separator();
     println!(
         "API TRIAL {}: model={} ({}) prompt={} repeats={}",
-        n, model, api_model_id(model), prompt_name, repeats
+        n, model, api_model_id(model), prompt_name, repeats, //
     );
     separator();
 
@@ -965,7 +1014,8 @@ async fn run_api_trial_repeats(
     let mut cache_read_vec: Vec<u64> = Vec::new();
 
     for r in 1..=repeats {
-        print!("  [rep {}/{}] ", r, repeats);
+        print!("  [rep {}/{}] ", r, repeats, //
+);
         flush();
 
         let result = invoke_api_trial(client, api_key, model, system_prompt).await;
@@ -976,10 +1026,12 @@ async fn run_api_trial_repeats(
 
         if result.passed {
             pass_count += 1;
-            println!("PASS  {:.2}s  in:{} cache:{} out:{}", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens);
+            println!("PASS  {:.2}s  in:{} cache:{} out:{}", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens, //
+);
         } else {
             let reason = result.detail.strip_prefix("FAIL: ").unwrap_or(&result.detail);
-            println!("FAIL  {:.2}s  in:{} cache:{} out:{}  ({})", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens, reason);
+            println!("FAIL  {:.2}s  in:{} cache:{} out:{}  ({})", result.elapsed, result.input_tokens, result.cache_read_tokens, result.output_tokens, reason, //
+);
         }
         flush();
     }
@@ -994,11 +1046,11 @@ async fn run_api_trial_repeats(
     println!();
     println!(
         "  RESULT: {}/{} pass | median {:.2}s | range {:.2}s - {:.2}s",
-        pass_count, repeats, median_secs, min_secs, max_secs
+        pass_count, repeats, median_secs, min_secs, max_secs, //
     );
     println!(
         "  TOKENS: in:{} cache:{} out:{}",
-        median_input, median_cache, median_output
+        median_input, median_cache, median_output, //
     );
     println!();
     flush();
@@ -1031,10 +1083,11 @@ async fn cmd_api_run(repeats: usize) {
     if repeats > 1 {
         println!(
             "Running {} trials x {} repeats = {} invocations...",
-            trial_count(), repeats, trial_count() * repeats
+            trial_count(), repeats, trial_count() * repeats, //
         );
     } else {
-        println!("Running {} trials sequentially...", trial_count());
+        println!("Running {} trials sequentially...", trial_count(), //
+);
     }
     println!("NOTE: 'default' prompt variant = zero system prompt (no system field)");
     separator();
@@ -1063,11 +1116,13 @@ async fn cmd_api_smoke() {
 
     let api_key = require_api_key();
 
-    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE);
+    let user_message = format!("{}{}", USER_MESSAGE_PREFIX, TEST_TABLE, //
+);
     let system_prompt = "You are a helpful assistant.";
 
     separator();
-    println!("API-SMOKE: model={} prompt=minimal", API_MODEL_HAIKU);
+    println!("API-SMOKE: model={} prompt=minimal", API_MODEL_HAIKU, //
+);
     separator();
 
     print_boxed("SYSTEM PROMPT", system_prompt);
@@ -1078,7 +1133,8 @@ async fn cmd_api_smoke() {
     flush();
 
     thin_separator();
-    println!("[INVOKING direct API... timeout={}s]", SUBPROCESS_TIMEOUT_SECS);
+    println!("[INVOKING direct API... timeout={}s]", SUBPROCESS_TIMEOUT_SECS, //
+);
     flush();
 
     let request_body = serde_json::json!({
@@ -1110,29 +1166,35 @@ async fn cmd_api_smoke() {
 
     let elapsed = start.elapsed().as_secs_f64();
 
-    println!("[ELAPSED] {:.1}s", elapsed);
+    println!("[ELAPSED] {:.1}s", elapsed, //
+);
     flush();
 
     match response {
         Err(_) => {
-            println!("[TIMEOUT] API request exceeded {}s limit", SUBPROCESS_TIMEOUT_SECS);
+            println!("[TIMEOUT] API request exceeded {}s limit", SUBPROCESS_TIMEOUT_SECS, //
+);
             std::process::exit(1);
         }
         Ok(Err(e)) => {
-            println!("[HTTP ERROR] {}", e);
+            println!("[HTTP ERROR] {}", e, //
+);
             std::process::exit(1);
         }
         Ok(Ok(resp)) => {
             let status = resp.status();
-            println!("[HTTP STATUS] {}", status);
+            println!("[HTTP STATUS] {}", status, //
+);
             flush();
 
-            let body = resp.text().await.unwrap_or_else(|e| format!("(body read error: {})", e));
+            let body = resp.text().await.unwrap_or_else(|e| format!("(body read error: {})", e, //
+));
 
             if !status.is_success() {
                 print_boxed("ERROR RESPONSE", &body);
                 separator();
-                println!("API-SMOKE: FAILED — HTTP {}", status);
+                println!("API-SMOKE: FAILED — HTTP {}", status, //
+);
                 println!();
                 std::process::exit(1);
             }
@@ -1141,7 +1203,8 @@ async fn cmd_api_smoke() {
             let json: serde_json::Value = match serde_json::from_str(&body) {
                 Ok(v) => v,
                 Err(e) => {
-                    println!("[JSON PARSE ERROR] {}", e);
+                    println!("[JSON PARSE ERROR] {}", e, //
+);
                     print_boxed("RAW BODY", &body);
                     std::process::exit(1);
                 }
@@ -1172,9 +1235,12 @@ async fn cmd_api_smoke() {
 
             thin_separator();
             println!("[RESPONSE STATS]");
-            println!("  input_tokens: {}", input_tokens);
-            println!("  cache_read_tokens: {}", cache_read);
-            println!("  output_tokens: {}", output_tokens);
+            println!("  input_tokens: {}", input_tokens, //
+);
+            println!("  cache_read_tokens: {}", cache_read, //
+);
+            println!("  output_tokens: {}", output_tokens, //
+);
             flush();
 
             // Show full JSON
@@ -1183,14 +1249,17 @@ async fn cmd_api_smoke() {
             // Evaluate
             let (passed, detail) = evaluate(result_text, TEST_TABLE);
             thin_separator();
-            println!("[EVALUATION] {}", detail);
+            println!("[EVALUATION] {}", detail, //
+);
             println!();
 
             separator();
             if passed {
-                println!("API-SMOKE: OK ({:.1}s) — direct API works", elapsed);
+                println!("API-SMOKE: OK ({:.1}s) — direct API works", elapsed, //
+);
             } else {
-                println!("API-SMOKE: FAILED ({:.1}s) — see output above", elapsed);
+                println!("API-SMOKE: FAILED ({:.1}s) — see output above", elapsed, //
+);
             }
             println!();
         }
@@ -1205,10 +1274,11 @@ async fn cmd_run(repeats: usize) {
             "Running {} trials x {} repeats = {} invocations...",
             trial_count(),
             repeats,
-            trial_count() * repeats
+            trial_count() * repeats, //
         );
     } else {
-        println!("Running {} trials sequentially...", trial_count());
+        println!("Running {} trials sequentially...", trial_count(), //
+);
     }
     separator();
     println!();
@@ -1259,15 +1329,18 @@ fn print_summary_single(results: &[(usize, String, String, bool, f64)], total_el
     println!();
 
     // Header row
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<12}", name);
+        print!("{:<12}", name, //
+);
     }
     println!();
 
     // Data rows
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             let (passed, elapsed) = results
@@ -1276,11 +1349,14 @@ fn print_summary_single(results: &[(usize, String, String, bool, f64)], total_el
                 .map(|(_, _, _, p, e)| (*p, *e))
                 .unwrap_or((false, 0.0));
             let cell = if passed {
-                format!("PASS {:.0}s", elapsed)
+                format!("PASS {:.0}s", elapsed, //
+)
             } else {
-                format!("FAIL {:.0}s", elapsed)
+                format!("FAIL {:.0}s", elapsed, //
+)
             };
-            print!("{:<12}", cell);
+            print!("{:<12}", cell, //
+);
         }
         println!();
     }
@@ -1293,37 +1369,43 @@ fn print_summary_single(results: &[(usize, String, String, bool, f64)], total_el
         pass_count,
         fail_count,
         results.len(),
-        total_elapsed
+        total_elapsed, //
     );
     println!();
 }
 
 fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_elapsed: f64) {
     separator();
-    println!("SUMMARY ({} repeats per trial, times are median)", repeats);
+    println!("SUMMARY ({} repeats per trial, times are median)", repeats, //
+);
     separator();
     println!();
 
     // Header row — wider columns for "N/N Xs" format
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<14}", name);
+        print!("{:<14}", name, //
+);
     }
     println!();
 
     // Data rows
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
                 let cell = format!(
                     "{}/{} {:.1}s",
-                    agg.pass_count, agg.repeat_count, agg.median_secs
+                    agg.pass_count, agg.repeat_count, agg.median_secs, //
                 );
-                print!("{:<14}", cell);
+                print!("{:<14}", cell, //
+);
             } else {
-                print!("{:<14}", "---");
+                print!("{:<14}", "---", //
+);
             }
         }
         println!();
@@ -1333,24 +1415,29 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
     println!();
     println!("Timing detail (median / min / max):");
     println!();
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<22}", name);
+        print!("{:<22}", name, //
+);
     }
     println!();
 
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
                 let cell = format!(
                     "{:.2} / {:.2} / {:.2}",
-                    agg.median_secs, agg.min_secs, agg.max_secs
+                    agg.median_secs, agg.min_secs, agg.max_secs, //
                 );
-                print!("{:<22}", cell);
+                print!("{:<22}", cell, //
+);
             } else {
-                print!("{:<22}", "---");
+                print!("{:<22}", "---", //
+);
             }
         }
         println!();
@@ -1360,25 +1447,30 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
     println!();
     println!("Token usage (median: input + cache_read / output):");
     println!();
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<22}", name);
+        print!("{:<22}", name, //
+);
     }
     println!();
 
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
                 let cell = format!(
                     "{}+{} / {}",
                     agg.median_input_tokens, agg.median_cache_read_tokens,
-                    agg.median_output_tokens
+                    agg.median_output_tokens, //
                 );
-                print!("{:<22}", cell);
+                print!("{:<22}", cell, //
+);
             } else {
-                print!("{:<22}", "---");
+                print!("{:<22}", "---", //
+);
             }
         }
         println!();
@@ -1386,23 +1478,30 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
 
     // Cost table
     println!();
-    println!("Cost per trial (total across {} repeats):", repeats);
+    println!("Cost per trial (total across {} repeats):", repeats, //
+);
     println!();
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<14}", name);
+        print!("{:<14}", name, //
+);
     }
     println!();
 
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
-                let cell = format!("${:.4}", agg.total_cost_usd);
-                print!("{:<14}", cell);
+                let cell = format!("${:.4}", agg.total_cost_usd, //
+);
+                print!("{:<14}", cell, //
+);
             } else {
-                print!("{:<14}", "---");
+                print!("{:<14}", "---", //
+);
             }
         }
         println!();
@@ -1412,21 +1511,27 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
     println!();
     println!("API latency (median ms, excludes CLI overhead):");
     println!();
-    print!("{:<10}", "");
+    print!("{:<10}", "", //
+);
     for (name, _) in SYSTEM_PROMPTS {
-        print!("{:<14}", name);
+        print!("{:<14}", name, //
+);
     }
     println!();
 
     for (mi, model) in MODELS.iter().enumerate() {
-        print!("{:<10}", model);
+        print!("{:<10}", model, //
+);
         for pi in 0..SYSTEM_PROMPTS.len() {
             let n = mi * SYSTEM_PROMPTS.len() + pi + 1;
             if let Some(agg) = aggregates.iter().find(|a| a.trial_n == n) {
-                let cell = format!("{}ms", agg.median_api_ms);
-                print!("{:<14}", cell);
+                let cell = format!("{}ms", agg.median_api_ms, //
+);
+                print!("{:<14}", cell, //
+);
             } else {
-                print!("{:<14}", "---");
+                print!("{:<14}", "---", //
+);
             }
         }
         println!();
@@ -1446,9 +1551,11 @@ fn print_summary_repeats(aggregates: &[TrialAggregate], repeats: usize, total_el
     println!();
     println!(
         "Totals: {} pass, {} fail across {} invocations in {:.1}s",
-        total_passes, total_fails, total_invocations, total_elapsed
+        total_passes, total_fails, total_invocations, total_elapsed, //
     );
-    println!("Grand median per invocation: {:.2}s", grand_median);
-    println!("Total cost: ${:.4}", total_cost);
+    println!("Grand median per invocation: {:.2}s", grand_median, //
+);
+    println!("Total cost: ${:.4}", total_cost, //
+);
     println!();
 }

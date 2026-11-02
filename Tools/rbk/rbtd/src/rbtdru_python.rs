@@ -34,7 +34,7 @@
 use std::collections::BTreeSet;
 use std::path::{
     Path,
-    PathBuf,
+    PathBuf, //
 };
 
 use crate::rbtchc_cupel::{
@@ -47,7 +47,7 @@ use crate::rbtchc_cupel::{
     ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
     ZRBTCHC_POSIX_FLOOR,
     ZRBTCHC_PY_EXT,
-    ZRBTCHC_PY_IMPORT_ALLOWED,
+    ZRBTCHC_PY_IMPORT_ALLOWED, //
 };
 
 /// One lexical token of a python step body. The scanner needs identifiers
@@ -308,7 +308,8 @@ pub(crate) fn zrbtchy_scan_python(tools: &Path) -> Result<zrbtchc_ScanResult, St
             continue;
         }
         let src = std::fs::read_to_string(path)
-            .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
+            .map_err(|e| format!("read {} failed: {}", path.display(), e, //
+))?;
         let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
         zrbtchy_py_scan(&src, &rel, &mut findings, &mut inventory);
     }

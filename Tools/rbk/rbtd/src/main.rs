@@ -43,9 +43,10 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use rbt::rbtcea_almanac::{
-    rbtcea_lookup_fixture, rbtcea_lookup_suite, RBTCEA_FIXTURES, RBTCEA_SUITES,
+    rbtcea_lookup_fixture, rbtcea_lookup_suite, RBTCEA_FIXTURES, RBTCEA_SUITES, //
 };
-use rbt::rbtccc_crucible::{rbtccc_set_context, rbtccc_take_context};
+use rbt::rbtccc_crucible::{rbtccc_set_context, rbtccc_take_context, //
+};
 use rbt::rbtcee_engine::{
     RBTCEE_FLAG_KEEP_GOING,
     rbtcee_TariffRow,
@@ -58,11 +59,11 @@ use rbt::rbtcee_engine::{
     rbtcee_run_fixture,
     rbtcee_run_single_case,
     rbtcee_tariff_declared,
-    rbtcee_tree_clean,
+    rbtcee_tree_clean, //
 };
 use rbt::rbtcei_invocation::{
     rbtcei_Context, rbtcei_invoke_global,
-    RBTCEI_BURD_TEMP_DIR_KEY,
+    RBTCEI_BURD_TEMP_DIR_KEY, //
 };
 use rbt::rbtccd_dowse::rbtccd_dowse;
 use rbt::rbtgec_consts::RBTGEC_CRUCIBLE_ACTIVE;
@@ -85,7 +86,8 @@ const RBTM_FLAG_EXERGUE: &str = "--exergue";
 fn rbtm_answer_exergue() -> ExitCode {
     use std::io::Write;
     let mut stdout = std::io::stdout().lock();
-    match writeln!(stdout, "{}", env!("BKCH_COLLAR_POSITION")) {
+    match writeln!(stdout, "{}", env!("BKCH_COLLAR_POSITION"), //
+) {
         Ok(()) => ExitCode::SUCCESS,
         Err(_) => ExitCode::FAILURE,
     }
@@ -115,7 +117,8 @@ fn rbtm_run_dowse(args: &[String]) -> ExitCode {
     };
     match rbtccd_dowse(&log_dir) {
         Ok(()) => ExitCode::SUCCESS,
-        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg, //
+),
     }
 }
 
@@ -140,11 +143,14 @@ fn rbtm_allocate_roots() -> Result<rbtm_Roots, String> {
     let burv_output_root = trace_root.join("burv-output");
 
     std::fs::create_dir_all(&trace_root)
-        .map_err(|e| format!("rbt: failed to create trace root '{}': {}", trace_root.display(), e))?;
+        .map_err(|e| format!("rbt: failed to create trace root '{}': {}", trace_root.display(), e, //
+))?;
     std::fs::create_dir_all(&burv_temp_root)
-        .map_err(|e| format!("rbt: failed to create burv temp root '{}': {}", burv_temp_root.display(), e))?;
+        .map_err(|e| format!("rbt: failed to create burv temp root '{}': {}", burv_temp_root.display(), e, //
+))?;
     std::fs::create_dir_all(&burv_output_root)
-        .map_err(|e| format!("rbt: failed to create burv output root '{}': {}", burv_output_root.display(), e))?;
+        .map_err(|e| format!("rbt: failed to create burv output root '{}': {}", burv_output_root.display(), e, //
+))?;
 
     Ok(rbtm_Roots { trace_root, burv_temp_root, burv_output_root })
 }
@@ -154,26 +160,28 @@ fn rbtm_allocate_roots() -> Result<rbtm_Roots, String> {
 fn rbtm_run_fixture(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtcee_parse_keep_going(args) {
         Ok(v) => v,
-        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg, //
+),
     };
     let fixture = match positionals.first() {
         Some(n) => n,
         None => rbt::rbtcel_fatal_now!(
             "rbt: usage: rbt <fixture> [{}]\n\
              theurge must be launched via tabtarget (e.g. tt/rbw-tf.FixtureRun.sh tadmor)",
-            RBTCEE_FLAG_KEEP_GOING
+            RBTCEE_FLAG_KEEP_GOING, //
         ),
     };
     if positionals.len() > 1 {
         rbt::rbtcel_fatal_now!(
             "rbt: unexpected argument '{}' — usage: rbt <fixture> [{}]",
-            positionals[1], RBTCEE_FLAG_KEEP_GOING
+            positionals[1], RBTCEE_FLAG_KEEP_GOING, //
         );
     }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e, //
+),
     };
 
     // Run-start hygiene guard — reaches every drive, not only the suite (see
@@ -185,13 +193,14 @@ fn rbtm_run_fixture(args: &[String]) -> ExitCode {
         rbt::rbtcel_fatal_now!(
             "rbt: refusing to run on a dirty working tree — \
              notch (commit) first, then drive.\n{}",
-            msg
+            msg, //
         );
     }
 
     let roots = match rbtm_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg, //
+),
     };
 
     let ctx = rbtcei_Context::new(
@@ -207,7 +216,7 @@ fn rbtm_run_fixture(args: &[String]) -> ExitCode {
             "rbt: fixture '{}' has no registered Fixture — \
              no Fixture static is bound. \
              Update rbtcea_lookup_fixture in rbtdrc_crucible.rs.",
-            fixture
+            fixture, //
         ),
     };
 
@@ -220,13 +229,15 @@ fn rbtm_run_fixture(args: &[String]) -> ExitCode {
 
     let result = match run_result {
         Ok(r) => r,
-        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbt: {}", msg, //
+),
     };
 
     rbtcee_print_summary(&result, &colors);
 
     if result.failed > 0 {
-        rbt::rbtcel_error_now!("rbt: {} case(s) failed", result.failed);
+        rbt::rbtcel_error_now!("rbt: {} case(s) failed", result.failed, //
+);
         ExitCode::FAILURE
     } else {
         ExitCode::SUCCESS
@@ -238,13 +249,15 @@ fn rbtm_run_fixture(args: &[String]) -> ExitCode {
 fn rbtm_run_suite(args: &[String]) -> ExitCode {
     let (positionals, keep_going) = match rbtcee_parse_keep_going(args) {
         Ok(v) => v,
-        Err(msg) => rbt::rbtcel_fatal_now!("rbt suite: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbt suite: {}", msg, //
+),
     };
     let suite = match positionals.first() {
         Some(name) => match rbtcea_lookup_suite(name) {
             Some(s) => s,
             None => {
-                rbt::rbtcel_error_now!("rbt suite: unknown suite '{}'", name);
+                rbt::rbtcel_error_now!("rbt suite: unknown suite '{}'", name, //
+);
                 rbtm_list_suites();
                 return ExitCode::FAILURE;
             }
@@ -258,13 +271,14 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
     if positionals.len() > 1 {
         rbt::rbtcel_fatal_now!(
             "rbt suite: unexpected argument '{}' — usage: rbt suite <suite> [{}]",
-            positionals[1], RBTCEE_FLAG_KEEP_GOING
+            positionals[1], RBTCEE_FLAG_KEEP_GOING, //
         );
     }
 
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e, //
+),
     };
 
     // Run-start hygiene guard, once per suite (under the bash loop it ran once
@@ -275,7 +289,7 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
         rbt::rbtcel_fatal_now!(
             "rbt: refusing to start a suite run on a dirty working tree — \
              notch (commit) first, then drive.\n{}",
-            msg
+            msg, //
         );
     }
 
@@ -284,7 +298,8 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
     // same BURD_TEMP_DIR and thus the same trace root.
     let roots = match rbtm_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg, //
+),
     };
 
     let colors = rbtcee_detect_colors();
@@ -344,7 +359,8 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
                 }
             }
             Err(msg) => {
-                rbt::rbtcel_error_now!("rbt: fixture '{}': {}", fixture.name, msg);
+                rbt::rbtcel_error_now!("rbt: fixture '{}': {}", fixture.name, msg, //
+);
                 total_failed += 1;
                 ran += 1;
                 break;
@@ -356,15 +372,16 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
 
     rbt::rbtcel_info_now!(
         "Suite '{}': {} fixture(s) run, {} passed, {} failed, {} skipped",
-        suite.name, ran, total_passed, total_failed, total_skipped
+        suite.name, ran, total_passed, total_failed, total_skipped, //
     );
     let registered_fixtures = suite.fixtures.len();
     if ran < registered_fixtures {
         rbt::rbtcel_info_now!(
-            "{} reached of {} registered", ran, registered_fixtures
+            "{} reached of {} registered", ran, registered_fixtures, //
         );
         for fixture in &suite.fixtures[ran..] {
-            rbt::rbtcel_info_now!("UNREACHED: {}", fixture.name);
+            rbt::rbtcel_info_now!("UNREACHED: {}", fixture.name, //
+);
         }
     }
 
@@ -378,7 +395,8 @@ fn rbtm_run_suite(args: &[String]) -> ExitCode {
 fn rbtm_list_suites() {
     rbt::rbtcel_info_now!("available suites:");
     for s in RBTCEA_SUITES {
-        rbt::rbtcel_info_now!("  {}", s.name);
+        rbt::rbtcel_info_now!("  {}", s.name, //
+);
     }
 }
 
@@ -398,7 +416,8 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
     };
 
     if !RBTCEA_FIXTURES.iter().any(|f| f.name == *fixture) {
-        rbt::rbtcel_error_now!("rbt single: unknown fixture '{}'", fixture);
+        rbt::rbtcel_error_now!("rbt single: unknown fixture '{}'", fixture, //
+);
         rbtm_list_fixtures();
         return ExitCode::FAILURE;
     }
@@ -406,12 +425,14 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
     // Set up execution context early — needed for charge check and case execution
     let project_root = match std::env::current_dir() {
         Ok(p) => p,
-        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e),
+        Err(e) => rbt::rbtcel_fatal_now!("rbt: cannot determine working directory: {}", e, //
+),
     };
 
     let roots = match rbtm_allocate_roots() {
         Ok(r) => r,
-        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("{}", msg, //
+),
     };
 
     // Context is required for every case execution path (rbtccc_with_ctx).
@@ -431,7 +452,7 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
         Some(f) => f,
         None => rbt::rbtcel_fatal_now!(
             "rbt single: fixture '{}' has no registered Fixture",
-            fixture
+            fixture, //
         ),
     };
 
@@ -446,7 +467,7 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
             _ => rbt::rbtcel_fatal_now!(
                 "rbt single: crucible not charged for '{}'\n\
                  charge first: tt/rbw-cC.Charge.{}.sh",
-                fixture, fixture
+                fixture, fixture, //
             ),
         }
     }
@@ -460,7 +481,7 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
         None => {
             rbt::rbtcel_info_now!(
                 "fixture '{}' declared tariff: [{}]",
-                fixture, rbtcee_tariff_declared(&fixture_def.tariff)
+                fixture, rbtcee_tariff_declared(&fixture_def.tariff), //
             );
             rbtcee_list_cases(cases);
             return ExitCode::SUCCESS;
@@ -474,7 +495,7 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
         None => {
             rbt::rbtcel_error_now!(
                 "rbt single: case '{}' not found in fixture '{}'",
-                case_name, fixture
+                case_name, fixture, //
             );
             rbtcee_list_cases(cases);
             return ExitCode::FAILURE;
@@ -484,7 +505,8 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
     let colors = rbtcee_detect_colors();
     let result = match rbtcee_run_single_case(case, &colors, &roots.trace_root) {
         Ok(r) => r,
-        Err(msg) => rbt::rbtcel_fatal_now!("rbt: case execution error: {}", msg),
+        Err(msg) => rbt::rbtcel_fatal_now!("rbt: case execution error: {}", msg, //
+),
     };
 
     rbtcee_print_summary(&result, &colors);
@@ -501,7 +523,8 @@ fn rbtm_list_fixtures() {
     let mut eta_min = 0u64;
     let mut eta_max = 0u64;
     for f in RBTCEA_FIXTURES {
-        rbt::rbtcel_info_now!("  {:<28} [{}]", f.name, rbtcee_tariff_declared(&f.tariff));
+        rbt::rbtcel_info_now!("  {:<28} [{}]", f.name, rbtcee_tariff_declared(&f.tariff), //
+);
         eta_min += f.tariff.min_secs.unwrap_or(0);
         eta_max += f.tariff.max_secs.unwrap_or(0);
     }
@@ -510,6 +533,6 @@ fn rbtm_list_fixtures() {
     // the envelope, not a promise — it grows as declarations are seeded.
     rbt::rbtcel_info_now!(
         "declared-cost ETA envelope (sum of declared bounds): min {}s, max {}s",
-        eta_min, eta_max
+        eta_min, eta_max, //
     );
 }

@@ -24,7 +24,7 @@ use super::rbtchb_bash::{
     zrbtchb_collect_functions,
     zrbtchb_command_words,
     zrbtchb_is_assignment,
-    zrbtchb_keyword_kind,
+    zrbtchb_keyword_kind, //
 };
 use super::rbtchc_cupel::{
     zrbtchc_Domain,
@@ -33,13 +33,13 @@ use super::rbtchc_cupel::{
     ZRBTCHC_EVICTIONS,
     ZRBTCHC_GCB_ALLOWED,
     ZRBTCHC_POSIX_FLOOR,
-    ZRBTCHC_PY_IMPORT_ALLOWED,
+    ZRBTCHC_PY_IMPORT_ALLOWED, //
 };
 use super::rbtchy_python::{
     zrbtchy_py_import_roots,
     zrbtchy_py_scan,
     zrbtchy_py_tokens,
-    zrbtchy_PyToken,
+    zrbtchy_PyToken, //
 };
 
 /// Command-position tokens of `src`, as bare strings (line numbers dropped).
@@ -248,7 +248,7 @@ fn rbtthc_classify_evictions_flagged_in_kit() {
         assert!(
             verdict.as_deref().is_some_and(|d| d.contains("evicted")),
             "eviction-table command must be flagged as evicted in kit: {}",
-            ev.command
+            ev.command, //
         );
     }
 }
@@ -258,9 +258,11 @@ fn rbtthc_classify_floor_clears_in_both_domains() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_POSIX_FLOOR {
         assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
-            "POSIX floor must clear in kit: {cmd}");
+            "POSIX floor must clear in kit: {cmd}", //
+);
         assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
-            "POSIX floor is universal — must clear in gcb: {cmd}");
+            "POSIX floor is universal — must clear in gcb: {cmd}", //
+);
     }
 }
 
@@ -269,7 +271,8 @@ fn rbtthc_classify_declared_deps_clear_in_kit() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_DECLARED_DEPS {
         assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
-            "declared dependency must clear in kit: {cmd}");
+            "declared dependency must clear in kit: {cmd}", //
+);
     }
 }
 
@@ -278,7 +281,8 @@ fn rbtthc_classify_gcb_curated_list_clears_in_gcb() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_GCB_ALLOWED {
         assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
-            "curated GCB container tool must clear in gcb: {cmd}");
+            "curated GCB container tool must clear in gcb: {cmd}", //
+);
     }
 }
 
@@ -294,7 +298,8 @@ fn rbtthc_classify_gcb_does_not_inherit_kit_only_deps() {
             continue;
         }
         assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_some(),
-            "kit-only declared dep must be flagged in gcb: {cmd}");
+            "kit-only declared dep must be flagged in gcb: {cmd}", //
+);
     }
 }
 
@@ -309,7 +314,8 @@ fn rbtthc_classify_gcb_has_no_eviction_free_pass() {
         }
         assert!(zrbtchb_classify(ev.command, &locals, zrbtchc_Domain::Gcb).is_some(),
             "eviction absent from the curated GCB list must be flagged in gcb: {}",
-            ev.command);
+            ev.command, //
+);
     }
 }
 
@@ -395,8 +401,10 @@ fn rbtthc_py_tokens_line_numbers_advance() {
 #[test]
 fn rbtthc_py_scan_floor_imports_pass() {
     for root in ZRBTCHC_PY_IMPORT_ALLOWED {
-        let src = format!("import {}\n", root);
-        assert!(zrbtthc_py_findings(&src).is_empty(), "floor import flagged: {}", root);
+        let src = format!("import {}\n", root, //
+);
+        assert!(zrbtthc_py_findings(&src).is_empty(), "floor import flagged: {}", root, //
+);
     }
 }
 

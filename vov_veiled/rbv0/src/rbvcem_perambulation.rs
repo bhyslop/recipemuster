@@ -52,13 +52,16 @@ pub enum rbvcem_Disposition {
 impl fmt::Display for rbvcem_Disposition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            rbvcem_Disposition::Ship => write!(f, "ship"),
-            rbvcem_Disposition::Withhold => write!(f, "withhold"),
+            rbvcem_Disposition::Ship => write!(f, "ship", //
+),
+            rbvcem_Disposition::Withhold => write!(f, "withhold", //
+),
         }
     }
 }
 
-use rbvcem_Disposition::{Ship, Withhold};
+use rbvcem_Disposition::{Ship, Withhold, //
+};
 
 /// The perambulation — one row per judgment, the longest matching prefix wins.
 ///
@@ -187,7 +190,7 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // proposal is an unsettled internal design note.
     ("RELEASE.md", Withhold),
     ("brm_recipemuster.iml", Withhold),
-    ("podman-gateway-proposal.md", Withhold),
+    ("podman-gateway-proposal.md", Withhold), //
 ];
 
 /// Validate a table's structural invariants — the checks the bash table ran at
@@ -208,7 +211,7 @@ pub fn rbvcem_validate(rows: &[(&str, rbvcem_Disposition)]) -> Result<(), String
             if prefix == other {
                 return Err(format!(
                     "perambulation prefix '{}' is enrolled twice — equal-length rows would shadow by table order, which the longest-wins rule exists to abolish",
-                    prefix
+                    prefix, //
                 ));
             }
         }

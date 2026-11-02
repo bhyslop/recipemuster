@@ -102,7 +102,8 @@ pub fn rbtccd_parse_log_name(name: &str) -> Option<(rbtccd_LogKind, String)> {
     }
     let time = segs.get(i + 1).filter(|s| s.len() == 6 && all_digits(s))?;
     let tag = segs[..i].join("-");
-    let stamp = format!("{}-{}", segs[i], time);
+    let stamp = format!("{}-{}", segs[i], time, //
+);
     let kind = if let Some(suite) = tag.strip_prefix("rbw-ts-") {
         rbtccd_LogKind::Suite(suite.to_string())
     } else if tag == "rbw-tf-sh" {
@@ -119,7 +120,8 @@ pub fn rbtccd_parse_log_name(name: &str) -> Option<(rbtccd_LogKind, String)> {
 /// history, no truncation — this is a census, and its own output self-logs.
 pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
     let entries = std::fs::read_dir(log_dir)
-        .map_err(|e| format!("dowse: cannot read log dir '{}': {}", log_dir.display(), e))?;
+        .map_err(|e| format!("dowse: cannot read log dir '{}': {}", log_dir.display(), e, //
+))?;
 
     let mut scanned = 0usize;
     let mut carrying = 0usize;
@@ -129,7 +131,8 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
     let mut fixtures: BTreeMap<String, Vec<(String, u64, u32, String)>> = BTreeMap::new();
 
     for entry in entries {
-        let entry = entry.map_err(|e| format!("dowse: cannot walk '{}': {}", log_dir.display(), e))?;
+        let entry = entry.map_err(|e| format!("dowse: cannot walk '{}': {}", log_dir.display(), e, //
+))?;
         let name = entry.file_name();
         let Some((kind, stamp)) = rbtccd_parse_log_name(&name.to_string_lossy()) else {
             continue;
@@ -137,7 +140,8 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
         scanned += 1;
         // Lossy read: self-logs can carry non-UTF8 bytes from container output.
         let bytes = std::fs::read(entry.path())
-            .map_err(|e| format!("dowse: cannot read '{}': {}", entry.path().display(), e))?;
+            .map_err(|e| format!("dowse: cannot read '{}': {}", entry.path().display(), e, //
+))?;
         let content = String::from_utf8_lossy(&bytes);
         let obs: Vec<rbtccd_Observation> =
             content.lines().filter_map(rbtccd_parse_tariff_line).collect();
@@ -146,7 +150,8 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
         }
         carrying += 1;
         let label = match &kind {
-            rbtccd_LogKind::Suite(s) => format!("suite {}", s),
+            rbtccd_LogKind::Suite(s) => format!("suite {}", s, //
+),
             rbtccd_LogKind::FixtureRun => "fixture-run".to_string(),
         };
         if let rbtccd_LogKind::Suite(s) = &kind {
@@ -168,7 +173,7 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
         "dowse: {} theurge log(s) under '{}', {} carrying tariff observations",
         scanned,
         log_dir.display(),
-        carrying
+        carrying, //
     );
     if carrying == 0 {
         crate::rbtcel_info_now!(
@@ -179,11 +184,12 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
 
     for (suite, mut runs) in suites {
         runs.sort();
-        crate::rbtcel_info_now!("dowse suite {} — {} run(s):", suite, runs.len());
+        crate::rbtcel_info_now!("dowse suite {} — {} run(s):", suite, runs.len(), //
+);
         for (stamp, count, sum) in runs {
             crate::rbtcel_info_now!(
                 "dowse   {}  fixtures={:>2}  elapsed-sum={:>4}s",
-                stamp, count, sum
+                stamp, count, sum, //
             );
         }
     }
@@ -199,12 +205,12 @@ pub fn rbtccd_dowse(log_dir: &Path) -> Result<(), String> {
             obs.len(),
             min,
             max,
-            last
+            last, //
         );
         for (stamp, elapsed, inv, label) in obs {
             crate::rbtcel_info_now!(
                 "dowse   {}  elapsed={:>4}s  inv={:>3}  [{}]",
-                stamp, elapsed, inv, label
+                stamp, elapsed, inv, label, //
             );
         }
     }

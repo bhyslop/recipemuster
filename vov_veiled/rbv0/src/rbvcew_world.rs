@@ -191,21 +191,21 @@ pub fn rbvcew_elect(command: &str, args: &[String]) -> Result<rbvcew_World, Stri
         [] => {
             return Err(format!(
                 "{} {}: no world named — elect {} or {}; there is no default",
-                conductor, command, agora, palaestra
+                conductor, command, agora, palaestra, //
             ))
         }
         [word] => word.as_str(),
         [_, extra, ..] => {
             return Err(format!(
                 "{} {}: unexpected extra argument '{}' after the world",
-                conductor, command, extra
+                conductor, command, extra, //
             ))
         }
     };
     rbvcew_from_word(word).ok_or_else(|| {
         format!(
             "{} {}: unknown world '{}' — elect {} or {}",
-            conductor, command, word, agora, palaestra
+            conductor, command, word, agora, palaestra, //
         )
     })
 }

@@ -70,7 +70,7 @@
 
 use std::collections::{
     BTreeMap,
-    BTreeSet,
+    BTreeSet, //
 };
 use std::path::Path;
 
@@ -80,19 +80,19 @@ use crate::rbtcee_engine::{
     rbtcee_Case,
     rbtcee_Disposition,
     rbtcee_Fixture,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
 use crate::rbtchf_fast::{
     rbtchf_run_bash,
     RBTCHF_BUV_VALIDATION,
-    RBTCHF_RBK_ROOT,
+    RBTCHF_RBK_ROOT, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_DAMNATIO;
 use crate::rbtchx_pyx::{
     zrbtchx_report,
     zrbtchx_root,
     zrbtchx_walk,
-    zrbtchx_Finding,
+    zrbtchx_Finding, //
 };
 
 // ── The swept corpus ────────────────────────────────────────
@@ -103,7 +103,8 @@ use crate::rbtchx_pyx::{
 /// greps nothing. Each root is existence-tolerant, so the same case holds on the
 /// maintainer's tree and on the stripped candidate.
 pub(crate) const ZRBTCHD_IDENTITY_ROOTS: &[&str] =
-    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
+    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams", //
+];
 
 /// The delivered tree's root context document, hunted for site-shaped identity by
 /// the identity sweep below. It is the consumer's own context in every tree: the
@@ -114,13 +115,15 @@ pub(crate) const ZRBTCHD_ROOT_CLAUDE: &str = "CLAUDE.md";
 /// Repo-relative single files added to the sweep — the consumer-facing documents
 /// at the repo root. Scanning the root path covers whichever tree we are standing
 /// in.
-pub(crate) const ZRBTCHD_IDENTITY_FILES: &[&str] = &["README.md", ZRBTCHD_ROOT_CLAUDE];
+pub(crate) const ZRBTCHD_IDENTITY_FILES: &[&str] = &["README.md", ZRBTCHD_ROOT_CLAUDE, //
+];
 
 /// Directories the identity sweep never descends: build output, and `vov_veiled`
 /// — a maintainer-only tree that never reaches a consumer, so skipping it changes
 /// nothing on the delivered tree and only spares the maintainer's own run from a
 /// design document that names the project on purpose.
-pub(crate) const ZRBTCHD_IDENTITY_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
+pub(crate) const ZRBTCHD_IDENTITY_SKIP_DIRS: &[&str] = &["target", "vov_veiled", //
+];
 
 // ── The needles ─────────────────────────────────────────────
 
@@ -138,11 +141,13 @@ pub(crate) const ZRBTCHD_OAUTH_SUFFIX: &str = ".apps.googleusercontent.com";
 pub(crate) const ZRBTCHD_JSON_ID_KEY: &str = "\"id\"";
 
 /// Group lengths of a UUID: 8-4-4-4-12 hexadecimal, hyphen-separated.
-pub(crate) const ZRBTCHD_UUID_GROUPS: &[usize] = &[8, 4, 4, 4, 12];
+pub(crate) const ZRBTCHD_UUID_GROUPS: &[usize] = &[8, 4, 4, 4, 12, //
+];
 
 /// Group lengths of a GCP billing-account id: three six-character groups of
 /// uppercase hexadecimal.
-pub(crate) const ZRBTCHD_BILLING_GROUPS: &[usize] = &[6, 6, 6];
+pub(crate) const ZRBTCHD_BILLING_GROUPS: &[usize] = &[6, 6, 6, //
+];
 
 /// True when the byte may sit inside a hyphenated identifier — the class whose
 /// presence on either side of a candidate means we are looking at a fragment of
@@ -307,12 +312,18 @@ pub(crate) fn zrbtchd_identity_scan_text(
 fn zrbtchd_identity_self_proof() -> Vec<zrbtchx_Finding> {
     let mut findings = Vec::new();
 
-    let uuid = format!("{}-{}-{}-{}-{}", "0f1e2d3c", "4b5a", "6978", "8796", "a5b4c3d2e1f0");
-    let assigned = format!("SOME_IDP_CLIENT_ID={}", uuid);
-    let in_url = format!("https://login.example/{}/v2.0", uuid);
-    let quoted = format!("pub const SOME_SUBJECT: &str = \"{}\";", uuid);
-    let billing = format!("SOME_BILLING_ACCOUNT_ID={}-{}-{}", "0A1B2C", "3D4E5F", "6789AB");
-    let oauth = format!("SOME_OAUTH_CLIENT_ID={}-{}{}", "123456789012", "abcdefghijklm", ZRBTCHD_OAUTH_SUFFIX);
+    let uuid = format!("{}-{}-{}-{}-{}", "0f1e2d3c", "4b5a", "6978", "8796", "a5b4c3d2e1f0", //
+);
+    let assigned = format!("SOME_IDP_CLIENT_ID={}", uuid, //
+);
+    let in_url = format!("https://login.example/{}/v2.0", uuid, //
+);
+    let quoted = format!("pub const SOME_SUBJECT: &str = \"{}\";", uuid, //
+);
+    let billing = format!("SOME_BILLING_ACCOUNT_ID={}-{}-{}", "0A1B2C", "3D4E5F", "6789AB", //
+);
+    let oauth = format!("SOME_OAUTH_CLIENT_ID={}-{}{}", "123456789012", "abcdefghijklm", ZRBTCHD_OAUTH_SUFFIX, //
+);
 
     let positives: &[&str] = &[&assigned, &in_url, &quoted, &billing, &oauth];
     for probe in positives {
@@ -322,12 +333,14 @@ fn zrbtchd_identity_self_proof() -> Vec<zrbtchx_Finding> {
             findings.push(zrbtchx_Finding {
                 file: RBTCHD_DAMNATIO_SELF.to_string(),
                 line: 0,
-                detail: format!("matcher missed a known identity shape: {:?}", probe),
+                detail: format!("matcher missed a known identity shape: {:?}", probe, //
+),
             });
         }
     }
 
-    let json_id = format!("   \"id\": \"{}\",", uuid);
+    let json_id = format!("   \"id\": \"{}\",", uuid, //
+);
     let negatives: &[&str] = &[
         // A notebook cell id and a Keycloak realm entity id — document
         // bookkeeping, the only UUID binding the sweep passes over.
@@ -348,7 +361,8 @@ fn zrbtchd_identity_self_proof() -> Vec<zrbtchx_Finding> {
             findings.push(zrbtchx_Finding {
                 file: RBTCHD_DAMNATIO_SELF.to_string(),
                 line: 0,
-                detail: format!("matcher fired on a benign line: {:?}", probe),
+                detail: format!("matcher fired on a benign line: {:?}", probe, //
+),
             });
         }
     }
@@ -532,7 +546,8 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
     let dir_p = crate::rbtcep_platform::rbtcep_native_to_posix(dir);
     let rbro_probe = dir.join("rbro-probe.env");
     std::fs::write(&rbro_probe, "RBRO_CLIENT_SECRET=probe\nRBRO_REFRESH_TOKEN=probe\n")
-        .map_err(|e| format!("failed to write the RBRO probe store: {}", e))?;
+        .map_err(|e| format!("failed to write the RBRO probe store: {}", e, //
+))?;
     let rbro_probe_p = crate::rbtcep_platform::rbtcep_native_to_posix(&rbro_probe);
 
     let prologue = format!(
@@ -562,7 +577,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
         rbk = rbk,
         mark_proscription = ZRBTCHD_MARK_PROSCRIPTION,
         mark_homes = ZRBTCHD_MARK_HOMES,
-        mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS,
+        mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS, //
     );
     let held = format!(
         "z_state_holds='{state_holds}'\n\
@@ -576,7 +591,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
         state_unset = ZRBTDRQ_STATE_UNSET,
         state_unwireable = ZRBTDRQ_STATE_UNWIREABLE,
         state_unsourced = ZRBTDRQ_STATE_UNSOURCED,
-        value_read = ZRBTDRQ_VALUE_READ,
+        value_read = ZRBTDRQ_VALUE_READ, //
     );
     let rolls = format!(
         "source '{moorings}/rbrr.env'\n\
@@ -599,14 +614,16 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
            printf '%s\\t%s\\n' \"${{z_buv_scope_roll[$z_i]}}\" \"${{z_buv_varname_roll[$z_i]}}\"; done\n",
         rbro_probe_p = rbro_probe_p,
         moorings = moorings,
-        mark_rolls = ZRBTCHD_MARK_ROLLS,
+        mark_rolls = ZRBTCHD_MARK_ROLLS, //
     );
-    let script = format!("{}{}", prologue, if kindle_regimes { rolls } else { held });
+    let script = format!("{}{}", prologue, if kindle_regimes { rolls } else { held }, //
+);
 
     let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
         (0, stdout, _) => stdout,
         (code, _, stderr) => {
-            return Err(format!("regime reach failed (exit {}): {}", code, stderr.trim()));
+            return Err(format!("regime reach failed (exit {}): {}", code, stderr.trim(), //
+));
         }
     };
 
@@ -667,7 +684,8 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
                         reach.unsourced.insert(fields[0].to_string());
                         continue;
                     }
-                    other => return Err(format!("the value read printed an unknown state '{}': {}", other, line)),
+                    other => return Err(format!("the value read printed an unknown state '{}': {}", other, line, //
+)),
                 };
                 reach.held.insert((fields[0].to_string(), fields[1].to_string()), held);
             }
@@ -692,14 +710,17 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
 /// None of these is passed over — an unjudged field is not a sterile one.
 fn zrbtdrq_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbtchx_Finding> {
     let detail = if reach.unsourced.contains(file) {
-        format!("{} cannot be judged — bash could not source the file", var)
+        format!("{} cannot be judged — bash could not source the file", var, //
+)
     } else {
         match reach.held.get(&(file.to_string(), var.to_string())) {
             Some(zrbtdrq_Held::Unwireable) => {
-                format!("{} holds a value carrying a tab or a newline, which cannot be judged", var)
+                format!("{} holds a value carrying a tab or a newline, which cannot be judged", var, //
+)
             }
             Some(_) => return None,
-            None => format!("{} cannot be judged — the value read printed nothing for it", var),
+            None => format!("{} cannot be judged — the value read printed nothing for it", var, //
+),
         }
     };
     Some(zrbtchx_Finding { file: file.to_string(), line: 0, detail })
@@ -744,14 +765,15 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
                 Some(zrbtdrq_Held::Set(v)) => v,
                 _ => continue,
             };
-            inventory.insert(format!("{}\t{}\t{:?}", home, judgment.var, held));
+            inventory.insert(format!("{}\t{}\t{:?}", home, judgment.var, held, //
+));
             if *held != judgment.sterile {
                 findings.push(zrbtchx_Finding {
                     file: home.clone(),
                     line: 0,
                     detail: format!(
                         "{} is site-scoped and holds a value the proscription did not sanction",
-                        judgment.var
+                        judgment.var, //
                     ),
                 });
             }
@@ -769,17 +791,20 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
                 findings.push(zrbtchx_Finding {
                     file: path.clone(),
                     line: 0,
-                    detail: format!("hardpoint {} is absent — the proscription names a home that moved", var),
+                    detail: format!("hardpoint {} is absent — the proscription names a home that moved", var, //
+),
                 });
                 continue;
             }
         };
-        inventory.insert(format!("{}\t{}\t{:?}", path, var, held));
+        inventory.insert(format!("{}\t{}\t{:?}", path, var, held, //
+));
         if held != sterile {
             findings.push(zrbtchx_Finding {
                 file: path.clone(),
                 line: 0,
-                detail: format!("hardpoint {} still holds site identity", var),
+                detail: format!("hardpoint {} still holds site identity", var, //
+),
             });
         }
     }
@@ -819,7 +844,8 @@ fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
-                detail: format!("{} is judged twice", judgment.var),
+                detail: format!("{} is judged twice", judgment.var, //
+),
             });
         }
     }
@@ -829,14 +855,15 @@ fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
         enrolled.insert((scope.clone(), var.clone()));
         match judged.get(&(scope.clone(), var.clone())) {
             Some(disposition) => {
-                inventory.insert(format!("{}\t{}\t{}", scope, var, disposition));
+                inventory.insert(format!("{}\t{}\t{}", scope, var, disposition, //
+));
             }
             None => findings.push(zrbtchx_Finding {
                 file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
                 detail: format!(
                     "{} is enrolled in {} but unjudged — declare it site-scoped or common",
-                    var, scope
+                    var, scope, //
                 ),
             }),
         }
@@ -847,7 +874,8 @@ fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHD_PROSCRIPTION_HOME.to_string(),
                 line: 0,
-                detail: format!("{} is judged but no longer enrolled in {}", var, scope),
+                detail: format!("{} is judged but no longer enrolled in {}", var, scope, //
+),
             });
         }
     }
@@ -863,7 +891,7 @@ pub(crate) const ZRBTCHD_PROSCRIPTION_HOME: &str = "Tools/rbk/rblm_proscription.
 pub static RBTCHD_CASES_DAMNATIO: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchd_identity_shapes),
     rbtcee_case!(rbtchd_proscribed_values),
-    rbtcee_case!(rbtchd_proscription_complete),
+    rbtcee_case!(rbtchd_proscription_complete), //
 ];
 
 pub static RBTCHD_FIXTURE_DAMNATIO: rbtcee_Fixture = rbtcee_Fixture {

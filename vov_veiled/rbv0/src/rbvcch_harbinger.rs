@@ -37,7 +37,8 @@ pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
 
     let top = rbvcep_repo::rbvcep_toplevel();
-    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
+    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display(), //
+));
 
     let temenos = rbvceg_temenos::rbvceg_stand_up(
         &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
