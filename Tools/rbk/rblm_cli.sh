@@ -23,7 +23,6 @@ set -euo pipefail
 
 source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
 source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
-source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
 # Command: zero - Zero regime to blank template for release
 
@@ -394,6 +393,7 @@ zrblm_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbcg_breviary.sh"       || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk_kit_dir}/rblm_proscription.sh"       || buc_die_now "Failed to source rblm_proscription.sh"
 
   # Differential furnish: a withheld verb's module is sourced only for that verb.
