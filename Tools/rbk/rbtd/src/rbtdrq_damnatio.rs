@@ -754,8 +754,7 @@ fn zrbtchd_reach(
     dir: &Path,
     kindle_regimes: bool,
 ) -> Result<zrbtchd_Reach, String> {
-    let buv =
-        crate::rbtcep_platform::rbtcep_native_to_posix(&kit_root.join(RBTCHF_BUV_VALIDATION));
+    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&kit_root.join(RBTCHF_BUV_VALIDATION));
     let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&kit_root.join(RBTCHF_RBK_ROOT));
     let moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR;
     // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
