@@ -171,8 +171,8 @@ zrbgp_refresh_capture() {
   test -f "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials missing (${RBDC_PAYOR_RBRO_FILE}) - run the payor install"; return 1; }
   test -r "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials not readable (${RBDC_PAYOR_RBRO_FILE}) - check permissions"; return 1; }
   source "${RBDC_PAYOR_RBRO_FILE}" || return 1
-  local zSECRET_stored_client="${RBRO_zSECRET_CLIENT_SECRET:-}"
-  local zSECRET_stored_refresh="${RBRO_zSECRET_REFRESH_TOKEN:-}"
+  local -r zSECRET_stored_client="${RBRO_zSECRET_CLIENT_SECRET:-}"
+  local -r zSECRET_stored_refresh="${RBRO_zSECRET_REFRESH_TOKEN:-}"
   test -n "${zSECRET_stored_client}" || { buc_log_args "RBRO_zSECRET_CLIENT_SECRET absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
   test -n "${zSECRET_stored_refresh}" || { buc_log_args "RBRO_zSECRET_REFRESH_TOKEN absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
 
