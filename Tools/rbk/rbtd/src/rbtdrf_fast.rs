@@ -25,8 +25,35 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::rbtcee_case;
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
-use crate::rbtcei_invocation::{rbtcei_find_tabtarget_global, rbtdri_rooted_tabtarget_command, rbtcei_bash_program};
+use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
+};
+use crate::rbtcei_invocation::{
+    rbtcei_bash_program,
+    rbtcei_find_tabtarget_global,
+    rbtdri_rooted_tabtarget_command, //
+};
+use crate::rbtcem_manifest::{
+    RBTCEM_FIXTURE_CLIPBOARD,
+    RBTCEM_FIXTURE_DOCKERFILE_HYGIENE,
+    RBTCEM_FIXTURE_ENROLLMENT_VALIDATION,
+    RBTCEM_FIXTURE_FOUNDRY_PATH,
+    RBTCEM_FIXTURE_PODVM_RESOLVE,
+    RBTCEM_FIXTURE_RECIPE_VALIDATION,
+    RBTCEM_FIXTURE_REGIME_SMOKE,
+    RBTCEM_FIXTURE_REGIME_VALIDATION, //
+};
+use crate::rbtcep_platform::rbtcep_native_to_posix;
+use crate::rbtgeb_breviary::{
+    RBTGEB_BUSX_ENROLL_DENTIL,
+    RBTGEB_CREDLESS_DENTIL,
+    RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
+    RBTGEB_RECIPE_DENTIL, //
+};
 use crate::rbtgec_consts::{
     BUWGC_RC_RENDER,
     BUWGC_RC_VALIDATE,
@@ -46,25 +73,8 @@ use crate::rbtgec_consts::{
     RBTGEC_VALIDATE_NAMEPLATE,
     RBTGEC_VALIDATE_PAYOR,
     RBTGEC_VALIDATE_REPO,
-    RBTGEC_VALIDATE_VESSEL,
+    RBTGEC_VALIDATE_VESSEL, //
 };
-use crate::rbtgeb_breviary::{
-    RBTGEB_BUSX_ENROLL_DENTIL,
-    RBTGEB_CREDLESS_DENTIL,
-    RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
-    RBTGEB_RECIPE_DENTIL,
-};
-use crate::rbtcem_manifest::{
-    RBTCEM_FIXTURE_CLIPBOARD,
-    RBTCEM_FIXTURE_DOCKERFILE_HYGIENE,
-    RBTCEM_FIXTURE_ENROLLMENT_VALIDATION,
-    RBTCEM_FIXTURE_FOUNDRY_PATH,
-    RBTCEM_FIXTURE_PODVM_RESOLVE,
-    RBTCEM_FIXTURE_RECIPE_VALIDATION,
-    RBTCEM_FIXTURE_REGIME_SMOKE,
-    RBTCEM_FIXTURE_REGIME_VALIDATION,
-};
-use crate::rbtcep_platform::rbtcep_native_to_posix;
 
 // Repo-root-relative kit paths. Test harnesses run with cwd = repo root, so
 // these are repo-root-relative. Hoisted so running-code
@@ -86,10 +96,20 @@ const RBTCHF_RBLDS_SPINE: &str = "Tools/rbk/rblds_spine.sh";
 /// expands BUBG_ENROLL_DENTIL unguarded). No module chains another, so each
 /// snippet states the chain itself. Ends with a newline.
 fn rbtchf_tinder_sources(root: &Path) -> String {
-    [RBTCHF_BUC_COMMAND, RBTCHF_BUYM_YELP, RBTCHF_BUBC_CONSTANTS, RBTCHF_BUV_VALIDATION]
-        .iter()
-        .map(|p| format!("source '{}'\n", rbtcep_native_to_posix(&root.join(p))))
-        .collect()
+    [
+        RBTCHF_BUC_COMMAND,
+        RBTCHF_BUYM_YELP,
+        RBTCHF_BUBC_CONSTANTS,
+        RBTCHF_BUV_VALIDATION,
+    ]
+    .iter()
+    .map(|p| {
+        format!(
+            "source '{}'\n",
+            rbtcep_native_to_posix(&root.join(p)), //
+        )
+    })
+    .collect()
 }
 
 // buv_report is a report path, not a buc_reject gate: its documented contract
@@ -113,13 +133,32 @@ struct zrbtchf_Sub {
 
 impl zrbtchf_Sub {
     const fn zrbtdrf_ok(label: &'static str, setup: &'static str) -> Self {
-        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: 0 }
+        Self {
+            label,
+            setup,
+            command: "buv_vet \"TEST\"",
+            expect_code: 0,
+        }
     }
     const fn zrbtdrf_fatal(label: &'static str, setup: &'static str) -> Self {
-        Self { label, setup, command: "buv_vet \"TEST\"", expect_code: RBTGEB_BUSX_ENROLL_DENTIL }
+        Self {
+            label,
+            setup,
+            command: "buv_vet \"TEST\"",
+            expect_code: RBTGEB_BUSX_ENROLL_DENTIL,
+        }
     }
-    const fn zrbtdrf_ok_cmd(label: &'static str, setup: &'static str, command: &'static str) -> Self {
-        Self { label, setup, command, expect_code: 0 }
+    const fn zrbtdrf_ok_cmd(
+        label: &'static str,
+        setup: &'static str,
+        command: &'static str,
+    ) -> Self {
+        Self {
+            label,
+            setup,
+            command,
+            expect_code: 0,
+        }
     }
     const fn zrbtdrf_fatal_cmd(
         label: &'static str,
@@ -127,7 +166,12 @@ impl zrbtchf_Sub {
         command: &'static str,
         expect_code: i32,
     ) -> Self {
-        Self { label, setup, command, expect_code }
+        Self {
+            label,
+            setup,
+            command,
+            expect_code,
+        }
     }
 }
 
@@ -148,28 +192,52 @@ pub(crate) fn rbtchf_run_bash(
         .current_dir(project_root)
         .env_remove(RBTDRF_BURD_FILE_KEY)
         .output()
-        .map_err(|e| format!("bash execution failed: {}", e))?;
+        .map_err(|e| {
+            format!(
+                "bash execution failed: {}",
+                e, //
+            )
+        })?;
 
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
     let code = output.status.code().unwrap_or(-1);
 
-    let _ = std::fs::write(dir.join(format!("{}-script.sh", trace_prefix)), script);
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", trace_prefix)), &stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", trace_prefix)), &stderr);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-script.sh",
+            trace_prefix, //
+        )),
+        script,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            trace_prefix, //
+        )),
+        &stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            trace_prefix, //
+        )),
+        &stderr,
+    );
 
     Ok((code, stdout, stderr))
 }
 
 /// Run enrollment-validation sub-assertions against BUV.
-fn rbtchf_run_ev(
-    dir: &Path,
-    enrollment: &str,
-    subs: &[zrbtchf_Sub],
-) -> rbtcee_Verdict {
+fn rbtchf_run_ev(dir: &Path, enrollment: &str, subs: &[zrbtchf_Sub]) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let tinder = rbtchf_tinder_sources(&root);
 
@@ -179,20 +247,35 @@ fn rbtchf_run_ev(
             tinder,
             enrollment,
             sub.setup,
-            sub.command,
+            sub.command, //
         );
 
-        match rbtchf_run_bash(&root, &script, dir, &format!("sub-{}", i)) {
+        match rbtchf_run_bash(
+            &root,
+            &script,
+            dir,
+            &format!(
+                "sub-{}",
+                i, //
+            ),
+        ) {
             Ok((code, _, stderr)) => {
                 if code != sub.expect_code {
                     return rbtcee_Verdict::Fail(format!(
                         "{}: expected exit {}, got {}\nstderr:\n{}",
-                        sub.label, sub.expect_code, code, stderr
+                        sub.label,
+                        sub.expect_code,
+                        code,
+                        stderr, //
                     ));
                 }
             }
             Err(e) => {
-                return rbtcee_Verdict::Fail(format!("{}: {}", sub.label, e));
+                return rbtcee_Verdict::Fail(format!(
+                    "{}: {}",
+                    sub.label,
+                    e, //
+                ));
             }
         }
     }
@@ -212,11 +295,30 @@ fn rbtchf_run_tt(
         .args(args)
         .current_dir(project_root)
         .output()
-        .map_err(|e| format!("{}: failed to run {}: {}", label, tt.display(), e))?;
+        .map_err(|e| {
+            format!(
+                "{}: failed to run {}: {}",
+                label,
+                tt.display(),
+                e, //
+            )
+        })?;
 
     let code = output.status.code().unwrap_or(-1);
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &output.stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &output.stderr,
+    );
 
     if code != 0 {
         return Err(format!(
@@ -224,7 +326,7 @@ fn rbtchf_run_tt(
             label,
             colophon,
             code,
-            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stderr), //
         ));
     }
     Ok(())
@@ -247,17 +349,39 @@ fn rbtchf_run_tt_neg(
         .args(args)
         .current_dir(project_root)
         .output()
-        .map_err(|e| format!("{}: failed to run {}: {}", label, tt.display(), e))?;
+        .map_err(|e| {
+            format!(
+                "{}: failed to run {}: {}",
+                label,
+                tt.display(),
+                e, //
+            )
+        })?;
 
     let code = output.status.code().unwrap_or(-1);
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &output.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &output.stderr);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &output.stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &output.stderr,
+    );
 
     if code != expect_code {
         return Err(format!(
             "{}: {} expected exit {}, got {}\nstderr:\n{}",
-            label, colophon, expect_code, code,
-            String::from_utf8_lossy(&output.stderr),
+            label,
+            colophon,
+            expect_code,
+            code,
+            String::from_utf8_lossy(&output.stderr), //
         ));
     }
     Ok(())
@@ -268,49 +392,69 @@ fn rbtchf_run_tt_neg(
 // --- Length types ---
 
 fn rbtchf_ev_string_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 20 \"Test name\"\n\
          buv_string_enroll TEST_DESC 3 50 \"Test description\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid strings",
-            "export TEST_NAME=\"hello\"\nexport TEST_DESC=\"a valid description\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid strings",
+            "export TEST_NAME=\"hello\"\nexport TEST_DESC=\"a valid description\"",
+        )],
     )
 }
 
 fn rbtchf_ev_string_empty_optional(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_OPT 0 20 \"Optional field\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("empty optional", "export TEST_OPT=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "empty optional",
+            "export TEST_OPT=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_string_too_short(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 5 20 \"Test name\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("too short", "export TEST_NAME=\"ab\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "too short",
+            "export TEST_NAME=\"ab\"",
+        )],
     )
 }
 
 fn rbtchf_ev_string_too_long(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 5 \"Test name\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("too long", "export TEST_NAME=\"toolongvalue\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "too long",
+            "export TEST_NAME=\"toolongvalue\"",
+        )],
     )
 }
 
 fn rbtchf_ev_string_empty_required(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Strings\"\n\
          buv_string_enroll TEST_NAME 1 20 \"Test name\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("empty required", "export TEST_NAME=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "empty required",
+            "export TEST_NAME=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_xname_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Xnames\"\n\
          buv_xname_enroll TEST_IDENT 2 12 \"Identifier\"",
         &[
@@ -321,7 +465,8 @@ fn rbtchf_ev_xname_valid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_xname_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Xnames\"\n\
          buv_xname_enroll TEST_IDENT 2 12 \"Identifier\"",
         &[
@@ -334,15 +479,20 @@ fn rbtchf_ev_xname_invalid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_gname_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gnames\"\n\
          buv_gname_enroll TEST_PROJECT 3 20 \"Project ID\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid gname", "export TEST_PROJECT=\"my-project-01\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid gname",
+            "export TEST_PROJECT=\"my-project-01\"",
+        )],
     )
 }
 
 fn rbtchf_ev_gname_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gnames\"\n\
          buv_gname_enroll TEST_PROJECT 3 20 \"Project ID\"",
         &[
@@ -354,16 +504,20 @@ fn rbtchf_ev_gname_invalid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_fqin_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"FQINs\"\n\
          buv_fqin_enroll TEST_IMAGE 5 100 \"Image reference\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid fqin",
-            "export TEST_IMAGE=\"us-central1-docker.pkg.dev/my-proj/repo/image:latest\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid fqin",
+            "export TEST_IMAGE=\"us-central1-docker.pkg.dev/my-proj/repo/image:latest\"",
+        )],
     )
 }
 
 fn rbtchf_ev_fqin_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"FQINs\"\n\
          buv_fqin_enroll TEST_IMAGE 5 100 \"Image reference\"",
         &[
@@ -376,7 +530,8 @@ fn rbtchf_ev_fqin_invalid(dir: &Path) -> rbtcee_Verdict {
 // --- Choice types ---
 
 fn rbtchf_ev_bool_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
         &[
@@ -387,7 +542,8 @@ fn rbtchf_ev_bool_valid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_bool_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
         &[
@@ -399,15 +555,20 @@ fn rbtchf_ev_bool_invalid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_bool_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Booleans\"\n\
          buv_bool_enroll TEST_ENABLED \"Feature enabled\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("empty", "export TEST_ENABLED=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "empty",
+            "export TEST_ENABLED=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_enum_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
         &[
@@ -418,7 +579,8 @@ fn rbtchf_ev_enum_valid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_enum_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
         &[
@@ -429,7 +591,8 @@ fn rbtchf_ev_enum_invalid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_enum_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Enums\"\n\
          buv_enum_enroll TEST_MODE \"Operating mode\" debug release test",
         &[zrbtchf_Sub::zrbtdrf_fatal("empty", "export TEST_MODE=\"\"")],
@@ -439,7 +602,8 @@ fn rbtchf_ev_enum_empty(dir: &Path) -> rbtcee_Verdict {
 // --- Numeric types ---
 
 fn rbtchf_ev_decimal_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
         &[
@@ -451,39 +615,56 @@ fn rbtchf_ev_decimal_valid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_decimal_below(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("below minimum", "export TEST_COUNT=\"0\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "below minimum",
+            "export TEST_COUNT=\"0\"",
+        )],
     )
 }
 
 fn rbtchf_ev_decimal_above(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("above maximum", "export TEST_COUNT=\"101\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "above maximum",
+            "export TEST_COUNT=\"101\"",
+        )],
     )
 }
 
 fn rbtchf_ev_decimal_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Numerics\"\n\
          buv_decimal_enroll TEST_COUNT 1 100 \"Item count\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("empty", "export TEST_COUNT=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "empty",
+            "export TEST_COUNT=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_ipv4_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_ipv4_enroll TEST_ADDR \"Server address\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid address", "export TEST_ADDR=\"192.168.1.1\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid address",
+            "export TEST_ADDR=\"192.168.1.1\"",
+        )],
     )
 }
 
 fn rbtchf_ev_ipv4_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_ipv4_enroll TEST_ADDR \"Server address\"",
         &[
@@ -494,7 +675,8 @@ fn rbtchf_ev_ipv4_invalid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_port_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_port_enroll TEST_PORT \"Service port\"",
         &[
@@ -506,7 +688,8 @@ fn rbtchf_ev_port_valid(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_port_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Network\"\n\
          buv_port_enroll TEST_PORT \"Service port\"",
         &[
@@ -525,41 +708,89 @@ const RBTCHF_VALID_DIGEST: &str =
 fn rbtchf_ev_odref_valid(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let enrollment = format!(
         "set -euo pipefail\n{}zbuv_kindle\nzbuv_reset_enrollment\n\
          buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        rbtchf_tinder_sources(&root),
+        rbtchf_tinder_sources(&root), //
     );
     let d = RBTCHF_VALID_DIGEST;
 
     let subs: &[(&str, &str)] = &[
-        ("standard registry", &format!("docker.io/library/alpine@{}", d)),
-        ("multi-level repo", &format!("us-central1-docker.pkg.dev/my-proj/my-repo/tool@{}", d)),
-        ("registry with port", &format!("registry.local:5000/myimage@{}", d)),
+        (
+            "standard registry",
+            &format!(
+                "docker.io/library/alpine@{}",
+                d, //
+            ),
+        ),
+        (
+            "multi-level repo",
+            &format!(
+                "us-central1-docker.pkg.dev/my-proj/my-repo/tool@{}",
+                d, //
+            ),
+        ),
+        (
+            "registry with port",
+            &format!(
+                "registry.local:5000/myimage@{}",
+                d, //
+            ),
+        ),
     ];
 
     for (i, (label, image)) in subs.iter().enumerate() {
-        let script = format!("{}\nexport TEST_IMAGE=\"{}\"\nbuv_vet \"TEST\"", enrollment, image);
-        match rbtchf_run_bash(&root, &script, dir, &format!("sub-{}", i)) {
+        let script = format!(
+            "{}\nexport TEST_IMAGE=\"{}\"\nbuv_vet \"TEST\"",
+            enrollment,
+            image, //
+        );
+        match rbtchf_run_bash(
+            &root,
+            &script,
+            dir,
+            &format!(
+                "sub-{}",
+                i, //
+            ),
+        ) {
             Ok((0, _, _)) => {}
             Ok((code, _, _)) => {
-                return rbtcee_Verdict::Fail(format!("{}: expected ok, got exit {}", label, code));
+                return rbtcee_Verdict::Fail(format!(
+                    "{}: expected ok, got exit {}",
+                    label,
+                    code, //
+                ));
             }
-            Err(e) => return rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "{}: {}",
+                    label,
+                    e, //
+                ));
+            }
         }
     }
     rbtcee_Verdict::Pass
 }
 
 fn rbtchf_ev_odref_no_digest(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("tag only",
-            "export TEST_IMAGE=\"docker.io/library/alpine:latest\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "tag only",
+            "export TEST_IMAGE=\"docker.io/library/alpine:latest\"",
+        )],
     )
 }
 
@@ -579,123 +810,165 @@ fn rbtchf_ev_odref_malformed(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_ev_odref_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"References\"\n\
          buv_odref_enroll TEST_IMAGE \"Container image\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("empty", "export TEST_IMAGE=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "empty",
+            "export TEST_IMAGE=\"\"",
+        )],
     )
 }
 
 // --- List types ---
 
 fn rbtchf_ev_list_string_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 2 10 \"Tags\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid items", "export TEST_TAGS=\"foo bar baz\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid items",
+            "export TEST_TAGS=\"foo bar baz\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_string_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 2 10 \"Tags\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("empty list", "export TEST_TAGS=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "empty list",
+            "export TEST_TAGS=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_string_bad_item(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_string_enroll TEST_TAGS 3 10 \"Tags\"",
         &[
             zrbtchf_Sub::zrbtdrf_fatal("item too short", "export TEST_TAGS=\"good ab okay\""),
-            zrbtchf_Sub::zrbtdrf_fatal("item too long", "export TEST_TAGS=\"good toolongvalue okay\""),
+            zrbtchf_Sub::zrbtdrf_fatal(
+                "item too long",
+                "export TEST_TAGS=\"good toolongvalue okay\"",
+            ),
         ],
     )
 }
 
 fn rbtchf_ev_list_ipv4_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid addresses",
-            "export TEST_SERVERS=\"192.168.1.1 10.0.0.1 172.16.0.1\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid addresses",
+            "export TEST_SERVERS=\"192.168.1.1 10.0.0.1 172.16.0.1\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_ipv4_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("bad address",
-            "export TEST_SERVERS=\"192.168.1.1 not-an-ip 10.0.0.1\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "bad address",
+            "export TEST_SERVERS=\"192.168.1.1 not-an-ip 10.0.0.1\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_ipv4_empty(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_ipv4_enroll TEST_SERVERS \"Server addresses\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("empty list", "export TEST_SERVERS=\"\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "empty list",
+            "export TEST_SERVERS=\"\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_gname_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_gname_enroll TEST_PROJECTS 3 20 \"Project IDs\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("valid names",
-            "export TEST_PROJECTS=\"my-project other-proj test-01\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "valid names",
+            "export TEST_PROJECTS=\"my-project other-proj test-01\"",
+        )],
     )
 }
 
 fn rbtchf_ev_list_gname_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Lists\"\n\
          buv_list_gname_enroll TEST_PROJECTS 3 20 \"Project IDs\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("uppercase in item",
-            "export TEST_PROJECTS=\"my-project BadName test-01\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "uppercase in item",
+            "export TEST_PROJECTS=\"my-project BadName test-01\"",
+        )],
     )
 }
 
 // --- Gating ---
 
 fn rbtchf_ev_gate_active_valid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gated Features\"\n\
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("gate active valid",
-            "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"8080\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "gate active valid",
+            "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"8080\"",
+        )],
     )
 }
 
 fn rbtchf_ev_gate_active_invalid(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gated Features\"\n\
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal("gate active invalid",
-            "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"0\"")],
+        &[zrbtchf_Sub::zrbtdrf_fatal(
+            "gate active invalid",
+            "export TEST_MODE=\"enabled\"\nexport TEST_PORT=\"0\"",
+        )],
     )
 }
 
 fn rbtchf_ev_gate_inactive(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gated Features\"\n\
          buv_enum_enroll TEST_MODE \"Feature mode\" enabled disabled\n\
          buv_gate_enroll TEST_MODE enabled\n\
          buv_port_enroll TEST_PORT \"Feature port\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("gate inactive skips",
-            "export TEST_MODE=\"disabled\"\nexport TEST_PORT=\"invalid-not-checked\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "gate inactive skips",
+            "export TEST_MODE=\"disabled\"\nexport TEST_PORT=\"invalid-not-checked\"",
+        )],
     )
 }
 
 fn rbtchf_ev_gate_multi(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\n\
          buv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Service name\"\n\
@@ -708,14 +981,18 @@ fn rbtchf_ev_gate_multi(dir: &Path) -> rbtcee_Verdict {
          buv_gate_enroll TEST_FEAT_B on\n\
          buv_string_enroll TEST_FEAT_B_LABEL 1 20 \"Feature B label\"",
         &[
-            zrbtchf_Sub::zrbtdrf_ok("A on, B off",
+            zrbtchf_Sub::zrbtdrf_ok(
+                "A on, B off",
                 "export TEST_NAME=\"myservice\"\n\
                  export TEST_FEAT_A=\"on\"\nexport TEST_FEAT_A_PORT=\"9090\"\n\
-                 export TEST_FEAT_B=\"off\"\nexport TEST_FEAT_B_LABEL=\"\""),
-            zrbtchf_Sub::zrbtdrf_ok("both on",
+                 export TEST_FEAT_B=\"off\"\nexport TEST_FEAT_B_LABEL=\"\"",
+            ),
+            zrbtchf_Sub::zrbtdrf_ok(
+                "both on",
                 "export TEST_NAME=\"myservice\"\n\
                  export TEST_FEAT_A=\"on\"\nexport TEST_FEAT_A_PORT=\"9090\"\n\
-                 export TEST_FEAT_B=\"on\"\nexport TEST_FEAT_B_LABEL=\"hello\""),
+                 export TEST_FEAT_B=\"on\"\nexport TEST_FEAT_B_LABEL=\"hello\"",
+            ),
         ],
     )
 }
@@ -723,71 +1000,96 @@ fn rbtchf_ev_gate_multi(dir: &Path) -> rbtcee_Verdict {
 // --- Enforce/Report ---
 
 fn rbtchf_ev_enforce_all_pass(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"\n\
          buv_decimal_enroll TEST_COUNT 1 10 \"Count\"",
-        &[zrbtchf_Sub::zrbtdrf_ok("all pass",
-            "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\"")],
+        &[zrbtchf_Sub::zrbtdrf_ok(
+            "all pass",
+            "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\"",
+        )],
     )
 }
 
 fn rbtchf_ev_enforce_first_bad(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"\n\
          buv_decimal_enroll TEST_COUNT 1 10 \"Count\"",
         &[
-            zrbtchf_Sub::zrbtdrf_fatal("first var invalid",
-                "export TEST_NAME=\"1\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\""),
-            zrbtchf_Sub::zrbtdrf_fatal("middle var invalid",
-                "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"maybe\"\nexport TEST_COUNT=\"5\""),
-            zrbtchf_Sub::zrbtdrf_fatal("last var invalid",
-                "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"99\""),
+            zrbtchf_Sub::zrbtdrf_fatal(
+                "first var invalid",
+                "export TEST_NAME=\"1\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"5\"",
+            ),
+            zrbtchf_Sub::zrbtdrf_fatal(
+                "middle var invalid",
+                "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"maybe\"\nexport TEST_COUNT=\"5\"",
+            ),
+            zrbtchf_Sub::zrbtdrf_fatal(
+                "last var invalid",
+                "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"1\"\nexport TEST_COUNT=\"99\"",
+            ),
         ],
     )
 }
 
 fn rbtchf_ev_report_all_pass(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"",
-        &[zrbtchf_Sub::zrbtdrf_ok_cmd("all pass report",
+        &[zrbtchf_Sub::zrbtdrf_ok_cmd(
+            "all pass report",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"0\"",
-            "buv_report \"TEST\" \"All-pass report\"")],
+            "buv_report \"TEST\" \"All-pass report\"",
+        )],
     )
 }
 
 fn rbtchf_ev_report_mixed(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Core\"\n\
          buv_xname_enroll TEST_NAME 2 12 \"Name\"\n\
          buv_bool_enroll TEST_FLAG \"Flag\"",
-        &[zrbtchf_Sub::zrbtdrf_fatal_cmd("mixed report",
+        &[zrbtchf_Sub::zrbtdrf_fatal_cmd(
+            "mixed report",
             "export TEST_NAME=\"myname\"\nexport TEST_FLAG=\"bad\"",
-            "buv_report \"TEST\" \"Mixed report\"", RBTCHF_REPORT_NONZERO)],
+            "buv_report \"TEST\" \"Mixed report\"",
+            RBTCHF_REPORT_NONZERO,
+        )],
     )
 }
 
 fn rbtchf_ev_report_gated(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_run_ev(dir,
+    rbtchf_run_ev(
+        dir,
         "buv_regime_enroll \"TEST\"\nbuv_group_enroll \"Gated\"\n\
          buv_enum_enroll TEST_MODE \"Mode\" on off\n\
          buv_gate_enroll TEST_MODE on\n\
          buv_port_enroll TEST_PORT \"Port\"",
-        &[zrbtchf_Sub::zrbtdrf_ok_cmd("gated report passes",
+        &[zrbtchf_Sub::zrbtdrf_ok_cmd(
+            "gated report passes",
             "export TEST_MODE=\"off\"\nexport TEST_PORT=\"\"",
-            "buv_report \"TEST\" \"Gated report\"")],
+            "buv_report \"TEST\" \"Gated report\"",
+        )],
     )
 }
 
 fn rbtchf_ev_multiscope(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     // Two-scope enrollment: ALPHA and BETA
     let enrollment = format!(
@@ -797,30 +1099,51 @@ fn rbtchf_ev_multiscope(dir: &Path) -> rbtcee_Verdict {
          buv_regime_enroll \"BETA\"\nbuv_group_enroll \"Beta Vars\"\n\
          buv_bool_enroll TEST_BETA_FLAG \"Beta flag\"\n\
          export TEST_ALPHA_FLAG=\"1\"\nexport TEST_BETA_FLAG=\"bad\"\n",
-        rbtchf_tinder_sources(&root),
+        rbtchf_tinder_sources(&root), //
     );
 
     // Sub 1: vet ALPHA passes (BETA is bad but not in scope)
-    let script1 = format!("{}buv_vet \"ALPHA\"", enrollment);
+    let script1 = format!(
+        "{}buv_vet \"ALPHA\"",
+        enrollment, //
+    );
     match rbtchf_run_bash(&root, &script1, dir, "sub-0") {
         Ok((code, _, _)) if code == 0 => {}
         Ok((code, _, _)) => {
-            return rbtcee_Verdict::Fail(format!("alpha scope: expected ok, got exit {}", code));
+            return rbtcee_Verdict::Fail(format!(
+                "alpha scope: expected ok, got exit {}",
+                code, //
+            ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("alpha scope: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "alpha scope: {}",
+                e, //
+            ));
+        }
     }
 
     // Sub 2: vet BETA fails at the buv enrollment gate (band_enroll)
-    let script2 = format!("{}buv_vet \"BETA\"", enrollment);
+    let script2 = format!(
+        "{}buv_vet \"BETA\"",
+        enrollment, //
+    );
     match rbtchf_run_bash(&root, &script2, dir, "sub-1") {
         Ok((code, _, _)) if code == RBTGEB_BUSX_ENROLL_DENTIL => {}
         Ok((code, _, stderr)) => {
             return rbtcee_Verdict::Fail(format!(
                 "beta scope: expected exit {}, got {}\nstderr:\n{}",
-                RBTGEB_BUSX_ENROLL_DENTIL, code, stderr
+                RBTGEB_BUSX_ENROLL_DENTIL,
+                code,
+                stderr, //
             ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("beta scope: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "beta scope: {}",
+                e, //
+            ));
+        }
     }
 
     rbtcee_Verdict::Pass
@@ -841,7 +1164,12 @@ const RBTCHF_VAL_HALLMARKS_ROOT: &str = "rbi_hm";
 fn rbtchf_rv_rbrr_repo(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     match rbtchf_run_tt(&root, RBTGEC_VALIDATE_REPO, &[], dir, "rbrr-repo-validate") {
         Ok(()) => rbtcee_Verdict::Pass,
@@ -852,7 +1180,12 @@ fn rbtchf_rv_rbrr_repo(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
@@ -873,14 +1206,21 @@ fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
         tinder,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
     );
 
     let vessel_dir = match rbtchf_run_bash(&root, &script, dir, "rbrv-discover") {
         Ok((0, stdout, _)) => stdout.trim().to_string(),
         Ok((code, _, _)) => {
-            return rbtcee_Verdict::Fail(format!("vessel discovery failed (exit {})", code));
+            return rbtcee_Verdict::Fail(format!(
+                "vessel discovery failed (exit {})",
+                code, //
+            ));
         }
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -888,7 +1228,11 @@ fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
     let entries = match std::fs::read_dir(&vessel_dir) {
         Ok(e) => e,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", vessel_dir, e));
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                vessel_dir,
+                e, //
+            ));
         }
     };
 
@@ -899,8 +1243,14 @@ fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_VALIDATE_VESSEL, &[&sigil], dir,
-                &format!("rbrv-{}-validate", sigil),
+                &root,
+                RBTGEC_VALIDATE_VESSEL,
+                &[&sigil],
+                dir,
+                &format!(
+                    "rbrv-{}-validate",
+                    sigil, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
@@ -908,7 +1258,10 @@ fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
     }
 
     if !found {
-        return rbtcee_Verdict::Fail(format!("no vessels found in {}", vessel_dir));
+        return rbtcee_Verdict::Fail(format!(
+            "no vessels found in {}",
+            vessel_dir, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
@@ -916,14 +1269,25 @@ fn rbtchf_rv_rbrv_all_vessels(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rv_rbrn_all_nameplates(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover nameplates by listing rbmm_moorings/*/rbrn.env
     let rbk_dir = root.join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&rbk_dir) {
         Ok(e) => e,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot read {}: {}", crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+                e, //
+            ));
+        }
     };
 
     let mut found = false;
@@ -937,8 +1301,14 @@ fn rbtchf_rv_rbrn_all_nameplates(dir: &Path) -> rbtcee_Verdict {
                 .unwrap_or(&inscription)
                 .to_string();
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_VALIDATE_NAMEPLATE, &[&moniker], dir,
-                &format!("rbrn-{}-validate", moniker),
+                &root,
+                RBTGEC_VALIDATE_NAMEPLATE,
+                &[&moniker],
+                dir,
+                &format!(
+                    "rbrn-{}-validate",
+                    moniker, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
@@ -946,22 +1316,53 @@ fn rbtchf_rv_rbrn_all_nameplates(dir: &Path) -> rbtcee_Verdict {
     }
 
     if !found {
-        return rbtcee_Verdict::Fail(format!("no nameplates found in {}/", crate::rbtgec_consts::RBTGEC_MOORINGS_DIR));
+        return rbtcee_Verdict::Fail(format!(
+            "no nameplates found in {}/",
+            crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
 
 // ── Regime-smoke cases ──────────────────────────────────────
 
-fn rbtchf_rs_render_validate(dir: &Path, render: &str, validate: &str, label: &str) -> rbtcee_Verdict {
+fn rbtchf_rs_render_validate(
+    dir: &Path,
+    render: &str,
+    validate: &str,
+    label: &str,
+) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
-    if let Err(e) = rbtchf_run_tt(&root, render, &[], dir, &format!("{}-render", label)) {
+    if let Err(e) = rbtchf_run_tt(
+        &root,
+        render,
+        &[],
+        dir,
+        &format!(
+            "{}-render",
+            label, //
+        ),
+    ) {
         return rbtcee_Verdict::Fail(e);
     }
-    if let Err(e) = rbtchf_run_tt(&root, validate, &[], dir, &format!("{}-validate", label)) {
+    if let Err(e) = rbtchf_run_tt(
+        &root,
+        validate,
+        &[],
+        dir,
+        &format!(
+            "{}-validate",
+            label, //
+        ),
+    ) {
         return rbtcee_Verdict::Fail(e);
     }
     rbtcee_Verdict::Pass
@@ -978,14 +1379,25 @@ fn rbtchf_rs_burs(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rs_rbrn(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover nameplates by listing rbmm_moorings/*/rbrn.env
     let rbk_dir = root.join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR);
     let entries = match std::fs::read_dir(&rbk_dir) {
         Ok(e) => e,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot read {}: {}", crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+                e, //
+            ));
+        }
     };
 
     let mut found = false;
@@ -999,14 +1411,26 @@ fn rbtchf_rs_rbrn(dir: &Path) -> rbtcee_Verdict {
                 .unwrap_or(&inscription)
                 .to_string();
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_RENDER_NAMEPLATE, &[&moniker], dir,
-                &format!("rbrn-{}-render", moniker),
+                &root,
+                RBTGEC_RENDER_NAMEPLATE,
+                &[&moniker],
+                dir,
+                &format!(
+                    "rbrn-{}-render",
+                    moniker, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_VALIDATE_NAMEPLATE, &[&moniker], dir,
-                &format!("rbrn-{}-validate", moniker),
+                &root,
+                RBTGEC_VALIDATE_NAMEPLATE,
+                &[&moniker],
+                dir,
+                &format!(
+                    "rbrn-{}-validate",
+                    moniker, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
@@ -1014,7 +1438,10 @@ fn rbtchf_rs_rbrn(dir: &Path) -> rbtcee_Verdict {
     }
 
     if !found {
-        return rbtcee_Verdict::Fail(format!("no nameplates found in {}/", crate::rbtgec_consts::RBTGEC_MOORINGS_DIR));
+        return rbtcee_Verdict::Fail(format!(
+            "no nameplates found in {}/",
+            crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
@@ -1026,7 +1453,12 @@ fn rbtchf_rs_rbrr(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let rbk = root.join(RBTCHF_RBK_ROOT);
 
@@ -1049,37 +1481,44 @@ fn rbtchf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtcee_Verdict {
          echo \"hallmarks_root=${{RBGL_HALLMARKS_ROOT}}\"\n\
          echo \"runtime_prefix=${{{runtime_var}}}\"",
         tinder,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
         cloud_var = RBTCHF_VAR_RBRD_CLOUD_PREFIX,
         runtime_var = RBTCHF_VAR_RBRR_RUNTIME_PREFIX,
-        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
     );
 
     match rbtchf_run_bash(&root, &script, dir, "rbrr-nonempty-prefix") {
         Ok((0, stdout, _)) => {
-            let expected_line = format!("hallmarks_root={}", RBTCHF_VAL_HALLMARKS_ROOT);
-            let hallmarks_ok = stdout
-                .lines()
-                .any(|l| l.trim() == expected_line);
-            let runtime_ok = stdout
-                .lines()
-                .any(|l| l.trim() == "runtime_prefix=acme-");
+            let expected_line = format!(
+                "hallmarks_root={}",
+                RBTCHF_VAL_HALLMARKS_ROOT, //
+            );
+            let hallmarks_ok = stdout.lines().any(|l| l.trim() == expected_line);
+            let runtime_ok = stdout.lines().any(|l| l.trim() == "runtime_prefix=acme-");
             if !hallmarks_ok {
                 return rbtcee_Verdict::Fail(format!(
                     "RBGL_HALLMARKS_ROOT did not match category constant; stdout:\n{}",
-                    stdout
+                    stdout, //
                 ));
             }
             if !runtime_ok {
                 return rbtcee_Verdict::Fail(format!(
                     "RBRR_RUNTIME_PREFIX did not propagate; stdout:\n{}",
-                    stdout
+                    stdout, //
                 ));
             }
             rbtcee_Verdict::Pass
         }
         Ok((code, _, stderr)) => {
-            rbtcee_Verdict::Fail(format!("kindle failed (exit {}); stderr:\n{}", code, stderr))
+            rbtcee_Verdict::Fail(format!(
+                "kindle failed (exit {}); stderr:\n{}",
+                code,
+                stderr, //
+            ))
         }
         Err(e) => rbtcee_Verdict::Fail(e),
     }
@@ -1088,7 +1527,12 @@ fn rbtchf_rs_rbrr_nonempty_prefix(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rs_rbrv(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover vessels: source rbrr.env to get RBRR_VESSEL_DIR, scan it
@@ -1110,14 +1554,21 @@ fn rbtchf_rs_rbrv(dir: &Path) -> rbtcee_Verdict {
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          echo \"${{RBRR_VESSEL_DIR}}\"",
         tinder,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
     );
 
     let vessel_dir = match rbtchf_run_bash(&root, &script, dir, "rbrv-discover") {
         Ok((0, stdout, _)) => stdout.trim().to_string(),
         Ok((code, _, _)) => {
-            return rbtcee_Verdict::Fail(format!("vessel discovery failed (exit {})", code));
+            return rbtcee_Verdict::Fail(format!(
+                "vessel discovery failed (exit {})",
+                code, //
+            ));
         }
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
@@ -1125,7 +1576,11 @@ fn rbtchf_rs_rbrv(dir: &Path) -> rbtcee_Verdict {
     let entries = match std::fs::read_dir(&vessel_dir) {
         Ok(e) => e,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", vessel_dir, e));
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                vessel_dir,
+                e, //
+            ));
         }
     };
 
@@ -1136,14 +1591,26 @@ fn rbtchf_rs_rbrv(dir: &Path) -> rbtcee_Verdict {
             found = true;
             let sigil = entry.file_name().to_string_lossy().to_string();
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_RENDER_VESSEL, &[&sigil], dir,
-                &format!("rbrv-{}-render", sigil),
+                &root,
+                RBTGEC_RENDER_VESSEL,
+                &[&sigil],
+                dir,
+                &format!(
+                    "rbrv-{}-render",
+                    sigil, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
             if let Err(e) = rbtchf_run_tt(
-                &root, RBTGEC_VALIDATE_VESSEL, &[&sigil], dir,
-                &format!("rbrv-{}-validate", sigil),
+                &root,
+                RBTGEC_VALIDATE_VESSEL,
+                &[&sigil],
+                dir,
+                &format!(
+                    "rbrv-{}-validate",
+                    sigil, //
+                ),
             ) {
                 return rbtcee_Verdict::Fail(e);
             }
@@ -1151,7 +1618,10 @@ fn rbtchf_rs_rbrv(dir: &Path) -> rbtcee_Verdict {
     }
 
     if !found {
-        return rbtcee_Verdict::Fail(format!("no vessels found in {}", vessel_dir));
+        return rbtcee_Verdict::Fail(format!(
+            "no vessels found in {}",
+            vessel_dir, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
@@ -1168,7 +1638,12 @@ fn rbtchf_rs_burd(dir: &Path) -> rbtcee_Verdict {
     // a tabtarget that goes through the full BUK dispatch path.
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     if let Err(e) = rbtchf_run_tt(&root, BUWGC_RC_VALIDATE, &[], dir, "burd-dispatch") {
         return rbtcee_Verdict::Fail(e);
@@ -1189,7 +1664,12 @@ fn rbtchf_rs_burd(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     let tt = match rbtcei_find_tabtarget_global(&root, RBTGEC_UNMAKE_DEPOT) {
@@ -1207,7 +1687,7 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
             return rbtcee_Verdict::Fail(format!(
                 "failed to run {}: {}",
                 tt.display(),
-                e
+                e, //
             ));
         }
     };
@@ -1221,16 +1701,23 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
     if code == 0 {
         return rbtcee_Verdict::Fail(format!(
             "{} exited 0 with no argument — empty-arg refusal contract violated",
-            RBTGEC_UNMAKE_DEPOT
+            RBTGEC_UNMAKE_DEPOT, //
         ));
     }
 
-    let combined = format!("{}{}", stdout, stderr);
+    let combined = format!(
+        "{}{}",
+        stdout,
+        stderr, //
+    );
     if !combined.contains(RBTGEC_LIST_DEPOT) {
         return rbtcee_Verdict::Fail(format!(
             "{} empty-arg refusal did not point at {} for operator discovery\n\
              stdout:\n{}\n\nstderr:\n{}",
-            RBTGEC_UNMAKE_DEPOT, RBTGEC_LIST_DEPOT, stdout, stderr
+            RBTGEC_UNMAKE_DEPOT,
+            RBTGEC_LIST_DEPOT,
+            stdout,
+            stderr, //
         ));
     }
 
@@ -1249,7 +1736,12 @@ fn rbtchf_rs_unmake_empty_arg_refusal(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     let tt = match rbtcei_find_tabtarget_global(&root, RBTGEC_JETTISON_IMAGE) {
@@ -1268,7 +1760,11 @@ fn rbtchf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtcee_Verdict {
     {
         Ok(o) => o,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("failed to run {}: {}", tt.display(), e));
+            return rbtcee_Verdict::Fail(format!(
+                "failed to run {}: {}",
+                tt.display(),
+                e, //
+            ));
         }
     };
 
@@ -1282,7 +1778,11 @@ fn rbtchf_rs_credless_guard_mint_refusal(dir: &Path) -> rbtcee_Verdict {
         return rbtcee_Verdict::Fail(format!(
             "{} under the credless guard exited {} — expected the credless band \
              code {} from the token-mint gate\nstdout:\n{}\n\nstderr:\n{}",
-            RBTGEC_JETTISON_IMAGE, code, RBTGEB_CREDLESS_DENTIL, stdout, stderr
+            RBTGEC_JETTISON_IMAGE,
+            code,
+            RBTGEB_CREDLESS_DENTIL,
+            stdout,
+            stderr, //
         ));
     }
 
@@ -1314,17 +1814,42 @@ fn rbtchf_dh_run_synthetic(
 ) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
-    let dockerfile = dir.join(format!("{}-Dockerfile", label));
+    let dockerfile = dir.join(format!(
+        "{}-Dockerfile",
+        label, //
+    ));
     if let Err(e) = std::fs::write(&dockerfile, body) {
-        return rbtcee_Verdict::Fail(format!("{}: write Dockerfile failed: {}", label, e));
+        return rbtcee_Verdict::Fail(format!(
+            "{}: write Dockerfile failed: {}",
+            label,
+            e, //
+        ));
     }
     let path_str = dockerfile.to_string_lossy().into_owned();
     let result = if expect_code == 0 {
-        rbtchf_run_tt(&root, RBTGEC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label)
+        rbtchf_run_tt(
+            &root,
+            RBTGEC_HYGIENE_CHECK_DOCKERFILE,
+            &[&path_str],
+            dir,
+            label,
+        )
     } else {
-        rbtchf_run_tt_neg(&root, RBTGEC_HYGIENE_CHECK_DOCKERFILE, &[&path_str], dir, label, expect_code)
+        rbtchf_run_tt_neg(
+            &root,
+            RBTGEC_HYGIENE_CHECK_DOCKERFILE,
+            &[&path_str],
+            dir,
+            label,
+            expect_code,
+        )
     };
     match result {
         Ok(()) => rbtcee_Verdict::Pass,
@@ -1333,7 +1858,12 @@ fn rbtchf_dh_run_synthetic(
 }
 
 fn rbtchf_dh_accept_parameterized(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-accept-parameterized", RBTCHF_DH_BODY_PARAMETERIZED, 0)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-accept-parameterized",
+        RBTCHF_DH_BODY_PARAMETERIZED,
+        0,
+    )
 }
 
 fn rbtchf_dh_accept_scratch(dir: &Path) -> rbtcee_Verdict {
@@ -1341,7 +1871,12 @@ fn rbtchf_dh_accept_scratch(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_dh_accept_multistage_as(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-accept-multistage-as", RBTCHF_DH_BODY_MULTISTAGE_AS, 0)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-accept-multistage-as",
+        RBTCHF_DH_BODY_MULTISTAGE_AS,
+        0,
+    )
 }
 
 fn rbtchf_dh_accept_empty(dir: &Path) -> rbtcee_Verdict {
@@ -1349,25 +1884,50 @@ fn rbtchf_dh_accept_empty(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_dh_accept_comments_only(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-accept-comments-only", RBTCHF_DH_BODY_COMMENTS_ONLY, 0)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-accept-comments-only",
+        RBTCHF_DH_BODY_COMMENTS_ONLY,
+        0,
+    )
 }
 
 fn rbtchf_dh_reject_hardcoded_literal(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-hardcoded-literal", RBTCHF_DH_BODY_HARDCODED_LITERAL, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-reject-hardcoded-literal",
+        RBTCHF_DH_BODY_HARDCODED_LITERAL,
+        RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
+    )
 }
 
 fn rbtchf_dh_reject_tab_in_from(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-tab-in-from", RBTCHF_DH_BODY_TAB_IN_FROM, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-reject-tab-in-from",
+        RBTCHF_DH_BODY_TAB_IN_FROM,
+        RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
+    )
 }
 
 fn rbtchf_dh_reject_trailing_backslash(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_dh_run_synthetic(dir, "dh-reject-trailing-backslash", RBTCHF_DH_BODY_TRAILING_BACKSLASH, RBTGEB_DOCKERFILE_HYGIENE_DENTIL)
+    rbtchf_dh_run_synthetic(
+        dir,
+        "dh-reject-trailing-backslash",
+        RBTCHF_DH_BODY_TRAILING_BACKSLASH,
+        RBTGEB_DOCKERFILE_HYGIENE_DENTIL,
+    )
 }
 
 fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     // Resolve RBRR_VESSEL_DIR via one-shot bash (kindle ceremony unavoidable
@@ -1389,15 +1949,20 @@ fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
          zrbrr_kindle\nzrbrd_kindle\nzrbrr_enforce\nzrbrd_enforce\nzrbdc_kindle\n\
          printf '%s' \"${{RBRR_VESSEL_DIR}}\"",
         tinder,
-        rbk_p, rbk_p, rbk_p, rbk_p, rbk_p,
-        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        rbk_p,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
     );
     let vessel_dir = match rbtchf_run_bash(&root, &resolve_script, dir, "resolve-vessel-dir") {
         Ok((0, stdout, _)) => stdout,
         Ok((code, _, stderr)) => {
             return rbtcee_Verdict::Fail(format!(
                 "resolve RBRR_VESSEL_DIR failed (exit {}): {}",
-                code, stderr
+                code,
+                stderr, //
             ));
         }
         Err(e) => return rbtcee_Verdict::Fail(e),
@@ -1412,7 +1977,8 @@ fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
         Err(e) => {
             return rbtcee_Verdict::Fail(format!(
                 "read_dir({}) failed: {}",
-                vessel_dir, e
+                vessel_dir,
+                e, //
             ));
         }
     };
@@ -1425,7 +1991,12 @@ fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
     for entry in entries {
         let entry = match entry {
             Ok(e) => e,
-            Err(e) => return rbtcee_Verdict::Fail(format!("dir entry error: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "dir entry error: {}",
+                    e, //
+                ));
+            }
         };
         let path = entry.path();
         if !path.is_dir() {
@@ -1444,7 +2015,10 @@ fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
             RBTGEC_HYGIENE_CHECK_VESSEL,
             &[&sigil],
             dir,
-            &format!("vessel-{}", sigil),
+            &format!(
+                "vessel-{}",
+                sigil, //
+            ),
         ) {
             return rbtcee_Verdict::Fail(e);
         }
@@ -1454,7 +2028,7 @@ fn rbtchf_dh_all_vessels_pass(dir: &Path) -> rbtcee_Verdict {
     if count == 0 {
         return rbtcee_Verdict::Fail(format!(
             "zero vessels iterated under {} — busted RBRR_VESSEL_DIR resolution",
-            vessel_dir
+            vessel_dir, //
         ));
     }
 
@@ -1479,19 +2053,31 @@ fn rbtchf_np_run(
 ) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let buc = root.join(RBTCHF_BUC_COMMAND);
 
     let assertion = match expect {
-        Some(out) => format!("test \"$(buc_native_path_capture '{}')\" = '{}'", input, out),
-        None => format!("buc_native_path_capture '{}'", input),
+        Some(out) => format!(
+            "test \"$(buc_native_path_capture '{}')\" = '{}'",
+            input,
+            out, //
+        ),
+        None => format!(
+            "buc_native_path_capture '{}'",
+            input, //
+        ),
     };
     let script = format!(
         "set -euo pipefail\nsource '{}'\nexport BURD_OSTYPE='{}'\n{}",
         rbtcep_native_to_posix(&buc),
         ostype,
-        assertion,
+        assertion, //
     );
 
     let expect_ok = expect.is_some();
@@ -1501,38 +2087,74 @@ fn rbtchf_np_run(
             if ok == expect_ok {
                 rbtcee_Verdict::Pass
             } else if expect_ok {
-                rbtcee_Verdict::Fail(format!("{}: expected ok, got exit {}", label, code))
+                rbtcee_Verdict::Fail(format!(
+                    "{}: expected ok, got exit {}",
+                    label,
+                    code, //
+                ))
             } else {
-                rbtcee_Verdict::Fail(format!("{}: expected non-zero (unsurveyed), got exit 0", label))
+                rbtcee_Verdict::Fail(format!(
+                    "{}: expected non-zero (unsurveyed), got exit 0",
+                    label, //
+                ))
             }
         }
-        Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "{}: {}",
+            label,
+            e, //
+        )),
     }
 }
 
 fn rbtchf_np_cygdrive_transform(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_np_run(dir, "np-cygdrive-transform", "cygwin",
-        "/cygdrive/c/Users/foo", Some("c:/Users/foo"))
+    rbtchf_np_run(
+        dir,
+        "np-cygdrive-transform",
+        "cygwin",
+        "/cygdrive/c/Users/foo",
+        Some("c:/Users/foo"),
+    )
 }
 
 fn rbtchf_np_relative_passthrough(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_np_run(dir, "np-relative-passthrough", "cygwin",
-        "rbmv_vessels/rbev_busybox", Some("rbmv_vessels/rbev_busybox"))
+    rbtchf_np_run(
+        dir,
+        "np-relative-passthrough",
+        "cygwin",
+        "rbmv_vessels/rbev_busybox",
+        Some("rbmv_vessels/rbev_busybox"),
+    )
 }
 
 fn rbtchf_np_native_passthrough(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_np_run(dir, "np-native-passthrough", "cygwin",
-        "c:/Users/foo", Some("c:/Users/foo"))
+    rbtchf_np_run(
+        dir,
+        "np-native-passthrough",
+        "cygwin",
+        "c:/Users/foo",
+        Some("c:/Users/foo"),
+    )
 }
 
 fn rbtchf_np_offcygwin_identity(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_np_run(dir, "np-offcygwin-identity", "linux-gnu",
-        "/cygdrive/c/Users/foo", Some("/cygdrive/c/Users/foo"))
+    rbtchf_np_run(
+        dir,
+        "np-offcygwin-identity",
+        "linux-gnu",
+        "/cygdrive/c/Users/foo",
+        Some("/cygdrive/c/Users/foo"),
+    )
 }
 
 fn rbtchf_np_bare_absolute_unsurveyed(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_np_run(dir, "np-bare-absolute-unsurveyed", "cygwin",
-        "/etc/hosts", None)
+    rbtchf_np_run(
+        dir,
+        "np-bare-absolute-unsurveyed",
+        "cygwin",
+        "/etc/hosts",
+        None,
+    )
 }
 
 // ── Redon-tick cases ────────────────────────────────────────
@@ -1557,7 +2179,12 @@ const RBTCHF_RT_LAPSE_FRAGMENT: &str = "sederunt lapsed mid-build";
 fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let dir_p = rbtcep_native_to_posix(dir);
     let buc_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUC_COMMAND));
@@ -1610,7 +2237,7 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
          z_don_rc=0\n\
          zSECRET_probe=$(rbau_don_capture \"${{RBCC_mantle_director}}\") || z_don_rc=$?\n\
          zrbfcb_redon_tick 'LapseProbe' 'poll 1' \"${{z_don_rc}}\"\n",
-        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
     );
 
     match rbtchf_run_bash(&root, &script, dir, "rt-lapse-advisory") {
@@ -1626,12 +2253,17 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
             {
                 return rbtcee_Verdict::Fail(format!(
                     "rt-lapse-advisory: exit {} without the lapse advisory '{}':\nstderr:\n{}",
-                    code, RBTCHF_RT_LAPSE_FRAGMENT, stderr
+                    code,
+                    RBTCHF_RT_LAPSE_FRAGMENT,
+                    stderr, //
                 ));
             }
             rbtcee_Verdict::Pass
         }
-        Err(e) => rbtcee_Verdict::Fail(format!("rt-lapse-advisory: {}", e)),
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "rt-lapse-advisory: {}",
+            e, //
+        )),
     }
 }
 
@@ -1671,12 +2303,12 @@ const RBTCHF_KC_STALE_FRAGMENT: &str = "rather than rebuilding";
 const RBTCHF_KC_PIN_RBRV: &str = concat!(
     "RBRV_SIGIL=zqpin\n",
     "RBRV_CONJURE_DOCKERFILE=\"${RBRR_VESSEL_DIR}/common-zqshared-context/Dockerfile\"\n",
-    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/common-zqshared-context\"\n",
+    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/common-zqshared-context\"\n", //
 );
 const RBTCHF_KC_OTHER_RBRV: &str = concat!(
     "RBRV_SIGIL=zqoth\n",
     "RBRV_CONJURE_DOCKERFILE=\"${RBRR_VESSEL_DIR}/${RBRV_SIGIL}/Dockerfile\"\n",
-    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/${RBRV_SIGIL}\"\n",
+    "RBRV_CONJURE_BLDCONTEXT=\"${RBRR_VESSEL_DIR}/${RBRV_SIGIL}\"\n", //
 );
 
 /// Run git in the scratch repository, returning trimmed stdout.
@@ -1686,13 +2318,19 @@ fn zrbtchf_kc_git(scratch: &Path, args: &[&str]) -> Result<String, String> {
         .arg(scratch)
         .args(args)
         .output()
-        .map_err(|e| format!("git {:?} failed to start: {}", args, e))?;
+        .map_err(|e| {
+            format!(
+                "git {:?} failed to start: {}",
+                args,
+                e, //
+            )
+        })?;
     if !output.status.success() {
         return Err(format!(
             "git {:?} exited {:?}: {}",
             args,
             output.status.code(),
-            String::from_utf8_lossy(&output.stderr)
+            String::from_utf8_lossy(&output.stderr), //
         ));
     }
     Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
@@ -1701,9 +2339,21 @@ fn zrbtchf_kc_git(scratch: &Path, args: &[&str]) -> Result<String, String> {
 fn zrbtchf_kc_write(vessels: &Path, rel: &str, body: &str) -> Result<(), String> {
     let path = vessels.join(rel);
     if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| format!("mkdir {}: {}", parent.display(), e))?;
+        std::fs::create_dir_all(parent).map_err(|e| {
+            format!(
+                "mkdir {}: {}",
+                parent.display(),
+                e, //
+            )
+        })?;
     }
-    std::fs::write(&path, body).map_err(|e| format!("write {}: {}", path.display(), e))
+    std::fs::write(&path, body).map_err(|e| {
+        format!(
+            "write {}: {}",
+            path.display(),
+            e, //
+        )
+    })
 }
 
 /// Stage the scratch repository, commit the baseline, return the baseline's
@@ -1714,14 +2364,65 @@ fn zrbtchf_kc_stage(scratch: &Path) -> Result<String, String> {
         .join(crate::rbtgec_consts::RBTGEC_VESSELS_SUBDIR);
     let shared = RBTCHF_KC_SHARED_CONTEXT;
     zrbtchf_kc_write(&vessels, RBTCHF_KC_README, "scratch vessels readme\n")?;
-    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_PIN_VESSEL, RBTGEC_RBRV_FILE), RBTCHF_KC_PIN_RBRV)?;
-    zrbtchf_kc_write(&vessels, &format!("{}/{}", shared, RBTCHF_KC_DOCKERFILE), "FROM scratch\n")?;
-    zrbtchf_kc_write(&vessels, &format!("{}/{}", shared, RBTCHF_KC_PAYLOAD), "payload\n")?;
-    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTGEC_RBRV_FILE), RBTCHF_KC_OTHER_RBRV)?;
-    zrbtchf_kc_write(&vessels, &format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTCHF_KC_DOCKERFILE), "FROM scratch\n")?;
+    zrbtchf_kc_write(
+        &vessels,
+        &format!(
+            "{}/{}",
+            RBTCHF_KC_PIN_VESSEL,
+            RBTGEC_RBRV_FILE, //
+        ),
+        RBTCHF_KC_PIN_RBRV,
+    )?;
+    zrbtchf_kc_write(
+        &vessels,
+        &format!(
+            "{}/{}",
+            shared,
+            RBTCHF_KC_DOCKERFILE, //
+        ),
+        "FROM scratch\n",
+    )?;
+    zrbtchf_kc_write(
+        &vessels,
+        &format!(
+            "{}/{}",
+            shared,
+            RBTCHF_KC_PAYLOAD, //
+        ),
+        "payload\n",
+    )?;
+    zrbtchf_kc_write(
+        &vessels,
+        &format!(
+            "{}/{}",
+            RBTCHF_KC_OTHER_VESSEL,
+            RBTGEC_RBRV_FILE, //
+        ),
+        RBTCHF_KC_OTHER_RBRV,
+    )?;
+    zrbtchf_kc_write(
+        &vessels,
+        &format!(
+            "{}/{}",
+            RBTCHF_KC_OTHER_VESSEL,
+            RBTCHF_KC_DOCKERFILE, //
+        ),
+        "FROM scratch\n",
+    )?;
     zrbtchf_kc_git(scratch, &["init", "--quiet"])?;
-    zrbtchf_kc_git(scratch, &["config", "--local", "user.name", "currency-gate-case"])?;
-    zrbtchf_kc_git(scratch, &["config", "--local", "user.email", "currency-gate-case@example.invalid"])?;
+    zrbtchf_kc_git(
+        scratch,
+        &["config", "--local", "user.name", "currency-gate-case"],
+    )?;
+    zrbtchf_kc_git(
+        scratch,
+        &[
+            "config",
+            "--local",
+            "user.email",
+            "currency-gate-case@example.invalid",
+        ],
+    )?;
     zrbtchf_kc_git(scratch, &["config", "--local", "commit.gpgsign", "false"])?;
     zrbtchf_kc_git(scratch, &["add", "--all"])?;
     zrbtchf_kc_git(scratch, &["commit", "--quiet", "--message", "baseline"])?;
@@ -1733,29 +2434,70 @@ fn zrbtchf_kc_stage(scratch: &Path) -> Result<String, String> {
 fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let scratch = dir.join(RBTCHF_KC_SCRATCH_DIR);
     let sha = match zrbtchf_kc_stage(&scratch) {
         Ok(s) => s,
-        Err(e) => return rbtcee_Verdict::Fail(format!("{}: staging: {}", label, e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "{}: staging: {}",
+                label,
+                e, //
+            ));
+        }
     };
     let edit_path = scratch
         .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
         .join(crate::rbtgec_consts::RBTGEC_VESSELS_SUBDIR)
         .join(edit_rel);
     let appended = std::fs::read_to_string(&edit_path)
-        .map_err(|e| format!("read {}: {}", edit_path.display(), e))
+        .map_err(|e| {
+            format!(
+                "read {}: {}",
+                edit_path.display(),
+                e, //
+            )
+        })
         .and_then(|body| {
-            std::fs::write(&edit_path, format!("{}{}", body, RBTCHF_KC_EDIT_LINE))
-                .map_err(|e| format!("write {}: {}", edit_path.display(), e))
+            std::fs::write(
+                &edit_path,
+                format!(
+                    "{}{}",
+                    body,
+                    RBTCHF_KC_EDIT_LINE, //
+                ),
+            )
+            .map_err(|e| {
+                format!(
+                    "write {}: {}",
+                    edit_path.display(),
+                    e, //
+                )
+            })
         });
     if let Err(e) = appended {
-        return rbtcee_Verdict::Fail(format!("{}: edit: {}", label, e));
+        return rbtcee_Verdict::Fail(format!(
+            "{}: edit: {}",
+            label,
+            e, //
+        ));
     }
-    let committed = zrbtchf_kc_git(&scratch, &["commit", "--quiet", "--all", "--message", "edit"]);
+    let committed = zrbtchf_kc_git(
+        &scratch,
+        &["commit", "--quiet", "--all", "--message", "edit"],
+    );
     if let Err(e) = committed {
-        return rbtcee_Verdict::Fail(format!("{}: edit commit: {}", label, e));
+        return rbtcee_Verdict::Fail(format!(
+            "{}: edit commit: {}",
+            label,
+            e, //
+        ));
     }
 
     let dir_p = rbtcep_native_to_posix(dir);
@@ -1825,7 +2567,7 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
         moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
         vessel = RBTCHF_KC_PIN_VESSEL,
         stamp = RBTCHF_KC_STAMP,
-        marker = RBTCHF_KC_RETURNED_MARKER,
+        marker = RBTCHF_KC_RETURNED_MARKER, //
     );
 
     match rbtchf_run_bash(&root, &script, dir, label) {
@@ -1835,13 +2577,18 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
                 if code == 0 || returned {
                     return rbtcee_Verdict::Fail(format!(
                         "{}: expected the gate to refuse a moved pin, got exit {} (returned marker: {})",
-                        label, code, returned
+                        label, code, returned, //
                     ));
                 }
-                if !stdout.contains(RBTCHF_KC_STALE_FRAGMENT) && !stderr.contains(RBTCHF_KC_STALE_FRAGMENT) {
+                if !stdout.contains(RBTCHF_KC_STALE_FRAGMENT)
+                    && !stderr.contains(RBTCHF_KC_STALE_FRAGMENT)
+                {
                     return rbtcee_Verdict::Fail(format!(
                         "{}: exit {} without the stale-pin fragment '{}':\nstderr:\n{}",
-                        label, code, RBTCHF_KC_STALE_FRAGMENT, stderr
+                        label,
+                        code,
+                        RBTCHF_KC_STALE_FRAGMENT,
+                        stderr, //
                     ));
                 }
                 return rbtcee_Verdict::Pass;
@@ -1849,12 +2596,16 @@ fn zrbtchf_kc_run(dir: &Path, label: &str, edit_rel: &str, expect_stale: bool) -
             if code != 0 || !returned {
                 return rbtcee_Verdict::Fail(format!(
                     "{}: expected the pin to read current, got exit {} (returned marker: {}):\nstderr:\n{}",
-                    label, code, returned, stderr
+                    label, code, returned, stderr, //
                 ));
             }
             rbtcee_Verdict::Pass
         }
-        Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "{}: {}",
+            label,
+            e, //
+        )),
     }
 }
 
@@ -1863,17 +2614,29 @@ fn rbtchf_kc_readme_leaves_current(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchf_kc_other_vessel_leaves_current(dir: &Path) -> rbtcee_Verdict {
-    let edit = format!("{}/{}", RBTCHF_KC_OTHER_VESSEL, RBTCHF_KC_DOCKERFILE);
+    let edit = format!(
+        "{}/{}",
+        RBTCHF_KC_OTHER_VESSEL,
+        RBTCHF_KC_DOCKERFILE, //
+    );
     zrbtchf_kc_run(dir, "kc-other-vessel-leaves-current", &edit, false)
 }
 
 fn rbtchf_kc_shared_context_stales(dir: &Path) -> rbtcee_Verdict {
-    let edit = format!("{}/{}", RBTCHF_KC_SHARED_CONTEXT, RBTCHF_KC_PAYLOAD);
+    let edit = format!(
+        "{}/{}",
+        RBTCHF_KC_SHARED_CONTEXT,
+        RBTCHF_KC_PAYLOAD, //
+    );
     zrbtchf_kc_run(dir, "kc-shared-context-stales", &edit, true)
 }
 
 fn rbtchf_kc_own_rbrv_stales(dir: &Path) -> rbtcee_Verdict {
-    let edit = format!("{}/{}", RBTCHF_KC_PIN_VESSEL, RBTGEC_RBRV_FILE);
+    let edit = format!(
+        "{}/{}",
+        RBTCHF_KC_PIN_VESSEL,
+        RBTGEC_RBRV_FILE, //
+    );
     zrbtchf_kc_run(dir, "kc-own-rbrv-stales", &edit, true)
 }
 
@@ -1895,7 +2658,12 @@ fn rbtchf_kc_own_rbrv_stales(dir: &Path) -> rbtcee_Verdict {
 fn rbtchf_cb_no_tool_decline(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let buc = root.join(RBTCHF_BUC_COMMAND);
 
@@ -1906,18 +2674,26 @@ fn rbtchf_cb_no_tool_decline(dir: &Path) -> rbtcee_Verdict {
         "set -euo pipefail\nsource '{}'\nPATH=''\n\
          buc_clipboard_copy_predicate 'clip-sample' && exit 1\n\
          test -z \"${{z_buc_clipboard_tool:-}}\" || exit 2\nexit 0",
-        rbtcep_native_to_posix(&buc),
+        rbtcep_native_to_posix(&buc), //
     );
 
     match rbtchf_run_bash(&root, &script, dir, "cb-no-tool-decline") {
         Ok((0, _, _)) => rbtcee_Verdict::Pass,
         Ok((1, _, _)) => rbtcee_Verdict::Fail(
-            "cb-no-tool-decline: predicate claimed success with PATH emptied".to_string()),
+            "cb-no-tool-decline: predicate claimed success with PATH emptied".to_string(),
+        ),
         Ok((2, _, _)) => rbtcee_Verdict::Fail(
-            "cb-no-tool-decline: z_buc_clipboard_tool non-empty with no tool present".to_string()),
+            "cb-no-tool-decline: z_buc_clipboard_tool non-empty with no tool present".to_string(),
+        ),
         Ok((code, _, stderr)) => rbtcee_Verdict::Fail(format!(
-            "cb-no-tool-decline: unexpected exit {} (predicate died?): {}", code, stderr)),
-        Err(e) => rbtcee_Verdict::Fail(format!("cb-no-tool-decline: {}", e)),
+            "cb-no-tool-decline: unexpected exit {} (predicate died?): {}",
+            code,
+            stderr, //
+        )),
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "cb-no-tool-decline: {}",
+            e, //
+        )),
     }
 }
 
@@ -1933,23 +2709,36 @@ fn rbtchf_cb_round_trip(dir: &Path) -> rbtcee_Verdict {
 
     let mut clipboard = match arboard::Clipboard::new() {
         Ok(c) => c,
-        Err(e) => return rbtcee_Verdict::Skip(format!("no clipboard context: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Skip(format!(
+                "no clipboard context: {}",
+                e, //
+            ));
+        }
     };
     // Save the operator's clipboard text for restore; Err means empty or
     // non-text (an image cannot be saved through the text API).
     let prior = clipboard.get_text().ok();
 
-    let sentinel = format!("clip-{}", std::process::id());
+    let sentinel = format!(
+        "clip-{}",
+        std::process::id(), //
+    );
 
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let buc = root.join(RBTCHF_BUC_COMMAND);
     let script = format!(
         "set -euo pipefail\nsource '{}'\nbuc_clipboard_copy_predicate '{}'",
         rbtcep_native_to_posix(&buc),
-        sentinel,
+        sentinel, //
     );
 
     match rbtchf_run_bash(&root, &script, dir, "cb-round-trip") {
@@ -1958,9 +2747,16 @@ fn rbtchf_cb_round_trip(dir: &Path) -> rbtcee_Verdict {
             // No bash-side tool (or the tool declined) — the display-only
             // degradation environment, not a failure of the predicate.
             return rbtcee_Verdict::Skip(
-                "no bash-side clipboard tool present (or copy declined) — display-only environment".to_string());
+                "no bash-side clipboard tool present (or copy declined) — display-only environment"
+                    .to_string(),
+            );
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("cb-round-trip: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cb-round-trip: {}",
+                e, //
+            ));
+        }
     }
 
     // Brief poll: some tools (wl-copy) serve the selection asynchronously.
@@ -1979,15 +2775,22 @@ fn rbtchf_cb_round_trip(dir: &Path) -> rbtcee_Verdict {
     // we could not read as text was already clobbered by the copy — clear
     // rather than leave test residue on the operator's clipboard.
     match prior {
-        Some(text) => { let _ = clipboard.set_text(text); }
-        None => { let _ = clipboard.clear(); }
+        Some(text) => {
+            let _ = clipboard.set_text(text);
+        }
+        None => {
+            let _ = clipboard.clear();
+        }
     }
 
     if seen == sentinel {
         rbtcee_Verdict::Pass
     } else {
         rbtcee_Verdict::Fail(format!(
-            "cb-round-trip: clipboard read back '{}' != sentinel '{}'", seen, sentinel))
+            "cb-round-trip: clipboard read back '{}' != sentinel '{}'",
+            seen,
+            sentinel, //
+        ))
     }
 }
 
@@ -2010,15 +2813,34 @@ fn rbtchf_rc_run(
 ) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
-    let keys_file = dir.join(format!("{}-keys.txt", label));
-    let body_file = dir.join(format!("{}-body.sh", label));
+    let keys_file = dir.join(format!(
+        "{}-keys.txt",
+        label, //
+    ));
+    let body_file = dir.join(format!(
+        "{}-body.sh",
+        label, //
+    ));
     if let Err(e) = std::fs::write(&keys_file, keys) {
-        return rbtcee_Verdict::Fail(format!("{}: write keys failed: {}", label, e));
+        return rbtcee_Verdict::Fail(format!(
+            "{}: write keys failed: {}",
+            label,
+            e, //
+        ));
     }
     if let Err(e) = std::fs::write(&body_file, body) {
-        return rbtcee_Verdict::Fail(format!("{}: write body failed: {}", label, e));
+        return rbtcee_Verdict::Fail(format!(
+            "{}: write body failed: {}",
+            label,
+            e, //
+        ));
     }
     let tinder = rbtchf_tinder_sources(&root);
     let spine = root.join(RBTCHF_RBLDS_SPINE);
@@ -2031,7 +2853,7 @@ fn rbtchf_rc_run(
         tinder,
         rbtcep_native_to_posix(&spine),
         rbtcep_native_to_posix(&keys_file),
-        rbtcep_native_to_posix(&body_file),
+        rbtcep_native_to_posix(&body_file), //
     );
 
     match rbtchf_run_bash(&root, &script, dir, label) {
@@ -2041,62 +2863,113 @@ fn rbtchf_rc_run(
             } else {
                 rbtcee_Verdict::Fail(format!(
                     "{}: expected exit {}, got {}\nstderr:\n{}",
-                    label, expect_code, code, stderr
+                    label,
+                    expect_code,
+                    code,
+                    stderr, //
                 ))
             }
         }
-        Err(e) => rbtcee_Verdict::Fail(format!("{}: {}", label, e)),
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "{}: {}",
+            label,
+            e, //
+        )),
     }
 }
 
 fn rbtchf_rc_accept_all_covered(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-all-covered",
-        "_RBGL_A\n_RBGL_B\n", "echo \"${_RBGL_A}\" \"${_RBGL_B}\"\n", 0)
+    rbtchf_rc_run(
+        dir,
+        "rc-accept-all-covered",
+        "_RBGL_A\n_RBGL_B\n",
+        "echo \"${_RBGL_A}\" \"${_RBGL_B}\"\n",
+        0,
+    )
 }
 
 fn rbtchf_rc_reject_missing_key(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-reject-missing-key",
-        "_RBGL_A\n", "echo \"${_RBGL_B}\"\n", RBTGEB_RECIPE_DENTIL)
+    rbtchf_rc_run(
+        dir,
+        "rc-reject-missing-key",
+        "_RBGL_A\n",
+        "echo \"${_RBGL_B}\"\n",
+        RBTGEB_RECIPE_DENTIL,
+    )
 }
 
 fn rbtchf_rc_accept_comment_only(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-comment-only",
-        "_RBGL_A\n", "# uses _RBGL_ABSENT\necho \"${_RBGL_A}\"\n", 0)
+    rbtchf_rc_run(
+        dir,
+        "rc-accept-comment-only",
+        "_RBGL_A\n",
+        "# uses _RBGL_ABSENT\necho \"${_RBGL_A}\"\n",
+        0,
+    )
 }
 
 fn rbtchf_rc_reject_substring(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-reject-substring",
-        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG}\"\n", RBTGEB_RECIPE_DENTIL)
+    rbtchf_rc_run(
+        dir,
+        "rc-reject-substring",
+        "_RBGL_TAG_BOLE\n",
+        "echo \"${_RBGL_TAG}\"\n",
+        RBTGEB_RECIPE_DENTIL,
+    )
 }
 
 fn rbtchf_rc_accept_substring_real(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-substring-real",
-        "_RBGL_TAG_BOLE\n", "echo \"${_RBGL_TAG_BOLE}\"\n", 0)
+    rbtchf_rc_run(
+        dir,
+        "rc-accept-substring-real",
+        "_RBGL_TAG_BOLE\n",
+        "echo \"${_RBGL_TAG_BOLE}\"\n",
+        0,
+    )
 }
 
 fn rbtchf_rc_accept_no_refs(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-no-refs",
-        "_RBGL_A\n", "echo hello world\n", 0)
+    rbtchf_rc_run(
+        dir,
+        "rc-accept-no-refs",
+        "_RBGL_A\n",
+        "echo hello world\n",
+        0,
+    )
 }
 
 fn rbtchf_rc_accept_multi_token(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-multi-token",
-        "_RBGL_A\n_RBGL_B\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", 0)
+    rbtchf_rc_run(
+        dir,
+        "rc-accept-multi-token",
+        "_RBGL_A\n_RBGL_B\n",
+        "X=\"${_RBGL_A}/${_RBGL_B}\"\n",
+        0,
+    )
 }
 
 fn rbtchf_rc_reject_multi_second(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-reject-multi-second",
-        "_RBGL_A\n", "X=\"${_RBGL_A}/${_RBGL_B}\"\n", RBTGEB_RECIPE_DENTIL)
+    rbtchf_rc_run(
+        dir,
+        "rc-reject-multi-second",
+        "_RBGL_A\n",
+        "X=\"${_RBGL_A}/${_RBGL_B}\"\n",
+        RBTGEB_RECIPE_DENTIL,
+    )
 }
 
 fn rbtchf_rc_accept_empty_keys(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-accept-empty-keys",
-        "", "echo hello\n", 0)
+    rbtchf_rc_run(dir, "rc-accept-empty-keys", "", "echo hello\n", 0)
 }
 
 fn rbtchf_rc_reject_empty_keys_ref(dir: &Path) -> rbtcee_Verdict {
-    rbtchf_rc_run(dir, "rc-reject-empty-keys-ref",
-        "", "echo \"${_RBGL_A}\"\n", RBTGEB_RECIPE_DENTIL)
+    rbtchf_rc_run(
+        dir,
+        "rc-reject-empty-keys-ref",
+        "",
+        "echo \"${_RBGL_A}\"\n",
+        RBTGEB_RECIPE_DENTIL,
+    )
 }
 
 // ── Case arrays ─────────────────────────────────────────────
@@ -2148,13 +3021,13 @@ pub static RBTCHF_CASES_ENROLLMENT_VALIDATION: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_ev_report_all_pass),
     rbtcee_case!(rbtchf_ev_report_mixed),
     rbtcee_case!(rbtchf_ev_report_gated),
-    rbtcee_case!(rbtchf_ev_multiscope),
+    rbtcee_case!(rbtchf_ev_multiscope), //
 ];
 
 pub static RBTCHF_CASES_REGIME_VALIDATION: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_rv_rbrr_repo),
     rbtcee_case!(rbtchf_rv_rbrv_all_vessels),
-    rbtcee_case!(rbtchf_rv_rbrn_all_nameplates),
+    rbtcee_case!(rbtchf_rv_rbrn_all_nameplates), //
 ];
 
 pub static RBTCHF_CASES_REGIME_SMOKE: &[rbtcee_Case] = &[
@@ -2167,7 +3040,7 @@ pub static RBTCHF_CASES_REGIME_SMOKE: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_rs_rbrp),
     rbtcee_case!(rbtchf_rs_burd),
     rbtcee_case!(rbtchf_rs_unmake_empty_arg_refusal),
-    rbtcee_case!(rbtchf_rs_credless_guard_mint_refusal),
+    rbtcee_case!(rbtchf_rs_credless_guard_mint_refusal), //
 ];
 
 // ── Fixture statics ──────────────────────────────────────────
@@ -2179,7 +3052,11 @@ pub static RBTCHF_FIXTURE_ENROLLMENT_VALIDATION: rbtcee_Fixture = rbtcee_Fixture
     teardown: None,
     cases: RBTCHF_CASES_ENROLLMENT_VALIDATION,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(0),
+    },
 };
 
 pub static RBTCHF_FIXTURE_REGIME_VALIDATION: rbtcee_Fixture = rbtcee_Fixture {
@@ -2189,7 +3066,11 @@ pub static RBTCHF_FIXTURE_REGIME_VALIDATION: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_REGIME_VALIDATION,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(30), invocations: Some(19) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(30),
+        invocations: Some(19),
+    },
 };
 
 pub static RBTCHF_FIXTURE_REGIME_SMOKE: rbtcee_Fixture = rbtcee_Fixture {
@@ -2199,7 +3080,11 @@ pub static RBTCHF_FIXTURE_REGIME_SMOKE: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_REGIME_SMOKE,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: Some(2), max_secs: Some(60), invocations: Some(47) },
+    tariff: rbtcee_Tariff {
+        min_secs: Some(2),
+        max_secs: Some(60),
+        invocations: Some(47),
+    },
 };
 
 pub static RBTCHF_CASES_DOCKERFILE_HYGIENE: &[rbtcee_Case] = &[
@@ -2211,7 +3096,7 @@ pub static RBTCHF_CASES_DOCKERFILE_HYGIENE: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_dh_reject_hardcoded_literal),
     rbtcee_case!(rbtchf_dh_reject_tab_in_from),
     rbtcee_case!(rbtchf_dh_reject_trailing_backslash),
-    rbtcee_case!(rbtchf_dh_all_vessels_pass),
+    rbtcee_case!(rbtchf_dh_all_vessels_pass), //
 ];
 
 pub static RBTCHF_FIXTURE_DOCKERFILE_HYGIENE: rbtcee_Fixture = rbtcee_Fixture {
@@ -2221,7 +3106,11 @@ pub static RBTCHF_FIXTURE_DOCKERFILE_HYGIENE: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_DOCKERFILE_HYGIENE,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(20), invocations: Some(19) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(20),
+        invocations: Some(19),
+    },
 };
 
 pub static RBTCHF_CASES_FOUNDRY_PATH: &[rbtcee_Case] = &[
@@ -2234,7 +3123,7 @@ pub static RBTCHF_CASES_FOUNDRY_PATH: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_kc_readme_leaves_current),
     rbtcee_case!(rbtchf_kc_other_vessel_leaves_current),
     rbtcee_case!(rbtchf_kc_shared_context_stales),
-    rbtcee_case!(rbtchf_kc_own_rbrv_stales),
+    rbtcee_case!(rbtchf_kc_own_rbrv_stales), //
 ];
 
 pub static RBTCHF_FIXTURE_FOUNDRY_PATH: rbtcee_Fixture = rbtcee_Fixture {
@@ -2244,12 +3133,16 @@ pub static RBTCHF_FIXTURE_FOUNDRY_PATH: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_FOUNDRY_PATH,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(0),
+    },
 };
 
 pub static RBTCHF_CASES_CLIPBOARD: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_cb_no_tool_decline),
-    rbtcee_case!(rbtchf_cb_round_trip),
+    rbtcee_case!(rbtchf_cb_round_trip), //
 ];
 
 pub static RBTCHF_FIXTURE_CLIPBOARD: rbtcee_Fixture = rbtcee_Fixture {
@@ -2272,7 +3165,7 @@ pub static RBTCHF_CASES_RECIPE_VALIDATION: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_rc_accept_multi_token),
     rbtcee_case!(rbtchf_rc_reject_multi_second),
     rbtcee_case!(rbtchf_rc_accept_empty_keys),
-    rbtcee_case!(rbtchf_rc_reject_empty_keys_ref),
+    rbtcee_case!(rbtchf_rc_reject_empty_keys_ref), //
 ];
 
 pub static RBTCHF_FIXTURE_RECIPE_VALIDATION: rbtcee_Fixture = rbtcee_Fixture {
@@ -2282,7 +3175,11 @@ pub static RBTCHF_FIXTURE_RECIPE_VALIDATION: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_RECIPE_VALIDATION,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(0),
+    },
 };
 
 // ── Podvm-resolve cases ─────────────────────────────────────
@@ -2293,49 +3190,62 @@ pub static RBTCHF_FIXTURE_RECIPE_VALIDATION: rbtcee_Fixture = rbtcee_Fixture {
 // never loads credentials nor fires a build, so the reveille tier drives it
 // directly with no test seam.
 
-fn rbtchf_pr_invoke(
-    dir: &Path,
-    label: &str,
-    args: &[&str],
-) -> Result<String, rbtcee_Verdict> {
+fn rbtchf_pr_invoke(dir: &Path, label: &str, args: &[&str]) -> Result<String, rbtcee_Verdict> {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return Err(rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e))),
+        Err(e) => {
+            return Err(rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            )));
+        }
     };
     let tt = match rbtcei_find_tabtarget_global(&root, RBTGEC_PRESAGE_IMMURE) {
         Ok(p) => p,
         Err(e) => return Err(rbtcee_Verdict::Fail(e)),
     };
     let mut cmd = rbtdri_rooted_tabtarget_command(&tt, dir).map_err(rbtcee_Verdict::Fail)?;
-    let output = match cmd
-        .args(args)
-        .current_dir(&root)
-        .output()
-    {
+    let output = match cmd.args(args).current_dir(&root).output() {
         Ok(o) => o,
         Err(e) => {
             return Err(rbtcee_Verdict::Fail(format!(
                 "{}: failed to run {}: {}",
                 label,
                 tt.display(),
-                e
+                e, //
             )));
         }
     };
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
     let stderr = String::from_utf8_lossy(&output.stderr).into_owned();
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label)), &stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label)), &stderr);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &stderr,
+    );
     if !output.status.success() {
         return Err(rbtcee_Verdict::Fail(format!(
             "{}: presage exited nonzero ({:?})\ncombined output:\n{}{}",
             label,
             output.status.code(),
             stdout,
-            stderr
+            stderr, //
         )));
     }
-    Ok(format!("{}{}", stdout, stderr))
+    Ok(format!(
+        "{}{}",
+        stdout,
+        stderr, //
+    ))
 }
 
 fn rbtchf_podvm_resolve(dir: &Path) -> rbtcee_Verdict {
@@ -2348,7 +3258,7 @@ fn rbtchf_podvm_resolve(dir: &Path) -> rbtcee_Verdict {
     if !combined_native.contains(needle_native) {
         return rbtcee_Verdict::Fail(format!(
             "podvm-native mapping not found in output\nexpected substring: {}\ncombined output:\n{}",
-            needle_native, combined_native
+            needle_native, combined_native, //
         ));
     }
 
@@ -2361,16 +3271,15 @@ fn rbtchf_podvm_resolve(dir: &Path) -> rbtcee_Verdict {
     if !combined_wsl.contains(needle_wsl) {
         return rbtcee_Verdict::Fail(format!(
             "podvm-wsl mapping not found in output\nexpected substring: {}\ncombined output:\n{}",
-            needle_wsl, combined_wsl
+            needle_wsl,
+            combined_wsl, //
         ));
     }
 
     rbtcee_Verdict::Pass
 }
 
-pub static RBTCHF_CASES_PODVM_RESOLVE: &[rbtcee_Case] = &[
-    rbtcee_case!(rbtchf_podvm_resolve),
-];
+pub static RBTCHF_CASES_PODVM_RESOLVE: &[rbtcee_Case] = &[rbtcee_case!(rbtchf_podvm_resolve)];
 
 pub static RBTCHF_FIXTURE_PODVM_RESOLVE: rbtcee_Fixture = rbtcee_Fixture {
     name: RBTCEM_FIXTURE_PODVM_RESOLVE,
@@ -2379,5 +3288,9 @@ pub static RBTCHF_FIXTURE_PODVM_RESOLVE: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHF_CASES_PODVM_RESOLVE,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(2) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(2),
+    },
 };

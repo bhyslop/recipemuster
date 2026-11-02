@@ -32,7 +32,10 @@
 // `quiet-hush` is a member of no suite: its two cases are levels of
 // the chain, meaningful only where the chain reaches them.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::rbtccc_crucible::rbtccc_with_ctx;
 use crate::rbtcee_case;
@@ -41,10 +44,16 @@ use crate::rbtcee_engine::{
     rbtcee_Disposition,
     rbtcee_Fixture,
     rbtcee_Tariff,
-    rbtcee_Verdict,
+    rbtcee_Verdict, //
 };
-use crate::rbtcei_invocation::{rbtcei_invoke_global, rbtcei_InvokeResult};
-use crate::rbtcep_platform::{rbtcep_native_to_posix, rbtcep_posix_to_native};
+use crate::rbtcei_invocation::{
+    rbtcei_InvokeResult,
+    rbtcei_invoke_global, //
+};
+use crate::rbtcep_platform::{
+    rbtcep_native_to_posix,
+    rbtcep_posix_to_native, //
+};
 use crate::rbtgeb_breviary::RBTGEB_BUSX_ENROLL_DENTIL;
 use crate::rbtgec_consts::RBTGEC_THEURGE_CASE;
 
@@ -57,7 +66,10 @@ pub const RBTDRY_NAME_QUIET_HUSH: &str = "quiet-hush";
 const ZRBTDRY_CONTROL: &str = "QUOBRY_PLANTED";
 
 /// The hand-offs a process below a CLI holds (BUr_q2m).
-const ZRBTDRY_HANDED: &[&str] = &["BURD_BURD_FILE", "BURD_BUK_DIR"];
+const ZRBTDRY_HANDED: &[&str] = &[
+    "BURD_BURD_FILE",
+    "BURD_BUK_DIR", //
+];
 
 /// The environment regime's family: ambient at every level, stripped by nothing.
 const ZRBTDRY_AMBIENT: &str = "BURE_";
@@ -81,7 +93,7 @@ const ZRBTDRY_FAMILIES: &[&str] = &[
     "RBRR_",
     "RBRV_",
     "RBRW_",
-    "VOM_",
+    "VOM_", //
 ];
 
 /// The planted refusal: a config-regime name carrying a valid value, so the
@@ -105,7 +117,10 @@ const ZRBTDRY_CASE_LEAF: &str = stringify!(rbtdry_hush_leaf);
 
 /// The file a level records its exported names into.
 fn zrbtdry_reading_path(dir: &Path, level: &str) -> PathBuf {
-    dir.join(format!("exported-{}.txt", level))
+    dir.join(format!(
+        "exported-{}.txt",
+        level, //
+    ))
 }
 
 /// Record this process's exported names, one per line, into the directory the
@@ -115,7 +130,8 @@ fn zrbtdry_record(level: &str) -> Result<(), String> {
     let pointer = std::env::var(ZRBTDRY_CONTROL).map_err(|_| {
         format!(
             "{} is not in this level's environment — the hush levels run only beneath {}'s chain",
-            ZRBTDRY_CONTROL, RBTDRY_NAME_ENVIRONMENT_QUIET
+            ZRBTDRY_CONTROL,
+            RBTDRY_NAME_ENVIRONMENT_QUIET, //
         )
     })?;
     let dir = rbtcep_posix_to_native(&pointer)?;
@@ -124,27 +140,57 @@ fn zrbtdry_record(level: &str) -> Result<(), String> {
         .collect();
     names.sort();
     let path = zrbtdry_reading_path(&dir, level);
-    std::fs::write(&path, format!("{}\n", names.join("\n")))
-        .map_err(|e| format!("cannot write the reading {}: {}", path.display(), e))
+    std::fs::write(
+        &path,
+        format!(
+            "{}\n",
+            names.join("\n"), //
+        ),
+    )
+    .map_err(|e| {
+        format!(
+            "cannot write the reading {}: {}",
+            path.display(),
+            e, //
+        )
+    })
 }
 
 /// The names a level recorded.
 fn zrbtdry_reading(dir: &Path, level: &str) -> Result<Vec<String>, String> {
     let path = zrbtdry_reading_path(dir, level);
-    let text = std::fs::read_to_string(&path)
-        .map_err(|e| format!("nothing was recorded at {}: {}", path.display(), e))?;
-    Ok(text.lines().filter(|l| !l.is_empty()).map(str::to_string).collect())
+    let text = std::fs::read_to_string(&path).map_err(|e| {
+        format!(
+            "nothing was recorded at {}: {}",
+            path.display(),
+            e, //
+        )
+    })?;
+    Ok(text
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(str::to_string)
+        .collect())
 }
 
 /// A reading holds the planted control and the hand-offs, and no other name of
 /// the kit, rb's regimes or the census save the environment regime's.
 fn zrbtdry_quiet(level: &str, names: &[String]) -> Result<(), String> {
     if !names.iter().any(|n| n == ZRBTDRY_CONTROL) {
-        return Err(format!("the {} reading misses the planted control: {:?}", level, names));
+        return Err(format!(
+            "the {} reading misses the planted control: {:?}",
+            level,
+            names, //
+        ));
     }
     for held in ZRBTDRY_HANDED {
         if !names.iter().any(|n| n == held) {
-            return Err(format!("the {} reading does not hold {}: {:?}", level, held, names));
+            return Err(format!(
+                "the {} reading does not hold {}: {:?}",
+                level,
+                held,
+                names, //
+            ));
         }
     }
     let stray: Vec<&String> = names
@@ -153,7 +199,11 @@ fn zrbtdry_quiet(level: &str, names: &[String]) -> Result<(), String> {
         .filter(|n| !n.starts_with(ZRBTDRY_AMBIENT) && !ZRBTDRY_HANDED.contains(&n.as_str()))
         .collect();
     if !stray.is_empty() {
-        return Err(format!("the {} reading holds {:?} exported", level, stray));
+        return Err(format!(
+            "the {} reading holds {:?} exported",
+            level,
+            stray, //
+        ));
     }
     Ok(())
 }
@@ -178,14 +228,23 @@ fn zrbtdry_drive(case: &str, planted: &[(&str, &str)]) -> Result<rbtcei_InvokeRe
 
 /// What a drive said, both streams, for a refusal that names a miss.
 fn zrbtdry_said(result: &rbtcei_InvokeResult) -> String {
-    format!("--- stdout ---\n{}\n--- stderr ---\n{}", result.stdout, result.stderr)
+    format!(
+        "--- stdout ---\n{}\n--- stderr ---\n{}",
+        result.stdout,
+        result.stderr, //
+    )
 }
 
 /// The directory a case's levels record into, made fresh beneath the case.
 fn zrbtdry_readings_dir(dir: &Path) -> Result<PathBuf, String> {
     let readings = dir.join("readings");
-    std::fs::create_dir_all(&readings)
-        .map_err(|e| format!("cannot create {}: {}", readings.display(), e))?;
+    std::fs::create_dir_all(&readings).map_err(|e| {
+        format!(
+            "cannot create {}: {}",
+            readings.display(),
+            e, //
+        )
+    })?;
     Ok(readings)
 }
 
@@ -211,7 +270,7 @@ fn rbtdry_eq_chain(dir: &Path) -> rbtcee_Verdict {
             return Err(format!(
                 "the relay level exited {}\n{}",
                 result.exit_code,
-                zrbtdry_said(&result)
+                zrbtdry_said(&result), //
             ));
         }
         for level in [ZRBTDRY_LEVEL_RELAY, ZRBTDRY_LEVEL_LEAF] {
@@ -229,19 +288,29 @@ fn rbtdry_eq_refused(dir: &Path) -> rbtcee_Verdict {
         let pointer = rbtcep_native_to_posix(&readings);
         let result = zrbtdry_drive(
             ZRBTDRY_CASE_LEAF,
-            &[(ZRBTDRY_CONTROL, &pointer), (ZRBTDRY_REFUSED_NAME, ZRBTDRY_REFUSED_VALUE)],
+            &[
+                (ZRBTDRY_CONTROL, &pointer),
+                (ZRBTDRY_REFUSED_NAME, ZRBTDRY_REFUSED_VALUE),
+            ],
         )?;
         let said = zrbtdry_said(&result);
         let _ = std::fs::write(dir.join("refused-said.txt"), &said);
         if result.exit_code != RBTGEB_BUSX_ENROLL_DENTIL {
             return Err(format!(
                 "{} planted exported: expected exit {}, got {}\n{}",
-                ZRBTDRY_REFUSED_NAME, RBTGEB_BUSX_ENROLL_DENTIL, result.exit_code, said
+                ZRBTDRY_REFUSED_NAME,
+                RBTGEB_BUSX_ENROLL_DENTIL,
+                result.exit_code,
+                said, //
             ));
         }
         for needle in [ZRBTDRY_RULE, ZRBTDRY_REFUSED_NAME] {
             if !said.contains(needle) {
-                return Err(format!("the refusal does not name '{}'\n{}", needle, said));
+                return Err(format!(
+                    "the refusal does not name '{}'\n{}",
+                    needle,
+                    said, //
+                ));
             }
         }
         Ok(())
@@ -259,7 +328,7 @@ fn rbtdry_hush_relay(_dir: &Path) -> rbtcee_Verdict {
             return Err(format!(
                 "the leaf level exited {}\n{}",
                 result.exit_code,
-                zrbtdry_said(&result)
+                zrbtdry_said(&result), //
             ));
         }
         Ok(())
@@ -275,12 +344,12 @@ fn rbtdry_hush_leaf(_dir: &Path) -> rbtcee_Verdict {
 
 pub static RBTDRY_CASES_ENVIRONMENT_QUIET: &[rbtcee_Case] = &[
     rbtcee_case!(rbtdry_eq_chain),
-    rbtcee_case!(rbtdry_eq_refused),
+    rbtcee_case!(rbtdry_eq_refused), //
 ];
 
 pub static RBTDRY_CASES_QUIET_HUSH: &[rbtcee_Case] = &[
     rbtcee_case!(rbtdry_hush_relay),
-    rbtcee_case!(rbtdry_hush_leaf),
+    rbtcee_case!(rbtdry_hush_leaf), //
 ];
 
 /// credless: a reveille member, so the guard rides every child launch — inert on
@@ -292,7 +361,11 @@ pub static RBTDRY_FIXTURE_ENVIRONMENT_QUIET: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTDRY_CASES_ENVIRONMENT_QUIET,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(2) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(2),
+    },
 };
 
 /// Reached only through the chain, one case at a time, so it carries no tariff.

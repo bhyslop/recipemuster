@@ -11,7 +11,10 @@
 // never hand-typed, so the artifacts always land beside the tree the lap was
 // launched from.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 
 use crate::rbvcer_run;
 
@@ -36,13 +39,17 @@ pub const RBVCEP_TACKROOM_SUBDIR: &str = "tackroom-buk";
 /// non-absolute — every derived path anchors on it, and the seposition guards
 /// compare against it.
 pub fn rbvcep_toplevel() -> PathBuf {
-    let cwd = std::env::current_dir()
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("cannot read working directory: {}", e));
+    let cwd = std::env::current_dir().unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "cannot read working directory: {}",
+            e, //
+        )
+    });
     let got = rbvcer_run::rbvcer_capture("git", &["rev-parse", "--show-toplevel"], &cwd);
     if got.code != 0 {
         crate::rbvcel_fatal!(
             "not inside a git repository — essai must run from the maintainer tree: {}",
-            got.stderr.trim()
+            got.stderr.trim(), //
         );
     }
     let top = got.stdout.trim();
@@ -51,7 +58,10 @@ pub fn rbvcep_toplevel() -> PathBuf {
     }
     let top = PathBuf::from(top);
     if !top.is_absolute() {
-        crate::rbvcel_fatal!("repository root is not an absolute path: {}", top.display());
+        crate::rbvcel_fatal!(
+            "repository root is not an absolute path: {}",
+            top.display(), //
+        );
     }
     top
 }
@@ -61,16 +71,24 @@ pub fn rbvcep_toplevel() -> PathBuf {
 /// worth stopping on, not something to lossily paper over into a subprocess arg.
 pub fn rbvcep_as_str(p: &Path) -> String {
     p.to_str()
-        .unwrap_or_else(|| crate::rbvcel_fatal!("path is not valid UTF-8: {}", p.display()))
+        .unwrap_or_else(|| {
+            crate::rbvcel_fatal!(
+                "path is not valid UTF-8: {}",
+                p.display(), //
+            )
+        })
         .to_string()
 }
 
 /// The parent directory the sibling artifacts land in. Fatal if the root has no
 /// parent.
 pub fn rbvcep_parent(top: &Path) -> PathBuf {
-    top.parent()
-        .map(|p| p.to_path_buf())
-        .unwrap_or_else(|| crate::rbvcel_fatal!("repository root has no parent: {}", top.display()))
+    top.parent().map(|p| p.to_path_buf()).unwrap_or_else(|| {
+        crate::rbvcel_fatal!(
+            "repository root has no parent: {}",
+            top.display(), //
+        )
+    })
 }
 
 /// Sepose a directory: dispose of it by RENAME to a timestamped sibling — never
@@ -82,24 +100,36 @@ pub fn rbvcep_sepose(dir: &Path, cwd: &Path) -> bool {
     if !dir.exists() {
         return false;
     }
-    let base = dir
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or_else(|| crate::rbvcel_fatal!("cannot read basename of {}", dir.display()));
+    let base = dir.file_name().and_then(|n| n.to_str()).unwrap_or_else(|| {
+        crate::rbvcel_fatal!(
+            "cannot read basename of {}",
+            dir.display(), //
+        )
+    });
     let stamp = rbvcer_run::rbvcer_timestamp(cwd);
-    let seposed = dir.with_file_name(format!("{}.seposed-{}", base, stamp));
+    let seposed = dir.with_file_name(format!(
+        "{}.seposed-{}",
+        base,
+        stamp, //
+    ));
     if seposed.exists() {
-        crate::rbvcel_fatal!("seposition target already exists: {}", seposed.display());
+        crate::rbvcel_fatal!(
+            "seposition target already exists: {}",
+            seposed.display(), //
+        );
     }
     std::fs::rename(dir, &seposed).unwrap_or_else(|e| {
         crate::rbvcel_fatal!(
             "failed to sepose {} -> {}: {}",
             dir.display(),
             seposed.display(),
-            e
+            e, //
         )
     });
-    crate::rbvcel_log::rbvcel_line(&format!("seposed prior: {}", seposed.display()));
+    crate::rbvcel_log::rbvcel_line(&format!(
+        "seposed prior: {}",
+        seposed.display(), //
+    ));
     true
 }
 
@@ -113,13 +143,13 @@ pub fn rbvcep_guard_disposable(dir: &Path, expected_basename: &str, top: &Path) 
         crate::rbvcel_fatal!(
             "refusing to dispose {} — its basename is not '{}'",
             dir.display(),
-            expected_basename
+            expected_basename, //
         );
     }
     if dir == top {
         crate::rbvcel_fatal!(
             "refusing to dispose {} — it is the maintainer repository root",
-            dir.display()
+            dir.display(), //
         );
     }
 }
@@ -132,11 +162,18 @@ pub fn rbvcep_tree_hash(dir: &Path, cwd: &Path) -> String {
     let dir_str = rbvcep_as_str(dir);
     let got = rbvcer_run::rbvcer_capture("git", &["-C", &dir_str, "rev-parse", "HEAD^{tree}"], cwd);
     if got.code != 0 {
-        crate::rbvcel_fatal!("failed to read the tree hash of {}:\n{}", dir.display(), got.stderr.trim());
+        crate::rbvcel_fatal!(
+            "failed to read the tree hash of {}:\n{}",
+            dir.display(),
+            got.stderr.trim(), //
+        );
     }
     let hash = got.stdout.trim().to_string();
     if hash.is_empty() {
-        crate::rbvcel_fatal!("git rev-parse HEAD^{{tree}} in {} returned empty", dir.display());
+        crate::rbvcel_fatal!(
+            "git rev-parse HEAD^{{tree}} in {} returned empty",
+            dir.display(), //
+        );
     }
     hash
 }
@@ -147,11 +184,18 @@ pub fn rbvcep_commit_sha(dir: &Path, cwd: &Path) -> String {
     let dir_str = rbvcep_as_str(dir);
     let got = rbvcer_run::rbvcer_capture("git", &["-C", &dir_str, "rev-parse", "HEAD"], cwd);
     if got.code != 0 {
-        crate::rbvcel_fatal!("failed to read the commit SHA of {}:\n{}", dir.display(), got.stderr.trim());
+        crate::rbvcel_fatal!(
+            "failed to read the commit SHA of {}:\n{}",
+            dir.display(),
+            got.stderr.trim(), //
+        );
     }
     let sha = got.stdout.trim().to_string();
     if sha.is_empty() {
-        crate::rbvcel_fatal!("git rev-parse HEAD in {} returned empty", dir.display());
+        crate::rbvcel_fatal!(
+            "git rev-parse HEAD in {} returned empty",
+            dir.display(), //
+        );
     }
     sha
 }
@@ -173,7 +217,11 @@ pub fn rbvcep_commit_sha(dir: &Path, cwd: &Path) -> String {
 pub fn rbvcep_ls_remote(url: &str, cwd: &Path) -> Vec<(String, String)> {
     let got = rbvcer_run::rbvcer_capture("git", &["ls-remote", url], cwd);
     if got.code != 0 {
-        crate::rbvcel_fatal!("git ls-remote {} failed:\n{}", url, got.stderr.trim());
+        crate::rbvcel_fatal!(
+            "git ls-remote {} failed:\n{}",
+            url,
+            got.stderr.trim(), //
+        );
     }
     got.stdout
         .lines()

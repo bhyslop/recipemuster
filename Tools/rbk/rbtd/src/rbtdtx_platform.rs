@@ -25,18 +25,32 @@
 use std::path::PathBuf;
 
 use crate::rbtcep_platform::{
-    rbtcep_cygdrive_to_native, rbtcep_drive_to_cygdrive, rbtcep_looks_native_windows,
-    rbtcep_native_to_posix_for, rbtcep_posix_to_native_for, rbtcep_repo_rel,
+    rbtcep_cygdrive_to_native,
+    rbtcep_drive_to_cygdrive,
+    rbtcep_looks_native_windows,
+    rbtcep_native_to_posix_for,
+    rbtcep_posix_to_native_for,
+    rbtcep_repo_rel, //
 };
 
 // ── Identity behaviour on non-Cygwin platforms ─────────────────────────
 
 #[test]
 fn rbttep_identity_posix_to_native_when_not_cygwin() {
-    let cases = ["/home/brad/projects/foo", "/tmp/x", "/cygdrive/c/foo", "relative/path"];
+    let cases = [
+        "/home/brad/projects/foo",
+        "/tmp/x",
+        "/cygdrive/c/foo",
+        "relative/path",
+    ];
     for c in cases {
         let got = rbtcep_posix_to_native_for(c, false).expect("non-cygwin should never error");
-        assert_eq!(got, PathBuf::from(c), "identity broken for {}", c);
+        assert_eq!(
+            got,
+            PathBuf::from(c),
+            "identity broken for {}",
+            c, //
+        );
     }
 }
 
@@ -45,7 +59,12 @@ fn rbttep_identity_native_to_posix_when_not_cygwin() {
     let cases = ["C:\\foo", "C:/foo", "/home/brad", "relative\\path"];
     for c in cases {
         let got = rbtcep_native_to_posix_for(c, false);
-        assert_eq!(got, c, "identity broken for {}", c);
+        assert_eq!(
+            got,
+            c,
+            "identity broken for {}",
+            c, //
+        );
     }
 }
 
@@ -55,13 +74,19 @@ fn rbttep_identity_native_to_posix_when_not_cygwin() {
 fn rbttep_repo_rel_strips_root() {
     use std::path::Path;
     let root = Path::new("/repo");
-    assert_eq!(rbtcep_repo_rel(root, Path::new("/repo/Tools/rbk/x.sh")), "Tools/rbk/x.sh");
+    assert_eq!(
+        rbtcep_repo_rel(root, Path::new("/repo/Tools/rbk/x.sh")),
+        "Tools/rbk/x.sh"
+    );
 }
 
 #[test]
 fn rbttep_repo_rel_non_child_passes_whole() {
     use std::path::Path;
-    assert_eq!(rbtcep_repo_rel(Path::new("/repo"), Path::new("/other/y.sh")), "/other/y.sh");
+    assert_eq!(
+        rbtcep_repo_rel(Path::new("/repo"), Path::new("/other/y.sh")),
+        "/other/y.sh"
+    );
 }
 
 #[test]
@@ -90,7 +115,10 @@ fn rbttep_cygdrive_to_native_basic() {
 #[test]
 fn rbttep_cygdrive_to_native_drive_only() {
     // /cygdrive/c (no trailing slash, no tail) → "C:"
-    assert_eq!(rbtcep_cygdrive_to_native("/cygdrive/c"), Some(PathBuf::from("C:")));
+    assert_eq!(
+        rbtcep_cygdrive_to_native("/cygdrive/c"),
+        Some(PathBuf::from("C:"))
+    );
 }
 
 #[test]
@@ -140,7 +168,10 @@ fn rbttep_drive_to_cygdrive_lowercases_drive() {
 
 #[test]
 fn rbttep_drive_to_cygdrive_drive_only() {
-    assert_eq!(rbtcep_drive_to_cygdrive("C:"), Some("/cygdrive/c".to_string()));
+    assert_eq!(
+        rbtcep_drive_to_cygdrive("C:"),
+        Some("/cygdrive/c".to_string())
+    );
 }
 
 #[test]
@@ -230,10 +261,14 @@ fn rbttep_round_trip_drive_paths() {
         "/cygdrive/z/x",
     ];
     for orig in originals {
-        let native = rbtcep_posix_to_native_for(orig, true)
-            .expect("/cygdrive uses fast path");
+        let native = rbtcep_posix_to_native_for(orig, true).expect("/cygdrive uses fast path");
         let native_str = native.to_string_lossy();
         let round = rbtcep_native_to_posix_for(&native_str, true);
-        assert_eq!(round, orig, "round-trip broke for {}", orig);
+        assert_eq!(
+            round,
+            orig,
+            "round-trip broke for {}",
+            orig, //
+        );
     }
 }

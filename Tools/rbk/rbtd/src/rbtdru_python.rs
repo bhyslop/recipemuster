@@ -34,20 +34,20 @@
 use std::collections::BTreeSet;
 use std::path::{
     Path,
-    PathBuf,
+    PathBuf, //
 };
 
 use crate::rbtchc_cupel::{
-    zrbtchc_is_gcb,
-    zrbtchc_walk_ext,
     zrbtchc_Finding,
     zrbtchc_ScanResult,
+    zrbtchc_is_gcb,
+    zrbtchc_walk_ext,
     ZRBTCHC_GCB_ALLOWED,
     ZRBTCHC_KIT_ROOTS,
     ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
     ZRBTCHC_POSIX_FLOOR,
     ZRBTCHC_PY_EXT,
-    ZRBTCHC_PY_IMPORT_ALLOWED,
+    ZRBTCHC_PY_IMPORT_ALLOWED, //
 };
 
 /// One lexical token of a python step body. The scanner needs identifiers
@@ -228,8 +228,9 @@ pub(crate) fn zrbtchy_py_scan(
                 file: rel.to_string(),
                 line: idx + 1,
                 command: "subprocess".to_string(),
-                detail: "from-import of subprocess — use subprocess.«fn»(…) so argv[0] stays scannable"
-                    .to_string(),
+                detail:
+                    "from-import of subprocess — use subprocess.«fn»(…) so argv[0] stays scannable"
+                        .to_string(),
             });
         }
     }
@@ -296,7 +297,12 @@ pub(crate) fn zrbtchy_py_scan(
 pub(crate) fn zrbtchy_scan_python(tools: &Path) -> Result<zrbtchc_ScanResult, String> {
     let mut files: Vec<PathBuf> = Vec::new();
     for kit in ZRBTCHC_KIT_ROOTS {
-        zrbtchc_walk_ext(&tools.join(kit), ZRBTCHC_PY_EXT, ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES, &mut files);
+        zrbtchc_walk_ext(
+            &tools.join(kit),
+            ZRBTCHC_PY_EXT,
+            ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
+            &mut files,
+        );
     }
     files.sort();
 
@@ -307,10 +313,22 @@ pub(crate) fn zrbtchy_scan_python(tools: &Path) -> Result<zrbtchc_ScanResult, St
         if !zrbtchc_is_gcb(path) {
             continue;
         }
-        let src = std::fs::read_to_string(path)
-            .map_err(|e| format!("read {} failed: {}", path.display(), e))?;
-        let rel = path.strip_prefix(root).unwrap_or(path).display().to_string();
+        let src = std::fs::read_to_string(path).map_err(|e| {
+            format!(
+                "read {} failed: {}",
+                path.display(),
+                e, //
+            )
+        })?;
+        let rel = path
+            .strip_prefix(root)
+            .unwrap_or(path)
+            .display()
+            .to_string();
         zrbtchy_py_scan(&src, &rel, &mut findings, &mut inventory);
     }
-    Ok(zrbtchc_ScanResult { findings, inventory })
+    Ok(zrbtchc_ScanResult {
+        findings,
+        inventory,
+    })
 }

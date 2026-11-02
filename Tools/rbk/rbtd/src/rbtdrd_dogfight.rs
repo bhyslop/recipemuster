@@ -43,18 +43,34 @@
 use std::path::Path;
 use std::process::Command;
 
-use crate::rbtcee_case;
 use crate::rbtccc_crucible::rbtccc_with_ctx;
-use crate::rbtcgp_patrol::{
-    rbtcgp_docker_config_label, rbtcgp_docker_inspect, RBTCGP_ARK_BASENAME_IMAGE,
-    RBTCGP_BUSYBOX_VESSEL_DIR,
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
 };
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
 use crate::rbtcei_invocation::{
-    rbtcei_gar_ref_fact, rbtcei_invoke_or_fail, rbtcei_ordain_capture_full, rbtcei_Context,
-    RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP,
+    rbtcei_Context,
+    rbtcei_gar_ref_fact,
+    rbtcei_invoke_or_fail,
+    rbtcei_ordain_capture_full,
+    RBTCEI_BURE_CONFIRM_KEY,
+    RBTCEI_BURE_CONFIRM_SKIP, //
 };
-use crate::rbtgec_consts::{RBTGEC_ABJURE_HALLMARK, RBTGEC_RBRV_FILE, RBTGEC_SUMMON_HALLMARK};
+use crate::rbtcgp_patrol::{
+    rbtcgp_docker_config_label,
+    rbtcgp_docker_inspect,
+    RBTCGP_ARK_BASENAME_IMAGE,
+    RBTCGP_BUSYBOX_VESSEL_DIR, //
+};
+use crate::rbtgec_consts::{
+    RBTGEC_ABJURE_HALLMARK,
+    RBTGEC_RBRV_FILE,
+    RBTGEC_SUMMON_HALLMARK, //
+};
 
 /// Container runtime for the bare executability proof. Hardcoded to docker;
 /// podman is deferred to the Director-governed runtime-regime decision that
@@ -75,7 +91,13 @@ fn rbtcgd_runtime_run(image_ref: &str, cmd: &str, dir: &Path) -> Result<(), Stri
     let output = Command::new(RBTCGD_RUNTIME)
         .args(["run", "--rm", image_ref, cmd])
         .output()
-        .map_err(|e| format!("{} run exec failed: {}", RBTCGD_RUNTIME, e))?;
+        .map_err(|e| {
+            format!(
+                "{} run exec failed: {}",
+                RBTCGD_RUNTIME,
+                e, //
+            )
+        })?;
     let _ = std::fs::write(dir.join("run-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("run-stderr.txt"), &output.stderr);
     if !output.status.success() {
@@ -85,7 +107,7 @@ fn rbtcgd_runtime_run(image_ref: &str, cmd: &str, dir: &Path) -> Result<(), Stri
             image_ref,
             cmd,
             output.status.code().unwrap_or(-1),
-            String::from_utf8_lossy(&output.stderr).trim()
+            String::from_utf8_lossy(&output.stderr).trim(), //
         ));
     }
     Ok(())
@@ -101,16 +123,31 @@ fn rbtcgd_vessel_field(
     vessel_dir: &str,
     key: &str,
 ) -> Result<String, String> {
-    let path = ctx.rbtcei_project_root().join(vessel_dir).join(RBTGEC_RBRV_FILE);
-    let body = std::fs::read_to_string(&path)
-        .map_err(|e| format!("read {}: {}", path.display(), e))?;
-    let prefix = format!("{}=", key);
+    let path = ctx
+        .rbtcei_project_root()
+        .join(vessel_dir)
+        .join(RBTGEC_RBRV_FILE);
+    let body = std::fs::read_to_string(&path).map_err(|e| {
+        format!(
+            "read {}: {}",
+            path.display(),
+            e, //
+        )
+    })?;
+    let prefix = format!(
+        "{}=",
+        key, //
+    );
     for line in body.lines() {
         if let Some(value) = line.trim().strip_prefix(&prefix) {
             return Ok(value.trim().trim_matches('"').to_owned());
         }
     }
-    Err(format!("{} not found in {}", key, path.display()))
+    Err(format!(
+        "{} not found in {}",
+        key,
+        path.display(), //
+    ))
 }
 
 // ── Case ─────────────────────────────────────────────────────
@@ -122,7 +159,10 @@ fn rbtcgd_build_run_lifecycle(dir: &Path) -> rbtcee_Verdict {
 fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdict {
     let vessel_dir = RBTCGP_BUSYBOX_VESSEL_DIR;
     if !ctx.rbtcei_project_root().join(vessel_dir).is_dir() {
-        return rbtcee_Verdict::Fail(format!("vessel directory not found: {}", vessel_dir));
+        return rbtcee_Verdict::Fail(format!(
+            "vessel directory not found: {}",
+            vessel_dir, //
+        ));
     }
 
     // Ordain (conjure-mode): build busybox into the standing depot, capturing
@@ -157,7 +197,7 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     if !rbtcgp_docker_inspect(&image_ref) {
         return rbtcee_Verdict::Fail(format!(
             "summon: image ark not local after pull: {}",
-            image_ref
+            image_ref, //
         ));
     }
 
@@ -167,21 +207,24 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     // rides the consumer image config byte-identically into the signed attest
     // image (RBr_b4e), so reading it off the locally summoned consumer image is
     // the same value without a registry round-trip.
-    let _ = std::fs::write(dir.join("03-resolved-base.txt"), "checking rbi_resolved_base_1");
+    let _ = std::fs::write(
+        dir.join("03-resolved-base.txt"),
+        "checking rbi_resolved_base_1",
+    );
     let label = match rbtcgp_docker_config_label(&image_ref, "rbi_resolved_base_1") {
         Ok(v) => v,
         Err(e) => {
             return rbtcee_Verdict::Fail(format!(
                 "resolved-base: docker inspect label failed: {}",
-                e
-            ))
+                e, //
+            ));
         }
     };
     let _ = std::fs::write(dir.join("03-resolved-base-label.txt"), &label);
     if label.is_empty() {
         return rbtcee_Verdict::Fail(format!(
             "resolved-base: rbi_resolved_base_1 absent on {} — write-side (rbgjb03/rbgjb04) regression",
-            image_ref
+            image_ref, //
         ));
     }
     let (ref_portion, digest) = match label.split_once("@sha256:") {
@@ -189,14 +232,18 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
         None => {
             return rbtcee_Verdict::Fail(format!(
                 "resolved-base: label not @sha256:-pinned: {}",
-                label
-            ))
+                label, //
+            ));
         }
     };
-    if digest.len() != 64 || !digest.bytes().all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f')) {
+    if digest.len() != 64
+        || !digest
+            .bytes()
+            .all(|b| matches!(b, b'0'..=b'9' | b'a'..=b'f'))
+    {
         return rbtcee_Verdict::Fail(format!(
             "resolved-base: malformed sha256 digest in label: {}",
-            label
+            label, //
         ));
     }
     // The ref-portion must equal the committed RBRV_IMAGE_1_ORIGIN with its tag
@@ -204,7 +251,12 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     // a provenance lie: the label names a base the vessel never committed.
     let committed_origin = match rbtcgd_vessel_field(ctx, vessel_dir, "RBRV_IMAGE_1_ORIGIN") {
         Ok(v) => v,
-        Err(e) => return rbtcee_Verdict::Fail(format!("resolved-base: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "resolved-base: {}",
+                e, //
+            ));
+        }
     };
     let expected_ref = committed_origin
         .rsplit_once(':')
@@ -213,7 +265,7 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     if ref_portion != expected_ref {
         return rbtcee_Verdict::Fail(format!(
             "resolved-base DIVERGENCE: label base '{}' != committed '{}' (RBRV_IMAGE_1_ORIGIN='{}')",
-            ref_portion, expected_ref, committed_origin
+            ref_portion, expected_ref, committed_origin, //
         ));
     }
 
@@ -222,7 +274,10 @@ fn zrbtcgd_build_run_lifecycle_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     // is runnable.
     let _ = std::fs::write(dir.join("04-run.txt"), "running degenerate command");
     if let Err(e) = rbtcgd_runtime_run(&image_ref, RBTCGD_PROOF_CMD, dir) {
-        return rbtcee_Verdict::Fail(format!("bare run executability proof: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "bare run executability proof: {}",
+            e, //
+        ));
     }
 
     // Abjure — remove the hallmark's arks, restoring the standing depot to its
@@ -256,5 +311,9 @@ pub static RBTCGD_FIXTURE_DOGFIGHT: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCGD_CASES_DOGFIGHT,
     credless: false,
-    tariff: rbtcee_Tariff { min_secs: Some(60), max_secs: Some(1800), invocations: None },
+    tariff: rbtcee_Tariff {
+        min_secs: Some(60),
+        max_secs: Some(1800),
+        invocations: None,
+    },
 };

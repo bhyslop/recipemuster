@@ -52,13 +52,22 @@ pub enum rbvcem_Disposition {
 impl fmt::Display for rbvcem_Disposition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            rbvcem_Disposition::Ship => write!(f, "ship"),
-            rbvcem_Disposition::Withhold => write!(f, "withhold"),
+            rbvcem_Disposition::Ship => write!(
+                f,
+                "ship", //
+            ),
+            rbvcem_Disposition::Withhold => write!(
+                f,
+                "withhold", //
+            ),
         }
     }
 }
 
-use rbvcem_Disposition::{Ship, Withhold};
+use rbvcem_Disposition::{
+    Ship,
+    Withhold, //
+};
 
 /// The perambulation — one row per judgment, the longest matching prefix wins.
 ///
@@ -153,8 +162,14 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     ("rbmm_moorings/bkd_weaned/", Withhold),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
-    ("rbmm_moorings/buml_launchers/launcher.buw_workbench.sh", Ship),
-    ("rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh", Ship),
+    (
+        "rbmm_moorings/buml_launchers/launcher.buw_workbench.sh",
+        Ship,
+    ),
+    (
+        "rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh",
+        Ship,
+    ),
     ("rbmm_moorings/buml_launchers/", Withhold),
     // The operator's own trees.
     ("Study/", Withhold),
@@ -182,12 +197,20 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // directory — so a consumer linting what ships needs this file in hand,
     // exactly as they need the channel above.
     ("clippy.toml", Ship),
+    // The formatter's settings at the root, on the pin's own argument. The
+    // format doors run rustfmt over every crate that ships, and rustfmt reads
+    // this file for them — so a consumer formatting what ships needs it in hand,
+    // or their tree drifts from the shape the shipped sources were cut in.
+    ("rustfmt.toml", Ship),
     // ROOT FILES THAT STAY BEHIND. RELEASE.md is the release-qualification
     // procedure, the rig's own runbook; the iml is IDE furniture; the gateway
-    // proposal is an unsettled internal design note.
+    // proposal is an unsettled internal design note. The blame-skip list names
+    // commits of this repository's own history, which the delivered tree's
+    // history does not hold, so every line of it would name nothing there.
     ("RELEASE.md", Withhold),
     ("brm_recipemuster.iml", Withhold),
-    ("podman-gateway-proposal.md", Withhold),
+    (".git-blame-ignore-revs", Withhold),
+    ("podman-gateway-proposal.md", Withhold), //
 ];
 
 /// Validate a table's structural invariants — the checks the bash table ran at
@@ -202,13 +225,15 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
 pub fn rbvcem_validate(rows: &[(&str, rbvcem_Disposition)]) -> Result<(), String> {
     for (i, (prefix, _)) in rows.iter().enumerate() {
         if prefix.is_empty() {
-            return Err("perambulation row with an empty prefix — it would match every path".to_string());
+            return Err(
+                "perambulation row with an empty prefix — it would match every path".to_string(),
+            );
         }
         for (other, _) in rows.iter().skip(i + 1) {
             if prefix == other {
                 return Err(format!(
                     "perambulation prefix '{}' is enrolled twice — equal-length rows would shadow by table order, which the longest-wins rule exists to abolish",
-                    prefix
+                    prefix, //
                 ));
             }
         }

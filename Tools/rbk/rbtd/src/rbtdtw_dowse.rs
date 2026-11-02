@@ -21,7 +21,10 @@
 // filename classifier must reject everything but theurge suite/fixture logs.
 
 use super::rbtccd_dowse::{
-    rbtccd_parse_log_name, rbtccd_parse_tariff_line, rbtccd_LogKind, rbtccd_Observation,
+    rbtccd_LogKind,
+    rbtccd_Observation,
+    rbtccd_parse_log_name,
+    rbtccd_parse_tariff_line, //
 };
 
 #[test]
@@ -67,7 +70,8 @@ fn rbttcd_rejects_drift_table_header() {
 
 #[test]
 fn rbttcd_rejects_declared_listing_line() {
-    let line = "[INFO] [src/main.rs:368] fixture 'regime-smoke' declared tariff: [min=2s max=60s inv=47]";
+    let line =
+        "[INFO] [src/main.rs:368] fixture 'regime-smoke' declared tariff: [min=2s max=60s inv=47]";
     assert_eq!(rbtccd_parse_tariff_line(line), None);
 }
 
@@ -75,7 +79,8 @@ fn rbttcd_rejects_declared_listing_line() {
 fn rbttcd_rejects_advisory_lines() {
     let too_fast = "[INFO] FAILED: regime-smoke tariff too-fast — elapsed 1s below declared min 2s (vacuous green)";
     let too_slow = "[INFO] WARNING: regime-smoke tariff too-slow — elapsed 99s above declared max 60s (advisory)";
-    let drift = "[INFO] WARNING: regime-smoke tariff count-drift — 3 invocations vs declared 47 (advisory)";
+    let drift =
+        "[INFO] WARNING: regime-smoke tariff count-drift — 3 invocations vs declared 47 (advisory)";
     assert_eq!(rbtccd_parse_tariff_line(too_fast), None);
     assert_eq!(rbtccd_parse_tariff_line(too_slow), None);
     assert_eq!(rbtccd_parse_tariff_line(drift), None);
@@ -83,7 +88,10 @@ fn rbttcd_rejects_advisory_lines() {
 
 #[test]
 fn rbttcd_rejects_tokenless_line() {
-    assert_eq!(rbtccd_parse_tariff_line("Suite 'reveille': 12 fixture(s) run"), None);
+    assert_eq!(
+        rbtccd_parse_tariff_line("Suite 'reveille': 12 fixture(s) run"),
+        None
+    );
     assert_eq!(rbtccd_parse_tariff_line(""), None);
 }
 
@@ -110,8 +118,14 @@ fn rbttcd_classifies_fixture_run_log_name() {
 fn rbttcd_rejects_foreign_log_names() {
     // Non-theurge tabtargets, the same/last duplicates of the newest hist,
     // and the single-case runner (which emits no per-fixture tariff line).
-    assert_eq!(rbtccd_parse_log_name("hist-rbw-cC-tadmor-20260709-212119-1-1.txt"), None);
+    assert_eq!(
+        rbtccd_parse_log_name("hist-rbw-cC-tadmor-20260709-212119-1-1.txt"),
+        None
+    );
     assert_eq!(rbtccd_parse_log_name("same-rbw-ts-reveille.txt"), None);
     assert_eq!(rbtccd_parse_log_name("last.txt"), None);
-    assert_eq!(rbtccd_parse_log_name("hist-rbw-tc-sh-20260709-212119-1-1.txt"), None);
+    assert_eq!(
+        rbtccd_parse_log_name("hist-rbw-tc-sh-20260709-212119-1-1.txt"),
+        None
+    );
 }

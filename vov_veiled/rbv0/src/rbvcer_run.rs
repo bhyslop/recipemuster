@@ -17,7 +17,10 @@
 
 use std::ffi::OsStr;
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::{
+    Command,
+    Stdio, //
+};
 
 /// Captured result of a short command.
 pub struct rbvcer_Captured {
@@ -31,7 +34,15 @@ pub struct rbvcer_Captured {
 /// gives it. The child's own launcher (bul_launcher → bud_dispatch) rebuilds
 /// every one of these. The environment regime (BURE_) is the operator's ambient
 /// and is stripped by nothing, so it is absent here.
-const ZRBVCER_SCRUB_PREFIXES: &[&str] = &["BURD_", "BURC_", "BURS_", "BURV_", "BURX_", "BUZ_", "BUC_"];
+const ZRBVCER_SCRUB_PREFIXES: &[&str] = &[
+    "BURD_",
+    "BURC_",
+    "BURS_",
+    "BURV_",
+    "BURX_",
+    "BUZ_",
+    "BUC_", //
+];
 
 fn zrbvcer_command(program: &OsStr, args: &[&str], cwd: &Path) -> Command {
     let mut cmd = Command::new(program);
@@ -48,7 +59,11 @@ pub fn rbvcer_capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> 
         .stdin(Stdio::null())
         .output()
         .unwrap_or_else(|e| {
-            crate::rbvcel_fatal!("cannot launch {}: {}", program.to_string_lossy(), e)
+            crate::rbvcel_fatal!(
+                "cannot launch {}: {}",
+                program.to_string_lossy(),
+                e, //
+            )
         });
     rbvcer_Captured {
         code: out.status.code().unwrap_or(-1),
@@ -61,7 +76,12 @@ pub fn rbvcer_capture(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path) -> 
 /// `env` adds explicit overrides applied AFTER the scrub — e.g. BURE_CONFIRM=skip
 /// for a prompted verb the ceremony drives headlessly. Returns the exit code;
 /// a spawn failure is fatal.
-pub fn rbvcer_stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env: &[(&str, &str)]) -> i32 {
+pub fn rbvcer_stream(
+    program: impl AsRef<OsStr>,
+    args: &[&str],
+    cwd: &Path,
+    env: &[(&str, &str)],
+) -> i32 {
     let program = program.as_ref();
     let mut cmd = zrbvcer_command(program, args, cwd);
     for (key, _) in std::env::vars() {
@@ -72,12 +92,13 @@ pub fn rbvcer_stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env:
     for (k, v) in env {
         cmd.env(k, v);
     }
-    let status = cmd
-        .stdin(Stdio::null())
-        .status()
-        .unwrap_or_else(|e| {
-            crate::rbvcel_fatal!("cannot launch {}: {}", program.to_string_lossy(), e)
-        });
+    let status = cmd.stdin(Stdio::null()).status().unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "cannot launch {}: {}",
+            program.to_string_lossy(),
+            e, //
+        )
+    });
     status.code().unwrap_or(-1)
 }
 
@@ -87,11 +108,18 @@ pub fn rbvcer_stream(program: impl AsRef<OsStr>, args: &[&str], cwd: &Path, env:
 fn zrbvcer_date(format: &str, cwd: &Path) -> String {
     let got = rbvcer_capture("date", &[format], cwd);
     if got.code != 0 {
-        crate::rbvcel_fatal!("date {} failed: {}", format, got.stderr.trim());
+        crate::rbvcel_fatal!(
+            "date {} failed: {}",
+            format,
+            got.stderr.trim(), //
+        );
     }
     let stamp = got.stdout.trim().to_string();
     if stamp.is_empty() {
-        crate::rbvcel_fatal!("date {} resolved empty", format);
+        crate::rbvcel_fatal!(
+            "date {} resolved empty",
+            format, //
+        );
     }
     stamp
 }
