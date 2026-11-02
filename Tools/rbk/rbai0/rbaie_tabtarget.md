@@ -208,6 +208,8 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tt` | Test | imprint | Run theurge unit tests |
 | `rbw-tm` | Lint | — | Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars. |
 | `rbw-tx` | Clean | — | Removes the test engine's build output, so the next door that builds starts from nothing. |
+| `rbw-tk` | FormatCheck | — | Checks every crate this repository tracks against rustfmt, changing nothing. |
+| `rbw-tK` | Format | — | Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree. |
 | `rbw-ts` | TestSuite | imprint | Run a named test suite |
 | `rbw-tf` | FixtureRun | param1 | Run a single named test fixture |
 | `rbw-tc` | FixtureCase | param1 | Run one case against a charged Crucible (omit to list fixtures/cases) |
