@@ -76,6 +76,10 @@ zrbte_kindle() {
   readonly ZRBTE_LINT_REPORT="${BURD_TEMP_DIR}/rbte_lint_report.txt"
   readonly ZRBTE_CHANNEL_PATTERN='^channel *= *"([^"]+)"'
 
+  # The formatter's temp files: the tracked manifests it walks, listed once per
+  # run, and the tracked Rust beside each, listed per manifest.
+  readonly ZRBTE_FORMAT_PREFIX="${BURD_TEMP_DIR}/rbte_format_"
+
   # Where cargo's dev profile lands the binary, on either road.
   readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
 
@@ -108,9 +112,14 @@ zrbte_codegen() {
     || buc_die_now "Failed to generate colophon consts"
 }
 
-# The channel the root pin states, stated on every invocation.
+# The channel a pin states, stated on every invocation.
+#
+# Args: <pin: path of a rust-toolchain.toml>
 zrbte_channel_capture() {
   zrbte_sentinel
+
+  local -r z_pin="${1:-}"
+  test -n "${z_pin}" || return 1
 
   local z_channel=""
   local z_line=""
@@ -119,7 +128,7 @@ zrbte_channel_capture() {
       z_channel="${BASH_REMATCH[1]}"
       break
     fi
-  done < "${ZRBTE_PIN_FILE}" || return 1
+  done < "${z_pin}" || return 1
   test -n "${z_channel}" || return 1
   echo "${z_channel}" || return 1
 }
@@ -150,7 +159,7 @@ zrbte_cargo() {
   shift || buc_die_now "zrbte_cargo could not shift its verb"
 
   local z_channel=""
-  z_channel=$(zrbte_channel_capture) || buc_die_now "The root pin at ${ZRBTE_PIN_FILE} names no channel"
+  z_channel=$(zrbte_channel_capture "${ZRBTE_PIN_FILE}") || buc_die_now "The root pin at ${ZRBTE_PIN_FILE} names no channel"
 
   local z_position=""
   z_position=$(zrbte_position_capture) || buc_die_now "Could not read the seat's position over the theurge's roots in ${ZRBTE_REPO_ROOT}"
@@ -172,8 +181,139 @@ zrbte_build_binary() {
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
+# The formatter over every crate this repository tracks, each under the rustfmt
+# of its nearest pin, the root rustfmt.toml answering for all of them.
+#
+# THE CRATES ARE WALKED, NEVER LISTED: every tracked manifest is a candidate,
+# and the formatter passes over, naming each, a manifest inside a managed kit,
+# which arrives formatted from its own home and is never formatted here, and a
+# manifest beside no tracked Rust, whose sources stand elsewhere. Cargo is
+# spelled as zrbte_cargo spells it: the crate named by its manifest, the channel
+# read from the nearest pin and stated, the lock flag ahead of the verb.
+#
+# Args: <mode: "apply" or "check">
+zrbte_format() {
+  zrbte_sentinel
+
+  local -r z_mode="${1:-}"
+  case "${z_mode}" in
+    apply|check) ;;
+    *) buc_die_now "The formatter's mode is apply or check, not '${z_mode}'" ;;
+  esac
+
+  test -n "${BURC_TOOLS_DIR:-}" || buc_die_now "BURC_TOOLS_DIR not set"
+  test -n "${BURC_MANAGED_KITS:-}" || buc_die_now "BURC_MANAGED_KITS not set"
+
+  local z_kits=()
+  IFS=',' read -r -a z_kits <<< "${BURC_MANAGED_KITS}" \
+    || buc_die_now "Could not read the managed kits from '${BURC_MANAGED_KITS}'"
+
+  local -r z_list="${ZRBTE_FORMAT_PREFIX}manifests.txt"
+  git -C "${ZRBTE_REPO_ROOT}" ls-files -- 'Cargo.toml' '*/Cargo.toml' > "${z_list}" \
+    || buc_die_now "Could not list the manifests this repository tracks"
+
+  local z_manifests=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_manifests+=("${z_line}")
+  done < "${z_list}" || buc_die_now "Could not read the manifest list at ${z_list}"
+  (( ${#z_manifests[@]} )) || buc_die_now "This repository tracks no Cargo.toml"
+
+  local z_formatted=()
+  local z_red=()
+  local z_index=0
+  local z_manifest=""
+  local z_dir=""
+  local z_kit=""
+  local z_held_by=""
+  local z_rust=""
+  local z_pin_dir=""
+  local z_channel=""
+  local z_status=0
+  for z_manifest in "${z_manifests[@]}"; do
+    z_index=$(( z_index + 1 ))
+    z_dir="${z_manifest%/*}"
+    test "${z_dir}" != "${z_manifest}" || z_dir="."
+
+    z_held_by=""
+    for z_kit in "${z_kits[@]}"; do
+      case "${z_manifest}" in
+        "${BURC_TOOLS_DIR}/${z_kit}/"*) z_held_by="${z_kit}" ;;
+      esac
+    done
+    if test -n "${z_held_by}"; then
+      buc_step "Passing over ${z_manifest}: the managed kit ${z_held_by} arrives formatted from its own home"
+      continue
+    fi
+
+    z_rust="${ZRBTE_FORMAT_PREFIX}rust_${z_index}.txt"
+    git -C "${ZRBTE_REPO_ROOT}" ls-files -- "${z_dir}/*.rs" > "${z_rust}" \
+      || buc_die_now "Could not list the Rust tracked beside ${z_manifest}"
+    if ! test -s "${z_rust}"; then
+      buc_step "Passing over ${z_manifest}: no tracked Rust stands beside it"
+      continue
+    fi
+
+    z_pin_dir="${z_dir}"
+    while test ! -f "${ZRBTE_REPO_ROOT}/${z_pin_dir}/rust-toolchain.toml"; do
+      test "${z_pin_dir}" != "." || buc_die_now "No rust-toolchain.toml stands at or above ${z_manifest}"
+      case "${z_pin_dir}" in
+        */*) z_pin_dir="${z_pin_dir%/*}" ;;
+        *)   z_pin_dir="." ;;
+      esac
+    done
+    z_channel=$(zrbte_channel_capture "${ZRBTE_REPO_ROOT}/${z_pin_dir}/rust-toolchain.toml") \
+      || buc_die_now "The pin at ${z_pin_dir}/rust-toolchain.toml names no channel"
+
+    buc_step "${z_manifest} under ${z_channel}"
+    z_status=0
+    if test "${z_mode}" = "check"; then
+      cargo "+${z_channel}" --locked fmt --check --manifest-path "${ZRBTE_REPO_ROOT}/${z_manifest}" \
+        || z_status=$?
+    else
+      cargo "+${z_channel}" --locked fmt --manifest-path "${ZRBTE_REPO_ROOT}/${z_manifest}" \
+        || z_status=$?
+    fi
+    z_formatted+=("${z_manifest}")
+    test "${z_status}" -eq 0 || z_red+=("${z_manifest}")
+  done
+
+  (( ${#z_formatted[@]} )) || buc_die_now "No tracked manifest stands beside tracked Rust outside the managed kits"
+  (( ${#z_red[@]} == 0 )) \
+    || buc_die_now "rustfmt did not answer clean over ${#z_red[@]} of ${#z_formatted[@]} crate(s): ${z_red[*]}"
+  buc_success "rustfmt answered clean over ${#z_formatted[@]} crate(s): ${z_formatted[*]}"
+}
+
 ######################################################################
 # Public functions
+
+# Checks every crate this repository tracks against rustfmt, changing nothing.
+rbte_format_check() {
+  zrbte_sentinel
+
+  buc_doc_brief "Checks every crate this repository tracks against rustfmt, changing nothing."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The format check takes no argument"
+
+  zrbte_format "check"
+}
+
+# Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree.
+rbte_format() {
+  zrbte_sentinel
+
+  buc_doc_brief "Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The format takes no argument"
+
+  # Refused on an uncommitted tree, so the formatter's delta stands alone for
+  # the caller to seal.
+  bug_require_clean_tree_creed "the formatter rewrites tracked sources; a dirty tree would mix its delta with the work standing there - commit before formatting"
+
+  zrbte_format "apply"
+}
 
 rbte_build() {
   zrbte_sentinel
