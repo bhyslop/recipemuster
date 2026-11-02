@@ -66,6 +66,7 @@ use crate::rbtcep_platform::rbtcep_native_to_posix;
 use crate::rbtchd_damnatio::{
     zrbtdrq_proscribed_findings,
     RBTCHD_DAMNATIO_SELF,
+    ZRBTCHD_DISPOSITION_SITE,
     ZRBTDRQ_DETAIL_UNSANCTIONED, //
 };
 use crate::rbtchf_fast::{
@@ -131,20 +132,28 @@ fn zrbtdrt_module(root: &Path, rel: &str) -> String {
 
 /// The scratch root beneath a case, where the copied homes stand at their
 /// tree-relative paths.
-const ZRBTDRT_SCRATCH_ROOT: &str = "lustral-root";
+const ZRBTDRT_SCRATCH_ROOT: &str = "zqlustral";
 
 /// Section markers in the listing child's output.
+const ZRBTDRT_MARK_PROSCRIPTION: &str = "##PROSCRIPTION";
 const ZRBTDRT_MARK_HOMES: &str = "##HOMES";
 const ZRBTDRT_MARK_HARDPOINTS: &str = "##HARDPOINTS";
 
-/// The site field the export plant assigns, and its synthetic value.
-const ZRBTDRT_PLANT_FIELD: &str = "RBRD_DEPOT_MONIKER";
+/// The synthetic value the export plant assigns.
 const ZRBTDRT_PLANT_VALUE: &str = "zqplantedlive";
 
-/// The paths the proscription judges, relative to the tree: every home, the
-/// repo regime file among them, and every hardpoint. Read from the proscription
-/// module itself in a child started at the tree, so no list is copied here.
-fn zrbtdrt_judged_paths(root: &Path, dir: &Path) -> Result<Vec<String>, String> {
+/// What the proscription judges, relative to the tree: every path to copy (each
+/// home, the repo regime file among them, and each hardpoint), and the plant's
+/// target — the first home and the first site field its scope judges.
+struct zrbtdrt_Judged {
+    paths: Vec<String>,
+    plant_home: String,
+    plant_field: String,
+}
+
+/// Read what the proscription judges from the proscription module itself, in a
+/// child started at the tree, so no list and no field is copied here.
+fn zrbtdrt_judged_paths(root: &Path, dir: &Path) -> Result<zrbtdrt_Judged, String> {
     let script = format!(
         "set -euo pipefail\n\
          source '{buv}'\n\
@@ -152,12 +161,15 @@ fn zrbtdrt_judged_paths(root: &Path, dir: &Path) -> Result<Vec<String>, String> 
          source '{rbk}/rblm_proscription.sh'\n\
          zbuv_kindle\n\
          zrblm_kindle\n\
+         echo '{mark_proscription}'\n\
+         rblm_emit_proscription\n\
          echo '{mark_homes}'\n\
          rblm_emit_homes\n\
          echo '{mark_hardpoints}'\n\
          rblm_emit_hardpoints\n",
         buv = zrbtdrt_module(root, RBTCHF_BUV_VALIDATION),
         rbk = zrbtdrt_module(root, RBTCHF_RBK_ROOT),
+        mark_proscription = ZRBTDRT_MARK_PROSCRIPTION,
         mark_homes = ZRBTDRT_MARK_HOMES,
         mark_hardpoints = ZRBTDRT_MARK_HARDPOINTS, //
     );
@@ -172,23 +184,51 @@ fn zrbtdrt_judged_paths(root: &Path, dir: &Path) -> Result<Vec<String>, String> 
         }
     };
     let mut paths = Vec::new();
+    let mut homes: Vec<(String, String)> = Vec::new();
+    let mut site: Vec<(String, String)> = Vec::new();
     let mut section = "";
     for line in stdout.lines() {
-        if line == ZRBTDRT_MARK_HOMES || line == ZRBTDRT_MARK_HARDPOINTS {
+        if line == ZRBTDRT_MARK_PROSCRIPTION
+            || line == ZRBTDRT_MARK_HOMES
+            || line == ZRBTDRT_MARK_HARDPOINTS
+        {
             section = line;
             continue;
         }
         let fields: Vec<&str> = line.split('\t').collect();
         match section {
-            ZRBTDRT_MARK_HOMES if fields.len() == 2 => paths.push(fields[1].to_string()),
+            ZRBTDRT_MARK_PROSCRIPTION
+                if fields.len() >= 3 && fields[2] == ZRBTCHD_DISPOSITION_SITE =>
+            {
+                site.push((fields[0].to_string(), fields[1].to_string()));
+            }
+            ZRBTDRT_MARK_HOMES if fields.len() == 2 => {
+                paths.push(fields[1].to_string());
+                homes.push((fields[0].to_string(), fields[1].to_string()));
+            }
             ZRBTDRT_MARK_HARDPOINTS if fields.len() == 3 => paths.push(fields[0].to_string()),
             _ => {}
         }
     }
-    if paths.is_empty() {
-        return Err("the proscription listed no home and no hardpoint".to_string());
-    }
-    Ok(paths)
+    let (scope, plant_home) = homes
+        .into_iter()
+        .next()
+        .ok_or_else(|| "the proscription listed no home".to_string())?;
+    let plant_field = site
+        .into_iter()
+        .find(|(s, _)| *s == scope)
+        .map(|(_, var)| var)
+        .ok_or_else(|| {
+            format!(
+                "the proscription judges no site field of {}, the first home's scope",
+                scope, //
+            )
+        })?;
+    Ok(zrbtdrt_Judged {
+        paths,
+        plant_home,
+        plant_field,
+    })
 }
 
 /// Copy every judged path into a fresh scratch root beneath the case, then
@@ -196,11 +236,12 @@ fn zrbtdrt_judged_paths(root: &Path, dir: &Path) -> Result<Vec<String>, String> 
 /// the hardpoint resolve, and sources the kit by absolute path from the tree;
 /// it must not start anywhere else, since lustration rewrites the homes it
 /// finds in place.
-fn zrbtdrt_lustrated_root(root: &Path, dir: &Path) -> Result<PathBuf, String> {
+fn zrbtdrt_lustrated_root(root: &Path, dir: &Path) -> Result<(PathBuf, zrbtdrt_Judged), String> {
     let scratch = dir.join(ZRBTDRT_SCRATCH_ROOT);
     zrbtdrt_mkdir(&scratch)?;
-    for rel in zrbtdrt_judged_paths(root, dir)? {
-        let from = root.join(&rel);
+    let judged = zrbtdrt_judged_paths(root, dir)?;
+    for rel in &judged.paths {
+        let from = root.join(rel);
         let body = std::fs::read(&from).map_err(|e| {
             format!(
                 "cannot read {}: {}",
@@ -208,7 +249,7 @@ fn zrbtdrt_lustrated_root(root: &Path, dir: &Path) -> Result<PathBuf, String> {
                 e, //
             )
         })?;
-        let to = scratch.join(&rel);
+        let to = scratch.join(rel);
         if let Some(parent) = to.parent() {
             zrbtdrt_mkdir(parent)?;
         }
@@ -244,7 +285,7 @@ fn zrbtdrt_lustrated_root(root: &Path, dir: &Path) -> Result<PathBuf, String> {
         rbk = zrbtdrt_module(root, RBTCHF_RBK_ROOT), //
     );
     match rbtchf_run_bash(&scratch, &script, dir, "lustrate")? {
-        (0, _, _) => Ok(scratch),
+        (0, _, _) => Ok((scratch, judged)),
         (code, _, stderr) => Err(format!(
             "lustration over the scratch root exited {}: {}",
             code,
@@ -259,7 +300,7 @@ fn zrbtdrt_lustrated_root(root: &Path, dir: &Path) -> Result<PathBuf, String> {
 fn rbtdrt_lustration_sterile(dir: &Path) -> rbtcee_Verdict {
     zrbtdrt_verdict((|| {
         let root = zrbtchx_root()?;
-        let scratch = zrbtdrt_lustrated_root(&root, dir)?;
+        let (scratch, _) = zrbtdrt_lustrated_root(&root, dir)?;
         match crate::rbtchd_damnatio::zrbtdrq_proscribed_verdict(&root, &scratch, dir) {
             rbtcee_Verdict::Pass => Ok(()),
             rbtcee_Verdict::Fail(e) => Err(e),
@@ -269,18 +310,15 @@ fn rbtdrt_lustration_sterile(dir: &Path) -> rbtcee_Verdict {
 }
 
 /// A LIVE VALUE PLANTED ON AN EXPORT LINE REDS: after lustration a site field
-/// is assigned on an export line in the scratch depot regime, and the case
+/// is assigned on an export line in the first scratch home, and the case
 /// passes only when the value case names that field, the reader's self-proof
 /// clean beside it.
 fn rbtdrt_lustration_export_plant(dir: &Path) -> rbtcee_Verdict {
     zrbtdrt_verdict((|| {
         let root = zrbtchx_root()?;
-        let scratch = zrbtdrt_lustrated_root(&root, dir)?;
-        let home = format!(
-            "{}/{}",
-            RBTGEC_MOORINGS_DIR,
-            "rbrd.env", //
-        );
+        let (scratch, judged) = zrbtdrt_lustrated_root(&root, dir)?;
+        let home = judged.plant_home;
+        let field = judged.plant_field;
         let path = scratch.join(&home);
         let mut body = std::fs::read_to_string(&path).map_err(|e| {
             format!(
@@ -291,7 +329,7 @@ fn rbtdrt_lustration_export_plant(dir: &Path) -> rbtcee_Verdict {
         })?;
         body.push_str(&format!(
             "export {}={}\n",
-            ZRBTDRT_PLANT_FIELD,
+            field,
             ZRBTDRT_PLANT_VALUE, //
         ));
         zrbtdrt_write(&path, &body)?;
@@ -312,7 +350,7 @@ fn rbtdrt_lustration_export_plant(dir: &Path) -> rbtcee_Verdict {
         }
         let named = format!(
             "{} {}",
-            ZRBTDRT_PLANT_FIELD,
+            field,
             ZRBTDRQ_DETAIL_UNSANCTIONED, //
         );
         if findings.iter().any(|f| f.file == home && f.detail == named) {
@@ -320,7 +358,7 @@ fn rbtdrt_lustration_export_plant(dir: &Path) -> rbtcee_Verdict {
         } else {
             Err(format!(
                 "the export plant of {} in {} went unnamed: {} finding(s), none naming it",
-                ZRBTDRT_PLANT_FIELD,
+                field,
                 home,
                 findings.len(), //
             ))
@@ -734,8 +772,9 @@ fn zrbtdrt_marshal_clone(
         .find_map(|line| line.strip_prefix(ZRBTDRT_STATION_KEY))
         .ok_or_else(|| {
             format!(
-                "{} names no station file",
-                regime_path.display(), //
+                "{} carries no {} line",
+                regime_path.display(),
+                ZRBTDRT_STATION_KEY, //
             )
         })?;
     let station = clone.join(station_rel.trim());

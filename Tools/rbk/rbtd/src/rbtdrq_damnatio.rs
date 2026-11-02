@@ -570,16 +570,16 @@ fn zrbtdrq_state_words() -> String {
 /// The value reader's self-proof planted files: one in a regime home's shape, a
 /// bare assignment, and one in a hardpoint's, a readonly quoted assignment. The
 /// names and values are synthetic and carry no identity of any shape.
-const ZRBTDRQ_PLANT_REGIME_FILE: &str = "value-plant-regime.env";
-const ZRBTDRQ_PLANT_HARDPOINT_FILE: &str = "value-plant-hardpoint.sh";
-const ZRBTDRQ_PLANT_REPO_FILE: &str = "value-plant-repo.env";
+const ZRBTDRQ_PLANT_REGIME_FILE: &str = "zqplant-regime.env";
+const ZRBTDRQ_PLANT_HARDPOINT_FILE: &str = "zqplant-hardpoint.sh";
+const ZRBTDRQ_PLANT_REPO_FILE: &str = "zqplant-repo.env";
 const ZRBTDRQ_PLANT_REGIME_VAR: &str = "ZQPLANT_SITE_FIELD";
 const ZRBTDRQ_PLANT_REGIME_VALUE: &str = "zqregimeplant";
 const ZRBTDRQ_PLANT_HARDPOINT_VAR: &str = "ZQPLANT_HARDPOINT";
 const ZRBTDRQ_PLANT_HARDPOINT_VALUE: &str = "zqhardpointplant";
 
 /// The trace prefix of the self-proof's bash run.
-pub(crate) const ZRBTDRQ_VALUE_SELF_TRACE: &str = "value-self-proof";
+pub(crate) const ZRBTDRQ_VALUE_SELF_TRACE: &str = "zqreader-assay";
 
 /// A self-proof finding: it points at this module's own source.
 fn zrbtdrq_self_finding(detail: String) -> zrbtchx_Finding {
