@@ -22,7 +22,10 @@
 // Extracted from rbtccc_crucible; consulted at runtime by main.rs dispatch and
 // in unit tests. A compile-time guard rejects duplicate fixture/suite names.
 
-use crate::rbtcee_engine::{rbtcee_Fixture, rbtcee_Suite};
+use crate::rbtcee_engine::{
+    rbtcee_Fixture,
+    rbtcee_Suite, //
+};
 
 /// Registry of all fixtures known to theurge. Single source of truth: drives
 /// rbtcea_lookup_fixture and the helpful "list valid fixtures" diagnostic the
@@ -97,7 +100,7 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
     // quiet-hush: the levels of environment-quiet's chain, reached
     // only through it one case at a time — a member of no suite.
-    &crate::rbtdry_quiet::RBTDRY_FIXTURE_QUIET_HUSH,
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_QUIET_HUSH, //
 ];
 
 /// Resolve a fixture name to its registered Fixture definition. Returns None
@@ -137,7 +140,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
-            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET, //
         ],
     },
     // Picket — reveille + GCP-credentialed bare fixtures.
@@ -168,7 +171,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CHAINING_LIVERY,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
-            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET, //
         ],
     },
     // Bivouac — reveille + container-runtime crucible fixtures. kludge-tadmor
@@ -200,7 +203,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
-            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET, //
         ],
     },
     // Echelon — reveille + every dependency-tiered fixture (picket ∪ bivouac).
@@ -237,7 +240,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
             &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
             &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
-            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+            &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET, //
         ],
     },
     // Gauntlet — release-qualification ladder. Walks marshal-zero state through
@@ -286,7 +289,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_TADMOR,
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_MORIAH,
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_SRJCL,
-            &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
+            &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML, //
         ],
     },
     // Skirmish — the "mini gauntlet": the depot→build→crucible chain WITHOUT
@@ -330,7 +333,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_TADMOR,
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_MORIAH,
             &crate::rbtccc_crucible::RBTCCC_FIXTURE_SRJCL,
-            &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML,
+            &crate::rbtccc_crucible::RBTCCC_FIXTURE_PLUML, //
         ],
     },
     // Dogfight — standing-depot cloud-build viability probe. Sibling to skirmish
@@ -345,7 +348,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "dogfight",
         fixtures: &[
             &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CREDENTIAL_READINESS,
-            &crate::rbtcgd_dogfight::RBTCGD_FIXTURE_DOGFIGHT,
+            &crate::rbtcgd_dogfight::RBTCGD_FIXTURE_DOGFIGHT, //
         ],
     },
     // Tadmor self-contained — fully local, no GCP/depot/project. Two fixtures in
@@ -360,7 +363,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "siege",
         fixtures: &[
             &crate::rbtcgo_onboarding::RBTCGO_FIXTURE_KLUDGE_TADMOR,
-            &crate::rbtccc_crucible::RBTCCC_FIXTURE_TADMOR,
+            &crate::rbtccc_crucible::RBTCCC_FIXTURE_TADMOR, //
         ],
     },
     // Blockade - moriah airgap crucible. Sibling to siege on the network-posture
@@ -378,7 +381,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "blockade",
         fixtures: &[
             &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CREDENTIAL_READINESS,
-            &crate::rbtccc_crucible::RBTCCC_FIXTURE_MORIAH,
+            &crate::rbtccc_crucible::RBTCCC_FIXTURE_MORIAH, //
         ],
     },
     // Parley — positive federation-admission probe. Base-free (like dogfight/siege/
@@ -391,9 +394,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
     // fixture self-skips only on an unreachable payor credential.
     rbtcee_Suite {
         name: "parley",
-        fixtures: &[
-            &crate::rbtcgp_patrol::RBTCGP_FIXTURE_PARLEY,
-        ],
+        fixtures: &[&crate::rbtcgp_patrol::RBTCGP_FIXTURE_PARLEY],
     },
     // Calibrant — the deliberately-failing two-member suite the touchstone
     // surface fixture drives as its suite-abort subject: calibrant-fail-fast
@@ -404,9 +405,9 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: RBTCEA_SUITE_NAME_CALIBRANT,
         fixtures: &[
             &crate::rbtchl_calibrant::RBTCHL_FIXTURE_FAIL_FAST,
-            &crate::rbtchl_calibrant::RBTCHL_FIXTURE_SENTINEL,
+            &crate::rbtchl_calibrant::RBTCHL_FIXTURE_SENTINEL, //
         ],
-    },
+    }, //
 ];
 
 /// The calibrant suite's name — also the imprint of its
@@ -447,7 +448,7 @@ pub static RBTCEA_REVEILLE_BASE: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchn_conformance::RBTCHN_FIXTURE_CONFORMANCE,
     &crate::rbtcgh_chain::RBTCGH_FIXTURE_CHAINING_FACT_BAND,
     &crate::rbtcct_touchstone::RBTCCT_FIXTURE_TOUCHSTONE,
-    &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET,
+    &crate::rbtdry_quiet::RBTDRY_FIXTURE_ENVIRONMENT_QUIET, //
 ];
 
 // ── Compile-time uniqueness guard ────────────────────────────

@@ -3333,6 +3333,12 @@ pub const RBVGEB_RBTE_CLEAN_PEDIMENT: &str = rbvgeb_rbte_clean_pediment!();
 macro_rules! rbvgeb_rbte_dowse_pediment { () => { "rbw-td" }; }
 pub(crate) use rbvgeb_rbte_dowse_pediment;
 pub const RBVGEB_RBTE_DOWSE_PEDIMENT: &str = rbvgeb_rbte_dowse_pediment!();
+macro_rules! rbvgeb_rbte_format_pediment { () => { "rbw-tK" }; }
+pub(crate) use rbvgeb_rbte_format_pediment;
+pub const RBVGEB_RBTE_FORMAT_PEDIMENT: &str = rbvgeb_rbte_format_pediment!();
+macro_rules! rbvgeb_rbte_format_check_pediment { () => { "rbw-tk" }; }
+pub(crate) use rbvgeb_rbte_format_check_pediment;
+pub const RBVGEB_RBTE_FORMAT_CHECK_PEDIMENT: &str = rbvgeb_rbte_format_check_pediment!();
 macro_rules! rbvgeb_rbte_lint_pediment { () => { "rbw-tm" }; }
 pub(crate) use rbvgeb_rbte_lint_pediment;
 pub const RBVGEB_RBTE_LINT_PEDIMENT: &str = rbvgeb_rbte_lint_pediment!();

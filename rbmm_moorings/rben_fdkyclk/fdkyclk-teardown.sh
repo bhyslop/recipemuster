@@ -48,8 +48,8 @@ val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\
 payor_token() {
   curl -s https://oauth2.googleapis.com/token \
     --data-urlencode "client_id=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")" \
-    --data-urlencode "client_secret=$(val RBRO_CLIENT_SECRET "$RBRO")" \
-    --data-urlencode "refresh_token=$(val RBRO_REFRESH_TOKEN "$RBRO")" \
+    --data-urlencode "client_secret=$(val RBRO_zSECRET_CLIENT_SECRET "$RBRO")" \
+    --data-urlencode "refresh_token=$(val RBRO_zSECRET_REFRESH_TOKEN "$RBRO")" \
     --data-urlencode "grant_type=refresh_token" | jq -r '.access_token // empty'
 }
 

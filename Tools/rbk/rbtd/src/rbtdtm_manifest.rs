@@ -19,7 +19,10 @@
 
 use super::rbtgec_consts::*;
 use crate::rbtcea_almanac::RBTCEA_FIXTURES;
-use crate::rbtcem_manifest::{rbtcem_permitted_colophons, rbtcem_required_colophons};
+use crate::rbtcem_manifest::{
+    rbtcem_permitted_colophons,
+    rbtcem_required_colophons, //
+};
 
 /// Pin the one surviving compile-time path literal (the `rbtcee_vessels_dir!`
 /// macro in the engine module) to the generated source of truth. The macro must equal
@@ -30,7 +33,11 @@ use crate::rbtcem_manifest::{rbtcem_permitted_colophons, rbtcem_required_colopho
 fn rbttem_vessels_dir_matches_generated() {
     assert_eq!(
         crate::rbtcee_vessels_dir!(),
-        format!("{}/{}", RBTGEC_MOORINGS_DIR, RBTGEC_VESSELS_SUBDIR)
+        format!(
+            "{}/{}",
+            RBTGEC_MOORINGS_DIR,
+            RBTGEC_VESSELS_SUBDIR, //
+        )
     );
 }
 
@@ -50,7 +57,7 @@ fn rbttem_permitted_declaration_requires_a_required_entry() {
             "fixture '{}' declares permitted colophons {:?} but no required-colophons entry — \
              None disables the census entirely, so the permitted tier would be inert",
             fixture.name,
-            permitted
+            permitted, //
         );
     }
 }

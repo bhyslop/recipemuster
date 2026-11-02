@@ -49,7 +49,12 @@ const RBVM_CMD_HARBINGER: &str = "harbinger";
 /// non-canonical input, never default toward it).
 fn zrbvm_world(command: &str, args: &[String]) -> rbvcew_world::rbvcew_World {
     let rest = args.get(2..).unwrap_or(&[]);
-    rbvcew_world::rbvcew_elect(command, rest).unwrap_or_else(|e| rbv::rbvcel_fatal!("{}", e))
+    rbvcew_world::rbvcew_elect(command, rest).unwrap_or_else(|e| {
+        rbv::rbvcel_fatal!(
+            "{}",
+            e, //
+        )
+    })
 }
 
 /// The flag the kennel's election asks a standing binary before it launches or
@@ -69,7 +74,11 @@ const RBVM_FLAG_EXERGUE: &str = "--exergue";
 fn zrbvm_answer_exergue() -> ExitCode {
     use std::io::Write;
     let mut stdout = std::io::stdout().lock();
-    match writeln!(stdout, "{}", env!("BKCH_COLLAR_POSITION")) {
+    match writeln!(
+        stdout,
+        "{}",
+        env!("BKCH_COLLAR_POSITION"), //
+    ) {
         Ok(()) => ExitCode::SUCCESS,
         Err(_) => ExitCode::FAILURE,
     }
@@ -88,14 +97,14 @@ fn main() -> ExitCode {
             "{}: unknown verb '{}' — usage: rbv {}|{}|{}|{} {}|{}",
             rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE, other,
             RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
-            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE
+            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
         ),
         None => rbv::rbvcel_fatal!(
             "{}: no verb — usage: rbv {}|{}|{}|{} {}|{}\n\
              launch via the withheld colophons rbvw-e, rbvw-d, rbvw-o and rbvw-h, each imprinted with its world",
             rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE,
             RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
-            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE
+            rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
         ),
     }
 }

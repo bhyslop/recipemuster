@@ -36,30 +36,30 @@
 
 use std::path::Path;
 
-use crate::rbtcee_case;
-use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
+use crate::rbtccp_probe::{
+    rbtccp_Probe,
+    rbtccp_assert, //
+};
+use crate::rbtcee_case;
 use crate::rbtcee_engine::{
-    rbtcee_commit_regime, rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_RegimeFile,
-    rbtcee_Tariff, rbtcee_Verdict,
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_RegimeFile,
+    rbtcee_Tariff,
+    rbtcee_Verdict,
+    rbtcee_commit_regime, //
 };
 use crate::rbtcei_invocation::{
     rbtcei_Context,
     RBTCEI_BURE_CONFIRM_KEY,
-    RBTCEI_BURE_CONFIRM_SKIP,
+    RBTCEI_BURE_CONFIRM_SKIP, //
 };
-use crate::rbtgec_consts::{
-    RBTGEC_COLLATE_DEPOT,
-    RBTGEC_INCUSE_DEPOT,
-    RBTGEC_LEVY_DEPOT,
-    RBTGEC_LIST_DEPOT,
-    RBTGEC_RBRD_FILE,
-    RBTGEC_UNMAKE_DEPOT,
-};
-use crate::rbtgeb_breviary::RBTGEB_BUSX_CLEAN_DENTIL;
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_DEPOT_LIFECYCLE;
 use crate::rbtcga_attest::rbtcga_marshal_zero_attestation;
 use crate::rbtcgf_freehold::{
+    rbtcgf_UnmakeSpec,
     rbtcgf_burs_tincture,
     rbtcgf_cloud_prefix_subdir,
     rbtcgf_compose_project_id,
@@ -71,9 +71,17 @@ use crate::rbtcgf_freehold::{
     rbtcgf_pick_next_moniker,
     rbtcgf_read_env_value,
     rbtcgf_unmake_preamble,
-    rbtcgf_UnmakeSpec,
     RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
-    RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
+    RBTCGF_FIELD_RBRD_DEPOT_MONIKER, //
+};
+use crate::rbtgeb_breviary::RBTGEB_BUSX_CLEAN_DENTIL;
+use crate::rbtgec_consts::{
+    RBTGEC_COLLATE_DEPOT,
+    RBTGEC_INCUSE_DEPOT,
+    RBTGEC_LEVY_DEPOT,
+    RBTGEC_LIST_DEPOT,
+    RBTGEC_RBRD_FILE,
+    RBTGEC_UNMAKE_DEPOT, //
 };
 
 /// Placeholder moniker installed by tear_down before invoking rbw-dU. With the
@@ -105,8 +113,12 @@ const RBTCGL_TRIPWIRE_PROBE_LINE: &str = "# rbtdrp tripwire-recovery probe";
 /// RBRD_DEPOT_MONIKER both non-blank, RBDC kindle composes a non-empty
 /// project_id). Established by the stand-up case.
 fn rbtcgl_probe_depot_levied() -> Result<(), String> {
-    let root = std::env::current_dir()
-        .map_err(|e| format!("cannot resolve project root: {}", e))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot resolve project root: {}",
+            e, //
+        )
+    })?;
     let rbrd = root.join(RBTGEC_RBRD_FILE);
 
     let cloud = rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_CLOUD_PREFIX).unwrap_or_default();
@@ -114,7 +126,7 @@ fn rbtcgl_probe_depot_levied() -> Result<(), String> {
         return Err(format!(
             "{} blank in {} — freehold prefixes not installed",
             RBTCGF_FIELD_RBRD_CLOUD_PREFIX,
-            rbrd.display()
+            rbrd.display(), //
         ));
     }
 
@@ -123,7 +135,7 @@ fn rbtcgl_probe_depot_levied() -> Result<(), String> {
         return Err(format!(
             "{} blank in {} — depot stand-up did not run",
             RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
-            rbrd.display()
+            rbrd.display(), //
         ));
     }
 
@@ -135,14 +147,25 @@ fn rbtcgl_probe_depot_levied() -> Result<(), String> {
 /// Append the tripwire probe line to rbrd.env, uncommitted — the deliberate
 /// dirty-tracked-tree state that drives levy's inscription refusal.
 fn zrbtcgl_append_tripwire_probe(rbrd: &Path) -> Result<(), String> {
-    let mut content = std::fs::read_to_string(rbrd)
-        .map_err(|e| format!("read {}: {}", rbrd.display(), e))?;
+    let mut content = std::fs::read_to_string(rbrd).map_err(|e| {
+        format!(
+            "read {}: {}",
+            rbrd.display(),
+            e, //
+        )
+    })?;
     if !content.ends_with('\n') {
         content.push('\n');
     }
     content.push_str(RBTCGL_TRIPWIRE_PROBE_LINE);
     content.push('\n');
-    std::fs::write(rbrd, content).map_err(|e| format!("write {}: {}", rbrd.display(), e))
+    std::fs::write(rbrd, content).map_err(|e| {
+        format!(
+            "write {}: {}",
+            rbrd.display(),
+            e, //
+        )
+    })
 }
 
 /// Case 2 — depot stand-up, refused at the tripwire tail. Installs freehold
@@ -162,84 +185,107 @@ fn zrbtcgl_depot_stand_up_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
     let root = ctx.rbtcei_project_root().to_path_buf();
 
     if let Err(e) = rbtcgf_install_freehold_prefixes(&root) {
-        return rbtcee_Verdict::Fail(format!("install freehold prefixes: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "install freehold prefixes: {}",
+            e, //
+        ));
     }
 
-    let list_pre = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_LIST_DEPOT,
-        &[],
-        &[],
-        dir,
-        "list-pre",
-    ) {
+    let list_pre = match rbtcgf_invoke_logged(ctx, RBTGEC_LIST_DEPOT, &[], &[], dir, "list-pre") {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("depot list (pre-levy): {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "depot list (pre-levy): {}",
+                e, //
+            ));
+        }
     };
     if list_pre.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "depot list (pre-levy) exit {}\n{}",
-            list_pre.exit_code, list_pre.stderr
+            list_pre.exit_code,
+            list_pre.stderr, //
         ));
     }
 
     let tincture = match rbtcgf_burs_tincture() {
         Ok(t) => t,
-        Err(e) => return rbtcee_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "read BURS_TINCTURE: {}",
+                e, //
+            ));
+        }
     };
     let family_stem = rbtcgf_family_stem(&tincture);
     let moniker = match rbtcgf_pick_next_moniker(&list_pre, &root, &family_stem) {
         Ok(m) => m,
-        Err(e) => return rbtcee_Verdict::Fail(format!("pick next moniker: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "pick next moniker: {}",
+                e, //
+            ));
+        }
     };
     if let Err(e) = rbtcgf_install_depot_moniker(&root, &moniker) {
-        return rbtcee_Verdict::Fail(format!("install depot moniker: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "install depot moniker: {}",
+            e, //
+        ));
     }
 
     if let Err(e) = zrbtcgl_append_tripwire_probe(&root.join(RBTGEC_RBRD_FILE)) {
-        return rbtcee_Verdict::Fail(format!("append tripwire probe: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "append tripwire probe: {}",
+            e, //
+        ));
     }
 
-    let levy = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_LEVY_DEPOT,
-        &[],
-        &[],
-        dir,
-        "levy",
-    ) {
+    let levy = match rbtcgf_invoke_logged(ctx, RBTGEC_LEVY_DEPOT, &[], &[], dir, "levy") {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("depot levy: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "depot levy: {}",
+                e, //
+            ));
+        }
     };
     if levy.exit_code != RBTGEB_BUSX_CLEAN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "depot levy exit {} — expected the clean-tree band {} from the \
              tripwire inscription refusal at the levy tail\n{}",
-            levy.exit_code, RBTGEB_BUSX_CLEAN_DENTIL, levy.stderr
+            levy.exit_code,
+            RBTGEB_BUSX_CLEAN_DENTIL,
+            levy.stderr, //
         ));
     }
 
-    let list_present = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_LIST_DEPOT,
-        &[],
-        &[],
-        dir,
-        "list-present",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("depot list (after levy): {}", e)),
-    };
+    let list_present =
+        match rbtcgf_invoke_logged(ctx, RBTGEC_LIST_DEPOT, &[], &[], dir, "list-present") {
+            Ok(r) => r,
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "depot list (after levy): {}",
+                    e, //
+                ));
+            }
+        };
     if list_present.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "depot list (after levy) exit {}\n{}",
-            list_present.exit_code, list_present.stderr
+            list_present.exit_code,
+            list_present.stderr, //
         ));
     }
 
     let prefix_dir = match rbtcgf_cloud_prefix_subdir(&root) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "resolve cloud_prefix subdir: {}",
+                e, //
+            ));
+        }
     };
     if let Some(verdict) =
         rbtcgf_crosscheck_project_id(&root, &list_present, &prefix_dir, &moniker, dir)
@@ -277,24 +323,26 @@ fn zrbtcgl_tripwire_recover_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee
         &[rbtcee_RegimeFile::Rbrd],
         "depot-lifecycle: commit tripwire probe line before standalone inscription",
     ) {
-        return rbtcee_Verdict::Fail(format!("commit tripwire probe: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "commit tripwire probe: {}",
+            e, //
+        ));
     }
 
-    let inscribe = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_INCUSE_DEPOT,
-        &[],
-        &[],
-        dir,
-        "incuse",
-    ) {
+    let inscribe = match rbtcgf_invoke_logged(ctx, RBTGEC_INCUSE_DEPOT, &[], &[], dir, "incuse") {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("tripwire inscribe: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "tripwire inscribe: {}",
+                e, //
+            ));
+        }
     };
     if inscribe.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "tripwire inscribe exit {}\n{}",
-            inscribe.exit_code, inscribe.stderr
+            inscribe.exit_code,
+            inscribe.stderr, //
         ));
     }
 
@@ -318,21 +366,20 @@ fn rbtcgl_tripwire_confirm(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn zrbtcgl_tripwire_confirm_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdict {
-    let check = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_COLLATE_DEPOT,
-        &[],
-        &[],
-        dir,
-        "collate",
-    ) {
+    let check = match rbtcgf_invoke_logged(ctx, RBTGEC_COLLATE_DEPOT, &[], &[], dir, "collate") {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("tripwire check: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "tripwire check: {}",
+                e, //
+            ));
+        }
     };
     if check.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "tripwire check exit {}\n{}",
-            check.exit_code, check.stderr
+            check.exit_code,
+            check.stderr, //
         ));
     }
 
@@ -365,10 +412,7 @@ fn rbtcgl_depot_live_disqualify(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| zrbtcgl_depot_live_disqualify_impl(ctx, dir))
 }
 
-fn zrbtcgl_depot_live_disqualify_impl(
-    ctx: &mut rbtcei_Context,
-    dir: &Path,
-) -> rbtcee_Verdict {
+fn zrbtcgl_depot_live_disqualify_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdict {
     let root = ctx.rbtcei_project_root().to_path_buf();
 
     let rbrd = root.join(RBTGEC_RBRD_FILE);
@@ -383,7 +427,12 @@ fn zrbtcgl_depot_live_disqualify_impl(
 
     let project_id = match rbtcgf_compose_project_id(&root, &moniker) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("compose project_id: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "compose project_id: {}",
+                e, //
+            ));
+        }
     };
     let _ = std::fs::write(dir.join("live-project-id.txt"), &project_id);
 
@@ -397,7 +446,11 @@ fn zrbtcgl_depot_live_disqualify_impl(
     ) {
         Ok(r) => r,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("{} invocation: {}", RBTGEC_UNMAKE_DEPOT, e))
+            return rbtcee_Verdict::Fail(format!(
+                "{} invocation: {}",
+                RBTGEC_UNMAKE_DEPOT,
+                e, //
+            ));
         }
     };
 
@@ -405,17 +458,25 @@ fn zrbtcgl_depot_live_disqualify_impl(
         return rbtcee_Verdict::Fail(format!(
             "{} '{}' exited 0 — BBAA9 live-disqualify contract violated \
              (refusal must die when target == RBDC_DEPOT_PROJECT_ID)",
-            RBTGEC_UNMAKE_DEPOT, project_id
+            RBTGEC_UNMAKE_DEPOT,
+            project_id, //
         ));
     }
 
     // BUW dispatch merges stderr→stdout; assertion checks combined output.
-    let combined = format!("{}{}", result.stdout, result.stderr);
+    let combined = format!(
+        "{}{}",
+        result.stdout,
+        result.stderr, //
+    );
     if !combined.contains(RBTCGL_LIVE_DISQUALIFY_RECOVERY) {
         return rbtcee_Verdict::Fail(format!(
             "{} live-disqualify diagnostic did not name '{}' as recovery path\n\
              stdout:\n{}\n\nstderr:\n{}",
-            RBTGEC_UNMAKE_DEPOT, RBTCGL_LIVE_DISQUALIFY_RECOVERY, result.stdout, result.stderr
+            RBTGEC_UNMAKE_DEPOT,
+            RBTCGL_LIVE_DISQUALIFY_RECOVERY,
+            result.stdout,
+            result.stderr, //
         ));
     }
 
@@ -465,8 +526,8 @@ fn zrbtcgl_depot_tear_down_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
             return rbtcee_Verdict::Fail(format!(
                 "read depot fact '{}': {}",
                 outcome.state_fact.display(),
-                e
-            ))
+                e, //
+            ));
         }
     };
 
@@ -477,7 +538,10 @@ fn zrbtcgl_depot_tear_down_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_
     rbtcee_Verdict::Fail(format!(
         "depot '{}' (project '{}') still present with unexpected state '{}' after unmake \
          (expected absent or '{}')",
-        outcome.moniker, outcome.project_id, depot_state, RBTCGL_DELETE_REQUESTED
+        outcome.moniker,
+        outcome.project_id,
+        depot_state,
+        RBTCGL_DELETE_REQUESTED, //
     ))
 }
 
@@ -489,7 +553,7 @@ pub static RBTCGL_CASES_DEPOT_LIFECYCLE: &[rbtcee_Case] = &[
     rbtcee_case!(rbtcgl_tripwire_recover),
     rbtcee_case!(rbtcgl_tripwire_confirm),
     rbtcee_case!(rbtcgl_depot_live_disqualify),
-    rbtcee_case!(rbtcgl_depot_tear_down),
+    rbtcee_case!(rbtcgl_depot_tear_down), //
 ];
 
 pub static RBTCGL_FIXTURE_DEPOT_LIFECYCLE: rbtcee_Fixture = rbtcee_Fixture {

@@ -43,6 +43,7 @@ zrbte_furnish() {
   local z_cli_dir="${BASH_SOURCE[0]%/*}"
   source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
   source "${BURD_BUK_DIR}/buwz_zipper.sh" || buc_die_now "Failed to source buwz_zipper.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
   source "${z_cli_dir}/../rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_cli_dir}/../rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
   source "${z_cli_dir}/../rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"

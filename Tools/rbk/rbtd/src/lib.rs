@@ -21,8 +21,10 @@
 #![allow(non_camel_case_types)]
 #![allow(private_interfaces)]
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 #[path = "rbtdgb_breviary.rs"]
 pub mod rbtgeb_breviary;
+#[cfg_attr(rustfmt, rustfmt::skip)]
 #[path = "rbtdgc_consts.rs"]
 pub mod rbtgec_consts;
 #[path = "rbtdra_almanac.rs"]

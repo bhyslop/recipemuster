@@ -22,9 +22,9 @@
 
 use std::process::ExitCode;
 
+use crate::rbvceg_temenos;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
-use crate::rbvceg_temenos;
 use crate::rbvcew_world;
 
 /// Conduct the harbinger command in the elected world. Fatal (exit 1) on any
@@ -33,11 +33,18 @@ use crate::rbvcew_world;
 pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
-    rbvcel_log::rbvcel_section("Hierophant Harbinger — the stranger walk against promoted public main (RBSHH)");
-    rbvcel_log::rbvcel_line("Clone promoted public main, guard it, hand off the walk. Zero remote acts.");
+    rbvcel_log::rbvcel_section(
+        "Hierophant Harbinger — the stranger walk against promoted public main (RBSHH)",
+    );
+    rbvcel_log::rbvcel_line(
+        "Clone promoted public main, guard it, hand off the walk. Zero remote acts.",
+    );
 
     let top = rbvcep_repo::rbvcep_toplevel();
-    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
+    rbvcel_log::rbvcel_line(&format!(
+        "Maintainer tree: {}",
+        top.display(), //
+    ));
 
     let temenos = rbvceg_temenos::rbvceg_stand_up(
         &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
@@ -49,7 +56,9 @@ pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvceg_temenos::rbvceg_emit_handoff(&temenos);
 
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_success("Harbinger temenos stood up — guarded, disposable, push-incapable (RBSHH completion).");
+    rbvcel_log::rbvcel_success(
+        "Harbinger temenos stood up — guarded, disposable, push-incapable (RBSHH completion).",
+    );
 
     ExitCode::SUCCESS
 }

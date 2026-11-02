@@ -33,7 +33,10 @@ use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 /// reboot.
 pub(crate) fn rbtteh_scratch_root() -> PathBuf {
     rbtdrx_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY).unwrap_or_else(|e| {
-        panic!("rbtdth: {} — run tests via `tt/rbw-tt.Test.sh`", e)
+        panic!(
+            "rbtdth: {} — run tests via `tt/rbw-tt.Test.sh`",
+            e, //
+        )
     })
 }
 
@@ -47,7 +50,12 @@ pub(crate) fn rbtteh_make_scratch(label: &str) -> PathBuf {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let dir = rbtteh_scratch_root().join(format!("scratch-{}-{}-{}", label, pid, nanos));
+    let dir = rbtteh_scratch_root().join(format!(
+        "scratch-{}-{}-{}",
+        label,
+        pid,
+        nanos, //
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("rbtdth: create scratch dir");
     dir

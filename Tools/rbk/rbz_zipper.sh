@@ -286,6 +286,8 @@ zrbz_kindle() {
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
   buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
   buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Removes the test engine's build output, so the next door that builds starts from nothing."
+  buz_enroll RBZ_THEURGE_FORMAT_CHECK "rbw-tk" "${z_mod}" "rbte_format_check" "" "Checks every crate this repository tracks against rustfmt, changing nothing."
+  buz_enroll RBZ_THEURGE_FORMAT   "rbw-tK"  "${z_mod}" "rbte_format"  ""         "Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree."
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"

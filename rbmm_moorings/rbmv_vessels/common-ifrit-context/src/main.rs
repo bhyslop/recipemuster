@@ -26,7 +26,10 @@
 
 use std::process::ExitCode;
 
-use rbti::rbtica_attacks::{rbtica_Attack, rbtica_run};
+use rbti::rbtica_attacks::{
+    rbtica_Attack,
+    rbtica_run, //
+};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
@@ -34,7 +37,10 @@ fn main() -> ExitCode {
     match args.get(1).map(|s| s.as_str()) {
         Some("--list") => {
             for selector in rbtica_Attack::rbtica_all_selectors() {
-                println!("{}", selector);
+                println!(
+                    "{}",
+                    selector, //
+                );
             }
             ExitCode::SUCCESS
         }
@@ -42,7 +48,10 @@ fn main() -> ExitCode {
             let attack = match rbtica_Attack::rbtica_from_selector(selector) {
                 Some(a) => a,
                 None => {
-                    eprintln!("rbti: unknown attack selector: {}", selector);
+                    eprintln!(
+                        "rbti: unknown attack selector: {}",
+                        selector, //
+                    );
                     eprintln!("rbti: use --list to see available attacks");
                     return ExitCode::FAILURE;
                 }
@@ -50,10 +59,16 @@ fn main() -> ExitCode {
             let extra_args: Vec<&str> = args[2..].iter().map(|s| s.as_str()).collect();
             let result = rbtica_run(&attack, &extra_args);
             if result.passed {
-                println!("IFRIT_VERDICT: PASS {}", result.detail);
+                println!(
+                    "IFRIT_VERDICT: PASS {}",
+                    result.detail, //
+                );
                 ExitCode::SUCCESS
             } else {
-                println!("IFRIT_VERDICT: FAIL {}", result.detail);
+                println!(
+                    "IFRIT_VERDICT: FAIL {}",
+                    result.detail, //
+                );
                 ExitCode::FAILURE
             }
         }
