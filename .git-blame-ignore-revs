@@ -1,0 +1,5 @@
+# Mechanical reformats git blame steps over: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# The trailing empty-comment sentinel inserted into rb's Rust list shapes.
+a1878fd8ec472a3e5a8f5d1589972d3cb8f75e7c
+# rb's Rust formatted under the pinned stable rustfmt.
+365515ad78cb5e8e686ba2b97bff406fd0819db1
