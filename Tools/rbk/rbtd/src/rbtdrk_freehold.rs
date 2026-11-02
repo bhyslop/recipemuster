@@ -266,13 +266,18 @@ pub(crate) fn rbtcgf_compose_project_id(root: &Path, moniker: &str) -> Result<St
 
 /// Cloud-prefix subdir name used in depot fact-file layout
 /// (`<cloud_prefix>/<moniker>.depot`). Derived from RBRD_CLOUD_PREFIX with
-/// the structural trailing `-` stripped so it matches the filesystem layout
-/// emitted by zrbgp_depot_state_emit.
+/// its one structural trailing `-` removed, and only that one, so a prefix
+/// ending in a doubled hyphen keeps the other: the rule zrbgp_depot_state_emit
+/// applies to the cloud prefix it decodes from each depot project id, so the
+/// two name the same subdir.
 pub(crate) fn rbtcgf_cloud_prefix_subdir(root: &Path) -> Result<String, String> {
     let rbrd = root.join(RBTGEC_RBRD_FILE);
     let cloud_prefix = rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_CLOUD_PREFIX)
         .ok_or_else(|| format!("RBRD_CLOUD_PREFIX missing from {}", rbrd.display()))?;
-    Ok(cloud_prefix.trim_end_matches('-').to_string())
+    Ok(cloud_prefix
+        .strip_suffix('-')
+        .unwrap_or(&cloud_prefix)
+        .to_string())
 }
 
 /// Parent directory of the depot fact files a `rbgp_depot_list` invocation

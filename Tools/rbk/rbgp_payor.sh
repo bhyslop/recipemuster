@@ -287,6 +287,33 @@ rbgp_authenticate_die() {
   buc_die_now "Payor OAuth authentication failed - its cause stands in the transcript: ${BURD_TRANSCRIPT:-}"
 }
 
+# zrbgp_depot_cloud_prefix_capture PROJECT_ID MONIKER — the cloud prefix a depot
+# project id carries, the id composing as
+# "<cloud_prefix>${RBGC_depot_project_infix}<moniker>": the infix-and-moniker
+# suffix is struck off and the rest printed, its structural trailing hyphen
+# kept. An id that does not end with that suffix refuses, and so does one whose
+# rest is empty or ends in no hyphen, since every cloud prefix the depot regime
+# admits ends in one. The one decoder of a depot project id, so the listing's
+# fact subdir and unmake's pool stem read the same prefix.
+zrbgp_depot_cloud_prefix_capture() {
+  zrbgp_sentinel
+
+  local -r z_project_id="${1:-}"
+  local -r z_moniker="${2:-}"
+  test -n "${z_project_id}" || return 1
+  test -n "${z_moniker}"    || return 1
+
+  local -r z_suffix="${RBGC_depot_project_infix}${z_moniker}"
+  local -r z_prefix="${z_project_id%"${z_suffix}"}"
+  test "${z_prefix}" != "${z_project_id}" || return 1
+  case "${z_prefix}" in
+    ?*-) : ;;
+    *)   return 1 ;;
+  esac
+
+  echo "${z_prefix}"
+}
+
 # Probe per-installation depot states and emit per-moniker fact files.
 # Uses CRM v3 projects:search with displayName anchor as discriminator —
 # query "displayName:RBGC-DEPOT*" returns ACTIVE and DELETE_REQUESTED
@@ -296,8 +323,11 @@ rbgp_authenticate_die() {
 # same-moniker depots under different cloud_prefixes from colliding:
 # "<cloud_prefix>/<moniker>.${RBCC_fact_ext_depot}" (state) and
 # "<cloud_prefix>/<moniker>.${RBCC_fact_ext_depot_project}" (project_id) are
-# written via buf_write_fact_multi; the cloud_prefix subdir is derived from
-# projectId (everything before the "-d-" infix). Consumers walking by
+# written via buf_write_fact_multi; the cloud_prefix is decoded from the
+# projectId by zrbgp_depot_cloud_prefix_capture, and its subdir is that prefix
+# with its one structural trailing hyphen removed — the rule the theurge's
+# rbtcgf_cloud_prefix_subdir applies to the regime's cloud prefix. A project
+# whose id does not decode is skipped. Consumers walking by
 # moniker alone restrict to their own subdir; consumers auditing across all
 # depots walk all subdirs.
 #
@@ -339,6 +369,7 @@ zrbgp_depot_state_emit() {
   local z_get_url=""
   local z_get_infix=""
   local z_get_code=""
+  local z_cloud_prefix=""
   local z_prefix_dir=""
 
   z_query_enc=$(rbuh_urlencode_capture "${z_search_query}") \
@@ -388,6 +419,14 @@ zrbgp_depot_state_emit() {
         continue
       fi
 
+      local z_cloud_prefix_status=0
+      z_cloud_prefix=$(zrbgp_depot_cloud_prefix_capture "${z_project_id}" "${z_moniker}") || z_cloud_prefix_status=$?
+      if test "${z_cloud_prefix_status}" -ne 0; then
+        buc_log_args "Skipping project ${z_project_id} — its id does not decode to a cloud prefix and the moniker ${z_moniker}" || buc_die_now "Failed to write transcript line"
+        z_index=$((z_index + 1))
+        continue
+      fi
+
       # CRM v3 projects:search lags state mutations (notably post-delete transitions).
       # GET against the strongly-consistent endpoint for authoritative state.
       z_get_url="${RBGC_API_ROOT_CRM}${RBGC_CRM_V3}/projects/${z_project_id}"
@@ -399,8 +438,11 @@ zrbgp_depot_state_emit() {
       case "${z_get_code}" in
         200)
           local z_crm_state_status=0
-          z_crm_state=$(rbuh_json_field_capture "${z_get_infix}" '.state // "UNKNOWN"') || z_crm_state_status=$?
-          test "${z_crm_state_status}" -eq 0 || z_crm_state="UNKNOWN"
+          z_crm_state=$(rbuh_json_field_capture "${z_get_infix}" '.state') || z_crm_state_status=$?
+          if test "${z_crm_state_status}" -ne 0; then
+            test "${z_crm_state}" = "${RBUH_refusal_absent}" \
+              || buc_die_now "Depot listing: failed to read ${z_project_id}'s state"
+          fi
           ;;
         404)
           # Project completed deletion between search and GET — emit nothing.
@@ -408,9 +450,7 @@ zrbgp_depot_state_emit() {
           continue
           ;;
         *)
-          buc_log_args "Skipping project ${z_project_id} — GET returned ${z_get_code}" || buc_die_now "Failed to write transcript line"
-          z_index=$((z_index + 1))
-          continue
+          buc_die_now "Depot listing: unexpected HTTP ${z_get_code} from projects.get for ${z_project_id} — a depot's state is never guessed"
           ;;
       esac
 
@@ -426,7 +466,7 @@ zrbgp_depot_state_emit() {
 
       # Namespace per cloud_prefix so two depots that share a moniker under
       # different cloud_prefixes can coexist (see fact-file layout note above).
-      z_prefix_dir="${z_project_id%%-d-*}"
+      z_prefix_dir="${z_cloud_prefix%-}"
       mkdir -p "${BURD_OUTPUT_DIR}/${z_prefix_dir}" \
         || buc_die_now "Failed to mkdir output cloud_prefix subdir: ${z_prefix_dir}"
       mkdir -p "${BURD_TEMP_DIR}/${z_prefix_dir}" \
@@ -714,7 +754,9 @@ zrbgp_write_posture_check() {
 # is any terminal but SUCCESS, the build named for its console link. A poll is
 # judged by its HTTP code before its body: a 429 or a 5xx is polled past within
 # the same ceiling, a 200 must carry a status, and any other code is fatal,
-# naming the code and the server's error message.
+# naming the code and the server's error message. Every death after the build
+# id is read cancels the build first, best effort, save the one on a status
+# Cloud Build reports terminal (zrbgp_pool_build_cancel_die).
 # Args: token pool_variant pool_id build_json_file infix_prefix operation_label artifact_ref
 #   artifact_ref empty → omit the "  Artifact: …" line (posture path)
 zrbgp_pool_build_submit_await() {
@@ -773,25 +815,28 @@ zrbgp_pool_build_submit_await() {
   buc_link "  Open ${z_operation_label} build in Cloud Console: " "${z_build_console_url}" "${z_build_console_url}"
 
   local -r z_build_get_url="${z_build_url}/${z_build_id}"
+  local -r z_cancel_infix="${z_infix_prefix}_${z_pool_variant}"
   local z_status="PENDING"
   local z_polls=0
   local z_poll_infix=""
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
-    sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}" || buc_die_now "Poll wait interrupted"
+    sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}" \
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Poll wait interrupted"
     z_polls=$((z_polls + 1))
     test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
-      || buc_die_now "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
-    rbuh_json "GET" "${z_build_get_url}" "${zSECRET_token}" "${z_poll_infix}" || buc_die_now "HTTP GET request failed (${z_poll_infix})"
+    rbuh_json "GET" "${z_build_get_url}" "${zSECRET_token}" "${z_poll_infix}" \
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "HTTP GET request failed (${z_poll_infix})"
     local z_poll_code
     z_poll_code=$(rbuh_code_capture "${z_poll_infix}") \
-      || buc_die_now "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
     case "${z_poll_code}" in
       200) : ;;
       429|5[0123456789][0123456789])
         buc_info "  ${z_operation_label} ${z_pool_variant}: HTTP ${z_poll_code}, polling on (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
-          || buc_die_now "Failed to print message"
+          || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Failed to print message"
         continue
         ;;
       *)
@@ -799,21 +844,96 @@ zrbgp_pool_build_submit_await() {
         local z_poll_err
         z_poll_err=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message') || z_poll_err_status=$?
         test "${z_poll_err_status}" -eq 0 || z_poll_err="no error message"
-        buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
+        zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
         ;;
     esac
     local z_status_status=0
     z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status_status=$?
     if test "${z_status_status}" -ne 0; then
       test "${z_status}" != "${RBUH_refusal_absent}" \
-        || buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 carrying no status"
-      buc_die_now "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 whose status could not be read"
+        || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 carrying no status"
+      zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 whose status could not be read"
     fi
-    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" || buc_die_now "Failed to print message"
+    buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
-  test "${z_status}" = "SUCCESS" \
-    || buc_die_now "${z_operation_label} ${z_pool_variant}: build ${z_build_id} ended ${z_status}, not SUCCESS — inspect it through the console link above"
+  test "${z_status}" != "SUCCESS" || return 0
+
+  local -r z_ended="${z_operation_label} ${z_pool_variant}: build ${z_build_id} ended ${z_status}, not SUCCESS — inspect it through the console link above"
+  case "${z_status}" in
+    FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) buc_die_now "${z_ended}" ;;
+    *) zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_ended}" ;;
+  esac
+}
+
+# Best-effort cancel of a pool build the await is abandoning, so a build left
+# queued or running cannot wedge the next one behind it. Sent through
+# rbuh_request, whose curl status is captured and classified here, so a
+# transport failure of the cancel never masks the death that follows it; every
+# outcome is a warning naming the build and its console link, and nothing here
+# dies on the cancel's own account.
+# Args: token build_url build_id console_url infix
+zrbgp_pool_build_cancel() {
+  zrbgp_sentinel
+
+  local -r zSECRET_token="${1:-}"
+  local -r z_build_url="${2:-}"
+  local -r z_build_id="${3:-}"
+  local -r z_console_url="${4:-}"
+  local -r z_infix="${5:-}"
+
+  local -r z_prefix="${ZRBGP_PREFIX}${z_infix}_cancel_"
+  local -r z_body_file="${z_prefix}body.json"
+  local -r z_resp_file="${z_prefix}resp.json"
+  local -r z_code_file="${z_prefix}code.txt"
+  local -r z_stderr_file="${z_prefix}stderr.txt"
+
+  local z_jq_status=0
+  jq -n --arg project "${RBDC_DEPOT_PROJECT_ID}" --arg id "${z_build_id}" '{projectId: $project, id: $id}' \
+    > "${z_body_file}" 2>"${z_stderr_file}" || z_jq_status=$?
+  if test "${z_jq_status}" -ne 0; then
+    buc_warn "Could not compose the cancel of build ${z_build_id}, which may still run — see ${z_stderr_file}: ${z_console_url}"
+    return 0
+  fi
+
+  local z_curl_status=0
+  rbuh_request "POST" "${z_build_url}:cancel" "${zSECRET_token}" \
+      "${z_resp_file}" "${z_code_file}" "${z_stderr_file}" "${z_body_file}" \
+    || z_curl_status=$?
+  if test "${z_curl_status}" -ne 0; then
+    buc_warn "The cancel of build ${z_build_id} was not sent (curl exit ${z_curl_status}), so it may still run — see ${z_stderr_file}: ${z_console_url}"
+    return 0
+  fi
+
+  local z_code=""
+  local z_code_status=0
+  z_code=$(<"${z_code_file}") || z_code_status=$?
+  test "${z_code_status}" -eq 0 || z_code=""
+  case "${z_code}" in
+    200) buc_warn "Cancelled build ${z_build_id}: ${z_console_url}" ;;
+    *)   buc_warn "The cancel of build ${z_build_id} answered HTTP ${z_code}, so it may still run — see ${z_resp_file}: ${z_console_url}" ;;
+  esac
+}
+
+# The await's every death after the build id is read, save on a status Cloud
+# Build reports terminal: the build is cancelled first, best effort, and the
+# death's message and exit then stand as they would have without it. A death
+# raised inside the HTTP layer during a poll is not reached by this, since that
+# layer dies on its own and no exit trap stands to catch it.
+# Args: token build_url build_id console_url infix message
+zrbgp_pool_build_cancel_die() {
+  zrbgp_sentinel
+
+  local -r zSECRET_token="${1:-}"
+  local -r z_build_url="${2:-}"
+  local -r z_build_id="${3:-}"
+  local -r z_console_url="${4:-}"
+  local -r z_infix="${5:-}"
+  local -r z_message="${6:-}"
+  test -n "${z_message}" || buc_die_now "zrbgp_pool_build_cancel_die: message required"
+  zrbgp_pool_build_cancel "${zSECRET_token}" "${z_build_url}" "${z_build_id}" "${z_console_url}" "${z_infix}"
+  buc_die_now "${z_message}"
 }
 
 # Levy-time per-pool probe. Composes a 2-step Cloud Build (posture check
@@ -2056,7 +2176,13 @@ zrbgp_escheat_depots() {
 
 # Escheat helper — probe each depot candidate's liveness: ACTIVE
 # with the depot displayName anchor is live; ACTIVE without it is an anomaly
-# (kept, flagged); any other state, 403, or 404 is dead. A candidate that cannot
+# (kept, flagged); any other state, an absent state, or 404 is dead. A 403 is
+# read by the reason its ErrorInfo detail names: a disabled service or an
+# insufficient token scope says the caller could not ask, so it dies naming
+# the remedy; any other reason, or none, is dead. That reading rests on the
+# same-owner assumption: the payor is the owner of every depot the terrier
+# names, so a 403 answered readably and with no such reason means the project
+# is gone, never that it is withheld from another identity. A candidate that cannot
 # even be a project id (shape-invalid — e.g. a nested folder name) is dead by
 # construction, no probe issued. Writes "«depot»\t«verdict»\t«detail»" per line to
 # the output file it is handed.
@@ -2101,11 +2227,10 @@ zrbgp_escheat_liveness() {
     case "${z_code}" in
       200)
         local z_state_status=0
-        z_state=$(rbuh_json_field_capture "${z_infix}" '.state // "UNKNOWN"') || z_state_status=$?
+        z_state=$(rbuh_json_field_capture "${z_infix}" '.state') || z_state_status=$?
         if test "${z_state_status}" -ne 0; then
           test "${z_state}" = "${RBUH_refusal_absent}" \
             || buc_die_now "Depot liveness: failed to read ${z_depot}'s state — a liveness verdict is never guessed"
-          z_state="UNKNOWN"
         fi
         if test "${z_state}" != "${RBGC_STATE_ACTIVE}"; then
           printf '%s\tdead\t%s\n' "${z_depot}" "${z_state}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
@@ -2119,7 +2244,27 @@ zrbgp_escheat_liveness() {
           *)                      printf '%s\tanomaly\tactive-without-depot-anchor\n' "${z_depot}" >> "${z_out}" || buc_die_now "Failed to emit liveness line" ;;
         esac
         ;;
-      403|404)
+      403)
+        local z_reason=""
+        local z_reason_status=0
+        z_reason=$(rbuh_json_field_capture "${z_infix}" '[.error.details[]? | select(."@type" | endswith("ErrorInfo")) | .reason] | .[0]') || z_reason_status=$?
+        if test "${z_reason_status}" -ne 0; then
+          test "${z_reason}" = "${RBUH_refusal_absent}" \
+            || buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot} whose body could not be read — a liveness verdict is never guessed"
+          z_reason=""
+        fi
+        case "${z_reason}" in
+          SERVICE_DISABLED)
+            buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — enable the service Google's answer names (response: ${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}) and re-run — a liveness verdict is never guessed"
+            ;;
+          ACCESS_TOKEN_SCOPE_INSUFFICIENT)
+            buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — the payor's token lacks the scope this read needs; reinstall the payor credential and re-run — a liveness verdict is never guessed"
+            ;;
+          *) : ;;
+        esac
+        printf '%s\tdead\thttp-%s\n' "${z_depot}" "${z_code}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
+        ;;
+      404)
         printf '%s\tdead\thttp-%s\n' "${z_depot}" "${z_code}" >> "${z_out}" || buc_die_now "Failed to emit liveness line"
         ;;
       *)
@@ -2802,7 +2947,9 @@ rbgp_depot_unmake() {
   # project_id   format: "<cloud_prefix>${RBGC_depot_project_infix}<moniker>"
   # pool_stem    format: "<cloud_prefix><moniker>-pool" (mirrors RBDC_GCB_POOL_STEM)
   local -r z_moniker="${z_display_name#"${z_display_prefix}"}"
-  local -r z_cloud_prefix="${z_project_id%"${RBGC_depot_project_infix}""${z_moniker}"}"
+  local z_cloud_prefix
+  z_cloud_prefix=$(zrbgp_depot_cloud_prefix_capture "${z_project_id}" "${z_moniker}") \
+    || buc_die_now "Refusing to ${RBCG_DEPOT_UNMAKE_BASE} ${z_project_id}: its id does not decode to a cloud prefix and the moniker ${z_moniker} its displayName names"
   local -r z_pool_stem="${z_cloud_prefix}${z_moniker}-pool"
 
   buc_step 'Clean up governor service accounts (404-tolerant)'
