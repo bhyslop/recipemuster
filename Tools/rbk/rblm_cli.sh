@@ -76,12 +76,19 @@ rblm_zero() {
     z_raw_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
     local -r z_check_manifest="${BURD_TEMP_DIR}/rblm_zero_check_manifest.txt"
     zrblm_zero_rewrite "${z_raw_vessel_dir}" "${z_check_manifest}"
+    local -a z_check_temps=()
+    local -a z_check_targets=()
     local z_check_tmp=""
     local z_check_target=""
     while IFS=$'\t' read -r z_check_tmp z_check_target || test -n "${z_check_tmp}"; do
-      git diff --no-index --quiet -- "${z_check_tmp}" "${z_check_target}" \
-        || buc_die_now "Marshal zero refuses: RBRR_RUNTIME_PREFIX stands blank, so the repo regime cannot be kindled, yet ${z_check_target} is not in marshal-zero state"
+      z_check_temps+=("${z_check_tmp}")
+      z_check_targets+=("${z_check_target}")
     done < "${z_check_manifest}"
+    local z_check_index=0
+    for z_check_index in "${!z_check_targets[@]}"; do
+      git diff --no-index --quiet -- "${z_check_temps[${z_check_index}]}" "${z_check_targets[${z_check_index}]}" \
+        || buc_die_now "Marshal zero refuses: RBRR_RUNTIME_PREFIX stands blank, so the repo regime cannot be kindled, yet ${z_check_targets[${z_check_index}]} is not in marshal-zero state"
+    done
     buh_line "  No changes to commit — already in marshal-zero state"
     buc_success "Regime already zeroed"
     return 0
@@ -187,14 +194,20 @@ rblm_zero() {
   zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
 
   # Every field was found: replace each target from its temp.
+  local -a z_temps=()
   local -a z_targets=()
   local z_tmp=""
   local z_target=""
   while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
-    mv "${z_tmp}" "${z_target}" || buc_die_now "Failed to replace: ${z_target}"
-    buh_line "  Zeroed: ${z_target}"
+    z_temps+=("${z_tmp}")
     z_targets+=("${z_target}")
   done < "${z_manifest}"
+  (( ${#z_targets[@]} )) || buc_die_now "Marshal zero rewrote no file: ${z_manifest} is empty"
+  local z_index=0
+  for z_index in "${!z_targets[@]}"; do
+    mv "${z_temps[${z_index}]}" "${z_targets[${z_index}]}" || buc_die_now "Failed to replace: ${z_targets[${z_index}]}"
+    buh_line "  Zeroed: ${z_targets[${z_index}]}"
+  done
   buh_e
 
   # Auto-commit the in-tree mutations so post-zero state is captured as a single
