@@ -85,6 +85,37 @@ rbge_newly_created_delay() {
   fi
 }
 
+# zrbge_lro_error_check LABEL INFIX — a done operation reports its failure by
+# carrying an error, whatever the error holds, so the error's presence is read
+# and never its message alone: a present error dies, naming its message where
+# one reads and the error itself otherwise; an absent one returns; a read that
+# fails dies.
+zrbge_lro_error_check() {
+  zrbge_sentinel
+
+  local -r z_label="${1:-}"
+  local -r z_infix="${2:-}"
+  test -n "${z_label}" || buc_die_now "zrbge_lro_error_check: label required"
+  test -n "${z_infix}" || buc_die_now "zrbge_lro_error_check: infix required"
+
+  local -r z_resp_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
+  local z_error=""
+  local z_error_status=0
+  z_error=$(rbuh_json_field_capture "${z_infix}" '.error | tojson') || z_error_status=$?
+  if test "${z_error_status}" -ne 0; then
+    test "${z_error}" = "${RBUH_refusal_absent}" \
+      || buc_die_now "${z_label}: the operation's error could not be read — response saved: ${z_resp_file}"
+    return 0
+  fi
+
+  local z_message=""
+  local z_message_status=0
+  z_message=$(rbuh_json_field_capture "${z_infix}" '.error.message') || z_message_status=$?
+  test "${z_message_status}" -eq 0 || z_message="${z_error}"
+  buc_warn "${z_label}: LRO completed with error — response saved: ${z_resp_file}"
+  buc_die_now "${z_label}: ${z_message}"
+}
+
 # POST + strict LRO handling (no heuristics)
 rbge_lro_ok() {
   zrbge_sentinel
@@ -126,20 +157,19 @@ rbge_lro_ok() {
   rbuh_json "POST" "${z_post_url}" "${zSECRET_token}" "${z_infix}" "${z_body}"
   rbuh_require_ok "${z_label}" "${z_infix}"
 
+  local z_post_code
+  z_post_code=$(rbuh_code_capture "${z_infix}") || buc_die_now "${z_label}: failed to read HTTP code for ${z_infix}"
+  if test "${z_post_code}" = "204"; then
+    buc_log_args 'HTTP 204 carries no body -> non-LRO success'
+    return 0
+  fi
+
   local z_done=""
   local z_done_status=0
   z_done=$(rbuh_json_field_capture "${z_infix}" ".done") || z_done_status=$?
   test "${z_done_status}" -eq 0 || z_done=""
   if test "${z_done}" = "true"; then
-    local z_lro_error=""
-    local z_lro_error_status=0
-    z_lro_error=$(rbuh_json_field_capture "${z_infix}" '.error.message // empty') || z_lro_error_status=$?
-    test "${z_lro_error_status}" -eq 0 || z_lro_error=""
-    if test -n "${z_lro_error}"; then
-      local -r z_lro_resp_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
-      buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
-      buc_die_now "${z_label}: ${z_lro_error}"
-    fi
+    zrbge_lro_error_check "${z_label}" "${z_infix}"
     buc_log_args 'Immediate-done response -> success (no polling)'
     return 0
   fi
@@ -148,11 +178,12 @@ rbge_lro_ok() {
   local z_name_status=0
   local z_name
   z_name=$(rbuh_json_field_capture "${z_infix}" "${z_name_jq}") || z_name_status=$?
-  test "${z_name_status}" -eq 0 || z_name=""
-  test -n "${z_name}" || {
+  if test "${z_name_status}" -ne 0; then
+    test "${z_name}" = "${RBUH_refusal_absent}" \
+      || buc_die_now "${z_label}: failed to read the operation name from ${z_infix}"
     buc_log_args 'No LRO name present - treat as non-LRO success'
     return 0
-  }
+  fi
   buc_log_args '3) Build poll URL based on operation name format'
   local z_poll_url=""
   if [[ "${z_name}" =~ ^projects/.*/locations/.*/operations/ ]]; then
@@ -190,15 +221,7 @@ rbge_lro_ok() {
     z_done=$(rbuh_json_field_capture "${z_poll_infix}" ".done") || z_done_status=$?
     test "${z_done_status}" -eq 0 || z_done=""
     if test "${z_done}" = "true"; then
-      local z_lro_error=""
-      local z_lro_error_status=0
-      z_lro_error=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message // empty') || z_lro_error_status=$?
-      test "${z_lro_error_status}" -eq 0 || z_lro_error=""
-      if test -n "${z_lro_error}"; then
-        local -r z_lro_resp_file="${ZRBUH_PREFIX}${z_poll_infix}${ZRBUH_POSTFIX_JSON}"
-        buc_warn "${z_label}: LRO completed with error — response saved: ${z_lro_resp_file}"
-        buc_die_now "${z_label}: ${z_lro_error}"
-      fi
+      zrbge_lro_error_check "${z_label}" "${z_poll_infix}"
       buc_log_args "${z_label}: operation completed after ${z_elapsed}s"
       return 0
     fi

@@ -68,11 +68,14 @@ rbfld_jettison() {
   local z_response_file="${ZRBFL0_DELETE_PREFIX}response.json"
   local z_stderr_file="${ZRBFL0_DELETE_PREFIX}stderr.txt"
 
+  local z_curl_status=0
   rbuh_request "DELETE"                                                  \
                     "${ZRBFC0_REGISTRY_API_BASE}/${z_pkg_path}/manifests/${z_ref}" \
                     "${zSECRET_token}"                                              \
                     "${z_response_file}" "${z_status_file}" "${z_stderr_file}" \
-    || buc_die_now "DELETE request failed — see ${z_stderr_file}"
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 \
+    || buc_die_now "The DELETE of ${z_locator} could not complete (curl exit ${z_curl_status}) — see ${z_stderr_file}"
 
   local z_http_code
   z_http_code=$(<"${z_status_file}") || buc_die_now "Failed to read: ${z_status_file}"
