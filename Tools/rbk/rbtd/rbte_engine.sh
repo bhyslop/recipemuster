@@ -207,6 +207,7 @@ zrbte_format() {
   local z_kits=()
   IFS=',' read -r -a z_kits <<< "${BURC_MANAGED_KITS}" \
     || buc_die_now "Could not read the managed kits from '${BURC_MANAGED_KITS}'"
+  (( ${#z_kits[@]} )) || buc_die_now "BURC_MANAGED_KITS names no kit"
 
   local -r z_list="${ZRBTE_FORMAT_PREFIX}manifests.txt"
   git -C "${ZRBTE_REPO_ROOT}" ls-files -- 'Cargo.toml' '*/Cargo.toml' > "${z_list}" \
