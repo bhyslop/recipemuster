@@ -44,7 +44,9 @@
 // those sites.
 
 use std::collections::BTreeSet;
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 
 // ── Finding ─────────────────────────────────────────────────
@@ -65,11 +67,18 @@ fn zrbvceu_render(findings: &[zrbvceu_Finding]) -> Vec<String> {
         .iter()
         .map(|f| {
             if f.line == 0 {
-                format!("{}: {}", f.file, f.detail, //
-)
+                format!(
+                    "{}: {}",
+                    f.file,
+                    f.detail, //
+                )
             } else {
-                format!("{}:{}: {}", f.file, f.line, f.detail, //
-)
+                format!(
+                    "{}:{}: {}",
+                    f.file,
+                    f.line,
+                    f.detail, //
+                )
             }
         })
         .collect()
@@ -89,15 +98,21 @@ const ZRBVCEU_CENSUS_SKIP_DIRS: &[&str] = &["target"];
 
 /// Directories the veil file-scan never descends: build output, and the veiled
 /// trees themselves — a veiled file may name its veiled siblings freely.
-const ZRBVCEU_VEIL_SKIP_DIRS: &[&str] = &["target", ZRBVCEU_VEIL_DIR, //
+const ZRBVCEU_VEIL_SKIP_DIRS: &[&str] = &[
+    "target",
+    ZRBVCEU_VEIL_DIR, //
 ];
 
 /// Repo-relative roots walked by the veil scan — the shipping tree. `diagrams/`
 /// rides here because a rendered diagram displays its source text to a reader: a
 /// withheld name in a `.puml` title is baked into the committed `.svg` and is
 /// read by a consumer who never greps anything.
-const ZRBVCEU_VEIL_ROOTS: &[&str] =
-    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams", //
+const ZRBVCEU_VEIL_ROOTS: &[&str] = &[
+    "Tools/buk",
+    "Tools/rbk",
+    "tt",
+    "rbmm_moorings",
+    "diagrams", //
 ];
 
 /// Repo-relative single files added to the veil corpus. The repo-root `CLAUDE.md`
@@ -125,12 +140,16 @@ const ZRBVCEU_VEIL_CENSUS_ROOT: &str = ZRBVCEU_VEIL_DIR;
 /// its path, which the veiled-dir needle already catches, while a bare document
 /// basename (`SOMEDOC-Topic.adoc`) is the citation form that slips past a path
 /// check.
-const ZRBVCEU_VEIL_DOC_EXTS: &[&str] = &["adoc", "md", //
+const ZRBVCEU_VEIL_DOC_EXTS: &[&str] = &[
+    "adoc",
+    "md", //
 ];
 
 /// Substrings a line must carry before it can possibly name a withheld document.
 /// A pure speed gate over the census loop, and exactly the extensions above.
-const ZRBVCEU_VEIL_DOC_MARKS: &[&str] = &[".adoc", ".md", //
+const ZRBVCEU_VEIL_DOC_MARKS: &[&str] = &[
+    ".adoc",
+    ".md", //
 ];
 
 /// Repo-relative SHIPPED paths exempt from the veil scan, each with the reason —
@@ -166,8 +185,17 @@ const ZRBVCEU_VEIL_DOC_DETAIL: &str = "names withheld document";
 /// File extensions skipped by the file walk — compiled, compressed, or raster
 /// payloads in which a name cannot be authored by hand and a byte-coincidence
 /// would be a false positive.
-const ZRBVCEU_SKIP_EXTS: &[&str] =
-    &["gz", "ico", "jpg", "jpeg", "lock", "png", "tar", "tgz", "webp", "zip", //
+const ZRBVCEU_SKIP_EXTS: &[&str] = &[
+    "gz",
+    "ico",
+    "jpg",
+    "jpeg",
+    "lock",
+    "png",
+    "tar",
+    "tgz",
+    "webp",
+    "zip", //
 ];
 
 /// Per-file byte cap for the file walk. A file above this is not a hand-authored
@@ -186,11 +214,15 @@ const ZRBVCEU_SIZE_CAP: u64 = 1_048_576;
 ///
 /// A machine acquired later is protected only once its name is added — the one
 /// cost of the retired harvest, and the reason to add it at acquisition.
-pub(crate) const ZRBVCEU_HOST_CENSUS: &[&str] = &["bujn-winpc", "rocket", //
+pub(crate) const ZRBVCEU_HOST_CENSUS: &[&str] = &[
+    "bujn-winpc",
+    "rocket", //
 ];
 
 /// Directories skipped while scanning shipping files for a hostname leak.
-const ZRBVCEU_HOST_SCAN_SKIP_DIRS: &[&str] = &["target", "vov_veiled", //
+const ZRBVCEU_HOST_SCAN_SKIP_DIRS: &[&str] = &[
+    "target",
+    "vov_veiled", //
 ];
 
 /// Tokens exempt from the hostname census — an exact string that happens to also
@@ -213,10 +245,12 @@ fn zrbvceu_repo_rel(root: &Path, path: &Path) -> String {
 
 /// True when `basename` is a withheld document — one of the extensions above.
 fn zrbvceu_is_veil_doc(basename: &str) -> bool {
-    ZRBVCEU_VEIL_DOC_EXTS
-        .iter()
-        .any(|ext| basename.ends_with(&format!(".{}", ext, //
-)))
+    ZRBVCEU_VEIL_DOC_EXTS.iter().any(|ext| {
+        basename.ends_with(&format!(
+            ".{}",
+            ext, //
+        ))
+    })
 }
 
 /// Collect the basenames of every withheld document beneath `dir`, which the
@@ -261,7 +295,10 @@ pub(crate) fn zrbvceu_veil_scan_text(
                 detail: ZRBVCEU_VEIL_PATH_DETAIL.to_string(),
             });
         }
-        if !ZRBVCEU_VEIL_DOC_MARKS.iter().any(|mark| line.contains(mark)) {
+        if !ZRBVCEU_VEIL_DOC_MARKS
+            .iter()
+            .any(|mark| line.contains(mark))
+        {
             continue;
         }
         for doc in census {
@@ -269,8 +306,11 @@ pub(crate) fn zrbvceu_veil_scan_text(
                 findings.push(zrbvceu_Finding {
                     file: rel.to_string(),
                     line: index + 1,
-                    detail: format!("{} {}", ZRBVCEU_VEIL_DOC_DETAIL, doc, //
-),
+                    detail: format!(
+                        "{} {}",
+                        ZRBVCEU_VEIL_DOC_DETAIL,
+                        doc, //
+                    ),
                 });
             }
         }
@@ -306,8 +346,10 @@ pub(crate) fn zrbvceu_veil_self_proof_by(
             findings.push(zrbvceu_Finding {
                 file: "rbvceu_loupe.rs".to_string(),
                 line: 0,
-                detail: format!("veil matcher missed a known leak: {:?}", probe, //
-),
+                detail: format!(
+                    "veil matcher missed a known leak: {:?}",
+                    probe, //
+                ),
             });
         }
     }
@@ -324,8 +366,10 @@ pub(crate) fn zrbvceu_veil_self_proof_by(
             findings.push(zrbvceu_Finding {
                 file: "rbvceu_loupe.rs".to_string(),
                 line: 0,
-                detail: format!("veil matcher fired on a benign line: {:?}", probe, //
-),
+                detail: format!(
+                    "veil matcher fired on a benign line: {:?}",
+                    probe, //
+                ),
             });
         }
     }
@@ -467,8 +511,10 @@ pub(crate) fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
 fn zrbvceu_hostname_leak(root: &Path) -> Vec<zrbvceu_Finding> {
     let mut findings = Vec::new();
 
-    let mut census: BTreeSet<String> =
-        ZRBVCEU_HOST_CENSUS.iter().map(|name| name.to_string()).collect();
+    let mut census: BTreeSet<String> = ZRBVCEU_HOST_CENSUS
+        .iter()
+        .map(|name| name.to_string())
+        .collect();
     for name in ZRBVCEU_HOST_EXEMPT {
         census.remove(*name);
     }
@@ -500,8 +546,10 @@ fn zrbvceu_hostname_leak(root: &Path) -> Vec<zrbvceu_Finding> {
                     findings.push(zrbvceu_Finding {
                         file: rel.clone(),
                         line: index + 1,
-                        detail: format!("names operator machine {}", tok, //
-),
+                        detail: format!(
+                            "names operator machine {}",
+                            tok, //
+                        ),
                     });
                 }
             }

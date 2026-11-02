@@ -25,15 +25,22 @@
 //   3. Ifrit verdict parsing — extract verdict from ifrit stdout + exit code
 //   4. BURV fact file reading — extract structured output from tabtarget results
 
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 use std::process::Command;
 use std::sync::OnceLock;
 
-use crate::rbtgec_consts::{RBTGEC_ORDAIN_HALLMARK, RBTGEC_VERB_ORDAIN, //
-};
 use crate::rbtcee_engine::rbtcee_Verdict;
-use crate::rbtcep_platform::{rbtcep_is_cygwin, rbtcep_native_to_posix, rbtcep_posix_to_native, //
+use crate::rbtcep_platform::{
+    rbtcep_is_cygwin,
+    rbtcep_native_to_posix,
+    rbtcep_posix_to_native, //
+};
+use crate::rbtgec_consts::{
+    RBTGEC_ORDAIN_HALLMARK,
+    RBTGEC_VERB_ORDAIN, //
 };
 
 /// BUK dispatch output subdirectory — tabtargets write facts to BURV_OUTPUT_ROOT_DIR/current.
@@ -85,8 +92,10 @@ const RBTCEI_CYGWIN_BASH_POSIX: &str = "/bin/bash";
 /// Single source of truth for the `invoke-NNNNN` naming pattern; tests call
 /// this rather than hand-expanding the literal.
 pub fn rbtcei_invoke_dir_name(invoke_num: u32) -> String {
-    format!("invoke-{:05}", invoke_num, //
-)
+    format!(
+        "invoke-{:05}",
+        invoke_num, //
+    )
 }
 
 // ── Invocation result ────────────────────────────────────────
@@ -376,14 +385,21 @@ pub fn rbtcei_find_tabtarget(
     imprint: &str,
 ) -> Result<PathBuf, String> {
     let tt_dir = project_root.join("tt");
-    let prefix = format!("{}.", colophon, //
-);
-    let suffix = format!(".{}.sh", imprint, //
-);
+    let prefix = format!(
+        "{}.",
+        colophon, //
+    );
+    let suffix = format!(
+        ".{}.sh",
+        imprint, //
+    );
 
-    let entries = std::fs::read_dir(&tt_dir)
-        .map_err(|e| format!("rbtdri: cannot read tt/ directory: {}", e, //
-))?;
+    let entries = std::fs::read_dir(&tt_dir).map_err(|e| {
+        format!(
+            "rbtdri: cannot read tt/ directory: {}",
+            e, //
+        )
+    })?;
 
     let matches: Vec<PathBuf> = entries
         .filter_map(|entry| entry.ok())
@@ -400,12 +416,15 @@ pub fn rbtcei_find_tabtarget(
     match matches.len() {
         0 => Err(format!(
             "rbtdri: no tabtarget for colophon '{}' imprint '{}'",
-            colophon, imprint, //
+            colophon,
+            imprint, //
         )),
         1 => Ok(matches.into_iter().next().unwrap()),
         n => Err(format!(
             "rbtdri: {} tabtargets match colophon '{}' imprint '{}' — expected exactly one",
-            n, colophon, imprint, //
+            n,
+            colophon,
+            imprint, //
         )),
     }
 }
@@ -419,12 +438,17 @@ pub fn rbtcei_find_tabtarget_global(
     colophon: &str,
 ) -> Result<PathBuf, String> {
     let tt_dir = project_root.join("tt");
-    let prefix = format!("{}.", colophon, //
-);
+    let prefix = format!(
+        "{}.",
+        colophon, //
+    );
 
-    let entries = std::fs::read_dir(&tt_dir)
-        .map_err(|e| format!("rbtdri: cannot read tt/ directory: {}", e, //
-))?;
+    let entries = std::fs::read_dir(&tt_dir).map_err(|e| {
+        format!(
+            "rbtdri: cannot read tt/ directory: {}",
+            e, //
+        )
+    })?;
 
     let matches: Vec<PathBuf> = entries
         .filter_map(|entry| entry.ok())
@@ -452,7 +476,8 @@ pub fn rbtcei_find_tabtarget_global(
         1 => Ok(matches.into_iter().next().unwrap()),
         n => Err(format!(
             "rbtdri: {} global tabtargets match colophon '{}' — expected exactly one",
-            n, colophon, //
+            n,
+            colophon, //
         )),
     }
 }
@@ -524,16 +549,22 @@ pub fn rbtcei_tabtarget_command(tabtarget: &Path) -> Command {
 /// path. Covers a plain configuration alone: a tabtarget already carrying a
 /// mode word is refused rather than having its mode guessed at.
 fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, String> {
-    let body = std::fs::read_to_string(tabtarget)
-        .map_err(|e| format!("rbtdri: cannot read {}: {}", tabtarget.display(), e, //
-))?;
+    let body = std::fs::read_to_string(tabtarget).map_err(|e| {
+        format!(
+            "rbtdri: cannot read {}: {}",
+            tabtarget.display(),
+            e, //
+        )
+    })?;
     let configuration = body
         .lines()
         .find_map(|line| line.strip_prefix(RBTDRI_CONFIGURATION_HEAD))
         .and_then(|rest| rest.split('\'').next())
         .ok_or_else(|| {
-            format!("rbtdri: {} carries no configuration line", tabtarget.display(), //
-)
+            format!(
+                "rbtdri: {} carries no configuration line",
+                tabtarget.display(), //
+            )
         })?;
     let mut words = configuration.split_whitespace();
     let launcher = words.next().unwrap_or_default();
@@ -544,27 +575,40 @@ fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, Str
             configuration, //
         ));
     }
-    let name = tabtarget
-        .file_name()
-        .ok_or_else(|| format!("rbtdri: {} has no file name", tabtarget.display(), //
-))?;
-    let dir = tabtarget
-        .parent()
-        .ok_or_else(|| format!("rbtdri: {} has no directory", tabtarget.display(), //
-))?;
+    let name = tabtarget.file_name().ok_or_else(|| {
+        format!(
+            "rbtdri: {} has no file name",
+            tabtarget.display(), //
+        )
+    })?;
+    let dir = tabtarget.parent().ok_or_else(|| {
+        format!(
+            "rbtdri: {} has no directory",
+            tabtarget.display(), //
+        )
+    })?;
     let trampoline = rbtcep_native_to_posix(&dir.join(RBTDRI_TRAMPOLINE));
     if trampoline.contains('\'') {
-        return Err(format!("rbtdri: trampoline path {} carries a single quote", trampoline, //
-));
+        return Err(format!(
+            "rbtdri: trampoline path {} carries a single quote",
+            trampoline, //
+        ));
     }
     let stub = format!(
         "#!/bin/bash\n{}{} {}' \"$@\"\nexec '{}' \"${{0##*/}}\" \"${{@}}\"\n",
-        RBTDRI_CONFIGURATION_HEAD, launcher, RBTDRI_WORD_NOLOG, trampoline, //
+        RBTDRI_CONFIGURATION_HEAD,
+        launcher,
+        RBTDRI_WORD_NOLOG,
+        trampoline, //
     );
     let path = burv_temp.join(name);
-    std::fs::write(&path, stub)
-        .map_err(|e| format!("rbtdri: cannot write no-log stub {}: {}", path.display(), e, //
-))?;
+    std::fs::write(&path, stub).map_err(|e| {
+        format!(
+            "rbtdri: cannot write no-log stub {}: {}",
+            path.display(),
+            e, //
+        )
+    })?;
     Ok(path)
 }
 
@@ -576,13 +620,20 @@ fn zrbtdri_nolog_stub(tabtarget: &Path, burv_temp: &Path) -> Result<PathBuf, Str
 /// its own lands on station ground, beside every other dispatch standing there.
 /// This one is handed an output root and a temp root beneath the case's own
 /// directory.
-pub fn rbtdri_rooted_tabtarget_command(tabtarget: &Path, root_dir: &Path) -> Result<Command, String> {
+pub fn rbtdri_rooted_tabtarget_command(
+    tabtarget: &Path,
+    root_dir: &Path,
+) -> Result<Command, String> {
     let output = root_dir.join(RBTDRI_ROOTED_OUTPUT_SUBDIR);
     let temp = root_dir.join(RBTDRI_ROOTED_TEMP_SUBDIR);
     for root in [&output, &temp] {
-        std::fs::create_dir_all(root)
-            .map_err(|e| format!("rbtdri: cannot create run root {}: {}", root.display(), e, //
-))?;
+        std::fs::create_dir_all(root).map_err(|e| {
+            format!(
+                "rbtdri: cannot create run root {}: {}",
+                root.display(),
+                e, //
+            )
+        })?;
     }
     let mut cmd = rbtcei_tabtarget_command(tabtarget);
     cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&output))
@@ -619,7 +670,10 @@ fn rbtcei_invoke_impl(
                 "rbtdri: fixture '{}' invoked colophon '{}' which is not declared in its \
                  required-colophons census — add it to rbtcem_required_colophons('{}') or \
                  rbtcem_permitted_colophons('{}'), or invoke a declared colophon instead",
-                ctx.fixture, colophon, ctx.fixture, ctx.fixture, //
+                ctx.fixture,
+                colophon,
+                ctx.fixture,
+                ctx.fixture, //
             ));
         }
     }
@@ -641,25 +695,34 @@ fn rbtcei_invoke_impl(
     let burv_output = ctx.burv_output_root.join(&dir_name);
     let burv_temp = ctx.burv_temp_root.join(&dir_name);
 
-    std::fs::create_dir_all(&burv_output)
-        .map_err(|e| format!("rbtdri: failed to create BURV output dir: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp)
-        .map_err(|e| format!("rbtdri: failed to create BURV temp dir: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv_output).map_err(|e| {
+        format!(
+            "rbtdri: failed to create BURV output dir: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "rbtdri: failed to create BURV temp dir: {}",
+            e, //
+        )
+    })?;
 
     // Tweak-slot conflict gate: under the credless guard the single
     // tweak slot belongs to the guard — a reveille-tier case supplying its own
     // tweak has self-identified as not belonging in reveille. Fail loud rather
     // than letting the case silently overwrite the guard.
     if rbtcei_credless_armed()
-        && extra_env.iter().any(|(k, _)| *k == RBTCEI_BURE_TWEAK_NAME_KEY)
+        && extra_env
+            .iter()
+            .any(|(k, _)| *k == RBTCEI_BURE_TWEAK_NAME_KEY)
     {
         return Err(format!(
             "rbtdri: fixture '{}' is reveille-tier credless — its tweak slot belongs to \
              the credless guard, so a case may not set {} (a case needing a seam \
              does not belong in reveille)",
-            ctx.fixture, RBTCEI_BURE_TWEAK_NAME_KEY, //
+            ctx.fixture,
+            RBTCEI_BURE_TWEAK_NAME_KEY, //
         ));
     }
 
@@ -679,10 +742,13 @@ fn rbtcei_invoke_impl(
         cmd.env(key, value);
     }
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("rbtdri: failed to execute '{}': {}", tabtarget.display(), e, //
-))?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "rbtdri: failed to execute '{}': {}",
+            tabtarget.display(),
+            e, //
+        )
+    })?;
 
     Ok(rbtcei_InvokeResult {
         stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
@@ -762,14 +828,25 @@ pub fn rbtcei_read_burv_fact(
     result: &rbtcei_InvokeResult,
     fact_name: &str,
 ) -> Result<String, String> {
-    let path = result.burv_output.join(RBTCEI_BURV_OUTPUT_SUBDIR).join(fact_name);
-    let content = std::fs::read_to_string(&path)
-        .map_err(|e| format!("rbtdri: cannot read fact '{}' from {}: {}", fact_name, path.display(), e, //
-))?;
+    let path = result
+        .burv_output
+        .join(RBTCEI_BURV_OUTPUT_SUBDIR)
+        .join(fact_name);
+    let content = std::fs::read_to_string(&path).map_err(|e| {
+        format!(
+            "rbtdri: cannot read fact '{}' from {}: {}",
+            fact_name,
+            path.display(),
+            e, //
+        )
+    })?;
     let trimmed = content.trim().to_string();
     if trimmed.is_empty() {
-        return Err(format!("rbtdri: fact '{}' is empty in {}", fact_name, path.display(), //
-));
+        return Err(format!(
+            "rbtdri: fact '{}' is empty in {}",
+            fact_name,
+            path.display(), //
+        ));
     }
     Ok(trimmed)
 }
@@ -790,8 +867,10 @@ pub fn rbtcei_read_burv_facts_multi(
             e, //
         )
     })?;
-    let suffix = format!(".{}", extension, //
-);
+    let suffix = format!(
+        ".{}",
+        extension, //
+    );
     let mut roots: Vec<String> = entries
         .filter_map(|entry| entry.ok())
         .filter_map(|entry| entry.file_name().into_string().ok())
@@ -822,10 +901,20 @@ fn rbtcei_invoke_logged(
     label: &str,
 ) -> Result<rbtcei_InvokeResult, String> {
     let result = rbtcei_invoke_global(ctx, colophon, args, extra_env)?;
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
-)), &result.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
-)), &result.stderr);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &result.stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &result.stderr,
+    );
     Ok(result)
 }
 
@@ -846,16 +935,25 @@ pub(crate) fn rbtcei_invoke_or_fail(
     let prefix = if target.is_empty() {
         operation.to_string()
     } else {
-        format!("{} {}", operation, target, //
-)
+        format!(
+            "{} {}",
+            operation,
+            target, //
+        )
     };
-    let result = rbtcei_invoke_logged(ctx, colophon, args, extra_env, dir, label)
-        .map_err(|e| rbtcee_Verdict::Fail(format!("{} invocation: {}", prefix, e, //
-)))?;
+    let result = rbtcei_invoke_logged(ctx, colophon, args, extra_env, dir, label).map_err(|e| {
+        rbtcee_Verdict::Fail(format!(
+            "{} invocation: {}",
+            prefix,
+            e, //
+        ))
+    })?;
     if result.exit_code != 0 {
         return Err(rbtcee_Verdict::Fail(format!(
             "{} exit {}\n{}",
-            prefix, result.exit_code, result.stderr, //
+            prefix,
+            result.exit_code,
+            result.stderr, //
         )));
     }
     Ok(result)
@@ -884,11 +982,18 @@ pub(crate) fn rbtcei_ordain_capture(
     let hallmark = rbtcei_read_burv_fact(&result, RBTCEI_FACT_HALLMARK).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTGEC_VERB_ORDAIN, vessel_dir, e, //
+            RBTGEC_VERB_ORDAIN,
+            vessel_dir,
+            e, //
         ))
     })?;
-    let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label, //
-)), &hallmark);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-hallmark.txt",
+            label, //
+        )),
+        &hallmark,
+    );
     Ok(hallmark)
 }
 
@@ -914,23 +1019,34 @@ pub(crate) fn rbtcei_ordain_capture_full(
     let hallmark = rbtcei_read_burv_fact(&result, RBTCEI_FACT_HALLMARK).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read hallmark fact after {} {}: {}",
-            RBTGEC_VERB_ORDAIN, vessel_dir, e, //
+            RBTGEC_VERB_ORDAIN,
+            vessel_dir,
+            e, //
         ))
     })?;
     let gar_root = rbtcei_read_burv_fact(&result, RBTCEI_FACT_GAR_ROOT).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read gar_root fact after {} {}: {}",
-            RBTGEC_VERB_ORDAIN, vessel_dir, e, //
+            RBTGEC_VERB_ORDAIN,
+            vessel_dir,
+            e, //
         ))
     })?;
     let ark_stem = rbtcei_read_burv_fact(&result, RBTCEI_FACT_ARK_STEM).map_err(|e| {
         rbtcee_Verdict::Fail(format!(
             "read ark_stem fact after {} {}: {}",
-            RBTGEC_VERB_ORDAIN, vessel_dir, e, //
+            RBTGEC_VERB_ORDAIN,
+            vessel_dir,
+            e, //
         ))
     })?;
-    let _ = std::fs::write(dir.join(format!("{}-hallmark.txt", label, //
-)), &hallmark);
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-hallmark.txt",
+            label, //
+        )),
+        &hallmark,
+    );
     Ok((hallmark, gar_root, ark_stem))
 }
 
@@ -945,8 +1061,13 @@ pub(crate) fn rbtcei_ordain_capture_full(
 /// Category-rooted GAR ref: `{category}/{hallmark}/{basename}:{hallmark}` — the
 /// canonical hallmark home, where the hallmark names both subtree and tag.
 pub(crate) fn rbtcei_gar_ref_categorical(category: &str, basename: &str, hallmark: &str) -> String {
-    format!("{}/{}/{}:{}", category, hallmark, basename, hallmark, //
-)
+    format!(
+        "{}/{}/{}:{}",
+        category,
+        hallmark,
+        basename,
+        hallmark, //
+    )
 }
 
 /// Fact-rooted GAR ref: `{gar_root}/{ark_stem}/{basename}:{hallmark}` — the
@@ -957,8 +1078,13 @@ pub(crate) fn rbtcei_gar_ref_fact(
     basename: &str,
     hallmark: &str,
 ) -> String {
-    format!("{}/{}/{}:{}", gar_root, ark_stem, basename, hallmark, //
-)
+    format!(
+        "{}/{}/{}:{}",
+        gar_root,
+        ark_stem,
+        basename,
+        hallmark, //
+    )
 }
 
 // ── Ifrit verdict parsing ────────────────────────────────────
@@ -987,7 +1113,9 @@ pub fn rbtcei_parse_ifrit_verdict(stdout: &str, exit_code: i32) -> rbtcee_Verdic
     if exit_code == 0 {
         rbtcee_Verdict::Fail("ifrit exited 0 but no verdict line found".to_string())
     } else {
-        rbtcee_Verdict::Fail(format!("ifrit exited {} with no verdict line", exit_code, //
-))
+        rbtcee_Verdict::Fail(format!(
+            "ifrit exited {} with no verdict line",
+            exit_code, //
+        ))
     }
 }

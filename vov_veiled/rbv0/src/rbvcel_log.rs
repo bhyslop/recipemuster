@@ -36,8 +36,11 @@ static ZRBVCEL_WORLD: OnceLock<rbvcew_world::rbvcew_World> = OnceLock::new();
 /// Emit one narration line verbatim to stderr.
 fn zrbvcel_emit(msg: &str) {
     let mut stderr = std::io::stderr().lock();
-    let _ = writeln!(stderr, "{}", msg, //
-);
+    let _ = writeln!(
+        stderr,
+        "{}",
+        msg, //
+    );
 }
 
 /// Elect the world the section banners name — once, at a command's entry.
@@ -57,20 +60,27 @@ pub fn rbvcel_section(title: &str) {
         .copied()
         .unwrap_or_else(|| crate::rbvcel_fatal!("a section banner before the world was elected"));
     zrbvcel_emit("");
-    zrbvcel_emit(&format!("=== [{}] {} ===", rbvcew_world::rbvcew_banner(world), title, //
-));
+    zrbvcel_emit(&format!(
+        "=== [{}] {} ===",
+        rbvcew_world::rbvcew_banner(world),
+        title, //
+    ));
 }
 
 /// A step marker — the active act, as it begins.
 pub fn rbvcel_step(msg: &str) {
-    zrbvcel_emit(&format!(">> {}", msg, //
-));
+    zrbvcel_emit(&format!(
+        ">> {}",
+        msg, //
+    ));
 }
 
 /// One plain indented narration line.
 pub fn rbvcel_line(msg: &str) {
-    zrbvcel_emit(&format!("   {}", msg, //
-));
+    zrbvcel_emit(&format!(
+        "   {}",
+        msg, //
+    ));
 }
 
 /// A blank narration line.
@@ -80,22 +90,29 @@ pub fn rbvcel_blank() {
 
 /// A loud advisory the operator must see — a known gap, a caution.
 pub fn rbvcel_warn(msg: &str) {
-    zrbvcel_emit(&format!("!! {}", msg, //
-));
+    zrbvcel_emit(&format!(
+        "!! {}",
+        msg, //
+    ));
 }
 
 /// A success line closing a phase.
 pub fn rbvcel_success(msg: &str) {
-    zrbvcel_emit(&format!("OK {}", msg, //
-));
+    zrbvcel_emit(&format!(
+        "OK {}",
+        msg, //
+    ));
 }
 
 /// A verbatim block — no per-line decoration. For the stranger prompt and other
 /// content whose exact bytes are handed onward.
 pub fn rbvcel_raw(block: &str) {
     let mut stderr = std::io::stderr().lock();
-    let _ = writeln!(stderr, "{}", block, //
-);
+    let _ = writeln!(
+        stderr,
+        "{}",
+        block, //
+    );
 }
 
 /// Interactive confirmation ({rbskb_prompt}, RBS0 "Human Bash Ceremony Control
@@ -105,15 +122,19 @@ pub fn rbvcel_raw(block: &str) {
 /// stage prompt; every other worker's own confirmation gate is left to fire on
 /// its own inherited stdio (rbvcer_run::rbvcer_stream leaves it unmolested here).
 pub fn rbvcel_confirm(msg: &str) {
-    zrbvcel_emit(&format!("?? {} [y/N] ", msg, //
-));
+    zrbvcel_emit(&format!(
+        "?? {} [y/N] ",
+        msg, //
+    ));
     let mut line = String::new();
     let read = std::io::stdin().read_line(&mut line);
     let affirmative = matches!(read, Ok(n) if n > 0)
         && matches!(line.trim().to_lowercase().as_str(), "y" | "yes");
     if !affirmative {
-        crate::rbvcel_fatal!("declined: {}", msg, //
-);
+        crate::rbvcel_fatal!(
+            "declined: {}",
+            msg, //
+        );
     }
 }
 
@@ -123,8 +144,14 @@ pub fn rbvcel_confirm(msg: &str) {
 pub fn zrbvcel_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
     {
         let mut stderr = std::io::stderr().lock();
-        let _ = writeln!(stderr, "{} [{}:{}] {}", ZRBVCEL_FATAL_TAG, file, line, msg, //
-);
+        let _ = writeln!(
+            stderr,
+            "{} [{}:{}] {}",
+            ZRBVCEL_FATAL_TAG,
+            file,
+            line,
+            msg, //
+        );
         let _ = stderr.flush();
     }
     std::process::exit(1);

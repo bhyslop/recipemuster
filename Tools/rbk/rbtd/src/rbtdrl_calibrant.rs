@@ -49,20 +49,31 @@
 
 use std::path::Path;
 
-use crate::rbtcee_case;
-use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
-use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe, //
-};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict, //
+use crate::rbtccp_probe::{
+    rbtccp_Probe,
+    rbtccp_assert, //
+};
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
 };
 use crate::rbtcei_invocation::rbtcei_invoke_global;
 use crate::rbtcem_manifest::{
-    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED, RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
-    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED, RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST,
-    RBTCEM_FIXTURE_CALIBRANT_PROGRESSING, RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
-    RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT, RBTCEM_FIXTURE_CALIBRANT_VERDICTS, //
+    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED,
+    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNDECLARED,
+    RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED,
+    RBTCEM_FIXTURE_CALIBRANT_FAIL_FAST,
+    RBTCEM_FIXTURE_CALIBRANT_PROGRESSING,
+    RBTCEM_FIXTURE_CALIBRANT_SENTINEL,
+    RBTCEM_FIXTURE_CALIBRANT_TARIFF_DRIFT,
+    RBTCEM_FIXTURE_CALIBRANT_VERDICTS, //
 };
+use crate::rbtgec_consts::RBTGEC_THEURGE_NIHIL;
 
 /// Sentinel filename written into a case's temp dir to mark execution. The
 /// touchstone fixture asserts presence/absence under the BURV_TEMP_ROOT_DIR
@@ -77,9 +88,12 @@ pub(crate) const RBTCHL_SENTINEL_FILE: &str = "ran.sentinel";
 pub(crate) const RBTCHL_OUTPUT_FILE: &str = "output.txt";
 
 fn rbtchl_write_sentinel(dir: &Path) -> Result<(), rbtcee_Verdict> {
-    std::fs::write(dir.join(RBTCHL_SENTINEL_FILE), "")
-        .map_err(|e| rbtcee_Verdict::Fail(format!("sentinel write failed: {}", e, //
-)))
+    std::fs::write(dir.join(RBTCHL_SENTINEL_FILE), "").map_err(|e| {
+        rbtcee_Verdict::Fail(format!(
+            "sentinel write failed: {}",
+            e, //
+        ))
+    })
 }
 
 // ── calibrant-verdicts ──────────────────────────────────────
@@ -101,8 +115,10 @@ fn rbtchl_verdicts_pass_with_output(dir: &Path) -> rbtcee_Verdict {
         dir.join(RBTCHL_OUTPUT_FILE),
         "calibrant case-written output\n",
     ) {
-        return rbtcee_Verdict::Fail(format!("output write failed: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "output write failed: {}",
+            e, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
@@ -213,12 +229,16 @@ pub static RBTCHL_CASES_SENTINEL: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_sentine
 /// (rbtcei_invoke_global). Shared body for the aligned and undeclared cases —
 /// their fixtures' manifest declarations are what differ.
 fn zrbtchl_invoke_nihil() -> rbtcee_Verdict {
-    rbtccc_with_ctx(|ctx| match rbtcei_invoke_global(ctx, RBTGEC_THEURGE_NIHIL, &[], &[]) {
-        Ok(result) if result.exit_code == 0 => rbtcee_Verdict::Pass,
-        Ok(result) => rbtcee_Verdict::Fail(format!("nihil tabtarget exited {}", result.exit_code, //
-)),
-        Err(e) => rbtcee_Verdict::Fail(e),
-    })
+    rbtccc_with_ctx(
+        |ctx| match rbtcei_invoke_global(ctx, RBTGEC_THEURGE_NIHIL, &[], &[]) {
+            Ok(result) if result.exit_code == 0 => rbtcee_Verdict::Pass,
+            Ok(result) => rbtcee_Verdict::Fail(format!(
+                "nihil tabtarget exited {}",
+                result.exit_code, //
+            )),
+            Err(e) => rbtcee_Verdict::Fail(e),
+        },
+    )
 }
 
 /// Declared and invoked: the census positive check has nothing to refuse, and
@@ -241,10 +261,12 @@ fn rbtchl_coverage_unused_no_invoke(_dir: &Path) -> rbtcee_Verdict {
     rbtcee_Verdict::Pass
 }
 
-pub static RBTCHL_CASES_COVERAGE_ALIGNED: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_coverage_aligned_invokes)];
+pub static RBTCHL_CASES_COVERAGE_ALIGNED: &[rbtcee_Case] =
+    &[rbtcee_case!(rbtchl_coverage_aligned_invokes)];
 pub static RBTCHL_CASES_COVERAGE_UNDECLARED: &[rbtcee_Case] =
     &[rbtcee_case!(rbtchl_coverage_undeclared_invokes)];
-pub static RBTCHL_CASES_COVERAGE_UNUSED: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_coverage_unused_no_invoke)];
+pub static RBTCHL_CASES_COVERAGE_UNUSED: &[rbtcee_Case] =
+    &[rbtcee_case!(rbtchl_coverage_unused_no_invoke)];
 
 // ── calibrant-tariff-drift ──────────────────────────────────
 //
@@ -270,7 +292,8 @@ fn rbtchl_tariff_drift_skips_short(_dir: &Path) -> rbtcee_Verdict {
     rbtcee_Verdict::Skip("calibrant declared-count shortfall, by construction".to_string())
 }
 
-pub static RBTCHL_CASES_TARIFF_DRIFT: &[rbtcee_Case] = &[rbtcee_case!(rbtchl_tariff_drift_skips_short)];
+pub static RBTCHL_CASES_TARIFF_DRIFT: &[rbtcee_Case] =
+    &[rbtcee_case!(rbtchl_tariff_drift_skips_short)];
 
 // ── Fixture statics ──────────────────────────────────────────
 
@@ -330,7 +353,11 @@ pub static RBTCHL_FIXTURE_COVERAGE_ALIGNED: rbtcee_Fixture = rbtcee_Fixture {
     // shortfall gate's positive control: same driver, same tabtarget chain, a
     // met declaration staying green. Without a declaration here the pair would
     // prove only that a fixture can fail, never that the gate discriminates.
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(1),
+    },
 };
 const _: () = assert!(RBTCHL_FIXTURE_COVERAGE_ALIGNED.cases.len() == 1);
 
@@ -367,6 +394,10 @@ pub static RBTCHL_FIXTURE_TARIFF_DRIFT: rbtcee_Fixture = rbtcee_Fixture {
     // case invokes nothing, so the declaration is short by construction, and
     // that mismatch is the whole fixture: its expected verdict is FAIL. Aligning
     // the count would turn it green and silently delete the test.
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(1) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(1),
+    },
 };
 const _: () = assert!(RBTCHL_FIXTURE_TARIFF_DRIFT.cases.len() == 1);

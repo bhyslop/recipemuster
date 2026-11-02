@@ -54,11 +54,16 @@ pub struct rbvcet_Cachet {
 pub fn rbvcet_render(cachet: &rbvcet_Cachet) -> String {
     format!(
         "{}={}\n{}={}\n{}={}\n{}={}\n{}={}\n",
-        RBVCET_CACHET_KEY_TREE, cachet.tree,
-        RBVCET_CACHET_KEY_TIP, cachet.tip,
-        RBVCET_CACHET_KEY_MAINTAINER_HEAD, cachet.maintainer_head,
-        RBVCET_CACHET_KEY_STAMP, cachet.stamp,
-        RBVCET_CACHET_KEY_WORLD, rbvcew_world::rbvcew_word(cachet.world), //
+        RBVCET_CACHET_KEY_TREE,
+        cachet.tree,
+        RBVCET_CACHET_KEY_TIP,
+        cachet.tip,
+        RBVCET_CACHET_KEY_MAINTAINER_HEAD,
+        cachet.maintainer_head,
+        RBVCET_CACHET_KEY_STAMP,
+        cachet.stamp,
+        RBVCET_CACHET_KEY_WORLD,
+        rbvcew_world::rbvcew_word(cachet.world), //
     )
 }
 
@@ -77,38 +82,71 @@ pub fn rbvcet_parse(content: &str) -> Result<rbvcet_Cachet, String> {
         if line.is_empty() {
             continue;
         }
-        let (key, value) = line
-            .split_once('=')
-            .ok_or_else(|| format!("cachet line is not key=value: '{}'", line, //
-))?;
+        let (key, value) = line.split_once('=').ok_or_else(|| {
+            format!(
+                "cachet line is not key=value: '{}'",
+                line, //
+            )
+        })?;
         match key {
             RBVCET_CACHET_KEY_TREE => tree = Some(value.to_string()),
             RBVCET_CACHET_KEY_TIP => tip = Some(value.to_string()),
             RBVCET_CACHET_KEY_MAINTAINER_HEAD => maintainer_head = Some(value.to_string()),
             RBVCET_CACHET_KEY_STAMP => stamp = Some(value.to_string()),
             RBVCET_CACHET_KEY_WORLD => world = Some(value.to_string()),
-            other => return Err(format!("cachet carries an unknown key: '{}'", other, //
-)),
+            other => {
+                return Err(format!(
+                    "cachet carries an unknown key: '{}'",
+                    other, //
+                ));
+            }
         }
     }
-    let tree = tree.filter(|v| !v.is_empty()).ok_or_else(|| format!("cachet missing {}", RBVCET_CACHET_KEY_TREE, //
-))?;
-    let tip = tip.filter(|v| !v.is_empty()).ok_or_else(|| format!("cachet missing {}", RBVCET_CACHET_KEY_TIP, //
-))?;
-    let maintainer_head = maintainer_head
-        .filter(|v| !v.is_empty())
-        .ok_or_else(|| format!("cachet missing {}", RBVCET_CACHET_KEY_MAINTAINER_HEAD, //
-))?;
-    let stamp = stamp.filter(|v| !v.is_empty()).ok_or_else(|| format!("cachet missing {}", RBVCET_CACHET_KEY_STAMP, //
-))?;
-    let world = world
-        .filter(|v| !v.is_empty())
-        .ok_or_else(|| format!("{} missing {}", rbvgeb_breviary::RBVGEB_CACHET_BASE, RBVCET_CACHET_KEY_WORLD, //
-))?;
-    let world = rbvcew_world::rbvcew_from_word(&world)
-        .ok_or_else(|| format!("{} names an unknown world: '{}'", rbvgeb_breviary::RBVGEB_CACHET_BASE, world, //
-))?;
-    Ok(rbvcet_Cachet { tree, tip, maintainer_head, stamp, world })
+    let tree = tree.filter(|v| !v.is_empty()).ok_or_else(|| {
+        format!(
+            "cachet missing {}",
+            RBVCET_CACHET_KEY_TREE, //
+        )
+    })?;
+    let tip = tip.filter(|v| !v.is_empty()).ok_or_else(|| {
+        format!(
+            "cachet missing {}",
+            RBVCET_CACHET_KEY_TIP, //
+        )
+    })?;
+    let maintainer_head = maintainer_head.filter(|v| !v.is_empty()).ok_or_else(|| {
+        format!(
+            "cachet missing {}",
+            RBVCET_CACHET_KEY_MAINTAINER_HEAD, //
+        )
+    })?;
+    let stamp = stamp.filter(|v| !v.is_empty()).ok_or_else(|| {
+        format!(
+            "cachet missing {}",
+            RBVCET_CACHET_KEY_STAMP, //
+        )
+    })?;
+    let world = world.filter(|v| !v.is_empty()).ok_or_else(|| {
+        format!(
+            "{} missing {}",
+            rbvgeb_breviary::RBVGEB_CACHET_BASE,
+            RBVCET_CACHET_KEY_WORLD, //
+        )
+    })?;
+    let world = rbvcew_world::rbvcew_from_word(&world).ok_or_else(|| {
+        format!(
+            "{} names an unknown world: '{}'",
+            rbvgeb_breviary::RBVGEB_CACHET_BASE,
+            world, //
+        )
+    })?;
+    Ok(rbvcet_Cachet {
+        tree,
+        tip,
+        maintainer_head,
+        stamp,
+        world,
+    })
 }
 
 /// The refusals, pure: a cachet recorded in a world other than the elected
@@ -144,7 +182,12 @@ fn zrbvcet_path(regulus_parent: &Path) -> std::path::PathBuf {
 /// Grant a cachet beside the regulus: capture the regulus's tree hash and
 /// tip, the maintainer HEAD, the stamp, and the elected world, and store it
 /// (RBSHD "Grant the cachet"). Fatal on any read or write failure.
-pub fn rbvcet_grant(regulus_parent: &Path, regulus_clone: &Path, top: &Path, world: rbvcew_world::rbvcew_World) {
+pub fn rbvcet_grant(
+    regulus_parent: &Path,
+    regulus_clone: &Path,
+    top: &Path,
+    world: rbvcew_world::rbvcew_World,
+) {
     let cachet = rbvcet_Cachet {
         tree: rbvcep_repo::rbvcep_tree_hash(regulus_clone, top),
         tip: rbvcep_repo::rbvcep_commit_sha(regulus_clone, top),
@@ -153,11 +196,18 @@ pub fn rbvcet_grant(regulus_parent: &Path, regulus_clone: &Path, top: &Path, wor
         world,
     };
     let path = zrbvcet_path(regulus_parent);
-    std::fs::write(&path, rbvcet_render(&cachet))
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the cachet {}: {}", path.display(), e, //
-));
-    rbvcel_log::rbvcel_line(&format!("cachet granted: {} (tree {})", path.display(), cachet.tree, //
-));
+    std::fs::write(&path, rbvcet_render(&cachet)).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to write the cachet {}: {}",
+            path.display(),
+            e, //
+        )
+    });
+    rbvcel_log::rbvcel_line(&format!(
+        "cachet granted: {} (tree {})",
+        path.display(),
+        cachet.tree, //
+    ));
 }
 
 /// Require a standing cachet beside the regulus, granted in the elected world
@@ -177,14 +227,24 @@ pub fn rbvcet_require(
             path.display(), //
         )
     });
-    let cachet = rbvcet_parse(&content).unwrap_or_else(|e| crate::rbvcel_fatal!("cachet {} is malformed: {}", path.display(), e, //
-));
+    let cachet = rbvcet_parse(&content).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "cachet {} is malformed: {}",
+            path.display(),
+            e, //
+        )
+    });
     let standing_tree = rbvcep_repo::rbvcep_tree_hash(regulus_clone, top);
     if let Err(e) = zrbvcet_check(&cachet, &standing_tree, world) {
-        crate::rbvcel_fatal!("{} — conduct the docimasy again (RBSHO)", e, //
-);
+        crate::rbvcel_fatal!(
+            "{} — conduct the docimasy again (RBSHO)",
+            e, //
+        );
     }
-    rbvcel_log::rbvcel_line(&format!("cachet required and verified: {} (tree {})", path.display(), cachet.tree, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "cachet required and verified: {} (tree {})",
+        path.display(),
+        cachet.tree, //
+    ));
     cachet
 }

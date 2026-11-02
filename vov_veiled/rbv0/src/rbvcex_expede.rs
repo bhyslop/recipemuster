@@ -26,7 +26,9 @@
 // is the prevention; the delta sweep below is not the guard, it is the proof
 // that the guard held.
 
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 
 use crate::rbvccd_docimasy::RBVCCD_TT_SUBDIR;
@@ -96,12 +98,16 @@ const RBVCEX_BURC_PATH: &str = "rbmm_moorings/burc.env";
 pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_World) -> PathBuf {
     let bundle = rbvcew_world::rbvcew_bundle(world);
     if !target_dir.is_absolute() {
-        crate::rbvcel_fatal!("target directory must be an absolute path: {}", target_dir.display(), //
-);
+        crate::rbvcel_fatal!(
+            "target directory must be an absolute path: {}",
+            target_dir.display(), //
+        );
     }
     if target_dir.exists() {
-        crate::rbvcel_fatal!("target directory already exists: {}", target_dir.display(), //
-);
+        crate::rbvcel_fatal!(
+            "target directory already exists: {}",
+            target_dir.display(), //
+        );
     }
 
     // Clean-tree gate. Every shipped byte is taken from the COMMITTED record,
@@ -109,8 +115,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // the tree the operator is looking at would not be the tree that shipped.
     let status = rbvcer_run::rbvcer_capture("git", &["status", "--porcelain"], top);
     if status.code != 0 {
-        crate::rbvcel_fatal!("git status failed:\n{}", status.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "git status failed:\n{}",
+            status.stderr.trim(), //
+        );
     }
     if !status.stdout.trim().is_empty() {
         crate::rbvcel_fatal!(
@@ -125,15 +133,19 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // regulus cut in that state would silently ship it or silently drop it.
     // Red until judged, and the cut is where that bites.
     if let Err(e) = rbvcem_perambulation::rbvcem_validate(rbvcem_perambulation::RBVCEM_ROWS) {
-        crate::rbvcel_fatal!("{}", e, //
-);
+        crate::rbvcel_fatal!(
+            "{}",
+            e, //
+        );
     }
     let tracked = zrbvcex_tracked(top);
     let unjudged = rbvcem_perambulation::rbvcem_unjudged(&tracked);
     if !unjudged.is_empty() {
         for path in &unjudged {
-            rbvcel_log::rbvcel_line(&format!("unjudged: {}", path, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "unjudged: {}",
+                path, //
+            ));
         }
         crate::rbvcel_fatal!(
             "{} tracked path(s) the perambulation has not judged — rule them ship or withhold in the perambulation table",
@@ -143,8 +155,11 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let dead = rbvcem_perambulation::rbvcem_dead_rows(&tracked);
     if !dead.is_empty() {
         for (prefix, disposition) in &dead {
-            rbvcel_log::rbvcel_line(&format!("dead row: {}|{}", prefix, disposition, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "dead row: {}|{}",
+                prefix,
+                disposition, //
+            ));
         }
         crate::rbvcel_fatal!(
             "{} perambulation row(s) judge no tracked path — stale or shadowed",
@@ -164,8 +179,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     }
     let fetch_url = fetch.stdout.trim().to_string();
     if fetch_url.is_empty() {
-        crate::rbvcel_fatal!("{} URL is empty", bundle.base_remote, //
-);
+        crate::rbvcel_fatal!(
+            "{} URL is empty",
+            bundle.base_remote, //
+        );
     }
 
     // The base's IDENTITY, asserted before anything is cloned — the safety
@@ -179,10 +196,17 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
 
     // The base is read-only, asserted. A live push url to the public target
     // is refused before a single object is cloned.
-    let push = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", "--push", bundle.base_remote], top);
+    let push = rbvcer_run::rbvcer_capture(
+        "git",
+        &["remote", "get-url", "--push", bundle.base_remote],
+        top,
+    );
     if push.code != 0 {
-        crate::rbvcel_fatal!("cannot read {} push url:\n{}", bundle.base_remote, push.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "cannot read {} push url:\n{}",
+            bundle.base_remote,
+            push.stderr.trim(), //
+        );
     }
     if push.stdout.trim() != bundle.base_push_disabled {
         crate::rbvcel_fatal!(
@@ -193,8 +217,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
 
     let head = rbvcer_run::rbvcer_capture("git", &["rev-parse", "HEAD"], top);
     if head.code != 0 {
-        crate::rbvcel_fatal!("git rev-parse HEAD failed:\n{}", head.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "git rev-parse HEAD failed:\n{}",
+            head.stderr.trim(), //
+        );
     }
     let head = head.stdout.trim().to_string();
 
@@ -207,23 +233,35 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let clone = rbvcep_repo::rbvcep_as_str(&clone_dir);
 
     rbvcel_log::rbvcel_section("The cut — build the regulus by addition (RBSHE step 3)");
-    rbvcel_log::rbvcel_line(&format!("Source commit:        {}", head, //
-));
-    rbvcel_log::rbvcel_line(&format!("Public base remote:   {}", bundle.base_remote, //
-));
-    rbvcel_log::rbvcel_line(&format!("Public base URL:      {}", fetch_url, //
-));
-    rbvcel_log::rbvcel_line(&format!("Regulus clone:      {}", clone_dir.display(), //
-));
-    rbvcel_log::rbvcel_line(&format!("Regulus branch:     {}", RBVCEX_REGULUS_BRANCH, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Source commit:        {}",
+        head, //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Public base remote:   {}",
+        bundle.base_remote, //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Public base URL:      {}",
+        fetch_url, //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Regulus clone:      {}",
+        clone_dir.display(), //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Regulus branch:     {}",
+        RBVCEX_REGULUS_BRANCH, //
+    ));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("The regulus is built by ADDITION in a clone of the real PUBLIC");
     rbvcel_log::rbvcel_line("repository. No private object enters the object graph, because none");
     rbvcel_log::rbvcel_line("is ever put there. Nothing is stripped.");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line(&format!("Every shipped path ({}) is materialized from the committed bytes,", shipped.len(), //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Every shipped path ({}) is materialized from the committed bytes,",
+        shipped.len(), //
+    ));
     rbvcel_log::rbvcel_line("judged by the perambulation's one matcher, then lustrated and");
     rbvcel_log::rbvcel_line("regenerated by the clone's own copy of rblm_sterilize.sh.");
     rbvcel_log::rbvcel_blank();
@@ -234,18 +272,26 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
 
     rbvcel_log::rbvcel_step("Cloning the public base");
     if let Err(e) = std::fs::create_dir(target_dir) {
-        crate::rbvcel_fatal!("failed to create target directory {}: {}", target_dir.display(), e, //
-);
+        crate::rbvcel_fatal!(
+            "failed to create target directory {}: {}",
+            target_dir.display(),
+            e, //
+        );
     }
     let scratch_dir = target_dir.join(RBVCEX_SCRATCH_SUBDIR);
     if let Err(e) = std::fs::create_dir(&scratch_dir) {
-        crate::rbvcel_fatal!("failed to create scratch directory {}: {}", scratch_dir.display(), e, //
-);
+        crate::rbvcel_fatal!(
+            "failed to create scratch directory {}: {}",
+            scratch_dir.display(),
+            e, //
+        );
     }
     let code = rbvcer_run::rbvcer_stream("git", &["clone", &fetch_url, &clone], top, &[]);
     if code != 0 {
-        crate::rbvcel_fatal!("failed to clone the public base (git exited {})", code, //
-);
+        crate::rbvcel_fatal!(
+            "failed to clone the public base (git exited {})",
+            code, //
+        );
     }
 
     // The base is surveyed BEFORE anything is added to it, over its whole
@@ -266,11 +312,15 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
             "BASE INVENTORY — {} withheld path(s) already in the public history.",
             base_inventory.len(), //
         ));
-        rbvcel_log::rbvcel_line("Already disclosed; cannot be un-disclosed by this cut. This is not");
+        rbvcel_log::rbvcel_line(
+            "Already disclosed; cannot be un-disclosed by this cut. This is not",
+        );
         rbvcel_log::rbvcel_line("a leak of THIS cut — acknowledge and proceed.");
         for path in &base_inventory {
-            rbvcel_log::rbvcel_line(&format!("  {}", path, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "  {}",
+                path, //
+            ));
         }
         rbvcel_log::rbvcel_blank();
     }
@@ -284,11 +334,15 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         let got = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "rev-parse", "HEAD"], top);
         if got.code == 0 {
             let sha = got.stdout.trim().to_string();
-            rbvcel_log::rbvcel_line(&format!("Public base commit:   {}", sha, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "Public base commit:   {}",
+                sha, //
+            ));
             Some(sha)
         } else {
-            rbvcel_log::rbvcel_line("Public base commit:   (none — the base is empty; this regulus is a root commit)");
+            rbvcel_log::rbvcel_line(
+                "Public base commit:   (none — the base is empty; this regulus is a root commit)",
+            );
             None
         }
     };
@@ -300,30 +354,55 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // Zero remotes is asserted again at the end, as the finished regulus's
     // standing property.
     rbvcel_log::rbvcel_step("Severing the clone from its origin");
-    zrbvcex_git_capture(&clone, &["remote", "remove", "origin"], top, "sever the clone's origin");
+    zrbvcex_git_capture(
+        &clone,
+        &["remote", "remove", "origin"],
+        top,
+        "sever the clone's origin",
+    );
 
     // Open the regulus's own branch, and drop every other. The clone must
     // carry exactly ONE branch, named POSTULANT_LOCAL — so even a forbidden
     // fan-out push (--all) could name nothing but POSTULANT_LOCAL, never
     // main. On an empty base the unborn branch is simply renamed.
-    rbvcel_log::rbvcel_step(&format!("Opening the regulus branch {}", RBVCEX_REGULUS_BRANCH, //
-));
-    zrbvcex_git_capture(&clone, &["checkout", "-b", RBVCEX_REGULUS_BRANCH], top, "open the regulus branch");
+    rbvcel_log::rbvcel_step(&format!(
+        "Opening the regulus branch {}",
+        RBVCEX_REGULUS_BRANCH, //
+    ));
+    zrbvcex_git_capture(
+        &clone,
+        &["checkout", "-b", RBVCEX_REGULUS_BRANCH],
+        top,
+        "open the regulus branch",
+    );
     let heads = rbvcer_run::rbvcer_capture(
         "git",
-        &["-C", &clone, "for-each-ref", "--format=%(refname:short)", "refs/heads/"],
+        &[
+            "-C",
+            &clone,
+            "for-each-ref",
+            "--format=%(refname:short)",
+            "refs/heads/",
+        ],
         top,
     );
     if heads.code != 0 {
-        crate::rbvcel_fatal!("failed to list the clone's branches:\n{}", heads.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to list the clone's branches:\n{}",
+            heads.stderr.trim(), //
+        );
     }
     for head_ref in heads.stdout.lines() {
         let head_ref = head_ref.trim();
         if head_ref.is_empty() || head_ref == RBVCEX_REGULUS_BRANCH {
             continue;
         }
-        zrbvcex_git_capture(&clone, &["branch", "-D", head_ref], top, "drop a base branch");
+        zrbvcex_git_capture(
+            &clone,
+            &["branch", "-D", head_ref],
+            top,
+            "drop a base branch",
+        );
     }
 
     // Removed rather than overwritten. A path the previous release shipped
@@ -333,8 +412,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     rbvcel_log::rbvcel_step("Clearing the base tree");
     let base_files = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "ls-files"], top);
     if base_files.code != 0 {
-        crate::rbvcel_fatal!("git ls-files failed in the clone:\n{}", base_files.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "git ls-files failed in the clone:\n{}",
+            base_files.stderr.trim(), //
+        );
     }
     for file in base_files.stdout.lines() {
         let file = file.trim();
@@ -345,8 +426,11 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         match std::fs::remove_file(&path) {
             Ok(_) => {}
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
-            Err(e) => crate::rbvcel_fatal!("failed to clear {}: {}", path.display(), e, //
-),
+            Err(e) => crate::rbvcel_fatal!(
+                "failed to clear {}: {}",
+                path.display(),
+                e, //
+            ),
         }
     }
 
@@ -356,8 +440,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     // regulus that cannot run. The pathspec is handed as arguments — git
     // archive takes no pathspec file, and a shell relay would split any path
     // that carried a space.
-    rbvcel_log::rbvcel_step(&format!("Materializing the shipped paths from {}", head, //
-));
+    rbvcel_log::rbvcel_step(&format!(
+        "Materializing the shipped paths from {}",
+        head, //
+    ));
     let archive_path = scratch_dir.join("shipped.tar");
     let archive = rbvcep_repo::rbvcep_as_str(&archive_path);
     let mut archive_args: Vec<&str> = vec!["archive", "--format=tar", "-o", &archive, &head, "--"];
@@ -366,13 +452,18 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     }
     let got = rbvcer_run::rbvcer_capture("git", &archive_args, top);
     if got.code != 0 {
-        crate::rbvcel_fatal!("failed to archive the shipped paths from {}:\n{}", head, got.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to archive the shipped paths from {}:\n{}",
+            head,
+            got.stderr.trim(), //
+        );
     }
     let got = rbvcer_run::rbvcer_capture("tar", &["-x", "-f", &archive, "-C", &clone], top);
     if got.code != 0 {
-        crate::rbvcel_fatal!("failed to materialize the shipped paths into the clone:\n{}", got.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to materialize the shipped paths into the clone:\n{}",
+            got.stderr.trim(), //
+        );
     }
 
     // The clone runs ITS OWN copy — a process cannot regenerate from
@@ -400,8 +491,12 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let moorings = std::path::Path::new(RBVCEX_BURC_PATH)
         .parent()
         .and_then(|p| p.to_str())
-        .unwrap_or_else(|| crate::rbvcel_fatal!("the config regime path names no directory: {}", RBVCEX_BURC_PATH, //
-));
+        .unwrap_or_else(|| {
+            crate::rbvcel_fatal!(
+                "the config regime path names no directory: {}",
+                RBVCEX_BURC_PATH, //
+            )
+        });
     let burd_path = scratch_dir.join(RBVCEX_BURD_FILE);
     let mut burd = String::new();
     for (name, value) in [
@@ -412,45 +507,64 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         ("BURD_MOORINGS_DIR", moorings),
     ] {
         if value.contains(['"', '\\', '$', '`', '\n']) {
-            crate::rbvcel_fatal!("the sterilize dispatch value {} cannot stand on a dispatch file line: {}", name, value, //
-);
+            crate::rbvcel_fatal!(
+                "the sterilize dispatch value {} cannot stand on a dispatch file line: {}",
+                name,
+                value, //
+            );
         }
-        burd.push_str(&format!("{}=\"{}\"\n", name, value, //
-));
+        burd.push_str(&format!(
+            "{}=\"{}\"\n",
+            name,
+            value, //
+        ));
     }
-    std::fs::write(&burd_path, burd)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the sterilize dispatch file {}: {}", burd_path.display(), e, //
-));
+    std::fs::write(&burd_path, burd).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to write the sterilize dispatch file {}: {}",
+            burd_path.display(),
+            e, //
+        )
+    });
     let burd_file = rbvcep_repo::rbvcep_as_str(&burd_path);
     let code = rbvcer_run::rbvcer_stream(
         "bash",
         &[&sterilize],
         top,
-        &[
-            ("BURD_BURD_FILE", &burd_file),
-            ("BURD_BUK_DIR", &buk_dir),
-        ],
+        &[("BURD_BURD_FILE", &burd_file), ("BURD_BUK_DIR", &buk_dir)],
     );
     if code != 0 {
-        crate::rbvcel_fatal!("sterilization failed in the clone (exit {})", code, //
-);
+        crate::rbvcel_fatal!(
+            "sterilization failed in the clone (exit {})",
+            code, //
+        );
     }
 
     rbvcel_log::rbvcel_step("Committing the regulus");
     zrbvcex_git_capture(&clone, &["add", "--all"], top, "stage the regulus");
-    zrbvcex_git_capture(&clone, &["commit", "-m", RBVCEX_REGULUS_SUBJECT], top, "commit the regulus");
+    zrbvcex_git_capture(
+        &clone,
+        &["commit", "-m", RBVCEX_REGULUS_SUBJECT],
+        top,
+        "commit the regulus",
+    );
 
     // One commit. Not a convention — the property that makes the regulus
     // mergeable by construction and provable by inspection.
     let range = match &base_sha {
-        Some(base) => format!("{}..HEAD", base, //
-),
+        Some(base) => format!(
+            "{}..HEAD",
+            base, //
+        ),
         None => "HEAD".to_string(),
     };
-    let count = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "rev-list", "--count", &range], top);
+    let count =
+        rbvcer_run::rbvcer_capture("git", &["-C", &clone, "rev-list", "--count", &range], top);
     if count.code != 0 {
-        crate::rbvcel_fatal!("git rev-list failed in the clone:\n{}", count.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "git rev-list failed in the clone:\n{}",
+            count.stderr.trim(), //
+        );
     }
     if count.stdout.trim() != "1" {
         crate::rbvcel_fatal!(
@@ -468,11 +582,15 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let leaks = rbvcem_perambulation::rbvcem_sweep(&delta_graph);
     if !leaks.is_empty() {
         for path in &leaks {
-            rbvcel_log::rbvcel_line(&format!("leak: {}", path, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "leak: {}",
+                path, //
+            ));
         }
-        crate::rbvcel_fatal!("the regulus delta adds {} withheld path(s)", leaks.len(), //
-);
+        crate::rbvcel_fatal!(
+            "the regulus delta adds {} withheld path(s)",
+            leaks.len(), //
+        );
     }
     rbvcel_log::rbvcel_line("Regulus delta clean: this cut adds no withheld path");
 
@@ -484,8 +602,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     rbvcel_log::rbvcel_step("Asserting the regulus holds zero remotes");
     let remotes = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "remote"], top);
     if remotes.code != 0 {
-        crate::rbvcel_fatal!("failed to read the clone's remotes:\n{}", remotes.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to read the clone's remotes:\n{}",
+            remotes.stderr.trim(), //
+        );
     }
     if !remotes.stdout.trim().is_empty() {
         crate::rbvcel_fatal!(
@@ -495,13 +615,19 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     }
 
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line(&format!("Regulus:  {}", clone_dir.display(), //
-));
-    rbvcel_log::rbvcel_line(&format!("Branch:     {}", RBVCEX_REGULUS_BRANCH, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Regulus:  {}",
+        clone_dir.display(), //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Branch:     {}",
+        RBVCEX_REGULUS_BRANCH, //
+    ));
     rbvcel_log::rbvcel_line(&format!(
         "Base:       {}",
-        base_sha.as_deref().unwrap_or("(root commit — the base was empty)"), //
+        base_sha
+            .as_deref()
+            .unwrap_or("(root commit — the base was empty)"), //
     ));
     rbvcel_log::rbvcel_line("Commits:    1");
     rbvcel_log::rbvcel_line("Remotes:    0 (severed — the cut can reach nothing)");
@@ -519,8 +645,10 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
 fn zrbvcex_tracked(top: &Path) -> Vec<String> {
     let got = rbvcer_run::rbvcer_capture("git", &["ls-files"], top);
     if got.code != 0 {
-        crate::rbvcel_fatal!("git ls-files failed:\n{}", got.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "git ls-files failed:\n{}",
+            got.stderr.trim(), //
+        );
     }
     let tracked: Vec<String> = got
         .stdout
@@ -548,7 +676,9 @@ fn zrbvcex_graph_paths(clone_dir: &Path, range: &[&str], label: &str) -> Vec<Str
     if got.code != 0 {
         crate::rbvcel_fatal!(
             "failed to walk the object graph of {} ({}):\n{}",
-            clone_dir.display(), label, got.stderr.trim(), //
+            clone_dir.display(),
+            label,
+            got.stderr.trim(), //
         );
     }
     got.stdout
@@ -565,8 +695,12 @@ fn zrbvcex_git_capture(clone: &str, args: &[&str], top: &Path, act: &str) {
     full.extend_from_slice(args);
     let got = rbvcer_run::rbvcer_capture("git", &full, top);
     if got.code != 0 {
-        crate::rbvcel_fatal!("failed to {} (git exited {}):\n{}", act, got.code, got.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to {} (git exited {}):\n{}",
+            act,
+            got.code,
+            got.stderr.trim(), //
+        );
     }
 }
 
@@ -583,8 +717,10 @@ pub fn rbvcex_assert_narthex_private(top: &Path, world: rbvcew_world::rbvcew_Wor
         top,
     );
     if status.code != 0 {
-        crate::rbvcel_fatal!("anonymous read of the narthex failed to execute (curl exited {})", status.code, //
-);
+        crate::rbvcel_fatal!(
+            "anonymous read of the narthex failed to execute (curl exited {})",
+            status.code, //
+        );
     }
     if status.stdout.trim() != RBVCEX_NARTHEX_PRIVATE_STATUS {
         crate::rbvcel_fatal!(
@@ -617,7 +753,12 @@ pub fn rbvcex_assert_narthex_private(top: &Path, world: rbvcew_world::rbvcew_Wor
 ///
 /// Fatal on drift, naming the standing remedy: the cycle returns to essai,
 /// never forward.
-pub fn rbvcex_assert_fresh(top: &Path, parent: &Path, regulus_clone: &Path, world: rbvcew_world::rbvcew_World) {
+pub fn rbvcex_assert_fresh(
+    top: &Path,
+    parent: &Path,
+    regulus_clone: &Path,
+    world: rbvcew_world::rbvcew_World,
+) {
     let freshness_dirname = rbvcew_world::rbvcew_bundle(world).freshness_dirname;
     let freshness_parent = parent.join(freshness_dirname);
     rbvcep_repo::rbvcep_guard_disposable(&freshness_parent, freshness_dirname, top);
@@ -625,7 +766,9 @@ pub fn rbvcex_assert_fresh(top: &Path, parent: &Path, regulus_clone: &Path, worl
         rbvcel_log::rbvcel_line("no prior freshness scratch to sepose");
     }
 
-    rbvcel_log::rbvcel_step("Scratch re-cutting the maintainer tree's shipped bytes to assert freshness");
+    rbvcel_log::rbvcel_step(
+        "Scratch re-cutting the maintainer tree's shipped bytes to assert freshness",
+    );
     let scratch_clone = rbvcex_cut(top, &freshness_parent, world);
 
     let standing_tree = rbvcep_repo::rbvcep_tree_hash(regulus_clone, top);
@@ -640,6 +783,8 @@ pub fn rbvcex_assert_fresh(top: &Path, parent: &Path, regulus_clone: &Path, worl
             scratch_tree, standing_tree, //
         );
     }
-    rbvcel_log::rbvcel_line(&format!("regulus fresh: re-cut tree {} matches the standing regulus", standing_tree, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "regulus fresh: re-cut tree {} matches the standing regulus",
+        standing_tree, //
+    ));
 }

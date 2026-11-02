@@ -371,9 +371,7 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         RBTCEM_FIXTURE_CALIBRANT_COVERAGE_ALIGNED | RBTCEM_FIXTURE_CALIBRANT_COVERAGE_UNUSED => {
             Some(&[RBTGEC_THEURGE_NIHIL])
         }
-        RBTCEM_FIXTURE_PODVM_RESOLVE => Some(&[
-            RBTGEC_PRESAGE_IMMURE,
-        ]),
+        RBTCEM_FIXTURE_PODVM_RESOLVE => Some(&[RBTGEC_PRESAGE_IMMURE]),
         // touchstone drives the theurge's own runner tabtargets — its children
         // are rbt invocations of the fixture, suite, and single-case runners.
         RBTCEM_FIXTURE_TOUCHSTONE => Some(&[
@@ -384,13 +382,10 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // environment-quiet drives its chain through the single-case runner,
         // and the probe's relay level drives the leaf through it again.
         crate::rbtdry_quiet::RBTDRY_NAME_ENVIRONMENT_QUIET
-        | crate::rbtdry_quiet::RBTDRY_NAME_QUIET_HUSH => Some(&[
-            RBTGEC_THEURGE_CASE,
-        ]),
-        RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => Some(&[
-            RBTGEC_HYGIENE_CHECK_DOCKERFILE,
-            RBTGEC_HYGIENE_CHECK_VESSEL,
-        ]),
+        | crate::rbtdry_quiet::RBTDRY_NAME_QUIET_HUSH => Some(&[RBTGEC_THEURGE_CASE]),
+        RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => {
+            Some(&[RBTGEC_HYGIENE_CHECK_DOCKERFILE, RBTGEC_HYGIENE_CHECK_VESSEL])
+        }
         RBTCEM_FIXTURE_DEPOT_LIFECYCLE => Some(&[
             RBTGEC_LEVY_DEPOT,
             RBTGEC_LIST_DEPOT,
@@ -406,16 +401,12 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
             RBTGEC_BREVET_POLITY,
             RBTGEC_CHECK_MANTLE,
         ]),
-        RBTCEM_FIXTURE_FREEHOLD_CHURN => Some(&[
-            RBTGEC_UNMAKE_DEPOT,
-            RBTGEC_LIST_DEPOT,
-        ]),
+        RBTCEM_FIXTURE_FREEHOLD_CHURN => Some(&[RBTGEC_UNMAKE_DEPOT, RBTGEC_LIST_DEPOT]),
         // kludge-tadmor builds both vessels locally; only the two kludge
         // colophons are exercised (no charge/credential colophons here).
-        RBTCEM_FIXTURE_KLUDGE_TADMOR => Some(&[
-            RBTGEC_CRUCIBLE_KLUDGE_SENTRY,
-            RBTGEC_CRUCIBLE_KLUDGE_BOTTLE,
-        ]),
+        RBTCEM_FIXTURE_KLUDGE_TADMOR => {
+            Some(&[RBTGEC_CRUCIBLE_KLUDGE_SENTRY, RBTGEC_CRUCIBLE_KLUDGE_BOTTLE])
+        }
         // dogfight ordains/summons/abjures a single conjure-mode hallmark; the
         // bare container-runtime run is shelled directly, not via a colophon.
         RBTCEM_FIXTURE_DOGFIGHT => Some(&[
@@ -467,11 +458,9 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // Chaining-fact-livery's producer->consumer arc (ensconce -> feoff)
         // and the reset's divine both fire every run; banish is the
         // banish-if-present cleanup, declared permitted below.
-        RBTCEM_FIXTURE_CHAINING_LIVERY => Some(&[
-            RBTGEC_DIVINE_LODES,
-            RBTGEC_ENSCONCE_BOLE,
-            RBTGEC_FEOFF_BOLE,
-        ]),
+        RBTCEM_FIXTURE_CHAINING_LIVERY => {
+            Some(&[RBTGEC_DIVINE_LODES, RBTGEC_ENSCONCE_BOLE, RBTGEC_FEOFF_BOLE])
+        }
         // Every regime-poison case launches its validate colophon, so all eight
         // are required — the operator-local pair (oauth, station tincture)
         // included. Their self-skip elides only the POISONED invocation: the
@@ -515,4 +504,3 @@ pub fn rbtcem_permitted_colophons(fixture: &str) -> &'static [&'static str] {
         _ => &[],
     }
 }
-

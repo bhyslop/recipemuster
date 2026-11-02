@@ -51,10 +51,10 @@ use std::path::{
 
 use crate::rbtcee_case;
 use crate::rbtcee_engine::{
-    rbtcee_Tariff,
     rbtcee_Case,
     rbtcee_Disposition,
     rbtcee_Fixture,
+    rbtcee_Tariff,
     rbtcee_Verdict, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_CONFORMANCE;
@@ -64,7 +64,9 @@ use crate::rbtcem_manifest::RBTCEM_FIXTURE_CONFORMANCE;
 /// Repo-relative roots scanned for evicted vocabulary. Tools/ holds the kit
 /// source and specs; tt/ holds the tabtarget sprues. Historical record (Memos/,
 /// retired heats) lies outside these roots and is spared by construction.
-pub(crate) const ZRBTCHN_SCAN_ROOTS: &[&str] = &["Tools", "tt", //
+pub(crate) const ZRBTCHN_SCAN_ROOTS: &[&str] = &[
+    "Tools",
+    "tt", //
 ];
 
 // ── Eviction row and keep-context ───────────────────────────
@@ -233,8 +235,13 @@ fn zrbtchn_scan(root: &Path, rows: &[zrbtchn_EvictionRow]) -> Result<Vec<zrbtchn
 fn zrbtchn_render(hits: &[zrbtchn_Hit]) -> String {
     let mut report = String::new();
     for h in hits {
-        report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.token, h.line_text.trim(), //
-));
+        report.push_str(&format!(
+            "{}:{}: {} — {}\n",
+            h.path,
+            h.line,
+            h.token,
+            h.line_text.trim(), //
+        ));
     }
     report
 }
@@ -394,19 +401,31 @@ fn zrbtchn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtchn_CurlHit> {
         let assignment = stripped
             .trim()
             .split_once("=$(")
-            .filter(|(name, _)| !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_'))
-            .and_then(|(name, rest)| rest.strip_suffix(ZRBTCHN_CURL_CAPTURE).map(|body| (name, body)))
+            .filter(|(name, _)| {
+                !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+            })
+            .and_then(|(name, rest)| {
+                rest.strip_suffix(ZRBTCHN_CURL_CAPTURE)
+                    .map(|body| (name, body))
+            })
             .and_then(|(name, body)| body.trim_end().strip_suffix(')').map(|body| (name, body)));
         let secret_operand = raw
             .split_once("=$(")
             .and_then(|(_, rest)| rest.trim_start().strip_prefix("printf '%s' \"${"))
             .and_then(|rest| rest.split_once("}\""))
             .is_some_and(|(name, after)| wears_secret(name) && after.trim_start().starts_with('|'));
-        let secret_pipe = assignment.and_then(|(_, body)| body.split_once('|')).is_some_and(|(left, right)| {
-            left.trim() == "printf" && secret_operand && !right.contains(['|', ';', '&', '(', ')']) && zrbtchn_curl_leads(right)
-        });
+        let secret_pipe = assignment
+            .and_then(|(_, body)| body.split_once('|'))
+            .is_some_and(|(left, right)| {
+                left.trim() == "printf"
+                    && secret_operand
+                    && !right.contains(['|', ';', '&', '(', ')'])
+                    && zrbtchn_curl_leads(right)
+            });
         let secret_capture = assignment.is_some_and(|(name, body)| {
-            wears_secret(name) && !body.contains(['|', ';', '&', '(', ')']) && zrbtchn_curl_leads(body)
+            wears_secret(name)
+                && !body.contains(['|', ';', '&', '(', ')'])
+                && zrbtchn_curl_leads(body)
         });
         if secret_pipe || secret_capture {
             let window_end = lines.len().min(i + 1 + ZRBTCHN_CURL_TEST_WINDOW);
@@ -458,8 +477,13 @@ fn zrbtchn_curl_match(rel_path: &str, content: &str) -> Vec<zrbtchn_CurlHit> {
 fn zrbtchn_curl_render(hits: &[zrbtchn_CurlHit]) -> String {
     let mut report = String::new();
     for h in hits {
-        report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.text, //
-));
+        report.push_str(&format!(
+            "{}:{}: {} — {}\n",
+            h.path,
+            h.line,
+            h.kind,
+            h.text, //
+        ));
     }
     report
 }
@@ -568,8 +592,12 @@ fn rbtchn_self_curl_unscannable(_dir: &Path) -> rbtcee_Verdict {
 fn rbtchn_curl_containment(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let mut files: Vec<PathBuf> = Vec::new();
     for sub in ZRBTCHN_SCAN_ROOTS {
@@ -583,7 +611,10 @@ fn rbtchn_curl_containment(dir: &Path) -> rbtcee_Verdict {
             continue;
         }
         let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, path);
-        if ZRBTCHN_CURL_EXEMPT_PREFIXES.iter().any(|p| rel.starts_with(p)) {
+        if ZRBTCHN_CURL_EXEMPT_PREFIXES
+            .iter()
+            .any(|p| rel.starts_with(p))
+        {
             continue;
         }
         let content = match std::fs::read_to_string(path) {
@@ -627,8 +658,13 @@ struct zrbtchn_OneHomeHit {
 fn zrbtchn_onehome_render(hits: &[zrbtchn_OneHomeHit]) -> String {
     let mut report = String::new();
     for h in hits {
-        report.push_str(&format!("{}:{}: {} — {}\n", h.path, h.line, h.kind, h.detail, //
-));
+        report.push_str(&format!(
+            "{}:{}: {} — {}\n",
+            h.path,
+            h.line,
+            h.kind,
+            h.detail, //
+        ));
     }
     report
 }
@@ -668,7 +704,10 @@ fn zrbtchn_parse_quoin_mapping(line: &str) -> Option<(String, String)> {
     if name.is_empty() || !name.chars().next()?.is_ascii_lowercase() {
         return None;
     }
-    if !name.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_') {
+    if !name
+        .chars()
+        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+    {
         return None;
     }
     let tail = rest[colon + 1..].trim_start();
@@ -695,7 +734,9 @@ fn zrbtchn_parse_braced_citations(line: &str) -> Vec<String> {
                 let inner: String = chars[i + 1..i + 1 + end].iter().collect();
                 let is_ident = !inner.is_empty()
                     && inner.chars().next().unwrap().is_ascii_lowercase()
-                    && inner.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
+                    && inner
+                        .chars()
+                        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_')
                     && inner.contains('_');
                 if is_ident {
                     out.push(inner);
@@ -718,7 +759,12 @@ fn zrbtchn_parse_rivet_tokens(line: &str) -> Vec<String> {
     zrbtchn_tokens(line)
         .into_iter()
         .filter(|t| match t.strip_prefix("RBr_") {
-            Some(tail) => tail.len() == 3 && tail.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()),
+            Some(tail) => {
+                tail.len() == 3
+                    && tail
+                        .chars()
+                        .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+            }
             None => false,
         })
         .collect()
@@ -730,7 +776,12 @@ fn zrbtchn_parse_rivet_tokens(line: &str) -> Vec<String> {
 /// `RBr_` rivet ID or nothing may cite a spec from source.
 fn zrbtchn_is_spec_acronym(token: &str) -> bool {
     match token.strip_prefix("RBS") {
-        Some(rest) => !rest.is_empty() && rest.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()),
+        Some(rest) => {
+            !rest.is_empty()
+                && rest
+                    .chars()
+                    .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit())
+        }
         None => false,
     }
 }
@@ -810,8 +861,12 @@ fn zrbtchn_check_citations(
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "unanchored-quoin",
-                        detail: format!("mapping declares '{}' -> <<{}>> but no [[{}]] anchor exists", name, target, target, //
-),
+                        detail: format!(
+                            "mapping declares '{}' -> <<{}>> but no [[{}]] anchor exists",
+                            name,
+                            target,
+                            target, //
+                        ),
                     });
                 }
             }
@@ -819,14 +874,18 @@ fn zrbtchn_check_citations(
                 if !known_families.contains(zrbtchn_prefix_of(&term)) {
                     continue;
                 }
-                let resolves = mapping.get(&term).map_or(false, |target| anchors.contains(target));
+                let resolves = mapping
+                    .get(&term)
+                    .map_or(false, |target| anchors.contains(target));
                 if !resolves {
                     hits.push(zrbtchn_OneHomeHit {
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "broken-quoin-citation",
-                        detail: format!("{{{}}} resolves to no declared-and-anchored quoin", term, //
-),
+                        detail: format!(
+                            "{{{}}} resolves to no declared-and-anchored quoin",
+                            term, //
+                        ),
                     });
                 }
             }
@@ -844,8 +903,11 @@ fn zrbtchn_check_citations(
                         path: path.to_string(),
                         line: idx + 1,
                         kind: "broken-rivet-citation",
-                        detail: format!("{} resolves to no [[{}]] anchor", id, id, //
-),
+                        detail: format!(
+                            "{} resolves to no [[{}]] anchor",
+                            id,
+                            id, //
+                        ),
                     });
                 }
             }
@@ -933,8 +995,11 @@ fn zrbtchn_check_rivet_hoist(
                             path: path.to_string(),
                             line: idx + 1,
                             kind: "unhoisted-rivet",
-                            detail: format!("{} defined in {} cited cross-sheaf here — hoist to the codex", id, home, //
-),
+                            detail: format!(
+                                "{} defined in {} cited cross-sheaf here — hoist to the codex",
+                                id,
+                                home, //
+                            ),
                         });
                     }
                 }
@@ -960,7 +1025,7 @@ fn zrbtchn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtchn_OneHomeHit
                         line: idx + 1,
                         kind: "a8-spec-acronym-residue",
                         detail: format!("shipped source cites spec acronym {} — residue must be bare RBr_ or nothing", token, //
-),
+                        ),
                     });
                 }
             }
@@ -982,7 +1047,9 @@ fn zrbtchn_check_a8_residue(sh_files: &[(&str, &str)]) -> Vec<zrbtchn_OneHomeHit
 /// really is broken). Closing that debt belongs to each kit, not to this
 /// fixture. The corpus reach below is likewise scoped to `specs/rbk` alone,
 /// for the same jurisdiction reason.
-const ZRBTCHN_ONEHOME_SCAN_ROOTS: &[&str] = &["Tools/rbk", "tt", //
+const ZRBTCHN_ONEHOME_SCAN_ROOTS: &[&str] = &[
+    "Tools/rbk",
+    "tt", //
 ];
 
 // ── The corpus road ────────────────────────────────────────────
@@ -1015,7 +1082,9 @@ const ZRBTCHN_FEODARY_REVISION: i64 = 1;
 
 /// The roles a corpus road carries. A kraal holds at most one, and which one
 /// follows from the door that stood the kraal up.
-const ZRBTCHN_CORPUS_ROAD_ROLES: &[&str] = &["vulgate", "lectern", //
+const ZRBTCHN_CORPUS_ROAD_ROLES: &[&str] = &[
+    "vulgate",
+    "lectern", //
 ];
 
 /// RBK's spec home on the corpus road — the JUDGED set's root. Scoped to
@@ -1052,8 +1121,10 @@ enum zrbtchn_CorpusRoad {
 /// escapes a filesystem path can carry (`\\` and `\"`). None when the key is
 /// absent or its value is not a string.
 fn zrbtchn_json_string_field(text: &str, key: &str) -> Option<String> {
-    let needle = format!("\"{}\"", key, //
-);
+    let needle = format!(
+        "\"{}\"",
+        key, //
+    );
     let pos = text.find(&needle)?;
     let rest = text[pos + needle.len()..].trim_start();
     let rest = rest.strip_prefix(':')?.trim_start();
@@ -1073,8 +1144,10 @@ fn zrbtchn_json_string_field(text: &str, key: &str) -> Option<String> {
 /// Read the integer value that follows `"key":` in `text`. None when the key
 /// is absent or its value is not a bare integer.
 fn zrbtchn_json_int_field(text: &str, key: &str) -> Option<i64> {
-    let needle = format!("\"{}\"", key, //
-);
+    let needle = format!(
+        "\"{}\"",
+        key, //
+    );
     let pos = text.find(&needle)?;
     let rest = text[pos + needle.len()..].trim_start();
     let rest = rest.strip_prefix(':')?.trim_start();
@@ -1136,10 +1209,8 @@ fn zrbtchn_parse_feodary(text: &str) -> Result<Vec<zrbtchn_FeodaryTree>, String>
                     ) {
                         (Some(path), Some(role)) => trees.push(zrbtchn_FeodaryTree { path, role }),
                         _ => {
-                            return Err(
-                                "carries a tree row without both jjfd_path and jjfd_role"
-                                    .to_string(),
-                            )
+                            return Err("carries a tree row without both jjfd_path and jjfd_role"
+                                .to_string())
                         }
                     }
                 }
@@ -1200,16 +1271,22 @@ fn zrbtchn_locate_corpus_road(root: &Path) -> Result<zrbtchn_CorpusRoad, String>
         let text = match std::fs::read_to_string(register) {
             Ok(t) => t,
             Err(e) => {
-                unreadable.push(format!("{} ({})", register.display(), e, //
-));
+                unreadable.push(format!(
+                    "{} ({})",
+                    register.display(),
+                    e, //
+                ));
                 continue;
             }
         };
         let trees = match zrbtchn_parse_feodary(&text) {
             Ok(t) => t,
             Err(e) => {
-                unreadable.push(format!("{} ({})", register.display(), e, //
-));
+                unreadable.push(format!(
+                    "{} ({})",
+                    register.display(),
+                    e, //
+                ));
                 continue;
             }
         };
@@ -1234,7 +1311,7 @@ fn zrbtchn_locate_corpus_road(root: &Path) -> Result<zrbtchn_CorpusRoad, String>
                      a kraal without one cannot answer the citation-integrity or rivet-hoist check",
                     register.display(),
                     ZRBTCHN_CORPUS_ROAD_ROLES.join(" or "), //
-                ))
+                ));
             }
         };
         let road_root = PathBuf::from(&road.path);
@@ -1301,8 +1378,12 @@ fn zrbtchn_walk_repo_corpus(root: &Path) -> (Vec<(String, String)>, Vec<(String,
 fn rbtchn_onehome_residue_live(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let (_, sh_owned) = zrbtchn_walk_repo_corpus(&root);
     let sh_refs: Vec<(&str, &str)> = sh_owned
@@ -1312,8 +1393,10 @@ fn rbtchn_onehome_residue_live(dir: &Path) -> rbtcee_Verdict {
 
     let hits = zrbtchn_check_a8_residue(&sh_refs);
     let mut report = zrbtchn_onehome_render(&hits);
-    report.push_str(&format!("scanned {} shipped .sh file(s)\n", sh_owned.len(), //
-));
+    report.push_str(&format!(
+        "scanned {} shipped .sh file(s)\n",
+        sh_owned.len(), //
+    ));
     let _ = std::fs::write(dir.join("conformance-onehome-residue.txt"), &report);
 
     if hits.is_empty() {
@@ -1350,8 +1433,12 @@ fn rbtchn_onehome_residue_live(dir: &Path) -> rbtcee_Verdict {
 fn rbtchn_onehome_corpus_live(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
 
     let road = match zrbtchn_locate_corpus_road(&root) {
@@ -1364,8 +1451,10 @@ fn rbtchn_onehome_corpus_live(dir: &Path) -> rbtcee_Verdict {
             );
             let _ = std::fs::write(
                 dir.join("conformance-onehome-corpus.txt"),
-                format!("{}\n", note, //
-),
+                format!(
+                    "{}\n",
+                    note, //
+                ),
             );
             return rbtcee_Verdict::Skip(note);
         }
@@ -1378,8 +1467,10 @@ fn rbtchn_onehome_corpus_live(dir: &Path) -> rbtcee_Verdict {
     let (mut judged_adoc_owned, sh_owned) = zrbtchn_walk_repo_corpus(&root);
     let mut anchor_owned: Vec<(String, String)> = judged_adoc_owned.clone();
     let in_repo_adoc = anchor_owned.len();
-    let judged_prefix = format!("{}/", ZRBTCHN_CORPUS_SPEC_SUBDIR, //
-);
+    let judged_prefix = format!(
+        "{}/",
+        ZRBTCHN_CORPUS_SPEC_SUBDIR, //
+    );
 
     let mut spec_files: Vec<PathBuf> = Vec::new();
     zrbtchn_walk(&corpus_root, &mut spec_files);
@@ -1498,7 +1589,11 @@ fn rbtchn_self_citation_integrity(_dir: &Path) -> rbtcee_Verdict {
     // whatever the live roster holds — including empty.
     let hits = zrbtchn_check_citations(&adoc, &adoc, &all, &[exempt.0]);
     let kinds: Vec<&str> = hits.iter().map(|h| h.kind).collect();
-    let mut expected = vec!["unanchored-quoin", "broken-quoin-citation", "broken-rivet-citation"];
+    let mut expected = vec![
+        "unanchored-quoin",
+        "broken-quoin-citation",
+        "broken-rivet-citation",
+    ];
     let mut got = kinds.clone();
     got.sort();
     expected.sort();
@@ -1519,16 +1614,50 @@ fn rbtchn_self_citation_integrity(_dir: &Path) -> rbtcee_Verdict {
 /// codex itself clears no matter how many sheaves cite it; a rivet cited from
 /// a census/index sheaf clears regardless of home.
 fn rbtchn_self_rivet_hoist(_dir: &Path) -> rbtcee_Verdict {
-    let home = ("vov_veiled/RBSAA-home.adoc", "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n");
-    let sibling = ("vov_veiled/RBSAB-sibling.adoc", "Cites RBr_a11 from a different sheaf.\n");
-    let waived_home = ("vov_veiled/RBSAC-waived.adoc", "[[RBr_m4d]]\nRBr_m4d:: lives here.\n");
-    let waived_citer = ("vov_veiled/RBSAD-waived-citer.adoc", "Cites RBr_m4d from a different sheaf — waived.\n");
-    let codex_home = (ZRBTCHN_CODEX_SHEAF, "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n");
-    let codex_citer = ("vov_veiled/RBSAE-codex-citer.adoc", "Cites RBr_c0d, already hoisted — clears.\n");
-    let index_citer = (ZRBTCHN_HOIST_INDEX_SHEAVES[0], "Cites RBr_a11 as a census entry, not consumption — clears.\n");
-    let adoc = vec![home, sibling, waived_home, waived_citer, codex_home, codex_citer, index_citer];
+    let home = (
+        "vov_veiled/RBSAA-home.adoc",
+        "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n",
+    );
+    let sibling = (
+        "vov_veiled/RBSAB-sibling.adoc",
+        "Cites RBr_a11 from a different sheaf.\n",
+    );
+    let waived_home = (
+        "vov_veiled/RBSAC-waived.adoc",
+        "[[RBr_m4d]]\nRBr_m4d:: lives here.\n",
+    );
+    let waived_citer = (
+        "vov_veiled/RBSAD-waived-citer.adoc",
+        "Cites RBr_m4d from a different sheaf — waived.\n",
+    );
+    let codex_home = (
+        ZRBTCHN_CODEX_SHEAF,
+        "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n",
+    );
+    let codex_citer = (
+        "vov_veiled/RBSAE-codex-citer.adoc",
+        "Cites RBr_c0d, already hoisted — clears.\n",
+    );
+    let index_citer = (
+        ZRBTCHN_HOIST_INDEX_SHEAVES[0],
+        "Cites RBr_a11 as a census entry, not consumption — clears.\n",
+    );
+    let adoc = vec![
+        home,
+        sibling,
+        waived_home,
+        waived_citer,
+        codex_home,
+        codex_citer,
+        index_citer,
+    ];
 
-    let hits = zrbtchn_check_rivet_hoist(&adoc, ZRBTCHN_HOIST_WAIVERS, ZRBTCHN_CODEX_SHEAF, ZRBTCHN_HOIST_INDEX_SHEAVES);
+    let hits = zrbtchn_check_rivet_hoist(
+        &adoc,
+        ZRBTCHN_HOIST_WAIVERS,
+        ZRBTCHN_CODEX_SHEAF,
+        ZRBTCHN_HOIST_INDEX_SHEAVES,
+    );
     if hits.len() != 1 || hits[0].kind != "unhoisted-rivet" || !hits[0].detail.contains("RBr_a11") {
         return rbtcee_Verdict::Fail(format!(
             "expected exactly 1 unhoisted-rivet hit for RBr_a11 (RBr_m4d waived), got:\n{}",
@@ -1588,7 +1717,9 @@ fn rbtchn_self_catch_and_keep_identifier(_dir: &Path) -> rbtcee_Verdict {
     if h.line != 1 || h.token != ZRBTCHN_SELF_STEM {
         return rbtcee_Verdict::Fail(format!(
             "hit shape wrong: line {} token '{}' (expected line 1 token '{}')",
-            h.line, h.token, ZRBTCHN_SELF_STEM, //
+            h.line,
+            h.token,
+            ZRBTCHN_SELF_STEM, //
         ));
     }
     rbtcee_Verdict::Pass
@@ -1669,8 +1800,12 @@ fn rbtchn_self_pure_corpse(_dir: &Path) -> rbtcee_Verdict {
 fn rbtchn_live_scan(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let hits = match zrbtchn_scan(&root, ZRBTCHN_EVICTION_ROWS) {
         Ok(h) => h,
@@ -1723,17 +1858,24 @@ const ZRBTCHN_SELF_FEODARY: &str = r#"{
 fn rbtchn_self_feodary_parse(_dir: &Path) -> rbtcee_Verdict {
     let trees = match zrbtchn_parse_feodary(ZRBTCHN_SELF_FEODARY) {
         Ok(t) => t,
-        Err(e) => return rbtcee_Verdict::Fail(format!("well-formed register refused: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "well-formed register refused: {}",
+                e, //
+            ));
+        }
     };
     if trees.len() != 3 {
-        return rbtcee_Verdict::Fail(format!("expected 3 tree rows, parsed {}", trees.len(), //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "expected 3 tree rows, parsed {}",
+            trees.len(), //
+        ));
     }
     if trees[0].path != "/infield/kraal_billet_rb" || trees[0].role != "billet" {
         return rbtcee_Verdict::Fail(format!(
             "first row parsed as {} / {}",
-            trees[0].path, trees[0].role, //
+            trees[0].path,
+            trees[0].role, //
         ));
     }
     let road = match trees
@@ -1744,8 +1886,10 @@ fn rbtchn_self_feodary_parse(_dir: &Path) -> rbtcee_Verdict {
         None => return rbtcee_Verdict::Fail("corpus road not found by role".to_string()),
     };
     if road.path != "/infield/kraal_billet_vulgate" {
-        return rbtcee_Verdict::Fail(format!("corpus road parsed as {}", road.path, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "corpus road parsed as {}",
+            road.path, //
+        ));
     }
     rbtcee_Verdict::Pass
 }
@@ -1771,13 +1915,17 @@ fn rbtchn_self_feodary_refusals(_dir: &Path) -> rbtcee_Verdict {
             return rbtcee_Verdict::Fail(format!(
                 "a later-vintage register carrying an unknown key refused: {}",
                 e, //
-            ))
+            ));
         }
     };
     let base_trees = match zrbtchn_parse_feodary(ZRBTCHN_SELF_FEODARY) {
         Ok(t) => t,
-        Err(e) => return rbtcee_Verdict::Fail(format!("well-formed register refused: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "well-formed register refused: {}",
+                e, //
+            ));
+        }
     };
     if evolved_trees.len() != base_trees.len()
         || evolved_trees
@@ -1786,23 +1934,30 @@ fn rbtchn_self_feodary_refusals(_dir: &Path) -> rbtcee_Verdict {
             .any(|(a, b)| a.path != b.path || a.role != b.role)
     {
         return rbtcee_Verdict::Fail(
-            "a later-vintage register carrying an unknown key parsed to different rows"
-                .to_string(),
+            "a later-vintage register carrying an unknown key parsed to different rows".to_string(),
         );
     }
     let vintageless = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_revision\": 1,", "");
     if zrbtchn_parse_feodary(&vintageless).is_ok() {
         return rbtcee_Verdict::Fail("a register declaring no vintage parsed clean".to_string());
     }
-    let half_row = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_kind\": \"vulgate\"");
+    let half_row =
+        ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_kind\": \"vulgate\"");
     if zrbtchn_parse_feodary(&half_row).is_ok() {
-        return rbtcee_Verdict::Fail("a register with a roleless tree row parsed clean".to_string());
+        return rbtcee_Verdict::Fail(
+            "a register with a roleless tree row parsed clean".to_string(),
+        );
     }
-    let roadless = ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_role\": \"sumpter\"");
+    let roadless =
+        ZRBTCHN_SELF_FEODARY.replace("\"jjfd_role\": \"vulgate\"", "\"jjfd_role\": \"sumpter\"");
     let trees = match zrbtchn_parse_feodary(&roadless) {
         Ok(t) => t,
-        Err(e) => return rbtcee_Verdict::Fail(format!("roadless register refused at parse: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "roadless register refused at parse: {}",
+                e, //
+            ));
+        }
     };
     if trees
         .iter()
@@ -1850,16 +2005,24 @@ fn zrbtchn_self_register(billet: &Path, extra: &str) -> String {
 fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
     let base = match std::fs::canonicalize(dir) {
         Ok(b) => b,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot canonicalize case dir: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot canonicalize case dir: {}",
+                e, //
+            ));
+        }
     };
     let base = base.join("locator");
 
     // No register anywhere beside the billet: a station outside any kraal.
     let bare = match zrbtchn_self_kraal(&base, "bare", None) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose bare kraal: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot compose bare kraal: {}",
+                e, //
+            ));
+        }
     };
     match zrbtchn_locate_corpus_road(&bare) {
         Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
@@ -1871,11 +2034,17 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
             }
         }
         Ok(zrbtchn_CorpusRoad::Found(p)) => {
-            return rbtcee_Verdict::Fail(format!("registerless station resolved a road at {}", p.display(), //
-))
+            return rbtcee_Verdict::Fail(format!(
+                "registerless station resolved a road at {}",
+                p.display(), //
+            ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("registerless station failed: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "registerless station failed: {}",
+                e, //
+            ));
+        }
     }
 
     // A register stands beside the billet but claims a different tree — another
@@ -1887,8 +2056,12 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
     );
     let foreign = match zrbtchn_self_kraal(&base, "foreign", Some(&foreign_body)) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose foreign kraal: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot compose foreign kraal: {}",
+                e, //
+            ));
+        }
     };
     match zrbtchn_locate_corpus_road(&foreign) {
         Ok(zrbtchn_CorpusRoad::Absent(_)) => {}
@@ -1896,29 +2069,43 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
             return rbtcee_Verdict::Fail(format!(
                 "a register claiming another tree yielded a road at {}",
                 p.display(), //
-            ))
+            ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("foreign register failed loud: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "foreign register failed loud: {}",
+                e, //
+            ));
+        }
     }
 
     // A register that claims this billet and names no corpus road: a broken
     // kraal, loud rather than absent.
     let roadless = match zrbtchn_self_kraal(&base, "roadless", Some("")) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose roadless kraal: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot compose roadless kraal: {}",
+                e, //
+            ));
+        }
     };
     let roadless_body = zrbtchn_self_register(
         &roadless,
         ",\n    { \"jjfd_path\": \"/some/sumpter\", \"jjfd_role\": \"sumpter\" }",
     );
     if let Err(e) = std::fs::write(
-        roadless.parent().unwrap().join("outspan").join(ZRBTCHN_FEODARY_BASENAME),
+        roadless
+            .parent()
+            .unwrap()
+            .join("outspan")
+            .join(ZRBTCHN_FEODARY_BASENAME),
         &roadless_body,
     ) {
-        return rbtcee_Verdict::Fail(format!("cannot write roadless register: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "cannot write roadless register: {}",
+            e, //
+        ));
     }
     match zrbtchn_locate_corpus_road(&roadless) {
         Err(_) => {}
@@ -1926,11 +2113,13 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
             return rbtcee_Verdict::Fail(format!(
                 "a claiming register naming no corpus road skipped instead of failing: {}",
                 reason, //
-            ))
+            ));
         }
         Ok(zrbtchn_CorpusRoad::Found(p)) => {
-            return rbtcee_Verdict::Fail(format!("roadless register yielded a road at {}", p.display(), //
-))
+            return rbtcee_Verdict::Fail(format!(
+                "roadless register yielded a road at {}",
+                p.display(), //
+            ));
         }
     }
 
@@ -1938,13 +2127,19 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
     // stands: the found case, and the road root is what comes back.
     let good = match zrbtchn_self_kraal(&base, "good", Some("")) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot compose good kraal: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot compose good kraal: {}",
+                e, //
+            ));
+        }
     };
     let road = good.parent().unwrap().join("vulgate");
     if let Err(e) = std::fs::create_dir_all(road.join(ZRBTCHN_CORPUS_SPEC_SUBDIR)) {
-        return rbtcee_Verdict::Fail(format!("cannot compose corpus road: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "cannot compose corpus road: {}",
+            e, //
+        ));
     }
     let good_body = zrbtchn_self_register(
         &good,
@@ -1954,11 +2149,16 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
         ),
     );
     if let Err(e) = std::fs::write(
-        good.parent().unwrap().join("outspan").join(ZRBTCHN_FEODARY_BASENAME),
+        good.parent()
+            .unwrap()
+            .join("outspan")
+            .join(ZRBTCHN_FEODARY_BASENAME),
         &good_body,
     ) {
-        return rbtcee_Verdict::Fail(format!("cannot write good register: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "cannot write good register: {}",
+            e, //
+        ));
     }
     match zrbtchn_locate_corpus_road(&good) {
         Ok(zrbtchn_CorpusRoad::Found(p)) => {
@@ -1971,11 +2171,17 @@ fn rbtchn_self_corpus_road_locator(dir: &Path) -> rbtcee_Verdict {
             }
         }
         Ok(zrbtchn_CorpusRoad::Absent(reason)) => {
-            return rbtcee_Verdict::Fail(format!("a standing corpus road skipped: {}", reason, //
-))
+            return rbtcee_Verdict::Fail(format!(
+                "a standing corpus road skipped: {}",
+                reason, //
+            ));
         }
-        Err(e) => return rbtcee_Verdict::Fail(format!("a standing corpus road failed: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "a standing corpus road failed: {}",
+                e, //
+            ));
+        }
     }
 
     rbtcee_Verdict::Pass
@@ -2008,5 +2214,9 @@ pub static RBTCHN_FIXTURE_CONFORMANCE: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHN_CASES_CONFORMANCE,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(0),
+    },
 };

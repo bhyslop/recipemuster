@@ -20,21 +20,26 @@
 // election"): the base it gates and cuts atop, the regulus directory, and the
 // temenos directory are the elected bundle's. Nothing else differs.
 
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 use std::process::ExitCode;
 
 use bkp::bkprs_scrivener::bkprs_program_copy;
 
-use crate::rbvccd_docimasy::{zrbvccd_find_tt, RBVCCD_COL_SUITE, RBVCCD_TT_SUBDIR, //
+use crate::rbvccd_docimasy::{
+    zrbvccd_find_tt,
+    RBVCCD_COL_SUITE,
+    RBVCCD_TT_SUBDIR, //
 };
-use crate::rbvcex_expede;
-use crate::rbvcel_log;
-use crate::rbvceu_loupe;
-use crate::rbvcep_repo;
 use crate::rbvceg_temenos;
+use crate::rbvcel_log;
+use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvceu_loupe;
 use crate::rbvcew_world;
+use crate::rbvcex_expede;
 
 // ── Worker location: colophons and imprints ─────────────────
 
@@ -72,12 +77,16 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
     rbvcel_log::rbvcel_section("Hierophant Essai — the reversible repair lap (RBSHE)");
-    rbvcel_log::rbvcel_line("Gate, cut, prove, temenos — zero remote acts. A finding means re-cut.");
+    rbvcel_log::rbvcel_line(
+        "Gate, cut, prove, temenos — zero remote acts. A finding means re-cut.",
+    );
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
-    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display(), //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Maintainer tree: {}",
+        top.display(), //
+    ));
 
     zrbvcce_gate(&top, bundle);
     zrbvcce_precut_assays(&top);
@@ -99,18 +108,28 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this temenos is a LOCAL proxy:");
     rbvcel_log::rbvcel_line("the HTTPS-clone-from-GitHub step and the public landing face are");
-    rbvcel_log::rbvcel_line("UNPROVEN in this mode. They are covered only by the final instruments");
-    rbvcel_log::rbvcel_line("against promoted public main (the harbinger command, a later ceremony).");
+    rbvcel_log::rbvcel_line(
+        "UNPROVEN in this mode. They are covered only by the final instruments",
+    );
+    rbvcel_log::rbvcel_line(
+        "against promoted public main (the harbinger command, a later ceremony).",
+    );
 
     rbvceg_temenos::rbvceg_emit_handoff(&temenos);
 
     rbvcel_log::rbvcel_section("Two standing artifacts (RBSHE step 6)");
-    rbvcel_log::rbvcel_line(&format!("Pristine regulus (untouched by the walk): {}", regulus_clone.display(), //
-));
-    rbvcel_log::rbvcel_line(&format!("Disposable temenos:                             {}", temenos.temenos_dir.display(), //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Pristine regulus (untouched by the walk): {}",
+        regulus_clone.display(), //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Disposable temenos:                             {}",
+        temenos.temenos_dir.display(), //
+    ));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_success("Essai lap complete — a walk-ready temenos stands beside a proven regulus.");
+    rbvcel_log::rbvcel_success(
+        "Essai lap complete — a walk-ready temenos stands beside a proven regulus.",
+    );
     rbvcel_log::rbvcel_line("Dispose and re-cut, or hand the standing regulus to docimasy — the reveal's proving act (RBSHE completion).");
 
     ExitCode::SUCCESS
@@ -167,10 +186,14 @@ fn zrbvcce_gate(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
             base_remote, fetch.stderr.trim(), //
         );
     }
-    let push = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", "--push", base_remote], top);
+    let push =
+        rbvcer_run::rbvcer_capture("git", &["remote", "get-url", "--push", base_remote], top);
     if push.code != 0 {
-        crate::rbvcel_fatal!("cannot read {} push url:\n{}", base_remote, push.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "cannot read {} push url:\n{}",
+            base_remote,
+            push.stderr.trim(), //
+        );
     }
     if push.stdout.trim() != push_sentinel {
         crate::rbvcel_fatal!(
@@ -178,8 +201,10 @@ fn zrbvcce_gate(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
             base_remote, push.stdout.trim(), base_remote, push_sentinel, //
         );
     }
-    rbvcel_log::rbvcel_line(&format!("base {} configured, push side neutered", base_remote, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "base {} configured, push side neutered",
+        base_remote, //
+    ));
 }
 
 // ── Step 2: pre-cut assays, on the maintainer tree ──────────
@@ -190,7 +215,10 @@ fn zrbvcce_precut_assays(top: &Path) {
 
     // main must be green before it is worth cutting.
     let reveille = zrbvccd_find_tt(&tt, RBVCCD_COL_SUITE, Some(RBVCCE_SUITE_REVEILLE));
-    zrbvcce_require_source(rbvcer_run::rbvcer_stream(&reveille, &[], top, &[]), "reveille suite");
+    zrbvcce_require_source(
+        rbvcer_run::rbvcer_stream(&reveille, &[], top, &[]),
+        "reveille suite",
+    );
 
     // The veiled-tree assay, in-process (RBSHC "Worker, never authority": the
     // veil assay is one of the hierophant's own absorbed modules, beside the cut
@@ -201,8 +229,10 @@ fn zrbvcce_precut_assays(top: &Path) {
     let leaks = rbvceu_loupe::rbvceu_assay(top);
     if !leaks.is_empty() {
         for leak in &leaks {
-            rbvcel_log::rbvcel_line(&format!("veil leak: {}", leak, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "veil leak: {}",
+                leak, //
+            ));
         }
         crate::rbvcel_fatal!(
             "the veiled-tree assay found {} leak(s) — repair on the maintainer tree, then run essai again (RBSHE)",
@@ -221,8 +251,10 @@ fn zrbvcce_cut(top: &Path, parent: &Path, world: rbvcew_world::rbvcew_World) -> 
     let regulus_dirname = rbvcew_world::rbvcew_bundle(world).regulus_dirname;
     let regulus_parent = parent.join(regulus_dirname);
     rbvcep_repo::rbvcep_guard_disposable(&regulus_parent, regulus_dirname, top);
-    rbvcel_log::rbvcel_step(&format!("Disposing any prior regulus: {}", regulus_parent.display(), //
-));
+    rbvcel_log::rbvcel_step(&format!(
+        "Disposing any prior regulus: {}",
+        regulus_parent.display(), //
+    ));
     if !rbvcep_repo::rbvcep_sepose(&regulus_parent, top) {
         rbvcel_log::rbvcel_line("no prior regulus to sepose");
     }
@@ -233,18 +265,27 @@ fn zrbvcce_cut(top: &Path, parent: &Path, world: rbvcew_world::rbvcew_World) -> 
     // present, byte-assert, single-commit, delta sweep, zero remotes — all
     // judged in-process by the one matcher. Fatal on any deficit; a return
     // is the verdict.
-    rbvcel_log::rbvcel_step(&format!("Expediting the regulus into {}", regulus_parent.display(), //
-));
+    rbvcel_log::rbvcel_step(&format!(
+        "Expediting the regulus into {}",
+        regulus_parent.display(), //
+    ));
     let regulus_clone = rbvcex_expede::rbvcex_cut(top, &regulus_parent, world);
 
-    rbvcel_log::rbvcel_line(&format!("regulus cut: {}", regulus_clone.display(), //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "regulus cut: {}",
+        regulus_clone.display(), //
+    ));
     regulus_clone
 }
 
 // ── Step 4: prove the regulus (the battery, in order) ─────
 
-fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
+fn zrbvcce_prove(
+    parent: &Path,
+    regulus_clone: &Path,
+    top: &Path,
+    bundle: &rbvcew_world::rbvcew_Bundle,
+) {
     rbvcel_log::rbvcel_section("Prove the regulus — the battery (RBSHE step 4)");
     let regulus_parent = parent.join(bundle.regulus_dirname);
     let tt = regulus_clone.join(RBVCCD_TT_SUBDIR);
@@ -255,15 +296,27 @@ fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path, bundle: &rbvce
     // regulus's z-launcher normalizes cwd to the regulus root, so these assay
     // the regulus though essai never leaves the maintainer tree.
     let qualify = zrbvccd_find_tt(&tt, RBVCCE_COL_QUALIFY_FAST, None);
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&qualify, &[], top, &[]), "regulus fast-qualify");
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&qualify, &[], top, &[]),
+        "regulus fast-qualify",
+    );
 
     let fixture = zrbvccd_find_tt(&tt, RBVCCE_COL_FIXTURE, None);
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_CUPEL], top, &[]), "regulus cupel");
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_PYX], top, &[]), "regulus pyx");
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_CUPEL], top, &[]),
+        "regulus cupel",
+    );
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_PYX], top, &[]),
+        "regulus pyx",
+    );
     // Damnatio on POSTULANT_LOCAL, BEFORE any feigning — the proof of erasure.
     // It reddens on feigned fields by construction, which is what keeps a probe
     // branch from ever being mistaken for a regulus.
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_DAMNATIO], top, &[]), "regulus damnatio");
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&fixture, &[RBVCCE_FIX_DAMNATIO], top, &[]),
+        "regulus damnatio",
+    );
 
     // The regulus's root CLAUDE.md, shipped from the maintainer's committed
     // bytes like every other path, must carry no veil needle —
@@ -274,8 +327,10 @@ fn zrbvcce_prove(parent: &Path, regulus_clone: &Path, top: &Path, bundle: &rbvce
     let needles = rbvceu_loupe::rbvceu_assay_regulus(regulus_clone);
     if !needles.is_empty() {
         for needle in &needles {
-            rbvcel_log::rbvcel_line(&format!("regulus veil needle: {}", needle, //
-));
+            rbvcel_log::rbvcel_line(&format!(
+                "regulus veil needle: {}",
+                needle, //
+            ));
         }
         crate::rbvcel_fatal!(
             "the regulus's root CLAUDE.md carries {} veil needle(s) — abandon the regulus, repair on the maintainer tree, and re-cut (RBSHE)",
@@ -310,11 +365,17 @@ fn zrbvcce_write_station(regulus_parent: &Path) {
         rbvcep_repo::RBVCEP_TACKROOM_SUBDIR, //
     );
     let burs_path = station_dir.join(rbvcep_repo::RBVCEP_STATION_FILE);
-    std::fs::write(&burs_path, burs)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write station {}: {}", burs_path.display(), e, //
-));
-    rbvcel_log::rbvcel_line(&format!("station written: {}", burs_path.display(), //
-));
+    std::fs::write(&burs_path, burs).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to write station {}: {}",
+            burs_path.display(),
+            e, //
+        )
+    });
+    rbvcel_log::rbvcel_line(&format!(
+        "station written: {}",
+        burs_path.display(), //
+    ));
 }
 
 /// Step 4f — the consumer-seat probe: cut a throwaway probe branch, hand the
@@ -327,29 +388,50 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
 
     // The sterile branch to return to (expede left the regulus on it). Captured,
     // not hardcoded — expede owns the branch name.
-    let head = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"], top);
+    let head = rbvcer_run::rbvcer_capture(
+        "git",
+        &["-C", &clone, "rev-parse", "--abbrev-ref", "HEAD"],
+        top,
+    );
     zrbvcce_require_regulus(head.code, "read regulus branch");
     let sterile_branch = head.stdout.trim().to_string();
 
-    zrbvcce_git_stream(&clone, &["checkout", "-b", RBVCCE_PROBE_BRANCH], top, "cut the probe branch");
+    zrbvcce_git_stream(
+        &clone,
+        &["checkout", "-b", RBVCCE_PROBE_BRANCH],
+        top,
+        "cut the probe branch",
+    );
 
     // Hand the regulus its feign tabtarget: a byte-copy of an existing
     // regulus tabtarget under the withheld colophon's name (the trampolines are
     // byte-generic; the runtime `${0##*/}` resolves the rbw-MF colophon).
     let donor = zrbvccd_find_tt(tt, RBVCCE_COL_QUALIFY_FAST, None);
     let feign_tt = tt.join(RBVCCE_FEIGN_TT);
-    bkprs_program_copy(&donor, &feign_tt)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to install the feign tabtarget {}: {}", feign_tt.display(), e, //
-));
+    bkprs_program_copy(&donor, &feign_tt).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to install the feign tabtarget {}: {}",
+            feign_tt.display(),
+            e, //
+        )
+    });
 
     // Rebuild (regenerates the regulus's tabtarget context from the now-complete
     // tt/ set), then commit the seed so the tree is clean before feign — feign's
     // own clean-tree gate demands it, and the probe commit must carry the seed
     // alone.
     let build = zrbvccd_find_tt(tt, RBVCCE_COL_BUILD, None);
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&build, &[], top, &[]), "regulus build (probe)");
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&build, &[], top, &[]),
+        "regulus build (probe)",
+    );
     zrbvcce_git_stream(&clone, &["add", "-A"], top, "stage the probe seed");
-    zrbvcce_git_stream(&clone, &["commit", "-m", "probe: feign a station"], top, "commit the probe seed");
+    zrbvcce_git_stream(
+        &clone,
+        &["commit", "-m", "probe: feign a station"],
+        top,
+        "commit the probe seed",
+    );
 
     // Feign a visibly-false station (BURE_CONFIRM=skip — the ceremony drives it
     // headlessly), then run the regulus's reveille from the consumer's seat.
@@ -359,16 +441,31 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
         "regulus feign",
     );
     let reveille = zrbvccd_find_tt(tt, RBVCCD_COL_SUITE, Some(RBVCCE_SUITE_REVEILLE));
-    zrbvcce_require_regulus(rbvcer_run::rbvcer_stream(&reveille, &[], top, &[]), "regulus reveille (consumer seat)");
+    zrbvcce_require_regulus(
+        rbvcer_run::rbvcer_stream(&reveille, &[], top, &[]),
+        "regulus reveille (consumer seat)",
+    );
 
     // Return to the sterile branch and drop the probe outright — it deliberately
     // holds withheld paths (the feigned station, the copied marshal tabtarget), so
     // dropping it leaves the clone carrying exactly one branch and zero remotes.
     rbvcel_log::rbvcel_step("Returning to the sterile branch and dropping the probe");
-    zrbvcce_git_stream(&clone, &["checkout", &sterile_branch], top, "return to the sterile branch");
-    zrbvcce_git_stream(&clone, &["branch", "-D", RBVCCE_PROBE_BRANCH], top, "drop the probe branch");
-    rbvcel_log::rbvcel_line(&format!("consumer-seat reveille green; regulus back on {}", sterile_branch, //
-));
+    zrbvcce_git_stream(
+        &clone,
+        &["checkout", &sterile_branch],
+        top,
+        "return to the sterile branch",
+    );
+    zrbvcce_git_stream(
+        &clone,
+        &["branch", "-D", RBVCCE_PROBE_BRANCH],
+        top,
+        "drop the probe branch",
+    );
+    rbvcel_log::rbvcel_line(&format!(
+        "consumer-seat reveille green; regulus back on {}",
+        sterile_branch, //
+    ));
 }
 
 // ── Small shared helpers ────────────────────────────────────
@@ -379,15 +476,22 @@ fn zrbvcce_git_stream(clone: &str, args: &[&str], top: &Path, act: &str) {
     full.extend_from_slice(args);
     let code = rbvcer_run::rbvcer_stream("git", &full, top, &[]);
     if code != 0 {
-        crate::rbvcel_fatal!("failed to {} (git exited {})", act, code, //
-);
+        crate::rbvcel_fatal!(
+            "failed to {} (git exited {})",
+            act,
+            code, //
+        );
     }
 }
 
 fn zrbvcce_mkdir(dir: &Path) {
-    std::fs::create_dir_all(dir)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to create {}: {}", dir.display(), e, //
-));
+    std::fs::create_dir_all(dir).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to create {}: {}",
+            dir.display(),
+            e, //
+        )
+    });
 }
 
 /// A red in the gate or a pre-cut assay: the fault is on the maintainer tree.
@@ -395,7 +499,8 @@ fn zrbvcce_require_source(code: i32, what: &str) {
     if code != 0 {
         crate::rbvcel_fatal!(
             "{} failed (exit {}) — repair on the maintainer tree, then run essai again (RBSHE)",
-            what, code, //
+            what,
+            code, //
         );
     }
 }

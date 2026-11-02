@@ -36,15 +36,18 @@ use super::rbtchc_cupel::{
     ZRBTCHC_PY_IMPORT_ALLOWED, //
 };
 use super::rbtchy_python::{
+    zrbtchy_PyToken,
     zrbtchy_py_import_roots,
     zrbtchy_py_scan,
-    zrbtchy_py_tokens,
-    zrbtchy_PyToken, //
+    zrbtchy_py_tokens, //
 };
 
 /// Command-position tokens of `src`, as bare strings (line numbers dropped).
 fn zrbtthc_cmds(src: &str) -> Vec<String> {
-    zrbtchb_command_words(src).into_iter().map(|(_, w)| w).collect()
+    zrbtchb_command_words(src)
+        .into_iter()
+        .map(|(_, w)| w)
+        .collect()
 }
 
 #[test]
@@ -59,7 +62,10 @@ fn rbtthc_pipe_opens_command_position() {
 
 #[test]
 fn rbtthc_or_die_pattern() {
-    assert_eq!(zrbtthc_cmds("mything arg || buc_die_now"), vec!["mything", "buc_die_now"]);
+    assert_eq!(
+        zrbtthc_cmds("mything arg || buc_die_now"),
+        vec!["mything", "buc_die_now"]
+    );
 }
 
 #[test]
@@ -101,7 +107,10 @@ fn rbtthc_assignment_prefix_then_command() {
 
 #[test]
 fn rbtthc_if_then_fi_keywords() {
-    assert_eq!(zrbtthc_cmds("if grep x; then mything; fi"), vec!["grep", "mything"]);
+    assert_eq!(
+        zrbtthc_cmds("if grep x; then mything; fi"),
+        vec!["grep", "mything"]
+    );
 }
 
 #[test]
@@ -114,7 +123,10 @@ fn rbtthc_heredoc_body_skipped() {
 fn rbtthc_here_string_is_not_heredoc() {
     // `<<<` is a single-line here-string redirection, not a here-doc; the
     // following line is normal source.
-    assert_eq!(zrbtthc_cmds("grep x <<< \"$y\"\nmything"), vec!["grep", "mything"]);
+    assert_eq!(
+        zrbtthc_cmds("grep x <<< \"$y\"\nmything"),
+        vec!["grep", "mything"]
+    );
 }
 
 #[test]
@@ -166,11 +178,14 @@ fn rbtthc_multiline_array_literal_under_declare() {
 #[test]
 fn rbtthc_line_numbers_tracked() {
     let got = zrbtchb_command_words("one\ntwo\nthree");
-    assert_eq!(got, vec![
-        (1, "one".to_string()),
-        (2, "two".to_string()),
-        (3, "three".to_string()),
-    ]);
+    assert_eq!(
+        got,
+        vec![
+            (1, "one".to_string()),
+            (2, "two".to_string()),
+            (3, "three".to_string()),
+        ]
+    );
 }
 
 #[test]
@@ -194,7 +209,10 @@ fn rbtthc_case_alternation_pattern_not_a_command() {
 #[test]
 fn rbtthc_case_flag_pattern_suppressed() {
     // getopts-style flag patterns must not be flagged as commands.
-    assert_eq!(zrbtthc_cmds("case $opt in -o) mything ;; esac"), vec!["mything"]);
+    assert_eq!(
+        zrbtthc_cmds("case $opt in -o) mything ;; esac"),
+        vec!["mything"]
+    );
 }
 
 #[test]
@@ -206,7 +224,10 @@ fn rbtthc_nested_case_scoped() {
 #[test]
 fn rbtthc_command_after_esac() {
     // Both the branch body and the command following the case are scanned.
-    assert_eq!(zrbtthc_cmds("case $a in x) mybody ;; esac\nmything"), vec!["mybody", "mything"]);
+    assert_eq!(
+        zrbtthc_cmds("case $a in x) mybody ;; esac\nmything"),
+        vec!["mybody", "mything"]
+    );
 }
 
 #[test]
@@ -257,12 +278,14 @@ fn rbtthc_classify_evictions_flagged_in_kit() {
 fn rbtthc_classify_floor_clears_in_both_domains() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_POSIX_FLOOR {
-        assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
+        assert!(
+            zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
             "POSIX floor must clear in kit: {cmd}", //
-);
-        assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
+        );
+        assert!(
+            zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
             "POSIX floor is universal — must clear in gcb: {cmd}", //
-);
+        );
     }
 }
 
@@ -270,9 +293,10 @@ fn rbtthc_classify_floor_clears_in_both_domains() {
 fn rbtthc_classify_declared_deps_clear_in_kit() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_DECLARED_DEPS {
-        assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
+        assert!(
+            zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Kit).is_none(),
             "declared dependency must clear in kit: {cmd}", //
-);
+        );
     }
 }
 
@@ -280,9 +304,10 @@ fn rbtthc_classify_declared_deps_clear_in_kit() {
 fn rbtthc_classify_gcb_curated_list_clears_in_gcb() {
     let locals = BTreeSet::new();
     for cmd in ZRBTCHC_GCB_ALLOWED {
-        assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
+        assert!(
+            zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_none(),
             "curated GCB container tool must clear in gcb: {cmd}", //
-);
+        );
     }
 }
 
@@ -297,9 +322,10 @@ fn rbtthc_classify_gcb_does_not_inherit_kit_only_deps() {
         if ZRBTCHC_POSIX_FLOOR.contains(cmd) || ZRBTCHC_GCB_ALLOWED.contains(cmd) {
             continue;
         }
-        assert!(zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_some(),
+        assert!(
+            zrbtchb_classify(cmd, &locals, zrbtchc_Domain::Gcb).is_some(),
             "kit-only declared dep must be flagged in gcb: {cmd}", //
-);
+        );
     }
 }
 
@@ -312,10 +338,11 @@ fn rbtthc_classify_gcb_has_no_eviction_free_pass() {
         if ZRBTCHC_GCB_ALLOWED.contains(&ev.command) {
             continue;
         }
-        assert!(zrbtchb_classify(ev.command, &locals, zrbtchc_Domain::Gcb).is_some(),
+        assert!(
+            zrbtchb_classify(ev.command, &locals, zrbtchc_Domain::Gcb).is_some(),
             "eviction absent from the curated GCB list must be flagged in gcb: {}",
             ev.command, //
-);
+        );
     }
 }
 
@@ -362,12 +389,18 @@ fn zrbtthc_py_findings(src: &str) -> Vec<zrbtchc_Finding> {
 #[test]
 fn rbtthc_py_import_roots_plain_and_dotted() {
     assert_eq!(zrbtchy_py_import_roots("import json"), vec!["json"]);
-    assert_eq!(zrbtchy_py_import_roots("import urllib.request"), vec!["urllib"]);
+    assert_eq!(
+        zrbtchy_py_import_roots("import urllib.request"),
+        vec!["urllib"]
+    );
 }
 
 #[test]
 fn rbtthc_py_import_roots_from_and_comma_forms() {
-    assert_eq!(zrbtchy_py_import_roots("from datetime import datetime, timezone"), vec!["datetime"]);
+    assert_eq!(
+        zrbtchy_py_import_roots("from datetime import datetime, timezone"),
+        vec!["datetime"]
+    );
     assert_eq!(zrbtchy_py_import_roots("import os, sys"), vec!["os", "sys"]);
 }
 
@@ -380,15 +413,22 @@ fn rbtthc_py_import_roots_non_import_line_empty() {
 #[test]
 fn rbtthc_py_tokens_comment_stripped() {
     let toks = zrbtchy_py_tokens("x = 1  # eval(evil)\n");
-    assert!(toks.iter().all(|(_, t)| *t != zrbtchy_PyToken::Ident("eval".to_string())));
+    assert!(toks
+        .iter()
+        .all(|(_, t)| *t != zrbtchy_PyToken::Ident("eval".to_string())));
 }
 
 #[test]
 fn rbtthc_py_tokens_triple_quoted_string_single_token() {
     let toks = zrbtchy_py_tokens("\"\"\"docstring with exec( inside\nsecond line\"\"\"\nx = 1\n");
-    let strings: Vec<_> = toks.iter().filter(|(_, t)| matches!(t, zrbtchy_PyToken::Str(_))).collect();
+    let strings: Vec<_> = toks
+        .iter()
+        .filter(|(_, t)| matches!(t, zrbtchy_PyToken::Str(_)))
+        .collect();
     assert_eq!(strings.len(), 1);
-    assert!(toks.iter().all(|(_, t)| *t != zrbtchy_PyToken::Ident("exec".to_string())));
+    assert!(toks
+        .iter()
+        .all(|(_, t)| *t != zrbtchy_PyToken::Ident("exec".to_string())));
 }
 
 #[test]
@@ -401,10 +441,15 @@ fn rbtthc_py_tokens_line_numbers_advance() {
 #[test]
 fn rbtthc_py_scan_floor_imports_pass() {
     for root in ZRBTCHC_PY_IMPORT_ALLOWED {
-        let src = format!("import {}\n", root, //
-);
-        assert!(zrbtthc_py_findings(&src).is_empty(), "floor import flagged: {}", root, //
-);
+        let src = format!(
+            "import {}\n",
+            root, //
+        );
+        assert!(
+            zrbtthc_py_findings(&src).is_empty(),
+            "floor import flagged: {}",
+            root, //
+        );
     }
 }
 

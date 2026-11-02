@@ -52,15 +52,21 @@ pub enum rbvcem_Disposition {
 impl fmt::Display for rbvcem_Disposition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            rbvcem_Disposition::Ship => write!(f, "ship", //
-),
-            rbvcem_Disposition::Withhold => write!(f, "withhold", //
-),
+            rbvcem_Disposition::Ship => write!(
+                f,
+                "ship", //
+            ),
+            rbvcem_Disposition::Withhold => write!(
+                f,
+                "withhold", //
+            ),
         }
     }
 }
 
-use rbvcem_Disposition::{Ship, Withhold, //
+use rbvcem_Disposition::{
+    Ship,
+    Withhold, //
 };
 
 /// The perambulation — one row per judgment, the longest matching prefix wins.
@@ -156,8 +162,14 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     ("rbmm_moorings/bkd_weaned/", Withhold),
     // LAUNCHERS ship only for the workbenches that ship — file-grain for tt/'s
     // reason: a launcher for a withheld workbench is a dangling reference.
-    ("rbmm_moorings/buml_launchers/launcher.buw_workbench.sh", Ship),
-    ("rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh", Ship),
+    (
+        "rbmm_moorings/buml_launchers/launcher.buw_workbench.sh",
+        Ship,
+    ),
+    (
+        "rbmm_moorings/buml_launchers/launcher.rbw_workbench.sh",
+        Ship,
+    ),
     ("rbmm_moorings/buml_launchers/", Withhold),
     // The operator's own trees.
     ("Study/", Withhold),
@@ -205,7 +217,9 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
 pub fn rbvcem_validate(rows: &[(&str, rbvcem_Disposition)]) -> Result<(), String> {
     for (i, (prefix, _)) in rows.iter().enumerate() {
         if prefix.is_empty() {
-            return Err("perambulation row with an empty prefix — it would match every path".to_string());
+            return Err(
+                "perambulation row with an empty prefix — it would match every path".to_string(),
+            );
         }
         for (other, _) in rows.iter().skip(i + 1) {
             if prefix == other {

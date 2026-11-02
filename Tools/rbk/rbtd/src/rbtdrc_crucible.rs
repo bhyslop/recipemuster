@@ -25,24 +25,37 @@
 
 use std::cell::RefCell;
 use std::io::Write;
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
-use std::process::{Command, Stdio, //
+use std::process::{
+    Command,
+    Stdio, //
 };
 
-use crate::rbtcee_case;
 use crate::rbtcea_almanac::rbtcea_lookup_fixture;
+use crate::rbtcee_case;
 use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
     rbtcee_Tariff,
-    rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Verdict, //
+    rbtcee_Verdict, //
 };
 use crate::rbtcei_invocation::{
-    rbtcei_Context, rbtcei_invoke, rbtcei_invoke_global,
+    rbtcei_Context,
+    rbtcei_invoke,
+    rbtcei_invoke_global,
     rbtcei_parse_ifrit_verdict, //
 };
 use crate::rbtgec_consts::{
-    RBTGEC_CRUCIBLE_ACTIVE, RBTGEC_CRUCIBLE_BARK,
-    RBTGEC_CRUCIBLE_CHARGE, RBTGEC_CRUCIBLE_FIAT, RBTGEC_CRUCIBLE_QUENCH, RBTGEC_CRUCIBLE_WRIT, //
+    RBTGEC_CRUCIBLE_ACTIVE,
+    RBTGEC_CRUCIBLE_BARK,
+    RBTGEC_CRUCIBLE_CHARGE,
+    RBTGEC_CRUCIBLE_FIAT,
+    RBTGEC_CRUCIBLE_QUENCH,
+    RBTGEC_CRUCIBLE_WRIT, //
 };
 
 // ── Thread-local invocation context ──────────────────────────
@@ -138,19 +151,26 @@ pub fn rbtccc_quench_crucible() {
 
 fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
     let fixture = ctx.rbtcei_fixture().to_string();
-    crate::rbtcel_info_now!("Charging crucible for nameplate '{}'...", fixture, //
-);
+    crate::rbtcel_info_now!(
+        "Charging crucible for nameplate '{}'...",
+        fixture, //
+    );
     match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_CHARGE, &[]) {
         Ok(r) if r.exit_code == 0 => {
             crate::rbtcel_info_now!("Crucible charged");
         }
         Ok(r) => {
-            return Err(format!("Charge failed (exit {})\n{}", r.exit_code, r.stderr, //
-));
+            return Err(format!(
+                "Charge failed (exit {})\n{}",
+                r.exit_code,
+                r.stderr, //
+            ));
         }
         Err(e) => {
-            return Err(format!("Charge invocation failed: {}", e, //
-));
+            return Err(format!(
+                "Charge invocation failed: {}",
+                e, //
+            ));
         }
     }
 
@@ -162,7 +182,8 @@ fn zrbtccc_charge_impl(ctx: &mut rbtcei_Context) -> Result<(), String> {
         Ok(r) => {
             return Err(format!(
                 "Lifecycle assertion failed: crucible not active after charge (exit {})\n{}",
-                r.exit_code, r.stderr, //
+                r.exit_code,
+                r.stderr, //
             ));
         }
         Err(e) => {
@@ -181,10 +202,14 @@ fn zrbtccc_quench_impl(ctx: &mut rbtcei_Context) {
     crate::rbtcel_info_now!("Quenching crucible...");
     match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_QUENCH, &[]) {
         Ok(r) if r.exit_code == 0 => crate::rbtcel_info_now!("Crucible quenched"),
-        Ok(r) => crate::rbtcel_error_now!("quench exited {}", r.exit_code, //
-),
-        Err(e) => crate::rbtcel_error_now!("quench invocation failed: {}", e, //
-),
+        Ok(r) => crate::rbtcel_error_now!(
+            "quench exited {}",
+            r.exit_code, //
+        ),
+        Err(e) => crate::rbtcel_error_now!(
+            "quench invocation failed: {}",
+            e, //
+        ),
     }
 
     crate::rbtcel_info_now!("Verifying crucible is inactive after quench...");
@@ -210,15 +235,15 @@ fn zrbtccc_quench_impl(ctx: &mut rbtcei_Context) {
 // ── Helpers ──────────────────────────────────────────────────
 
 /// Invoke ifrit inside the bottle via bark, saving stdout/stderr to case dir.
-fn rbtccc_invoke_ifrit(
-    ctx: &mut rbtcei_Context,
-    attack: &str,
-    dir: &Path,
-) -> rbtcee_Verdict {
+fn rbtccc_invoke_ifrit(ctx: &mut rbtcei_Context, attack: &str, dir: &Path) -> rbtcee_Verdict {
     let result = match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &[RBTCCC_IFRIT_BINARY, attack]) {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "bark invocation error: {}",
+                e, //
+            ));
+        }
     };
     let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
     let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -236,8 +261,12 @@ fn rbtccc_invoke_ifrit_with_args(
     bark_args.extend_from_slice(extra_args);
     let result = match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &bark_args) {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation error: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "bark invocation error: {}",
+                e, //
+            ));
+        }
     };
     let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
     let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -261,7 +290,9 @@ fn rbtccc_writ(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String
     if result.exit_code != 0 {
         return Err(format!(
             "writ exit {}\nstdout: {}\nstderr: {}",
-            result.exit_code, result.stdout, result.stderr, //
+            result.exit_code,
+            result.stdout,
+            result.stderr, //
         ));
     }
     Ok(result.stdout)
@@ -273,7 +304,9 @@ fn rbtccc_fiat(ctx: &mut rbtcei_Context, args: &[&str]) -> Result<String, String
     if result.exit_code != 0 {
         return Err(format!(
             "fiat exit {}\nstdout: {}\nstderr: {}",
-            result.exit_code, result.stdout, result.stderr, //
+            result.exit_code,
+            result.stdout,
+            result.stderr, //
         ));
     }
     Ok(result.stdout)
@@ -310,8 +343,13 @@ fn rbtccc_resolve_via_writ(ctx: &mut rbtcei_Context, hostname: &str) -> Result<S
             !t.is_empty() && rbtccc_looks_like_ip(t)
         })
         .map(|line| line.trim().to_string())
-        .ok_or_else(|| format!("dig +short {} returned no IP:\n{}", hostname, output, //
-))?;
+        .ok_or_else(|| {
+            format!(
+                "dig +short {} returned no IP:\n{}",
+                hostname,
+                output, //
+            )
+        })?;
     Ok(ip)
 }
 
@@ -344,8 +382,12 @@ fn rbtccc_read_sentry_env(ctx: &mut rbtcei_Context, var: &str) -> Result<String,
         .map(|l| l.trim())
         .find(|l| !l.is_empty())
         .map(|l| l.to_string())
-        .ok_or_else(|| format!("printenv {} returned no value", var, //
-))
+        .ok_or_else(|| {
+            format!(
+                "printenv {} returned no value",
+                var, //
+            )
+        })
 }
 
 // ── Basic infra cases (fiat) ──────────────────────────────────
@@ -354,26 +396,42 @@ fn rbtccc_pentacle_dnsmasq_responds(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         let output = match rbtccc_fiat(
             ctx,
-            &["dig", "+short", &format!("@{}", sentry_ip, //
-), RBTCCC_CONNECTIVITY_DOMAIN],
+            &[
+                "dig",
+                "+short",
+                &format!(
+                    "@{}",
+                    sentry_ip, //
+                ),
+                RBTCCC_CONNECTIVITY_DOMAIN,
+            ],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("fiat dig error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "fiat dig error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("fiat-stdout.txt"), &output);
 
         if output.trim().is_empty() {
             return rbtcee_Verdict::Fail(format!(
                 "dnsmasq on sentry {} returned empty response for {}",
-                sentry_ip, RBTCCC_CONNECTIVITY_DOMAIN, //
+                sentry_ip,
+                RBTCCC_CONNECTIVITY_DOMAIN, //
             ));
         }
         rbtcee_Verdict::Pass
@@ -384,15 +442,23 @@ fn rbtccc_pentacle_ping_sentry(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         let output = match rbtccc_fiat(ctx, &["ping", &sentry_ip, "-c", "2"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("fiat ping error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "fiat ping error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("fiat-stdout.txt"), &output);
 
@@ -472,8 +538,12 @@ fn rbtccc_sentry_iptables_loaded(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let output = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("iptables-rules.txt"), &output);
 
@@ -500,13 +570,21 @@ fn rbtccc_sentry_config_rp_filter(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "read RBRN_ENTRY_MODE: {}",
+                    e, //
+                ));
+            }
         };
         let output = match rbtccc_writ(ctx, &["cat", "/proc/sys/net/ipv4/conf/all/rp_filter"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("rp_filter.txt"), &output);
 
@@ -521,15 +599,19 @@ fn rbtccc_sentry_config_rp_filter(dir: &Path) -> rbtcee_Verdict {
             "rbnne_enabled" => "2",
             "rbnne_disabled" => "1",
             other => {
-                return rbtcee_Verdict::Fail(format!("unexpected RBRN_ENTRY_MODE '{}'", other, //
-));
+                return rbtcee_Verdict::Fail(format!(
+                    "unexpected RBRN_ENTRY_MODE '{}'",
+                    other, //
+                ));
             }
         };
 
         if value != expected {
             return rbtcee_Verdict::Fail(format!(
                 "rp_filter = {} (expected {} for entry-mode {})",
-                value, expected, entry_mode, //
+                value,
+                expected,
+                entry_mode, //
             ));
         }
         rbtcee_Verdict::Pass
@@ -540,17 +622,27 @@ fn rbtccc_sentry_config_prerouting_dnat(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "read RBRN_ENTRY_MODE: {}",
+                    e, //
+                ));
+            }
         };
         if entry_mode != "rbnne_enabled" {
-            return rbtcee_Verdict::Skip(format!("entry-mode={}", entry_mode, //
-));
+            return rbtcee_Verdict::Skip(format!(
+                "entry-mode={}",
+                entry_mode, //
+            ));
         }
         let output = match rbtccc_writ(ctx, &["iptables", "-t", "nat", "-S", "PREROUTING"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("prerouting.txt"), &output);
 
@@ -586,7 +678,8 @@ fn rbtccc_sentry_config_prerouting_dnat(dir: &Path) -> rbtcee_Verdict {
         if max_return >= min_dnat {
             return rbtcee_Verdict::Fail(format!(
                 "PREROUTING RETURN at position {} not before DNAT at position {}",
-                max_return, min_dnat, //
+                max_return,
+                min_dnat, //
             ));
         }
         rbtcee_Verdict::Pass
@@ -597,17 +690,27 @@ fn rbtccc_sentry_config_postrouting_masquerade(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let entry_mode = match rbtccc_read_sentry_env(ctx, "RBRN_ENTRY_MODE") {
             Ok(m) => m,
-            Err(e) => return rbtcee_Verdict::Fail(format!("read RBRN_ENTRY_MODE: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "read RBRN_ENTRY_MODE: {}",
+                    e, //
+                ));
+            }
         };
         if entry_mode != "rbnne_enabled" {
-            return rbtcee_Verdict::Skip(format!("entry-mode={}", entry_mode, //
-));
+            return rbtcee_Verdict::Skip(format!(
+                "entry-mode={}",
+                entry_mode, //
+            ));
         }
         let output = match rbtccc_writ(ctx, &["iptables", "-t", "nat", "-S", "POSTROUTING"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("postrouting.txt"), &output);
 
@@ -630,8 +733,12 @@ fn rbtccc_sentry_config_forward_estab_related(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let output = match rbtccc_writ(ctx, &["iptables", "-S", "FORWARD"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("forward.txt"), &output);
 
@@ -640,9 +747,9 @@ fn rbtccc_sentry_config_forward_estab_related(dir: &Path) -> rbtcee_Verdict {
             .filter(|l| l.trim().starts_with("-A "))
             .collect();
 
-        let estab_pos = append_rules
-            .iter()
-            .position(|r| r.contains("RELATED") && r.contains("ESTABLISHED") && r.contains("-j ACCEPT"));
+        let estab_pos = append_rules.iter().position(|r| {
+            r.contains("RELATED") && r.contains("ESTABLISHED") && r.contains("-j ACCEPT")
+        });
         let jump_pos = append_rules
             .iter()
             .position(|r| r.contains("-j RBM-FORWARD"));
@@ -680,8 +787,12 @@ fn rbtccc_dns_blocked_with_observation(dir: &Path) -> rbtcee_Verdict {
                 let _ = std::fs::write(dir.join("iptables-before.txt"), &o);
                 o
             }
-            Err(e) => return rbtcee_Verdict::Fail(format!("before-capture: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "before-capture: {}",
+                    e, //
+                ));
+            }
         };
 
         // Attack: invoke ifrit dns-blocked-google inside bottle
@@ -693,8 +804,12 @@ fn rbtccc_dns_blocked_with_observation(dir: &Path) -> rbtcee_Verdict {
                 let _ = std::fs::write(dir.join("iptables-after.txt"), &o);
                 o
             }
-            Err(e) => return rbtcee_Verdict::Fail(format!("after-capture: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "after-capture: {}",
+                    e, //
+                ));
+            }
         };
 
         // Log observation: did sentry state change during the attack?
@@ -725,8 +840,13 @@ fn rbtccc_tcp443_allow_example(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let ip = match rbtccc_resolve_via_writ(ctx, RBTCCC_CONNECTIVITY_DOMAIN) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ resolve {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ resolve {}: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
         rbtccc_invoke_ifrit_with_args(ctx, "tcp443-connect", &[&ip], dir)
@@ -737,8 +857,12 @@ fn rbtccc_tcp443_block_google(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let ip = match rbtccc_resolve_via_writ(ctx, "google.com") {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("writ resolve google.com: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "writ resolve google.com: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("resolved-ip.txt"), &ip);
         rbtccc_invoke_ifrit_with_args(ctx, "tcp443-block", &[&ip], dir)
@@ -881,8 +1005,13 @@ fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
                 r.exit_code != 0
             }
             Err(e) => {
-                let _ = std::fs::write(dir.join("tcp1-error.txt"), format!("{}", e, //
-));
+                let _ = std::fs::write(
+                    dir.join("tcp1-error.txt"),
+                    format!(
+                        "{}",
+                        e, //
+                    ),
+                );
                 true // invocation error = blocked
             }
         };
@@ -912,8 +1041,13 @@ fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
                 r.exit_code != 0
             }
             Err(e) => {
-                let _ = std::fs::write(dir.join("tcp2-error.txt"), format!("{}", e, //
-));
+                let _ = std::fs::write(
+                    dir.join("tcp2-error.txt"),
+                    format!(
+                        "{}",
+                        e, //
+                    ),
+                );
                 true
             }
         };
@@ -933,19 +1067,19 @@ fn rbtccc_coordinated_sentry_egress_lockdown(dir: &Path) -> rbtcee_Verdict {
             Ok(o) => o,
             Err(e) => {
                 return rbtcee_Verdict::Fail(format!(
-                    "positive control failed: dig @8.8.8.8 {} from sentry: {}", RBTCCC_CONNECTIVITY_DOMAIN,
+                    "positive control failed: dig @8.8.8.8 {} from sentry: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
                     e, //
-                ))
+                ));
             }
         };
         let _ = std::fs::write(dir.join("dig-positive.txt"), &dig_result);
 
-        let has_ip = dig_result
-            .lines()
-            .any(|l| rbtccc_looks_like_ip(l.trim()));
+        let has_ip = dig_result.lines().any(|l| rbtccc_looks_like_ip(l.trim()));
         if !has_ip {
             return rbtcee_Verdict::Fail(format!(
-                "positive control: dig @8.8.8.8 {} returned no IP:\n{}", RBTCCC_CONNECTIVITY_DOMAIN,
+                "positive control: dig @8.8.8.8 {} returned no IP:\n{}",
+                RBTCCC_CONNECTIVITY_DOMAIN,
                 dig_result, //
             ));
         }
@@ -969,8 +1103,12 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "dns-allowed-example"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark dns-allowed-example: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark dns-allowed-example: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("allowed-stdout.txt"), &allowed_result.stdout);
         let _ = std::fs::write(dir.join("allowed-stderr.txt"), &allowed_result.stderr);
@@ -982,8 +1120,12 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "dns-blocked-google"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark dns-blocked-google: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark dns-blocked-google: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("blocked-stdout.txt"), &blocked_result.stdout);
         let _ = std::fs::write(dir.join("blocked-stderr.txt"), &blocked_result.stderr);
@@ -998,7 +1140,7 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
                 return rbtcee_Verdict::Fail(format!(
                     "cannot read dnsmasq log: {}",
                     e, //
-                ))
+                ));
             }
         };
         let _ = std::fs::write(dir.join("dnsmasq-log.txt"), &log_output);
@@ -1011,27 +1153,26 @@ fn rbtccc_coordinated_dnsmasq_query_audit(dir: &Path) -> rbtcee_Verdict {
             .lines()
             .any(|l| l.contains(RBTCCC_CONNECTIVITY_DOMAIN));
         if !has_example {
-            return rbtcee_Verdict::Fail(
-                format!("dnsmasq log missing {} query — audit trail incomplete", RBTCCC_CONNECTIVITY_DOMAIN, //
-),
-            );
+            return rbtcee_Verdict::Fail(format!(
+                "dnsmasq log missing {} query — audit trail incomplete",
+                RBTCCC_CONNECTIVITY_DOMAIN, //
+            ));
         }
 
         // Verify google.com query appears in log (blocked queries should still be logged)
-        let has_google = log_content
-            .lines()
-            .any(|l| l.contains("google.com"));
+        let has_google = log_content.lines().any(|l| l.contains("google.com"));
         if !has_google {
             return rbtcee_Verdict::Fail(
                 "dnsmasq log missing google.com query — blocked queries not audited".to_string(),
             );
         }
 
-        let _ = std::fs::write(
-            dir.join("observation.txt"),
-            format!("dnsmasq audit verified: both allowed ({}) and blocked (google.com) queries logged", RBTCCC_CONNECTIVITY_DOMAIN, //
-),
-        );
+        let _ =
+            std::fs::write(
+                dir.join("observation.txt"),
+                format!("dnsmasq audit verified: both allowed ({}) and blocked (google.com) queries logged", RBTCCC_CONNECTIVITY_DOMAIN, //
+                ),
+            );
         rbtcee_Verdict::Pass
     })
 }
@@ -1041,12 +1182,18 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
-        let dig_server = format!("@{}", sentry_ip, //
-);
+        let dig_server = format!(
+            "@{}",
+            sentry_ip, //
+        );
 
         // Pre-snapshot: verify DNS works on sentry before attack
         let pre_resolve = match rbtccc_writ(
@@ -1054,8 +1201,13 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
             &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre dig {}: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-resolve.txt"), &pre_resolve);
 
@@ -1066,10 +1218,10 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
             .trim()
             .to_string();
         if pre_ip.is_empty() {
-            return rbtcee_Verdict::Fail(
-                format!("pre-snapshot: {} did not resolve — DNS not working before attack", RBTCCC_CONNECTIVITY_DOMAIN, //
-),
-            );
+            return rbtcee_Verdict::Fail(format!(
+                "pre-snapshot: {} did not resolve — DNS not working before attack",
+                RBTCCC_CONNECTIVITY_DOMAIN, //
+            ));
         }
 
         // Attack: invoke tcp-rst-hijack from bottle
@@ -1079,8 +1231,12 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "tcp-rst-hijack"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1094,8 +1250,13 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
             &["dig", "+short", &dig_server, RBTCCC_CONNECTIVITY_DOMAIN],
         ) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post dig {}: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("post-resolve.txt"), &post_resolve);
 
@@ -1115,7 +1276,8 @@ fn rbtccc_coordinated_tcp_rst_hijack(dir: &Path) -> rbtcee_Verdict {
         if pre_ip != post_ip {
             return rbtcee_Verdict::Fail(format!(
                 "BREACH: DNS resolution changed after RST attack: {} → {}",
-                pre_ip, post_ip, //
+                pre_ip,
+                post_ip, //
             ));
         }
 
@@ -1164,16 +1326,24 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
         // Discover sentry IP
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         // Pre-snapshot: sentry ARP table
         let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
 
@@ -1184,8 +1354,12 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "arp-send-gratuitous"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1205,8 +1379,12 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
         // Post-snapshot: sentry ARP table
         let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
 
@@ -1218,7 +1396,9 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
         // Get bottle IP from the pre-snapshot (it should be there as a neighbor)
         let observation = format!(
             "Pre-ARP entries: {:?}\nPost-ARP entries: {:?}\nSentry IP: {}\n",
-            pre_entries, post_entries, sentry_ip, //
+            pre_entries,
+            post_entries,
+            sentry_ip, //
         );
         let _ = std::fs::write(dir.join("observation.txt"), &observation);
 
@@ -1229,14 +1409,17 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
                 if pre_mac != post_mac {
                     return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for own IP {} changed MAC: {} → {}",
-                        sentry_ip, pre_mac, post_mac, //
+                        sentry_ip,
+                        pre_mac,
+                        post_mac, //
                     ));
                 }
             } else {
                 // New entry appeared for sentry's own IP — suspicious
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: new ARP entry appeared for sentry IP {} with MAC {}",
-                    sentry_ip, post_mac, //
+                    sentry_ip,
+                    post_mac, //
                 ));
             }
         }
@@ -1247,7 +1430,9 @@ fn rbtccc_coordinated_arp_gratuitous(dir: &Path) -> rbtcee_Verdict {
                 if pre_mac != post_mac {
                     return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
-                        ip, pre_mac, post_mac, //
+                        ip,
+                        pre_mac,
+                        post_mac, //
                     ));
                 }
             }
@@ -1264,8 +1449,12 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
         // Discover sentry IP
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
@@ -1278,15 +1467,21 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
             .rev()
             .collect::<Vec<_>>()
             .join(".");
-        let gateway_ip = format!("{}.1", prefix, //
-);
+        let gateway_ip = format!(
+            "{}.1",
+            prefix, //
+        );
         let _ = std::fs::write(dir.join("gateway-ip.txt"), &gateway_ip);
 
         // Pre-snapshot
         let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
         let pre_entries = rbtccc_parse_arp_table(&pre_arp);
@@ -1305,8 +1500,12 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "arp-send-gateway-poison"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1324,8 +1523,12 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
         // Post-snapshot
         let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
         let post_entries = rbtccc_parse_arp_table(&post_arp);
@@ -1334,7 +1537,9 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
 
         let observation = format!(
             "Gateway IP: {}\nPre gateway MAC: {:?}\nPost gateway MAC: {:?}\n",
-            gateway_ip, pre_gw_mac, post_gw_mac, //
+            gateway_ip,
+            pre_gw_mac,
+            post_gw_mac, //
         );
         let _ = std::fs::write(dir.join("observation.txt"), &observation);
 
@@ -1343,7 +1548,9 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
             (Some(pre), Some(post)) if pre != post => {
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: sentry ARP for gateway {} changed MAC: {} → {}",
-                    gateway_ip, pre, post, //
+                    gateway_ip,
+                    pre,
+                    post, //
                 ));
             }
             (None, Some(post)) => {
@@ -1352,8 +1559,11 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
                 // an ARP poison attempt is suspicious. Log it.
                 let _ = std::fs::write(
                     dir.join("new-gw-entry.txt"),
-                    format!("New gateway ARP entry: {} → {}", gateway_ip, post, //
-),
+                    format!(
+                        "New gateway ARP entry: {} → {}",
+                        gateway_ip,
+                        post, //
+                    ),
                 );
                 // Not necessarily a breach — Docker may have refreshed the entry.
                 // But check if any other entries changed.
@@ -1367,7 +1577,9 @@ fn rbtccc_coordinated_arp_gateway_poison(dir: &Path) -> rbtcee_Verdict {
                 if pre_mac != post_mac {
                     return rbtcee_Verdict::Fail(format!(
                         "BREACH: sentry ARP entry for {} changed MAC: {} → {}",
-                        ip, pre_mac, post_mac, //
+                        ip,
+                        pre_mac,
+                        post_mac, //
                     ));
                 }
             }
@@ -1384,8 +1596,12 @@ fn rbtccc_coordinated_arp_table_stability(dir: &Path) -> rbtcee_Verdict {
         // Pre-snapshot
         let pre_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-arp.txt"), &pre_arp);
         let pre_entries = rbtccc_parse_arp_table(&pre_arp);
@@ -1397,8 +1613,12 @@ fn rbtccc_coordinated_arp_table_stability(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "direct-arp-poison"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1412,8 +1632,12 @@ fn rbtccc_coordinated_arp_table_stability(dir: &Path) -> rbtcee_Verdict {
         // Post-snapshot
         let post_arp = match rbtccc_writ(ctx, &["ip", "neigh", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post-snapshot: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("post-arp.txt"), &post_arp);
         let post_entries = rbtccc_parse_arp_table(&post_arp);
@@ -1461,16 +1685,24 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
 
         let pre_iptables = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot iptables: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre-snapshot iptables: {}",
+                    e, //
+                ));
+            }
         };
         let pre_iptables_rules = rbtccc_extract_iptables_rules(&pre_iptables);
         let _ = std::fs::write(dir.join("pre-iptables.txt"), &pre_iptables);
 
         let pre_links = match rbtccc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre-snapshot ip link: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre-snapshot ip link: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-links.txt"), &pre_links);
 
@@ -1481,20 +1713,20 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
             "proto-smuggle-rawsock",
         ];
         for (i, attack) in attacks.iter().enumerate() {
-            let result = rbtcei_invoke(
-                ctx,
-                RBTGEC_CRUCIBLE_BARK,
-                &[RBTCCC_IFRIT_BINARY, attack],
-            );
+            let result = rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &[RBTCCC_IFRIT_BINARY, attack]);
             if let Ok(r) = &result {
                 let _ = std::fs::write(
-                    dir.join(format!("attack-{}-stdout.txt", i, //
-)),
+                    dir.join(format!(
+                        "attack-{}-stdout.txt",
+                        i, //
+                    )),
                     &r.stdout,
                 );
                 let _ = std::fs::write(
-                    dir.join(format!("attack-{}-stderr.txt", i, //
-)),
+                    dir.join(format!(
+                        "attack-{}-stderr.txt",
+                        i, //
+                    )),
                     &r.stderr,
                 );
             }
@@ -1516,16 +1748,24 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
 
         let post_iptables = match rbtccc_writ(ctx, &["iptables", "-S"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot iptables: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post-snapshot iptables: {}",
+                    e, //
+                ));
+            }
         };
         let post_iptables_rules = rbtccc_extract_iptables_rules(&post_iptables);
         let _ = std::fs::write(dir.join("post-iptables.txt"), &post_iptables);
 
         let post_links = match rbtccc_writ(ctx, &["ip", "link", "show"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("post-snapshot ip link: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "post-snapshot ip link: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("post-links.txt"), &post_links);
 
@@ -1535,7 +1775,8 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
                 dir.join("iptables-diff.txt"),
                 format!(
                     "BEFORE:\n{}\nAFTER:\n{}\n",
-                    pre_iptables_rules, post_iptables_rules, //
+                    pre_iptables_rules,
+                    post_iptables_rules, //
                 ),
             );
             return rbtcee_Verdict::Fail(
@@ -1547,8 +1788,11 @@ fn rbtccc_coordinated_sentry_integrity(dir: &Path) -> rbtcee_Verdict {
         if pre_links != post_links {
             let _ = std::fs::write(
                 dir.join("links-diff.txt"),
-                format!("BEFORE:\n{}\nAFTER:\n{}\n", pre_links, post_links, //
-),
+                format!(
+                    "BEFORE:\n{}\nAFTER:\n{}\n",
+                    pre_links,
+                    post_links, //
+                ),
             );
             return rbtcee_Verdict::Fail(
                 "BREACH: network interfaces changed after attack battery".to_string(),
@@ -1573,12 +1817,18 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         // Discover sentry enclave IP to query its dnsmasq directly
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
-        let dig_server = format!("@{}", sentry_ip, //
-);
+        let dig_server = format!(
+            "@{}",
+            sentry_ip, //
+        );
 
         // Pre-snapshot: query connectivity domain via sentry's dnsmasq (allowed, should resolve)
         let pre_example = match rbtccc_writ(
@@ -1587,8 +1837,11 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtcee_Verdict::Fail(format!("pre dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e, //
-))
+                return rbtcee_Verdict::Fail(format!(
+                    "pre dig {}: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
+                    e, //
+                ));
             }
         };
         let _ = std::fs::write(dir.join("pre-example.txt"), &pre_example);
@@ -1597,7 +1850,14 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         let pre_google_result = rbtcei_invoke(
             ctx,
             RBTGEC_CRUCIBLE_WRIT,
-            &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
+            &[
+                "dig",
+                "+short",
+                "+time=2",
+                "+tries=1",
+                &dig_server,
+                "google.com",
+            ],
         );
         let pre_google = match &pre_google_result {
             Ok(r) => r.stdout.clone(),
@@ -1612,8 +1872,12 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "dns-forge-response"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1627,8 +1891,11 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         ) {
             Ok(o) => o,
             Err(e) => {
-                return rbtcee_Verdict::Fail(format!("post dig {}: {}", RBTCCC_CONNECTIVITY_DOMAIN, e, //
-))
+                return rbtcee_Verdict::Fail(format!(
+                    "post dig {}: {}",
+                    RBTCCC_CONNECTIVITY_DOMAIN,
+                    e, //
+                ));
             }
         };
         let _ = std::fs::write(dir.join("post-example.txt"), &post_example);
@@ -1637,7 +1904,14 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
         let post_google_result = rbtcei_invoke(
             ctx,
             RBTGEC_CRUCIBLE_WRIT,
-            &["dig", "+short", "+time=2", "+tries=1", &dig_server, "google.com"],
+            &[
+                "dig",
+                "+short",
+                "+time=2",
+                "+tries=1",
+                &dig_server,
+                "google.com",
+            ],
         );
         let post_google = match &post_google_result {
             Ok(r) => r.stdout.clone(),
@@ -1658,15 +1932,17 @@ fn rbtccc_coordinated_dns_cache_integrity(dir: &Path) -> rbtcee_Verdict {
             .trim();
 
         if pre_example_ip.is_empty() {
-            return rbtcee_Verdict::Fail(
-                format!("pre-snapshot: {} did not resolve (expected frozen record)", RBTCCC_CONNECTIVITY_DOMAIN, //
-),
-            );
+            return rbtcee_Verdict::Fail(format!(
+                "pre-snapshot: {} did not resolve (expected frozen record)",
+                RBTCCC_CONNECTIVITY_DOMAIN, //
+            ));
         }
         if pre_example_ip != post_example_ip {
             return rbtcee_Verdict::Fail(format!(
-                "BREACH: {} resolution changed: {} → {}", RBTCCC_CONNECTIVITY_DOMAIN,
-                pre_example_ip, post_example_ip, //
+                "BREACH: {} resolution changed: {} → {}",
+                RBTCCC_CONNECTIVITY_DOMAIN,
+                pre_example_ip,
+                post_example_ip, //
             ));
         }
 
@@ -1695,23 +1971,35 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let sentry_ip = match rbtccc_discover_sentry_ip(ctx) {
             Ok(ip) => ip,
-            Err(e) => return rbtcee_Verdict::Fail(format!("sentry IP discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "sentry IP discovery: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("sentry-ip.txt"), &sentry_ip);
 
         // Pre: verify connectivity in all three directions
         let pre_writ = match rbtccc_writ(ctx, &["echo", "pre-connectivity-check"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre writ check: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre writ check: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-writ.txt"), &pre_writ);
 
         let pre_fiat = match rbtccc_fiat(ctx, &["echo", "pre-connectivity-check"]) {
             Ok(o) => o,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pre fiat check: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pre fiat check: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("pre-fiat.txt"), &pre_fiat);
 
@@ -1722,8 +2010,12 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
             &[RBTCCC_IFRIT_BINARY, "mac-flood-bridge"],
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("bark invocation: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark invocation: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
@@ -1746,7 +2038,7 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: writ failed post-MAC-flood: {}",
                     e, //
-                ))
+                ));
             }
         };
         let _ = std::fs::write(dir.join("post-writ.txt"), &post_writ);
@@ -1757,7 +2049,7 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: fiat failed post-MAC-flood: {}",
                     e, //
-                ))
+                ));
             }
         };
         let _ = std::fs::write(dir.join("post-fiat.txt"), &post_fiat);
@@ -1774,14 +2066,15 @@ fn rbtccc_coordinated_mac_flood_resilience(dir: &Path) -> rbtcee_Verdict {
             Ok(r) => {
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: bark failed post-MAC-flood (exit {}): {}",
-                    r.exit_code, r.stderr, //
-                ))
+                    r.exit_code,
+                    r.stderr, //
+                ));
             }
             Err(e) => {
                 return rbtcee_Verdict::Fail(format!(
                     "BREACH: bark invocation failed post-MAC-flood: {}",
                     e, //
-                ))
+                ));
             }
         }
 
@@ -1805,19 +2098,28 @@ fn rbtccc_read_nameplate_port(ctx: &rbtcei_Context) -> Result<u16, String> {
     let env_path = ctx
         .rbtcei_project_root()
         .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
-        .join(format!("{}{}", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE, ctx.rbtcei_fixture(), //
-))
+        .join(format!(
+            "{}{}",
+            crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE,
+            ctx.rbtcei_fixture(), //
+        ))
         .join("rbrn.env");
-    let content = std::fs::read_to_string(&env_path)
-        .map_err(|e| format!("cannot read {}: {}", env_path.display(), e, //
-))?;
+    let content = std::fs::read_to_string(&env_path).map_err(|e| {
+        format!(
+            "cannot read {}: {}",
+            env_path.display(),
+            e, //
+        )
+    })?;
     for line in content.lines() {
         if let Some(rest) = line.strip_prefix("RBRN_ENTRY_PORT_WORKSTATION=") {
-            return rest
-                .trim()
-                .parse::<u16>()
-                .map_err(|e| format!("invalid port '{}': {}", rest.trim(), e, //
-));
+            return rest.trim().parse::<u16>().map_err(|e| {
+                format!(
+                    "invalid port '{}': {}",
+                    rest.trim(),
+                    e, //
+                )
+            });
         }
     }
     Err(format!(
@@ -1831,8 +2133,12 @@ fn rbtccc_curl_get(url: &str) -> Result<(String, i32), String> {
     let output = Command::new("curl")
         .args(["-s", "--connect-timeout", "5", "--max-time", "10", url])
         .output()
-        .map_err(|e| format!("curl exec failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl exec failed: {}",
+                e, //
+            )
+        })?;
     let stdout = String::from_utf8_lossy(&output.stdout).into_owned();
     let code = output.status.code().unwrap_or(-1);
     Ok((stdout, code))
@@ -1853,14 +2159,19 @@ fn rbtccc_curl_status(url: &str, headers: &[(&str, &str)]) -> Result<String, Str
         "10",
     ]);
     for (name, value) in headers {
-        cmd.arg("-H").arg(format!("{}: {}", name, value, //
-));
+        cmd.arg("-H").arg(format!(
+            "{}: {}",
+            name,
+            value, //
+        ));
     }
     cmd.arg(url);
-    let output = cmd
-        .output()
-        .map_err(|e| format!("curl exec failed: {}", e, //
-))?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "curl exec failed: {}",
+            e, //
+        )
+    })?;
     Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
@@ -1872,19 +2183,29 @@ fn rbtccc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| format!("curl POST spawn failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl POST spawn failed: {}",
+                e, //
+            )
+        })?;
     child
         .stdin
         .take()
         .unwrap()
         .write_all(body.as_bytes())
-        .map_err(|e| format!("curl POST write failed: {}", e, //
-))?;
-    let output = child
-        .wait_with_output()
-        .map_err(|e| format!("curl POST wait failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl POST write failed: {}",
+                e, //
+            )
+        })?;
+    let output = child.wait_with_output().map_err(|e| {
+        format!(
+            "curl POST wait failed: {}",
+            e, //
+        )
+    })?;
     Ok(String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
@@ -1892,19 +2213,23 @@ fn rbtccc_curl_post_stdin(url: &str, body: &str) -> Result<String, String> {
 
 fn rbtccc_srjcl_jupyter_running(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
-        let result =
-            match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &["ps", "aux"]) {
-                Ok(r) => r,
-                Err(e) => return rbtcee_Verdict::Fail(format!("bark ps aux: {}", e, //
-)),
-            };
+        let result = match rbtcei_invoke(ctx, RBTGEC_CRUCIBLE_BARK, &["ps", "aux"]) {
+            Ok(r) => r,
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "bark ps aux: {}",
+                    e, //
+                ));
+            }
+        };
         let _ = std::fs::write(dir.join("bark-stdout.txt"), &result.stdout);
         let _ = std::fs::write(dir.join("bark-stderr.txt"), &result.stderr);
 
         if result.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
                 "ps aux exited {}\n{}",
-                result.exit_code, result.stderr, //
+                result.exit_code,
+                result.stderr, //
             ));
         }
         if !result.stdout.contains("jupyter") {
@@ -1918,11 +2243,17 @@ fn rbtccc_srjcl_jupyter_connectivity(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let url = format!("http://localhost:{}/lab", port, //
-);
+        let url = format!(
+            "http://localhost:{}/lab",
+            port, //
+        );
         let status = match rbtccc_curl_status(
             &url,
             &[
@@ -1931,8 +2262,12 @@ fn rbtccc_srjcl_jupyter_connectivity(dir: &Path) -> rbtcee_Verdict {
             ],
         ) {
             Ok(s) => s,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("http-status.txt"), &status);
 
@@ -1950,31 +2285,47 @@ fn rbtccc_srjcl_websocket_kernel(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let base = format!("http://localhost:{}", port, //
-);
+        let base = format!(
+            "http://localhost:{}",
+            port, //
+        );
 
         // Step 1: GET /lab to obtain XSRF cookie
         let xsrf = match rbtccc_curl_get_cookie(&base, "/lab", "_xsrf") {
             Ok(v) => v,
-            Err(e) => return rbtcee_Verdict::Fail(format!("XSRF fetch: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "XSRF fetch: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("xsrf-token.txt"), &xsrf);
 
         // Step 2: POST /api/sessions to create a kernel
         let session_body = r#"{"kernel":{"name":"python3"},"name":"test.ipynb","path":"test.ipynb","type":"notebook"}"#;
         let session_json = match rbtccc_curl_post_json(
-            &format!("{}/api/sessions", base, //
-),
+            &format!(
+                "{}/api/sessions",
+                base, //
+            ),
             session_body,
             &xsrf,
         ) {
             Ok(j) => j,
-            Err(e) => return rbtcee_Verdict::Fail(format!("session create: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "session create: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("session-response.json"), &session_json);
 
@@ -1984,7 +2335,7 @@ fn rbtccc_srjcl_websocket_kernel(dir: &Path) -> rbtcee_Verdict {
                 return rbtcee_Verdict::Fail(format!(
                     "no kernel.id in session response: {}",
                     session_json, //
-                ))
+                ));
             }
         };
         let session_id = match rbtccc_extract_json_string_top(&session_json, "id") {
@@ -1993,21 +2344,25 @@ fn rbtccc_srjcl_websocket_kernel(dir: &Path) -> rbtcee_Verdict {
                 return rbtcee_Verdict::Fail(format!(
                     "no id in session response: {}",
                     session_json, //
-                ))
+                ));
             }
         };
 
         // Step 3: WebSocket connect to kernel channels
         let ws_url = format!(
             "ws://localhost:{}/api/kernels/{}/channels",
-            port, kernel_id, //
+            port,
+            kernel_id, //
         );
         let ws_result = rbtccc_websocket_kernel_execute(&ws_url, &xsrf, dir);
 
         // Step 4: Clean up session (best-effort)
         let _ = rbtccc_curl_delete(
-            &format!("{}/api/sessions/{}", base, session_id, //
-),
+            &format!(
+                "{}/api/sessions/{}",
+                base,
+                session_id, //
+            ),
             &xsrf,
         );
 
@@ -2017,27 +2372,41 @@ fn rbtccc_srjcl_websocket_kernel(dir: &Path) -> rbtcee_Verdict {
 
 /// Curl GET returning a specific Set-Cookie value.
 fn rbtccc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<String, String> {
-    let url = format!("{}{}", base, path, //
-);
+    let url = format!(
+        "{}{}",
+        base,
+        path, //
+    );
     let output = Command::new("curl")
         .args([
             "-s",
-            "-D", "-",           // dump headers to stdout
-            "-o", "/dev/null",   // discard body
-            "--connect-timeout", "5",
-            "--max-time", "10",
-            "-H", "User-Agent: Mozilla/5.0",
+            "-D",
+            "-", // dump headers to stdout
+            "-o",
+            "/dev/null", // discard body
+            "--connect-timeout",
+            "5",
+            "--max-time",
+            "10",
+            "-H",
+            "User-Agent: Mozilla/5.0",
         ])
         .arg(&url)
         .output()
-        .map_err(|e| format!("curl exec failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl exec failed: {}",
+                e, //
+            )
+        })?;
     let headers = String::from_utf8_lossy(&output.stdout);
     for line in headers.lines() {
         if let Some(rest) = line.to_lowercase().strip_prefix("set-cookie:") {
             let rest = rest.trim();
-            if let Some(cv) = rest.strip_prefix(&format!("{}=", cookie_name, //
-)) {
+            if let Some(cv) = rest.strip_prefix(&format!(
+                "{}=",
+                cookie_name, //
+            )) {
                 let value = cv.split(';').next().unwrap_or("").trim().to_string();
                 if !value.is_empty() {
                     return Ok(value);
@@ -2045,8 +2414,10 @@ fn rbtccc_curl_get_cookie(base: &str, path: &str, cookie_name: &str) -> Result<S
             }
         }
     }
-    Err(format!("cookie '{}' not found in response headers", cookie_name, //
-))
+    Err(format!(
+        "cookie '{}' not found in response headers",
+        cookie_name, //
+    ))
 }
 
 /// Curl POST with JSON body and XSRF token, returns response body.
@@ -2054,17 +2425,25 @@ fn rbtccc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, St
     let mut child = Command::new("curl")
         .args([
             "-s",
-            "--connect-timeout", "5",
-            "--max-time", "10",
-            "-X", "POST",
-            "-H", "Content-Type: application/json",
+            "--connect-timeout",
+            "5",
+            "--max-time",
+            "10",
+            "-X",
+            "POST",
+            "-H",
+            "Content-Type: application/json",
         ])
         .arg("-H")
-        .arg(format!("X-XSRFToken: {}", xsrf, //
-))
+        .arg(format!(
+            "X-XSRFToken: {}",
+            xsrf, //
+        ))
         .arg("-b")
-        .arg(format!("_xsrf={}", xsrf, //
-))
+        .arg(format!(
+            "_xsrf={}",
+            xsrf, //
+        ))
         .arg("--data-binary")
         .arg("@-")
         .arg(url)
@@ -2072,19 +2451,29 @@ fn rbtccc_curl_post_json(url: &str, body: &str, xsrf: &str) -> Result<String, St
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| format!("curl POST spawn failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl POST spawn failed: {}",
+                e, //
+            )
+        })?;
     child
         .stdin
         .take()
         .unwrap()
         .write_all(body.as_bytes())
-        .map_err(|e| format!("curl POST write failed: {}", e, //
-))?;
-    let output = child
-        .wait_with_output()
-        .map_err(|e| format!("curl POST wait failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl POST write failed: {}",
+                e, //
+            )
+        })?;
+    let output = child.wait_with_output().map_err(|e| {
+        format!(
+            "curl POST wait failed: {}",
+            e, //
+        )
+    })?;
     if !output.status.success() {
         return Err(format!(
             "curl POST exited {}: {}",
@@ -2100,31 +2489,46 @@ fn rbtccc_curl_delete(url: &str, xsrf: &str) -> Result<(), String> {
     Command::new("curl")
         .args([
             "-s",
-            "--connect-timeout", "5",
-            "--max-time", "10",
-            "-X", "DELETE",
+            "--connect-timeout",
+            "5",
+            "--max-time",
+            "10",
+            "-X",
+            "DELETE",
         ])
         .arg("-H")
-        .arg(format!("X-XSRFToken: {}", xsrf, //
-))
+        .arg(format!(
+            "X-XSRFToken: {}",
+            xsrf, //
+        ))
         .arg("-b")
-        .arg(format!("_xsrf={}", xsrf, //
-))
+        .arg(format!(
+            "_xsrf={}",
+            xsrf, //
+        ))
         .arg(url)
         .output()
-        .map_err(|e| format!("curl DELETE failed: {}", e, //
-))?;
+        .map_err(|e| {
+            format!(
+                "curl DELETE failed: {}",
+                e, //
+            )
+        })?;
     Ok(())
 }
 
 /// Minimal JSON string extraction: obj.key.subkey (no serde dependency).
 fn rbtccc_extract_json_string(json: &str, key: &str, subkey: &str) -> Option<String> {
-    let needle = format!("\"{}\"", key, //
-);
+    let needle = format!(
+        "\"{}\"",
+        key, //
+    );
     let pos = json.find(&needle)?;
     let rest = &json[pos + needle.len()..];
-    let sub_needle = format!("\"{}\"", subkey, //
-);
+    let sub_needle = format!(
+        "\"{}\"",
+        subkey, //
+    );
     let sub_pos = rest.find(&sub_needle)?;
     let after = &rest[sub_pos + sub_needle.len()..];
     rbtccc_extract_quoted_value(after)
@@ -2132,8 +2536,10 @@ fn rbtccc_extract_json_string(json: &str, key: &str, subkey: &str) -> Option<Str
 
 /// Minimal JSON string extraction: obj.key (top-level).
 fn rbtccc_extract_json_string_top(json: &str, key: &str) -> Option<String> {
-    let needle = format!("\"{}\"", key, //
-);
+    let needle = format!(
+        "\"{}\"",
+        key, //
+    );
     let pos = json.find(&needle)?;
     let after = &json[pos + needle.len()..];
     rbtccc_extract_quoted_value(after)
@@ -2150,11 +2556,7 @@ fn rbtccc_extract_quoted_value(s: &str) -> Option<String> {
 }
 
 /// Connect via WebSocket, execute a trivial Python expression, verify result.
-fn rbtccc_websocket_kernel_execute(
-    ws_url: &str,
-    xsrf: &str,
-    dir: &Path,
-) -> rbtcee_Verdict {
+fn rbtccc_websocket_kernel_execute(ws_url: &str, xsrf: &str, dir: &Path) -> rbtcee_Verdict {
     use tungstenite::client::connect_with_config;
     use tungstenite::http::Request;
     use tungstenite::Message;
@@ -2169,24 +2571,40 @@ fn rbtccc_websocket_kernel_execute(
     let request = match Request::builder()
         .uri(ws_url)
         .header("Host", host_port)
-        .header("Cookie", format!("_xsrf={}", xsrf, //
-))
+        .header(
+            "Cookie",
+            format!(
+                "_xsrf={}",
+                xsrf, //
+            ),
+        )
         .header("User-Agent", "Mozilla/5.0")
         .header("Connection", "Upgrade")
         .header("Upgrade", "websocket")
         .header("Sec-WebSocket-Version", "13")
-        .header("Sec-WebSocket-Key", tungstenite::handshake::client::generate_key())
+        .header(
+            "Sec-WebSocket-Key",
+            tungstenite::handshake::client::generate_key(),
+        )
         .body(())
     {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("WS request build: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "WS request build: {}",
+                e, //
+            ));
+        }
     };
 
     let (mut ws, _response) = match connect_with_config(request, None, 3) {
         Ok(pair) => pair,
-        Err(e) => return rbtcee_Verdict::Fail(format!("WS connect: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "WS connect: {}",
+                e, //
+            ));
+        }
     };
 
     // Send kernel_info_request to trigger readiness
@@ -2194,11 +2612,14 @@ fn rbtccc_websocket_kernel_execute(
     let session_id = "theurge-session-001";
     let kernel_info_req = format!(
         r#"{{"header":{{"msg_id":"{}","username":"","session":"{}","msg_type":"kernel_info_request","version":"5.3"}},"parent_header":{{}},"metadata":{{}},"content":{{}},"channel":"shell","buffers":[]}}"#,
-        msg_id_info, session_id, //
+        msg_id_info,
+        session_id, //
     );
     if let Err(e) = ws.send(Message::Text(kernel_info_req)) {
-        return rbtcee_Verdict::Fail(format!("WS send kernel_info: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "WS send kernel_info: {}",
+            e, //
+        ));
     }
 
     // Wait for kernel idle after kernel_info_request
@@ -2207,13 +2628,21 @@ fn rbtccc_websocket_kernel_execute(
     while std::time::Instant::now() < deadline {
         let msg = match ws.read() {
             Ok(m) => m,
-            Err(e) => return rbtcee_Verdict::Fail(format!("WS read (ready): {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "WS read (ready): {}",
+                    e, //
+                ));
+            }
         };
         if let Message::Text(ref text) = msg {
-            let _ = std::fs::write(dir.join("ws-ready-trace.txt"),
-                format!("{}\n---\n", text, //
-));
+            let _ = std::fs::write(
+                dir.join("ws-ready-trace.txt"),
+                format!(
+                    "{}\n---\n",
+                    text, //
+                ),
+            );
             if text.contains("\"execution_state\"")
                 && text.contains("\"idle\"")
                 && text.contains("kernel_info_request")
@@ -2232,11 +2661,14 @@ fn rbtccc_websocket_kernel_execute(
     let msg_id_exec = "theurge-execute-001";
     let execute_req = format!(
         r#"{{"header":{{"msg_id":"{}","username":"","session":"{}","msg_type":"execute_request","version":"5.3"}},"parent_header":{{}},"metadata":{{}},"content":{{"code":"print(\"Hello from theurge\")","silent":false,"store_history":true,"user_expressions":{{}},"allow_stdin":false}},"channel":"shell","buffers":[]}}"#,
-        msg_id_exec, session_id, //
+        msg_id_exec,
+        session_id, //
     );
     if let Err(e) = ws.send(Message::Text(execute_req)) {
-        return rbtcee_Verdict::Fail(format!("WS send execute: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "WS send execute: {}",
+            e, //
+        ));
     }
 
     // Read messages until we see the stream output or execution goes idle
@@ -2249,16 +2681,17 @@ fn rbtccc_websocket_kernel_execute(
             Ok(m) => m,
             Err(e) => {
                 let _ = std::fs::write(dir.join("ws-exec-trace.txt"), &trace);
-                return rbtcee_Verdict::Fail(format!("WS read (exec): {}", e, //
-));
+                return rbtcee_Verdict::Fail(format!(
+                    "WS read (exec): {}",
+                    e, //
+                ));
             }
         };
         if let Message::Text(ref text) = msg {
             trace.push_str(text);
             trace.push_str("\n---\n");
             // Check for stream output with our expected text
-            if text.contains("\"msg_type\":\"stream\"")
-                || text.contains("\"msg_type\": \"stream\"")
+            if text.contains("\"msg_type\":\"stream\"") || text.contains("\"msg_type\": \"stream\"")
             {
                 if text.contains("Hello from theurge") {
                     saw_output = true;
@@ -2291,24 +2724,32 @@ fn rbtccc_websocket_kernel_execute(
 // ── PLUML PlantUML cases (host-side HTTP probes) ─────────────
 
 /// Known PlantUML diagram hash for Alice/Bob conversation.
-const RBTCCC_PLUML_KNOWN_HASH: &str =
-    "SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40";
+const RBTCCC_PLUML_KNOWN_HASH: &str = "SyfFKj2rKt3CoKnELR1Io4ZDoSbNACb8BKhbWeZf0cMTyfEi59Boym40";
 
 fn rbtccc_pluml_text_rendering(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
         let url = format!(
             "http://localhost:{}/txt/{}",
-            port, RBTCCC_PLUML_KNOWN_HASH, //
+            port,
+            RBTCCC_PLUML_KNOWN_HASH, //
         );
         let (body, _) = match rbtccc_curl_get(&url) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
@@ -2316,7 +2757,8 @@ fn rbtccc_pluml_text_rendering(dir: &Path) -> rbtcee_Verdict {
             if !body.contains(expected) {
                 return rbtcee_Verdict::Fail(format!(
                     "expected '{}' in response:\n{}",
-                    expected, body, //
+                    expected,
+                    body, //
                 ));
             }
         }
@@ -2328,16 +2770,26 @@ fn rbtccc_pluml_local_diagram(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let url = format!("http://localhost:{}/txt/uml", port, //
-);
+        let url = format!(
+            "http://localhost:{}/txt/uml",
+            port, //
+        );
         let diagram = "@startuml\nBob -> Alice: hello there\nAlice --> Bob: boo\n@enduml";
         let body = match rbtccc_curl_post_stdin(&url, diagram) {
             Ok(b) => b,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl POST error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl POST error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
@@ -2345,7 +2797,8 @@ fn rbtccc_pluml_local_diagram(dir: &Path) -> rbtcee_Verdict {
             if !body.contains(expected) {
                 return rbtcee_Verdict::Fail(format!(
                     "expected '{}' in response:\n{}",
-                    expected, body, //
+                    expected,
+                    body, //
                 ));
             }
         }
@@ -2357,29 +2810,37 @@ fn rbtccc_pluml_http_headers(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
         let url = format!(
             "http://localhost:{}/txt/{}",
-            port, RBTCCC_PLUML_KNOWN_HASH, //
+            port,
+            RBTCCC_PLUML_KNOWN_HASH, //
         );
         let status = match rbtccc_curl_status(
             &url,
-            &[
-                ("User-Agent", "Mozilla/5.0"),
-                ("Accept", "text/plain"),
-            ],
+            &[("User-Agent", "Mozilla/5.0"), ("Accept", "text/plain")],
         ) {
             Ok(s) => s,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("http-status.txt"), &status);
 
         if status != "200" {
-            return rbtcee_Verdict::Fail(format!("expected HTTP 200, got: {}", status, //
-));
+            return rbtcee_Verdict::Fail(format!(
+                "expected HTTP 200, got: {}",
+                status, //
+            ));
         }
         rbtcee_Verdict::Pass
     })
@@ -2389,22 +2850,30 @@ fn rbtccc_pluml_invalid_hash(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let url = format!("http://localhost:{}/txt/invalid_hash", port, //
-);
+        let url = format!(
+            "http://localhost:{}/txt/invalid_hash",
+            port, //
+        );
         let (body, _) = match rbtccc_curl_get(&url) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
         if body.contains("Bob") {
-            return rbtcee_Verdict::Fail(
-                "expected no 'Bob' in invalid hash response".to_string(),
-            );
+            return rbtcee_Verdict::Fail("expected no 'Bob' in invalid hash response".to_string());
         }
         rbtcee_Verdict::Pass
     })
@@ -2414,15 +2883,25 @@ fn rbtccc_pluml_malformed_diagram(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let url = format!("http://localhost:{}/txt/uml", port, //
-);
+        let url = format!(
+            "http://localhost:{}/txt/uml",
+            port, //
+        );
         let body = match rbtccc_curl_post_stdin(&url, "invalid uml content") {
             Ok(b) => b,
-            Err(e) => return rbtcee_Verdict::Fail(format!("curl POST error: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "curl POST error: {}",
+                    e, //
+                ));
+            }
         };
         let _ = std::fs::write(dir.join("curl-response.txt"), &body);
 
@@ -2483,11 +2962,17 @@ fn rbtccc_pluml_render_diagrams(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let port = match rbtccc_read_nameplate_port(ctx) {
             Ok(p) => p,
-            Err(e) => return rbtcee_Verdict::Fail(format!("port discovery: {}", e, //
-)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "port discovery: {}",
+                    e, //
+                ));
+            }
         };
-        let url = format!("http://localhost:{}/svg/uml", port, //
-);
+        let url = format!(
+            "http://localhost:{}/svg/uml",
+            port, //
+        );
         let diagrams_dir = ctx.rbtcei_project_root().join("diagrams");
 
         let entries = match std::fs::read_dir(&diagrams_dir) {
@@ -2497,7 +2982,7 @@ fn rbtccc_pluml_render_diagrams(dir: &Path) -> rbtcee_Verdict {
                     "cannot read diagrams dir {}: {}",
                     diagrams_dir.display(),
                     e, //
-                ))
+                ));
             }
         };
         let mut sources: Vec<PathBuf> = entries
@@ -2524,44 +3009,70 @@ fn rbtccc_pluml_render_diagrams(dir: &Path) -> rbtcee_Verdict {
             let body = match std::fs::read_to_string(src) {
                 Ok(b) => b,
                 Err(e) => {
-                    return rbtcee_Verdict::Fail(format!("read {}: {}", src.display(), e, //
-))
+                    return rbtcee_Verdict::Fail(format!(
+                        "read {}: {}",
+                        src.display(),
+                        e, //
+                    ));
                 }
             };
             let svg = match rbtccc_curl_post_stdin(&url, &body) {
                 Ok(s) => s,
                 Err(e) => {
-                    return rbtcee_Verdict::Fail(format!("render {}: curl POST: {}", stem, e, //
-))
+                    return rbtcee_Verdict::Fail(format!(
+                        "render {}: curl POST: {}",
+                        stem,
+                        e, //
+                    ));
                 }
             };
             if !svg.contains("<svg") || !svg.contains("</svg>") {
-                let _ = std::fs::write(dir.join(format!("{}-bad.txt", stem, //
-)), &svg);
+                let _ = std::fs::write(
+                    dir.join(format!(
+                        "{}-bad.txt",
+                        stem, //
+                    )),
+                    &svg,
+                );
                 return rbtcee_Verdict::Fail(format!(
                     "{}: response is not a well-formed SVG",
                     stem, //
                 ));
             }
             if svg.contains("Syntax Error") {
-                let _ = std::fs::write(dir.join(format!("{}-bad.svg", stem, //
-)), &svg);
+                let _ = std::fs::write(
+                    dir.join(format!(
+                        "{}-bad.svg",
+                        stem, //
+                    )),
+                    &svg,
+                );
                 return rbtcee_Verdict::Fail(format!(
                     "{}: PlantUML reported a syntax error",
                     stem, //
                 ));
             }
-            let out = diagrams_dir.join(format!("{}-light.svg", stem, //
-));
+            let out = diagrams_dir.join(format!(
+                "{}-light.svg",
+                stem, //
+            ));
             if let Err(e) = std::fs::write(&out, &svg) {
-                return rbtcee_Verdict::Fail(format!("write {}: {}", out.display(), e, //
-));
+                return rbtcee_Verdict::Fail(format!(
+                    "write {}: {}",
+                    out.display(),
+                    e, //
+                ));
             }
-            let dark_out = diagrams_dir.join(format!("{}-dark.svg", stem, //
-));
+            let dark_out = diagrams_dir.join(format!(
+                "{}-dark.svg",
+                stem, //
+            ));
             if let Err(e) = std::fs::write(&dark_out, zrbtccc_darken_svg(&svg)) {
-                return rbtcee_Verdict::Fail(format!("write {}: {}", dark_out.display(), e, //
-));
+                return rbtcee_Verdict::Fail(format!(
+                    "write {}: {}",
+                    dark_out.display(),
+                    e, //
+                ));
             }
             rendered.push(stem);
         }
@@ -2582,7 +3093,11 @@ pub static RBTCCC_FIXTURE_TADMOR: rbtcee_Fixture = rbtcee_Fixture {
     teardown: Some(rbtccc_quench_crucible),
     cases: RBTCCC_CASES_SECURITY,
     credless: false,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(1200),
+        invocations: None,
+    },
 };
 
 // Moriah is the airgap-bottle nameplate; runtime semantics are identical
@@ -2595,7 +3110,11 @@ pub static RBTCCC_FIXTURE_MORIAH: rbtcee_Fixture = rbtcee_Fixture {
     teardown: Some(rbtccc_quench_crucible),
     cases: RBTCCC_CASES_SECURITY,
     credless: false,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(1200), invocations: None },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(1200),
+        invocations: None,
+    },
 };
 
 pub static RBTCCC_FIXTURE_SRJCL: rbtcee_Fixture = rbtcee_Fixture {
@@ -2605,7 +3124,11 @@ pub static RBTCCC_FIXTURE_SRJCL: rbtcee_Fixture = rbtcee_Fixture {
     teardown: Some(rbtccc_quench_crucible),
     cases: RBTCCC_CASES_SRJCL,
     credless: false,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(600),
+        invocations: None,
+    },
 };
 
 pub static RBTCCC_FIXTURE_PLUML: rbtcee_Fixture = rbtcee_Fixture {
@@ -2615,9 +3138,12 @@ pub static RBTCCC_FIXTURE_PLUML: rbtcee_Fixture = rbtcee_Fixture {
     teardown: Some(rbtccc_quench_crucible),
     cases: RBTCCC_CASES_PLUML,
     credless: false,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(600), invocations: None },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(600),
+        invocations: None,
+    },
 };
-
 
 pub static RBTCCC_CASES_SRJCL: &[rbtcee_Case] = &[
     rbtcee_case!(rbtccc_srjcl_jupyter_running),
@@ -2699,7 +3225,6 @@ static RBTCCC_CASES_SECURITY: &[rbtcee_Case] = &[
     rbtcee_case!(rbtccc_coordinated_sentry_egress_lockdown),
     rbtcee_case!(rbtccc_coordinated_dnsmasq_query_audit), //
 ];
-
 
 // ── Crucible-free unit tests ─────────────────────────────────
 //

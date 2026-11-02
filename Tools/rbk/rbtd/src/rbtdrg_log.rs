@@ -28,28 +28,39 @@
 use std::io::Write;
 
 pub const RBTCEL_LEVEL_TRACE: &str = "[TRACE]";
-pub const RBTCEL_LEVEL_INFO:  &str = "[INFO]";
+pub const RBTCEL_LEVEL_INFO: &str = "[INFO]";
 pub const RBTCEL_LEVEL_ERROR: &str = "[ERROR]";
 pub const RBTCEL_LEVEL_FATAL: &str = "[FATAL]";
 
 fn zrbtcel_format(level: &str, file: &str, line: u32, msg: &str) -> String {
-    format!("{} [{}:{}] {}", level, file, line, msg, //
-)
+    format!(
+        "{} [{}:{}] {}",
+        level,
+        file,
+        line,
+        msg, //
+    )
 }
 
 #[doc(hidden)]
 pub fn zrbtcel_emit(level: &str, file: &str, line: u32, msg: &str) {
     let mut stderr = std::io::stderr().lock();
-    let _ = writeln!(stderr, "{}", zrbtcel_format(level, file, line, msg), //
-);
+    let _ = writeln!(
+        stderr,
+        "{}",
+        zrbtcel_format(level, file, line, msg), //
+    );
 }
 
 #[doc(hidden)]
 pub fn zrbtcel_emit_fatal(file: &str, line: u32, msg: &str) -> ! {
     {
         let mut stderr = std::io::stderr().lock();
-        let _ = writeln!(stderr, "{}", zrbtcel_format(RBTCEL_LEVEL_FATAL, file, line, msg), //
-);
+        let _ = writeln!(
+            stderr,
+            "{}",
+            zrbtcel_format(RBTCEL_LEVEL_FATAL, file, line, msg), //
+        );
         let _ = stderr.flush();
     }
     std::process::exit(1);

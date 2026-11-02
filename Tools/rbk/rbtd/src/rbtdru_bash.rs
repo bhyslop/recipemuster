@@ -47,11 +47,11 @@ use std::path::{
 };
 
 use crate::rbtchc_cupel::{
-    zrbtchc_is_gcb,
-    zrbtchc_walk_ext,
     zrbtchc_Domain,
     zrbtchc_Finding,
     zrbtchc_ScanResult,
+    zrbtchc_is_gcb,
+    zrbtchc_walk_ext,
     ZRBTCHC_BUILTINS,
     ZRBTCHC_DECLARED_DEPS,
     ZRBTCHC_EVICTIONS,
@@ -151,8 +151,8 @@ pub(crate) fn zrbtchb_read_word(chars: &[char], i: &mut usize, line: &mut usize)
 /// value, not a command (`for`, `case`, `in`, …). `None` — not a keyword.
 pub(crate) fn zrbtchb_keyword_kind(word: &str) -> Option<bool> {
     match word {
-        "if" | "elif" | "while" | "until" | "then" | "else" | "do" | "!"
-        | "time" | "fi" | "done" | "esac" => Some(true),
+        "if" | "elif" | "while" | "until" | "then" | "else" | "do" | "!" | "time" | "fi"
+        | "done" | "esac" => Some(true),
         "for" | "select" | "case" | "in" | "function" => Some(false),
         _ => None,
     }
@@ -195,7 +195,12 @@ pub(crate) fn zrbtchb_is_assignment(word: &str) -> bool {
 /// caller; scanning ends when it returns to zero. Quoted segments are skipped
 /// so parens inside strings do not affect the balance — covering array literals
 /// `NAME=( … )` and nested arithmetic `$(( ( … ) ))`.
-pub(crate) fn zrbtchb_skip_balanced_parens(chars: &[char], i: &mut usize, line: &mut usize, mut depth: usize) {
+pub(crate) fn zrbtchb_skip_balanced_parens(
+    chars: &[char],
+    i: &mut usize,
+    line: &mut usize,
+    mut depth: usize,
+) {
     let n = chars.len();
     while *i < n && depth > 0 {
         match chars[*i] {
@@ -380,9 +385,16 @@ pub(crate) fn zrbtchb_command_words(src: &str) -> Vec<(usize, String)> {
                             i += 1;
                         }
                         None => {
-                            if d == ' ' || d == '\t' || d == '\n' || d == ';'
-                                || d == '&' || d == '|' || d == '<' || d == '>'
-                                || d == '(' || d == ')'
+                            if d == ' '
+                                || d == '\t'
+                                || d == '\n'
+                                || d == ';'
+                                || d == '&'
+                                || d == '|'
+                                || d == '<'
+                                || d == '>'
+                                || d == '('
+                                || d == ')'
                             {
                                 break;
                             }
@@ -629,8 +641,10 @@ pub(crate) fn zrbtchb_classify(
             }
             for ev in ZRBTCHC_EVICTIONS {
                 if ev.command == base {
-                    return Some(format!("evicted command — use {}", ev.replacement, //
-));
+                    return Some(format!(
+                        "evicted command — use {}",
+                        ev.replacement, //
+                    ));
                 }
             }
             Some("unknown command — not in POSIX floor or declared dependencies".to_string())
@@ -662,9 +676,7 @@ fn zrbtchb_is_external(command: &str, locals: &BTreeSet<String>) -> bool {
         return false;
     }
     let base = command.rsplit('/').next().unwrap_or(command);
-    !ZRBTCHC_BUILTINS.contains(&base)
-        && !locals.contains(command)
-        && !locals.contains(base)
+    !ZRBTCHC_BUILTINS.contains(&base) && !locals.contains(command) && !locals.contains(base)
 }
 
 // ── Corpus walk and scan ────────────────────────────────────
@@ -672,25 +684,42 @@ fn zrbtchb_is_external(command: &str, locals: &BTreeSet<String>) -> bool {
 /// Walk the corpus, collect functions across all of it, then scan the files
 /// belonging to `domain`, returning every finding (sorted by file and line)
 /// plus the domain's external-command inventory.
-pub(crate) fn zrbtchb_scan_domain(tools: &Path, domain: zrbtchc_Domain) -> Result<zrbtchc_ScanResult, String> {
+pub(crate) fn zrbtchb_scan_domain(
+    tools: &Path,
+    domain: zrbtchc_Domain,
+) -> Result<zrbtchc_ScanResult, String> {
     // Pass 1 — function-visibility universe. Walk every kit so cross-kit and
     // sourced function names resolve; only dead ABANDONED code stays invisible.
     let mut universe_files: Vec<PathBuf> = Vec::new();
-    zrbtchc_walk_ext(tools, ZRBTCHC_SH_EXT, ZRBTCHC_UNIVERSE_EXCLUDED_DIR_PREFIXES, &mut universe_files);
+    zrbtchc_walk_ext(
+        tools,
+        ZRBTCHC_SH_EXT,
+        ZRBTCHC_UNIVERSE_EXCLUDED_DIR_PREFIXES,
+        &mut universe_files,
+    );
     universe_files.sort();
 
     let mut locals: BTreeSet<String> = BTreeSet::new();
     for f in &universe_files {
-        let src = std::fs::read_to_string(f)
-            .map_err(|e| format!("read {} failed: {}", f.display(), e, //
-))?;
+        let src = std::fs::read_to_string(f).map_err(|e| {
+            format!(
+                "read {} failed: {}",
+                f.display(),
+                e, //
+            )
+        })?;
         zrbtchb_collect_functions(&src, &mut locals);
     }
 
     // Pass 2 — lint target. Only the release kit roots, minus dead/not-yet-live.
     let mut lint_files: Vec<PathBuf> = Vec::new();
     for kit in ZRBTCHC_KIT_ROOTS {
-        zrbtchc_walk_ext(&tools.join(kit), ZRBTCHC_SH_EXT, ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES, &mut lint_files);
+        zrbtchc_walk_ext(
+            &tools.join(kit),
+            ZRBTCHC_SH_EXT,
+            ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
+            &mut lint_files,
+        );
     }
     lint_files.sort();
 
@@ -711,9 +740,13 @@ pub(crate) fn zrbtchb_scan_domain(tools: &Path, domain: zrbtchc_Domain) -> Resul
         } else {
             zrbtchc_Domain::Kit
         };
-        let src = std::fs::read_to_string(path)
-            .map_err(|e| format!("read {} failed: {}", path.display(), e, //
-))?;
+        let src = std::fs::read_to_string(path).map_err(|e| {
+            format!(
+                "read {} failed: {}",
+                path.display(),
+                e, //
+            )
+        })?;
         let rel = crate::rbtcep_platform::rbtcep_repo_rel(root, path);
         for (line, command) in zrbtchb_command_words(&src) {
             if zrbtchb_is_external(&command, &locals) {
@@ -730,5 +763,8 @@ pub(crate) fn zrbtchb_scan_domain(tools: &Path, domain: zrbtchc_Domain) -> Resul
             }
         }
     }
-    Ok(zrbtchc_ScanResult { findings, inventory })
+    Ok(zrbtchc_ScanResult {
+        findings,
+        inventory,
+    })
 }

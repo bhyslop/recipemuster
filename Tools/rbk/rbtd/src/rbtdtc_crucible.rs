@@ -35,9 +35,9 @@
 use std::collections::BTreeSet;
 
 use crate::rbtcea_almanac::{
+    rbtcea_lookup_suite,
     RBTCEA_SUITES,
-    RBTCEA_SUITE_NAME_CALIBRANT,
-    rbtcea_lookup_suite, //
+    RBTCEA_SUITE_NAME_CALIBRANT, //
 };
 use crate::rbtcem_manifest::{
     RBTCEM_FIXTURE_KLUDGE_TADMOR,
@@ -99,8 +99,12 @@ const ZRBTTCC_MODEL: &[(&str, rbttcc_Wrapper)] = &[
 /// the model is a loud failure, not a silent skip.
 fn zrbttcc_members(suite: &str) -> BTreeSet<&'static str> {
     rbtcea_lookup_suite(suite)
-        .unwrap_or_else(|| panic!("suite '{}' not registered in RBTCEA_SUITES", suite, //
-))
+        .unwrap_or_else(|| {
+            panic!(
+                "suite '{}' not registered in RBTCEA_SUITES",
+                suite, //
+            )
+        })
         .fixtures
         .iter()
         .map(|f| f.name)
@@ -135,8 +139,10 @@ fn rbttcc_reuse_product_completeness() {
     let bivouac = zrbttcc_members(ZRBTTCC_BIVOUAC);
     let echelon = zrbttcc_members(ZRBTTCC_ECHELON);
     let union: BTreeSet<&str> = picket.union(&bivouac).copied().collect();
-    assert_eq!(union, echelon, "echelon must equal picket ∪ bivouac", //
-);
+    assert_eq!(
+        union, echelon,
+        "echelon must equal picket ∪ bivouac", //
+    );
 }
 
 #[test]
@@ -144,10 +150,14 @@ fn rbttcc_reuse_tier_containment() {
     let picket = zrbttcc_members(ZRBTTCC_PICKET);
     let bivouac = zrbttcc_members(ZRBTTCC_BIVOUAC);
     let echelon = zrbttcc_members(ZRBTTCC_ECHELON);
-    assert!(picket.is_subset(&echelon), "picket must be a subset of echelon", //
-);
-    assert!(bivouac.is_subset(&echelon), "bivouac must be a subset of echelon", //
-);
+    assert!(
+        picket.is_subset(&echelon),
+        "picket must be a subset of echelon", //
+    );
+    assert!(
+        bivouac.is_subset(&echelon),
+        "bivouac must be a subset of echelon", //
+    );
 }
 
 #[test]
@@ -201,14 +211,18 @@ fn rbttcc_kludge_producer_follows_vessel_commits() {
             let Some(producer_at) = position(producer) else {
                 faults.push(format!(
                     "suite '{}' holds crucible '{}' without its pin producer '{}'",
-                    suite.name, crucible, producer, //
+                    suite.name,
+                    crucible,
+                    producer, //
                 ));
                 continue;
             };
             if producer_at > crucible_at {
                 faults.push(format!(
                     "suite '{}' runs '{}' after the crucible '{}' it produces for",
-                    suite.name, producer, crucible, //
+                    suite.name,
+                    producer,
+                    crucible, //
                 ));
             }
             for committer in ZRBTTCC_VESSEL_COMMITTERS {
@@ -217,15 +231,21 @@ fn rbttcc_kludge_producer_follows_vessel_commits() {
                         faults.push(format!(
                             "suite '{}' runs '{}' before '{}', which commits under \
                              the vessels root and stales the pin crucible '{}' reads",
-                            suite.name, producer, committer, crucible, //
+                            suite.name,
+                            producer,
+                            committer,
+                            crucible, //
                         ));
                     }
                 }
             }
         }
     }
-    assert!(faults.is_empty(), "pin producer ordering:\n  {}", faults.join("\n  "), //
-);
+    assert!(
+        faults.is_empty(),
+        "pin producer ordering:\n  {}",
+        faults.join("\n  "), //
+    );
 }
 
 #[test]

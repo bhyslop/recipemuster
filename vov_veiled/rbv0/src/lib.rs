@@ -19,6 +19,7 @@
 #![allow(non_camel_case_types)]
 #![deny(warnings)]
 
+#[cfg_attr(rustfmt, rustfmt::skip)]
 pub mod rbvgeb_breviary;
 pub mod rbvcew_world;
 pub mod rbvcel_log;

@@ -22,7 +22,9 @@
 // Extracted from rbtccc_crucible; consulted at runtime by main.rs dispatch and
 // in unit tests. A compile-time guard rejects duplicate fixture/suite names.
 
-use crate::rbtcee_engine::{rbtcee_Fixture, rbtcee_Suite, //
+use crate::rbtcee_engine::{
+    rbtcee_Fixture,
+    rbtcee_Suite, //
 };
 
 /// Registry of all fixtures known to theurge. Single source of truth: drives
@@ -392,9 +394,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
     // fixture self-skips only on an unreachable payor credential.
     rbtcee_Suite {
         name: "parley",
-        fixtures: &[
-            &crate::rbtcgp_patrol::RBTCGP_FIXTURE_PARLEY,
-        ],
+        fixtures: &[&crate::rbtcgp_patrol::RBTCGP_FIXTURE_PARLEY],
     },
     // Calibrant — the deliberately-failing two-member suite the touchstone
     // surface fixture drives as its suite-abort subject: calibrant-fail-fast

@@ -21,8 +21,12 @@
 use std::path::PathBuf;
 
 use crate::rbtcgf_freehold::{
-    rbtcgf_family_stem, rbtcgf_freehold_cloud_prefix, rbtcgf_freehold_runtime_prefix,
-    rbtcgf_install_freehold_prefixes, RBTCGF_FREEHOLD_CLOUD_BASE, RBTCGF_FREEHOLD_RUNTIME_BASE,
+    rbtcgf_family_stem,
+    rbtcgf_freehold_cloud_prefix,
+    rbtcgf_freehold_runtime_prefix,
+    rbtcgf_install_freehold_prefixes,
+    RBTCGF_FREEHOLD_CLOUD_BASE,
+    RBTCGF_FREEHOLD_RUNTIME_BASE,
     RBTCGF_FREEHOLD_STEM_BASE, //
 };
 use crate::rbtteh_helpers::rbtteh_scratch_root;
@@ -65,8 +69,10 @@ fn rbttgf_prefix_compose() {
 fn rbttgf_family_stem_value() {
     assert_eq!(
         rbtcgf_family_stem("xyz"),
-        format!("{}xyz", RBTCGF_FREEHOLD_STEM_BASE, //
-)
+        format!(
+            "{}xyz",
+            RBTCGF_FREEHOLD_STEM_BASE, //
+        )
     );
 }
 
@@ -94,40 +100,72 @@ fn rbttgf_dual_station_disjoint() {
     let (a, b) = ("aaa", "bbb");
     let cloud_a = rbtcgf_freehold_cloud_prefix(a);
     let cloud_b = rbtcgf_freehold_cloud_prefix(b);
-    let moniker_a = format!("{}100000", rbtcgf_family_stem(a), //
-);
-    let moniker_b = format!("{}100000", rbtcgf_family_stem(b), //
-);
+    let moniker_a = format!(
+        "{}100000",
+        rbtcgf_family_stem(a), //
+    );
+    let moniker_b = format!(
+        "{}100000",
+        rbtcgf_family_stem(b), //
+    );
 
-    let project_a = format!("{}d-{}", cloud_a, moniker_a, //
-);
-    let project_b = format!("{}d-{}", cloud_b, moniker_b, //
-);
+    let project_a = format!(
+        "{}d-{}",
+        cloud_a,
+        moniker_a, //
+    );
+    let project_b = format!(
+        "{}d-{}",
+        cloud_b,
+        moniker_b, //
+    );
     assert_ne!(project_a, project_b);
-    assert!(project_a.len() <= 30, "project_a {} > 30", project_a, //
-);
-    assert!(project_b.len() <= 30, "project_b {} > 30", project_b, //
-);
-
-    assert_ne!(
-        format!("{}{}-gar", cloud_a, moniker_a, //
-),
-        format!("{}{}-gar", cloud_b, moniker_b, //
-)
+    assert!(
+        project_a.len() <= 30,
+        "project_a {} > 30",
+        project_a, //
+    );
+    assert!(
+        project_b.len() <= 30,
+        "project_b {} > 30",
+        project_b, //
     );
 
     assert_ne!(
-        format!("{}b-{}", cloud_a, moniker_a, //
-),
-        format!("{}b-{}", cloud_b, moniker_b, //
-)
+        format!(
+            "{}{}-gar",
+            cloud_a,
+            moniker_a, //
+        ),
+        format!(
+            "{}{}-gar",
+            cloud_b,
+            moniker_b, //
+        )
     );
 
     assert_ne!(
-        format!("canest-ret@{}.iam.gserviceaccount.com", project_a, //
-),
-        format!("canest-ret@{}.iam.gserviceaccount.com", project_b, //
-)
+        format!(
+            "{}b-{}",
+            cloud_a,
+            moniker_a, //
+        ),
+        format!(
+            "{}b-{}",
+            cloud_b,
+            moniker_b, //
+        )
+    );
+
+    assert_ne!(
+        format!(
+            "canest-ret@{}.iam.gserviceaccount.com",
+            project_a, //
+        ),
+        format!(
+            "canest-ret@{}.iam.gserviceaccount.com",
+            project_b, //
+        )
     );
 }
 
@@ -140,6 +178,9 @@ fn rbttgf_install_freehold_prefixes_rejects_missing_rbrr() {
     std::fs::create_dir_all(&tmp).expect("create tempdir");
     let result = rbtcgf_install_freehold_prefixes(&tmp);
     let _ = std::fs::remove_dir_all(&tmp);
-    assert!(result.is_err(), "expected Err when {}/rbrr.env is absent", crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
-);
+    assert!(
+        result.is_err(),
+        "expected Err when {}/rbrr.env is absent",
+        crate::rbtgec_consts::RBTGEC_MOORINGS_DIR, //
+    );
 }

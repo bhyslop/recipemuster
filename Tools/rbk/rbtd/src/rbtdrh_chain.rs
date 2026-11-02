@@ -58,10 +58,27 @@
 // successive dispatches over one shared BURV root — multi-consumer reuse and
 // retry-after-failure.
 
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 
 use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
+};
+use crate::rbtcei_invocation::{
+    rbtcei_find_tabtarget_global,
+    rbtcei_tabtarget_command,
+    RBTCEI_BURE_CONFIRM_KEY,
+    RBTCEI_BURE_CONFIRM_SKIP, //
+};
+use crate::rbtcem_manifest::RBTCEM_FIXTURE_CHAINING_FACT_BAND;
+use crate::rbtcep_platform::rbtcep_native_to_posix;
 use crate::rbtgeb_breviary::{
     RBTGEB_CHAIN_DENTIL,
     RBTGEB_NAMEPLATE_MITRE_BASE, //
@@ -79,21 +96,6 @@ use crate::rbtgec_consts::{
     RBTGEC_THEURGE_NIHIL,
     RBTGEC_YOKE_RELIQUARY, //
 };
-use crate::rbtcee_engine::{
-    rbtcee_Tariff,
-    rbtcee_Case,
-    rbtcee_Disposition,
-    rbtcee_Fixture,
-    rbtcee_Verdict, //
-};
-use crate::rbtcei_invocation::{
-    rbtcei_find_tabtarget_global,
-    rbtcei_tabtarget_command,
-    RBTCEI_BURE_CONFIRM_KEY,
-    RBTCEI_BURE_CONFIRM_SKIP, //
-};
-use crate::rbtcem_manifest::RBTCEM_FIXTURE_CHAINING_FACT_BAND;
-use crate::rbtcep_platform::rbtcep_native_to_posix;
 
 // Lode touchmark literals — mirror rbgc_constants.sh (RBGC_LODE_KIND_*,
 // RBF_FACT_LODE_TOUCHMARK, RBGC_LODE_TAG_BOLE). A touchmark is
@@ -145,37 +147,70 @@ fn rbtcgh_drive_feoff_shared(
     express: Option<&str>,
     label: &str,
 ) -> Result<(i32, PathBuf), String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_FEOFF_BOLE)?;
 
     let vessel_dir = dir.join(vessel_name);
     let rbrv = vessel_dir.join(RBTGEC_RBRV_FILE);
     if stage_vessel {
-        std::fs::create_dir_all(&vessel_dir).map_err(|e| format!("stage vessel dir: {}", e, //
-))?;
-        std::fs::write(&rbrv, RBTCGH_VESSEL_RBRV).map_err(|e| format!("stage rbrv.env: {}", e, //
-))?;
+        std::fs::create_dir_all(&vessel_dir).map_err(|e| {
+            format!(
+                "stage vessel dir: {}",
+                e, //
+            )
+        })?;
+        std::fs::write(&rbrv, RBTCGH_VESSEL_RBRV).map_err(|e| {
+            format!(
+                "stage rbrv.env: {}",
+                e, //
+            )
+        })?;
     }
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
     match seed_chain {
         Some(touchmark) => {
             // Seed current/; bud's start-of-dispatch promotion moves it to previous/.
             let current = burv.join("current");
-            std::fs::create_dir_all(&current).map_err(|e| format!("mkdir burv current: {}", e, //
-))?;
-            std::fs::write(current.join(RBTCGH_FACT_TOUCHMARK), format!("{}\n", touchmark, //
-))
-                .map_err(|e| format!("seed chain fact: {}", e, //
-))?;
+            std::fs::create_dir_all(&current).map_err(|e| {
+                format!(
+                    "mkdir burv current: {}",
+                    e, //
+                )
+            })?;
+            std::fs::write(
+                current.join(RBTCGH_FACT_TOUCHMARK),
+                format!(
+                    "{}\n",
+                    touchmark, //
+                ),
+            )
+            .map_err(|e| {
+                format!(
+                    "seed chain fact: {}",
+                    e, //
+                )
+            })?;
         }
         None => {
-            std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
+            std::fs::create_dir_all(&burv).map_err(|e| {
+                format!(
+                    "mkdir burv root: {}",
+                    e, //
+                )
+            })?;
         }
     }
 
@@ -189,14 +224,27 @@ fn rbtcgh_drive_feoff_shared(
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("failed to run feoff {}: {}", tt.display(), e, //
-))?;
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
-)), &output.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
-)), &output.stderr);
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run feoff {}: {}",
+            tt.display(),
+            e, //
+        )
+    })?;
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &output.stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &output.stderr,
+    );
     Ok((output.status.code().unwrap_or(-1), rbrv))
 }
 
@@ -208,8 +256,12 @@ fn rbtcgh_drive_feoff(
     seed_chain: Option<&str>,
     express: Option<&str>,
 ) -> Result<(i32, PathBuf, PathBuf), String> {
-    let (code, rbrv) = rbtcgh_drive_feoff_shared(dir, "vessel", true, seed_chain, express, "feoff")?;
-    let prev_fact = dir.join("burv").join("previous").join(RBTCGH_FACT_TOUCHMARK);
+    let (code, rbrv) =
+        rbtcgh_drive_feoff_shared(dir, "vessel", true, seed_chain, express, "feoff")?;
+    let prev_fact = dir
+        .join("burv")
+        .join("previous")
+        .join(RBTCGH_FACT_TOUCHMARK);
     Ok((code, rbrv, prev_fact))
 }
 
@@ -217,16 +269,28 @@ fn rbtcgh_drive_feoff(
 /// the exit code. yoke's kind gate rejects before auth and the fan-out write,
 /// so a negative express never reaches credentials or the tracked vessel tree.
 fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_YOKE_RELIQUARY)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv).map_err(|e| {
+        format!(
+            "mkdir burv root: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
 
     let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.arg(express)
@@ -235,10 +299,13 @@ fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("failed to run yoke {}: {}", tt.display(), e, //
-))?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run yoke {}: {}",
+            tt.display(),
+            e, //
+        )
+    })?;
     let _ = std::fs::write(dir.join("yoke-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("yoke-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
@@ -255,16 +322,28 @@ fn rbtcgh_drive_yoke(dir: &Path, express: &str) -> Result<i32, String> {
 /// case). Credless, no cloud — the reject fires before any token mint. Returns the
 /// exit code.
 fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_ANOINT_GRAFT)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv).map_err(|e| {
+        format!(
+            "mkdir burv root: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
 
     let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.arg(RBTCGH_GRAFT_VESSEL)
@@ -273,10 +352,13 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("failed to run anoint {}: {}", tt.display(), e, //
-))?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run anoint {}: {}",
+            tt.display(),
+            e, //
+        )
+    })?;
     let _ = std::fs::write(dir.join("anoint-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("anoint-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
@@ -292,16 +374,28 @@ fn rbtcgh_drive_anoint(dir: &Path) -> Result<i32, String> {
 /// moniker and NOT loaded, so a still-blank hallmark field never blocks the run.
 /// Credless, no cloud — the reject fires before any token mint. Returns the exit code.
 fn rbtcgh_drive_mitre(dir: &Path, nameplate: &str, field: &str) -> Result<i32, String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_MITRE_HALLMARK)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv).map_err(|e| {
+        format!(
+            "mkdir burv root: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
 
     let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.arg(nameplate)
@@ -311,16 +405,14 @@ fn rbtcgh_drive_mitre(dir: &Path, nameplate: &str, field: &str) -> Result<i32, S
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| {
-            format!(
-                "failed to run {} {}: {}",
-                RBTGEB_NAMEPLATE_MITRE_BASE,
-                tt.display(),
-                e, //
-            )
-        })?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run {} {}: {}",
+            RBTGEB_NAMEPLATE_MITRE_BASE,
+            tt.display(),
+            e, //
+        )
+    })?;
     let _ = std::fs::write(dir.join("mitre-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("mitre-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
@@ -339,16 +431,28 @@ fn rbtcgh_drive_readside(
     label: &str,
     express: Option<&str>,
 ) -> Result<i32, String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, colophon)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv).map_err(|e| {
+        format!(
+            "mkdir burv root: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
 
     let mut cmd = rbtcei_tabtarget_command(&tt);
     if let Some(e) = express {
@@ -359,14 +463,28 @@ fn rbtcgh_drive_readside(
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("failed to run {} {}: {}", label, tt.display(), e, //
-))?;
-    let _ = std::fs::write(dir.join(format!("{}-stdout.txt", label, //
-)), &output.stdout);
-    let _ = std::fs::write(dir.join(format!("{}-stderr.txt", label, //
-)), &output.stderr);
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run {} {}: {}",
+            label,
+            tt.display(),
+            e, //
+        )
+    })?;
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stdout.txt",
+            label, //
+        )),
+        &output.stdout,
+    );
+    let _ = std::fs::write(
+        dir.join(format!(
+            "{}-stderr.txt",
+            label, //
+        )),
+        &output.stderr,
+    );
     Ok(output.status.code().unwrap_or(-1))
 }
 
@@ -378,7 +496,10 @@ fn rbtcgh_expect_band(code: i32, label: &str, dir: &Path) -> rbtcee_Verdict {
     } else {
         rbtcee_Verdict::Fail(format!(
             "{}: exited {} — expected chain-rejection band {} (artifacts in {})",
-            label, code, RBTGEB_CHAIN_DENTIL, dir.display(), //
+            label,
+            code,
+            RBTGEB_CHAIN_DENTIL,
+            dir.display(), //
         ))
     }
 }
@@ -406,7 +527,11 @@ fn rbtcgh_feoff_broken_chain(dir: &Path) -> rbtcee_Verdict {
     // No express and an empty previous/ — the express-or-chain resolve finds
     // nothing: a broken chain.
     match rbtcgh_drive_feoff(dir, None, None) {
-        Ok((code, _, _)) => rbtcgh_expect_band(code, "feoff broken chain (no express, empty previous/)", dir),
+        Ok((code, _, _)) => rbtcgh_expect_band(
+            code,
+            "feoff broken chain (no express, empty previous/)",
+            dir,
+        ),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
 }
@@ -421,18 +546,23 @@ fn rbtcgh_feoff_good(dir: &Path) -> rbtcee_Verdict {
     if code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "feoff good (bole express) exited {} — expected 0 (artifacts in {})",
-            code, dir.display(), //
+            code,
+            dir.display(), //
         ));
     }
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE, //
-);
+    let expected_locator = format!(
+        "{}:{}",
+        RBTCGH_BOLE_TOUCHMARK,
+        RBTCGH_TAG_BOLE, //
+    );
     if content.contains("RBRV_IMAGE_1_ANCHOR=") && content.contains(&expected_locator) {
         rbtcee_Verdict::Pass
     } else {
         rbtcee_Verdict::Fail(format!(
             "feoff good wrote no ANCHOR bearing '{}'; rbrv.env:\n{}",
-            expected_locator, content, //
+            expected_locator,
+            content, //
         ))
     }
 }
@@ -441,21 +571,28 @@ fn rbtcgh_feoff_precedence(dir: &Path) -> rbtcee_Verdict {
     // Express bole AND a seeded reliquary chain fact present: express must win
     // (the chain is relayed but never read), so the election succeeds with the
     // bole and the reliquary touchmark never appears in the rewritten rbrv.env.
-    let (code, rbrv, _) =
-        match rbtcgh_drive_feoff(dir, Some(RBTCGH_RELIQUARY_TOUCHMARK), Some(RBTCGH_BOLE_TOUCHMARK)) {
-            Ok(t) => t,
-            Err(e) => return rbtcee_Verdict::Fail(e),
-        };
+    let (code, rbrv, _) = match rbtcgh_drive_feoff(
+        dir,
+        Some(RBTCGH_RELIQUARY_TOUCHMARK),
+        Some(RBTCGH_BOLE_TOUCHMARK),
+    ) {
+        Ok(t) => t,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
     if code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "feoff precedence (bole express over reliquary chain) exited {} — expected 0 \
              (a chain-read would have rejected wrong-kind; artifacts in {})",
-            code, dir.display(), //
+            code,
+            dir.display(), //
         ));
     }
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
-    let bole_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE, //
-);
+    let bole_locator = format!(
+        "{}:{}",
+        RBTCGH_BOLE_TOUCHMARK,
+        RBTCGH_TAG_BOLE, //
+    );
     if content.contains(&bole_locator) && !content.contains(RBTCGH_RELIQUARY_TOUCHMARK) {
         rbtcee_Verdict::Pass
     } else {
@@ -481,7 +618,9 @@ fn rbtcgh_feoff_fact_intact(dir: &Path) -> rbtcee_Verdict {
     if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "feoff wrong-kind chain exited {} — expected band {} (artifacts in {})",
-            code, RBTGEB_CHAIN_DENTIL, dir.display(), //
+            code,
+            RBTGEB_CHAIN_DENTIL,
+            dir.display(), //
         ));
     }
     let rbrv_after = std::fs::read_to_string(&rbrv).unwrap_or_default();
@@ -491,8 +630,10 @@ fn rbtcgh_feoff_fact_intact(dir: &Path) -> rbtcee_Verdict {
             rbrv_after, //
         ));
     }
-    let seeded = format!("{}\n", RBTCGH_RELIQUARY_TOUCHMARK, //
-);
+    let seeded = format!(
+        "{}\n",
+        RBTCGH_RELIQUARY_TOUCHMARK, //
+    );
     let fact_after = std::fs::read_to_string(&prev_fact).unwrap_or_default();
     if fact_after != seeded {
         return rbtcee_Verdict::Fail(format!(
@@ -536,8 +677,12 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
             .join("rbmv_vessels")
             .join(RBTCGH_GRAFT_VESSEL)
             .join(RBTGEC_RBRV_FILE),
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let before = std::fs::read_to_string(&rbrv).unwrap_or_default();
 
@@ -548,7 +693,9 @@ fn rbtcgh_anoint_broken_chain(dir: &Path) -> rbtcee_Verdict {
     if code != RBTGEB_CHAIN_DENTIL {
         return rbtcee_Verdict::Fail(format!(
             "anoint broken chain (empty BURV root) exited {} — expected band {} (artifacts in {})",
-            code, RBTGEB_CHAIN_DENTIL, dir.display(), //
+            code,
+            RBTGEB_CHAIN_DENTIL,
+            dir.display(), //
         ));
     }
 
@@ -583,8 +730,12 @@ fn rbtcgh_mitre_broken_chain(dir: &Path) -> rbtcee_Verdict {
                 RBTCGH_MITRE_NAMEPLATE, //
             ))
             .join("rbrn.env"),
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let before = std::fs::read_to_string(&rbrn).unwrap_or_default();
 
@@ -645,7 +796,12 @@ fn rbtcgh_augur_no_folio(dir: &Path) -> rbtcee_Verdict {
 fn rbtcgh_augur_unknown_prefix(dir: &Path) -> rbtcee_Verdict {
     // An express touchmark with no recognizable kind prefix — augur accepts any KNOWN
     // kind, so its decode gate rejects the unknown one with the chaining band, before auth.
-    match rbtcgh_drive_readside(dir, RBTGEC_AUGUR_LODE, "augur-badkind", Some(RBTCGH_UNKNOWN_TOUCHMARK)) {
+    match rbtcgh_drive_readside(
+        dir,
+        RBTGEC_AUGUR_LODE,
+        "augur-badkind",
+        Some(RBTCGH_UNKNOWN_TOUCHMARK),
+    ) {
         Ok(code) => rbtcgh_expect_band(code, "augur unknown-prefix express", dir),
         Err(e) => rbtcee_Verdict::Fail(e),
     }
@@ -670,16 +826,28 @@ fn rbtcgh_rekon_no_folio(dir: &Path) -> rbtcee_Verdict {
 /// root under `dir` — a real non-chain dispatch: it promotes like any other but
 /// relays nothing, so a live fact dies at its promotion horizon.
 fn rbtcgh_drive_nihil(dir: &Path) -> Result<i32, String> {
-    let root = std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e, //
-))?;
+    let root = std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })?;
     let tt = rbtcei_find_tabtarget_global(&root, RBTGEC_THEURGE_NIHIL)?;
 
     let burv = dir.join("burv");
     let burv_temp = dir.join("burvtmp");
-    std::fs::create_dir_all(&burv).map_err(|e| format!("mkdir burv root: {}", e, //
-))?;
-    std::fs::create_dir_all(&burv_temp).map_err(|e| format!("mkdir burv temp: {}", e, //
-))?;
+    std::fs::create_dir_all(&burv).map_err(|e| {
+        format!(
+            "mkdir burv root: {}",
+            e, //
+        )
+    })?;
+    std::fs::create_dir_all(&burv_temp).map_err(|e| {
+        format!(
+            "mkdir burv temp: {}",
+            e, //
+        )
+    })?;
 
     let mut cmd = rbtcei_tabtarget_command(&tt);
     cmd.env("BURV_OUTPUT_ROOT_DIR", rbtcep_native_to_posix(&burv))
@@ -687,10 +855,13 @@ fn rbtcgh_drive_nihil(dir: &Path) -> Result<i32, String> {
         .env(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)
         .current_dir(&root);
 
-    let output = cmd
-        .output()
-        .map_err(|e| format!("failed to run nihil {}: {}", tt.display(), e, //
-))?;
+    let output = cmd.output().map_err(|e| {
+        format!(
+            "failed to run nihil {}: {}",
+            tt.display(),
+            e, //
+        )
+    })?;
     let _ = std::fs::write(dir.join("nihil-stdout.txt"), &output.stdout);
     let _ = std::fs::write(dir.join("nihil-stderr.txt"), &output.stderr);
     Ok(output.status.code().unwrap_or(-1))
@@ -701,7 +872,12 @@ fn rbtcgh_multi_consumer(dir: &Path) -> rbtcee_Verdict {
     // relays then elects; feoff B's dispatch-start promotion finds A's relayed
     // baton, so B's chain read still elects the same touchmark.
     let (code_a, rbrv_a) = match rbtcgh_drive_feoff_shared(
-        dir, "vessel-a", true, Some(RBTCGH_BOLE_TOUCHMARK), None, "feoff-a",
+        dir,
+        "vessel-a",
+        true,
+        Some(RBTCGH_BOLE_TOUCHMARK),
+        None,
+        "feoff-a",
     ) {
         Ok(t) => t,
         Err(e) => return rbtcee_Verdict::Fail(e),
@@ -709,7 +885,8 @@ fn rbtcgh_multi_consumer(dir: &Path) -> rbtcee_Verdict {
     if code_a != 0 {
         return rbtcee_Verdict::Fail(format!(
             "first consumer (feoff A, chained bole) exited {} — expected 0 (artifacts in {})",
-            code_a, dir.display(), //
+            code_a,
+            dir.display(), //
         ));
     }
     let (code_b, rbrv_b) =
@@ -721,17 +898,23 @@ fn rbtcgh_multi_consumer(dir: &Path) -> rbtcee_Verdict {
         return rbtcee_Verdict::Fail(format!(
             "second consumer (feoff B, relay-carried bole) exited {} — expected 0: \
              the first consumer's relay must keep the fact alive (artifacts in {})",
-            code_b, dir.display(), //
+            code_b,
+            dir.display(), //
         ));
     }
-    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE, //
-);
+    let expected_locator = format!(
+        "{}:{}",
+        RBTCGH_BOLE_TOUCHMARK,
+        RBTCGH_TAG_BOLE, //
+    );
     for (name, rbrv) in [("A", &rbrv_a), ("B", &rbrv_b)] {
         let content = std::fs::read_to_string(rbrv).unwrap_or_default();
         if !content.contains(&expected_locator) {
             return rbtcee_Verdict::Fail(format!(
                 "vessel {} rbrv.env lacks the elected anchor '{}':\n{}",
-                name, expected_locator, content, //
+                name,
+                expected_locator,
+                content, //
             ));
         }
     }
@@ -743,7 +926,12 @@ fn rbtcgh_retry_after_failure(dir: &Path) -> rbtcee_Verdict {
     // a missing vessel — a failure unrelated to the chain. Its retry (dispatch 2)
     // still finds the baton, because the relay preceded the failure point.
     let (code_fail, _) = match rbtcgh_drive_feoff_shared(
-        dir, "vessel-missing", false, Some(RBTCGH_BOLE_TOUCHMARK), None, "feoff-fail",
+        dir,
+        "vessel-missing",
+        false,
+        Some(RBTCGH_BOLE_TOUCHMARK),
+        None,
+        "feoff-fail",
     ) {
         Ok(t) => t,
         Err(e) => return rbtcee_Verdict::Fail(e),
@@ -763,18 +951,23 @@ fn rbtcgh_retry_after_failure(dir: &Path) -> rbtcee_Verdict {
         return rbtcee_Verdict::Fail(format!(
             "retry after a failed consumer exited {} — expected 0: the failed consumer's \
              relay must have passed the baton to its own retry (artifacts in {})",
-            code_retry, dir.display(), //
+            code_retry,
+            dir.display(), //
         ));
     }
-    let expected_locator = format!("{}:{}", RBTCGH_BOLE_TOUCHMARK, RBTCGH_TAG_BOLE, //
-);
+    let expected_locator = format!(
+        "{}:{}",
+        RBTCGH_BOLE_TOUCHMARK,
+        RBTCGH_TAG_BOLE, //
+    );
     let content = std::fs::read_to_string(&rbrv).unwrap_or_default();
     if content.contains(&expected_locator) {
         rbtcee_Verdict::Pass
     } else {
         rbtcee_Verdict::Fail(format!(
             "retry elected no anchor bearing '{}'; rbrv.env:\n{}",
-            expected_locator, content, //
+            expected_locator,
+            content, //
         ))
     }
 }
@@ -787,16 +980,22 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
     // non-chain dispatch, exactly the behavioral staleness bound (RBr_3e7).
     let seed_dir = dir.join("burv").join("current");
     if let Err(e) = std::fs::create_dir_all(&seed_dir) {
-        return rbtcee_Verdict::Fail(format!("mkdir burv current: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "mkdir burv current: {}",
+            e, //
+        ));
     }
     if let Err(e) = std::fs::write(
         seed_dir.join(RBTCGH_FACT_TOUCHMARK),
-        format!("{}\n", RBTCGH_BOLE_TOUCHMARK, //
-),
+        format!(
+            "{}\n",
+            RBTCGH_BOLE_TOUCHMARK, //
+        ),
     ) {
-        return rbtcee_Verdict::Fail(format!("seed chain fact: {}", e, //
-));
+        return rbtcee_Verdict::Fail(format!(
+            "seed chain fact: {}",
+            e, //
+        ));
     }
 
     let code_nihil = match rbtcgh_drive_nihil(dir) {
@@ -806,7 +1005,8 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
     if code_nihil != 0 {
         return rbtcee_Verdict::Fail(format!(
             "nihil dispatch exited {} — expected 0 (artifacts in {})",
-            code_nihil, dir.display(), //
+            code_nihil,
+            dir.display(), //
         ));
     }
 
@@ -819,7 +1019,9 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
         return rbtcee_Verdict::Fail(format!(
             "feoff after an intervening non-chain dispatch exited {} — expected chain-rejection \
              band {}: the fact must die at the first non-chain dispatch (artifacts in {})",
-            code, RBTGEB_CHAIN_DENTIL, dir.display(), //
+            code,
+            RBTGEB_CHAIN_DENTIL,
+            dir.display(), //
         ));
     }
     // The reject left the staged vessel untouched — no stale value was elected.
@@ -845,7 +1047,10 @@ fn rbtcgh_dies_at_non_chain_dispatch(dir: &Path) -> rbtcee_Verdict {
 // followed transitively: the 0-trick CLIs reach their caller modules through a
 // gestalt entry, not a direct source.
 
-const RBTCGH_FACT_CALLERS: &[&str] = &["buf_elect_fact_capture", "buf_read_fact_capture", "buf_relay", //
+const RBTCGH_FACT_CALLERS: &[&str] = &[
+    "buf_elect_fact_capture",
+    "buf_read_fact_capture",
+    "buf_relay", //
 ];
 const RBTCGH_FACT_MODULE: &str = "buf_fact.sh";
 
@@ -903,16 +1108,25 @@ fn rbtcgh_source_closure(start: &Path, rbk: &Path, buk: &Path) -> Vec<PathBuf> {
 fn rbtcgh_furnish_invariant(dir: &Path) -> rbtcee_Verdict {
     let root = match std::env::current_dir() {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot get cwd: {}", e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
     };
     let rbk = root.join("Tools").join("rbk");
     let buk = root.join("Tools").join("buk");
 
     let entries = match std::fs::read_dir(&rbk) {
         Ok(e) => e,
-        Err(e) => return rbtcee_Verdict::Fail(format!("cannot read {}: {}", rbk.display(), e, //
-)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                rbk.display(),
+                e, //
+            ));
+        }
     };
     let mut clis: Vec<PathBuf> = entries
         .flatten()
@@ -950,7 +1164,8 @@ fn rbtcgh_furnish_invariant(dir: &Path) -> rbtcee_Verdict {
             } else {
                 violations.push(format!(
                     "{} reaches a buf_* fact caller but its source closure omits {}",
-                    name, RBTCGH_FACT_MODULE, //
+                    name,
+                    RBTCGH_FACT_MODULE, //
                 ));
             }
         }
@@ -960,7 +1175,9 @@ fn rbtcgh_furnish_invariant(dir: &Path) -> rbtcee_Verdict {
         dir.join("furnish-invariant.txt"),
         format!(
             "CLIs scanned: {}; fact-consuming + furnished: {}\nviolations:\n{}\n",
-            clis.len(), covered, violations.join("\n"), //
+            clis.len(),
+            covered,
+            violations.join("\n"), //
         ),
     );
 
@@ -969,7 +1186,9 @@ fn rbtcgh_furnish_invariant(dir: &Path) -> rbtcee_Verdict {
     } else {
         rbtcee_Verdict::Fail(format!(
             "{} furnish gap(s) — a CLI reaches a buf_* fact caller without sourcing {}:\n{}",
-            violations.len(), RBTCGH_FACT_MODULE, violations.join("\n"), //
+            violations.len(),
+            RBTCGH_FACT_MODULE,
+            violations.join("\n"), //
         ))
     }
 }
@@ -1005,5 +1224,9 @@ pub static RBTCGH_FIXTURE_CHAINING_FACT_BAND: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCGH_CASES_CHAINING_FACT_BAND,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: Some(25), invocations: Some(21) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(25),
+        invocations: Some(21),
+    },
 };

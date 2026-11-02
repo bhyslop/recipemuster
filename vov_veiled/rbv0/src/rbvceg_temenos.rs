@@ -25,7 +25,9 @@
 // under a global config that relocates hooks, and a push to an explicit public
 // URL past the hook is redirected to a destination that cannot stand.
 
-use std::path::{Path, PathBuf, //
+use std::path::{
+    Path,
+    PathBuf, //
 };
 
 use bkp::bkprs_scrivener::bkprs_program_write;
@@ -88,8 +90,10 @@ pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/coldwalk-clone-p
 
 /// The pre-push refusal hook body, belt to the sever's suspenders.
 fn zrbvceg_hook_body() -> String {
-    format!("#!/bin/sh\necho \"{}\" >&2\nexit 1\n", RBVCEG_TEMENOS_HOOK_REFUSAL, //
-)
+    format!(
+        "#!/bin/sh\necho \"{}\" >&2\nexit 1\n",
+        RBVCEG_TEMENOS_HOOK_REFUSAL, //
+    )
 }
 
 /// The stranger prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
@@ -156,10 +160,12 @@ pub struct rbvceg_Temenos {
 /// repository root, never hand-typed.
 pub fn rbvceg_coldwalk_parent(top: &Path) -> PathBuf {
     let infield = rbvcep_repo::rbvcep_parent(top);
-    let estate = infield
-        .parent()
-        .unwrap_or_else(|| crate::rbvcel_fatal!("the repository root's parent {} has no parent", infield.display(), //
-));
+    let estate = infield.parent().unwrap_or_else(|| {
+        crate::rbvcel_fatal!(
+            "the repository root's parent {} has no parent",
+            infield.display(), //
+        )
+    });
     estate.join(RBVCEG_COLDWALK_INFIELD)
 }
 
@@ -176,36 +182,55 @@ pub fn rbvceg_stand_up(
     bundle: &rbvcew_world::rbvcew_Bundle,
 ) -> rbvceg_Temenos {
     let walk_date = rbvcer_run::rbvcer_datestamp(cwd);
-    let temenos_dir = parent.join(format!("{}_{}", bundle.temenos_dirname, walk_date, //
-));
+    let temenos_dir = parent.join(format!(
+        "{}_{}",
+        bundle.temenos_dirname,
+        walk_date, //
+    ));
     let clone_dir = temenos_dir.join(RBVCEG_TEMENOS_CLONE_SUBDIR);
 
     // Guard before anything moves: the temenos dir is not the repo root. The
     // disposal is a rename, so even a wrong guard destroys nothing.
     if temenos_dir == top {
-        crate::rbvcel_fatal!("refusing to dispose {} — it is the maintainer repository root", temenos_dir.display(), //
-);
+        crate::rbvcel_fatal!(
+            "refusing to dispose {} — it is the maintainer repository root",
+            temenos_dir.display(), //
+        );
     }
 
-    let memo_path = temenos_dir.join(format!("memo-{}-{}.md", walk_date, RBVCEG_TEMENOS_MEMO_SLUG, //
-));
+    let memo_path = temenos_dir.join(format!(
+        "memo-{}-{}.md",
+        walk_date,
+        RBVCEG_TEMENOS_MEMO_SLUG, //
+    ));
 
-    rbvcel_log::rbvcel_step(&format!("Seposing any existing temenos: {}", temenos_dir.display(), //
-));
+    rbvcel_log::rbvcel_step(&format!(
+        "Seposing any existing temenos: {}",
+        temenos_dir.display(), //
+    ));
     if !rbvcep_repo::rbvcep_sepose(&temenos_dir, cwd) {
         rbvcel_log::rbvcel_line("no prior temenos to sepose");
     }
-    std::fs::create_dir_all(&temenos_dir)
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to create the temenos dir {}: {}", temenos_dir.display(), e, //
-));
+    std::fs::create_dir_all(&temenos_dir).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to create the temenos dir {}: {}",
+            temenos_dir.display(),
+            e, //
+        )
+    });
 
-    rbvcel_log::rbvcel_step(&format!("Cloning into the temenos from {}", clone_source, //
-));
+    rbvcel_log::rbvcel_step(&format!(
+        "Cloning into the temenos from {}",
+        clone_source, //
+    ));
     let clone_dir_str = zrbvceg_path_str(&clone_dir);
     let code = rbvcer_run::rbvcer_stream("git", &["clone", clone_source, &clone_dir_str], cwd, &[]);
     if code != 0 {
-        crate::rbvcel_fatal!("failed to clone {} into {}", clone_source, clone_dir.display(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to clone {} into {}",
+            clone_source,
+            clone_dir.display(), //
+        );
     }
 
     // The clone must carry the onboarding face, or the walk would start on nothing.
@@ -220,7 +245,12 @@ pub fn rbvceg_stand_up(
     // can reach any repository. Materialization is already complete, so the sever
     // costs the walk nothing.
     rbvcel_log::rbvcel_step("Severing the clone from its origin");
-    zrbvceg_git_c(&clone_dir, &["remote", "remove", "origin"], cwd, "sever the clone's origin");
+    zrbvceg_git_c(
+        &clone_dir,
+        &["remote", "remove", "origin"],
+        cwd,
+        "sever the clone's origin",
+    );
 
     // Pin the hooks path to the clone's own, so a global config relocating
     // hooks cannot leave the refusal hook standing where git never reads it.
@@ -235,7 +265,12 @@ pub fn rbvceg_stand_up(
     }
     zrbvceg_git_c(
         &clone_dir,
-        &["config", "--local", "core.hooksPath", RBVCEG_TEMENOS_HOOKS_PATH],
+        &[
+            "config",
+            "--local",
+            "core.hooksPath",
+            RBVCEG_TEMENOS_HOOKS_PATH,
+        ],
         cwd,
         "pin the hooks path",
     );
@@ -243,42 +278,72 @@ pub fn rbvceg_stand_up(
     // Redirect every public-host push to a destination that cannot stand. A
     // push to an explicit URL needs no remote and --no-verify skips the hook;
     // this rule still answers it, the station's credentials notwithstanding.
-    rbvcel_log::rbvcel_step(&format!("Redirecting every public-host push to {}", RBVCEG_TEMENOS_REFUSED_DESTINATION, //
-));
-    let redirect_key = format!("url.{}.pushInsteadOf", RBVCEG_TEMENOS_REFUSED_DESTINATION, //
-);
+    rbvcel_log::rbvcel_step(&format!(
+        "Redirecting every public-host push to {}",
+        RBVCEG_TEMENOS_REFUSED_DESTINATION, //
+    ));
+    let redirect_key = format!(
+        "url.{}.pushInsteadOf",
+        RBVCEG_TEMENOS_REFUSED_DESTINATION, //
+    );
     for prefix in RBVCEG_TEMENOS_PUBLIC_PREFIXES {
-        zrbvceg_git_c(&clone_dir, &["config", "--local", "--add", &redirect_key, prefix], cwd, "redirect public pushes");
+        zrbvceg_git_c(
+            &clone_dir,
+            &["config", "--local", "--add", &redirect_key, prefix],
+            cwd,
+            "redirect public pushes",
+        );
     }
 
     // Read the remotes back rather than trusting the sever's exit: a remote a
     // station's global config defines survives the removal of origin.
     let remotes = rbvcer_run::rbvcer_capture("git", &["-C", &clone_dir_str, "remote"], cwd);
     if remotes.code != 0 {
-        crate::rbvcel_fatal!("failed to list the clone's remotes in {}: {}", clone_dir.display(), remotes.stderr.trim(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to list the clone's remotes in {}: {}",
+            clone_dir.display(),
+            remotes.stderr.trim(), //
+        );
     }
     let named: Vec<&str> = remotes.stdout.split_whitespace().collect();
     if !named.is_empty() {
-        crate::rbvcel_fatal!("the severed clone still names remote(s): {}", named.join(", "), //
-);
+        crate::rbvcel_fatal!(
+            "the severed clone still names remote(s): {}",
+            named.join(", "), //
+        );
     }
 
     rbvcel_log::rbvcel_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
-    bkprs_program_write(&hook, &zrbvceg_hook_body())
-        .unwrap_or_else(|e| crate::rbvcel_fatal!("failed to write the pre-push hook {}: {}", hook.display(), e, //
-));
+    bkprs_program_write(&hook, &zrbvceg_hook_body()).unwrap_or_else(|e| {
+        crate::rbvcel_fatal!(
+            "failed to write the pre-push hook {}: {}",
+            hook.display(),
+            e, //
+        )
+    });
 
     // Cut the throwaway walk branch; the clone's own default branch stays the
     // pristine reference to diff the walk against.
-    rbvcel_log::rbvcel_step(&format!("Cutting the throwaway walk branch {}", RBVCEG_TEMENOS_WALK_BRANCH, //
-));
-    zrbvceg_git_c(&clone_dir, &["checkout", "-b", RBVCEG_TEMENOS_WALK_BRANCH], cwd, "cut the walk branch");
+    rbvcel_log::rbvcel_step(&format!(
+        "Cutting the throwaway walk branch {}",
+        RBVCEG_TEMENOS_WALK_BRANCH, //
+    ));
+    zrbvceg_git_c(
+        &clone_dir,
+        &["checkout", "-b", RBVCEG_TEMENOS_WALK_BRANCH],
+        cwd,
+        "cut the walk branch",
+    );
 
     let head = rbvcep_repo::rbvcep_commit_sha(&clone_dir, cwd);
 
-    rbvceg_Temenos { temenos_dir, clone_dir, memo_path, head }
+    rbvceg_Temenos {
+        temenos_dir,
+        clone_dir,
+        memo_path,
+        head,
+    }
 }
 
 /// Emit the launch line and the stranger prompt — the shared handoff both essai
@@ -289,14 +354,18 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
     let memo = zrbvceg_path_str(&temenos.memo_path);
 
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line(&format!("Clone HEAD: {} — match it to the promoted commit before the walk.", temenos.head, //
-));
+    rbvcel_log::rbvcel_line(&format!(
+        "Clone HEAD: {} — match it to the promoted commit before the walk.",
+        temenos.head, //
+    ));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Temenos ready. Two steps, by your hand:");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("1. Launch a cold session in the clone (NEW terminal):");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&format!("        (cd {launch_dir} && claude --model sonnet --permission-mode auto)"));
+    rbvcel_log::rbvcel_raw(&format!(
+        "        (cd {launch_dir} && claude --model sonnet --permission-mode auto)"
+    ));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("2. Paste the stranger prompt below:");
     rbvcel_log::rbvcel_blank();
@@ -306,7 +375,9 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
         "When the walk is done, review {} in the temenos, commit it into",
         zrbvceg_basename(&temenos.memo_path), //
     ));
-    rbvcel_log::rbvcel_line("the studbook (jjqs_studbook/) affiliated to the pace, then discard the temenos.");
+    rbvcel_log::rbvcel_line(
+        "the studbook (jjqs_studbook/) affiliated to the pace, then discard the temenos.",
+    );
 }
 
 /// git -C <dir> <args>, fatal on non-zero with the act named.
@@ -316,8 +387,11 @@ fn zrbvceg_git_c(dir: &Path, args: &[&str], cwd: &Path, act: &str) {
     full.extend_from_slice(args);
     let code = rbvcer_run::rbvcer_stream("git", &full, cwd, &[]);
     if code != 0 {
-        crate::rbvcel_fatal!("failed to {} in {}", act, dir.display(), //
-);
+        crate::rbvcel_fatal!(
+            "failed to {} in {}",
+            act,
+            dir.display(), //
+        );
     }
 }
 
@@ -329,14 +403,20 @@ fn zrbvceg_path_str(p: &Path) -> String {
 /// A string in POSIX single-quote form, an embedded quote spelled '\'' — the
 /// launch line is pasted into zsh or bash, and both read it so.
 fn zrbvceg_shell_quote(s: &str) -> String {
-    format!("'{}'", s.replace('\'', "'\\''"), //
-)
+    format!(
+        "'{}'",
+        s.replace('\'', "'\\''"), //
+    )
 }
 
 fn zrbvceg_basename(p: &Path) -> String {
     p.file_name()
         .and_then(|n| n.to_str())
-        .unwrap_or_else(|| crate::rbvcel_fatal!("cannot read basename of {}", p.display(), //
-))
+        .unwrap_or_else(|| {
+            crate::rbvcel_fatal!(
+                "cannot read basename of {}",
+                p.display(), //
+            )
+        })
         .to_string()
 }

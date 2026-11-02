@@ -23,9 +23,16 @@ use bkp::bkprs_scrivener::bkprs_program_write;
 
 use super::rbtcee_engine::rbtcee_Verdict;
 use super::rbtcei_invocation::*;
-use super::rbtgec_consts::{RBTGEC_CRUCIBLE_BARK, RBTGEC_CRUCIBLE_CHARGE, RBTGEC_CRUCIBLE_WRIT, RBTGEC_ORDAIN_HALLMARK, RBTGEC_TWEAK_CREDLESS_GUARD, //
+use super::rbtcem_manifest::{
+    RBTCEM_FIXTURE_SRJCL,
+    RBTCEM_FIXTURE_TADMOR, //
 };
-use super::rbtcem_manifest::{RBTCEM_FIXTURE_SRJCL, RBTCEM_FIXTURE_TADMOR, //
+use super::rbtgec_consts::{
+    RBTGEC_CRUCIBLE_BARK,
+    RBTGEC_CRUCIBLE_CHARGE,
+    RBTGEC_CRUCIBLE_WRIT,
+    RBTGEC_ORDAIN_HALLMARK,
+    RBTGEC_TWEAK_CREDLESS_GUARD, //
 };
 use super::rbtteh_helpers::rbtteh_make_scratch;
 
@@ -37,8 +44,14 @@ fn rbttei_make_tt_dir(root: &PathBuf) -> PathBuf {
 
 fn rbttei_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
     let path = tt_dir.join(name);
-    bkprs_program_write(&path, format!("#!/bin/bash\n{}", body, //
-)).unwrap();
+    bkprs_program_write(
+        &path,
+        format!(
+            "#!/bin/bash\n{}",
+            body, //
+        ),
+    )
+    .unwrap();
 }
 
 // ── Tabtarget discovery ──────────────────────────────────────
@@ -47,14 +60,25 @@ fn rbttei_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
 fn rbttei_finds_matching_tabtarget() {
     let tmp = rbtteh_make_scratch("find-match");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let result = rbtcei_find_tabtarget(&tmp, RBTGEC_CRUCIBLE_BARK, "tadmor");
     assert!(result.is_ok());
     let path = result.unwrap();
-    assert!(path.file_name().unwrap().to_str().unwrap() == &format!("{}.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-));
+    assert!(
+        path.file_name().unwrap().to_str().unwrap()
+            == &format!(
+                "{}.Bark.tadmor.sh",
+                RBTGEC_CRUCIBLE_BARK, //
+            )
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -75,10 +99,22 @@ fn rbttei_find_rejects_no_match() {
 fn rbttei_find_rejects_multiple_matches() {
     let tmp = rbtteh_make_scratch("find-multi");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
-    rbttei_write_script(&tt, &format!("{}.AlsoBark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.AlsoBark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let result = rbtcei_find_tabtarget(&tmp, RBTGEC_CRUCIBLE_BARK, "tadmor");
     assert!(result.is_err());
@@ -91,8 +127,14 @@ fn rbttei_find_rejects_multiple_matches() {
 fn rbttei_find_does_not_match_wrong_nameplate() {
     let tmp = rbtteh_make_scratch("find-wrongnp");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let result = rbtcei_find_tabtarget(&tmp, RBTGEC_CRUCIBLE_BARK, "srjcl");
     assert!(result.is_err());
@@ -104,8 +146,14 @@ fn rbttei_find_does_not_match_wrong_nameplate() {
 fn rbttei_find_does_not_match_wrong_colophon() {
     let tmp = rbtteh_make_scratch("find-wrongcol");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let result = rbtcei_find_tabtarget(&tmp, RBTGEC_CRUCIBLE_WRIT, "tadmor");
     assert!(result.is_err());
@@ -117,8 +165,14 @@ fn rbttei_find_does_not_match_wrong_colophon() {
 fn rbttei_find_no_partial_colophon_match() {
     let tmp = rbtteh_make_scratch("find-partial");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}b.Bark.tadmor.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}b.Bark.tadmor.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let result = rbtcei_find_tabtarget(&tmp, RBTGEC_CRUCIBLE_BARK, "tadmor");
     assert!(
@@ -200,8 +254,14 @@ fn rbttei_parse_ifrit_empty_stdout() {
 fn rbttei_invoke_creates_burv_dirs() {
     let tmp = rbtteh_make_scratch("invoke-burv");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -220,8 +280,14 @@ fn rbttei_invoke_creates_burv_dirs() {
 fn rbttei_invoke_sequential_burv_isolation() {
     let tmp = rbtteh_make_scratch("invoke-seq");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -245,8 +311,14 @@ fn rbttei_invoke_sequential_burv_isolation() {
 fn rbttei_chain_next_reuses_prior_burv_root() {
     let tmp = rbtteh_make_scratch("invoke-chain");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -262,13 +334,21 @@ fn rbttei_chain_next_reuses_prior_burv_root() {
     ctx.rbtcei_chain_next_invoke();
     let chained = rbtcei_invoke(&mut ctx, RBTGEC_CRUCIBLE_BARK, &[]).unwrap();
     assert_eq!(chained.burv_output, first.burv_output);
-    assert_eq!(chained.burv_output, burv_output_root.join(rbtcei_invoke_dir_name(0)));
-    assert_eq!(ctx.invoke_count, 1, "chained invoke must not advance the counter", //
-);
+    assert_eq!(
+        chained.burv_output,
+        burv_output_root.join(rbtcei_invoke_dir_name(0))
+    );
+    assert_eq!(
+        ctx.invoke_count, 1,
+        "chained invoke must not advance the counter", //
+    );
 
     // Isolation is restored for the next unmarked invoke — it takes a fresh root.
     let third = rbtcei_invoke(&mut ctx, RBTGEC_CRUCIBLE_BARK, &[]).unwrap();
-    assert_eq!(third.burv_output, burv_output_root.join(rbtcei_invoke_dir_name(1)));
+    assert_eq!(
+        third.burv_output,
+        burv_output_root.join(rbtcei_invoke_dir_name(1))
+    );
     assert_ne!(third.burv_output, first.burv_output);
     assert_eq!(ctx.invoke_count, 2);
 
@@ -279,8 +359,14 @@ fn rbttei_chain_next_reuses_prior_burv_root() {
 fn rbttei_chain_next_without_prior_invoke_errs() {
     let tmp = rbtteh_make_scratch("invoke-chain-noprior");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -299,8 +385,14 @@ fn rbttei_chain_next_without_prior_invoke_errs() {
 fn rbttei_invoke_captures_stdout() {
     let tmp = rbtteh_make_scratch("invoke-stdout");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "echo 'hello stdout'\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "echo 'hello stdout'\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -317,8 +409,14 @@ fn rbttei_invoke_captures_stdout() {
 fn rbttei_invoke_captures_stderr() {
     let tmp = rbtteh_make_scratch("invoke-stderr");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "echo 'hello stderr' >&2\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "echo 'hello stderr' >&2\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -334,8 +432,14 @@ fn rbttei_invoke_captures_stderr() {
 fn rbttei_invoke_captures_nonzero_exit() {
     let tmp = rbtteh_make_scratch("invoke-exit");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 7\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 7\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -351,8 +455,14 @@ fn rbttei_invoke_captures_nonzero_exit() {
 fn rbttei_invoke_passes_args() {
     let tmp = rbtteh_make_scratch("invoke-args");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "echo \"args: $*\"\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "echo \"args: $*\"\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -370,8 +480,10 @@ fn rbttei_invoke_sets_burv_env_vars() {
     let tt = rbttei_make_tt_dir(&tmp);
     rbttei_write_script(
         &tt,
-        &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-),
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
         "echo \"OUT:${BURV_OUTPUT_ROOT_DIR}\"\necho \"TMP:${BURV_TEMP_ROOT_DIR}\"\n",
     );
 
@@ -382,10 +494,14 @@ fn rbttei_invoke_sets_burv_env_vars() {
 
     let expected_output = burv_output_root.join(rbtcei_invoke_dir_name(0));
     let expected_temp = burv_temp_root.join(rbtcei_invoke_dir_name(0));
-    assert!(result.stdout.contains(&format!("OUT:{}", expected_output.display(), //
-)));
-    assert!(result.stdout.contains(&format!("TMP:{}", expected_temp.display(), //
-)));
+    assert!(result.stdout.contains(&format!(
+        "OUT:{}",
+        expected_output.display(), //
+    )));
+    assert!(result.stdout.contains(&format!(
+        "TMP:{}",
+        expected_temp.display(), //
+    )));
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -396,15 +512,24 @@ fn rbttei_invoke_sets_burv_env_vars() {
 fn rbttei_invoke_returns_burv_output_path() {
     let tmp = rbtteh_make_scratch("invoke-burvpath");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtcei_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result = rbtcei_invoke(&mut ctx, RBTGEC_CRUCIBLE_BARK, &[]).unwrap();
 
-    assert_eq!(result.burv_output, burv_output_root.join(rbtcei_invoke_dir_name(0)));
+    assert_eq!(
+        result.burv_output,
+        burv_output_root.join(rbtcei_invoke_dir_name(0))
+    );
     assert!(result.burv_output.is_dir());
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -416,8 +541,10 @@ fn rbttei_invoke_returns_burv_output_path() {
 fn rbttei_find_global_matches() {
     let tmp = rbtteh_make_scratch("global-match");
     let tt = rbttei_make_tt_dir(&tmp);
-    let script_name = format!("{}.DirectorOrdains.sh", RBTGEC_ORDAIN_HALLMARK, //
-);
+    let script_name = format!(
+        "{}.DirectorOrdains.sh",
+        RBTGEC_ORDAIN_HALLMARK, //
+    );
     rbttei_write_script(&tt, &script_name, "exit 0\n");
 
     let result = rbtcei_find_tabtarget_global(&tmp, RBTGEC_ORDAIN_HALLMARK);
@@ -432,8 +559,10 @@ fn rbttei_find_global_rejects_imprint_suffix() {
     let tmp = rbtteh_make_scratch("global-imprint");
     let tt = rbttei_make_tt_dir(&tmp);
     // Only an imprint-scoped tabtarget — global discovery should not find it
-    let script_name = format!("{}.DirectorOrdains.tadmor.sh", RBTGEC_ORDAIN_HALLMARK, //
-);
+    let script_name = format!(
+        "{}.DirectorOrdains.tadmor.sh",
+        RBTGEC_ORDAIN_HALLMARK, //
+    );
     rbttei_write_script(&tt, &script_name, "exit 0\n");
 
     let result = rbtcei_find_tabtarget_global(&tmp, RBTGEC_ORDAIN_HALLMARK);
@@ -460,13 +589,11 @@ fn rbttei_find_global_rejects_no_match() {
 fn rbttei_invoke_global_passes_extra_env() {
     let tmp = rbtteh_make_scratch("invoke-global-env");
     let tt = rbttei_make_tt_dir(&tmp);
-    let script_name = format!("{}.DirectorOrdains.sh", RBTGEC_ORDAIN_HALLMARK, //
-);
-    rbttei_write_script(
-        &tt,
-        &script_name,
-        "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
+    let script_name = format!(
+        "{}.DirectorOrdains.sh",
+        RBTGEC_ORDAIN_HALLMARK, //
     );
+    rbttei_write_script(&tt, &script_name, "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -496,8 +623,10 @@ fn rbttei_credless_armed_applies_guard_env() {
     let tt = rbttei_make_tt_dir(&tmp);
     rbttei_write_script(
         &tt,
-        &format!("{}.DirectorOrdains.sh", RBTGEC_ORDAIN_HALLMARK, //
-),
+        &format!(
+            "{}.DirectorOrdains.sh",
+            RBTGEC_ORDAIN_HALLMARK, //
+        ),
         "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
     );
 
@@ -511,8 +640,10 @@ fn rbttei_credless_armed_applies_guard_env() {
 
     let result = result.unwrap();
     assert!(
-        result.stdout.contains(&format!("TWEAK:{}", RBTGEC_TWEAK_CREDLESS_GUARD, //
-)),
+        result.stdout.contains(&format!(
+            "TWEAK:{}",
+            RBTGEC_TWEAK_CREDLESS_GUARD, //
+        )),
         "guard env missing from spawned tabtarget: {}",
         result.stdout, //
     );
@@ -526,8 +657,10 @@ fn rbttei_credless_armed_rejects_case_tweak() {
     let tt = rbttei_make_tt_dir(&tmp);
     rbttei_write_script(
         &tt,
-        &format!("{}.DirectorOrdains.sh", RBTGEC_ORDAIN_HALLMARK, //
-),
+        &format!(
+            "{}.DirectorOrdains.sh",
+            RBTGEC_ORDAIN_HALLMARK, //
+        ),
         "exit 0\n",
     );
 
@@ -560,8 +693,10 @@ fn rbttei_credless_disarmed_leaves_tweak_slot_free() {
     let tt = rbttei_make_tt_dir(&tmp);
     rbttei_write_script(
         &tt,
-        &format!("{}.DirectorOrdains.sh", RBTGEC_ORDAIN_HALLMARK, //
-),
+        &format!(
+            "{}.DirectorOrdains.sh",
+            RBTGEC_ORDAIN_HALLMARK, //
+        ),
         "echo \"TWEAK:${BURE_TWEAK_NAME:-unset}\"\n",
     );
 
@@ -585,20 +720,39 @@ fn rbttei_credless_disarmed_leaves_tweak_slot_free() {
 fn rbttei_invoke_imprint_finds_correct_target() {
     let tmp = rbtteh_make_scratch("invoke-imprint");
     let tt = rbttei_make_tt_dir(&tmp);
-    let charge_tadmor = format!("{}.Charge.{}.sh", RBTGEC_CRUCIBLE_CHARGE, RBTCEM_FIXTURE_TADMOR, //
-);
-    let charge_srjcl = format!("{}.Charge.{}.sh", RBTGEC_CRUCIBLE_CHARGE, RBTCEM_FIXTURE_SRJCL, //
-);
-    rbttei_write_script(&tt, &charge_tadmor, &format!("echo '{}'\n", RBTCEM_FIXTURE_TADMOR, //
-));
-    rbttei_write_script(&tt, &charge_srjcl, &format!("echo '{}'\n", RBTCEM_FIXTURE_SRJCL, //
-));
+    let charge_tadmor = format!(
+        "{}.Charge.{}.sh",
+        RBTGEC_CRUCIBLE_CHARGE,
+        RBTCEM_FIXTURE_TADMOR, //
+    );
+    let charge_srjcl = format!(
+        "{}.Charge.{}.sh",
+        RBTGEC_CRUCIBLE_CHARGE,
+        RBTCEM_FIXTURE_SRJCL, //
+    );
+    rbttei_write_script(
+        &tt,
+        &charge_tadmor,
+        &format!(
+            "echo '{}'\n",
+            RBTCEM_FIXTURE_TADMOR, //
+        ),
+    );
+    rbttei_write_script(
+        &tt,
+        &charge_srjcl,
+        &format!(
+            "echo '{}'\n",
+            RBTCEM_FIXTURE_SRJCL, //
+        ),
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let mut ctx = rbtcei_Context::new(&tmp, "testplate", &burv_temp_root, &burv_output_root);
     let result =
-        rbtcei_invoke_imprint(&mut ctx, RBTGEC_CRUCIBLE_CHARGE, RBTCEM_FIXTURE_TADMOR, &[]).unwrap();
+        rbtcei_invoke_imprint(&mut ctx, RBTGEC_CRUCIBLE_CHARGE, RBTCEM_FIXTURE_TADMOR, &[])
+            .unwrap();
 
     assert!(result.stdout.contains(RBTCEM_FIXTURE_TADMOR));
 
@@ -614,7 +768,7 @@ fn rbttei_read_burv_fact_reads_value() {
     rbttei_write_script(
         &tt,
         &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-),
+        ),
         "mkdir -p \"${BURV_OUTPUT_ROOT_DIR}/current\"\necho 'c260305-r260305' > \"${BURV_OUTPUT_ROOT_DIR}/current/rbgc_fact_hallmark\"\n",
     );
 
@@ -633,8 +787,14 @@ fn rbttei_read_burv_fact_reads_value() {
 fn rbttei_read_burv_fact_rejects_missing() {
     let tmp = rbtteh_make_scratch("burv-fact-missing");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -660,8 +820,14 @@ fn rbttei_read_burv_fact_rejects_missing() {
 fn rbttei_census_refuses_undeclared_colophon() {
     let tmp = rbtteh_make_scratch("census-refuse");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -673,10 +839,16 @@ fn rbttei_census_refuses_undeclared_colophon() {
     rbtcei_census_arm(None, &[]);
 
     let err = result.unwrap_err();
-    assert!(err.contains(RBTGEC_CRUCIBLE_BARK), "error must name the offending colophon: {}", err, //
-);
-    assert!(err.contains("testplate"), "error must name the fixture: {}", err, //
-);
+    assert!(
+        err.contains(RBTGEC_CRUCIBLE_BARK),
+        "error must name the offending colophon: {}",
+        err, //
+    );
+    assert!(
+        err.contains("testplate"),
+        "error must name the fixture: {}",
+        err, //
+    );
     // Refused before any BURV isolation dirs are created — no partial state.
     assert!(!burv_output_root.join(rbtcei_invoke_dir_name(0)).exists());
 
@@ -687,8 +859,14 @@ fn rbttei_census_refuses_undeclared_colophon() {
 fn rbttei_census_allows_declared_colophon_and_records_usage() {
     let tmp = rbtteh_make_scratch("census-allow");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -715,8 +893,14 @@ fn rbttei_census_allows_permitted_colophon_and_records_usage() {
     // rbttei_census_refuses_undeclared_colophon above.
     let tmp = rbtteh_make_scratch("census-allow-permitted");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -727,8 +911,11 @@ fn rbttei_census_allows_permitted_colophon_and_records_usage() {
     let used = rbtcei_census_used();
     rbtcei_census_arm(None, &[]);
 
-    assert!(result.is_ok(), "a permitted colophon must not be refused: {:?}", result.err(), //
-);
+    assert!(
+        result.is_ok(),
+        "a permitted colophon must not be refused: {:?}",
+        result.err(), //
+    );
     assert!(used.contains(RBTGEC_CRUCIBLE_BARK));
 
     let _ = std::fs::remove_dir_all(&tmp);
@@ -743,8 +930,10 @@ fn rbttei_census_records_bypass_launches() {
     // filename's leading dot-segment; building the Command records, no spawn
     // needed (same moment the tariff bumps).
     rbtcei_census_arm(Some(&[RBTGEC_CRUCIBLE_BARK]), &[]);
-    let path = PathBuf::from(format!("tt/{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-));
+    let path = PathBuf::from(format!(
+        "tt/{}.Bark.testplate.sh",
+        RBTGEC_CRUCIBLE_BARK, //
+    ));
     let _cmd = rbtcei_tabtarget_command(&path);
     let used = rbtcei_census_used();
     rbtcei_census_arm(None, &[]);
@@ -760,8 +949,14 @@ fn rbttei_census_records_bypass_launches() {
 fn rbttei_census_disabled_when_no_manifest_entry() {
     let tmp = rbtteh_make_scratch("census-disabled");
     let tt = rbttei_make_tt_dir(&tmp);
-    rbttei_write_script(&tt, &format!("{}.Bark.testplate.sh", RBTGEC_CRUCIBLE_BARK, //
-), "exit 0\n");
+    rbttei_write_script(
+        &tt,
+        &format!(
+            "{}.Bark.testplate.sh",
+            RBTGEC_CRUCIBLE_BARK, //
+        ),
+        "exit 0\n",
+    );
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");

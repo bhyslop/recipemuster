@@ -48,7 +48,9 @@ pub fn rbtccp_assert(probe: &rbtccp_Probe) -> Result<(), rbtcee_Verdict> {
         Ok(()) => Ok(()),
         Err(observed) => Err(rbtcee_Verdict::Fail(format!(
             "precondition '{}' not met: {}\nremediation: {}",
-            probe.name, observed, probe.remediation, //
+            probe.name,
+            observed,
+            probe.remediation, //
         ))),
     }
 }
