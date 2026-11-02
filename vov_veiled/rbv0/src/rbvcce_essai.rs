@@ -55,9 +55,13 @@ const RBVCCE_FIX_CUPEL: &str = "cupel";
 const RBVCCE_FIX_PYX: &str = "pyx";
 const RBVCCE_FIX_DAMNATIO: &str = "damnatio";
 
-/// The throwaway probe branch for the consumer-seat reveille. Named nothing the
-/// feign verb's own branch guard refuses (never main, never regulus-*).
-const RBVCCE_PROBE_BRANCH: &str = "probe";
+/// The regulus clone's own bash constants module, relative to its root: the one
+/// declaration of the throwaway probe branch's name, and the copy the feign door
+/// reads. The essai declares no second name.
+const RBVCCE_CONSTANTS_MODULE: &str = "Tools/rbk/rbcc_constants.sh";
+
+/// The bash child that sources that module and prints the probe branch's name.
+const RBVCCE_PROBE_READ: &str = r#"source "$1" && printf '%s\n' "${RBCC_probe_branch}""#;
 
 /// The marshal feign tabtarget the regulus must be handed: its verb ships
 /// (rblm_cli.sh), but its tabtarget is withheld from delivery, so the regulus
@@ -396,9 +400,12 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
     zrbvcce_require_regulus(head.code, "read regulus branch");
     let sterile_branch = head.stdout.trim().to_string();
 
+    // The probe branch the feign door admits, read from the regulus clone's own
+    // declaration rather than named here.
+    let probe_branch = zrbvcce_probe_branch(regulus_clone, top);
     zrbvcce_git_stream(
         &clone,
-        &["checkout", "-b", RBVCCE_PROBE_BRANCH],
+        &["checkout", "-b", &probe_branch],
         top,
         "cut the probe branch",
     );
@@ -458,7 +465,7 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
     );
     zrbvcce_git_stream(
         &clone,
-        &["branch", "-D", RBVCCE_PROBE_BRANCH],
+        &["branch", "-D", &probe_branch],
         top,
         "drop the probe branch",
     );
@@ -466,6 +473,35 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
         "consumer-seat reveille green; regulus back on {}",
         sterile_branch, //
     ));
+}
+
+/// The throwaway probe branch's name, printed by a bash child that sources the
+/// regulus clone's own constants module — the one declaration, and the copy the
+/// feign door reads. Fatal on a nonzero exit or an empty value.
+fn zrbvcce_probe_branch(regulus_clone: &Path, top: &Path) -> String {
+    let module = rbvcep_repo::rbvcep_as_str(&regulus_clone.join(RBVCCE_CONSTANTS_MODULE));
+    let got = rbvcer_run::rbvcer_capture("bash", &["-c", RBVCCE_PROBE_READ, "bash", &module], top);
+    if got.code != 0 {
+        crate::rbvcel_fatal!(
+            "failed to read the probe branch from {} (bash exited {}): {}",
+            module,
+            got.code,
+            got.stderr.trim(), //
+        );
+    }
+    let branch = got.stdout.trim().to_string();
+    if branch.is_empty() {
+        crate::rbvcel_fatal!(
+            "the probe branch read from {} is empty",
+            module, //
+        );
+    }
+    rbvcel_log::rbvcel_line(&format!(
+        "probe branch read from {}: {}",
+        module,
+        branch, //
+    ));
+    branch
 }
 
 // ── Small shared helpers ────────────────────────────────────

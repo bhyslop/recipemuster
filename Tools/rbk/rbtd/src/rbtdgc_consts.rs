@@ -80,7 +80,6 @@ pub const RBTGEC_AUDIT_HALLMARKS: &str = "rbw-iah";
 pub const RBTGEC_WREST_HALLMARK_IMAGE: &str = "rbw-iwh";
 pub const RBTGEC_JETTISON_HALLMARK_IMAGE: &str = "rbw-iJh";
 pub const RBTGEC_MARSHAL_ZERO: &str = "rbw-MZ";
-pub const RBTGEC_MARSHAL_LUSTRATE: &str = "rbw-ML";
 pub const RBTGEC_MARSHAL_FEIGN: &str = "rbw-MF";
 pub const RBTGEC_MARSHAL_HARBINGER: &str = "rbw-MH";
 pub const RBTGEC_LIST_NAMEPLATES: &str = "rbw-rnl";

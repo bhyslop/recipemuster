@@ -217,6 +217,12 @@ readonly RBCC_tweak_http_fault="buorb_http_fault"
 # short real build exercises the re-don tick without an hour on the clock.
 readonly RBCC_tweak_redon_cadence="buorb_redon_cadence"
 
+# Probe-branch tinder — the one name of the throwaway branch the release
+# ceremony cuts to feign a station on. The feign door refuses every other
+# branch, and the ceremony that cuts the branch reads this same declaration
+# from the clone it cuts in. Not projected to Rust: no theurge reads it.
+readonly RBCC_probe_branch="probe"
+
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the

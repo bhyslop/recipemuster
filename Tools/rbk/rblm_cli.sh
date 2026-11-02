@@ -17,7 +17,7 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM CLI - Lifecycle Marshal operations (zero, lustrate, feign, expede, harbinger)
+# RBLM CLI - Lifecycle Marshal operations (zero, feign, expede, harbinger)
 
 set -euo pipefail
 
@@ -40,12 +40,12 @@ rblm_zero() {
 
   # Tree-identity gate. Zero blanks the regime of whatever tree it runs in, so
   # the caller must NAME that tree and be right. Git attests the identity; the
-  # caller's claim is checked against it. This dies before buc_require, so
+  # caller's claim is checked against it. This refuses before buc_require, so
   # BURE_CONFIRM=skip cannot reach past it — the guard is the naming, never the
-  # prompt.
+  # prompt. Both refusals are the marshal gate's.
   local -r z_claimed_tree="${BUZ_FOLIO:-}"
   test -n "${z_claimed_tree}" \
-    || buc_die_now "Marshal zero requires the intended tree's basename as its argument — it blanks the regime of the tree it runs in, so that tree must be named, not assumed"
+    || buc_reject "${RBCG_MARSHAL_DENTIL}" "Marshal zero requires the intended tree's basename as its argument — it blanks the regime of the tree it runs in, so that tree must be named, not assumed"
 
   local -r z_toplevel_temp="${BURD_TEMP_DIR}/rblm_zero_toplevel.txt"
   git rev-parse --show-toplevel > "${z_toplevel_temp}" || buc_die_now "git rev-parse --show-toplevel failed — marshal zero must run inside a git repository"
@@ -53,7 +53,66 @@ rblm_zero() {
   z_toplevel=$(<"${z_toplevel_temp}") || buc_die_now "Failed to read: ${z_toplevel_temp}"
   local -r z_actual_tree="${z_toplevel##*/}"
   test "${z_claimed_tree}" = "${z_actual_tree}" \
-    || buc_die_now "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
+    || buc_reject "${RBCG_MARSHAL_DENTIL}" "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
+
+  # Already-zeroed early exit, ahead of the kindle. A zeroed tree's runtime
+  # prefix stands blank, which the repo regime refuses to kindle, so zero reads
+  # the prefix by sourcing the repo regime raw in an isolation subshell; where it
+  # stands blank, every rewrite is written to its temp and compared with its
+  # target. All alike, the tree is already zeroed: zero says so and writes
+  # nothing. Any difference is a tree neither zeroed nor kindleable, and zero
+  # refuses naming the file.
+  local -r z_raw_prefix_temp="${BURD_TEMP_DIR}/rblm_zero_raw_prefix.txt"
+  local -r z_raw_vessel_temp="${BURD_TEMP_DIR}/rblm_zero_raw_vessel_dir.txt"
+  (
+    source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
+    printf '%s' "${RBRR_RUNTIME_PREFIX:-}" > "${z_raw_prefix_temp}" || buc_die_now "Failed to write: ${z_raw_prefix_temp}"
+    printf '%s' "${RBRR_VESSEL_DIR:-}"     > "${z_raw_vessel_temp}" || buc_die_now "Failed to write: ${z_raw_vessel_temp}"
+  ) || buc_die_now "Marshal zero could not source the repo regime: ${z_rbrr}"
+  local z_raw_prefix
+  z_raw_prefix=$(<"${z_raw_prefix_temp}") || buc_die_now "Failed to read: ${z_raw_prefix_temp}"
+  if test -z "${z_raw_prefix}"; then
+    local z_raw_vessel_dir
+    z_raw_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
+    local -r z_check_manifest="${BURD_TEMP_DIR}/rblm_zero_check_manifest.txt"
+    zrblm_zero_rewrite "${z_raw_vessel_dir}" "${z_check_manifest}"
+    local -a z_check_temps=()
+    local -a z_check_targets=()
+    local z_check_tmp=""
+    local z_check_target=""
+    while IFS=$'\t' read -r z_check_tmp z_check_target || test -n "${z_check_tmp}"; do
+      z_check_temps+=("${z_check_tmp}")
+      z_check_targets+=("${z_check_target}")
+    done < "${z_check_manifest}"
+    local z_check_index=0
+    for z_check_index in "${!z_check_targets[@]}"; do
+      git diff --no-index --quiet -- "${z_check_temps[${z_check_index}]}" "${z_check_targets[${z_check_index}]}" \
+        || buc_die_now "Marshal zero refuses: RBRR_RUNTIME_PREFIX stands blank, so the repo regime cannot be kindled, yet ${z_check_targets[${z_check_index}]} is not in marshal-zero state"
+    done
+    buh_line "  No changes to commit — already in marshal-zero state"
+    buc_success "Regime already zeroed"
+    return 0
+  fi
+
+  # The two directories zero reads are bash's own reading of the repo regime,
+  # sourced, kindled and enforced in an isolation subshell so its locked fields
+  # never reach this shell. A vessel or secrets directory that does not stand
+  # dies there, at the regime's own enforce and under its own code.
+  local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
+  local -r z_vessel_temp="${BURD_TEMP_DIR}/rblm_zero_vessel_dir.txt"
+  local -r z_secrets_temp="${BURD_TEMP_DIR}/rblm_zero_secrets_dir.txt"
+  (
+    source "${z_rbk_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+    source "${z_rbrr}"                   || buc_die_now "Failed to source RBRR: ${z_rbrr}"
+    zrbrr_kindle
+    zrbrr_enforce
+    printf '%s' "${RBRR_VESSEL_DIR}"  > "${z_vessel_temp}"  || buc_die_now "Failed to write: ${z_vessel_temp}"
+    printf '%s' "${RBRR_SECRETS_DIR}" > "${z_secrets_temp}" || buc_die_now "Failed to write: ${z_secrets_temp}"
+  ) || buc_die_now "Marshal zero could not read the repo regime: ${z_rbrr}"
+  local z_vessel_dir
+  z_vessel_dir=$(<"${z_vessel_temp}") || buc_die_now "Failed to read: ${z_vessel_temp}"
+  local z_secrets_dir
+  z_secrets_dir=$(<"${z_secrets_temp}") || buc_die_now "Failed to read: ${z_secrets_temp}"
 
   # Pre-checks: working tree clean and HEAD pushed.
   # Marshal-zero auto-commits its mutations; both invariants must hold to keep
@@ -76,7 +135,6 @@ rblm_zero() {
   # the pristine baseline commit, so gauntlet entry-state cannot be shellcheck-
   # dirty by construction. Runs the release-tier shellcheck via the sibling
   # rbq_cli; any finding aborts here, before any mutation.
-  local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
   "${z_rbk_dir}/rbq_cli.sh" rbq_shellcheck || buc_die_now "Shellcheck findings present — fix before marshal-zero; the pristine baseline must be lint-clean"
 
   # Colophon-completeness gate: every enrolled colophon (RBW + BUW) must have a
@@ -84,17 +142,6 @@ rblm_zero() {
   # withheld from delivery, so this is the source-only completeness proof — a
   # stripped consumer never has this tabtarget and never runs it.
   "${z_rbk_dir}/rbq_cli.sh" rbq_completeness || buc_die_now "Enrolled colophon without a tabtarget — the source tabtarget set must be complete before marshal-zero"
-
-  # Discover secrets dir and vessel dir for pre-confirmation inventory
-  local z_secrets_dir=""
-  local z_vessel_dir=""
-  local z_secrets_line=""
-  while IFS= read -r z_secrets_line || test -n "${z_secrets_line}"; do
-    case "${z_secrets_line}" in
-      RBRR_SECRETS_DIR=*) z_secrets_dir="${z_secrets_line#RBRR_SECRETS_DIR=}" ;;
-      RBRR_VESSEL_DIR=*)  z_vessel_dir="${z_secrets_line#RBRR_VESSEL_DIR=}"  ;;
-    esac
-  done < "${z_rbrr}"
 
   buh_section "Marshal Zero"
   buh_line "  Tree:    ${z_actual_tree} (${z_toplevel})"
@@ -127,18 +174,14 @@ rblm_zero() {
   buh_e
   buh_line "  Vessel regime fields BLANKED (depot-scoped, stale after depot change):"
   buh_line "    RBRV_RELIQUARY, RBRV_IMAGE_*_ANCHOR in all rbrv.env"
-  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
-    local z_vr_preview=""
-    local z_any_vr=0
-    for z_vr_preview in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
-      test -f "${z_vr_preview}" || continue
-      buh_line "    ${z_vr_preview}"
-      z_any_vr=1
-    done
-    test "${z_any_vr}" = "1" || buh_line "    (no vessel regimes found)"
-  else
-    buh_line "    (vessel dir not configured or missing)"
-  fi
+  local z_vr_preview=""
+  local z_any_vr=0
+  for z_vr_preview in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
+    test -f "${z_vr_preview}" || continue
+    buh_line "    ${z_vr_preview}"
+    z_any_vr=1
+  done
+  test "${z_any_vr}" = "1" || buh_line "    (no vessel regimes found)"
   buh_e
   buh_line "  Preserved (payor-scoped, survives depot change):"
   buh_line "    ${z_secrets_dir}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
@@ -147,109 +190,30 @@ rblm_zero() {
   buh_e
   buc_require "Proceed with marshal zero?" "zero"
 
-  local -r z_tmp="${z_rbrr}.tmp"
-  local z_line=""
-  local z_out=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    case "${z_line}" in
-      # Pre-selected defaults
-      RBRR_DNS_SERVER=*)                    z_out="RBRR_DNS_SERVER=8.8.8.8"                     ;;
-      RBRR_GCB_TIMEOUT=*)                   z_out="RBRR_GCB_TIMEOUT=2700s"                      ;;
-      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     z_out="RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
-      RBRR_VESSEL_DIR=*)                    z_out="RBRR_VESSEL_DIR=${RBCC_moorings_dir}/${RBCC_vessels_subdir}" ;;
-      RBRR_SECRETS_DIR=*)                   z_out="RBRR_SECRETS_DIR=../station-files/secrets"   ;;
-      # Site-specific fields blanked
-      RBRR_RUNTIME_PREFIX=*)                z_out="RBRR_RUNTIME_PREFIX="                        ;;
-      RBRR_SUBSTRATE_RELIQUARY=*)           z_out="RBRR_SUBSTRATE_RELIQUARY="                   ;;
-      # Everything else passes through (comments, shebang, blanks)
-      *)                                    z_out="${z_line}"                                   ;;
-    esac
-    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_tmp}"
-  done < "${z_rbrr}" > "${z_tmp}" || buc_die_now "Failed to zero: ${z_rbrr}"
-  mv "${z_tmp}" "${z_rbrr}" || buc_die_now "Failed to replace: ${z_rbrr}"
+  local -r z_manifest="${BURD_TEMP_DIR}/rblm_zero_manifest.txt"
+  zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
 
-  # Apply equivalent transform to rbrd.env.
-  local -r z_rbrd_tmp="${z_rbrd}.tmp"
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    case "${z_line}" in
-      # Pre-selected defaults
-      RBRD_GCP_REGION=*)                    z_out="RBRD_GCP_REGION=us-central1"                 ;;
-      RBRD_GCB_MACHINE_TYPE=*)              z_out="RBRD_GCB_MACHINE_TYPE=e2-standard-2"         ;;
-      # Site-specific fields blanked
-      RBRD_CLOUD_PREFIX=*)                  z_out="RBRD_CLOUD_PREFIX="                          ;;
-      RBRD_DEPOT_MONIKER=*)                 z_out="RBRD_DEPOT_MONIKER="                         ;;
-      # Everything else passes through (comments, shebang, blanks)
-      *)                                    z_out="${z_line}"                                   ;;
-    esac
-    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_rbrd_tmp}"
-  done < "${z_rbrd}" > "${z_rbrd_tmp}" || buc_die_now "Failed to zero: ${z_rbrd}"
-  mv "${z_rbrd_tmp}" "${z_rbrd}" || buc_die_now "Failed to replace: ${z_rbrd}"
-
-  # Blank hallmark values in all vessel nameplates.
-  # Hallmarks reference images built against the prior depot — they
-  # become stale after reset.  Blanking them causes the onboarding guide
-  # to require conjure & vouch before declaring setup complete.
-  local z_np=""
-  local z_np_tmp=""
-  for z_np in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
-    test -f "${z_np}" || continue
-    z_np_tmp="${z_np}.tmp"
-    while IFS= read -r z_line || test -n "${z_line}"; do
-      case "${z_line}" in
-        RBRN_SENTRY_HALLMARK=*)  z_out="RBRN_SENTRY_HALLMARK=" ;;
-        RBRN_BOTTLE_HALLMARK=*)  z_out="RBRN_BOTTLE_HALLMARK=" ;;
-        *)                       z_out="${z_line}"             ;;
-      esac
-      printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_np_tmp}"
-    done < "${z_np}" > "${z_np_tmp}" || buc_die_now "Failed to blank hallmarks: ${z_np}"
-    mv "${z_np_tmp}" "${z_np}" || buc_die_now "Failed to replace: ${z_np}"
-    buh_line "  Blanked hallmarks: ${z_np}"
+  # Every field was found: replace each target from its temp.
+  local -a z_temps=()
+  local -a z_targets=()
+  local z_tmp=""
+  local z_target=""
+  while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
+    z_temps+=("${z_tmp}")
+    z_targets+=("${z_target}")
+  done < "${z_manifest}"
+  (( ${#z_targets[@]} )) || buc_die_now "Marshal zero rewrote no file: ${z_manifest} is empty"
+  local z_index=0
+  for z_index in "${!z_targets[@]}"; do
+    mv "${z_temps[${z_index}]}" "${z_targets[${z_index}]}" || buc_die_now "Failed to replace: ${z_targets[${z_index}]}"
+    buh_line "  Zeroed: ${z_targets[${z_index}]}"
   done
-
-  # Blank depot-scoped fields in all vessel regime files.
-  # RBRV_RELIQUARY references a reliquary-kind Lode in the prior depot's GAR.
-  # RBRV_IMAGE_*_ANCHOR references bole Lodes in the prior depot's GAR.
-  # Both become stale after depot change — onboarding requires conclave + ensconce.
-  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
-    local z_vr=""
-    local z_vr_tmp=""
-    for z_vr in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
-      test -f "${z_vr}" || continue
-      z_vr_tmp="${z_vr}.tmp"
-      while IFS= read -r z_line || test -n "${z_line}"; do
-        case "${z_line}" in
-          RBRV_RELIQUARY=*)       z_out="RBRV_RELIQUARY="  ;;
-          RBRV_IMAGE_*_ANCHOR=*)  z_out="${z_line%%=*}="   ;;
-          *)                      z_out="${z_line}"        ;;
-        esac
-        printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_vr_tmp}"
-      done < "${z_vr}" > "${z_vr_tmp}" || buc_die_now "Failed to blank depot-scoped fields: ${z_vr}"
-      mv "${z_vr_tmp}" "${z_vr}" || buc_die_now "Failed to replace: ${z_vr}"
-      buh_line "  Blanked depot-scoped fields: ${z_vr}"
-    done
-  fi
-
-  buh_line "  Zero complete: ${z_rbrr}"
-  buh_line "                 ${z_rbrd}"
   buh_e
 
   # Auto-commit the in-tree mutations so post-zero state is captured as a single
   # commit.
   buc_step "Committing marshal-zero state"
-  git add "${z_rbrr}" || buc_die_now "Failed to stage RBRR file"
-  git add "${z_rbrd}" || buc_die_now "Failed to stage RBRD file"
-
-  local z_stage=""
-  for z_stage in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
-    test -f "${z_stage}" || continue
-    git add "${z_stage}" || buc_die_now "Failed to stage: ${z_stage}"
-  done
-  if test -n "${z_vessel_dir}" && test -d "${z_vessel_dir}"; then
-    for z_stage in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
-      test -f "${z_stage}" || continue
-      git add "${z_stage}" || buc_die_now "Failed to stage: ${z_stage}"
-    done
-  fi
+  git add "${z_targets[@]}" || buc_die_now "Failed to stage the zeroed files"
 
   if git diff --cached --quiet; then
     buh_line "  No changes to commit — already in marshal-zero state"
@@ -264,51 +228,140 @@ rblm_zero() {
   buc_success "Regime zeroed to blank template"
 }
 
-######################################################################
-# Command: lustrate - Erase site identity from the release candidate's clone
+# zrblm_zero_rewrite VESSEL_DIR MANIFEST — write every zero rewrite to its temp,
+# outside the tree, counting each fixed field it meets, and record one
+# "temp<TAB>target" line per file in MANIFEST. A fixed field never found dies
+# here, before any file is replaced, so a line the patterns miss can never pass
+# through into a commit that reads complete. The image-anchor family takes no
+# count. Nothing in the tree is written: the caller replaces, or compares.
+zrblm_zero_rewrite() {
+  local -r z_vessel_dir="${1:-}"
+  local -r z_manifest="${2:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrblm_zero_rewrite: the vessel directory is required"
+  test -n "${z_manifest}"   || buc_die_now "zrblm_zero_rewrite: the manifest path is required"
+  local -r z_rbrr="${RBCC_rbrr_file}"
+  local -r z_rbrd="${RBCC_rbrd_file}"
+  printf '' > "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
+  local z_line=""
+  local z_out=""
+  local z_counted=0
+  local z_found=""
 
-rblm_lustrate() {
-  buc_doc_brief "Lustrate the release clone - erase site identity from every proscribed home"
-  buc_doc_shown || return 0
+  local -r z_rbrr_tmp="${BURD_TEMP_DIR}/rblm_zero_rbrr.env"
+  z_found=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_counted=1
+    case "${z_line}" in
+      # Pre-selected defaults
+      RBRR_DNS_SERVER=*)                    z_out="RBRR_DNS_SERVER=8.8.8.8"                     ;;
+      RBRR_GCB_TIMEOUT=*)                   z_out="RBRR_GCB_TIMEOUT=2700s"                      ;;
+      RBRR_GCB_MIN_CONCURRENT_BUILDS=*)     z_out="RBRR_GCB_MIN_CONCURRENT_BUILDS=3"            ;;
+      RBRR_VESSEL_DIR=*)                    z_out="RBRR_VESSEL_DIR=${RBCC_moorings_dir}/${RBCC_vessels_subdir}" ;;
+      RBRR_SECRETS_DIR=*)                   z_out="RBRR_SECRETS_DIR=../station-files/secrets"   ;;
+      # Site-specific fields blanked
+      RBRR_RUNTIME_PREFIX=*)                z_out="RBRR_RUNTIME_PREFIX="                        ;;
+      RBRR_SUBSTRATE_RELIQUARY=*)           z_out="RBRR_SUBSTRATE_RELIQUARY="                   ;;
+      # Everything else passes through (comments, shebang, blanks)
+      *)                                    z_out="${z_line}"; z_counted=0                      ;;
+    esac
+    test "${z_counted}" = "0" || z_found="${z_found} ${z_line%%=*}"
+    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_rbrr_tmp}"
+  done < "${z_rbrr}" > "${z_rbrr_tmp}" || buc_die_now "Failed to zero: ${z_rbrr}"
+  zrblm_zero_require_found "${z_rbrr}" "${z_found}" \
+    RBRR_DNS_SERVER RBRR_GCB_TIMEOUT RBRR_GCB_MIN_CONCURRENT_BUILDS \
+    RBRR_VESSEL_DIR RBRR_SECRETS_DIR RBRR_RUNTIME_PREFIX RBRR_SUBSTRATE_RELIQUARY
+  printf '%s\t%s\n' "${z_rbrr_tmp}" "${z_rbrr}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
 
-  # Clean-tree gate. Lustration rewrites tracked config and auto-commits the
-  # result, so anything already dirty would ride into that commit. Deliberately
-  # WITHOUT marshal-zero's pushed-state gate: lustration runs immediately after
-  # marshal zero, whose own auto-commit leaves HEAD unpushed by construction.
-  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
-  local -r z_status_temp="${BURD_TEMP_DIR}/rblm_lustrate_status.txt"
-  git status --porcelain > "${z_status_temp}" || buc_die_now "git status failed"
-  test ! -s "${z_status_temp}" || buc_die_now "Working tree not clean — commit or discard before lustration. See: ${z_status_temp}"
+  # Apply equivalent transform to rbrd.env.
+  local -r z_rbrd_tmp="${BURD_TEMP_DIR}/rblm_zero_rbrd.env"
+  z_found=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_counted=1
+    case "${z_line}" in
+      # Pre-selected defaults
+      RBRD_GCP_REGION=*)                    z_out="RBRD_GCP_REGION=us-central1"                 ;;
+      RBRD_GCB_MACHINE_TYPE=*)              z_out="RBRD_GCB_MACHINE_TYPE=e2-standard-2"         ;;
+      # Site-specific fields blanked
+      RBRD_CLOUD_PREFIX=*)                  z_out="RBRD_CLOUD_PREFIX="                          ;;
+      RBRD_DEPOT_MONIKER=*)                 z_out="RBRD_DEPOT_MONIKER="                         ;;
+      # Everything else passes through (comments, shebang, blanks)
+      *)                                    z_out="${z_line}"; z_counted=0                      ;;
+    esac
+    test "${z_counted}" = "0" || z_found="${z_found} ${z_line%%=*}"
+    printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_rbrd_tmp}"
+  done < "${z_rbrd}" > "${z_rbrd_tmp}" || buc_die_now "Failed to zero: ${z_rbrd}"
+  zrblm_zero_require_found "${z_rbrd}" "${z_found}" \
+    RBRD_GCP_REGION RBRD_GCB_MACHINE_TYPE RBRD_CLOUD_PREFIX RBRD_DEPOT_MONIKER
+  printf '%s\t%s\n' "${z_rbrd_tmp}" "${z_rbrd}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
 
-  buh_section "Marshal Lustrate"
-  buh_line "  Erases every site-scoped home named by the proscription"
-  buh_line "  (Tools/rbk/rblm_proscription.sh) — the payor and workforce regimes,"
-  buh_line "  the federation regimes, the depot-scoped vessel and nameplate"
-  buh_line "  fields, and the freehold subject in source."
-  buh_e
-  buh_line "  Run this ONLY in the release ceremony's throwaway clone."
-  buh_line "  Against a working station it erases the live configuration."
-  buh_e
-  buh_line "  Proof of erasure is the damnatio fixture, run post-strip:"
-  buc_tabtarget "${RBZ_THEURGE_FIXTURE}" "damnatio"
-  buh_e
-  buc_require "Proceed with lustration?" "lustrate"
+  # Blank hallmark values in all vessel nameplates.
+  # Hallmarks reference images built against the prior depot — they
+  # become stale after reset.  Blanking them causes the onboarding guide
+  # to require conjure & vouch before declaring setup complete.
+  local z_np=""
+  local z_np_tmp=""
+  local z_np_index=0
+  for z_np in "${RBCC_moorings_dir}"/*/"${RBCC_rbrn_file}"; do
+    test -f "${z_np}" || continue
+    z_np_index=$((z_np_index + 1))
+    z_np_tmp="${BURD_TEMP_DIR}/rblm_zero_rbrn_${z_np_index}.env"
+    z_found=""
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_counted=1
+      case "${z_line}" in
+        RBRN_SENTRY_HALLMARK=*)  z_out="RBRN_SENTRY_HALLMARK=" ;;
+        RBRN_BOTTLE_HALLMARK=*)  z_out="RBRN_BOTTLE_HALLMARK=" ;;
+        *)                       z_out="${z_line}"; z_counted=0 ;;
+      esac
+      test "${z_counted}" = "0" || z_found="${z_found} ${z_line%%=*}"
+      printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_np_tmp}"
+    done < "${z_np}" > "${z_np_tmp}" || buc_die_now "Failed to blank hallmarks: ${z_np}"
+    zrblm_zero_require_found "${z_np}" "${z_found}" RBRN_SENTRY_HALLMARK RBRN_BOTTLE_HALLMARK
+    printf '%s\t%s\n' "${z_np_tmp}" "${z_np}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
+  done
 
-  rblm_lustrate_apply
-  buh_e
+  # Blank depot-scoped fields in all vessel regime files.
+  # RBRV_RELIQUARY references a reliquary-kind Lode in the prior depot's GAR.
+  # RBRV_IMAGE_*_ANCHOR references bole Lodes in the prior depot's GAR.
+  # Both become stale after depot change — onboarding requires conclave + ensconce.
+  local z_vr=""
+  local z_vr_tmp=""
+  local z_vr_index=0
+  for z_vr in "${z_vessel_dir}"/*/"${RBCC_rbrv_file}"; do
+    test -f "${z_vr}" || continue
+    z_vr_index=$((z_vr_index + 1))
+    z_vr_tmp="${BURD_TEMP_DIR}/rblm_zero_rbrv_${z_vr_index}.env"
+    z_found=""
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_counted=1
+      case "${z_line}" in
+        RBRV_RELIQUARY=*)       z_out="RBRV_RELIQUARY="                  ;;
+        RBRV_IMAGE_*_ANCHOR=*)  z_out="${z_line%%=*}="; z_counted=0      ;;
+        *)                      z_out="${z_line}"; z_counted=0           ;;
+      esac
+      test "${z_counted}" = "0" || z_found="${z_found} ${z_line%%=*}"
+      printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_vr_tmp}"
+    done < "${z_vr}" > "${z_vr_tmp}" || buc_die_now "Failed to blank depot-scoped fields: ${z_vr}"
+    zrblm_zero_require_found "${z_vr}" "${z_found}" RBRV_RELIQUARY
+    printf '%s\t%s\n' "${z_vr_tmp}" "${z_vr}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
+  done
+}
 
-  buc_step "Committing lustrated state"
-  git add --update || buc_die_now "Failed to stage lustrated files"
-
-  if git diff --cached --quiet; then
-    buh_line "  No changes to commit — already lustrated"
-  else
-    git commit -m "Marshal Lustrate — site identity erased for release" || buc_die_now "Lustration commit failed"
-    buh_line "  Lustrated state committed"
-  fi
-  buh_e
-
-  buc_success "Site identity erased from every proscribed home"
+# zrblm_zero_require_found FILE FOUND FIELD... — die naming the first FIELD the
+# rewrite of FILE never met. FOUND is the space-separated list of field names the
+# rewrite counted. Zero calls it before any file is replaced.
+zrblm_zero_require_found() {
+  local -r z_file="${1:-}"
+  local -r z_found="${2:-}"
+  test -n "${z_file}" || buc_die_now "zrblm_zero_require_found: the rewritten file is required"
+  shift 2 || buc_die_now "zrblm_zero_require_found: the field list is required"
+  local z_field=""
+  for z_field in "$@"; do
+    case " ${z_found} " in
+      *" ${z_field} "*) ;;
+      *) buc_die_now "Marshal zero found no ${z_field} line in ${z_file} — no file has been replaced" ;;
+    esac
+  done
 }
 
 ######################################################################
@@ -318,23 +371,24 @@ rblm_feign() {
   buc_doc_brief "Feign a station on the probe branch - write shape-valid stand-ins over the lustrated site fields"
   buc_doc_shown || return 0
 
-  # Branch guard. Feigning writes false-but-valid identity into the regime tree.
-  # On the candidate branch that would be a catastrophe wearing a valid shape, so
-  # the two branches the value must never reach are refused by name: the clone's
-  # main (which lustration just sterilized) and any candidate branch (which is
-  # what gets pushed). The probe branch is a throwaway cut from the candidate and
-  # named nothing in particular, so it is what remains.
+  # Marshal gate. Feigning writes false-but-valid identity into the regime tree
+  # and commits it, so it runs only where that commit can never ship: on the
+  # ceremony's probe branch, in a clone naming no remote. Both rules refuse
+  # ahead of the clean-tree gate and the confirmation.
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
   local -r z_branch_temp="${BURD_TEMP_DIR}/rblm_feign_branch.txt"
   git rev-parse --abbrev-ref HEAD > "${z_branch_temp}" || buc_die_now "git rev-parse failed"
   local z_branch
   z_branch=$(<"${z_branch_temp}") || buc_die_now "Failed to read: ${z_branch_temp}"
+  test "${z_branch}" = "${RBCC_probe_branch}" \
+    || buc_reject "${RBCG_MARSHAL_DENTIL}" "Refusing to feign on branch '${z_branch}' — feigned values ride only the probe branch '${RBCC_probe_branch}'. Cut it from the candidate first."
 
-  case "${z_branch}" in
-    main|candidate-*)
-      buc_die_now "Refusing to feign on '${z_branch}' — feigned values must never ride a branch that ships. Cut a throwaway probe branch from the candidate first."
-      ;;
-  esac
+  local -r z_remotes_temp="${BURD_TEMP_DIR}/rblm_feign_remotes.txt"
+  git remote > "${z_remotes_temp}" || buc_die_now "git remote failed"
+  local z_remotes
+  z_remotes=$(<"${z_remotes_temp}") || buc_die_now "Failed to read: ${z_remotes_temp}"
+  test -z "${z_remotes}" \
+    || buc_reject "${RBCG_MARSHAL_DENTIL}" "Refusing to feign in a clone naming remote(s) ${z_remotes//$'\n'/ } — feigned values must have nowhere to be pushed"
 
   # Clean-tree gate. Feigning auto-commits, and the commit must carry the seed
   # alone — the probe branch exists to be the candidate plus exactly this.
@@ -356,6 +410,7 @@ rblm_feign() {
   buh_line "  THIS BRANCH IS A THROWAWAY. It is never pushed, never merged, and"
   buh_line "  never becomes the candidate. Delete it when the probe is read."
   buh_e
+  buc_require "Proceed with feigning?" "feign"
 
   rblm_feign_apply
   buh_e
@@ -394,6 +449,7 @@ zrblm_furnish() {
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"      || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbcg_breviary.sh"       || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk_kit_dir}/rblm_proscription.sh"       || buc_die_now "Failed to source rblm_proscription.sh"
 
   # Differential furnish: a withheld verb's module is sourced only for that verb.
