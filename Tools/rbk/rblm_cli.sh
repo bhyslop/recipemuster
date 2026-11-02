@@ -55,6 +55,38 @@ rblm_zero() {
   test "${z_claimed_tree}" = "${z_actual_tree}" \
     || buc_reject "${RBCG_MARSHAL_DENTIL}" "Marshal zero refuses: caller named tree '${z_claimed_tree}', but this repository root is '${z_actual_tree}' (${z_toplevel})"
 
+  # Already-zeroed early exit, ahead of the kindle. A zeroed tree's runtime
+  # prefix stands blank, which the repo regime refuses to kindle, so zero reads
+  # the prefix by sourcing the repo regime raw in an isolation subshell; where it
+  # stands blank, every rewrite is written to its temp and compared with its
+  # target. All alike, the tree is already zeroed: zero says so and writes
+  # nothing. Any difference is a tree neither zeroed nor kindleable, and zero
+  # refuses naming the file.
+  local -r z_raw_prefix_temp="${BURD_TEMP_DIR}/rblm_zero_raw_prefix.txt"
+  local -r z_raw_vessel_temp="${BURD_TEMP_DIR}/rblm_zero_raw_vessel_dir.txt"
+  (
+    source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
+    printf '%s' "${RBRR_RUNTIME_PREFIX:-}" > "${z_raw_prefix_temp}" || buc_die_now "Failed to write: ${z_raw_prefix_temp}"
+    printf '%s' "${RBRR_VESSEL_DIR:-}"     > "${z_raw_vessel_temp}" || buc_die_now "Failed to write: ${z_raw_vessel_temp}"
+  ) || buc_die_now "Marshal zero could not source the repo regime: ${z_rbrr}"
+  local z_raw_prefix
+  z_raw_prefix=$(<"${z_raw_prefix_temp}") || buc_die_now "Failed to read: ${z_raw_prefix_temp}"
+  if test -z "${z_raw_prefix}"; then
+    local z_raw_vessel_dir
+    z_raw_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
+    local -r z_check_manifest="${BURD_TEMP_DIR}/rblm_zero_check_manifest.txt"
+    zrblm_zero_rewrite "${z_raw_vessel_dir}" "${z_check_manifest}"
+    local z_check_tmp=""
+    local z_check_target=""
+    while IFS=$'\t' read -r z_check_tmp z_check_target || test -n "${z_check_tmp}"; do
+      git diff --no-index --quiet -- "${z_check_tmp}" "${z_check_target}" \
+        || buc_die_now "Marshal zero refuses: RBRR_RUNTIME_PREFIX stands blank, so the repo regime cannot be kindled, yet ${z_check_target} is not in marshal-zero state"
+    done < "${z_check_manifest}"
+    buh_line "  No changes to commit — already in marshal-zero state"
+    buc_success "Regime already zeroed"
+    return 0
+  fi
+
   # The two directories zero reads are bash's own reading of the repo regime,
   # sourced, kindled and enforced in an isolation subshell so its locked fields
   # never reach this shell. A vessel or secrets directory that does not stand
@@ -151,12 +183,52 @@ rblm_zero() {
   buh_e
   buc_require "Proceed with marshal zero?" "zero"
 
-  # Every rewrite is written to its temp first, outside the tree, and every
-  # fixed field it meets is counted. A fixed field never found dies before any
-  # file is replaced, so a line the patterns miss can never pass through into a
-  # commit that reads complete. The image-anchor family takes no count.
-  local -a z_temps=()
+  local -r z_manifest="${BURD_TEMP_DIR}/rblm_zero_manifest.txt"
+  zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
+
+  # Every field was found: replace each target from its temp.
   local -a z_targets=()
+  local z_tmp=""
+  local z_target=""
+  while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
+    mv "${z_tmp}" "${z_target}" || buc_die_now "Failed to replace: ${z_target}"
+    buh_line "  Zeroed: ${z_target}"
+    z_targets+=("${z_target}")
+  done < "${z_manifest}"
+  buh_e
+
+  # Auto-commit the in-tree mutations so post-zero state is captured as a single
+  # commit.
+  buc_step "Committing marshal-zero state"
+  git add "${z_targets[@]}" || buc_die_now "Failed to stage the zeroed files"
+
+  if git diff --cached --quiet; then
+    buh_line "  No changes to commit — already in marshal-zero state"
+  else
+    git commit -m "Marshal Zero — release qualification reset" || buc_die_now "Marshal-zero commit failed"
+    buh_line "  Marshal-zero state committed"
+  fi
+  buh_e
+
+  buh_line "  Next: verify onboarding guide detects blank state:"
+  buc_tabtarget "${RBZ_ONBOARD_START_HERE}"
+  buc_success "Regime zeroed to blank template"
+}
+
+# zrblm_zero_rewrite VESSEL_DIR MANIFEST — write every zero rewrite to its temp,
+# outside the tree, counting each fixed field it meets, and record one
+# "temp<TAB>target" line per file in MANIFEST. A fixed field never found dies
+# here, before any file is replaced, so a line the patterns miss can never pass
+# through into a commit that reads complete. The image-anchor family takes no
+# count. Nothing in the tree is written: the caller replaces, or compares.
+zrblm_zero_rewrite() {
+  local -r z_vessel_dir="${1:-}"
+  local -r z_manifest="${2:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrblm_zero_rewrite: the vessel directory is required"
+  test -n "${z_manifest}"   || buc_die_now "zrblm_zero_rewrite: the manifest path is required"
+  local -r z_rbrr="${RBCC_rbrr_file}"
+  local -r z_rbrd="${RBCC_rbrd_file}"
+  printf '' > "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
   local z_line=""
   local z_out=""
   local z_counted=0
@@ -185,8 +257,7 @@ rblm_zero() {
   zrblm_zero_require_found "${z_rbrr}" "${z_found}" \
     RBRR_DNS_SERVER RBRR_GCB_TIMEOUT RBRR_GCB_MIN_CONCURRENT_BUILDS \
     RBRR_VESSEL_DIR RBRR_SECRETS_DIR RBRR_RUNTIME_PREFIX RBRR_SUBSTRATE_RELIQUARY
-  z_temps+=("${z_rbrr_tmp}")
-  z_targets+=("${z_rbrr}")
+  printf '%s\t%s\n' "${z_rbrr_tmp}" "${z_rbrr}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
 
   # Apply equivalent transform to rbrd.env.
   local -r z_rbrd_tmp="${BURD_TEMP_DIR}/rblm_zero_rbrd.env"
@@ -208,8 +279,7 @@ rblm_zero() {
   done < "${z_rbrd}" > "${z_rbrd_tmp}" || buc_die_now "Failed to zero: ${z_rbrd}"
   zrblm_zero_require_found "${z_rbrd}" "${z_found}" \
     RBRD_GCP_REGION RBRD_GCB_MACHINE_TYPE RBRD_CLOUD_PREFIX RBRD_DEPOT_MONIKER
-  z_temps+=("${z_rbrd_tmp}")
-  z_targets+=("${z_rbrd}")
+  printf '%s\t%s\n' "${z_rbrd_tmp}" "${z_rbrd}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
 
   # Blank hallmark values in all vessel nameplates.
   # Hallmarks reference images built against the prior depot — they
@@ -234,8 +304,7 @@ rblm_zero() {
       printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_np_tmp}"
     done < "${z_np}" > "${z_np_tmp}" || buc_die_now "Failed to blank hallmarks: ${z_np}"
     zrblm_zero_require_found "${z_np}" "${z_found}" RBRN_SENTRY_HALLMARK RBRN_BOTTLE_HALLMARK
-    z_temps+=("${z_np_tmp}")
-    z_targets+=("${z_np}")
+    printf '%s\t%s\n' "${z_np_tmp}" "${z_np}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
   done
 
   # Blank depot-scoped fields in all vessel regime files.
@@ -261,34 +330,8 @@ rblm_zero() {
       printf '%s\n' "${z_out}" || buc_die_now "Failed to write: ${z_vr_tmp}"
     done < "${z_vr}" > "${z_vr_tmp}" || buc_die_now "Failed to blank depot-scoped fields: ${z_vr}"
     zrblm_zero_require_found "${z_vr}" "${z_found}" RBRV_RELIQUARY
-    z_temps+=("${z_vr_tmp}")
-    z_targets+=("${z_vr}")
+    printf '%s\t%s\n' "${z_vr_tmp}" "${z_vr}" >> "${z_manifest}" || buc_die_now "Failed to write: ${z_manifest}"
   done
-
-  # Every field was found: replace each target from its temp.
-  local z_index=0
-  for z_index in "${!z_targets[@]}"; do
-    mv "${z_temps[${z_index}]}" "${z_targets[${z_index}]}" || buc_die_now "Failed to replace: ${z_targets[${z_index}]}"
-    buh_line "  Zeroed: ${z_targets[${z_index}]}"
-  done
-  buh_e
-
-  # Auto-commit the in-tree mutations so post-zero state is captured as a single
-  # commit.
-  buc_step "Committing marshal-zero state"
-  git add "${z_targets[@]}" || buc_die_now "Failed to stage the zeroed files"
-
-  if git diff --cached --quiet; then
-    buh_line "  No changes to commit — already in marshal-zero state"
-  else
-    git commit -m "Marshal Zero — release qualification reset" || buc_die_now "Marshal-zero commit failed"
-    buh_line "  Marshal-zero state committed"
-  fi
-  buh_e
-
-  buh_line "  Next: verify onboarding guide detects blank state:"
-  buc_tabtarget "${RBZ_ONBOARD_START_HERE}"
-  buc_success "Regime zeroed to blank template"
 }
 
 # zrblm_zero_require_found FILE FOUND FIELD... — die naming the first FIELD the
