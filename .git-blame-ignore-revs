@@ -3,3 +3,6 @@
 a1878fd8ec472a3e5a8f5d1589972d3cb8f75e7c
 # rb's Rust formatted under the pinned stable rustfmt.
 365515ad78cb5e8e686ba2b97bff406fd0819db1
+# The sentinel and the format carried onto a test the trunk enfold brought in unformatted.
+6b73ecfc76d70b6242c8b079dad2d5d2bd1c729f
+7211b50ebbfd420651d13ddd970d488a5a316be3
