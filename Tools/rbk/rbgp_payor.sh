@@ -925,9 +925,14 @@ zrbgp_pool_build_cancel() {
 zrbgp_pool_build_cancel_die() {
   zrbgp_sentinel
 
+  local -r zSECRET_token="${1:-}"
+  local -r z_build_url="${2:-}"
+  local -r z_build_id="${3:-}"
+  local -r z_console_url="${4:-}"
+  local -r z_infix="${5:-}"
   local -r z_message="${6:-}"
   test -n "${z_message}" || buc_die_now "zrbgp_pool_build_cancel_die: message required"
-  zrbgp_pool_build_cancel "${1:-}" "${2:-}" "${3:-}" "${4:-}" "${5:-}"
+  zrbgp_pool_build_cancel "${zSECRET_token}" "${z_build_url}" "${z_build_id}" "${z_console_url}" "${z_infix}"
   buc_die_now "${z_message}"
 }
 
