@@ -83,8 +83,8 @@ b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 payor_token() {
   local z_cid z_csec z_rtok
   z_cid=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")
-  z_csec=$(val RBRO_CLIENT_SECRET  "$RBRO")
-  z_rtok=$(val RBRO_REFRESH_TOKEN  "$RBRO")
+  z_csec=$(val RBRO_zSECRET_CLIENT_SECRET  "$RBRO")
+  z_rtok=$(val RBRO_zSECRET_REFRESH_TOKEN  "$RBRO")
   curl -s https://oauth2.googleapis.com/token \
     --data-urlencode "client_id=${z_cid}" \
     --data-urlencode "client_secret=${z_csec}" \

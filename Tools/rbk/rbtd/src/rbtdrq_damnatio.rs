@@ -531,7 +531,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
     // no dispatch supplies here, so the case's own scratch directory stands in.
     let dir_p = crate::rbtcep_platform::rbtcep_native_to_posix(dir);
     let rbro_probe = dir.join("rbro-probe.env");
-    std::fs::write(&rbro_probe, "RBRO_CLIENT_SECRET=probe\nRBRO_REFRESH_TOKEN=probe\n")
+    std::fs::write(&rbro_probe, "RBRO_zSECRET_CLIENT_SECRET=probe\nRBRO_REFRESH_TOKEN=probe\n")
         .map_err(|e| format!("failed to write the RBRO probe store: {}", e))?;
     let rbro_probe_p = crate::rbtcep_platform::rbtcep_native_to_posix(&rbro_probe);
 

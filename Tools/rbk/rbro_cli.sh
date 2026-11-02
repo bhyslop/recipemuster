@@ -34,8 +34,8 @@ rbro_validate() {
   buc_doc_shown || return 0
 
   buc_step "Validating RBRO OAuth credential file: ${RBDC_PAYOR_RBRO_FILE}"
-  buc_step "  PASS  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
-  buc_step "  PASS  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
+  buc_step "  PASS  RBRO_zSECRET_CLIENT_SECRET=[REDACTED - ${#RBRO_zSECRET_CLIENT_SECRET} chars] [string]"
+  buc_step "  PASS  RBRO_zSECRET_REFRESH_TOKEN=[REDACTED - ${#RBRO_zSECRET_REFRESH_TOKEN} chars] [string]"
   buc_step "RBRO OAuth credential file valid"
 }
 
@@ -49,8 +49,8 @@ rbro_render() {
   echo "" || buc_die_now "Failed to echo render lead line"
   echo "${z_title}" || buc_die_now "Failed to echo render title"
   echo "" || buc_die_now "Failed to echo render title break"
-  buc_step "  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
-  buc_step "  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
+  buc_step "  RBRO_zSECRET_CLIENT_SECRET=[REDACTED - ${#RBRO_zSECRET_CLIENT_SECRET} chars] [string]"
+  buc_step "  RBRO_zSECRET_REFRESH_TOKEN=[REDACTED - ${#RBRO_zSECRET_REFRESH_TOKEN} chars] [string]"
 }
 
 ######################################################################

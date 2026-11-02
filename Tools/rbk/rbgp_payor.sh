@@ -171,8 +171,10 @@ zrbgp_refresh_capture() {
   test -f "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials missing (${RBDC_PAYOR_RBRO_FILE}) - run the payor install"; return 1; }
   test -r "${RBDC_PAYOR_RBRO_FILE}" || { buc_log_args "RBRO credentials not readable (${RBDC_PAYOR_RBRO_FILE}) - check permissions"; return 1; }
   source "${RBDC_PAYOR_RBRO_FILE}" || return 1
-  test -n "${RBRO_CLIENT_SECRET:-}" || { buc_log_args "RBRO_CLIENT_SECRET absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
-  test -n "${RBRO_REFRESH_TOKEN:-}" || { buc_log_args "RBRO_REFRESH_TOKEN absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
+  local zSECRET_stored_client="${RBRO_zSECRET_CLIENT_SECRET:-}"
+  local zSECRET_stored_refresh="${RBRO_zSECRET_REFRESH_TOKEN:-}"
+  test -n "${zSECRET_stored_client}" || { buc_log_args "RBRO_zSECRET_CLIENT_SECRET absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
+  test -n "${zSECRET_stored_refresh}" || { buc_log_args "RBRO_zSECRET_REFRESH_TOKEN absent from ${RBDC_PAYOR_RBRO_FILE} - the OAuth regime's validate door names the fault"; return 1; }
 
   buc_log_args "Exchanging refresh token for access token"
 
@@ -180,7 +182,7 @@ zrbgp_refresh_capture() {
   local -ra z_body_args=("--arg" client_id "${RBRP_OAUTH_CLIENT_ID}")
   local -r z_body_filter='{refresh_token: env.zSECRET_refresh_token, client_id: $client_id, client_secret: env.zSECRET_client_secret, grant_type: "refresh_token"}'
   local zSECRET_response
-  zSECRET_response=$(zSECRET_refresh_token="${RBRO_REFRESH_TOKEN}" zSECRET_client_secret="${RBRO_CLIENT_SECRET}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || return 1
+  zSECRET_response=$(zSECRET_refresh_token="${zSECRET_stored_refresh}" zSECRET_client_secret="${zSECRET_stored_client}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || return 1
 
   echo "${zSECRET_response}"
 }
@@ -1197,11 +1199,14 @@ rbgp_install() {
   local -r zSECRET_rbro_values="${zSECRET_client_secret}${zSECRET_refresh_token}"
   local -r zSECRET_residue="${zSECRET_rbro_values//[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._\/+=-]/}"
   test -z "${zSECRET_residue}" || buc_die_now "OAuth client secret or refresh token carries a character the RBRO file cannot hold as a bare value"
-  local -r zSECRET_rbro_lines="RBRO_CLIENT_SECRET=${zSECRET_client_secret}"$'\n'"RBRO_REFRESH_TOKEN=${zSECRET_refresh_token}"$'\n'
+  local -r zSECRET_rbro_lines="RBRO_zSECRET_CLIENT_SECRET=${zSECRET_client_secret}"$'\n'"RBRO_zSECRET_REFRESH_TOKEN=${zSECRET_refresh_token}"$'\n'
+  local -r z_rbro_tmp="${z_rbro_file}.tmp"
   (
     umask 077 || buc_die_now "Failed to set umask for the RBRO credentials file"
-    printf '%s' "${zSECRET_rbro_lines}" > "${z_rbro_file}" || buc_die_now "Failed to write RBRO credentials file: ${z_rbro_file}"
+    printf '%s' "${zSECRET_rbro_lines}" > "${z_rbro_tmp}" || buc_die_now "Failed to write ${z_rbro_tmp} for the RBRO credentials file"
   ) || buc_die_now "Failed to write RBRO credentials file"
+  mv -f "${z_rbro_tmp}" "${z_rbro_file}" \
+    || buc_die_now "Failed to place RBRO credentials file: ${z_rbro_file}"
   chmod 600 "${z_rbro_file}" || buc_die_now "Failed to set RBRO file permissions"
   
   buc_step 'Validate public configuration'
