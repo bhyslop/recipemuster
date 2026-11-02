@@ -198,9 +198,11 @@ fn rbtdtk_cloud_prefix_subdir_strips_one_hyphen() {
     for (prefix, subdir) in [("ab--", "ab-"), ("ab-d-x-", "ab-d-x")] {
         let _ = std::fs::remove_dir_all(&tmp);
         std::fs::create_dir_all(parent).expect("create the regime file's parent");
-        std::fs::write(&rbrd, format!("RBRD_CLOUD_PREFIX={}\n", prefix)).expect("write rbrd");
+        std::fs::write(&rbrd, format!("RBRD_CLOUD_PREFIX={}\n", prefix, //
+)).expect("write rbrd");
         let got = rbtcgf_cloud_prefix_subdir(&tmp);
         let _ = std::fs::remove_dir_all(&tmp);
-        assert_eq!(got, Ok(subdir.to_string()), "subdir for cloud prefix {}", prefix);
+        assert_eq!(got, Ok(subdir.to_string()), "subdir for cloud prefix {}", prefix, //
+);
     }
 }
