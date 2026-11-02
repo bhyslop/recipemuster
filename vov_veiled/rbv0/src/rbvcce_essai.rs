@@ -480,11 +480,7 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
 /// feign door reads. Fatal on a nonzero exit or an empty value.
 fn zrbvcce_probe_branch(regulus_clone: &Path, top: &Path) -> String {
     let module = rbvcep_repo::rbvcep_as_str(&regulus_clone.join(RBVCCE_CONSTANTS_MODULE));
-    let got = rbvcer_run::rbvcer_capture(
-        "bash",
-        &["-c", RBVCCE_PROBE_READ, "bash", &module],
-        top,
-    );
+    let got = rbvcer_run::rbvcer_capture("bash", &["-c", RBVCCE_PROBE_READ, "bash", &module], top);
     if got.code != 0 {
         crate::rbvcel_fatal!(
             "failed to read the probe branch from {} (bash exited {}): {}",
