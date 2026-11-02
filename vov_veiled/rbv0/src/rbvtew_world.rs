@@ -12,12 +12,21 @@
 // from the breviary, never spelled.
 
 use crate::rbvcew_world::{
-    rbvcew_bundle, rbvcew_elect, rbvcew_word, rbvcew_Bundle, rbvcew_World, RBVCEW_AGORA, RBVCEW_PALAESTRA,
+    rbvcew_Bundle,
+    rbvcew_World,
+    rbvcew_bundle,
+    rbvcew_elect,
+    rbvcew_word,
+    RBVCEW_AGORA,
+    RBVCEW_PALAESTRA, //
 };
 
 /// The struck mode token docimasy and ostend once took, assembled so the
 /// crate spells it nowhere: it must now refuse like any unknown word.
-const ZRBVTEW_STRUCK_TOKEN: &str = concat!("re", "hearse");
+const ZRBVTEW_STRUCK_TOKEN: &str = concat!(
+    "re",
+    "hearse", //
+);
 
 /// The verb the parser is told it serves; any of the four would do.
 const ZRBVTEW_VERB: &str = crate::rbvgeb_breviary::RBVGEB_ESSAI_BASE;
@@ -49,15 +58,36 @@ fn rbvtew_bundles_share_no_address_and_no_basename() {
     let real = zrbvtew_values(&RBVCEW_AGORA);
     let practice = zrbvtew_values(&RBVCEW_PALAESTRA);
     for r in &real {
-        assert!(!r.is_empty(), "a real-world entry is empty");
+        assert!(
+            !r.is_empty(),
+            "a real-world entry is empty", //
+        );
         for p in &practice {
-            assert!(!p.is_empty(), "a practice-world entry is empty");
-            assert_ne!(r, p, "the two worlds share the entry '{}'", r);
+            assert!(
+                !p.is_empty(),
+                "a practice-world entry is empty", //
+            );
+            assert_ne!(
+                r,
+                p,
+                "the two worlds share the entry '{}'",
+                r, //
+            );
         }
     }
     for p in &practice {
-        for r in [RBVCEW_AGORA.base_url, RBVCEW_AGORA.narthex_url, RBVCEW_AGORA.narthex_https, RBVCEW_AGORA.harbinger_url] {
-            assert!(!p.contains(r), "the practice entry '{}' carries the real address '{}'", p, r);
+        for r in [
+            RBVCEW_AGORA.base_url,
+            RBVCEW_AGORA.narthex_url,
+            RBVCEW_AGORA.narthex_https,
+            RBVCEW_AGORA.harbinger_url,
+        ] {
+            assert!(
+                !p.contains(r),
+                "the practice entry '{}' carries the real address '{}'",
+                p,
+                r, //
+            );
         }
     }
 }
@@ -71,12 +101,19 @@ fn rbvtew_each_sentinel_spells_its_own_remote() {
             bundle.base_push_disabled.contains(bundle.base_remote),
             "sentinel '{}' does not name '{}'",
             bundle.base_push_disabled,
-            bundle.base_remote
+            bundle.base_remote, //
         );
-        assert_ne!(bundle.base_push_disabled, bundle.base_url, "a sentinel must never be a pushable URL");
+        assert_ne!(
+            bundle.base_push_disabled, bundle.base_url,
+            "a sentinel must never be a pushable URL", //
+        );
     }
-    assert!(!RBVCEW_PALAESTRA.base_push_disabled.contains(RBVCEW_AGORA.base_remote));
-    assert!(!RBVCEW_AGORA.base_push_disabled.contains(RBVCEW_PALAESTRA.base_remote));
+    assert!(!RBVCEW_PALAESTRA
+        .base_push_disabled
+        .contains(RBVCEW_AGORA.base_remote));
+    assert!(!RBVCEW_AGORA
+        .base_push_disabled
+        .contains(RBVCEW_PALAESTRA.base_remote));
 }
 
 /// Each word selects its own world, and the selection reaches its own bundle.
@@ -87,16 +124,27 @@ fn rbvtew_each_word_selects_its_world() {
             .expect("a world's own word must elect it");
         assert_eq!(elected, world);
     }
-    let agora = rbvcew_elect(ZRBVTEW_VERB, &zrbvtew_args(&[rbvcew_word(rbvcew_World::Agora)])).unwrap();
+    let agora = rbvcew_elect(
+        ZRBVTEW_VERB,
+        &zrbvtew_args(&[rbvcew_word(rbvcew_World::Agora)]),
+    )
+    .unwrap();
     assert_eq!(rbvcew_bundle(agora).base_url, RBVCEW_AGORA.base_url);
-    let palaestra = rbvcew_elect(ZRBVTEW_VERB, &zrbvtew_args(&[rbvcew_word(rbvcew_World::Palaestra)])).unwrap();
+    let palaestra = rbvcew_elect(
+        ZRBVTEW_VERB,
+        &zrbvtew_args(&[rbvcew_word(rbvcew_World::Palaestra)]),
+    )
+    .unwrap();
     assert_eq!(rbvcew_bundle(palaestra).base_url, RBVCEW_PALAESTRA.base_url);
 }
 
 /// A bare invocation refuses: there is no default world.
 #[test]
 fn rbvtew_bare_invocation_refuses() {
-    assert!(rbvcew_elect(ZRBVTEW_VERB, &[]).is_err(), "a bare invocation must refuse");
+    assert!(
+        rbvcew_elect(ZRBVTEW_VERB, &[]).is_err(),
+        "a bare invocation must refuse", //
+    );
 }
 
 /// An unknown word refuses — a near miss, a case variant, an empty word, and
@@ -104,13 +152,22 @@ fn rbvtew_bare_invocation_refuses() {
 #[test]
 fn rbvtew_unknown_word_refuses() {
     let agora = rbvcew_word(rbvcew_World::Agora);
-    let near = format!("{}s", agora);
+    let near = format!(
+        "{}s",
+        agora, //
+    );
     let shouted = agora.to_uppercase();
-    for word in [near.as_str(), shouted.as_str(), "", "main", ZRBVTEW_STRUCK_TOKEN] {
+    for word in [
+        near.as_str(),
+        shouted.as_str(),
+        "",
+        "main",
+        ZRBVTEW_STRUCK_TOKEN,
+    ] {
         assert!(
             rbvcew_elect(ZRBVTEW_VERB, &zrbvtew_args(&[word])).is_err(),
             "the word '{}' must refuse",
-            word
+            word, //
         );
     }
 }
@@ -126,7 +183,10 @@ fn rbvtew_extra_argument_refuses() {
     }
     assert!(rbvcew_elect(
         ZRBVTEW_VERB,
-        &zrbvtew_args(&[rbvcew_word(rbvcew_World::Agora), rbvcew_word(rbvcew_World::Palaestra)])
+        &zrbvtew_args(&[
+            rbvcew_word(rbvcew_World::Agora),
+            rbvcew_word(rbvcew_World::Palaestra)
+        ])
     )
     .is_err());
 }

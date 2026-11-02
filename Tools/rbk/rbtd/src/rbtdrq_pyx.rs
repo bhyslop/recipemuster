@@ -58,16 +58,16 @@
 use std::collections::BTreeSet;
 use std::path::{
     Path,
-    PathBuf,
+    PathBuf, //
 };
 
 use crate::rbtcee_case;
 use crate::rbtcee_engine::{
-    rbtcee_Tariff,
     rbtcee_Case,
     rbtcee_Disposition,
     rbtcee_Fixture,
-    rbtcee_Verdict,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_PYX;
 
@@ -105,7 +105,7 @@ pub(crate) const ZRBTCHX_ALLOWED_LICENSES: &[&str] = &[
     "MIT OR Zlib OR Apache-2.0",
     "MIT/Apache-2.0",
     "Unlicense OR MIT",
-    "Zlib OR Apache-2.0 OR MIT",
+    "Zlib OR Apache-2.0 OR MIT", //
 ];
 
 /// Every crate the lockfile draws from a registry (or any other source), with
@@ -157,7 +157,10 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("image", "MIT OR Apache-2.0"),
     ("itoa", "MIT OR Apache-2.0"),
     ("libc", "MIT OR Apache-2.0"),
-    ("linux-raw-sys", "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"),
+    (
+        "linux-raw-sys",
+        "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+    ),
     ("lock_api", "MIT OR Apache-2.0"),
     ("log", "MIT OR Apache-2.0"),
     ("miniz_oxide", "MIT OR Zlib OR Apache-2.0"),
@@ -183,7 +186,10 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("rand_chacha", "MIT OR Apache-2.0"),
     ("rand_core", "MIT OR Apache-2.0"),
     ("redox_syscall", "MIT"),
-    ("rustix", "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"),
+    (
+        "rustix",
+        "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+    ),
     ("scopeguard", "MIT OR Apache-2.0"),
     ("sha1", "MIT OR Apache-2.0"),
     ("simd-adler32", "MIT"),
@@ -197,7 +203,10 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("unicode-ident", "(MIT OR Apache-2.0) AND Unicode-3.0"),
     ("utf-8", "MIT OR Apache-2.0"),
     ("version_check", "MIT/Apache-2.0"),
-    ("wasi", "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT"),
+    (
+        "wasi",
+        "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT",
+    ),
     ("weezl", "MIT OR Apache-2.0"),
     ("windows-link", "MIT OR Apache-2.0"),
     ("windows-sys", "MIT OR Apache-2.0"),
@@ -215,7 +224,7 @@ pub(crate) const ZRBTCHX_CRATE_LICENSES: &[(&str, &str)] = &[
     ("zerocopy", "BSD-2-Clause OR Apache-2.0 OR MIT"),
     ("zerocopy-derive", "BSD-2-Clause OR Apache-2.0 OR MIT"),
     ("zune-core", "MIT OR Apache-2.0 OR Zlib"),
-    ("zune-jpeg", "MIT OR Apache-2.0 OR Zlib"),
+    ("zune-jpeg", "MIT OR Apache-2.0 OR Zlib"), //
 ];
 
 // ── Root LICENSE ────────────────────────────────────────────
@@ -226,7 +235,10 @@ pub(crate) const ZRBTCHX_LICENSE_FILE: &str = "LICENSE";
 /// Phrases the root LICENSE must carry. A LICENSE file that exists but names
 /// some other license is the failure this looks for — an empty or truncated file
 /// passes a mere existence check and ships a distribution with no terms.
-pub(crate) const ZRBTCHX_LICENSE_PHRASES: &[&str] = &["Apache License", "Version 2.0"];
+pub(crate) const ZRBTCHX_LICENSE_PHRASES: &[&str] = &[
+    "Apache License",
+    "Version 2.0", //
+];
 
 // ── Secret-shape scan ───────────────────────────────────────
 
@@ -239,12 +251,20 @@ pub(crate) const ZRBTCHX_LICENSE_PHRASES: &[&str] = &["Apache License", "Version
 /// and `Memos/` are absent because they never ship and carry no such ruling, and
 /// `rbmm_moorings/` is here because the operator's regime and vessel context
 /// files are exactly where a credential would land by accident.
-pub(crate) const ZRBTCHX_SECRET_ROOTS: &[&str] =
-    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "vov_veiled"];
+pub(crate) const ZRBTCHX_SECRET_ROOTS: &[&str] = &[
+    "Tools/buk",
+    "Tools/rbk",
+    "tt",
+    "rbmm_moorings",
+    "vov_veiled", //
+];
 
 /// Repo-relative single files added to the secret-scan corpus alongside the
 /// roots above — the consumer-facing documents at the repo root.
-pub(crate) const ZRBTCHX_SECRET_FILES: &[&str] = &["README.md", "RELEASE.md"];
+pub(crate) const ZRBTCHX_SECRET_FILES: &[&str] = &[
+    "README.md",
+    "RELEASE.md", //
+];
 
 /// This module's own source. Named as a constant because it is both an exempt
 /// path below and the file a table-consistency finding points at.
@@ -262,7 +282,10 @@ pub(crate) const ZRBTCHX_EXEMPT: &[(&str, &str)] = &[
     // matcher is proved against in-memory positives and negatives in its own
     // case: the live-tree verdict rests on a matcher checked elsewhere, not on a
     // file that excuses itself.
-    (ZRBTCHX_SELF_EXEMPT, "the shape table spells the shapes it hunts"),
+    (
+        ZRBTCHX_SELF_EXEMPT,
+        "the shape table spells the shapes it hunts",
+    ),
     // Caged test scaffolding, committed deliberately (993985c91). This key signs
     // RFC 7523 assertions to the fdkyclk Keycloak realm, whose baked
     // publicKeySignatureVerifier is this key's public half. It grants authority
@@ -271,7 +294,7 @@ pub(crate) const ZRBTCHX_EXEMPT: &[(&str, &str)] = &[
     (
         "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem",
         "caged asserter key for the local Keycloak test realm; no live authority",
-    ),
+    ), //
 ];
 
 /// Directory basenames skipped by the secret-shape walk. Build output is
@@ -283,7 +306,16 @@ pub(crate) const ZRBTCHX_SKIP_DIRS: &[&str] = &["target"];
 /// raster payloads in which a token shape cannot be authored by hand and a
 /// byte-coincidence would be a false positive.
 pub(crate) const ZRBTCHX_SKIP_EXTS: &[&str] = &[
-    "gz", "ico", "jpg", "jpeg", "lock", "png", "tar", "tgz", "webp", "zip",
+    "gz",
+    "ico",
+    "jpg",
+    "jpeg",
+    "lock",
+    "png",
+    "tar",
+    "tgz",
+    "webp",
+    "zip", //
 ];
 
 /// Per-file byte cap for the secret-shape walk. A file above this size is not a
@@ -324,16 +356,66 @@ pub(crate) struct zrbtchx_Shape {
 /// the BEGIN and END markers of any private-key block while a PUBLIC key block —
 /// which is not a secret — goes untouched.
 pub(crate) const ZRBTCHX_SHAPES: &[zrbtchx_Shape] = &[
-    zrbtchx_Shape { label: "PEM private key block",      prefix: "PRIVATE KEY-----", body: zrbtchx_Body::Literal, body_min: 0  },
-    zrbtchx_Shape { label: "service-account private key", prefix: "\"private_key\":", body: zrbtchx_Body::Literal, body_min: 0  },
-    zrbtchx_Shape { label: "Google API key",             prefix: "AIza",             body: zrbtchx_Body::Token,   body_min: 35 },
-    zrbtchx_Shape { label: "Google OAuth client secret", prefix: "GOCSPX-",          body: zrbtchx_Body::Token,   body_min: 20 },
-    zrbtchx_Shape { label: "Google OAuth access token",  prefix: "ya29.",            body: zrbtchx_Body::Token,   body_min: 20 },
-    zrbtchx_Shape { label: "AWS access key id",          prefix: "AKIA",             body: zrbtchx_Body::Shout,   body_min: 16 },
-    zrbtchx_Shape { label: "GitHub personal token",      prefix: "ghp_",             body: zrbtchx_Body::Token,   body_min: 36 },
-    zrbtchx_Shape { label: "GitHub fine-grained token",  prefix: "github_pat_",      body: zrbtchx_Body::Token,   body_min: 20 },
-    zrbtchx_Shape { label: "Slack bot token",            prefix: "xoxb-",            body: zrbtchx_Body::Token,   body_min: 10 },
-    zrbtchx_Shape { label: "Anthropic API key",          prefix: "sk-ant-",          body: zrbtchx_Body::Token,   body_min: 20 },
+    zrbtchx_Shape {
+        label: "PEM private key block",
+        prefix: "PRIVATE KEY-----",
+        body: zrbtchx_Body::Literal,
+        body_min: 0,
+    },
+    zrbtchx_Shape {
+        label: "service-account private key",
+        prefix: "\"private_key\":",
+        body: zrbtchx_Body::Literal,
+        body_min: 0,
+    },
+    zrbtchx_Shape {
+        label: "Google API key",
+        prefix: "AIza",
+        body: zrbtchx_Body::Token,
+        body_min: 35,
+    },
+    zrbtchx_Shape {
+        label: "Google OAuth client secret",
+        prefix: "GOCSPX-",
+        body: zrbtchx_Body::Token,
+        body_min: 20,
+    },
+    zrbtchx_Shape {
+        label: "Google OAuth access token",
+        prefix: "ya29.",
+        body: zrbtchx_Body::Token,
+        body_min: 20,
+    },
+    zrbtchx_Shape {
+        label: "AWS access key id",
+        prefix: "AKIA",
+        body: zrbtchx_Body::Shout,
+        body_min: 16,
+    },
+    zrbtchx_Shape {
+        label: "GitHub personal token",
+        prefix: "ghp_",
+        body: zrbtchx_Body::Token,
+        body_min: 36,
+    },
+    zrbtchx_Shape {
+        label: "GitHub fine-grained token",
+        prefix: "github_pat_",
+        body: zrbtchx_Body::Token,
+        body_min: 20,
+    },
+    zrbtchx_Shape {
+        label: "Slack bot token",
+        prefix: "xoxb-",
+        body: zrbtchx_Body::Token,
+        body_min: 10,
+    },
+    zrbtchx_Shape {
+        label: "Anthropic API key",
+        prefix: "sk-ant-",
+        body: zrbtchx_Body::Token,
+        body_min: 20,
+    }, //
 ];
 
 // ── README anchor check ─────────────────────────────────────
@@ -386,9 +468,18 @@ fn zrbtchx_render(findings: &[zrbtchx_Finding]) -> String {
     let mut report = String::new();
     for f in findings {
         if f.line == 0 {
-            report.push_str(&format!("{}: {}\n", f.file, f.detail));
+            report.push_str(&format!(
+                "{}: {}\n",
+                f.file,
+                f.detail, //
+            ));
         } else {
-            report.push_str(&format!("{}:{}: {}\n", f.file, f.line, f.detail));
+            report.push_str(&format!(
+                "{}:{}: {}\n",
+                f.file,
+                f.line,
+                f.detail, //
+            ));
         }
     }
     report
@@ -404,7 +495,12 @@ pub(crate) fn zrbtchx_report(
     what: &str,
 ) -> rbtcee_Verdict {
     let report = zrbtchx_render(findings);
-    let findings_name = format!("{}{}{}", ZRBTCHX_TRACE_PREFIX, label, ZRBTCHX_FINDINGS_SUFFIX);
+    let findings_name = format!(
+        "{}{}{}",
+        ZRBTCHX_TRACE_PREFIX,
+        label,
+        ZRBTCHX_FINDINGS_SUFFIX, //
+    );
     let _ = std::fs::write(dir.join(findings_name), &report);
 
     let mut inventory_report = String::new();
@@ -412,20 +508,35 @@ pub(crate) fn zrbtchx_report(
         inventory_report.push_str(entry);
         inventory_report.push('\n');
     }
-    let inventory_name = format!("{}{}{}", ZRBTCHX_TRACE_PREFIX, label, ZRBTCHX_INVENTORY_SUFFIX);
+    let inventory_name = format!(
+        "{}{}{}",
+        ZRBTCHX_TRACE_PREFIX,
+        label,
+        ZRBTCHX_INVENTORY_SUFFIX, //
+    );
     let _ = std::fs::write(dir.join(inventory_name), &inventory_report);
 
     if findings.is_empty() {
         rbtcee_Verdict::Pass
     } else {
-        rbtcee_Verdict::Fail(format!("{} {}:\n{}", findings.len(), what, report))
+        rbtcee_Verdict::Fail(format!(
+            "{} {}:\n{}",
+            findings.len(),
+            what,
+            report, //
+        ))
     }
 }
 
 /// The tree the fixture assays — the working directory, which every theurge run
 /// anchors at the repo root.
 pub(crate) fn zrbtchx_root() -> Result<PathBuf, String> {
-    std::env::current_dir().map_err(|e| format!("cannot get cwd: {}", e))
+    std::env::current_dir().map_err(|e| {
+        format!(
+            "cannot get cwd: {}",
+            e, //
+        )
+    })
 }
 
 // ── Case: crate licenses ────────────────────────────────────
@@ -479,7 +590,11 @@ fn rbtchx_crate_licenses(dir: &Path) -> rbtcee_Verdict {
     let lock = match std::fs::read_to_string(&lock_path) {
         Ok(s) => s,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTCHX_LOCKFILE, e));
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                ZRBTCHX_LOCKFILE,
+                e, //
+            ));
         }
     };
 
@@ -487,33 +602,47 @@ fn rbtchx_crate_licenses(dir: &Path) -> rbtcee_Verdict {
     let mut inventory = BTreeSet::new();
 
     for (name, license) in ZRBTCHX_CRATE_LICENSES {
-        inventory.insert(format!("{}\t{}", name, license));
+        inventory.insert(format!(
+            "{}\t{}",
+            name,
+            license, //
+        ));
         if !ZRBTCHX_ALLOWED_LICENSES.contains(license) {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHX_SELF_EXEMPT.to_string(),
                 line: 0,
                 detail: format!(
                     "vetted crate {} carries license {:?}, which is not in the approved set",
-                    name, license
+                    name,
+                    license, //
                 ),
             });
         }
     }
 
     for name in zrbtchx_lock_crates(&lock) {
-        if !ZRBTCHX_CRATE_LICENSES.iter().any(|(vetted, _)| *vetted == name) {
+        if !ZRBTCHX_CRATE_LICENSES
+            .iter()
+            .any(|(vetted, _)| *vetted == name)
+        {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHX_LOCKFILE.to_string(),
                 line: 0,
                 detail: format!(
                     "crate {} is not license-vetted — vet it and add its row to ZRBTCHX_CRATE_LICENSES",
-                    name
+                    name, //
                 ),
             });
         }
     }
 
-    zrbtchx_report(dir, "license", &findings, &inventory, "crate-license violation(s)")
+    zrbtchx_report(
+        dir,
+        "license",
+        &findings,
+        &inventory,
+        "crate-license violation(s)",
+    )
 }
 
 // ── Case: root LICENSE ──────────────────────────────────────
@@ -532,7 +661,10 @@ fn rbtchx_license_file(dir: &Path) -> rbtcee_Verdict {
         Err(e) => findings.push(zrbtchx_Finding {
             file: ZRBTCHX_LICENSE_FILE.to_string(),
             line: 0,
-            detail: format!("absent or unreadable: {}", e),
+            detail: format!(
+                "absent or unreadable: {}",
+                e, //
+            ),
         }),
         Ok(body) => {
             for phrase in ZRBTCHX_LICENSE_PHRASES {
@@ -540,7 +672,10 @@ fn rbtchx_license_file(dir: &Path) -> rbtcee_Verdict {
                     findings.push(zrbtchx_Finding {
                         file: ZRBTCHX_LICENSE_FILE.to_string(),
                         line: 0,
-                        detail: format!("does not carry the phrase {:?}", phrase),
+                        detail: format!(
+                            "does not carry the phrase {:?}",
+                            phrase, //
+                        ),
                     });
                 }
             }
@@ -548,7 +683,13 @@ fn rbtchx_license_file(dir: &Path) -> rbtcee_Verdict {
     }
 
     let inventory = BTreeSet::new();
-    zrbtchx_report(dir, "licensefile", &findings, &inventory, "root-LICENSE violation(s)")
+    zrbtchx_report(
+        dir,
+        "licensefile",
+        &findings,
+        &inventory,
+        "root-LICENSE violation(s)",
+    )
 }
 
 // ── Case: secret shapes ─────────────────────────────────────
@@ -600,7 +741,10 @@ pub(crate) fn zrbtchx_scan_text(rel: &str, text: &str, findings: &mut Vec<zrbtch
                 findings.push(zrbtchx_Finding {
                     file: rel.to_string(),
                     line: index + 1,
-                    detail: format!("{} shape present", shape.label),
+                    detail: format!(
+                        "{} shape present",
+                        shape.label, //
+                    ),
                 });
             }
         }
@@ -655,8 +799,15 @@ pub(crate) fn zrbtchx_walk(dir: &Path, skip_dirs: &[&str], out: &mut Vec<PathBuf
 fn zrbtchx_matcher_self_proof() -> Vec<zrbtchx_Finding> {
     let mut findings = Vec::new();
 
-    let google_key = format!("{}{}", "AIza", "a".repeat(35));
-    let pem = format!("-----BEGIN RSA {}", "PRIVATE KEY-----");
+    let google_key = format!(
+        "{}{}",
+        "AIza",
+        "a".repeat(35), //
+    );
+    let pem = format!(
+        "-----BEGIN RSA {}",
+        "PRIVATE KEY-----", //
+    );
     let positives: &[&str] = &[&google_key, &pem];
     for probe in positives {
         let mut hits = Vec::new();
@@ -670,7 +821,11 @@ fn zrbtchx_matcher_self_proof() -> Vec<zrbtchx_Finding> {
         }
     }
 
-    let short_key = format!("{}{}", "AIza", "a".repeat(4));
+    let short_key = format!(
+        "{}{}",
+        "AIza",
+        "a".repeat(4), //
+    );
     let negatives: &[&str] = &[
         "a Google API key begins AIza — see the vendor docs",
         &short_key,
@@ -683,7 +838,10 @@ fn zrbtchx_matcher_self_proof() -> Vec<zrbtchx_Finding> {
             findings.push(zrbtchx_Finding {
                 file: ZRBTCHX_SELF_EXEMPT.to_string(),
                 line: 0,
-                detail: format!("matcher fired on a benign line: {:?}", probe),
+                detail: format!(
+                    "matcher fired on a benign line: {:?}",
+                    probe, //
+                ),
             });
         }
     }
@@ -706,7 +864,11 @@ fn rbtchx_secret_shapes(dir: &Path) -> rbtcee_Verdict {
     // The exemptions ride the inventory trace: a reader of the scan's record
     // sees what was NOT scanned and why, without reading this source.
     for (path, reason) in ZRBTCHX_EXEMPT {
-        inventory.insert(format!("{}\texempt: {}", path, reason));
+        inventory.insert(format!(
+            "{}\texempt: {}",
+            path,
+            reason, //
+        ));
     }
 
     let mut files = Vec::new();
@@ -737,7 +899,13 @@ fn rbtchx_secret_shapes(dir: &Path) -> rbtcee_Verdict {
         zrbtchx_scan_text(&rel, &text, &mut findings);
     }
 
-    zrbtchx_report(dir, "secret", &findings, &inventory, "secret-shape violation(s)")
+    zrbtchx_report(
+        dir,
+        "secret",
+        &findings,
+        &inventory,
+        "secret-shape violation(s)",
+    )
 }
 
 // ── Case: README anchors ────────────────────────────────────
@@ -825,20 +993,36 @@ fn rbtchx_readme_anchors(dir: &Path) -> rbtcee_Verdict {
     let source = match std::fs::read_to_string(root.join(ZRBTCHX_ANCHOR_SOURCE)) {
         Ok(s) => s,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTCHX_ANCHOR_SOURCE, e));
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                ZRBTCHX_ANCHOR_SOURCE,
+                e, //
+            ));
         }
     };
     let target = match std::fs::read_to_string(root.join(ZRBTCHX_ANCHOR_TARGET)) {
         Ok(s) => s,
         Err(e) => {
-            return rbtcee_Verdict::Fail(format!("cannot read {}: {}", ZRBTCHX_ANCHOR_TARGET, e));
+            return rbtcee_Verdict::Fail(format!(
+                "cannot read {}: {}",
+                ZRBTCHX_ANCHOR_TARGET,
+                e, //
+            ));
         }
     };
 
     let defined = zrbtchx_defined_anchors(&target);
     let consumed = [
-        (ZRBTCHX_CONSUMER_YELP, ZRBTCHX_ANCHOR_SOURCE, zrbtchx_declared_anchors(&source)),
-        (ZRBTCHX_CONSUMER_README, ZRBTCHX_ANCHOR_TARGET, zrbtchx_referenced_anchors(&target)),
+        (
+            ZRBTCHX_CONSUMER_YELP,
+            ZRBTCHX_ANCHOR_SOURCE,
+            zrbtchx_declared_anchors(&source),
+        ),
+        (
+            ZRBTCHX_CONSUMER_README,
+            ZRBTCHX_ANCHOR_TARGET,
+            zrbtchx_referenced_anchors(&target),
+        ),
     ];
 
     let mut findings = Vec::new();
@@ -857,25 +1041,40 @@ fn rbtchx_readme_anchors(dir: &Path) -> rbtcee_Verdict {
             findings.push(zrbtchx_Finding {
                 file: file.to_string(),
                 line: 0,
-                detail: format!("no {} anchors found — the extractor matched nothing", consumer),
+                detail: format!(
+                    "no {} anchors found — the extractor matched nothing",
+                    consumer, //
+                ),
             });
         }
         for anchor in anchors {
-            inventory.insert(format!("{}\t{}", anchor, consumer));
+            inventory.insert(format!(
+                "{}\t{}",
+                anchor,
+                consumer, //
+            ));
             if !defined.contains(anchor) {
                 findings.push(zrbtchx_Finding {
                     file: file.to_string(),
                     line: 0,
                     detail: format!(
                         "{} points at anchor {:?}, undefined in {}",
-                        consumer, anchor, ZRBTCHX_ANCHOR_TARGET
+                        consumer,
+                        anchor,
+                        ZRBTCHX_ANCHOR_TARGET, //
                     ),
                 });
             }
         }
     }
 
-    zrbtchx_report(dir, "anchor", &findings, &inventory, "dangling-anchor violation(s)")
+    zrbtchx_report(
+        dir,
+        "anchor",
+        &findings,
+        &inventory,
+        "dangling-anchor violation(s)",
+    )
 }
 
 // ── Case: no shipped .adoc ──────────────────────────────────
@@ -886,14 +1085,22 @@ pub(crate) const ZRBTCHX_ADOC_EXT: &str = ".adoc";
 /// Repo-relative roots walked by the no-.adoc case — the shipping tree.
 /// `diagrams/` rides here for the reason it rides the secret roots: a rendered
 /// diagram displays its source text to a reader.
-pub(crate) const ZRBTCHX_ADOC_ROOTS: &[&str] =
-    &["Tools/buk", "Tools/rbk", "tt", "rbmm_moorings", "diagrams"];
+pub(crate) const ZRBTCHX_ADOC_ROOTS: &[&str] = &[
+    "Tools/buk",
+    "Tools/rbk",
+    "tt",
+    "rbmm_moorings",
+    "diagrams", //
+];
 
 /// Directories the no-.adoc walk never descends: build output, and `vov_veiled`
 /// — a maintainer-only tree that never reaches a consumer, so skipping it changes
 /// nothing on the delivered tree and only spares the maintainer's own run from
 /// its `.adoc` corpus.
-pub(crate) const ZRBTCHX_ADOC_SKIP_DIRS: &[&str] = &["target", "vov_veiled"];
+pub(crate) const ZRBTCHX_ADOC_SKIP_DIRS: &[&str] = &[
+    "target",
+    "vov_veiled", //
+];
 
 /// Repo-relative paths exempt from the no-.adoc case, each with the reason. Same
 /// doctrine as the other exemption tables: exact path, never a prefix, and every
@@ -906,8 +1113,7 @@ pub(crate) const ZRBTCHX_ADOC_EXEMPT: &[(&str, &str)] = &[];
 /// not in the exemption table. Factored out of the case so the predicate can be
 /// proven in memory before its live-tree verdict is trusted.
 pub(crate) fn zrbtchx_is_shipped_adoc(rel: &str) -> bool {
-    rel.ends_with(ZRBTCHX_ADOC_EXT)
-        && !ZRBTCHX_ADOC_EXEMPT.iter().any(|(exempt, _)| *exempt == rel)
+    rel.ends_with(ZRBTCHX_ADOC_EXT) && !ZRBTCHX_ADOC_EXEMPT.iter().any(|(exempt, _)| *exempt == rel)
 }
 
 /// Recursively collect every file path beneath `dir`, skipping `skip_dirs`
@@ -980,7 +1186,11 @@ fn rbtchx_no_adoc(dir: &Path) -> rbtcee_Verdict {
     let mut inventory = BTreeSet::new();
 
     for (path, reason) in ZRBTCHX_ADOC_EXEMPT {
-        inventory.insert(format!("{}\texempt: {}", path, reason));
+        inventory.insert(format!(
+            "{}\texempt: {}",
+            path,
+            reason, //
+        ));
     }
 
     let mut files = Vec::new();
@@ -1014,7 +1224,7 @@ pub static RBTCHX_CASES_PYX: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchx_license_file),
     rbtcee_case!(rbtchx_secret_shapes),
     rbtcee_case!(rbtchx_readme_anchors),
-    rbtcee_case!(rbtchx_no_adoc),
+    rbtcee_case!(rbtchx_no_adoc), //
 ];
 
 pub static RBTCHX_FIXTURE_PYX: rbtcee_Fixture = rbtcee_Fixture {
@@ -1024,5 +1234,9 @@ pub static RBTCHX_FIXTURE_PYX: rbtcee_Fixture = rbtcee_Fixture {
     teardown: None,
     cases: RBTCHX_CASES_PYX,
     credless: true,
-    tariff: rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(0) },
+    tariff: rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(0),
+    },
 };

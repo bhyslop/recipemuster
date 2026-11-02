@@ -25,14 +25,14 @@
 use std::process::Command;
 
 use crate::rbvcem_perambulation::{
+    rbvcem_Disposition,
     rbvcem_dead_rows,
     rbvcem_judge,
-    rbvcem_Disposition,
     rbvcem_shipped,
     rbvcem_sweep,
     rbvcem_unjudged,
     rbvcem_validate,
-    RBVCEM_ROWS,
+    RBVCEM_ROWS, //
 };
 
 /// The maintainer repo root, from git, anchored on the crate directory (tests
@@ -47,10 +47,13 @@ fn zrbvtem_tracked() -> Vec<String> {
     assert!(
         out.status.success(),
         "git rev-parse --show-toplevel failed: {}",
-        String::from_utf8_lossy(&out.stderr)
+        String::from_utf8_lossy(&out.stderr), //
     );
     let root = String::from_utf8_lossy(&out.stdout).trim().to_string();
-    assert!(!root.is_empty(), "git returned an empty repository root");
+    assert!(
+        !root.is_empty(),
+        "git returned an empty repository root", //
+    );
 
     let out = Command::new("git")
         .args(["-C", &root, "ls-files"])
@@ -59,14 +62,17 @@ fn zrbvtem_tracked() -> Vec<String> {
     assert!(
         out.status.success(),
         "git ls-files failed: {}",
-        String::from_utf8_lossy(&out.stderr)
+        String::from_utf8_lossy(&out.stderr), //
     );
     let tracked: Vec<String> = String::from_utf8_lossy(&out.stdout)
         .lines()
         .filter(|line| !line.is_empty())
         .map(|line| line.to_string())
         .collect();
-    assert!(!tracked.is_empty(), "no tracked paths — the perambulation has nothing to judge");
+    assert!(
+        !tracked.is_empty(),
+        "no tracked paths — the perambulation has nothing to judge", //
+    );
     tracked
 }
 
@@ -86,26 +92,38 @@ fn rbvtem_totality() {
         unruled.is_empty(),
         "{} tracked path(s) unjudged — rule each ship or withhold in the perambulation table:\n{}",
         unruled.len(),
-        unruled.join("\n")
+        unruled.join("\n"), //
     );
 
     let dead = rbvcem_dead_rows(&tracked);
     let dead_lines: Vec<String> = dead
         .iter()
-        .map(|(prefix, disposition)| format!("{}|{}", prefix, disposition))
+        .map(|(prefix, disposition)| {
+            format!(
+                "{}|{}",
+                prefix,
+                disposition, //
+            )
+        })
         .collect();
     assert!(
         dead.is_empty(),
         "{} perambulation row(s) judge no tracked path — stale, or shadowed by a longer row:\n{}",
         dead.len(),
-        dead_lines.join("\n")
+        dead_lines.join("\n"), //
     );
 
     // The judgment ships something and withholds something — a table that has
     // drifted into either extreme is lying about the tree.
     let ship_count = rbvcem_shipped(&tracked).len();
-    assert!(ship_count > 0, "the perambulation ships nothing");
-    assert!(ship_count < tracked.len(), "the perambulation withholds nothing");
+    assert!(
+        ship_count > 0,
+        "the perambulation ships nothing", //
+    );
+    assert!(
+        ship_count < tracked.len(),
+        "the perambulation withholds nothing", //
+    );
 }
 
 // ── The planted-leak sweep proof ────────────────────────────
@@ -124,7 +142,7 @@ const ZRBVTEM_SWEEP_PLANTED: &[&str] = &[
     "Study/study-model-prompt-tuning/README.md",
     "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
-    "rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh",
+    "rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh", //
 ];
 const ZRBVTEM_SWEEP_CLEAN: &[&str] = &[
     "README.md",
@@ -132,7 +150,7 @@ const ZRBVTEM_SWEEP_CLEAN: &[&str] = &[
     "Tools/rbk/rbau_auth.sh",
     "Tools/buk/buc_command.sh",
     "tt/rbw-cC.Charge.tadmor.sh",
-    "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem",
+    "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem", //
 ];
 
 #[test]
@@ -148,14 +166,14 @@ fn rbvtem_sweep_catches_planted_leaks() {
         assert!(
             leaks.iter().any(|leak| leak == planted),
             "the sweep did not catch planted withheld path {} — it would ride a regulus",
-            planted
+            planted, //
         );
     }
     for clean in ZRBVTEM_SWEEP_CLEAN {
         assert!(
             !leaks.iter().any(|leak| leak == clean),
             "the sweep reddened on shipped path {} — a sweep that cries wolf gets disabled",
-            clean
+            clean, //
         );
     }
 }
@@ -167,7 +185,7 @@ fn rbvtem_sweep_silent_on_clean_list() {
     assert!(
         leaks.is_empty(),
         "the sweep reddened on a clean list: {}",
-        leaks.join(", ")
+        leaks.join(", "), //
     );
 }
 
@@ -181,36 +199,69 @@ fn rbvtem_sweep_silent_on_clean_list() {
 #[test]
 fn rbvtem_matcher_longest_wins() {
     let veiled = rbvcem_judge("vov_veiled/anything.rs");
-    assert!(matches!(veiled, Some((rbvcem_Disposition::Withhold, _))), "the veiled tree is withheld");
+    assert!(
+        matches!(veiled, Some((rbvcem_Disposition::Withhold, _))),
+        "the veiled tree is withheld", //
+    );
 
     let harbinger = rbvcem_judge("Tools/rbk/rblm_harbinger.sh");
-    assert!(matches!(harbinger, Some((rbvcem_Disposition::Withhold, _))), "the harbinger must outrank the shipping kit");
+    assert!(
+        matches!(harbinger, Some((rbvcem_Disposition::Withhold, _))),
+        "the harbinger must outrank the shipping kit", //
+    );
 
     let shipped_code = rbvcem_judge("Tools/rbk/rbau_auth.sh");
-    assert!(matches!(shipped_code, Some((rbvcem_Disposition::Ship, _))), "the delivered kit ships");
+    assert!(
+        matches!(shipped_code, Some((rbvcem_Disposition::Ship, _))),
+        "the delivered kit ships", //
+    );
 
     let marshal_tt = rbvcem_judge("tt/rbw-MZ.MarshalZeroes.sh");
-    assert!(matches!(marshal_tt, Some((rbvcem_Disposition::Withhold, _))), "the marshal stem must outrank tt/rbw-");
+    assert!(
+        matches!(marshal_tt, Some((rbvcem_Disposition::Withhold, _))),
+        "the marshal stem must outrank tt/rbw-", //
+    );
 
     let hierophant_tt = rbvcem_judge("tt/rbvw-e.Essai.sh");
-    assert!(matches!(hierophant_tt, Some((rbvcem_Disposition::Withhold, _))), "the hierophant stem is withheld");
+    assert!(
+        matches!(hierophant_tt, Some((rbvcem_Disposition::Withhold, _))),
+        "the hierophant stem is withheld", //
+    );
 
     let shipped_tt = rbvcem_judge("tt/rbw-cC.Charge.tadmor.sh");
-    assert!(matches!(shipped_tt, Some((rbvcem_Disposition::Ship, _))), "the shipped tabtarget family ships");
+    assert!(
+        matches!(shipped_tt, Some((rbvcem_Disposition::Ship, _))),
+        "the shipped tabtarget family ships", //
+    );
 
     let floor_crate = rbvcem_judge("Tools/bkk/bk0/bkp/src/lib.rs");
-    assert!(matches!(floor_crate, Some((rbvcem_Disposition::Ship, _))), "the floor crate must outrank the withheld kennel");
+    assert!(
+        matches!(floor_crate, Some((rbvcem_Disposition::Ship, _))),
+        "the floor crate must outrank the withheld kennel", //
+    );
 
     let kennel = rbvcem_judge("Tools/bkk/bk0/bkw_workbench.sh");
-    assert!(matches!(kennel, Some((rbvcem_Disposition::Withhold, _))), "the kennel kit is withheld");
+    assert!(
+        matches!(kennel, Some((rbvcem_Disposition::Withhold, _))),
+        "the kennel kit is withheld", //
+    );
 
     let parcel_kit = rbvcem_judge("Tools/bpk/bpi_install.sh");
-    assert!(matches!(parcel_kit, Some((rbvcem_Disposition::Withhold, _))), "the parcel kit is withheld");
+    assert!(
+        matches!(parcel_kit, Some((rbvcem_Disposition::Withhold, _))),
+        "the parcel kit is withheld", //
+    );
 
     let kennel_tt = rbvcem_judge("tt/bkw-w.Whistle.sh");
-    assert!(matches!(kennel_tt, Some((rbvcem_Disposition::Withhold, _))), "the kennel's doors are withheld");
+    assert!(
+        matches!(kennel_tt, Some((rbvcem_Disposition::Withhold, _))),
+        "the kennel's doors are withheld", //
+    );
 
-    assert!(rbvcem_judge("no-such-root/file.txt").is_none(), "an unjudged path must be None, not a default");
+    assert!(
+        rbvcem_judge("no-such-root/file.txt").is_none(),
+        "an unjudged path must be None, not a default", //
+    );
 }
 
 // ── The table's structural invariants ───────────────────────
@@ -220,14 +271,20 @@ fn rbvtem_matcher_longest_wins() {
 /// table order — the shadowing the longest-wins rule exists to abolish.
 #[test]
 fn rbvtem_validate_refuses_malformed_tables() {
-    use rbvcem_Disposition::{Ship, Withhold};
+    use rbvcem_Disposition::{
+        Ship,
+        Withhold, //
+    };
 
     rbvcem_validate(&[]).expect("an empty table is structurally valid");
     rbvcem_validate(&[("a/", Ship), ("b/", Withhold)]).expect("a well-formed table validates");
 
-    assert!(rbvcem_validate(&[("", Ship)]).is_err(), "an empty prefix must refuse");
+    assert!(
+        rbvcem_validate(&[("", Ship)]).is_err(),
+        "an empty prefix must refuse", //
+    );
     assert!(
         rbvcem_validate(&[("a/", Ship), ("a/", Withhold)]).is_err(),
-        "a duplicate prefix must refuse"
+        "a duplicate prefix must refuse", //
     );
 }

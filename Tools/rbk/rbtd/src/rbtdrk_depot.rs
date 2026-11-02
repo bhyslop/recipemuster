@@ -42,11 +42,44 @@
 
 use std::path::Path;
 
-use crate::rbtcee_case;
-use crate::rbtccp_probe::{rbtccp_assert, rbtccp_Probe};
 use crate::rbtccc_crucible::rbtccc_with_ctx;
-use crate::rbtcee_engine::{rbtcee_Case, rbtcee_Disposition, rbtcee_Fixture, rbtcee_Tariff, rbtcee_Verdict};
+use crate::rbtccp_probe::{
+    rbtccp_Probe,
+    rbtccp_assert, //
+};
+use crate::rbtcee_case;
+use crate::rbtcee_engine::{
+    rbtcee_Case,
+    rbtcee_Disposition,
+    rbtcee_Fixture,
+    rbtcee_Tariff,
+    rbtcee_Verdict, //
+};
 use crate::rbtcei_invocation::rbtcei_Context;
+use crate::rbtcem_manifest::{
+    RBTCEM_FIXTURE_FREEHOLD_CHURN,
+    RBTCEM_FIXTURE_FREEHOLD_ESTABLISH, //
+};
+use crate::rbtcgf_freehold::{
+    rbtcgf_UnmakeSpec,
+    rbtcgf_burs_tincture,
+    rbtcgf_cloud_prefix_subdir,
+    rbtcgf_crosscheck_project_id,
+    rbtcgf_depot_fact_path,
+    rbtcgf_family_stem,
+    rbtcgf_install_depot_moniker,
+    rbtcgf_install_freehold_prefixes,
+    rbtcgf_invoke_admission_settled,
+    rbtcgf_invoke_logged,
+    rbtcgf_pick_next_moniker,
+    rbtcgf_probe_freehold_moniker,
+    rbtcgf_probe_rbrr_present,
+    rbtcgf_read_env_value,
+    rbtcgf_unmake_preamble,
+    RBTCGF_DEPOT_STATE_COMPLETE,
+    RBTCGF_FACT_EXT_DEPOT,
+    RBTCGF_FIELD_RBRD_DEPOT_MONIKER, //
+};
 use crate::rbtgec_consts::{
     RBTGEC_ACCOUNT_DIRECTOR,
     RBTGEC_ACCOUNT_RETRIEVER,
@@ -62,31 +95,7 @@ use crate::rbtgec_consts::{
     RBTGEC_NOUN_SEDERUNT,
     RBTGEC_NOVATE_SEDERUNT,
     RBTGEC_RBRD_FILE,
-    RBTGEC_RECOGNOSCE_DEPOT,
-};
-use crate::rbtcem_manifest::{
-    RBTCEM_FIXTURE_FREEHOLD_ESTABLISH,
-    RBTCEM_FIXTURE_FREEHOLD_CHURN,
-};
-use crate::rbtcgf_freehold::{
-    rbtcgf_burs_tincture,
-    rbtcgf_cloud_prefix_subdir,
-    rbtcgf_crosscheck_project_id,
-    rbtcgf_depot_fact_path,
-    rbtcgf_family_stem,
-    rbtcgf_install_depot_moniker,
-    rbtcgf_install_freehold_prefixes,
-    rbtcgf_invoke_admission_settled,
-    rbtcgf_invoke_logged,
-    rbtcgf_pick_next_moniker,
-    rbtcgf_probe_freehold_moniker,
-    rbtcgf_probe_rbrr_present,
-    rbtcgf_read_env_value,
-    rbtcgf_unmake_preamble,
-    rbtcgf_UnmakeSpec,
-    RBTCGF_DEPOT_STATE_COMPLETE,
-    RBTCGF_FACT_EXT_DEPOT,
-    RBTCGF_FIELD_RBRD_DEPOT_MONIKER,
+    RBTGEC_RECOGNOSCE_DEPOT, //
 };
 
 /// Placeholder moniker installed into RBRD before unmaking the freehold, so
@@ -119,30 +128,37 @@ fn rbtcgk_freehold_ensure_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
     let root = ctx.rbtcei_project_root().to_path_buf();
 
     if let Err(e) = rbtcgf_install_freehold_prefixes(&root) {
-        return rbtcee_Verdict::Fail(format!("install freehold prefixes: {}", e));
+        return rbtcee_Verdict::Fail(format!(
+            "install freehold prefixes: {}",
+            e, //
+        ));
     }
 
-    let list_pre = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_LIST_DEPOT,
-        &[],
-        &[],
-        dir,
-        "list-pre",
-    ) {
+    let list_pre = match rbtcgf_invoke_logged(ctx, RBTGEC_LIST_DEPOT, &[], &[], dir, "list-pre") {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("depot list (pre-levy): {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "depot list (pre-levy): {}",
+                e, //
+            ));
+        }
     };
     if list_pre.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "depot list (pre-levy) exit {}\n{}",
-            list_pre.exit_code, list_pre.stderr
+            list_pre.exit_code,
+            list_pre.stderr, //
         ));
     }
 
     let prefix_dir = match rbtcgf_cloud_prefix_subdir(&root) {
         Ok(p) => p,
-        Err(e) => return rbtcee_Verdict::Fail(format!("resolve cloud_prefix subdir: {}", e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "resolve cloud_prefix subdir: {}",
+                e, //
+            ));
+        }
     };
 
     // Idempotent freehold ensure: reuse the freehold RBRD already names when it
@@ -152,8 +168,7 @@ fn rbtcgk_freehold_ensure_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
     // final case) is the freehold's validity gate, so a stale-but-ACTIVE freehold
     // is reused here and fails there, prompting a deliberate churn.
     let rbrd = root.join(RBTGEC_RBRD_FILE);
-    let current =
-        rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
+    let current = rbtcgf_read_env_value(&rbrd, RBTCGF_FIELD_RBRD_DEPOT_MONIKER).unwrap_or_default();
     let reuse = !current.is_empty() && {
         let state_fact =
             rbtcgf_depot_fact_path(&list_pre, &prefix_dir, &current, RBTCGF_FACT_EXT_DEPOT);
@@ -163,33 +178,63 @@ fn rbtcgk_freehold_ensure_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
     };
 
     let moniker = if reuse {
-        let _ =
-            std::fs::write(dir.join("freehold-decision.txt"), format!("reused {}", current));
+        let _ = std::fs::write(
+            dir.join("freehold-decision.txt"),
+            format!(
+                "reused {}",
+                current, //
+            ),
+        );
         current
     } else {
         let tincture = match rbtcgf_burs_tincture() {
             Ok(t) => t,
-            Err(e) => return rbtcee_Verdict::Fail(format!("read BURS_TINCTURE: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "read BURS_TINCTURE: {}",
+                    e, //
+                ));
+            }
         };
         let family_stem = rbtcgf_family_stem(&tincture);
         let m = match rbtcgf_pick_next_moniker(&list_pre, &root, &family_stem) {
             Ok(m) => m,
-            Err(e) => return rbtcee_Verdict::Fail(format!("pick next moniker: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "pick next moniker: {}",
+                    e, //
+                ));
+            }
         };
         if let Err(e) = rbtcgf_install_depot_moniker(&root, &m) {
-            return rbtcee_Verdict::Fail(format!("install depot moniker: {}", e));
+            return rbtcee_Verdict::Fail(format!(
+                "install depot moniker: {}",
+                e, //
+            ));
         }
         let levy = match rbtcgf_invoke_logged(ctx, RBTGEC_LEVY_DEPOT, &[], &[], dir, "levy") {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("depot levy: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "depot levy: {}",
+                    e, //
+                ));
+            }
         };
         if levy.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
                 "depot levy exit {}\n{}",
-                levy.exit_code, levy.stderr
+                levy.exit_code,
+                levy.stderr, //
             ));
         }
-        let _ = std::fs::write(dir.join("freehold-decision.txt"), format!("levied {}", m));
+        let _ = std::fs::write(
+            dir.join("freehold-decision.txt"),
+            format!(
+                "levied {}",
+                m, //
+            ),
+        );
         m
     };
 
@@ -204,10 +249,16 @@ fn rbtcgk_freehold_ensure_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_V
             Ok(r) => {
                 return rbtcee_Verdict::Fail(format!(
                     "depot list (after levy) exit {}\n{}",
-                    r.exit_code, r.stderr
-                ))
+                    r.exit_code,
+                    r.stderr, //
+                ));
             }
-            Err(e) => return rbtcee_Verdict::Fail(format!("depot list (after levy): {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "depot list (after levy): {}",
+                    e, //
+                ));
+            }
         }
     };
     if let Some(verdict) =
@@ -236,21 +287,21 @@ fn rbtcgk_depot_recognosce(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtcgk_depot_recognosce_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdict {
-    let recognosce = match rbtcgf_invoke_logged(
-        ctx,
-        RBTGEC_RECOGNOSCE_DEPOT,
-        &[],
-        &[],
-        dir,
-        "recognosce",
-    ) {
-        Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("depot recognosce: {}", e)),
-    };
+    let recognosce =
+        match rbtcgf_invoke_logged(ctx, RBTGEC_RECOGNOSCE_DEPOT, &[], &[], dir, "recognosce") {
+            Ok(r) => r,
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "depot recognosce: {}",
+                    e, //
+                ));
+            }
+        };
     if recognosce.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "depot recognosce exit {} — founding not whole\n{}",
-            recognosce.exit_code, recognosce.stderr
+            recognosce.exit_code,
+            recognosce.stderr, //
         ));
     }
     rbtcee_Verdict::Pass
@@ -298,7 +349,7 @@ fn rbtcgk_depot_churn_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbtcee_Verdi
         if s.trim() == RBTCGF_DEPOT_STATE_COMPLETE {
             return rbtcee_Verdict::Fail(format!(
                 "freehold {} still ACTIVE after unmake",
-                outcome.project_id
+                outcome.project_id, //
             ));
         }
     }
@@ -330,13 +381,21 @@ fn rbtcgk_avow(dir: &Path) -> rbtcee_Verdict {
     rbtccc_with_ctx(|ctx| {
         let r = match rbtcgf_invoke_logged(ctx, RBTGEC_CHECK_AVOWAL, &[], &[], dir, "avow") {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("avowal probe: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "avowal probe: {}",
+                    e, //
+                ));
+            }
         };
         if r.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
                 "avowal failed (exit {}) — open a fresh {} before the run with {} \
                  (one device-flow click), then re-run\n{}",
-                r.exit_code, RBTGEC_NOUN_SEDERUNT, RBTGEC_NOVATE_SEDERUNT, r.stderr
+                r.exit_code,
+                RBTGEC_NOUN_SEDERUNT,
+                RBTGEC_NOVATE_SEDERUNT,
+                r.stderr, //
             ));
         }
         rbtcee_Verdict::Pass
@@ -366,12 +425,18 @@ fn rbtcgk_gird_governor(dir: &Path) -> rbtcee_Verdict {
             "gird-governor",
         ) {
             Ok(r) => r,
-            Err(e) => return rbtcee_Verdict::Fail(format!("gird governor: {}", e)),
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "gird governor: {}",
+                    e, //
+                ));
+            }
         };
         if gird.exit_code != 0 {
             return rbtcee_Verdict::Fail(format!(
                 "gird governor exit {}\n{}",
-                gird.exit_code, gird.stderr
+                gird.exit_code,
+                gird.stderr, //
             ));
         }
         rbtcee_Verdict::Pass
@@ -397,7 +462,10 @@ fn rbtcgk_brevet_don_impl(
     // Both invocations sit immediately downstream of a fresh admission grant
     // (brevet's governor don follows gird; the mantle don follows brevet), so
     // both ride the admission-settled wrapper (RBr_3f4).
-    let label_brevet = format!("brevet-{}", mantle);
+    let label_brevet = format!(
+        "brevet-{}",
+        mantle, //
+    );
     let brevet = match rbtcgf_invoke_admission_settled(
         ctx,
         RBTGEC_BREVET_POLITY,
@@ -406,24 +474,49 @@ fn rbtcgk_brevet_don_impl(
         &label_brevet,
     ) {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("brevet {}: {}", mantle, e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "brevet {}: {}",
+                mantle,
+                e, //
+            ));
+        }
     };
     if brevet.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "brevet {} exit {}\n{}",
-            mantle, brevet.exit_code, brevet.stderr
+            mantle,
+            brevet.exit_code,
+            brevet.stderr, //
         ));
     }
 
-    let label_don = format!("don-{}", mantle);
-    let don = match rbtcgf_invoke_admission_settled(ctx, RBTGEC_CHECK_MANTLE, &[mantle_token], dir, &label_don) {
+    let label_don = format!(
+        "don-{}",
+        mantle, //
+    );
+    let don = match rbtcgf_invoke_admission_settled(
+        ctx,
+        RBTGEC_CHECK_MANTLE,
+        &[mantle_token],
+        dir,
+        &label_don,
+    ) {
         Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(format!("don {}: {}", mantle, e)),
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "don {}: {}",
+                mantle,
+                e, //
+            ));
+        }
     };
     if don.exit_code != 0 {
         return rbtcee_Verdict::Fail(format!(
             "don {} exit {} — mantle not donnable or AR unreachable\n{}",
-            mantle, don.exit_code, don.stderr
+            mantle,
+            don.exit_code,
+            don.stderr, //
         ));
     }
     rbtcee_Verdict::Pass
@@ -439,7 +532,9 @@ fn rbtcgk_brevet_don_director(dir: &Path) -> rbtcee_Verdict {
     if let Err(v) = rbtccp_assert(&probe) {
         return v;
     }
-    rbtccc_with_ctx(|ctx| rbtcgk_brevet_don_impl(ctx, dir, RBTGEC_ACCOUNT_DIRECTOR, RBTGEC_MANTLE_DIRECTOR))
+    rbtccc_with_ctx(|ctx| {
+        rbtcgk_brevet_don_impl(ctx, dir, RBTGEC_ACCOUNT_DIRECTOR, RBTGEC_MANTLE_DIRECTOR)
+    })
 }
 
 /// Brevet + don the retriever mantle for the freehold subject.
@@ -452,7 +547,9 @@ fn rbtcgk_brevet_don_retriever(dir: &Path) -> rbtcee_Verdict {
     if let Err(v) = rbtccp_assert(&probe) {
         return v;
     }
-    rbtccc_with_ctx(|ctx| rbtcgk_brevet_don_impl(ctx, dir, RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_MANTLE_RETRIEVER))
+    rbtccc_with_ctx(|ctx| {
+        rbtcgk_brevet_don_impl(ctx, dir, RBTGEC_ACCOUNT_RETRIEVER, RBTGEC_MANTLE_RETRIEVER)
+    })
 }
 
 // ── Section registry ─────────────────────────────────────────
@@ -463,7 +560,7 @@ pub static RBTCGK_CASES_FREEHOLD_ESTABLISH: &[rbtcee_Case] = &[
     rbtcee_case!(rbtcgk_gird_governor),
     rbtcee_case!(rbtcgk_brevet_don_director),
     rbtcee_case!(rbtcgk_brevet_don_retriever),
-    rbtcee_case!(rbtcgk_depot_recognosce),
+    rbtcee_case!(rbtcgk_depot_recognosce), //
 ];
 
 pub static RBTCGK_FIXTURE_FREEHOLD_ESTABLISH: rbtcee_Fixture = rbtcee_Fixture {
@@ -482,9 +579,7 @@ const _: () = assert!(RBTCGK_FIXTURE_FREEHOLD_ESTABLISH.cases.len() == 6);
 // operator-invoked, quota-reclaiming, never a suite passenger. This is the ONLY
 // fixture that destroys the standing freehold; the depot-lifecycle's tear-down
 // only reaches the fresh leasehold it minted (pick_next's max + 1).
-pub static RBTCGK_CASES_FREEHOLD_CHURN: &[rbtcee_Case] = &[
-    rbtcee_case!(rbtcgk_depot_churn),
-];
+pub static RBTCGK_CASES_FREEHOLD_CHURN: &[rbtcee_Case] = &[rbtcee_case!(rbtcgk_depot_churn)];
 
 pub static RBTCGK_FIXTURE_FREEHOLD_CHURN: rbtcee_Fixture = rbtcee_Fixture {
     name: RBTCEM_FIXTURE_FREEHOLD_CHURN,

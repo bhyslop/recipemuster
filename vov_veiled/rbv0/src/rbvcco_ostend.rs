@@ -24,12 +24,12 @@
 use std::path::Path;
 use std::process::ExitCode;
 
-use crate::rbvcet_cachet;
-use crate::rbvcew_world;
-use crate::rbvcex_expede;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
+use crate::rbvcet_cachet;
+use crate::rbvcew_world;
+use crate::rbvcex_expede;
 use crate::rbvgeb_breviary;
 
 /// The kerygma and promotion target is the elected world's public repository
@@ -46,18 +46,25 @@ pub fn rbvcco_ostend_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
     let top = rbvcep_repo::rbvcep_toplevel();
     let parent = rbvcep_repo::rbvcep_parent(&top);
-    rbvcel_log::rbvcel_line(&format!("Maintainer tree: {}", top.display()));
+    rbvcel_log::rbvcel_line(&format!(
+        "Maintainer tree: {}",
+        top.display(), //
+    ));
 
     let regulus_parent = parent.join(bundle.regulus_dirname);
     let regulus_clone = regulus_parent.join(rbvcep_repo::RBVCEP_REGULUS_SUBDIR);
     if !regulus_clone.is_dir() {
         crate::rbvcel_fatal!(
             "no standing regulus at {} — run essai first (RBSHE)",
-            regulus_clone.display()
+            regulus_clone.display(), //
         );
     }
     let regulus_tip = rbvcep_repo::rbvcep_commit_sha(&regulus_clone, &top);
-    rbvcel_log::rbvcel_line(&format!("Standing regulus: {} (tip {})", regulus_clone.display(), regulus_tip));
+    rbvcel_log::rbvcel_line(&format!(
+        "Standing regulus: {} (tip {})",
+        regulus_clone.display(),
+        regulus_tip, //
+    ));
 
     zrbvcco_require_cachet(&regulus_parent, &regulus_clone, &top, world);
     zrbvcco_reassert_ground(&top, &parent, &regulus_clone, &regulus_tip, world);
@@ -73,27 +80,43 @@ pub fn rbvcco_ostend_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
 // ── Step 1: require the cachet ──────────────────────────────
 
-fn zrbvcco_require_cachet(regulus_parent: &Path, regulus_clone: &Path, top: &Path, world: rbvcew_world::rbvcew_World) {
+fn zrbvcco_require_cachet(
+    regulus_parent: &Path,
+    regulus_clone: &Path,
+    top: &Path,
+    world: rbvcew_world::rbvcew_World,
+) {
     rbvcel_log::rbvcel_section("Require the cachet (RBSHO step 1)");
     rbvcet_cachet::rbvcet_require(regulus_parent, regulus_clone, top, world);
 }
 
 // ── Step 2: re-assert the ground ────────────────────────────
 
-fn zrbvcco_reassert_ground(top: &Path, parent: &Path, regulus_clone: &Path, regulus_tip: &str, world: rbvcew_world::rbvcew_World) {
+fn zrbvcco_reassert_ground(
+    top: &Path,
+    parent: &Path,
+    regulus_clone: &Path,
+    regulus_tip: &str,
+    world: rbvcew_world::rbvcew_World,
+) {
     rbvcel_log::rbvcel_section("Re-assert the ground (RBSHO step 2)");
 
     rbvcex_expede::rbvcex_assert_narthex_private(top, world);
 
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
-    let branch_ref = format!("refs/heads/{}", branch);
+    let branch_ref = format!(
+        "refs/heads/{}",
+        branch, //
+    );
     let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
     let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
-    let preview_stands = refs.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
+    let preview_stands = refs
+        .iter()
+        .any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !preview_stands {
         crate::rbvcel_fatal!(
             "the narthex's {} tip does not equal the regulus tip {} — the preview does not stand; the cycle returns to essai, never forward",
-            branch, regulus_tip
+            branch, regulus_tip, //
         );
     }
     rbvcel_log::rbvcel_line("preview stands: narthex tip equals the regulus tip");
@@ -108,46 +131,73 @@ fn zrbvcco_file_list_review(top: &Path, regulus_clone: &Path) {
     let clone = rbvcep_repo::rbvcep_as_str(regulus_clone);
     let files = rbvcer_run::rbvcer_capture("git", &["-C", &clone, "ls-files"], top);
     if files.code != 0 {
-        crate::rbvcel_fatal!("git ls-files failed in the regulus:\n{}", files.stderr.trim());
+        crate::rbvcel_fatal!(
+            "git ls-files failed in the regulus:\n{}",
+            files.stderr.trim(), //
+        );
     }
     rbvcel_log::rbvcel_raw(files.stdout.trim_end());
-    rbvcel_log::rbvcel_line("no machine judgment substitutes for the maintainer reading what they are about to publish");
+    rbvcel_log::rbvcel_line(
+        "no machine judgment substitutes for the maintainer reading what they are about to publish",
+    );
     rbvcel_log::rbvcel_confirm("reviewed the regulus's file list above?");
 }
 
 // ── Step 4: the kerygma (irreversible) ───────────────────
 
-fn zrbvcco_kerygma(top: &Path, regulus_clone: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvcew_Bundle) {
+fn zrbvcco_kerygma(
+    top: &Path,
+    regulus_clone: &Path,
+    regulus_tip: &str,
+    bundle: &rbvcew_world::rbvcew_Bundle,
+) {
     rbvcel_log::rbvcel_section("The kerygma (RBSHO step 4) — IRREVERSIBLE");
     let public_url = bundle.base_url;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
-    let branch_ref = format!("refs/heads/{}", branch);
+    let branch_ref = format!(
+        "refs/heads/{}",
+        branch, //
+    );
 
     let before = rbvcep_repo::rbvcep_ls_remote(public_url, top);
-    let main_before = before.iter().find(|(_, name)| name == RBVCCO_MAIN_REF).map(|(sha, _)| sha.clone());
+    let main_before = before
+        .iter()
+        .find(|(_, name)| name == RBVCCO_MAIN_REF)
+        .map(|(sha, _)| sha.clone());
 
     let clone = rbvcep_repo::rbvcep_as_str(regulus_clone);
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("POINT OF NO RETURN — a public object store cannot be un-disclosed.");
     rbvcel_log::rbvcel_line("Staging push line — type this yourself:");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&format!("        git -C {} push {} {}:{}", clone, public_url, branch, branch));
+    rbvcel_log::rbvcel_raw(&format!(
+        "        git -C {} push {} {}:{}",
+        clone,
+        public_url,
+        branch,
+        branch, //
+    ));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_confirm("pushed the staging push line above?");
 
     let after = rbvcep_repo::rbvcep_ls_remote(public_url, top);
-    let main_after = after.iter().find(|(_, name)| name == RBVCCO_MAIN_REF).map(|(sha, _)| sha.clone());
+    let main_after = after
+        .iter()
+        .find(|(_, name)| name == RBVCCO_MAIN_REF)
+        .map(|(sha, _)| sha.clone());
     if main_before != main_after {
         crate::rbvcel_fatal!(
             "public main moved during the kerygma push ({:?} -> {:?}) — the staging push must never touch main",
-            main_before, main_after
+            main_before, main_after, //
         );
     }
-    let staged = after.iter().any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
+    let staged = after
+        .iter()
+        .any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !staged {
         crate::rbvcel_fatal!(
             "the public repository does not carry {} at the regulus tip {} after the reported push — resolve and re-run ostend",
-            branch, regulus_tip
+            branch, regulus_tip, //
         );
     }
     rbvcel_log::rbvcel_line("disclosed: main untouched, POSTULANT_LOCAL stands at the regulus tip");
@@ -160,27 +210,36 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
     let public_url = bundle.base_url;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
 
-    rbvcel_log::rbvcel_line("Promotion line — from a fresh clone or fetch of the public repository,");
+    rbvcel_log::rbvcel_line(
+        "Promotion line — from a fresh clone or fetch of the public repository,",
+    );
     rbvcel_log::rbvcel_line("never the regulus directory. Type this yourself:");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&format!("        git push {} {}:main", public_url, branch));
+    rbvcel_log::rbvcel_raw(&format!(
+        "        git push {} {}:main",
+        public_url,
+        branch, //
+    ));
     rbvcel_log::rbvcel_blank();
     // Worded to hold in either order: the walk may precede promotion (the
     // standing doctrine) or follow it (this release's ruled exception).
     rbvcel_log::rbvcel_confirm(&format!(
         "promoted (fast-forwarded main to the staging branch at the {} tip) above?",
-        rbvgeb_breviary::RBVGEB_REGULUS_BASE
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
     ));
 
     let after = rbvcep_repo::rbvcep_ls_remote(public_url, top);
-    let main_sha = after.iter().find(|(_, name)| name == RBVCCO_MAIN_REF).map(|(sha, _)| sha.clone());
+    let main_sha = after
+        .iter()
+        .find(|(_, name)| name == RBVCCO_MAIN_REF)
+        .map(|(sha, _)| sha.clone());
     match main_sha {
         Some(sha) if sha == regulus_tip => {
             rbvcel_log::rbvcel_line("promoted: public main equals the regulus tip — the byte claim is checked, not assumed");
         }
         Some(sha) => crate::rbvcel_fatal!(
             "public main is {} after the reported promotion, not the regulus tip {} — a refused fast-forward means main moved since the cut: STOP, never --force, re-cut atop the moved base",
-            sha, regulus_tip
+            sha, regulus_tip, //
         ),
         None => crate::rbvcel_fatal!("public repository carries no main ref after the reported promotion"),
     }
@@ -190,10 +249,14 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
 
 fn zrbvcco_close() {
     rbvcel_log::rbvcel_section("Close the reveal (RBSHO close)");
-    rbvcel_log::rbvcel_line("Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.");
+    rbvcel_log::rbvcel_line(
+        "Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.",
+    );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
-    rbvcel_log::rbvcel_line("  - delete the public staging branch (POSTULANT_LOCAL) on the public repository");
+    rbvcel_log::rbvcel_line(
+        "  - delete the public staging branch (POSTULANT_LOCAL) on the public repository",
+    );
     rbvcel_log::rbvcel_line("  - delete the private narthex repository");
     rbvcel_log::rbvcel_line("  - discard the regulus directory");
 }

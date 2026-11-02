@@ -46,10 +46,22 @@ const RBTTEE_COLORS: rbtcee_Colors = rbtcee_Colors {
 #[test]
 fn rbttee_counts_all_verdict_types() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "p1", func: rbttee_pass },
-        rbtcee_Case { name: "p2", func: rbttee_pass },
-        rbtcee_Case { name: "s1", func: rbttee_skip },
-        rbtcee_Case { name: "f1", func: rbttee_fail },
+        rbtcee_Case {
+            name: "p1",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "p2",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "s1",
+            func: rbttee_skip,
+        },
+        rbtcee_Case {
+            name: "f1",
+            func: rbttee_fail,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("counts");
@@ -63,8 +75,14 @@ fn rbttee_counts_all_verdict_types() {
 #[test]
 fn rbttee_fail_fast_stops_after_first_failure() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "ff-f1", func: rbttee_fail },
-        rbtcee_Case { name: "ff-p1", func: rbttee_pass },
+        rbtcee_Case {
+            name: "ff-f1",
+            func: rbttee_fail,
+        },
+        rbtcee_Case {
+            name: "ff-p1",
+            func: rbttee_pass,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("failfast");
@@ -77,9 +95,18 @@ fn rbttee_fail_fast_stops_after_first_failure() {
 #[test]
 fn rbttee_fail_fast_reports_unreached_cases() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "un-f1", func: rbttee_fail },
-        rbtcee_Case { name: "un-p1", func: rbttee_pass },
-        rbtcee_Case { name: "un-p2", func: rbttee_pass },
+        rbtcee_Case {
+            name: "un-f1",
+            func: rbttee_fail,
+        },
+        rbtcee_Case {
+            name: "un-p1",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "un-p2",
+            func: rbttee_pass,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("unreached");
@@ -92,8 +119,14 @@ fn rbttee_fail_fast_reports_unreached_cases() {
 #[test]
 fn rbttee_full_reach_leaves_unreached_empty() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "full-p1", func: rbttee_pass },
-        rbtcee_Case { name: "full-p2", func: rbttee_pass },
+        rbtcee_Case {
+            name: "full-p1",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "full-p2",
+            func: rbttee_pass,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("fullreach");
@@ -113,18 +146,16 @@ fn rbttee_trace_files_written() {
         rbtcee_Case {
             name: "traced-fail",
             func: rbttee_fail,
-        },
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("trace");
     let _ = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
 
-    let pass_trace =
-        std::fs::read_to_string(tmp.join("traced-pass").join("trace.txt")).unwrap();
+    let pass_trace = std::fs::read_to_string(tmp.join("traced-pass").join("trace.txt")).unwrap();
     assert!(pass_trace.contains("PASSED"));
 
-    let fail_trace =
-        std::fs::read_to_string(tmp.join("traced-fail").join("trace.txt")).unwrap();
+    let fail_trace = std::fs::read_to_string(tmp.join("traced-fail").join("trace.txt")).unwrap();
     assert!(fail_trace.contains("FAILED"));
     assert!(fail_trace.contains("boom"));
 
@@ -134,9 +165,18 @@ fn rbttee_trace_files_written() {
 #[test]
 fn rbttee_cases_run_in_declaration_order() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "ord-a", func: rbttee_pass },
-        rbtcee_Case { name: "ord-b", func: rbttee_pass },
-        rbtcee_Case { name: "ord-c", func: rbttee_skip },
+        rbtcee_Case {
+            name: "ord-a",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "ord-b",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "ord-c",
+            func: rbttee_skip,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("order");
@@ -163,9 +203,18 @@ fn rbttee_zero_cases() {
 #[test]
 fn rbttee_all_skip() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "sk1", func: rbttee_skip },
-        rbtcee_Case { name: "sk2", func: rbttee_skip },
-        rbtcee_Case { name: "sk3", func: rbttee_skip },
+        rbtcee_Case {
+            name: "sk1",
+            func: rbttee_skip,
+        },
+        rbtcee_Case {
+            name: "sk2",
+            func: rbttee_skip,
+        },
+        rbtcee_Case {
+            name: "sk3",
+            func: rbttee_skip,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("allskip");
@@ -211,10 +260,22 @@ fn rbttee_single_case_fail() {
 #[test]
 fn rbttee_run_all_executes_every_case_despite_failures() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "ra-f1", func: rbttee_fail },
-        rbtcee_Case { name: "ra-p1", func: rbttee_pass },
-        rbtcee_Case { name: "ra-f2", func: rbttee_fail },
-        rbtcee_Case { name: "ra-p2", func: rbttee_pass },
+        rbtcee_Case {
+            name: "ra-f1",
+            func: rbttee_fail,
+        },
+        rbtcee_Case {
+            name: "ra-p1",
+            func: rbttee_pass,
+        },
+        rbtcee_Case {
+            name: "ra-f2",
+            func: rbttee_fail,
+        },
+        rbtcee_Case {
+            name: "ra-p2",
+            func: rbttee_pass,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("runall");
@@ -239,8 +300,14 @@ fn rbttee_write_marker(dir: &Path) -> rbtcee_Verdict {
 #[test]
 fn rbttee_temp_dirs_are_distinct_and_isolated() {
     static CASES: &[rbtcee_Case] = &[
-        rbtcee_Case { name: "iso-a", func: rbttee_write_marker },
-        rbtcee_Case { name: "iso-b", func: rbttee_write_marker },
+        rbtcee_Case {
+            name: "iso-a",
+            func: rbttee_write_marker,
+        },
+        rbtcee_Case {
+            name: "iso-b",
+            func: rbttee_write_marker,
+        }, //
     ];
 
     let tmp = rbtteh_make_scratch("isolation");
@@ -413,7 +480,11 @@ fn rbttee_config_set_field_replaces_value_preserving_other_lines() {
 fn rbttee_config_zero_blanks_named_field_only() {
     let tmp = rbtteh_make_scratch("zerofield");
     let file = tmp.join("rbrd.env");
-    std::fs::write(&file, "RBRD_DEPOT_MONIKER=canest3-000007\nRBRD_CLOUD_PREFIX=canc\n").unwrap();
+    std::fs::write(
+        &file,
+        "RBRD_DEPOT_MONIKER=canest3-000007\nRBRD_CLOUD_PREFIX=canc\n",
+    )
+    .unwrap();
 
     rbtcee_config_zero(&file, "RBRD_DEPOT_MONIKER").unwrap();
 
@@ -451,14 +522,19 @@ fn rbttee_commit_nameplates_scopes_to_named_class_only() {
     // not merely that some path was found.
     let np_dir = tmp
         .join(crate::rbtgec_consts::RBTGEC_MOORINGS_DIR)
-        .join(format!("{}testnp", crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE));
+        .join(format!(
+            "{}testnp",
+            crate::rbtgec_consts::RBTGEC_NAMEPLATE_SPRUE, //
+        ));
     std::fs::create_dir_all(&np_dir).unwrap();
     let rbrn = np_dir.join(crate::rbtgec_consts::RBTGEC_RBRN_FILE);
     std::fs::write(&rbrn, "RBRN_SENTRY_HALLMARK=\n").unwrap();
     let surprise = tmp.join("surprise.txt");
     std::fs::write(&surprise, "baseline\n").unwrap();
     rbttee_git(&["add", "-A"], &tmp);
-    assert!(rbttee_git(&["commit", "-q", "-m", "baseline"], &tmp).status.success());
+    assert!(rbttee_git(&["commit", "-q", "-m", "baseline"], &tmp)
+        .status
+        .success());
 
     // Dirty BOTH the owned nameplate file and an unrelated file — the exact
     // wrap-sweeps-everything hazard the scoped verb exists to prevent.
@@ -473,13 +549,13 @@ fn rbttee_commit_nameplates_scopes_to_named_class_only() {
     assert!(
         !out.contains("rbrn.env"),
         "nameplate file must be committed; status: {:?}",
-        out
+        out, //
     );
     // ...and the surprise edit survives uncommitted — never swept into the commit.
     assert!(
         out.contains("surprise.txt"),
         "surprise edit must survive uncommitted; status: {:?}",
-        out
+        out, //
     );
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -504,7 +580,11 @@ fn rbttee_tariff_unchecked_never_flags() {
 
 #[test]
 fn rbttee_tariff_min_is_a_strict_floor() {
-    let t = rbtcee_Tariff { min_secs: Some(10), max_secs: None, invocations: None };
+    let t = rbtcee_Tariff {
+        min_secs: Some(10),
+        max_secs: None,
+        invocations: None,
+    };
     // Strictly below → too_fast (the vacuity catch).
     assert!(rbtcee_evaluate_tariff(&t, 9, 0).too_fast);
     // Exactly at, and above → clear (a boundary green is not vacuous).
@@ -517,7 +597,11 @@ fn rbttee_tariff_min_is_a_strict_floor() {
 
 #[test]
 fn rbttee_tariff_max_is_a_strict_ceiling_warning() {
-    let t = rbtcee_Tariff { min_secs: None, max_secs: Some(60), invocations: None };
+    let t = rbtcee_Tariff {
+        min_secs: None,
+        max_secs: Some(60),
+        invocations: None,
+    };
     assert!(rbtcee_evaluate_tariff(&t, 61, 0).too_slow);
     assert!(!rbtcee_evaluate_tariff(&t, 60, 0).too_slow);
     assert!(!rbtcee_evaluate_tariff(&t, 59, 0).too_slow);
@@ -527,7 +611,11 @@ fn rbttee_tariff_max_is_a_strict_ceiling_warning() {
 
 #[test]
 fn rbttee_tariff_count_drift_is_exact_mismatch() {
-    let t = rbtcee_Tariff { min_secs: None, max_secs: None, invocations: Some(23) };
+    let t = rbtcee_Tariff {
+        min_secs: None,
+        max_secs: None,
+        invocations: Some(23),
+    };
     assert!(rbtcee_evaluate_tariff(&t, 0, 22).count_drift);
     assert!(rbtcee_evaluate_tariff(&t, 0, 24).count_drift);
     assert!(!rbtcee_evaluate_tariff(&t, 0, 23).count_drift);
@@ -537,7 +625,11 @@ fn rbttee_tariff_count_drift_is_exact_mismatch() {
 fn rbttee_tariff_bounds_are_independent() {
     // All three declared: a clean observation flags nothing; a mixed violation
     // (too-fast AND count-drift) flags exactly those two, leaving too-slow off.
-    let t = rbtcee_Tariff { min_secs: Some(5), max_secs: Some(50), invocations: Some(3) };
+    let t = rbtcee_Tariff {
+        min_secs: Some(5),
+        max_secs: Some(50),
+        invocations: Some(3),
+    };
     let clean = rbtcee_evaluate_tariff(&t, 20, 3);
     assert!(!clean.too_fast && !clean.too_slow && !clean.count_drift);
     let mixed = rbtcee_evaluate_tariff(&t, 2, 4);
@@ -567,9 +659,13 @@ const ZRBTTEE_CENSUS_COL_UNUSED: &str = "zrbtdte-col-unused";
 
 fn zrbttee_census_invoke_used(_dir: &Path) -> rbtcee_Verdict {
     crate::rbtccc_crucible::rbtccc_with_ctx(|ctx| {
-        match crate::rbtcei_invocation::rbtcei_invoke_global(ctx, ZRBTTEE_CENSUS_COL_USED, &[], &[]) {
+        match crate::rbtcei_invocation::rbtcei_invoke_global(ctx, ZRBTTEE_CENSUS_COL_USED, &[], &[])
+        {
             Ok(r) if r.exit_code == 0 => rbtcee_Verdict::Pass,
-            Ok(r) => rbtcee_Verdict::Fail(format!("exit {}", r.exit_code)),
+            Ok(r) => rbtcee_Verdict::Fail(format!(
+                "exit {}",
+                r.exit_code, //
+            )),
             Err(e) => rbtcee_Verdict::Fail(e),
         }
     })
@@ -593,7 +689,10 @@ fn zrbttee_census_scratch(label: &str) -> std::path::PathBuf {
     let tmp = rbtteh_make_scratch(label);
     let tt = tmp.join("tt");
     std::fs::create_dir_all(&tt).unwrap();
-    let script = tt.join(format!("{}.Foo.sh", ZRBTTEE_CENSUS_COL_USED));
+    let script = tt.join(format!(
+        "{}.Foo.sh",
+        ZRBTTEE_CENSUS_COL_USED, //
+    ));
     bkprs_program_write(&script, "#!/bin/bash\nexit 0\n").unwrap();
     tmp
 }
@@ -604,7 +703,10 @@ fn rbttee_run_fixture_passes_when_declared_colophons_all_used() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
     crate::rbtcei_invocation::rbtcei_census_arm(Some(&[ZRBTTEE_CENSUS_COL_USED]), &[]);
@@ -613,7 +715,10 @@ fn rbttee_run_fixture_passes_when_declared_colophons_all_used() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.failed, 0, "every declared colophon was invoked — must not fail");
+    assert_eq!(
+        result.failed, 0,
+        "every declared colophon was invoked — must not fail", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -624,20 +729,26 @@ fn rbttee_run_fixture_fails_on_declared_but_unused_colophon() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
     // Declares a SECOND colophon the case never invokes.
-    crate::rbtcei_invocation::rbtcei_census_arm(Some(&[
-        ZRBTTEE_CENSUS_COL_USED,
-        ZRBTTEE_CENSUS_COL_UNUSED,
-    ]), &[]);
+    crate::rbtcei_invocation::rbtcei_census_arm(
+        Some(&[ZRBTTEE_CENSUS_COL_USED, ZRBTTEE_CENSUS_COL_UNUSED]),
+        &[],
+    );
 
     let result = rbtcee_run_fixture(&ZRBTTEE_CENSUS_FIXTURE, &RBTTEE_COLORS, &tmp, false).unwrap();
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert!(result.failed > 0, "a declared-but-never-invoked colophon must fail the fixture");
+    assert!(
+        result.failed > 0,
+        "a declared-but-never-invoked colophon must fail the fixture", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -652,19 +763,25 @@ fn rbttee_run_single_case_ignores_unused_declared_colophons() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
-    crate::rbtcei_invocation::rbtcei_census_arm(Some(&[
-        ZRBTTEE_CENSUS_COL_USED,
-        ZRBTTEE_CENSUS_COL_UNUSED,
-    ]), &[]);
+    crate::rbtcei_invocation::rbtcei_census_arm(
+        Some(&[ZRBTTEE_CENSUS_COL_USED, ZRBTTEE_CENSUS_COL_UNUSED]),
+        &[],
+    );
 
     let result = rbtcee_run_single_case(&ZRBTTEE_CENSUS_CASES[0], &RBTTEE_COLORS, &tmp).unwrap();
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.failed, 0, "single-case run must not enforce the negative census direction");
+    assert_eq!(
+        result.failed, 0,
+        "single-case run must not enforce the negative census direction", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -680,7 +797,10 @@ fn rbttee_run_fixture_permitted_colophon_invocation_not_refused() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
     crate::rbtcei_invocation::rbtcei_census_arm(Some(&[]), &[ZRBTTEE_CENSUS_COL_USED]);
@@ -689,8 +809,14 @@ fn rbttee_run_fixture_permitted_colophon_invocation_not_refused() {
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
-    assert_eq!(result.passed, 1, "a permitted colophon's invoke must not be refused");
-    assert_eq!(result.failed, 0, "a permitted colophon's invoke must not be refused");
+    assert_eq!(
+        result.passed, 1,
+        "a permitted colophon's invoke must not be refused", //
+    );
+    assert_eq!(
+        result.failed, 0,
+        "a permitted colophon's invoke must not be refused", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -718,18 +844,29 @@ fn rbttee_run_fixture_permitted_colophon_unused_does_not_fail() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_NOINVOKE_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_NOINVOKE_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
     crate::rbtcei_invocation::rbtcei_census_arm(Some(&[]), &[ZRBTTEE_CENSUS_COL_UNUSED]);
 
-    let result =
-        rbtcee_run_fixture(&ZRBTTEE_CENSUS_NOINVOKE_FIXTURE, &RBTTEE_COLORS, &tmp, false).unwrap();
+    let result = rbtcee_run_fixture(
+        &ZRBTTEE_CENSUS_NOINVOKE_FIXTURE,
+        &RBTTEE_COLORS,
+        &tmp,
+        false,
+    )
+    .unwrap();
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
     assert_eq!(result.passed, 1);
-    assert_eq!(result.failed, 0, "an unused permitted colophon must not fail the fixture");
+    assert_eq!(
+        result.failed, 0,
+        "an unused permitted colophon must not fail the fixture", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -760,7 +897,10 @@ fn rbttee_run_fixture_skip_suppresses_negative_census() {
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
     let ctx = crate::rbtcei_invocation::rbtcei_Context::new(
-        &tmp, ZRBTTEE_CENSUS_SKIP_FIXTURE.name, &burv_temp_root, &burv_output_root,
+        &tmp,
+        ZRBTTEE_CENSUS_SKIP_FIXTURE.name,
+        &burv_temp_root,
+        &burv_output_root,
     );
     crate::rbtccc_crucible::rbtccc_set_context(ctx);
     crate::rbtcei_invocation::rbtcei_census_arm(Some(&[ZRBTTEE_CENSUS_COL_UNUSED]), &[]);
@@ -771,7 +911,10 @@ fn rbttee_run_fixture_skip_suppresses_negative_census() {
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
     assert_eq!(result.skipped, 1);
-    assert_eq!(result.failed, 0, "a skipped run must suppress the negative census check");
+    assert_eq!(
+        result.failed, 0,
+        "a skipped run must suppress the negative census check", //
+    );
 
     let _ = std::fs::remove_dir_all(&tmp);
 }

@@ -387,7 +387,10 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         rbtica_Attack::DnsAllowedExample => rbtica_expect_command_succeeds(
             "getent",
             &["hosts", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS resolution of {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!(
+                "DNS resolution of {} (allowed domain)",
+                RBTICA_CONNECTIVITY_DOMAIN, //
+            ),
         ),
         rbtica_Attack::DnsAllowedExampleOrg => rbtica_expect_command_succeeds(
             "getent",
@@ -412,12 +415,18 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         rbtica_Attack::DnsTcp => rbtica_expect_command_succeeds(
             "dig",
             &["+tcp", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS over TCP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!(
+                "DNS over TCP for {} (allowed domain)",
+                RBTICA_CONNECTIVITY_DOMAIN, //
+            ),
         ),
         rbtica_Attack::DnsUdp => rbtica_expect_command_succeeds(
             "dig",
             &["+notcp", RBTICA_CONNECTIVITY_DOMAIN],
-            &format!("DNS over UDP for {} (allowed domain)", RBTICA_CONNECTIVITY_DOMAIN),
+            &format!(
+                "DNS over UDP for {} (allowed domain)",
+                RBTICA_CONNECTIVITY_DOMAIN, //
+            ),
         ),
         rbtica_Attack::DnsBlockDirect => rbtica_expect_all_fail(
             &[
@@ -428,8 +437,14 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         ),
         rbtica_Attack::DnsBlockAltport => rbtica_expect_all_fail(
             &[
-                ("dig", &["@8.8.8.8", "-p", "5353", RBTICA_CONNECTIVITY_DOMAIN] as &[&str]),
-                ("dig", &["@8.8.8.8", "-p", "443", RBTICA_CONNECTIVITY_DOMAIN]),
+                (
+                    "dig",
+                    &["@8.8.8.8", "-p", "5353", RBTICA_CONNECTIVITY_DOMAIN] as &[&str],
+                ),
+                (
+                    "dig",
+                    &["@8.8.8.8", "-p", "443", RBTICA_CONNECTIVITY_DOMAIN],
+                ),
             ],
             "alternate DNS port bypass (ports 5353 and 443)",
         ),
@@ -460,7 +475,13 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
         ),
         rbtica_Attack::DnsBlockSpoofing => rbtica_expect_command_fails(
             "dig",
-            &["@8.8.8.8", "+nsid", RBTICA_CONNECTIVITY_DOMAIN, "-b", "192.168.1.2"],
+            &[
+                "@8.8.8.8",
+                "+nsid",
+                RBTICA_CONNECTIVITY_DOMAIN,
+                "-b",
+                "192.168.1.2",
+            ],
             "DNS spoofing source IP bypass",
         ),
         rbtica_Attack::DnsBlockTunneling => rbtica_expect_command_fails(
@@ -479,7 +500,10 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
             rbtica_expect_command_succeeds(
                 "nc",
                 &["-w", "2", "-zv", ip, "443"],
-                &format!("TCP 443 connection to {} (should be allowed)", ip),
+                &format!(
+                    "TCP 443 connection to {} (should be allowed)",
+                    ip, //
+                ),
             )
         }
         rbtica_Attack::Tcp443Block => {
@@ -493,49 +517,94 @@ pub fn rbtica_run(attack: &rbtica_Attack, extra_args: &[&str]) -> rbtica_Verdict
             rbtica_expect_command_fails(
                 "nc",
                 &["-w", "2", "-zv", ip, "443"],
-                &format!("TCP 443 connection to {} (should be blocked)", ip),
+                &format!(
+                    "TCP 443 connection to {} (should be blocked)",
+                    ip, //
+                ),
             )
         }
         rbtica_Attack::IcmpFirstHop => rbtica_check_icmp_first_hop(),
         rbtica_Attack::IcmpSecondHopBlocked => rbtica_check_icmp_second_hop_blocked(),
         // Ported python sorties
-        rbtica_Attack::DnsExfilSubdomain => rbtics_sorties::rbtics_sortie_dns_exfil_subdomain(extra_args),
-        rbtica_Attack::MetaCloudEndpoint => rbtics_sorties::rbtics_sortie_meta_cloud_endpoint(extra_args),
-        rbtica_Attack::NetForbiddenCidr => rbtics_sorties::rbtics_sortie_net_forbidden_cidr(extra_args),
-        rbtica_Attack::DirectSentryProbe => rbtics_sorties::rbtics_sortie_direct_sentry_probe(extra_args),
-        rbtica_Attack::IcmpExfilPayload => rbtics_sorties::rbtics_sortie_icmp_exfil_payload(extra_args),
+        rbtica_Attack::DnsExfilSubdomain => {
+            rbtics_sorties::rbtics_sortie_dns_exfil_subdomain(extra_args)
+        }
+        rbtica_Attack::MetaCloudEndpoint => {
+            rbtics_sorties::rbtics_sortie_meta_cloud_endpoint(extra_args)
+        }
+        rbtica_Attack::NetForbiddenCidr => {
+            rbtics_sorties::rbtics_sortie_net_forbidden_cidr(extra_args)
+        }
+        rbtica_Attack::DirectSentryProbe => {
+            rbtics_sorties::rbtics_sortie_direct_sentry_probe(extra_args)
+        }
+        rbtica_Attack::IcmpExfilPayload => {
+            rbtics_sorties::rbtics_sortie_icmp_exfil_payload(extra_args)
+        }
         rbtica_Attack::NetIpv6Escape => rbtics_sorties::rbtics_sortie_net_ipv6_escape(extra_args),
         rbtica_Attack::NetSrcipSpoof => rbtics_sorties::rbtics_sortie_net_srcip_spoof(extra_args),
-        rbtica_Attack::NetSrcipSpoofExternal => rbtics_sorties::rbtics_sortie_net_srcip_spoof_external(extra_args),
-        rbtica_Attack::ProtoSmuggleRawsock => rbtics_sorties::rbtics_sortie_proto_smuggle_rawsock(extra_args),
-        rbtica_Attack::NetFragmentEvasion => rbtics_sorties::rbtics_sortie_net_fragment_evasion(extra_args),
-        rbtica_Attack::DirectArpPoison => rbtics_sorties::rbtics_sortie_direct_arp_poison(extra_args),
-        rbtica_Attack::NsCapabilityEscape => rbtics_sorties::rbtics_sortie_ns_capability_escape(extra_args),
+        rbtica_Attack::NetSrcipSpoofExternal => {
+            rbtics_sorties::rbtics_sortie_net_srcip_spoof_external(extra_args)
+        }
+        rbtica_Attack::ProtoSmuggleRawsock => {
+            rbtics_sorties::rbtics_sortie_proto_smuggle_rawsock(extra_args)
+        }
+        rbtica_Attack::NetFragmentEvasion => {
+            rbtics_sorties::rbtics_sortie_net_fragment_evasion(extra_args)
+        }
+        rbtica_Attack::DirectArpPoison => {
+            rbtics_sorties::rbtics_sortie_direct_arp_poison(extra_args)
+        }
+        rbtica_Attack::NsCapabilityEscape => {
+            rbtics_sorties::rbtics_sortie_ns_capability_escape(extra_args)
+        }
         // Coordinated attack primitives — execute action, theurge judges outcome
-        rbtica_Attack::ArpSendGratuitous => rbtics_sorties::rbtics_sortie_arp_send_gratuitous(extra_args),
-        rbtica_Attack::ArpSendGatewayPoison => rbtics_sorties::rbtics_sortie_arp_send_gateway_poison(extra_args),
+        rbtica_Attack::ArpSendGratuitous => {
+            rbtics_sorties::rbtics_sortie_arp_send_gratuitous(extra_args)
+        }
+        rbtica_Attack::ArpSendGatewayPoison => {
+            rbtics_sorties::rbtics_sortie_arp_send_gateway_poison(extra_args)
+        }
         // Coordinated integrity primitives — execute action, theurge judges state
-        rbtica_Attack::DnsForgeResponse => rbtics_sorties::rbtics_sortie_dns_forge_response(extra_args),
+        rbtica_Attack::DnsForgeResponse => {
+            rbtics_sorties::rbtics_sortie_dns_forge_response(extra_args)
+        }
         rbtica_Attack::MacFloodBridge => rbtics_sorties::rbtics_sortie_mac_flood_bridge(extra_args),
         // Novel unilateral attacks
-        rbtica_Attack::NetRouteManipulation => rbtics_sorties::rbtics_sortie_net_route_manipulation(extra_args),
-        rbtica_Attack::NetEnclaveSubnetEscape => rbtics_sorties::rbtics_sortie_net_enclave_subnet_escape(extra_args),
-        rbtica_Attack::NetDnatEntryReflection => rbtics_sorties::rbtics_sortie_net_dnat_entry_reflection(extra_args),
+        rbtica_Attack::NetRouteManipulation => {
+            rbtics_sorties::rbtics_sortie_net_route_manipulation(extra_args)
+        }
+        rbtica_Attack::NetEnclaveSubnetEscape => {
+            rbtics_sorties::rbtics_sortie_net_enclave_subnet_escape(extra_args)
+        }
+        rbtica_Attack::NetDnatEntryReflection => {
+            rbtics_sorties::rbtics_sortie_net_dnat_entry_reflection(extra_args)
+        }
         // Egress control verification
-        rbtica_Attack::UdpNonDnsBlocked => rbtics_sorties::rbtics_sortie_udp_non_dns_blocked(extra_args),
-        rbtica_Attack::CidrAllPortsAllowed => rbtics_sorties::rbtics_sortie_cidr_all_ports_allowed(extra_args),
+        rbtica_Attack::UdpNonDnsBlocked => {
+            rbtics_sorties::rbtics_sortie_udp_non_dns_blocked(extra_args)
+        }
+        rbtica_Attack::CidrAllPortsAllowed => {
+            rbtics_sorties::rbtics_sortie_cidr_all_ports_allowed(extra_args)
+        }
         // Advanced adversarial probes
         rbtica_Attack::DnsRebinding => rbtics_sorties::rbtics_sortie_dns_rebinding(extra_args),
         rbtica_Attack::ProcSysWrite => rbtics_sorties::rbtics_sortie_proc_sys_write(extra_args),
         rbtica_Attack::TcpRstHijack => rbtics_sorties::rbtics_sortie_tcp_rst_hijack(extra_args),
         // Network path verification
         rbtica_Attack::HttpEndToEnd => rbtics_sorties::rbtics_sortie_http_end_to_end(extra_args),
-        rbtica_Attack::ConntrackSpoofedAck => rbtics_sorties::rbtics_sortie_conntrack_spoofed_ack(extra_args),
-        rbtica_Attack::OffpathBlockedDest => rbtics_sorties::rbtics_sortie_offpath_blocked_dest(extra_args),
+        rbtica_Attack::ConntrackSpoofedAck => {
+            rbtics_sorties::rbtics_sortie_conntrack_spoofed_ack(extra_args)
+        }
+        rbtica_Attack::OffpathBlockedDest => {
+            rbtics_sorties::rbtics_sortie_offpath_blocked_dest(extra_args)
+        }
         rbtica_Attack::ConntrackPipelineSelfcheck => {
             rbtics_sorties::rbtics_sortie_conntrack_pipeline_selfcheck(extra_args)
         }
-        rbtica_Attack::SentryUdpNonDns => rbtics_sorties::rbtics_sortie_sentry_udp_non_dns(extra_args),
+        rbtica_Attack::SentryUdpNonDns => {
+            rbtics_sorties::rbtics_sortie_sentry_udp_non_dns(extra_args)
+        }
     }
 }
 
@@ -549,7 +618,10 @@ fn rbtica_expect_command_succeeds(cmd: &str, args: &[&str], description: &str) -
             if output.status.success() {
                 rbtica_Verdict {
                     passed: true,
-                    detail: format!("SECURE: {}", description),
+                    detail: format!(
+                        "SECURE: {}",
+                        description, //
+                    ),
                 }
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
@@ -559,14 +631,19 @@ fn rbtica_expect_command_succeeds(cmd: &str, args: &[&str], description: &str) -
                         "BREACH: {} — command failed (exit {}): {}",
                         description,
                         output.status.code().unwrap_or(-1),
-                        stderr.trim()
+                        stderr.trim(), //
                     ),
                 }
             }
         }
         Err(e) => rbtica_Verdict {
             passed: false,
-            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e),
+            detail: format!(
+                "ERROR: {} — failed to execute '{}': {}",
+                description,
+                cmd,
+                e, //
+            ),
         },
     }
 }
@@ -579,18 +656,29 @@ fn rbtica_expect_command_fails(cmd: &str, args: &[&str], description: &str) -> r
             if output.status.success() {
                 rbtica_Verdict {
                     passed: false,
-                    detail: format!("BREACH: {} — command succeeded unexpectedly", description),
+                    detail: format!(
+                        "BREACH: {} — command succeeded unexpectedly",
+                        description, //
+                    ),
                 }
             } else {
                 rbtica_Verdict {
                     passed: true,
-                    detail: format!("SECURE: {}", description),
+                    detail: format!(
+                        "SECURE: {}",
+                        description, //
+                    ),
                 }
             }
         }
         Err(e) => rbtica_Verdict {
             passed: false,
-            detail: format!("ERROR: {} — failed to execute '{}': {}", description, cmd, e),
+            detail: format!(
+                "ERROR: {} — failed to execute '{}': {}",
+                description,
+                cmd,
+                e, //
+            ),
         },
     }
 }
@@ -606,7 +694,8 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
                         passed: false,
                         detail: format!(
                             "BREACH: {} — '{}' succeeded unexpectedly",
-                            description, cmd
+                            description,
+                            cmd, //
                         ),
                     };
                 }
@@ -617,7 +706,9 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
                     passed: false,
                     detail: format!(
                         "ERROR: {} — failed to execute '{}': {}",
-                        description, cmd, e
+                        description,
+                        cmd,
+                        e, //
                     ),
                 };
             }
@@ -625,7 +716,10 @@ fn rbtica_expect_all_fail(checks: &[(&str, &[&str])], description: &str) -> rbti
     }
     rbtica_Verdict {
         passed: true,
-        detail: format!("SECURE: {}", description),
+        detail: format!(
+            "SECURE: {}",
+            description, //
+        ),
     }
 }
 
@@ -638,8 +732,11 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         Err(e) => {
             return rbtica_Verdict {
                 passed: false,
-                detail: format!("ERROR: icmp-first-hop — cannot read sentry IP: {}", e),
-            }
+                detail: format!(
+                    "ERROR: icmp-first-hop — cannot read sentry IP: {}",
+                    e, //
+                ),
+            };
         }
     };
 
@@ -651,15 +748,18 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         Err(e) => {
             return rbtica_Verdict {
                 passed: false,
-                detail: format!("ERROR: icmp-first-hop — failed to execute traceroute: {}", e),
-            }
+                detail: format!(
+                    "ERROR: icmp-first-hop — failed to execute traceroute: {}",
+                    e, //
+                ),
+            };
         }
     };
 
     let combined = format!(
         "{}{}",
         String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
+        String::from_utf8_lossy(&output.stderr), //
     );
 
     // Accept sentry IP visible OR fully blocked (* * *)
@@ -668,7 +768,7 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
             passed: true,
             detail: format!(
                 "SECURE: icmp-first-hop — sentry IP {} visible in traceroute",
-                sentry_ip
+                sentry_ip, //
             ),
         };
     }
@@ -690,7 +790,7 @@ fn rbtica_check_icmp_first_hop() -> rbtica_Verdict {
         passed: false,
         detail: format!(
             "BREACH: icmp-first-hop — unexpected traceroute output (expected sentry IP {} or * * *):\n{}",
-            sentry_ip, combined
+            sentry_ip, combined, //
         ),
     }
 }
@@ -707,16 +807,16 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
                 passed: false,
                 detail: format!(
                     "ERROR: icmp-second-hop-blocked — failed to execute traceroute: {}",
-                    e
+                    e, //
                 ),
-            }
+            };
         }
     };
 
     let combined = format!(
         "{}{}",
         String::from_utf8_lossy(&output.stdout),
-        String::from_utf8_lossy(&output.stderr)
+        String::from_utf8_lossy(&output.stderr), //
     );
 
     // Check for "2  * * *" pattern
@@ -726,7 +826,8 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
             if trimmed.contains("* * *") {
                 return rbtica_Verdict {
                     passed: true,
-                    detail: "SECURE: icmp-second-hop-blocked — second hop blocked (* * *)".to_string(),
+                    detail: "SECURE: icmp-second-hop-blocked — second hop blocked (* * *)"
+                        .to_string(),
                 };
             }
         }
@@ -736,7 +837,7 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
         passed: false,
         detail: format!(
             "BREACH: icmp-second-hop-blocked — expected blocked second hop (* * *) in traceroute:\n{}",
-            combined
+            combined, //
         ),
     }
 }
@@ -744,8 +845,12 @@ fn rbtica_check_icmp_second_hop_blocked() -> rbtica_Verdict {
 /// Read the nameserver IP from /etc/resolv.conf.
 /// Returns the first nameserver entry found.
 fn rbtica_read_nameserver() -> Result<String, String> {
-    let content = std::fs::read_to_string("/etc/resolv.conf")
-        .map_err(|e| format!("cannot read /etc/resolv.conf: {}", e))?;
+    let content = std::fs::read_to_string("/etc/resolv.conf").map_err(|e| {
+        format!(
+            "cannot read /etc/resolv.conf: {}",
+            e, //
+        )
+    })?;
 
     for line in content.lines() {
         let trimmed = line.trim();
