@@ -625,7 +625,7 @@ fn rbtchs_rbro_missing_refresh_token(dir: &Path) -> rbtcee_Verdict {
         dir,
         RBTGEC_VALIDATE_OAUTH,
         &[],
-        "RBRO_REFRESH_TOKEN",
+        "RBRO_zSECRET_REFRESH_TOKEN",
         RBTGEB_BUSX_ENROLL_DENTIL,
         "rbro-missing-refresh-token",
     )

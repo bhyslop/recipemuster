@@ -601,7 +601,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
     let rbro_probe = dir.join("rbro-probe.env");
     std::fs::write(
         &rbro_probe,
-        "RBRO_CLIENT_SECRET=probe\nRBRO_REFRESH_TOKEN=probe\n",
+        "RBRO_zSECRET_CLIENT_SECRET=probe\nRBRO_zSECRET_REFRESH_TOKEN=probe\n",
     )
     .map_err(|e| {
         format!(

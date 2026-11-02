@@ -45,8 +45,8 @@ zrbro_kindle() {
   buv_regime_enroll RBRO
 
   buv_group_enroll "OAuth Credentials"
-  buv_string_enroll  RBRO_CLIENT_SECRET  1  512  "OAuth client secret"
-  buv_string_enroll  RBRO_REFRESH_TOKEN  1  512  "OAuth refresh token"
+  buv_string_enroll  RBRO_zSECRET_CLIENT_SECRET  1  512  "OAuth client secret"
+  buv_string_enroll  RBRO_zSECRET_REFRESH_TOKEN  1  512  "OAuth refresh token"
 
   # Guard against unexpected RBRO_ variables not in enrollment
   buv_scope_sentinel RBRO RBRO_

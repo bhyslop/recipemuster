@@ -220,8 +220,8 @@ zrblm_kindle() {
   zrblm_enroll RBRF RBRF_ASSERTER_SUBJECT            "${z_common}"
 
   # ── RBRO — payor OAuth regime ──
-  zrblm_enroll RBRO RBRO_CLIENT_SECRET               "${z_offtree}"
-  zrblm_enroll RBRO RBRO_REFRESH_TOKEN               "${z_offtree}"
+  zrblm_enroll RBRO RBRO_zSECRET_CLIENT_SECRET               "${z_offtree}"
+  zrblm_enroll RBRO RBRO_zSECRET_REFRESH_TOKEN               "${z_offtree}"
 
   # ── RBRV — vessel regime ──
   # The origins are upstream vendor references, common to every installation; the
