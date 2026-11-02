@@ -216,7 +216,9 @@ rbuh_urlencode_capture() {
 
 # rbuh_json_field_capture INFIX JQ — the field the filter reads from an infix's
 # response. A field reading empty or null refuses with RBUH_refusal_absent; a
-# failed read refuses with nothing printed.
+# failed read refuses with nothing printed. A response that is empty or
+# whitespace alone holds no document, so it is a failed read and never the
+# absent word, though jq would read it without complaint.
 rbuh_json_field_capture() {
   zrbuh_sentinel
   local -r z_infix="${1:-}"
@@ -224,6 +226,12 @@ rbuh_json_field_capture() {
   test -n "${z_infix}" || return 1
   test -n "${z_jq}"    || return 1
   local -r z_json_file="${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}"
+  local z_body
+  z_body=$(<"${z_json_file}")                           || return 1
+  case "${z_body}" in
+    *[![:space:]]*) : ;;
+    *)              return 1 ;;
+  esac
   local z_result
   z_result=$(jq -r "${z_jq}" "${z_json_file}")          || return 1
   local z_out="${z_result}"
@@ -245,6 +253,20 @@ rbuh_code_capture() {
   z_code=$(<"${z_file}") || return 1
   test -n "${z_code}"    || return 1
   echo "${z_code}"
+}
+
+# zrbuh_epoch_capture CLOCK_FILE — the wall clock in whole epoch seconds, read
+# by date through the clock file and checked decimal, since bash 3.2 carries no
+# clock variable of its own.
+zrbuh_epoch_capture() {
+  zrbuh_sentinel
+  local -r z_clock_file="${1:-}"
+  test -n "${z_clock_file}" || return 1
+  date +%s > "${z_clock_file}" || return 1
+  local z_now
+  z_now=$(<"${z_clock_file}")  || return 1
+  case "${z_now}" in ''|*[!0123456789]*) return 1 ;; esac
+  echo "${z_now}"
 }
 
 # rbuh_request_capture METHOD URL TOKEN HEADERS STDERR_FILE [BODY_FILE] — one
@@ -326,8 +348,9 @@ rbuh_json() {
     z_curl_status=0
     z_attempt=$((z_attempt + 1))
 
-    # Each attempt writes to uniquely-suffixed files; the last is registered under the bare infix below
-    z_infix_u="${z_infix}_${z_attempt}"
+    # Each attempt writes to uniquely-suffixed files; the last is registered under the bare infix below.
+    # The '+' joins no infix, so an attempt's files never stand where another infix registers its own.
+    z_infix_u="${z_infix}+${z_attempt}"
     z_resp_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_JSON}"
     z_code_file="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}"
     z_code_errs="${ZRBUH_PREFIX}${z_infix_u}${ZRBUH_POSTFIX_CODE}.stderr"
@@ -344,6 +367,19 @@ rbuh_json() {
 
     rbgo_curl_status_is_transient_predicate "${z_curl_status}" \
       || buc_die_now "HTTP request failed (curl exit ${z_curl_status})"
+
+    # A timeout (28) or a receive failure (56) can fall after the server took the
+    # request, so only a read is sent again; a connect failure (7) or a TLS
+    # handshake failure (35) falls before the send and is replayed for every method.
+    case "${z_curl_status}" in
+      28|56)
+        case "${z_method}" in
+          GET|HEAD) : ;;
+          *) buc_die_now "HTTP ${z_method} failed after the request may have been sent (curl exit ${z_curl_status}): the server may have acted, so it is not sent again" ;;
+        esac
+        ;;
+      *) : ;;
+    esac
 
     test "${z_attempt}" -lt "${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS}" \
       || buc_die_now "HTTP request failed after ${RBGC_HTTP_TRANSIENT_RETRY_ATTEMPTS} attempts (curl exit ${z_curl_status})"
@@ -482,7 +518,7 @@ rbuh_poll_until_ok() {
   buc_doc_param "label" "What is awaited, for the log and the die message"
   buc_doc_param "url"   "Endpoint polled with GET"
   buc_doc_param "token" "OAuth bearer token"
-  buc_doc_param "infix" "Temp-file infix each poll's elapsed seconds extend"
+  buc_doc_param "infix" "Temp-file infix each poll's ordinal extends"
   buc_doc_shown || return 0
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_ok: label required"
@@ -490,11 +526,21 @@ rbuh_poll_until_ok() {
   test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_ok: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_ok: infix required"
 
+  # Elapsed is read off the wall clock, so the time each request takes counts
+  # toward the timeout as the sleeps do.
+  local -r z_clock_file="${ZRBUH_PREFIX}${z_infix}_clock.txt"
+  local z_start
+  z_start=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+  local z_now=""
   local z_elapsed=0
+  local z_poll=0
   local z_poll_infix=""
   while :; do
-    z_poll_infix="${z_infix}-${z_elapsed}s"
+    z_poll=$((z_poll + 1))
+    z_poll_infix="${z_infix}-poll${z_poll}"
     rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
+    z_now=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+    z_elapsed=$(( 10#${z_now} - 10#${z_start} ))
 
     local z_code_status=0
     local z_code
@@ -509,7 +555,6 @@ rbuh_poll_until_ok() {
     test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" || buc_die_now "${z_label}: timeout after ${RBGC_MAX_CONSISTENCY_SEC}s"
     buc_log_args "${z_label} not ready (HTTP ${z_code}), waiting ${RBGC_EVENTUAL_CONSISTENCY_SEC}s..."
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "${z_label}: failed to pause between polls"
-    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
 
@@ -535,7 +580,7 @@ rbuh_poll_until_gone() {
   buc_doc_param "label" "What is awaited, for the log and the die message"
   buc_doc_param "url"   "Endpoint polled with GET"
   buc_doc_param "token" "OAuth bearer token"
-  buc_doc_param "infix" "Temp-file infix each poll's elapsed seconds extend"
+  buc_doc_param "infix" "Temp-file infix each poll's ordinal extends"
   buc_doc_shown || return 0
 
   test -n "${z_label}" || buc_die_now "rbuh_poll_until_gone: label required"
@@ -543,12 +588,21 @@ rbuh_poll_until_gone() {
   test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_gone: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_gone: infix required"
 
+  # Elapsed is read off the wall clock, as rbuh_poll_until_ok reads it.
+  local -r z_clock_file="${ZRBUH_PREFIX}${z_infix}_clock.txt"
+  local z_start
+  z_start=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+  local z_now=""
   local z_elapsed=0
+  local z_poll=0
   local z_streak=0
   local z_poll_infix=""
   while :; do
-    z_poll_infix="${z_infix}-${z_elapsed}s"
+    z_poll=$((z_poll + 1))
+    z_poll_infix="${z_infix}-poll${z_poll}"
     rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
+    z_now=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+    z_elapsed=$(( 10#${z_now} - 10#${z_start} ))
 
     local z_code_status=0
     local z_code
@@ -572,7 +626,6 @@ rbuh_poll_until_gone() {
     test "${z_elapsed}" -lt "${RBGC_MAX_CONSISTENCY_SEC}" \
       || buc_die_now "${z_label}: not durably gone after ${RBGC_MAX_CONSISTENCY_SEC}s (last HTTP ${z_code}, streak ${z_streak}/${RBGC_GONE_CONFIRM_STREAK})"
     sleep "${RBGC_EVENTUAL_CONSISTENCY_SEC}" || buc_die_now "${z_label}: failed to pause between polls"
-    z_elapsed=$((z_elapsed + RBGC_EVENTUAL_CONSISTENCY_SEC))
   done
 }
 
