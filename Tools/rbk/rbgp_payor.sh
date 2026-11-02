@@ -815,28 +815,28 @@ zrbgp_pool_build_submit_await() {
   buc_link "  Open ${z_operation_label} build in Cloud Console: " "${z_build_console_url}" "${z_build_console_url}"
 
   local -r z_build_get_url="${z_build_url}/${z_build_id}"
-  local z_cancel_args=("${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_infix_prefix}_${z_pool_variant}")
+  local -r z_cancel_infix="${z_infix_prefix}_${z_pool_variant}"
   local z_status="PENDING"
   local z_polls=0
   local z_poll_infix=""
   while true; do
     case "${z_status}" in PENDING|QUEUED|WORKING) : ;; *) break ;; esac
     sleep "${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}" \
-      || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "Poll wait interrupted"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Poll wait interrupted"
     z_polls=$((z_polls + 1))
     test "${z_polls}" -le "${ZRBGP_POOL_BUILD_POLL_CEILING}" \
-      || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: timeout after ${ZRBGP_POOL_BUILD_POLL_CEILING} polls (${ZRBGP_POOL_BUILD_POLL_INTERVAL_SEC}s interval); last status=${z_status}"
     z_poll_infix="${z_infix_prefix}_${z_pool_variant}_poll_${z_polls}"
     rbuh_json "GET" "${z_build_get_url}" "${zSECRET_token}" "${z_poll_infix}" \
-      || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "HTTP GET request failed (${z_poll_infix})"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "HTTP GET request failed (${z_poll_infix})"
     local z_poll_code
     z_poll_code=$(rbuh_code_capture "${z_poll_infix}") \
-      || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Bad ${z_operation_label} poll HTTP code for ${z_pool_variant} (${z_poll_infix})"
     case "${z_poll_code}" in
       200) : ;;
       429|5[0123456789][0123456789])
         buc_info "  ${z_operation_label} ${z_pool_variant}: HTTP ${z_poll_code}, polling on (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
-          || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "Failed to print message"
+          || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Failed to print message"
         continue
         ;;
       *)
@@ -844,18 +844,18 @@ zrbgp_pool_build_submit_await() {
         local z_poll_err
         z_poll_err=$(rbuh_json_field_capture "${z_poll_infix}" '.error.message') || z_poll_err_status=$?
         test "${z_poll_err_status}" -eq 0 || z_poll_err="no error message"
-        zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
+        zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP ${z_poll_code}: ${z_poll_err}"
         ;;
     esac
     local z_status_status=0
     z_status=$(rbuh_json_field_capture "${z_poll_infix}" '.status') || z_status_status=$?
     if test "${z_status_status}" -ne 0; then
       test "${z_status}" != "${RBUH_refusal_absent}" \
-        || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 carrying no status"
-      zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 whose status could not be read"
+        || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 carrying no status"
+      zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_operation_label} ${z_pool_variant}: poll of build ${z_build_id} answered HTTP 200 whose status could not be read"
     fi
     buc_info "  ${z_operation_label} ${z_pool_variant}: ${z_status} (poll ${z_polls}/${ZRBGP_POOL_BUILD_POLL_CEILING})" \
-      || zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "Failed to print message"
+      || zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "Failed to print message"
   done
   buc_info "  ${z_operation_label} ${z_pool_variant}: terminal = ${z_status}"
   test "${z_status}" != "SUCCESS" || return 0
@@ -863,7 +863,7 @@ zrbgp_pool_build_submit_await() {
   local -r z_ended="${z_operation_label} ${z_pool_variant}: build ${z_build_id} ended ${z_status}, not SUCCESS — inspect it through the console link above"
   case "${z_status}" in
     FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) buc_die_now "${z_ended}" ;;
-    *) zrbgp_pool_build_cancel_die "${z_cancel_args[@]}" "${z_ended}" ;;
+    *) zrbgp_pool_build_cancel_die "${zSECRET_token}" "${z_build_get_url}" "${z_build_id}" "${z_build_console_url}" "${z_cancel_infix}" "${z_ended}" ;;
   esac
 }
 
@@ -883,7 +883,7 @@ zrbgp_pool_build_cancel() {
   local -r z_console_url="${4:-}"
   local -r z_infix="${5:-}"
 
-  local -r z_prefix="${BURD_TEMP_DIR}/rbgp_${z_infix}_cancel_"
+  local -r z_prefix="${ZRBGP_PREFIX}${z_infix}_cancel_"
   local -r z_body_file="${z_prefix}body.json"
   local -r z_resp_file="${z_prefix}resp.json"
   local -r z_code_file="${z_prefix}code.txt"
@@ -2245,15 +2245,15 @@ zrbgp_escheat_liveness() {
         z_reason=$(rbuh_json_field_capture "${z_infix}" '[.error.details[]? | select(."@type" | endswith("ErrorInfo")) | .reason] | .[0]') || z_reason_status=$?
         if test "${z_reason_status}" -ne 0; then
           test "${z_reason}" = "${RBUH_refusal_absent}" \
-            || buc_die_now "Escheat liveness: HTTP 403 from projects.get for ${z_depot} whose body could not be read — a liveness verdict is never guessed"
+            || buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot} whose body could not be read — a liveness verdict is never guessed"
           z_reason=""
         fi
         case "${z_reason}" in
           SERVICE_DISABLED)
-            buc_die_now "Escheat liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — enable the service Google's answer names (response: ${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}) and re-run — a liveness verdict is never guessed"
+            buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — enable the service Google's answer names (response: ${ZRBUH_PREFIX}${z_infix}${ZRBUH_POSTFIX_JSON}) and re-run — a liveness verdict is never guessed"
             ;;
           ACCESS_TOKEN_SCOPE_INSUFFICIENT)
-            buc_die_now "Escheat liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — the payor's token lacks the scope this read needs; reinstall the payor credential and re-run — a liveness verdict is never guessed"
+            buc_die_now "${RBCG_MANOR_ESCHEAT_BASE_LETTRINE} liveness: HTTP 403 from projects.get for ${z_depot}, reason ${z_reason} — the payor's token lacks the scope this read needs; reinstall the payor credential and re-run — a liveness verdict is never guessed"
             ;;
           *) : ;;
         esac
@@ -2944,7 +2944,7 @@ rbgp_depot_unmake() {
   local -r z_moniker="${z_display_name#"${z_display_prefix}"}"
   local z_cloud_prefix
   z_cloud_prefix=$(zrbgp_depot_cloud_prefix_capture "${z_project_id}" "${z_moniker}") \
-    || buc_die_now "Refusing to unmake ${z_project_id}: its id does not decode to a cloud prefix and the moniker ${z_moniker} its displayName names"
+    || buc_die_now "Refusing to ${RBCG_DEPOT_UNMAKE_BASE} ${z_project_id}: its id does not decode to a cloud prefix and the moniker ${z_moniker} its displayName names"
   local -r z_pool_stem="${z_cloud_prefix}${z_moniker}-pool"
 
   buc_step 'Clean up governor service accounts (404-tolerant)'

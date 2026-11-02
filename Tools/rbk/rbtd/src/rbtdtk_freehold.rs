@@ -135,13 +135,13 @@ fn rbttgf_install_freehold_prefixes_rejects_missing_rbrr() {
 /// prefix ending in a doubled hyphen keeps one, and a prefix carrying the
 /// project infix inside it stays whole.
 #[test]
-fn rbttgf_cloud_prefix_subdir_strips_one_hyphen() {
+fn rbtdtk_cloud_prefix_subdir_strips_one_hyphen() {
     let tmp: PathBuf = rbtteh_scratch_root().join("rbtdtk-cloud-prefix-subdir");
     let rbrd = tmp.join(crate::rbtgec_consts::RBTGEC_RBRD_FILE);
     let parent = rbrd.parent().expect("rbrd parent");
     for (prefix, subdir) in [("ab--", "ab-"), ("ab-d-x-", "ab-d-x")] {
         let _ = std::fs::remove_dir_all(&tmp);
-        std::fs::create_dir_all(parent).expect("create moorings dir");
+        std::fs::create_dir_all(parent).expect("create the regime file's parent");
         std::fs::write(&rbrd, format!("RBRD_CLOUD_PREFIX={}\n", prefix)).expect("write rbrd");
         let got = rbtcgf_cloud_prefix_subdir(&tmp);
         let _ = std::fs::remove_dir_all(&tmp);

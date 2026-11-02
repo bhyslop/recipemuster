@@ -255,20 +255,6 @@ rbuh_code_capture() {
   echo "${z_code}"
 }
 
-# zrbuh_epoch_capture CLOCK_FILE — the wall clock in whole epoch seconds, read
-# by date through the clock file and checked decimal, since bash 3.2 carries no
-# clock variable of its own.
-zrbuh_epoch_capture() {
-  zrbuh_sentinel
-  local -r z_clock_file="${1:-}"
-  test -n "${z_clock_file}" || return 1
-  date +%s > "${z_clock_file}" || return 1
-  local z_now
-  z_now=$(<"${z_clock_file}")  || return 1
-  case "${z_now}" in ''|*[!0123456789]*) return 1 ;; esac
-  echo "${z_now}"
-}
-
 # rbuh_request_capture METHOD URL TOKEN HEADERS STDERR_FILE [BODY_FILE] — one
 # bearer request whose response carries a secret, so it is held in memory and
 # never written under the dispatch roots. The header list rides curl's
@@ -526,11 +512,14 @@ rbuh_poll_until_ok() {
   test -n "${zSECRET_token}" || buc_die_now "rbuh_poll_until_ok: token required"
   test -n "${z_infix}" || buc_die_now "rbuh_poll_until_ok: infix required"
 
-  # Elapsed is read off the wall clock, so the time each request takes counts
-  # toward the timeout as the sleeps do.
+  # Elapsed is read off the wall clock, through a file since bash 3.2 carries no
+  # clock variable, so the time each request takes counts toward the timeout as
+  # the sleeps do.
   local -r z_clock_file="${ZRBUH_PREFIX}${z_infix}_clock.txt"
+  date +%s > "${z_clock_file}" || buc_die_now "${z_label}: failed to read the clock"
   local z_start
-  z_start=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+  z_start=$(<"${z_clock_file}") || buc_die_now "${z_label}: failed to read: ${z_clock_file}"
+  case "${z_start}" in ''|*[!0123456789]*) buc_die_now "${z_label}: the clock read is not decimal: ${z_start}" ;; esac
   local z_now=""
   local z_elapsed=0
   local z_poll=0
@@ -539,7 +528,9 @@ rbuh_poll_until_ok() {
     z_poll=$((z_poll + 1))
     z_poll_infix="${z_infix}-poll${z_poll}"
     rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
-    z_now=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+    date +%s > "${z_clock_file}" || buc_die_now "${z_label}: failed to read the clock"
+    z_now=$(<"${z_clock_file}") || buc_die_now "${z_label}: failed to read: ${z_clock_file}"
+    case "${z_now}" in ''|*[!0123456789]*) buc_die_now "${z_label}: the clock read is not decimal: ${z_now}" ;; esac
     z_elapsed=$(( 10#${z_now} - 10#${z_start} ))
 
     local z_code_status=0
@@ -590,8 +581,10 @@ rbuh_poll_until_gone() {
 
   # Elapsed is read off the wall clock, as rbuh_poll_until_ok reads it.
   local -r z_clock_file="${ZRBUH_PREFIX}${z_infix}_clock.txt"
+  date +%s > "${z_clock_file}" || buc_die_now "${z_label}: failed to read the clock"
   local z_start
-  z_start=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+  z_start=$(<"${z_clock_file}") || buc_die_now "${z_label}: failed to read: ${z_clock_file}"
+  case "${z_start}" in ''|*[!0123456789]*) buc_die_now "${z_label}: the clock read is not decimal: ${z_start}" ;; esac
   local z_now=""
   local z_elapsed=0
   local z_poll=0
@@ -601,7 +594,9 @@ rbuh_poll_until_gone() {
     z_poll=$((z_poll + 1))
     z_poll_infix="${z_infix}-poll${z_poll}"
     rbuh_json "GET" "${z_url}" "${zSECRET_token}" "${z_poll_infix}"
-    z_now=$(zrbuh_epoch_capture "${z_clock_file}") || buc_die_now "${z_label}: failed to read the clock"
+    date +%s > "${z_clock_file}" || buc_die_now "${z_label}: failed to read the clock"
+    z_now=$(<"${z_clock_file}") || buc_die_now "${z_label}: failed to read: ${z_clock_file}"
+    case "${z_now}" in ''|*[!0123456789]*) buc_die_now "${z_label}: the clock read is not decimal: ${z_now}" ;; esac
     z_elapsed=$(( 10#${z_now} - 10#${z_start} ))
 
     local z_code_status=0
