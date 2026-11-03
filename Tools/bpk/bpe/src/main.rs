@@ -202,8 +202,8 @@ fn zbpe_text_or_null(text: &Option<String>) -> serde_json::Value {
     }
 }
 
-/// Installs the kits an extracted parcel carries into the target repository
-/// whose `burc.env` it is handed, under the behest the parcel carries, laying
+/// Installs the kits an extracted parcel carries into the Colonia whose
+/// `burc.env` it is handed, under the behest the parcel carries, laying
 /// the canonical binary where a taken kit carries one.
 fn zbpe_emplace(rest: &[String]) -> ExitCode {
     let (parcel, burc) = match zbpe_paths(rest) {
@@ -307,9 +307,8 @@ fn zbpe_emplace(rest: &[String]) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-/// Removes the Claude Code integration the kits installed from the target
-/// repository whose `burc.env` it is handed, leaving the kit directories
-/// standing.
+/// Removes the Claude Code integration the kits installed from the Colonia
+/// whose `burc.env` it is handed, leaving the kit directories standing.
 fn zbpe_vacate(rest: &[String]) -> ExitCode {
     let (parcel, burc) = match zbpe_paths(rest) {
         Ok(paths) => paths,

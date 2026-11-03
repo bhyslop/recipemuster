@@ -292,6 +292,7 @@ pub const BKCO_VERB_HEEL: &str = "heel";
 pub const BKCO_VERB_MUZZLE: &str = "muzzle";
 pub const BKCO_VERB_GANGLINE: &str = "gangline";
 pub const BKCO_VERB_SCOOP: &str = "scoop";
+pub const BKCO_VERB_SCENT: &str = "scent";
 pub const BKCO_VERB_DELOUSE: &str = "delouse";
 pub const BKCO_VERB_WHISTLE: &str = "whistle";
 pub const BKCO_VERB_KENNELMAN: &str = "kennelman";
@@ -317,6 +318,7 @@ pub const BKCO_COLOPHON_HEEL: &str = "bkw-h";
 pub const BKCO_COLOPHON_MUZZLE: &str = "bkw-z";
 pub const BKCO_COLOPHON_GANGLINE: &str = "bkw-g";
 pub const BKCO_COLOPHON_SCOOP: &str = "bkw-s";
+pub const BKCO_COLOPHON_SCENT: &str = "bkw-c";
 pub const BKCO_COLOPHON_BLEACH: &str = "bkw-B";
 pub const BKCO_COLOPHON_DELOUSE: &str = "bkw-n";
 pub const BKCO_COLOPHON_WHISTLE: &str = "bkw-w";
@@ -337,6 +339,7 @@ const ZBKCO_DOORS: &[(&str, &str)] = &[
     (BKCO_VERB_MUZZLE, BKCO_COLOPHON_MUZZLE),
     (BKCO_VERB_GANGLINE, BKCO_COLOPHON_GANGLINE),
     (BKCO_VERB_SCOOP, BKCO_COLOPHON_SCOOP),
+    (BKCO_VERB_SCENT, BKCO_COLOPHON_SCENT),
     (BKCO_VERB_BLEACH, BKCO_COLOPHON_BLEACH),
     (BKCO_VERB_DELOUSE, BKCO_COLOPHON_DELOUSE),
     (BKCO_VERB_WHISTLE, BKCO_COLOPHON_WHISTLE),

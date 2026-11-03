@@ -236,7 +236,6 @@ BKRR_COLLAR=\"suite-lure\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"Tools/lure/src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -254,6 +253,7 @@ fn zbkti_collar(text: &str) -> bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
         regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["Tools/lure/src".to_string()]),
     }
 }
 

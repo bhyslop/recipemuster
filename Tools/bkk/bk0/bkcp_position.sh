@@ -112,6 +112,48 @@ bkcp_pin_capture() {
   echo "${z_channel}" || return 1
 }
 
+# The files an elected set names, one per line - what a build door strikes its
+# exergue over.
+#
+# READ BY LINE AND NEVER SOURCED: the set is data a build wrote, and sourcing it
+# would hand a generated file the shell. The files catena is read as the regime
+# reader reads a catena - opened at its field, joined across its continuations,
+# split on whitespace - and a set naming no file answers nothing, the caller
+# refusing rather than striking over an empty election.
+#
+# Args: <set_file>
+bkcp_set_capture() {
+  local -r z_set="${1:-}"
+  local -r z_field='BKRS_FILES="'
+
+  test -n "${z_set}" || return 1
+  test -f "${z_set}" || return 1
+
+  local z_state="seeking"
+  local z_value=""
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if test "${z_state}" = "seeking"; then
+      case "${z_line}" in
+        "${z_field}"*) z_line="${z_line#"${z_field}"}"; z_state="open" ;;
+        *) continue ;;
+      esac
+    fi
+    case "${z_line}" in
+      *'"'*) z_value="${z_value} ${z_line%%\"*}"; z_state="closed"; break ;;
+      *)     z_value="${z_value} ${z_line%\\}" ;;
+    esac
+  done < "${z_set}"
+
+  test "${z_state}" = "closed" || return 1
+
+  local -a z_files=()
+  read -r -a z_files <<< "${z_value}" || return 1
+  (( ${#z_files[@]} )) || return 1
+
+  printf '%s\n' "${z_files[@]}" || return 1
+}
+
 # What a standing binary says it was built at, or nothing where it cannot say.
 #
 # THE ARTIFACT IS ASKED, never inferred from a timestamp. An mtime comparison
@@ -194,6 +236,50 @@ bkcp_position_capture() {
 
   if test -z "${z_position}"; then
     buc_log_args "No commit on this seat's line touches any elected root - the election in ${z_election} names nothing this tree has ever carried"
+    return 1
+  fi
+
+  echo "${z_position}" || return 1
+}
+
+# The seat's position over an elected set: its newest first-parent commit
+# touching a file the set names.
+#
+# THE SAME WALK AS THE ROOTS FORM ABOVE, over a different election: the set's
+# files, read through the set reader and handed to git as plain pathspecs, the
+# reading the kennel's own seat walk takes over a collar's measure. A set names
+# files and never a directory or an exclusion, so nothing here interprets an
+# element either.
+#
+# Args: <repository> <set_file>
+bkcp_set_position_capture() {
+  local -r z_repo="${1:-}"
+  local -r z_set="${2:-}"
+
+  test -n "${z_repo}" || return 1
+  test -n "${z_set}"  || return 1
+
+  local z_listed=""
+  z_listed=$(bkcp_set_capture "${z_set}") || return 1
+
+  local -a z_files=()
+  local z_file=""
+  while IFS= read -r z_file || test -n "${z_file}"; do
+    test -n "${z_file}" || continue
+    z_files+=("${z_file}")
+  done <<< "${z_listed}"
+
+  if test "${#z_files[@]}" -eq 0; then
+    buc_log_args "The elected set at ${z_set} names no file - an empty election would measure the position over nothing"
+    return 1
+  fi
+
+  local z_position=""
+  z_position=$(git -C "${z_repo}" log -n 1 --first-parent --format=%H HEAD -- "${z_files[@]}") \
+    || return 1
+
+  if test -z "${z_position}"; then
+    buc_log_args "No commit on this seat's line touches any file the set at ${z_set} names"
     return 1
   fi
 

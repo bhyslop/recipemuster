@@ -28,7 +28,7 @@
 fn main() {
     /// The variable the builder states the position through. It is spelled
     /// here because a build script links nothing. Cargo is told to
-    /// watch it, so a commit touching the collar's roots rebuilds the binary
+    /// watch it, so a commit touching the collar's measure rebuilds the binary
     /// rather than leaving it claiming a position it no longer holds.
     const ZRBTB_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
 

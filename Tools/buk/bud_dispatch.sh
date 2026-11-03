@@ -200,6 +200,15 @@ zbud_setup() {
   # That is the ruling and not a defect to repair: this composition holds one
   # rule for both seats, and a composition that dropped the key where it looked
   # redundant would be a second rule to keep in step.
+  #
+  # THE FOLDED ROOT IS RECORDED BESIDE IT, made absolute against the project
+  # root, so a door handing a child the root its own loosebox was keyed beneath
+  # reads it here rather than climbing out of the directory composed below it.
+  BURD_LOOSEBOX_ROOT_DIR="${BURC_LOOSEBOX_ROOT_DIR}"
+  case "${BURD_LOOSEBOX_ROOT_DIR}" in
+    /*) ;;
+    *)  BURD_LOOSEBOX_ROOT_DIR="${PWD}/${BURD_LOOSEBOX_ROOT_DIR}" ;;
+  esac
   BURD_LOOSEBOX_DIR="${BURC_LOOSEBOX_ROOT_DIR}/${PWD##*/}"
   case "${BURD_LOOSEBOX_DIR}" in
     /*) ;;

@@ -437,6 +437,17 @@ bkcw_gangline() {
   zbkcw_door gangline "$@"
 }
 
+# Derive one app collar's elected set from the dep-info its build left: written
+# beside the collar at a linked worktree and refused until committed, refused
+# without writing anywhere else.
+bkcw_scent() {
+  buc_doc_brief "Derive one app collar's elected set from the dep-info its build left: written beside the collar at a linked worktree and refused until committed, refused without writing anywhere else."
+  buc_doc_param "collar" "the app collar whose artifact was just built"
+  buc_doc_shown || return 0
+
+  zbkcw_door scent "$@"
+}
+
 # scoop - the whole yard's clean.
 bkcw_scoop() {
   buc_doc_brief "Remove every collar's target directory, on the operator's word alone - no stamp, no cadence"
@@ -446,10 +457,10 @@ bkcw_scoop() {
 }
 
 # Empties what the kennel keeps on the station for every tree, and this
-# checkout's python environments. Run it deliberately, on your own word:
+# worktree's python environments. Run it deliberately, on your own word:
 # nothing calls it, and rebed lays it all again.
 bkcw_bleach() {
-  buc_doc_brief "Empties what the kennel keeps on the station for every tree, and this checkout's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
+  buc_doc_brief "Empties what the kennel keeps on the station for every tree, and this worktree's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
   buc_doc_shown || return 0
 
   zbkcw_door bleach "$@"

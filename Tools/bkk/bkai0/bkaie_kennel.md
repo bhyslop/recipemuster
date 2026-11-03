@@ -58,11 +58,14 @@ Three tabtargets stand in `tt/` and are **not** doors of this register: the
 the kennel's own suite when the kennel cannot; and **rebed**, which lays only a
 required toolchain whose compiler does not answer, leaving every answering one as
 it stands, then rebuilds the kennel and performs every heel and strike the
-derby's preflight names. It is safe to drive at any time, and it is the one
-converge that every refusal naming a toolchain that cannot answer sends you to,
-as does a derby or futurity refusing on unmet preconditions: run rebed, then the
-walk again, never a heel typed by collar. What rebed cannot supply, a lock that
-must be re-derived and committed, the refusal names as its own act.
+derby's preflight names. Each strike is handed the loosebox root rebed's own
+dispatch recorded, so the strike's build door reads the day rebed swept for and
+sweeps nothing: one drive readies a cold tree at any seat. It is safe to drive
+at any time, and it is the one converge that every refusal naming a toolchain
+that cannot answer sends you to, as does a derby or futurity refusing on unmet
+preconditions: run rebed, then the walk again, never a heel typed by collar.
+What rebed cannot supply, a lock that must be re-derived and committed, the
+refusal names as its own act.
 
 ### Vocabulary
 

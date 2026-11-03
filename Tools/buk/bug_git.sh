@@ -179,9 +179,13 @@ bug_require_branch_synchrony_creed() {
 # the main checkout — the caller supplies its rationale as a creed, appended to
 # the condition, so the opinion stays kit-side and BUG stays kit-agnostic.
 # Args: <creed>  (the caller's rationale for demanding the main checkout)
-bug_require_main_checkout_creed() {
+bug_require_main_worktree_creed() {
+  buc_doc_brief "Refuse an operation entered from a linked worktree, naming the main worktree and the caller's creed"
+  buc_doc_param "creed" "The caller's rationale for demanding the main worktree"
+  buc_doc_shown || return 0
+
   local -r z_creed="${1:-}"
-  test -n "${z_creed}" || buc_die_now "bug_require_main_checkout_creed: creed (rationale) required"
+  test -n "${z_creed}" || buc_die_now "bug_require_main_worktree_creed: creed (rationale) required"
 
   buc_step "Verifying the operation is entered from the main checkout"
 

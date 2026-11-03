@@ -23,8 +23,8 @@
 // declaration now composes, met as a spawn failure inside whichever hurdle
 // happened to reach it first; an app's residence swept out from under the
 // hurdles that exec it, met as a run of failing cases about nothing; and an
-// app's residence STANDING AND OUTRUN — a pull that moved the collar's elected
-// roots beneath a binary that still stood, which an existence test waved
+// app's residence STANDING AND OUTRUN — a pull that moved what the collar
+// measures beneath a binary that still stood, which an existence test waved
 // through and the hurdles then met as that binary's own staleness fence, exec
 // by exec.
 //
@@ -59,13 +59,19 @@
 // reading at all, and a read that asked it one would call it outrun forever.
 //
 // A STRUCK EXERGUE FILE IS ASKED A DIFFERENT QUESTION, against a different far
-// side, and the election module holds its reader (`bkce_struck`), its fence
-// reading putting the same question to a borrow candidate's. It carries the LANDED reading — the newest trunk landing over its
-// roots, written by `Tools/buk/bue_exergue.sh` — so what stales it is the trunk
-// moving beneath those roots, and its comparison runs against the trunk
-// counterpart and never `HEAD`. Asking the landed reading the seat's question
-// here would refuse every billet that had committed under the roots, with no
-// strike able to clear it.
+// side, and the election module holds its reader (`bkce_struck`). It carries the
+// LANDED reading — the newest trunk landing over its elected set's files that
+// the seat holds, written by `Tools/buk/bue_exergue.sh`, which walks from the
+// merge base of `HEAD` and the trunk counterpart — so its comparison runs
+// against that same merge base (`bkce_merge_base`) and never `HEAD` itself.
+// What stales the file is then exactly what a strike here would cure: a landing
+// the seat has taken beneath its files. Asking the landed reading the seat's
+// question would refuse every billet that had committed under the set, and
+// asking it against the counterpart's head would refuse every billet standing
+// behind, the strike writing the same stamp each time. The election's borrow
+// fence asks a neighbouring question of a delivered binary's struck file and
+// keeps the counterpart as its far side, since that binary's own fence judges
+// against the store's newest landing rather than this seat's position.
 // ============================================================================
 
 use std::path::{
@@ -103,7 +109,7 @@ pub struct bkcd_Absence {
     /// shape is what the delouse produces on a day whose first kennel act is a
     /// derby — a build door takes the day's sweep ahead of its build, so a chain
     /// of builds then a derby never meets it — and any strike cures it; the outrun shape is what a pull produces, and the
-    /// plaint says which roots moved. Both name the same supplying act, so only
+    /// plaint says which files moved. Both name the same supplying act, so only
     /// this field parts them, and the report renders them as two sentences
     /// rather than one.
     pub stands: Option<String>,
@@ -235,6 +241,8 @@ pub fn bkcd_preflight_at(
     }
 
     zbkcd_exergues(repository, collars, dispatch.bkcr_tabtargets(), &mut absent)?;
+
+    zbkcd_sets(repository, dispatch, collars, &mut absent)?;
 
     zbkcd_environments(
         repository,
@@ -387,7 +395,7 @@ fn zbkcd_strike(collar: &bkcr_Collar) -> Vec<String> {
 /// the election's own contract rather than an economy. A writer is pinned
 /// without a position being asked, so the election cannot say whether the
 /// blessed residence exists; a reader over an empty residence would spend a
-/// spawn to learn what a path test says; and a collar whose roots no commit
+/// spawn to learn what a path test says; and a collar whose measure no commit
 /// has touched is refused by the seat reading, which an empty residence should
 /// never reach. So the path test stands first, over both residences a
 /// dispatched seat has, and the election is held only where one of them stands.
@@ -488,10 +496,12 @@ fn zbkcd_residence(
 /// doors; every declarer of one file names the same striker by construction,
 /// the collar resolver refusing an exergue with no door beside it.
 ///
-/// THE TRUNK IS RESOLVED ONCE, AND ONLY WHERE A FILE STANDS. A tree declaring
-/// no exergue, or one whose declared files are all absent, never asks git for a
-/// remote — which is what lets every lure that never stood a remote keep its
-/// derby, and keeps the swept shape's repair a strike rather than a fetch.
+/// THE FAR SIDE IS RESOLVED ONCE, AND ONLY WHERE A FILE STANDS: the trunk
+/// counterpart, then the merge base of `HEAD` and it, which is where the
+/// striker's walk starts. A tree declaring no exergue, or one whose declared
+/// files are all absent, never asks git for a remote — which is what lets every
+/// lure that never stood a remote keep its derby, and keeps the swept shape's
+/// repair a strike rather than a fetch.
 fn zbkcd_exergues(
     repository: &Path,
     collars: &[bkcr_Collar],
@@ -499,7 +509,7 @@ fn zbkcd_exergues(
     absent: &mut Vec<bkcd_Absence>,
 ) -> Result<(), String> {
     let mut seen: Vec<&str> = Vec::new();
-    let mut trunk: Option<Result<String, String>> = None;
+    let mut fork: Option<Result<(String, String), String>> = None;
 
     for collar in collars {
         for declared in collar.bkcr_exergue() {
@@ -544,8 +554,14 @@ fn zbkcd_exergues(
                 }
             };
 
-            let far = match trunk.get_or_insert_with(|| bkce_election::bkce_trunk(repository)) {
-                Ok(far) => far.clone(),
+            let resolved = fork.get_or_insert_with(|| {
+                bkce_election::bkce_trunk(repository).and_then(|counterpart| {
+                    bkce_election::bkce_merge_base(repository, &counterpart)
+                        .map(|base| (counterpart, base))
+                })
+            });
+            let (counterpart, far) = match resolved {
+                Ok((counterpart, base)) => (counterpart.clone(), base.clone()),
                 Err(why) => {
                     absent.push(bkcd_Absence {
                         subject,
@@ -560,17 +576,18 @@ fn zbkcd_exergues(
             };
 
             let concord =
-                bkce_election::bkce_concord(repository, Some(&struck.sha), &far, &struck.roots);
+                bkce_election::bkce_concord(repository, Some(&struck.sha), &far, &struck.files);
 
             if !concord.identical {
                 absent.push(bkcd_Absence {
                     subject,
                     at,
                     stands: Some(format!(
-                        "struck at {} over the roots it carries, and {} has since moved the tree \
-                         beneath them — {}",
+                        "struck at {} over the files it carries, and {}, the merge base of HEAD \
+                         and {}, has since moved the tree beneath them — {}",
                         struck.sha,
                         far,
+                        counterpart,
                         concord.plaint, //
                     )),
                     supply,
@@ -579,6 +596,74 @@ fn zbkcd_exergues(
                 });
             }
         }
+    }
+
+    Ok(())
+}
+
+/// Every elected set the collars hold, proven to cover what this station's own
+/// last build of each artifact read.
+///
+/// THE SET IS A UNION ACROSS STATIONS AND THIS IS EACH STATION'S PROOF OF IT. A
+/// file compiled under one target alone stands in one station's record alone,
+/// so the set a billet derived may lack what this station's build read; a set
+/// outrun by its own artifact's record measures a position that does not move
+/// when that file does. The record is read by the derivation's own filter, and
+/// every path it names that the set does not is said.
+///
+/// A STATION THAT NEVER BUILT THE ARTIFACT HOLDS NO RECORD AND OWES NOTHING, and
+/// a collar holding no set is measured over its closure and has nothing to
+/// prove. The supplying act is the collar's own build door, which derives the
+/// set after its build — so the absence names it as an outrun exergue does.
+fn zbkcd_sets(
+    repository: &Path,
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    collars: &[bkcr_Collar],
+    absent: &mut Vec<bkcd_Absence>,
+) -> Result<(), String> {
+    for collar in collars {
+        let crate::bkcr_resolve::bkcr_Measure::Elected(files) = &collar.measure else {
+            continue;
+        };
+
+        let record_at = bkce_election::bkce_record_path(repository, dispatch, collar)?;
+        let Some(record) =
+            bkce_election::bkce_record_at(repository, &record_at, &collar.bkcr_exergue())?
+        else {
+            continue;
+        };
+
+        let mut outrun: Vec<String> = record
+            .files
+            .iter()
+            .filter(|held| !files.contains(held))
+            .cloned()
+            .collect();
+        outrun.extend(record.refused.iter().cloned());
+
+        if outrun.is_empty() {
+            continue;
+        }
+
+        absent.push(bkcd_Absence {
+            subject: format!(
+                "the elected set of the collar '{}'",
+                collar.name, //
+            ),
+            at: repository
+                .join(&collar.instance)
+                .join(crate::bkcr_resolve::BKCR_SET),
+            stands: Some(format!(
+                "the dep-info the last build here wrote at {} names {} path(s) the set does \
+                 not list: {}",
+                record_at.display(),
+                outrun.len(),
+                outrun.join(", "), //
+            )),
+            supply: zbkcd_supply(collar, dispatch.bkcr_tabtargets()),
+            heel: None,
+            strike: zbkcd_strike(collar),
+        });
     }
 
     Ok(())
@@ -596,7 +681,7 @@ fn zbkcd_exergues(
 ///
 /// THE TWO SHAPES RENDER AS TWO SENTENCES. "Nothing stands" is what the delouse
 /// leaves behind and any strike cures it; "stands, and may not be presumed
-/// current" carries the plaint saying which roots moved, and is what a pull
+/// current" carries the plaint saying which files moved, and is what a pull
 /// leaves behind. A reader who has met the first on a morning that opened on a
 /// derby must not read the second as more of the same.
 pub fn bkcd_unready(absent: &[bkcd_Absence], rerun: &str, tabtargets: Option<&Path>) -> String {

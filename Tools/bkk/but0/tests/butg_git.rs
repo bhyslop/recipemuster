@@ -66,7 +66,7 @@ test -d hippodrome || {{
   git -C hippodrome worktree add --quiet ../billet
 }}
 cd \"{enter}\"
-bug_require_main_checkout_creed \"the rationale the caller supplies\"
+bug_require_main_worktree_creed \"the rationale the caller supplies\"
 echo \"the-creed-passed\"
 ",
         enter = enter, //
@@ -74,7 +74,7 @@ echo \"the-creed-passed\"
 }
 
 #[test]
-fn butg_a_linked_worktree_refuses_naming_the_main_checkout() {
+fn butg_a_linked_worktree_refuses_naming_the_main_worktree() {
     let said = buth_Bench::buth_seat(
         "substrate-main-checkout-linked",
         BUTG_MODULES,
@@ -91,7 +91,7 @@ fn butg_a_linked_worktree_refuses_naming_the_main_checkout() {
 }
 
 #[test]
-fn butg_the_main_checkout_passes() {
+fn butg_the_main_worktree_passes() {
     buth_Bench::buth_seat(
         "substrate-main-checkout-main",
         BUTG_MODULES,

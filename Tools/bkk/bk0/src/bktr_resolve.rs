@@ -79,10 +79,6 @@ BKRR_COLLAR=\"suite-lure\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"src \\
-  inner \\
-  probe \\
-  Cargo.toml\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -102,9 +98,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"src \\
-  inner \\
-  Cargo.toml\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -282,15 +275,77 @@ fn bktr_an_identity_mismatch_is_a_finding() {
     );
 }
 
-/// A local dependency the elected roots do not reach is a finding, because a
-/// position measured over those roots would not move when that crate's sources
-/// do.
+/// A COLLAR HOLDING NO SET MEASURES OVER ITS CLOSURE'S PACKAGE DIRECTORIES, read
+/// from cargo metadata at resolution: no field declares the measure, and a suite
+/// takes no set, so the crate's own directory, its local dependency and — the
+/// kind deciding — its local dev-dependency are what its position walks.
 #[test]
-fn bktr_an_unelected_local_dependency_is_a_finding() {
-    let lure = zbktr_kennel("unelected");
+fn bktr_a_collar_holding_no_set_measures_over_its_closures_package_directories() {
+    let lure = zbktr_kennel("closure-measure");
+
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
+        .expect("a sound collar resolves");
+
+    let crate::bkcr_resolve::bkcr_Measure::Packages(mut packages) = resolved.collar.measure else {
+        panic!(
+            "a collar holding no set measures over its closure: {:?}",
+            resolved.collar.measure, //
+        );
+    };
+    packages.sort();
+
+    assert_eq!(
+        packages,
+        vec![".".to_string(), "inner".to_string(), "probe".to_string()],
+        "the crate's own directory, its dependency and its dev-dependency", //
+    );
+}
+
+/// AN ELECTED SET STANDING BESIDE A COLLAR IS ITS MEASURE, the files read off the
+/// set and no field of the collar's consulted: an app striking an exergue is the
+/// one collar that takes one.
+#[test]
+fn bktr_a_standing_set_is_the_measure_of_an_app_striking_an_exergue() {
+    let lure = zbktr_kennel("set-measure");
     lure.bktu_write(
-        &lure.bktu_weaned_at("suite-lure/bkrr.env"),
-        &ZBKTR_SOUND.replace("  inner \\\n", ""),
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
+        &ZBKTR_APP.replace(
+            "BKRR_EXERGUE=\"bknre_unstruck\"",
+            "BKRR_EXERGUE=\"gen_exergue.rs\"\nBKRR_STRIKE=\"tt/lure-b.Strike.sh\"",
+        ),
+    );
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-lure/bkrs.env"),
+        "BKRS_FILES=\"src/lib.rs \\\n  Cargo.toml\"\nBKRS_PACKAGES=\"inner\"\n",
+    );
+
+    let resolved = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "app-lure")
+        .expect("a sound collar resolves");
+
+    assert!(
+        resolved.findings.is_empty(),
+        "an app striking an exergue holds a set soundly: {:?}",
+        resolved.findings, //
+    );
+    assert_eq!(
+        resolved.collar.measure,
+        crate::bkcr_resolve::bkcr_Measure::Elected(vec![
+            "src/lib.rs".to_string(),
+            "Cargo.toml".to_string()
+        ]),
+        "the measure is the set's files", //
+    );
+}
+
+/// A SET BESIDE A COLLAR THAT TAKES NONE IS A FINDING: a suite has no build door
+/// that derives one, so a set standing beside it is a file no build will ever
+/// bring current.
+#[test]
+fn bktr_a_set_beside_a_collar_taking_none_is_a_finding() {
+    let lure = zbktr_kennel("set-misplaced");
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrs.env"),
+        "BKRS_FILES=\"src/lib.rs\"\nBKRS_PACKAGES=\"\"\n",
     );
 
     let findings = zbktr_findings(&lure, "suite-lure");
@@ -302,12 +357,7 @@ fn bktr_an_unelected_local_dependency_is_a_finding() {
         findings, //
     );
     assert!(
-        findings[0].contains("BKRR_ROOTS"),
-        "it reads: {}",
-        findings[0], //
-    );
-    assert!(
-        findings[0].contains("inner"),
+        findings[0].contains("bkrs.env") && findings[0].contains("takes none"),
         "it reads: {}",
         findings[0], //
     );
@@ -682,6 +732,61 @@ fn bktr_a_copy_drifted_from_its_brood_refuses_naming_the_repair() {
     );
 }
 
+/// A WEANED SET DIFFERING FROM ITS BROOD'S REFUSES AT THE DRIFT CHECK, under the
+/// family file's own refusal: the set is held to the kit that carries it byte for
+/// byte, so a copy that drifted names both files and the copy that repairs it,
+/// and the whole-set audit refuses it the same way. The family files agree here,
+/// so what refuses is the set and nothing else.
+#[test]
+fn bktr_a_weaned_set_drifted_from_its_brood_refuses_naming_the_repair() {
+    let lure = zbktr_kennel("set-drift");
+    lure.bktu_write(
+        &lure.bktu_brood_at("lk", "suite-lure/bkrr.env"),
+        ZBKTR_SOUND,
+    );
+    lure.bktu_write(
+        &lure.bktu_brood_at("lk", "suite-lure/bkrs.env"),
+        "BKRS_FILES=\"src/lib.rs\"\nBKRS_PACKAGES=\"\"\n",
+    );
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrs.env"),
+        "BKRS_FILES=\"src/lib.rs \\\n  Cargo.toml\"\nBKRS_PACKAGES=\"\"\n",
+    );
+
+    let refusal = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "suite-lure")
+        .expect_err("a drifted set refuses");
+
+    let brood = lure.bktu_brood_at("lk", "suite-lure/bkrs.env");
+    let copy = lure.bktu_weaned_at("suite-lure/bkrs.env");
+    assert!(
+        refusal.contains(&brood),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(&copy),
+        "it reads: {}",
+        refusal, //
+    );
+    assert!(
+        refusal.contains(&format!(
+            "cp {} {}",
+            brood,
+            copy, //
+        )),
+        "it reads: {}",
+        refusal, //
+    );
+
+    let audited = bkcr_weaned_audit(lure.bktu_root(), &lure.bktu_weaned())
+        .expect_err("the audit refuses the same drift");
+    assert!(
+        audited.contains(&brood),
+        "it reads: {}",
+        audited, //
+    );
+}
+
 /// A brood carrying the name under ANOTHER family is a difference, never a
 /// match: the copy is not the kit's declaration however the bytes compare.
 #[test]
@@ -835,7 +940,7 @@ fn bktr_the_kind_decides_whether_a_dev_dependency_counts() {
 
     lure.bktu_write(
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
-        &ZBKTR_SOUND.replace("  probe \\\n", "").replace(
+        &ZBKTR_SOUND.replace(
             "BKRR_TAMED_CRATES=\"inner probe\"",
             "BKRR_TAMED_CRATES=\"inner\"",
         ),
@@ -844,7 +949,7 @@ fn bktr_the_kind_decides_whether_a_dev_dependency_counts() {
 
     assert_eq!(
         suite.len(),
-        2,
+        1,
         "findings: {:?}",
         suite, //
     );
@@ -852,13 +957,6 @@ fn bktr_the_kind_decides_whether_a_dev_dependency_counts() {
         suite
             .iter()
             .any(|held| held.contains("BKRR_TAMED_CRATES") && held.contains("probe")),
-        "findings: {:?}",
-        suite, //
-    );
-    assert!(
-        suite
-            .iter()
-            .any(|held| held.contains("BKRR_ROOTS") && held.contains("probe")),
         "findings: {:?}",
         suite, //
     );

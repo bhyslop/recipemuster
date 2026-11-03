@@ -448,6 +448,64 @@ fn bktd_a_seam_set_at_the_start_is_fenced_naming_it() {
     );
 }
 
+/// The rule a refusal at the leash names, as the leash's line spells it.
+const BKTD_ALLOWLIST_RULE: &str = "allowlisted-name rule";
+
+/// A profile override and a rustflags variable, each a name cargo reads and
+/// each accepted by cargo with the value planted below, so a leash that handed
+/// cargo its whole inheritance would run the course green under either.
+const BKTD_PROFILE_PLANT: &str = "CARGO_PROFILE_DEV_DEBUG_ASSERTIONS";
+const BKTD_FLAGS_PLANT: &str = "RUSTFLAGS";
+
+/// Plant one name at a door's entry, drive the cargo collar's course, and prove
+/// the leash refused it by name ahead of cargo.
+///
+/// THE VERDICT IS THE ONE THE ARM ALREADY GIVES A LEASH REFUSAL. The first
+/// cargo a door asks is the collar's own reading, which recalls cargo's account
+/// of the manifest through the leash ahead of the muzzle and the course, and
+/// that arm takes any refusal of the leash as a finding on the collar, which
+/// bars. The control is `bktd_a_door_reads_its_dispatch_from_the_file_alone`,
+/// the same drive with nothing planted.
+fn zbktd_hazard_refused(name: &str, planted: &str, value: &str) {
+    let lure = zbktd_voice_seat(name);
+
+    let out = lure.bktu_drive_planting(
+        zbktd_kennel(),
+        &[BKTD_DOOR, bktu_Lure::BKTU_COLLAR_CARGO],
+        &[(planted, OsStr::new(value))],
+    );
+    let said = String::from_utf8_lossy(&out.stderr);
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_VERDICT_BARRED),
+        "barred: {}",
+        said, //
+    );
+    assert!(
+        said.contains(planted),
+        "naming the name: {}",
+        said, //
+    );
+    assert!(
+        said.contains(BKTD_ALLOWLIST_RULE),
+        "naming the rule: {}",
+        said, //
+    );
+}
+
+/// A PROFILE OVERRIDE PLANTED AT A DOOR IS REFUSED BY NAME, ahead of cargo.
+#[test]
+fn bktd_a_hazard_name_planted_at_a_door_is_refused_naming_a_profile_override() {
+    zbktd_hazard_refused("leash-hazard-profile", BKTD_PROFILE_PLANT, "true");
+}
+
+/// A RUSTFLAGS VALUE PLANTED AT A DOOR IS REFUSED BY NAME, ahead of cargo.
+#[test]
+fn bktd_a_hazard_name_planted_at_a_door_is_refused_naming_a_rustflags_value() {
+    zbktd_hazard_refused("leash-hazard-flags", BKTD_FLAGS_PLANT, "-Cdebuginfo=1");
+}
+
 #[test]
 fn bktd_the_door_stands_over_a_clean_lure() {
     let lure = bktu_Lure::bktu_compose("drive-door-clean");
@@ -571,7 +629,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"Tools/lure/src Tools/lure/Cargo.toml Tools/lure/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -604,7 +661,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"Tools/lure/src Tools/lure/Cargo.toml Tools/lure/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -690,7 +746,6 @@ BKRR_COLLAR=\"{name}\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"{dir}/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"{dir}/src {dir}/Cargo.toml {dir}/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -974,7 +1029,6 @@ BKRR_COLLAR=\"suite-alfa\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Tools/alfa/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"Tools/alfa/src Tools/alfa/Cargo.toml Tools/alfa/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -1270,7 +1324,6 @@ BKRR_COLLAR=\"{name}\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"{dir}/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"{dir}/src {dir}/Cargo.toml {dir}/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -1606,7 +1659,7 @@ fn bktd_gangline_refuses_a_dirty_lure_before_it_touches_the_lock() {
         &lure.bktu_weaned_at("suite-lure/bkrr.env"),
         "BKRR_COLLAR=\"suite-lure\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
-         BKRR_ROOTS=\"src\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
+         BKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
          BKRR_SPEND=\"bknre_reader\"\nBKRR_TAMED_CRATES=\"\"\n\
          BKRR_FERAL_CRATES=\"bknre_tamed\"\nBKRR_MUZZLE=\".\"\nBKRR_EXERGUE=\"bknre_unstruck\"\n\
          BKRR_RUNNER=\"bknre_cargo\"\nBKRR_TONGUE=\"bknre_harness\"\n",
@@ -1715,7 +1768,7 @@ fn bktd_scoop_refuses_a_planted_invalid_collar_before_deleting() {
         &lure.bktu_weaned_at("suite-planted/bkrr.env"),
         "BKRR_COLLAR=\"suite-planted\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"nowhere/Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
-         BKRR_ROOTS=\"nowhere\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
+         BKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
          BKRR_SPEND=\"bknre_reader\"\nBKRR_TAMED_CRATES=\"\"\n\
          BKRR_FERAL_CRATES=\"bknre_tamed\"\nBKRR_MUZZLE=\".\"\nBKRR_EXERGUE=\"bknre_unstruck\"\n\
          BKRR_RUNNER=\"bknre_cargo\"\nBKRR_TONGUE=\"bknre_harness\"\n",
@@ -2263,9 +2316,10 @@ const ZBKTD_BUILD: &str = "build";
 /// stand once built.
 ///
 /// THE BINARY ANSWERS ITS EXERGUE FROM A FILE THE ELECTION DOES NOT WALK. The
-/// stamp stands beside the crate rather than under its elected roots, so the
-/// position it carries can be the one the roots were committed at: a stamp
-/// inside the roots would move the very position it states.
+/// stamp stands outside the crate's package directory, which is what a collar
+/// holding no set is measured over, so the position it carries can be the one
+/// the crate was committed at: a stamp inside that directory would move the
+/// very position it states.
 fn zbktd_yard_app(lure: &bktu_Lure) -> std::path::PathBuf {
     lure.bktu_write("clippy.toml", BKTD_CLIPPY);
     zbktd_crate(
@@ -2273,7 +2327,7 @@ fn zbktd_yard_app(lure: &bktu_Lure) -> std::path::PathBuf {
         "Tools/yard",
         "yard",
         "src/main.rs",
-        "fn main() {\n    if std::env::args().nth(1).as_deref() == Some(\"--exergue\") {\n        print!(\"{}\", include_str!(\"../stamp.txt\"));\n    }\n}\n",
+        "fn main() {\n    if std::env::args().nth(1).as_deref() == Some(\"--exergue\") {\n        print!(\"{}\", include_str!(\"../../yard-stamp.txt\"));\n    }\n}\n",
     );
     lure.bktu_write(
         &lure.bktu_weaned_at("app-yard/bkrr.env"),
@@ -2282,7 +2336,6 @@ BKRR_COLLAR=\"app-yard\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/yard/Cargo.toml\"
 BKRR_TARGET=\"yard\"
-BKRR_ROOTS=\"Tools/yard/src Tools/yard/Cargo.toml Tools/yard/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -2322,11 +2375,11 @@ fn bktd_a_build_door_that_delouses_first_leaves_the_derby_its_artifact() {
     lure.bktu_write(".gitignore", "target/\nTools/bravo/ran.txt\n");
     lure.bktu_commit("an app collar resident inside its own yard, beside one green course");
 
-    // THE STAMP STATES THE POSITION THE ROOTS WERE COMMITTED AT, and is
-    // committed after them so the tree stays clean for the door law.
+    // THE STAMP STATES THE POSITION THE CRATE WAS COMMITTED AT, and is
+    // committed after it so the tree stays clean for the door law.
     let struck = zbktd_head(&lure);
     lure.bktu_write(
-        "Tools/yard/stamp.txt",
+        "Tools/yard-stamp.txt",
         &format!(
             "{}\n",
             struck, //
@@ -2607,7 +2660,7 @@ fn bktd_the_delouse_refuses_a_planted_invalid_collar_before_deleting() {
         &lure.bktu_weaned_at("suite-planted/bkrr.env"),
         "BKRR_COLLAR=\"suite-planted\"\nBKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"nowhere/Cargo.toml\"\nBKRR_TARGET=\"bknre_manifest\"\n\
-         BKRR_ROOTS=\"nowhere\"\nBKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
+         BKRR_FEATURES=\"\"\nBKRR_PROFILE=\"test\"\n\
          BKRR_SPEND=\"bknre_reader\"\nBKRR_TAMED_CRATES=\"\"\n\
          BKRR_FERAL_CRATES=\"bknre_tamed\"\nBKRR_MUZZLE=\".\"\nBKRR_EXERGUE=\"bknre_unstruck\"\n\
          BKRR_RUNNER=\"bknre_cargo\"\nBKRR_TONGUE=\"bknre_harness\"\n",
@@ -2748,7 +2801,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"Tools/lure/src Tools/lure/Cargo.toml Tools/lure/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -3105,8 +3157,10 @@ fn bktd_the_derby_refuses_an_outrun_app_residence_ahead_of_its_walk() {
 }
 
 /// THE DISPATCHED ARM, DRIVEN. The door enters a linked worktree, derives its
-/// main worktree as the delivered root, and the election reads the binary
-/// standing there rather than anything in the tree the door entered.
+/// main worktree as the delivered root, and proclaims it. The lure's reader
+/// holds no elected set, so the delivered binary standing current there is never
+/// borrowed and the election names the seat's own build — the borrow arm is a
+/// set-holding reader's, proven over composed collars in the library's hurdles.
 ///
 /// THIS IS THE ONE READING THE LIBRARY HURDLES CANNOT TAKE. They derive a
 /// geography and hand it in as a value; only a spawned drive can say that the
@@ -3150,8 +3204,9 @@ fn bktd_a_linked_worktree_derives_and_names_its_delivered_root() {
         said, //
     );
     assert!(
-        said.contains("BKRC_ELECTION=\"bknre_borrow\""),
-        "and the election borrowed the delivered binary at {}:\n{}",
+        said.contains("BKRC_ELECTION=\"bknre_own\""),
+        "and the election never borrowed the delivered binary at {}, the reader holding no \
+         set:\n{}",
         candidate.display(),
         said, //
     );
@@ -3166,7 +3221,7 @@ fn bktd_a_linked_worktree_derives_and_names_its_delivered_root() {
 /// control rather than a different lure: everything the arm above had stands
 /// here, and what the two drives differ in is which tree the door entered.
 #[test]
-fn bktd_a_main_checkout_runs_self_geography() {
+fn bktd_a_main_worktree_runs_self_geography() {
     let lure = bktu_Lure::bktu_compose("geography-self");
 
     let struck = zbktd_geography_lure(&lure);
@@ -3464,7 +3519,6 @@ fn zbktd_exergue_crate(lure: &bktu_Lure, collar: &str, kind_lines: &str) {
             "\
 BKRR_COLLAR=\"{}\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
-BKRR_ROOTS=\"Tools/lure/src Tools/lure/Cargo.toml Tools/lure/Cargo.lock\"
 BKRR_FEATURES=\"\"
 BKRR_SPEND=\"bknre_reader\"
 BKRR_TAMED_CRATES=\"\"
@@ -4210,16 +4264,15 @@ const BKTD_COLLAR_LURE: &str = "suite-lure";
 /// The downstream manifest, which the red verdict names.
 const BKTD_LURE_MANIFEST: &str = "Tools/lure/Cargo.toml";
 
-/// Lay a collar over a crate, electing every local package its closure reaches.
+/// Lay a collar over a crate, permitting every local package its closure reaches.
 ///
-/// THE ELECTIONS ARE WRITTEN FOR THE TREE AS IT WILL STAND, before the manifest
+/// THE PERMISSIONS ARE WRITTEN FOR THE TREE AS IT WILL STAND, before the manifest
 /// names the dependency — the same posture the gangline's own unit lure takes
-/// and for the same reason. The collar declares what the crate MAY link and what
-/// its position is measured over, and both answers are the same before and after
-/// the admission; what the admission changes is the manifest, which is the whole
+/// and for the same reason. The collar declares what the crate MAY link, and that
+/// answer is the same before and after the admission; what the admission changes is the manifest, which is the whole
 /// point of the hurdle. A collar edited in the same breath would make the hurdle
 /// prove two things at once and be able to say which one failed for neither.
-fn zbktd_arrears_collar(lure: &bktu_Lure, name: &str, dir: &str, roots: &str, crates: &str) {
+fn zbktd_arrears_collar(lure: &bktu_Lure, name: &str, dir: &str, crates: &str) {
     lure.bktu_write(
         &lure.bktu_weaned_at(&format!(
             "{}/bkrr.env",
@@ -4231,7 +4284,6 @@ BKRR_COLLAR=\"{name}\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"{dir}/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"{roots}\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -4304,20 +4356,8 @@ fn zbktd_arrears_lure(name: &str) -> bktu_Lure {
         "pub fn spurred() -> u8 {\n    3\n}\n",
     );
 
-    zbktd_arrears_collar(
-        &lure,
-        BKTD_COLLAR_LURE,
-        "Tools/lure",
-        "Tools/lure Tools/hitch Tools/spur",
-        "hitch spur",
-    );
-    zbktd_arrears_collar(
-        &lure,
-        BKTD_COLLAR_HITCH,
-        "Tools/hitch",
-        "Tools/hitch Tools/spur",
-        "spur",
-    );
+    zbktd_arrears_collar(&lure, BKTD_COLLAR_LURE, "Tools/lure", "hitch spur");
+    zbktd_arrears_collar(&lure, BKTD_COLLAR_HITCH, "Tools/hitch", "spur");
     lure.bktu_commit("stand the arrears lure up");
 
     // Upstream first, then downstream: the downstream lock covers the upstream
@@ -6246,6 +6286,335 @@ fn bktd_rebed_refuses_what_its_acts_leave_unmet_and_runs_each_once() {
     assert!(
         !lure.bktu_root().join("Tools/bin/lurex").exists(),
         "no residence was seated in the strike door's stead", //
+    );
+}
+
+/// The collar the harnessed yard's own door strikes. NAMED TO WALK AFTER the
+/// heeled `app-yard`, because absences follow the walk's sorted collar order:
+/// the heel must be performed before the strike, or a strike that swept would
+/// be followed by a heel that laid the residence again, and the drive would be
+/// green whatever the strike read.
+const ZBKTD_HARNESSED_STRUCK: &str = "suite-lure";
+
+/// The word the harnessed seat's coordinator answers with the stamp its own
+/// dispatch composed, and the label it prints that stamp under.
+const ZBKTD_HARNESSED_STAMP: &str = "quiddle";
+
+/// The directory, under the lure's temp root, that the harnessed drive states
+/// as its loosebox root.
+const ZBKTD_HARNESSED_ROOT: &str = "harnessed";
+
+/// A yard composed in the shape a harness hands a session, and the values a
+/// drive over it states.
+#[allow(non_camel_case_types)]
+struct zbktd_Harnessed {
+    lure: bktu_Lure,
+    /// The loosebox root the drive states — standing outside the lure, where a
+    /// harness composes it, and never the root the seat's own regime names.
+    root: std::path::PathBuf,
+    /// The parent's loosebox, keyed beneath the root on the lure's dirname as
+    /// the dispatch keys it.
+    loosebox: std::path::PathBuf,
+    /// A stamp the seat's own dispatch composed, from the clock its strike's
+    /// dispatch will read.
+    stamp: String,
+    /// Where the heeled app collar's binary stands once built, inside its yard.
+    residence: std::path::PathBuf,
+}
+
+/// Compose the harnessed yard: an app collar resident inside its own yard,
+/// which rebed heels, and a collar whose exergue the seat's own tabtarget
+/// strikes — a real dispatch, whose coordinator takes the kennel's delouse and
+/// then lays what it supplies, the order the tree's own build doors keep.
+///
+/// THE STRIKE IS A FRESH DISPATCH, and that is the whole of the shape. Its
+/// seat's own regime roots the loosebox inside the lure; the drive states
+/// another root outside it, as a harness does, and the difference between the
+/// two is what a strike that composed its own loosebox would meet: a loosebox
+/// holding no day, and a sweep of the yard the heel has just laid.
+///
+/// THE STRUCK FILE IS JUDGED AGAINST A REAL TRUNK. A standing exergue is read
+/// against the remote's recorded head, so the lure stands a bare counterpart
+/// with its head set and the file is staged at that landing, for the
+/// coordinator to lay.
+///
+/// THE SEAT'S STATION NAMES THE SUITE'S OWN TACKROOM, relative to the lure as
+/// the station regime demands, so the kennel the coordinator runs reaches the
+/// toolchain every other drive over a lure reaches.
+fn zbktd_harnessed_yard(name: &str) -> zbktd_Harnessed {
+    let lure = bktu_Lure::bktu_compose(name);
+    lure.bktu_git(&["branch", "-M", "trunk"]);
+
+    let staged = lure.bktu_temp().join("harnessed-exergue.rs");
+    let seat = lure.bktu_substrate_seat(&format!(
+        "#!/bin/bash\n\
+         set -euo pipefail\n\
+         if test \"${{2:-}}\" = '{word}'; then\n\
+         \x20 source \"${{BURD_BURD_FILE}}\"\n\
+         \x20 echo \"{word} ${{BURD_NOW_STAMP}}\"\n\
+         \x20 exit 0\n\
+         fi\n\
+         '{kennel}' {delouse}\n\
+         cp '{staged}' '{exergue}'\n",
+        word = ZBKTD_HARNESSED_STAMP,
+        kennel = zbktd_kennel().display(),
+        delouse = bkco_output::BKCO_VERB_DELOUSE,
+        staged = staged.display(),
+        exergue = BKTD_EXERGUE, //
+    ));
+    let door = seat
+        .strip_prefix(lure.bktu_root())
+        .expect("the seat's door stands inside the lure")
+        .display()
+        .to_string();
+
+    let residence = zbktd_yard_app(&lure);
+    zbktd_exergue_crate(&lure, ZBKTD_HARNESSED_STRUCK, BKTD_KIND_SUITE);
+
+    let collar = lure.bktu_weaned_at(&format!(
+        "{}/bkrr.env",
+        ZBKTD_HARNESSED_STRUCK, //
+    ));
+    let declared = std::fs::read_to_string(lure.bktu_root().join(&collar))
+        .expect("the struck collar was just written");
+    lure.bktu_write(&collar, &declared.replace(BKTD_STRIKE_DOOR, &door));
+
+    lure.bktu_write(
+        ".gitignore",
+        &format!(
+            "target/\n{}\nlogs/\noutput/\ntemp/\n{}/\n",
+            BKTD_EXERGUE,
+            bkk::bkg_breviary::BKG_BUS_LOOSEBOX_BASE, //
+        ),
+    );
+
+    let tackroom = bktu_lure::bktu_suite_tackroom();
+    let rooted = lure
+        .bktu_root()
+        .canonicalize()
+        .expect("the lure's root resolves");
+    let climb: String = rooted.components().skip(1).map(|_| "../").collect();
+    let station = lure.bktu_root().join(".buk/burs.env");
+    let standing = std::fs::read_to_string(&station).expect("the seat wrote its own second file");
+    lure.bktu_write(
+        ".buk/burs.env",
+        &standing.replace(
+            &format!(
+                "BURS_TACKROOM=../{}base\n",
+                bktu_lure::BKTU_TACKROOM_STEM, //
+            ),
+            &format!(
+                "BURS_TACKROOM={}{}\n",
+                climb,
+                tackroom.display().to_string().trim_start_matches('/'), //
+            ),
+        ),
+    );
+    lure.bktu_commit("an app collar resident in its yard, beside one the seat's door strikes");
+
+    let struck = zbktd_head(&lure);
+    lure.bktu_write(
+        "Tools/yard-stamp.txt",
+        &format!(
+            "{}\n",
+            struck, //
+        ),
+    );
+    lure.bktu_commit("the stamp the yard's binary answers its exergue with");
+
+    let bare = lure.bktu_temp().join("counterpart.git");
+    let spelled = bare.display().to_string();
+    lure.bktu_git(&["init", "--quiet", "--bare", &spelled]);
+    lure.bktu_git(&["remote", "add", "origin", &spelled]);
+    lure.bktu_git(&["push", "--quiet", "origin", "trunk"]);
+    lure.bktu_git(&["remote", "set-head", "origin", "trunk"]);
+
+    std::fs::write(
+        &staged,
+        format!(
+            "// GENERATED by a hurdle, in the striker's shape.\n\n\
+             pub const ZBKTD_HARNESSED_EXERGUE: &str = \"{struck}\";\n\n\
+             pub const ZBKTD_HARNESSED_EXERGUE_ROOTS: &[&str] = &[\n    \"Tools/lure\",\n];\n\n\
+             pub const ZBKTD_HARNESSED_EXERGUE_ANCESTRY: &[&str] = &[\n    \"{struck}\",\n];\n\n\
+             // eof\n",
+        ),
+    )
+    .expect("the struck exergue stages");
+
+    // THE STAMP IS THE SEAT'S OWN, read from a dispatch of the same seat, so the
+    // day the drive states is the day the strike's dispatch will read off the
+    // same clock. A drive straddling midnight is the residual: the strike would
+    // then read another day and sweep, and the hurdle would read red.
+    let asked = lure.bktu_dispatch(&seat, &[ZBKTD_HARNESSED_STAMP]);
+    let answered = String::from_utf8_lossy(&asked.stdout).into_owned();
+    let stamp = answered
+        .lines()
+        .find_map(|line| line.strip_prefix(&format!("{} ", ZBKTD_HARNESSED_STAMP)))
+        .unwrap_or_else(|| {
+            panic!(
+                "the seat answers its own stamp: {} {}",
+                answered,
+                String::from_utf8_lossy(&asked.stderr), //
+            )
+        })
+        .trim()
+        .to_string();
+
+    let root = lure.bktu_temp().join(ZBKTD_HARNESSED_ROOT);
+    let loosebox = root.join(
+        lure.bktu_root()
+            .file_name()
+            .expect("the lure stands in a named directory"),
+    );
+    std::fs::create_dir_all(&loosebox).expect("the harnessed directory composes");
+
+    zbktd_Harnessed {
+        lure,
+        root,
+        loosebox,
+        stamp,
+        residence,
+    }
+}
+
+/// Drive rebed over the harnessed yard once, stating the root, the loosebox
+/// keyed beneath it and the seat's own stamp — the three values a harness's
+/// dispatch would record.
+fn zbktd_harnessed_rebed(yard: &zbktd_Harnessed) -> std::process::Output {
+    yard.lure.bktu_drive_stating(
+        zbktd_kennel(),
+        &[BKTD_REBED],
+        &[
+            (bktu_lure::BKTU_NOW_VAR, OsStr::new(&yard.stamp)),
+            (bktu_lure::BKTU_LOOSEBOX_ROOT_DIR_VAR, yard.root.as_os_str()),
+            (bktu_lure::BKTU_LOOSEBOX_DIR_VAR, yard.loosebox.as_os_str()),
+        ],
+    )
+}
+
+/// ONE REBED READIES A COLD YARD UNDER A HARNESS: the heel lays the residence
+/// inside its yard, the strike's own build door then runs, and the residence
+/// still stands when the drive ends — because the strike's dispatch composed the
+/// loosebox rebed's dispatch recorded, read the day rebed swept for, and swept
+/// nothing.
+///
+/// THE RESIDENCE'S ABSENCE BEFORE THE DRIVE IS THE CONTROL, and the tally is the
+/// other half: a drive that performed no strike would be green over a yard no
+/// fresh dispatch ever touched.
+#[test]
+fn bktd_rebed_under_a_harness_readies_a_cold_yard_in_one_drive() {
+    let yard = zbktd_harnessed_yard("rebed-harnessed-cold");
+
+    assert!(
+        !yard.residence.exists(),
+        "the control: nothing stands at the residence before the drive: {}",
+        yard.residence.display(), //
+    );
+
+    let out = zbktd_harnessed_rebed(&yard);
+    let said = zbktd_heard(&out);
+
+    assert!(
+        out.status.success(),
+        "one drive readies the cold yard: {} {}",
+        out.status,
+        said, //
+    );
+    assert!(
+        yard.residence.is_file(),
+        "the residence the heel laid still stands after the strike: {} — {}",
+        yard.residence.display(),
+        said, //
+    );
+    assert!(
+        said.contains("1 heel(s) and 1 strike(s) performed"),
+        "the drive heeled the app collar and ran the seat's own door: {}",
+        said, //
+    );
+}
+
+/// EACH STRIKE IS HANDED THE LOOSEBOX ROOT REBED'S DISPATCH RECORDED: the
+/// strike's own dispatch announces the parent's loosebox, reads the day already
+/// recorded there, and leaves a warm yard standing — and its seat's own root
+/// receives no day at all.
+///
+/// THE DAY IS PRE-SEEDED and the yard warmed, so neither the parent's delouse
+/// nor the strike's may sweep: a strike that composed its own loosebox would
+/// find no day there and take the warm directory with it.
+#[test]
+fn bktd_rebed_under_a_harness_hands_each_strike_the_parents_day() {
+    let yard = zbktd_harnessed_yard("rebed-harnessed-day");
+
+    let day: String = yard.stamp.chars().take(ZBKTD_DAY.len()).collect();
+    std::fs::write(
+        yard.loosebox.join(ZBKTD_DAY_FILE),
+        format!(
+            "{}\n",
+            day, //
+        ),
+    )
+    .expect("the parent's day seeds");
+    let warm = zbktd_warm(&yard.lure, "app-yard");
+
+    assert!(
+        warm.is_dir(),
+        "the control: the yard is warm before the drive", //
+    );
+
+    let out = zbktd_harnessed_rebed(&yard);
+    let said = zbktd_heard(&out);
+    let announced_label = format!(
+        "{}:",
+        bkk::bkg_breviary::BKG_BUS_LOOSEBOX_BASE, //
+    );
+    let announced = String::from_utf8_lossy(&out.stdout)
+        .lines()
+        .find_map(|line| {
+            line.strip_prefix(&announced_label)
+                .map(|rest| rest.trim().to_string())
+        })
+        .unwrap_or_else(|| {
+            panic!(
+                "the strike's dispatch announces where it keeps its memory: {}",
+                said, //
+            )
+        });
+
+    assert!(
+        out.status.success(),
+        "rebed is green over the warm yard: {} {}",
+        out.status,
+        said, //
+    );
+    assert_eq!(
+        std::path::PathBuf::from(&announced),
+        yard.loosebox
+            .canonicalize()
+            .expect("the parent's memory directory resolves"),
+        "the strike's dispatch keeps its memory where the parent keeps its own: {}",
+        said, //
+    );
+    assert!(
+        warm.is_dir(),
+        "the warm yard still stands, so no strike swept it: {} — {}",
+        warm.display(),
+        said, //
+    );
+    assert!(
+        !yard
+            .lure
+            .bktu_root()
+            .join(bkk::bkg_breviary::BKG_BUS_LOOSEBOX_BASE)
+            .join(
+                yard.lure
+                    .bktu_root()
+                    .file_name()
+                    .expect("the lure stands in a named directory"),
+            )
+            .join(ZBKTD_DAY_FILE)
+            .exists(),
+        "no day lands beneath the seat's own root: {}",
+        said, //
     );
 }
 
