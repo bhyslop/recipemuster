@@ -60,6 +60,7 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_PARLEY,
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CHAINING_LIVERY,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+    &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -128,6 +129,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "reveille",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_PODVM_RESOLVE,
@@ -148,6 +150,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "picket",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -186,6 +189,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "bivouac",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -213,6 +217,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "echelon",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -256,6 +261,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "gauntlet",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             &crate::rbtcgl_lifecycle::RBTCGL_FIXTURE_DEPOT_LIFECYCLE,
             &crate::rbtcgk_depot::RBTCGK_FIXTURE_FREEHOLD_ESTABLISH,
             // credential-readiness re-verifies the just-seated freehold
@@ -307,6 +313,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         name: "skirmish",
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+            &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
             // The credential leader precedes the first cloud act: a credential
             // deficit fails in seconds with the renew advisory, never minutes
             // into onboarding-sequence (enrollment-validation stays first —
@@ -436,6 +443,7 @@ pub fn rbtcea_lookup_suite(suite: &str) -> Option<&'static rbtcee_Suite> {
 /// The set-equality + superset assertions below make any such drift a build error.
 pub static RBTCEA_REVEILLE_BASE: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
+    &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_PODVM_RESOLVE,
