@@ -289,7 +289,7 @@ zrbau_sederunt_write() {
     || buc_die_now "Failed to compose the ${RBCC_noun_sederunt} cache — see ${ZRBAU_FED_JQ_STDERR_FILE}"
   (
     umask 077 || buc_die_now "Failed to set umask for the ${RBCC_noun_sederunt} cache"
-    printf '%s\n' "${zSECRET_record}" > "${z_tmp}" || buc_die_now "Failed to write the ${RBCC_noun_sederunt} cache: ${z_tmp}"
+    printf '%s' "${zSECRET_record}" > "${z_tmp}" || buc_die_now "Failed to write the ${RBCC_noun_sederunt} cache: ${z_tmp}"
   ) || buc_die_now "Failed to write the ${RBCC_noun_sederunt} cache"
   chmod 600 "${z_tmp}" || buc_die_now "Failed to restrict the ${RBCC_noun_sederunt} cache: ${z_tmp}"
   mv -f "${z_tmp}" "${z_path}" || buc_die_now "Failed to place the ${RBCC_noun_sederunt} cache: ${z_path}"

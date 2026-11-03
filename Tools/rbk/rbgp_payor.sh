@@ -110,21 +110,16 @@ zrbgp_sentinel() {
 ######################################################################
 # OAuth Authentication Functions (zrbgp_oauth_*)
 
-# Post a JSON body to the OAuth token endpoint and emit the response. The body
-# is built by jq from the filter and its non-secret --arg pairs; the filter
-# reads each secret from jq's environment (env.zSECRET_«name»), where the
-# caller's command-prefix assignment places it. The body rides the secret pipe
-# into curl's stdin, so no secret touches disk or an argument. A failed request
-# returns 1, curl's exit status classified here and written to the transcript.
+# Post a composed JSON body to the OAuth token endpoint and emit the response.
+# The caller composes the body with one jq whose environment alone carries the
+# secrets, so this capture only posts: the body rides the secret pipe into
+# curl's stdin, and no secret touches disk, an argument, or curl's environment.
+# A failed request returns 1, curl's exit status written to the transcript.
 zrbgp_oauth_token_post_capture() {
   zrbgp_sentinel
 
-  local -r z_filter="${1:-}"
-  test -n "${z_filter}" || return 1
-  shift || return 1
-
-  local zSECRET_body
-  zSECRET_body=$(jq -n "$@" "${z_filter}") || return 1
+  local -r zSECRET_body="${1:-}"
+  test -n "${zSECRET_body}" || return 1
 
   local -ra z_curl_options=("-sS" -X POST --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" --max-time "${RBCC_CURL_MAX_TIME_SEC}" -H "Content-Type: application/json" -d @-)
   local z_curl_status=0
@@ -135,10 +130,28 @@ zrbgp_oauth_token_post_capture() {
   echo "${zSECRET_response}"
 }
 
-# Emit one field of a downloaded OAuth client JSON, from its installed block
-# or its top level, or the empty string where neither carries it. The field may
-# be the client secret, so it travels in memory alone and never touches disk;
-# jq's stderr goes to the file the caller names.
+# Emit the client secret of a downloaded OAuth client JSON, from its installed
+# block or its top level, or the empty string where neither carries it. The
+# secret travels in memory alone and never touches disk; jq's stderr goes to
+# the file the caller names.
+zrbgp_oauth_client_secret_capture() {
+  zrbgp_sentinel
+
+  local -r z_json_file="${1:-}"
+  local -r z_stderr_file="${2:-}"
+  test -n "${z_json_file}"   || return 1
+  test -n "${z_stderr_file}" || return 1
+
+  local zSECRET_value
+  zSECRET_value=$(jq -r '.installed.client_secret // .client_secret // ""' "${z_json_file}" 2>"${z_stderr_file}") || return 1
+
+  echo "${zSECRET_value}"
+}
+
+# Emit one non-secret field of a downloaded OAuth client JSON, from its
+# installed block or its top level, or the empty string where neither carries
+# it; the client secret takes zrbgp_oauth_client_secret_capture. jq's stderr
+# goes to the file the caller names.
 zrbgp_oauth_client_field_capture() {
   zrbgp_sentinel
 
@@ -178,11 +191,12 @@ zrbgp_refresh_capture() {
 
   buc_log_args "Exchanging refresh token for access token"
 
-  # The two secrets ride jq's environment and the client id its arguments.
-  local -ra z_body_args=("--arg" client_id "${RBRP_OAUTH_CLIENT_ID}")
+  # The two secrets ride the composing jq's environment and the client id its arguments.
   local -r z_body_filter='{refresh_token: env.zSECRET_refresh_token, client_id: $client_id, client_secret: env.zSECRET_client_secret, grant_type: "refresh_token"}'
+  local zSECRET_body
+  zSECRET_body=$(zSECRET_refresh_token="${zSECRET_stored_refresh}" zSECRET_client_secret="${zSECRET_stored_client}" jq -n --arg client_id "${RBRP_OAUTH_CLIENT_ID}" "${z_body_filter}") || return 1
   local zSECRET_response
-  zSECRET_response=$(zSECRET_refresh_token="${zSECRET_stored_refresh}" zSECRET_client_secret="${zSECRET_stored_client}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") || return 1
+  zSECRET_response=$(zrbgp_oauth_token_post_capture "${zSECRET_body}") || return 1
 
   echo "${zSECRET_response}"
 }
@@ -1102,7 +1116,7 @@ rbgp_install() {
   z_client_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_id" "${z_parse_stderr}") \
     || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
   local zSECRET_client_secret
-  zSECRET_client_secret=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "client_secret" "${z_parse_stderr}") \
+  zSECRET_client_secret=$(zrbgp_oauth_client_secret_capture "${z_oauth_json_file}" "${z_parse_stderr}") \
     || buc_die_now "Failed to parse OAuth JSON file ${z_oauth_json_file} — see ${z_parse_stderr}"
   local z_project_id
   z_project_id=$(zrbgp_oauth_client_field_capture "${z_oauth_json_file}" "project_id" "${z_parse_stderr}") \
@@ -1166,11 +1180,13 @@ rbgp_install() {
 
   buc_log_args "Exchanging authorization code for tokens"
 
-  # The two secrets ride jq's environment and the rest its arguments
-  local -ra z_body_args=("--arg" client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}")
+  # The two secrets ride the composing jq's environment and the rest its arguments
   local -r z_body_filter='{code: env.zSECRET_code, client_id: $client_id, client_secret: env.zSECRET_client_secret, redirect_uri: $redirect_uri, grant_type: "authorization_code"}'
+  local zSECRET_body
+  zSECRET_body=$(zSECRET_code="${zSECRET_code}" zSECRET_client_secret="${zSECRET_client_secret}" jq -n --arg client_id "${z_client_id}" --arg redirect_uri "${z_redirect_uri}" "${z_body_filter}") \
+    || buc_die_now "Failed to compose the token exchange request body"
   local zSECRET_response
-  zSECRET_response=$(zSECRET_code="${zSECRET_code}" zSECRET_client_secret="${zSECRET_client_secret}" zrbgp_oauth_token_post_capture "${z_body_filter}" "${z_body_args[@]}") \
+  zSECRET_response=$(zrbgp_oauth_token_post_capture "${zSECRET_body}") \
     || buc_die_now "Failed to execute token exchange request - curl's exit status stands in the transcript"
 
   # Check for error in response
