@@ -331,7 +331,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"crib\"
-BKRR_ROOTS=\"src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -356,6 +355,7 @@ fn bkte_the_residence_joins_the_byname_rather_than_the_target() {
         instance: PathBuf::from("app-lure"),
         regime: bkprc_admit(ZBKTE_RENAMED, "composed")
             .expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src".to_string()]),
     };
 
     let stood = bkce_residence(Path::new("/seat"), &collar);
@@ -402,16 +402,15 @@ fn zbkte_head(lure: &bktu_Lure) -> String {
 }
 
 /// An app collar over a lure: a reader whose residence and byname name the
-/// answerer a hurdle plants, and whose elected roots are whatever that hurdle is
+/// answerer a hurdle plants, and whose elected set is whatever that hurdle is
 /// proving.
-fn zbkte_app_collar(roots: &str) -> bkcr_Collar {
-    let text = format!(
+fn zbkte_app_collar(measured: &str) -> bkcr_Collar {
+    let text = String::from(
         "\
 BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"answerer\"
-BKRR_ROOTS=\"{}\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -422,13 +421,15 @@ BKRR_EXERGUE=\"bknre_unstruck\"
 BKRR_RESIDENCE=\"residence\"
 BKRR_BYNAME=\"answerer\"
 ",
-        roots, //
     );
 
     bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
         regime: bkprc_admit(&text, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(
+            measured.split_whitespace().map(str::to_string).collect(),
+        ),
     }
 }
 
@@ -943,7 +944,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"answerer\"
-BKRR_ROOTS=\"src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -959,6 +959,7 @@ BKRR_BYNAME=\"answerer\"
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
         regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src".to_string()]),
     };
     let geography = bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf());
 
@@ -1184,7 +1185,7 @@ fn zbkte_real(path: &Path) -> PathBuf {
 /// only the tree it borrows from reading as self says the two answers are the
 /// geography and not a constant.
 #[test]
-fn bkte_a_linked_worktree_derives_its_main_checkout_as_the_delivered_root() {
+fn bkte_a_linked_worktree_derives_its_main_worktree_as_the_delivered_root() {
     let main = bktu_Lure::bktu_compose("geography-derived");
     let billet = main.bktu_billet("geography-derived");
 
@@ -1280,7 +1281,7 @@ fn bkte_a_worktree_of_a_bare_repository_refuses() {
 /// checkout would turn it into a quiet own build: the seat would look ordinary,
 /// and the delivered root it was added from would never be consulted by anybody.
 #[test]
-fn bkte_a_worktree_whose_main_checkout_is_gone_refuses() {
+fn bkte_a_worktree_whose_main_worktree_is_gone_refuses() {
     let main = bktu_Lure::bktu_compose("geography-orphan");
     let billet = main.bktu_billet("geography-orphan");
 
@@ -1301,6 +1302,240 @@ fn bkte_a_worktree_whose_main_checkout_is_gone_refuses() {
         "the refusal names the tree whose geography could not be derived: {}",
         said, //
     );
+}
+
+/// A collar holding no set: the app collar every reader hurdle uses, measured
+/// over a closure's package directories rather than an elected set's files.
+fn zbkte_setless_collar(packages: &str) -> bkcr_Collar {
+    let mut collar = zbkte_app_collar(packages);
+    collar.measure = crate::bkcr_resolve::bkcr_Measure::Packages(
+        packages.split_whitespace().map(str::to_string).collect(),
+    );
+    collar
+}
+
+/// A READER APP HOLDING NO SET IS NEVER BORROWED AND ALWAYS ELECTS ITS OWN BUILD,
+/// its position measured over its closure's package directories.
+///
+/// THE DELIVERED BINARY MATCHES THE SEAT'S TREE ON PURPOSE, which is the case a
+/// borrow would take: a reader holding a set borrows it here, so the own-build
+/// verdict below is the setless rule's and no parted tree's. The seat position
+/// is the walk over the package directories, which is what the converge states.
+#[test]
+fn bkte_a_reader_holding_no_set_elects_its_own_build_over_its_closure() {
+    let lure = bktu_Lure::bktu_compose("election-setless");
+    let delivered = bktu_Lure::bktu_compose("election-setless-delivered");
+
+    lure.bktu_write("src/one.rs", "// the founding source\n");
+    lure.bktu_commit("plant the package directory");
+    let struck = zbkte_head(&lure);
+
+    zbkte_plant(&delivered, "answerer", &struck);
+    zbkte_plant(&lure, "answerer", ZBKTE_ELSEWHERE);
+
+    let dispatched = bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf());
+
+    let refused = bkce_elect(lure.bktu_root(), &dispatched, &zbkte_setless_collar("src"))
+        .expect("the election answers");
+
+    assert_eq!(
+        refused.elected, BKCE_ELECTED_OWN,
+        "a reader holding no set never borrows, however the delivered tree matches", //
+    );
+    assert!(
+        refused.answers.is_none(),
+        "the seat's own build is outrun, so nothing answers: {:?}",
+        refused.answers, //
+    );
+    assert!(
+        refused
+            .plaint
+            .as_deref()
+            .is_some_and(|said| said.contains("never borrowed")),
+        "the plaint says the borrow was never weighed: {:?}",
+        refused.plaint, //
+    );
+    assert_eq!(
+        refused.seat.as_deref(),
+        Some(
+            bkce_seat(lure.bktu_root(), "src")
+                .expect("the package directory has been touched")
+                .as_str()
+        ),
+        "the position is walked over the closure's package directories", //
+    );
+
+    zbkte_plant(&lure, "answerer", &struck);
+
+    let own = bkce_elect(lure.bktu_root(), &dispatched, &zbkte_setless_collar("src"))
+        .expect("the election answers");
+
+    assert_eq!(own.elected, BKCE_ELECTED_OWN, "the own build answers"); //
+    assert_eq!(
+        own.answers.as_deref(),
+        Some(own.own.as_path()),
+        "the seat's own current build is the one that runs", //
+    );
+
+    let selfward = bkce_elect(
+        lure.bktu_root(),
+        &bkce_Geography::Undispatched,
+        &zbkte_setless_collar("src"),
+    )
+    .expect("the election answers");
+
+    assert_eq!(
+        selfward.elected, BKCE_ELECTED_OWN,
+        "under self-geography the one residence is the own build, never a borrow", //
+    );
+    assert!(
+        selfward.answers.is_some() && selfward.plaint.is_none(),
+        "a current own build runs and says nothing against itself: {:?} {:?}",
+        selfward.answers,
+        selfward.plaint, //
+    );
+}
+
+/// A lure standing a weaned set and its brood, each listing one file, every
+/// file tracked, for the derivation's settle to be read against.
+fn zbkte_standing_set(lure: &bktu_Lure) -> Vec<std::path::PathBuf> {
+    lure.bktu_write("src/one.rs", "// the founding source\n");
+    lure.bktu_write(
+        "src/two.rs",
+        "// read by a build the set has not heard of\n",
+    );
+
+    let standing = crate::bkcr_resolve::bkcr_set_render(&crate::bkcr_resolve::bkcr_Set {
+        files: vec!["src/one.rs".to_string()],
+        packages: vec!["src".to_string()],
+    });
+    let weaned = lure.bktu_weaned_at("app-lure/bkrs.env");
+    let brood = lure.bktu_brood_at("lk", "app-lure/bkrs.env");
+    lure.bktu_write(&weaned, &standing);
+    lure.bktu_write(&brood, &standing);
+    lure.bktu_commit("stand the set");
+
+    vec![lure.bktu_root().join(weaned), lure.bktu_root().join(brood)]
+}
+
+/// The set a record naming both files derives, before its union.
+fn zbkte_derived() -> crate::bkcr_resolve::bkcr_Set {
+    crate::bkcr_resolve::bkcr_Set {
+        files: vec!["src/one.rs".to_string(), "src/two.rs".to_string()],
+        packages: vec!["src".to_string()],
+    }
+}
+
+/// AT A LINKED WORKTREE, A RECORD NAMING A FILE THE SET LACKS REWRITES THE SET,
+/// at every home together, and the verdict names what was added so the door can
+/// refuse naming the notch.
+#[test]
+fn bkte_a_billet_record_naming_a_file_the_set_lacks_rewrites_the_set() {
+    let lure = bktu_Lure::bktu_compose("scent-billet");
+    let homes = zbkte_standing_set(&lure);
+
+    let scent = crate::bkce_election::bkce_settle(
+        lure.bktu_root(),
+        &bkce_Geography::Dispatched(lure.bktu_temp().to_path_buf()),
+        &homes,
+        &zbkte_derived(),
+    )
+    .expect("the settle answers");
+
+    let crate::bkce_election::bkce_Scent::Rewritten {
+        written,
+        added,
+        dropped,
+    } = scent
+    else {
+        panic!(
+            "a set standing short there is rewritten: {:?}",
+            scent, //
+        );
+    };
+
+    assert_eq!(
+        written, homes,
+        "the weaned copy and its brood are both written"
+    ); //
+    assert_eq!(
+        added,
+        vec!["src/two.rs".to_string()],
+        "the file the dep-info named"
+    ); //
+    assert!(dropped.is_empty(), "nothing tracked left: {:?}", dropped); //
+
+    let weaned = std::fs::read_to_string(&homes[0]).expect("the weaned set reads");
+    let brood = std::fs::read_to_string(&homes[1]).expect("the brood set reads");
+    assert_eq!(weaned, brood, "the two homes never part"); //
+    assert!(
+        weaned.contains("src/two.rs"),
+        "the rewritten set lists the file: {}",
+        weaned, //
+    );
+}
+
+/// AT A MAIN CHECKOUT THE SAME RECORD REFUSES AND WRITES NOTHING: a set is
+/// maintained where the work is and reaches a main checkout only by a landing.
+#[test]
+fn bkte_a_main_checkout_record_naming_a_file_the_set_lacks_writes_nothing() {
+    let lure = bktu_Lure::bktu_compose("scent-main");
+    let homes = zbkte_standing_set(&lure);
+    let before: Vec<String> = homes
+        .iter()
+        .map(|home| std::fs::read_to_string(home).expect("the set reads"))
+        .collect();
+
+    let scent = crate::bkce_election::bkce_settle(
+        lure.bktu_root(),
+        &bkce_Geography::Undispatched,
+        &homes,
+        &zbkte_derived(),
+    )
+    .expect("the settle answers");
+
+    assert_eq!(
+        scent,
+        crate::bkce_election::bkce_Scent::Unwritten {
+            added: vec!["src/two.rs".to_string()],
+            dropped: Vec::new(),
+        },
+        "the set stands short and nothing is written", //
+    );
+
+    let after: Vec<String> = homes
+        .iter()
+        .map(|home| std::fs::read_to_string(home).expect("the set reads"))
+        .collect();
+    assert_eq!(before, after, "neither home was touched"); //
+}
+
+/// A RECORD THE SET ALREADY COVERS WRITES NOTHING, at either geography: the
+/// second build after a committed set finds it current.
+#[test]
+fn bkte_a_record_the_set_covers_writes_nothing() {
+    let lure = bktu_Lure::bktu_compose("scent-current");
+    let homes = zbkte_standing_set(&lure);
+
+    let covered = crate::bkcr_resolve::bkcr_Set {
+        files: vec!["src/one.rs".to_string()],
+        packages: vec!["src".to_string()],
+    };
+
+    for geography in [
+        bkce_Geography::Dispatched(lure.bktu_temp().to_path_buf()),
+        bkce_Geography::Undispatched,
+    ] {
+        let scent =
+            crate::bkce_election::bkce_settle(lure.bktu_root(), &geography, &homes, &covered)
+                .expect("the settle answers");
+        assert_eq!(
+            scent,
+            crate::bkce_election::bkce_Scent::Current,
+            "covered dep-info finds the set current under {:?}",
+            geography, //
+        );
+    }
 }
 
 // eof

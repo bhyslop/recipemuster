@@ -18,7 +18,7 @@ fn main() {
     /// The variable the kennel's converge states into the build. Its home is the
     /// converge, `BKCH_COLLAR_POSITION_VAR` in `Tools/bkk/bk0/src/bkch_heel.rs`;
     /// it is spelled here because a build script links nothing. Cargo is told to
-    /// watch it, so a commit touching the collar's roots rebuilds the binary
+    /// watch it, so a commit touching the collar's measure rebuilds the binary
     /// rather than leaving it claiming a position it no longer holds.
     const ZRBVB_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
 

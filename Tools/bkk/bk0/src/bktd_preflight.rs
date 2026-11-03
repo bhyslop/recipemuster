@@ -71,7 +71,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"crib\"
-BKRR_ROOTS=\"src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -91,7 +90,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"crib\"
-BKRR_ROOTS=\"src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -108,6 +106,7 @@ fn zbktd_collar(declared: &str) -> bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
         regime: bkprc_admit(declared, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Packages(vec!["src".to_string()]),
     }
 }
 
@@ -127,7 +126,6 @@ BKRR_COLLAR=\"suite-lure\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -149,6 +147,7 @@ fn zbktd_suite(declared: &str) -> bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
         regime: bkprc_admit(declared, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Packages(vec!["src".to_string()]),
     }
 }
 
@@ -597,19 +596,22 @@ fn bktd_an_app_residence_that_stands_outrun_names_the_collars_own_strike_door() 
     );
 }
 
-/// A STRUCK EXERGUE THE TRUNK HAS OUTRUN IS AN ABSENCE, judged against the trunk
-/// counterpart and never `HEAD`. The file carries the landed reading, so what
-/// stales it is a landing on the trunk beneath its roots — and a seat that has
-/// not moved at all must see it, which is what the checkout at the end poses:
-/// `HEAD` holds the very tree the file was struck from, and the file is outrun
-/// regardless.
+/// A STRUCK EXERGUE ITS MERGE BASE HAS OUTRUN IS AN ABSENCE, judged against the
+/// merge base of `HEAD` and the trunk counterpart, never `HEAD` itself and never
+/// the counterpart's head. The file carries the landed reading, and the striker
+/// walks from that same merge base, so what stales the file is a landing the
+/// seat has taken beneath its roots — a landing on the trunk the seat has not
+/// taken leaves the file current for the tree the seat holds, and the strike
+/// that would answer an outrun reading writes the same stamp.
 ///
-/// THREE READINGS OVER ONE LURE: the file absent, which names the strike doors;
+/// FIVE READINGS OVER ONE LURE: the file absent, which names the strike doors;
 /// the file struck at the trunk's own landing, which is the control and reads
-/// ready; and the trunk moved beneath the roots while the seat stands still,
-/// which is the arm.
+/// ready; the trunk moved beneath the roots while the seat stands behind, which
+/// still reads ready; the seat merging the moved trunk without a strike, which
+/// is the arm; and the file struck afresh at the new merge base, which reads
+/// ready again.
 #[test]
-fn bktd_a_struck_exergue_the_trunk_has_outrun_names_the_strike_doors() {
+fn bktd_a_struck_exergue_the_merge_base_has_outrun_names_the_strike_doors() {
     let lure = bktu_Lure::bktu_compose("preflight-exergue-outrun");
     let feedroom = bkth_feedroom(&lure.bktu_haynet());
     let collar = zbktd_suite(ZBKTD_SUITE_STRUCK);
@@ -700,13 +702,39 @@ fn bktd_a_struck_exergue_the_trunk_has_outrun_names_the_strike_doors() {
     // THE TRUNK MOVES AND THE SEAT DOES NOT. The landing is made on trunk and
     // pushed, and the seat is put back on the branch it stood on, so `HEAD`
     // holds the tree the file was struck from and only the counterpart has
-    // moved — a reading against `HEAD` would call this file current.
+    // moved. The seat's merge base with the counterpart is still the landing
+    // the file was struck at, so the file is current for the tree the seat
+    // holds — a reading against the counterpart's head would call it outrun,
+    // and no strike at this seat could clear it.
     lure.bktu_git(&["checkout", "--quiet", "-b", "seat"]);
     lure.bktu_git(&["checkout", "--quiet", "trunk"]);
     lure.bktu_write("src/two.rs", "// the trunk moves an elected root\n");
     lure.bktu_commit("the trunk moves an elected root");
     lure.bktu_git(&["push", "--quiet", "origin", "trunk"]);
     lure.bktu_git(&["checkout", "--quiet", "seat"]);
+
+    let behind = bkcd_preflight_at(
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &feedroom,
+        &ZBKTD_SELF,
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert!(
+        behind.is_empty(),
+        "a seat standing behind its counterpart holds the landing its file was struck at: {:?}",
+        behind, //
+    );
+
+    // THE SEAT TAKES THE TRUNK AND IS NOT RE-STRUCK. The merge moves the
+    // seat's merge base to the new landing, which has moved the tree beneath
+    // the file's roots, so the file is outrun and its strike door is named.
+    lure.bktu_git(&["merge", "--quiet", "--no-ff", "--no-edit", "origin/trunk"]);
+    let base = zbktd_rev(&lure, "origin/trunk");
 
     let outrun = bkcd_preflight_at(
         lure.bktu_root(),
@@ -722,7 +750,7 @@ fn bktd_a_struck_exergue_the_trunk_has_outrun_names_the_strike_doors() {
     assert_eq!(
         outrun.len(),
         1,
-        "one struck exergue is outrun by the trunk and the preflight found {:?}",
+        "one struck exergue is outrun by the seat's merge base and the preflight found {:?}",
         outrun, //
     );
     assert_eq!(
@@ -739,9 +767,30 @@ fn bktd_a_struck_exergue_the_trunk_has_outrun_names_the_strike_doors() {
         .as_deref()
         .expect("the absence says the file stands");
     assert!(
-        why.contains("origin/trunk") && why.contains("src/two.rs"),
-        "the plaint names the counterpart and what moved beneath the roots: {}",
+        why.contains("origin/trunk") && why.contains(&base) && why.contains("src/two.rs"),
+        "the plaint names the counterpart, the merge base and what moved beneath the roots: {}",
         why, //
+    );
+
+    // STRUCK AFRESH AT THE NEW MERGE BASE, the file reads current again: the
+    // strike rebed would run cures what the preflight reported.
+    bktd_strike_at(&lure, ZBKTD_STRUCK_FILE, &base, &["src"]);
+
+    let restruck = bkcd_preflight_at(
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &feedroom,
+        &ZBKTD_SELF,
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert!(
+        restruck.is_empty(),
+        "a file struck at the seat's merge base is no absence: {:?}",
+        restruck, //
     );
 }
 
@@ -1202,5 +1251,104 @@ fn bktd_an_unplaced_uv_leaves_the_python_reading_at_the_environments_record() {
 /// The kibble name the haynet arms pose, which keys nothing: the residence is
 /// keyed on the seat.
 const ZBKTD_KIBBLE: &str = "kibble-haynet";
+
+/// A STATION'S RECORD LISTING A FILE THE SET DOES NOT LIST IS AN ABSENCE NAMING
+/// THE ARTIFACT'S BUILD DOOR. The set is a union across stations and each
+/// station proves its own record a subset of it; a set outrun by what this
+/// station's build read measures a position that would not move when that file
+/// does. The supplying act is the collar's own strike door, which derives the
+/// set after its build — never a heel, which derives nothing.
+#[test]
+fn bktd_a_record_the_set_does_not_cover_names_the_build_door() {
+    let lure = bktu_Lure::bktu_compose("preflight-set-outrun");
+    let feedroom = bkth_feedroom(&lure.bktu_haynet());
+    lure.bktu_crate("", "suite-lure");
+    lure.bktu_write("src/extra.rs", "// read by this build\n");
+    lure.bktu_commit("plant a crate the dep-info reads two files of");
+
+    let mut collar = zbktd_collar(ZBKTD_APP);
+    collar.measure = crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src/lib.rs".to_string()]);
+
+    let dispatch = bktr_lured(&lure);
+    let record = crate::bkce_election::bkce_record_path(lure.bktu_root(), &dispatch, &collar)
+        .expect("cargo names the build directory");
+    let root = std::fs::canonicalize(lure.bktu_root()).expect("the lure settles");
+    std::fs::create_dir_all(record.parent().expect("the dep-info stands in a directory"))
+        .expect("the profile directory stands");
+    std::fs::write(
+        &record,
+        format!(
+            "{}: {} {}\n",
+            root.join("target/release/crib").display(),
+            root.join("src/lib.rs").display(),
+            root.join("src/extra.rs").display(), //
+        ),
+    )
+    .expect("the dep-info is planted");
+
+    let absent = bkcd_preflight_at(
+        lure.bktu_root(),
+        &dispatch,
+        &feedroom,
+        &ZBKTD_SELF,
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    let outrun: Vec<&bkcd_Absence> = absent
+        .iter()
+        .filter(|absence| absence.subject.contains("elected set"))
+        .collect();
+
+    assert_eq!(
+        outrun.len(),
+        1,
+        "one set stands outrun by the dep-info and the preflight found {:?}",
+        absent, //
+    );
+    assert!(
+        outrun[0]
+            .stands
+            .as_deref()
+            .is_some_and(|said| said.contains("src/extra.rs") && !said.contains("src/lib.rs")),
+        "the absence names the file the set does not list and no other: {:?}",
+        outrun[0].stands, //
+    );
+    assert_eq!(
+        outrun[0].supply, "vow-b",
+        "the act is the collar's declared build door", //
+    );
+    assert_eq!(
+        outrun[0].heel, None,
+        "a heel derives no set, so rebed is handed no name for one", //
+    );
+
+    let mut covered = collar.clone();
+    covered.measure = crate::bkcr_resolve::bkcr_Measure::Elected(vec![
+        "src/extra.rs".to_string(),
+        "src/lib.rs".to_string(),
+    ]);
+
+    let current = bkcd_preflight_at(
+        lure.bktu_root(),
+        &dispatch,
+        &feedroom,
+        &ZBKTD_SELF,
+        std::slice::from_ref(&covered),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert!(
+        current
+            .iter()
+            .all(|absence| !absence.subject.contains("elected set")),
+        "a set covering the dep-info is no absence: {:?}",
+        current, //
+    );
+}
 
 // eof

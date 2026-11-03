@@ -89,25 +89,6 @@ const ZBKCZ_MARK: &str = "index.html#disallowed_methods";
 /// Foreign schema, foreign name.
 const ZBKCZ_CONF_VAR: &str = "CLIPPY_CONF_DIR";
 
-/// The collar's OWN position — the converge's contract with the crate it builds
-/// (`bkch_heel::BKCH_COLLAR_POSITION_VAR`, where the doc comment says why the
-/// two cannot be one name).
-///
-/// LINTING COMPILES, WHICH IS THE WHOLE REASON THIS IS OWED. A crate whose build
-/// script demands the reading dies here exactly as it would at a build door, and
-/// the failure arrives as a compile error inside a lint sweep — a refusal that
-/// says nothing about the crate's calls and sends its reader to the wrong
-/// question entirely. Every road that BUILDS a crate must state what that
-/// crate's build script demands, and this door is one.
-///
-/// NO PER-CRATE DECISION IS MADE: this is the collar's own declared roots read
-/// off the collar in hand, stated uniformly for whatever collar is being linted.
-/// A
-/// collar declaring no roots — a lure's, composed for one hurdle — is stated
-/// nothing, its absence an answer rather than a failure, on the precedent the
-/// kennel election's absence already sets.
-const ZBKCZ_COLLAR_ROOTS_FIELD: &str = "BKRR_ROOTS";
-
 /// What one collar's drive came to.
 ///
 /// EVERY ARM CARRIES THE CHILD'S WHOLE STREAM, the clean one included. A caller
@@ -149,11 +130,20 @@ pub fn bkcz_lint(
 
     let asked: Vec<&OsStr> = ZBKCZ_ASKED.iter().map(OsStr::new).collect();
 
-    let declared = collar.bkcr_field(ZBKCZ_COLLAR_ROOTS_FIELD);
-    let collar_seat = if declared.trim().is_empty() {
+    // THE COLLAR'S OWN POSITION — the converge's contract with the crate it
+    // builds (`bkch_heel::BKCH_COLLAR_POSITION_VAR`, where the doc comment says
+    // why the two cannot be one name). LINTING COMPILES, which is the whole
+    // reason it is owed: a crate whose build script demands the reading dies
+    // here exactly as it would at a build door, the failure arriving as a
+    // compile error inside a lint sweep that says nothing about the crate's
+    // calls. It is the collar's own measure read off the collar in hand, stated
+    // uniformly; a collar measuring nothing is stated nothing, its absence an
+    // answer rather than a failure.
+    let measured = collar.measure.bkcr_pathspecs();
+    let collar_seat = if measured.trim().is_empty() {
         None
     } else {
-        Some(bkce_election::bkce_seat(repository, declared)?)
+        Some(bkce_election::bkce_seat(repository, &measured)?)
     };
 
     let mut stated: Vec<(&str, &OsStr)> = vec![(ZBKCZ_CONF_VAR, conf.as_os_str())];

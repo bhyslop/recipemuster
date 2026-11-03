@@ -80,12 +80,19 @@ zbkz_kindle() {
   buz_enroll BKZ_GANGLINE  "bkw-g" "${z_mod}" "bkcw_gangline" "param1" "Re-derive one collar's lock: the single act in which the leash lifts the lock flag, writing the lock and leaving it dirty for whoever commits it"
   buz_enroll BKZ_SCOOP     "bkw-s" "${z_mod}" "bkcw_scoop"    "param1" "Remove every collar's target directory, on the operator's word alone - no stamp, no cadence and no record left behind"
 
+  # SCENT, the door the tree's own build doors call after a release build: an
+  # app collar striking an exergue has its elected set derived from the dep-info
+  # cargo left beside the artifact. It writes a tracked file and refuses, on the
+  # gangline's precedent, so the set is committed before the build runs again.
+  # The letter is c, scoop holding s.
+  buz_enroll BKZ_SCENT     "bkw-c" "${z_mod}" "bkcw_scent"    "param1" "Derive one app collar's elected set from the dep-info its build left: written beside the collar at a linked worktree and refused until committed, refused without writing anywhere else."
+
   # BLEACH, the station counterpart of scoop: what the kennel provisions on the
   # station emptied, on the operator's word alone, and laid again by rebed. No
   # door calls it and no road runs it. The letter is its word's own, in
   # capital as the release door's is, for an act whose reach is the whole
   # station rather than one tree.
-  buz_enroll BKZ_BLEACH    "bkw-B" "${z_mod}" "bkcw_bleach"   "param1" "Empties what the kennel keeps on the station for every tree, and this checkout's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
+  buz_enroll BKZ_BLEACH    "bkw-B" "${z_mod}" "bkcw_bleach"   "param1" "Empties what the kennel keeps on the station for every tree, and this worktree's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
 
   # THE NINTH DOOR, contracted at the nesting lope: the derby's set narrowed by
   # selection patterns across every course at once. The letter is f, its word's

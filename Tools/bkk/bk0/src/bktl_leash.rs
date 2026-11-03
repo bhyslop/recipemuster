@@ -835,4 +835,165 @@ fn bktl_a_stream_whose_read_breaks_is_answered_as_cut() {
     );
 }
 
+/// Pose an environment carrying each name, every value the same placeholder:
+/// the sift reads names, and a value it read would be a second question.
+fn zbktl_posed(names: &[&str]) -> Vec<(std::ffi::OsString, std::ffi::OsString)> {
+    names
+        .iter()
+        .map(|name| {
+            (
+                std::ffi::OsString::from(name),
+                std::ffi::OsString::from("1"),
+            )
+        })
+        .collect()
+}
+
+/// Sift a posed environment that must refuse, and prove the refusal names every
+/// planted name and the rule.
+fn zbktl_sift_refuses(names: &[&str]) {
+    let refusal = bkcl_leash::bkcl_sifted(&zbktl_posed(names))
+        .expect_err("a name of a hazard family refuses");
+
+    for name in names {
+        assert!(
+            refusal.contains(name),
+            "the refusal names {}: {}",
+            name,
+            refusal, //
+        );
+    }
+    assert!(
+        refusal.contains(bkcl_leash::BKCL_ALLOWLIST_RULE),
+        "the refusal names the rule: {}",
+        refusal, //
+    );
+}
+
+#[test]
+fn bktl_a_profile_override_is_refused_naming_it_and_the_rule() {
+    zbktl_sift_refuses(&["CARGO_PROFILE_DEV_DEBUG_ASSERTIONS"]);
+}
+
+/// The family is read by its ending, so cargo's build, target and encoded
+/// spellings and the documenter's own fall with the bare variable — the encoded
+/// one though cargo sets it for a build script, none of which reaches the sift.
+#[test]
+fn bktl_a_rustflags_variable_is_refused_naming_it_and_the_rule() {
+    zbktl_sift_refuses(&[
+        "RUSTFLAGS",
+        "RUSTDOCFLAGS",
+        "CARGO_ENCODED_RUSTFLAGS",
+        "CARGO_BUILD_RUSTFLAGS",
+        "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS",
+    ]);
+}
+
+#[test]
+fn bktl_the_compilers_bootstrap_variable_is_refused_naming_it_and_the_rule() {
+    zbktl_sift_refuses(&["RUSTC_BOOTSTRAP"]);
+}
+
+/// THE CHAIN'S OWN NAMES PASS: what cargo and rustup's proxies set for the
+/// children a composition runs in, a name a hurdle states, and a build script's
+/// configuration names, which move nothing.
+#[test]
+fn bktl_a_name_the_chain_sets_passes_the_sift() {
+    let withheld = bkcl_leash::bkcl_sifted(&zbktl_posed(&[
+        "CARGO",
+        "CARGO_PKG_NAME",
+        "CARGO_MANIFEST_DIR",
+        "CARGO_CFG_TARGET_OS",
+        "RUSTUP_TOOLCHAIN_SOURCE",
+        "RUSTUP_AUTO_INSTALL",
+    ]))
+    .expect("the chain's own names pass");
+
+    assert!(
+        withheld.is_empty(),
+        "nothing the chain sets is withheld: {:?}",
+        withheld, //
+    );
+}
+
+#[test]
+fn bktl_the_target_directory_passes_the_sift() {
+    let withheld = bkcl_leash::bkcl_sifted(&zbktl_posed(&[crate::bkch_heel::BKCH_TARGET_DIR_VAR]))
+        .expect("the target directory passes");
+
+    assert!(
+        withheld.is_empty(),
+        "the target directory is not withheld: {:?}",
+        withheld, //
+    );
+}
+
+/// A GOVERNED NAME OF NO PASSED OR HAZARD CLASS IS WITHHELD, and the withholding
+/// reaches the command a face would launch: the name stands there removed. The
+/// compiler's and documenter's own names are among them, cargo setting both for
+/// a build script alone and a station setting either changing what is built.
+/// Posed in the command's own sorted order, so the two lists compare whole.
+#[test]
+fn bktl_a_withheld_name_never_reaches_the_composed_child() {
+    let names = ["CARGO_INCREMENTAL", "RUSTC", "RUSTC_WRAPPER", "RUSTDOC"];
+
+    let withheld =
+        bkcl_leash::bkcl_sifted(&zbktl_posed(&names)).expect("a withheld name does not refuse");
+    assert_eq!(
+        withheld,
+        names
+            .iter()
+            .map(std::ffi::OsString::from)
+            .collect::<Vec<_>>(),
+        "each is withheld", //
+    );
+
+    let mut child = std::process::Command::new("cargo");
+    bkcl_leash::zbkcl_withheld(&mut child, &withheld);
+    let removed: Vec<_> = child
+        .get_envs()
+        .filter(|(_, value)| value.is_none())
+        .map(|(name, _)| name.to_os_string())
+        .collect();
+
+    assert_eq!(
+        removed, withheld,
+        "each stands removed from the child", //
+    );
+}
+
+/// THE CONTROL: an environment of passed names, beside names no governed family
+/// wears, sifts with no refusal and withholds nothing.
+#[test]
+fn bktl_an_allowlisted_environment_sifts_with_no_refusal() {
+    let withheld = bkcl_leash::bkcl_sifted(&zbktl_posed(&[
+        bkcl_leash::BKCL_CARGO_HOME_VAR,
+        bkcl_leash::BKCL_RUSTUP_HOME_VAR,
+        "RUSTUP_TOOLCHAIN",
+        crate::bkch_heel::BKCH_TARGET_DIR_VAR,
+        crate::bkch_heel::BKCH_COLLAR_POSITION_VAR,
+        "CLIPPY_CONF_DIR",
+        "NEXTEST_RUN_ID",
+        "PATH",
+        "HOME",
+    ]))
+    .expect("an allowlisted environment does not refuse");
+
+    assert!(
+        withheld.is_empty(),
+        "nothing is withheld: {:?}",
+        withheld, //
+    );
+}
+
+/// THE ENVIRONMENT THIS HURDLE RUNS IN IS THE CHAIN'S OWN: cargo or nextest
+/// launched it, under the tackroom's homes and the pin, so a name of the chain
+/// misread as a hazard refuses here before it reds every drive that composes.
+#[test]
+fn bktl_the_chains_own_environment_sifts_with_no_refusal() {
+    let inherited: Vec<_> = std::env::vars_os().collect();
+
+    bkcl_leash::bkcl_sifted(&inherited).expect("the chain's own environment does not refuse");
+}
+
 // eof

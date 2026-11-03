@@ -48,6 +48,8 @@ use std::path::{
 
 use bkp::bkprc_catena;
 
+use crate::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
+
 /// The dispatch's output directory — the latest-command copy, cleared on the
 /// next dispatch, and the one the engine reads the moment a door returns.
 pub const BKCC_OUTPUT_DIR_VAR: &str = "BURD_OUTPUT_DIR";
@@ -60,6 +62,10 @@ pub const BKCC_TEMP_DIR_VAR: &str = "BURD_TEMP_DIR";
 /// build products stand, one directory outside every source tree, composed by
 /// the substrate and keyed on the checkout's dirname.
 pub const BKCC_LOOSEBOX_DIR_VAR: &str = "BURD_LOOSEBOX_DIR";
+
+/// The root the dispatch folded and keyed the checkout's loosebox beneath,
+/// recorded beside the loosebox itself.
+pub const BKCC_LOOSEBOX_ROOT_DIR_VAR: &str = "BURD_LOOSEBOX_ROOT_DIR";
 
 /// The checkout's own loosebox, settled from what a caller was handed.
 ///
@@ -110,6 +116,53 @@ pub fn bkcc_loosebox(dispatch: &crate::bkcr_resolve::bkcr_Dispatch) -> Result<Pa
             .bkcr_said(BKCC_LOOSEBOX_DIR_VAR)
             .unwrap_or_default(),
     )
+}
+
+/// The loosebox root the dispatch recorded, for a door handing a child the root
+/// its own loosebox was composed beneath.
+///
+/// RECORDED, NEVER DERIVED. The root is the dispatch's own fold — the regime's
+/// value, or the override a harness laid over it — and the loosebox's parent is
+/// not a reading of it: a door climbing out of a directory it was handed is
+/// guessing at a layout it does not own. So the field is read whole and its
+/// absence refuses, rather than falling back to the climb.
+///
+/// A CHILD HANDED ANOTHER ROOT KEEPS ANOTHER DAY. Whatever the child composes
+/// beneath the root is where its delouse looks for the day's sweep, so a root
+/// that differed from this one would send the child to a loosebox holding no
+/// day, and it would sweep the yard its parent had just laid.
+pub fn bkcc_loosebox_root(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+) -> Result<PathBuf, String> {
+    let said = dispatch
+        .bkcr_said(BKCC_LOOSEBOX_ROOT_DIR_VAR)
+        .unwrap_or_default()
+        .trim();
+
+    if said.is_empty() {
+        return Err(format!(
+            "this door has no {} root to hand a child: {} names no directory. The dispatch \
+             records the root it folded beside the {} it keyed beneath it, and a door reached \
+             without that record has no root of its own to compose",
+            BKG_BUS_LOOSEBOX_BASE,
+            BKCC_LOOSEBOX_ROOT_DIR_VAR,
+            BKG_BUS_LOOSEBOX_BASE, //
+        ));
+    }
+
+    let root = PathBuf::from(said);
+
+    if !root.is_dir() {
+        return Err(format!(
+            "{} names {}, which is no directory that stands — the dispatch makes its {} \
+             beneath the root it records, so a root naming nothing is a misprovisioned seat",
+            BKCC_LOOSEBOX_ROOT_DIR_VAR,
+            root.display(),
+            BKG_BUS_LOOSEBOX_BASE, //
+        ));
+    }
+
+    Ok(root)
 }
 
 /// The extension that classifies a fact file as a course record.

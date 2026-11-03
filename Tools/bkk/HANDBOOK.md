@@ -81,15 +81,15 @@ That writes `«moorings»/buml_launchers/launcher.bkw_workbench.sh` — four lin
 
 ## Act 3 — Mint the door roster
 
-Thirteen doors, each written by the substrate's creation doors over the launcher stub Act 2 made.
+Fourteen doors, each written by the substrate's creation doors over the launcher stub Act 2 made.
 A kennel door's file carries nothing of the repository it stands in, so the door these write is the door the kennel ships.
 
-Ten take the plain form:
+Eleven take the plain form:
 
 ```bash
 tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh «moorings»/buml_launchers/launcher.bkw_workbench.sh \
   bkw-w.Whistle bkw-l.Lineup bkw-t.Tattoo bkw-h.Heel bkw-z.Muzzle \
-  bkw-g.Gangline bkw-s.Scoop bkw-n.Delouse bkw-k.Kennelman bkw-r.Rebed
+  bkw-g.Gangline bkw-s.Scoop bkw-c.Scent bkw-n.Delouse bkw-k.Kennelman bkw-r.Rebed
 ```
 
 Three — Mush, Derby and Futurity — take the form whose command writes its own record:
@@ -102,7 +102,7 @@ tt/buw-tt-cbo.CreateTabTargetBatchOwnlog.sh «moorings»/buml_launchers/launcher
 That form's configuration line says `buuc_ownlog`: each of the three consumes its tenant's streams and renders the record itself, and under that word the dispatch composes the three log names and creates no file, leaving the kennel to write all three members or none — without it the dispatch curates the log line by line and destroys the interleaving the record exists to hold.
 A door minted in the plain form, its configuration line saying no word, still runs; it is simply a poorer record than the kennel writes.
 
-The workbench routes whatever doors stand, so mint the ones you use; the whole thirteen is the ordinary choice — and rebed is not optional, since every refusal that finds the pinned toolchain missing names it.
+The workbench routes whatever doors stand, so mint the ones you use; the whole fourteen is the ordinary choice — and rebed is not optional, since every refusal that finds the pinned toolchain missing names it.
 The substrate's roll call, `tt/buw-tt-rc.RollCall.sh`, lists any kennel door you have not stood, and names in red any that a later kennel edition no longer enrolls.
 
 Then ignore the kennel's build directory, if your repository does not already:
@@ -172,7 +172,8 @@ Suites, the muzzle, lineup, gangline, scoop and the leash never take it.
 
 In a linked worktree an app has two residences, and every verdict names both: the borrow candidate at the delivered root, and its own residence in the worktree, each joined from the collar's `BKRR_RESIDENCE` and `BKRR_BYNAME`.
 
-- A reader borrows the delivered root's binary while the tree under its roots is the same in both, and runs its own build once the worktree's source has outrun it. An own build that is absent or outrun refuses, naming heel.
+- A reader borrows the delivered root's binary while the tree over its elected set is the same in both, and runs its own build once the worktree's source has outrun it. An own build that is absent or outrun refuses, naming heel.
+- A reader holding no elected set never borrows: it runs its own build, current over its closure's package directories, or refuses naming heel.
 - A writer is pinned to the delivered root's binary, so a binary built in a linked worktree never writes to a live store.
 - Heel writes the worktree's own residence and nothing else, and refuses a residence that resolves inside the delivered root. A linked worktree added inside its own main worktree is the shape that meets this refusal.
 

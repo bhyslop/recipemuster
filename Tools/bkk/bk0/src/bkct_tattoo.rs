@@ -64,8 +64,18 @@ const ZBKCT_PROCLAIMED: &[(&str, &str)] = &[
     ("BKRC_TARGET", "BKRR_TARGET"),
     ("BKRC_PROFILE", "BKRR_PROFILE"),
     ("BKRC_FEATURES", "BKRR_FEATURES"),
-    ("BKRC_ROOTS", "BKRR_ROOTS"), //
+    ("BKRC_ROOTS", ZBKCT_MEASURE), //
 ];
+
+/// The row the rust family answers from its MEASURE rather than from a field:
+/// the elected set's files where a set stands beside the collar, and otherwise
+/// its closure's package directories. No field declares it any longer, so the
+/// table names this key, which is no field's, and the lookup below answers it.
+///
+/// THE PROCLAIMED NAME STANDS, because what a consumer asks of it stands: the
+/// paths this launchable's currency is measured over, which the python family
+/// answers from what its collar declares.
+const ZBKCT_MEASURE: &str = "the collar's measure";
 
 /// The app's own launch coordinates — the directory and the name the binary
 /// wears inside it, which are two facts and not one.
@@ -143,8 +153,13 @@ pub fn bkct_proclamation(
         _ => &[],
     };
 
+    let measured = collar.measure.bkcr_pathspecs();
+
     zbkct_rendered(
-        |declared| collar.bkcr_field(declared),
+        |declared| match declared {
+            ZBKCT_MEASURE => measured.as_str(),
+            _ => collar.bkcr_field(declared),
+        },
         ZBKCT_PROCLAIMED,
         owned,
         BKCT_LANGUAGE_RUST,

@@ -169,13 +169,13 @@ fn zbkptc_single_quote_refuses_naming_the_line() {
 fn zbkptc_continuation_joins_before_comments_are_read() {
     let seat = zbkptc_Composed::zbkptc_compose(
         "hash-inside-continuation",
-        "BKRR_ROOTS=\"one \\\n  #two three \\\n  four\"\n",
+        "BKRS_FILES=\"one \\\n  #two three \\\n  four\"\n",
     );
 
     let regime = bkprc_read(seat.zbkptc_file()).expect("the file stands inside the subset");
 
     let elements = regime
-        .bkprc_catena("BKRR_ROOTS")
+        .bkprc_catena("BKRS_FILES")
         .expect("the field is assigned");
 
     assert_eq!(
@@ -372,7 +372,7 @@ fn zbkptc_a_collar_reads_back_whole() {
          BKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"Tools/bkk/bk0/Cargo.toml\"\n\
          BKRR_TARGET=\"bknre_manifest\"\n\
-         BKRR_ROOTS=\"Tools/bkk/bk0/src \\\n  Tools/bkk/bk0/tests \\\n  Tools/bkk/bk0/Cargo.toml\"\n\
+         BKRR_EXERGUE=\"Tools/bkk/bk0/src \\\n  Tools/bkk/bk0/tests \\\n  Tools/bkk/bk0/Cargo.toml\"\n\
          BKRR_FEATURES=\"\"\n\
          BKRR_PROFILE=\"test\"\n\
          BKRR_SPEND=\"bknre_reader\"\n\
@@ -389,7 +389,7 @@ fn zbkptc_a_collar_reads_back_whole() {
     assert_eq!(regime.bkprc_scalar("BKRR_COLLAR"), Some("bki_suite"));
     assert_eq!(regime.bkprc_scalar("BKRR_MUZZLE"), Some("."));
     assert_eq!(
-        regime.bkprc_catena("BKRR_ROOTS").unwrap(),
+        regime.bkprc_catena("BKRR_EXERGUE").unwrap(),
         vec![
             "Tools/bkk/bk0/src",
             "Tools/bkk/bk0/tests",

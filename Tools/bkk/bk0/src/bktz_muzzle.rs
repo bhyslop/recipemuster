@@ -48,8 +48,6 @@ BKRR_COLLAR=\"suite-lure\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"src \\
-  Cargo.toml\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"

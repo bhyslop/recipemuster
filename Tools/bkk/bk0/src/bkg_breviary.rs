@@ -262,6 +262,9 @@ pub const BKG_BKCW_MUZZLE_PEDIMENT: &str = bkg_bkcw_muzzle_pediment!();
 macro_rules! bkg_bkcw_rebed_pediment { () => { "bkw-r" }; }
 pub(crate) use bkg_bkcw_rebed_pediment;
 pub const BKG_BKCW_REBED_PEDIMENT: &str = bkg_bkcw_rebed_pediment!();
+macro_rules! bkg_bkcw_scent_pediment { () => { "bkw-c" }; }
+pub(crate) use bkg_bkcw_scent_pediment;
+pub const BKG_BKCW_SCENT_PEDIMENT: &str = bkg_bkcw_scent_pediment!();
 macro_rules! bkg_delouse_pediment { () => { "bkw-n" }; }
 pub(crate) use bkg_delouse_pediment;
 pub const BKG_DELOUSE_PEDIMENT: &str = bkg_delouse_pediment!();
