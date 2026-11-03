@@ -36,6 +36,12 @@ zrbrf_kindle() {
   # The enforce's checks that call a tool leave that tool's stderr here
   readonly ZRBRF_ENFORCE_PREFIX="${BURD_TEMP_DIR}/rbrf_enforce_"
 
+  # The caged Keycloak facility's committed fixtures, no secret, named exactly as
+  # its foedus template names them: the only secret-path values the enforce admits
+  # outside RBRR_SECRETS_DIR.
+  readonly ZRBRF_CAGED_ASSERTER_KEY_FILE="rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem"
+  readonly ZRBRF_CAGED_CLIENT_SECRET_FILE="rbmm_moorings/rben_fdkyclk/fdkyclk-client-secret.txt"
+
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
 
@@ -167,6 +173,31 @@ zrbrf_enforce() {
       esac
       case "${RBRF_CLIENT_SECRET_FILE}" in
         /*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
+      esac
+
+      # A secret is read from a file of the secrets directory: each path names a
+      # file under RBRR_SECRETS_DIR, climbing no '..' out of it, save the caged
+      # facility's committed fixtures, admitted by their exact names.
+      test -n "${RBRR_SECRETS_DIR:-}" \
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_SECRETS_DIR is not set — the programmatic secret paths are judged against it"
+      local -r z_secrets_prefix="${RBRR_SECRETS_DIR}/"
+      case "${RBRF_ASSERTER_KEY_FILE}" in
+        "${ZRBRF_CAGED_ASSERTER_KEY_FILE}") ;;
+        "${z_secrets_prefix}"?*)
+          case "/${RBRF_ASSERTER_KEY_FILE#"${z_secrets_prefix}"}/" in
+            */../*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must not climb out of RBRR_SECRETS_DIR: ${RBRF_ASSERTER_KEY_FILE}" ;;
+          esac
+          ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must name a file under RBRR_SECRETS_DIR (${RBRR_SECRETS_DIR}) or the caged facility's fixture ${ZRBRF_CAGED_ASSERTER_KEY_FILE}: ${RBRF_ASSERTER_KEY_FILE}" ;;
+      esac
+      case "${RBRF_CLIENT_SECRET_FILE}" in
+        "${ZRBRF_CAGED_CLIENT_SECRET_FILE}") ;;
+        "${z_secrets_prefix}"?*)
+          case "/${RBRF_CLIENT_SECRET_FILE#"${z_secrets_prefix}"}/" in
+            */../*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must not climb out of RBRR_SECRETS_DIR: ${RBRF_CLIENT_SECRET_FILE}" ;;
+          esac
+          ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must name a file under RBRR_SECRETS_DIR (${RBRR_SECRETS_DIR}) or the caged facility's fixture ${ZRBRF_CAGED_CLIENT_SECRET_FILE}: ${RBRF_CLIENT_SECRET_FILE}" ;;
       esac
 
       # The three assertion facts (kid, issuer, subject) need only be present and
