@@ -92,15 +92,15 @@ zrbgft_muniment_name_capture() {
 ######################################################################
 # External Functions (rbgft_*)
 #
-# engross / expunge echo a one-word disposition on stdout (their only stdout
-# output; all human logging routes to stderr); peruse echoes one muniment per
-# line. Callers capture the disposition to assert the precondition outcome.
+# engross, expunge and the escheat expunge write nothing on stdout: each
+# outcome, the idempotent arm included, is logged to stderr and the status is
+# the result. peruse echoes one muniment per line.
 
 # rbgft_engross <token> <bucket> <depot_project_id> <mantle> <subject>
 # Write the muniment for (subject, mantle) into the depot's polity slice.
-# ifGenerationMatch=0 create — Cloud Storage writes only if absent. Echoes
-# "created" on a fresh write (200/201) or "present" on the 412 precondition
-# (a duplicate create is idempotent success, the muniment already holds).
+# ifGenerationMatch=0 create — Cloud Storage writes only if absent. Succeeds
+# on a fresh write (200/201) and on the 412 precondition (a duplicate create
+# is idempotent success, the muniment already holds), logging which.
 # Any other code rejects in the engross band (RBCG_ENGROSS_DENTIL).
 rbgft_engross() {
   zrbgft_sentinel
@@ -137,8 +137,8 @@ rbgft_engross() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ENGROSS}") || buc_die_now "Bad engross HTTP code"
   case "${z_code}" in
-    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})"; echo "created" || buc_die_now "Failed to emit the outcome" ;;
-    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})"; echo "present" || buc_die_now "Failed to emit the outcome" ;;
+    200|201) buc_success "Muniment engrossed (${z_mantle}, ${z_subject})" ;;
+    412)     buc_info    "Muniment already present, idempotent (${z_mantle}, ${z_subject})" ;;
     *)       local z_err
              local z_err_status=0
              z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ENGROSS}" '.error.message') || z_err_status=$?
@@ -148,8 +148,8 @@ rbgft_engross() {
 }
 
 # rbgft_expunge <token> <bucket> <depot_project_id> <mantle> <subject>
-# Withdraw the muniment for (subject, mantle). Echoes "deleted" (204) or
-# "absent" (404 — idempotent, already struck from the record). Any other code
+# Withdraw the muniment for (subject, mantle). Succeeds on 204 and on 404
+# (idempotent, already struck from the record), logging which. Any other code
 # rejects in the expunge band (RBCG_EXPUNGE_DENTIL).
 rbgft_expunge() {
   zrbgft_sentinel
@@ -180,8 +180,8 @@ rbgft_expunge() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_EXPUNGE}") || buc_die_now "Bad expunge HTTP code"
   case "${z_code}" in
-    204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})"; echo "deleted" || buc_die_now "Failed to emit the outcome" ;;
-    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})"; echo "absent" || buc_die_now "Failed to emit the outcome" ;;
+    204) buc_success "Muniment expunged (${z_mantle}, ${z_subject})" ;;
+    404) buc_info    "Muniment already absent, idempotent (${z_mantle}, ${z_subject})" ;;
     *)   local z_err
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_EXPUNGE}" '.error.message') || z_err_status=$?
@@ -490,8 +490,8 @@ rbgft_escheat_survey() {
 # rbgft_escheat_expunge_raw <token> <bucket> <object_name>
 # The raw hygiene delete: strike one bucket object by its listed name,
 # unconditioned — no muniment-name composition, because an escheat subject's key
-# may be exactly what fails the contract. Echoes "deleted" (204) or "absent"
-# (404 — already vanished, clean). Any other code rejects in the escheat band
+# may be exactly what fails the contract. Succeeds on 204 and on 404 (already
+# vanished, clean), logging which. Any other code rejects in the escheat band
 # (RBCG_MANOR_ESCHEAT_DENTIL). Logged, not stepped: the sweep loop is one verb step.
 rbgft_escheat_expunge_raw() {
   zrbgft_sentinel
@@ -515,8 +515,8 @@ rbgft_escheat_expunge_raw() {
   local z_code
   z_code=$(rbuh_code_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}") || buc_die_now "Bad escheat expunge HTTP code"
   case "${z_code}" in
-    204) buc_info "Escheated ${z_name}"; echo "deleted" || buc_die_now "Failed to emit the outcome" ;;
-    404) buc_info "Object ${z_name} already absent (benign vanish)"; echo "absent" || buc_die_now "Failed to emit the outcome" ;;
+    204) buc_info "Escheated ${z_name}" ;;
+    404) buc_info "Object ${z_name} already absent (benign vanish)" ;;
     *)   local z_err
          local z_err_status=0
          z_err=$(rbuh_json_field_capture "${ZRBGFT_INFIX_ESCHEAT_EXPUNGE}" '.error.message') || z_err_status=$?
