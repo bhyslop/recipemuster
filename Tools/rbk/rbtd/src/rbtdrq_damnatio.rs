@@ -499,16 +499,16 @@ const ZRBTDRQ_STATE_UNSET: &str = "unset";
 const ZRBTDRQ_STATE_UNWIREABLE: &str = "unwireable";
 const ZRBTDRQ_STATE_UNSOURCED: &str = "unsourced";
 
-/// The value read, spliced into the reach after the proscription kindles and
-/// before any regime kindles. Each home and each hardpoint is sourced in a child
-/// shell that holds no kindled regime, so no readonly mark stands in the way of
-/// its assignments. The child reads the file as the regimes read it, after the
-/// repo regime file, which a vessel's paths expand from; then every judged field
-/// is unset, so a field the file does not assign reads unset rather than
-/// inheriting a value. Bash, never a text match, decides what the file holds. A
-/// value carrying a tab or a newline cannot cross the tab-separated wire and is
-/// reported as such rather than split.
-const ZRBTDRQ_VALUE_READ: &str = r#"zrbtdrq_held_rows() {
+/// The value read's one function, spliced into the reach after the proscription
+/// kindles and before any regime kindles, and into the reader's self-proof alone.
+/// Each home and each hardpoint is sourced in a child shell that holds no kindled
+/// regime, so no readonly mark stands in the way of its assignments. The child
+/// reads the file as the regimes read it, after the repo regime file, which a
+/// vessel's paths expand from; then every judged field is unset, so a field the
+/// file does not assign reads unset rather than inheriting a value. Bash, never a
+/// text match, decides what the file holds. A value carrying a tab or a newline
+/// cannot cross the tab-separated wire and is reported as such rather than split.
+const ZRBTDRQ_HELD_ROWS: &str = r#"zrbtdrq_held_rows() {
   local -r z_file="$1"
   shift
   (
@@ -534,7 +534,11 @@ const ZRBTDRQ_VALUE_READ: &str = r#"zrbtdrq_held_rows() {
     done
   )
 }
-for z_h in "${!z_rblm_home_file_roll[@]}"; do
+"#;
+
+/// The value read's loops: every home with the site fields its scope judges, then
+/// every hardpoint, each handed to the held-rows function above.
+const ZRBTDRQ_HOME_LOOPS: &str = r#"for z_h in "${!z_rblm_home_file_roll[@]}"; do
   z_vars=()
   for z_j in "${!z_rblm_var_roll[@]}"; do
     test "${z_rblm_scope_roll[${z_j}]}" = "${z_rblm_home_scope_roll[${z_h}]}" || continue
@@ -547,6 +551,155 @@ for z_h in "${!z_rblm_hardpoint_var_roll[@]}"; do
   zrbtdrq_held_rows "${z_rblm_hardpoint_path_roll[${z_h}]}" "${z_rblm_hardpoint_var_roll[${z_h}]}"
 done
 "#;
+
+/// The state words handed to the value read as shell variables, one assignment
+/// per line. Ends with a newline.
+fn zrbtdrq_state_words() -> String {
+    format!(
+        "z_state_holds='{}'\n\
+         z_state_unset='{}'\n\
+         z_state_unwireable='{}'\n\
+         z_state_unsourced='{}'\n",
+        ZRBTDRQ_STATE_HOLDS,
+        ZRBTDRQ_STATE_UNSET,
+        ZRBTDRQ_STATE_UNWIREABLE,
+        ZRBTDRQ_STATE_UNSOURCED, //
+    )
+}
+
+/// The value reader's self-proof planted files: one in a regime home's shape, a
+/// bare assignment, and one in a hardpoint's, a readonly quoted assignment. The
+/// names and values are synthetic and carry no identity of any shape.
+const ZRBTDRQ_PLANT_REGIME_FILE: &str = "zqplant-regime.env";
+const ZRBTDRQ_PLANT_HARDPOINT_FILE: &str = "zqplant-hardpoint.sh";
+const ZRBTDRQ_PLANT_REPO_FILE: &str = "zqplant-repo.env";
+const ZRBTDRQ_PLANT_REGIME_VAR: &str = "ZQPLANT_SITE_FIELD";
+const ZRBTDRQ_PLANT_REGIME_VALUE: &str = "zqregimeplant";
+const ZRBTDRQ_PLANT_HARDPOINT_VAR: &str = "ZQPLANT_HARDPOINT";
+const ZRBTDRQ_PLANT_HARDPOINT_VALUE: &str = "zqhardpointplant";
+
+/// The trace prefix of the self-proof's bash run.
+pub(crate) const ZRBTDRQ_VALUE_SELF_TRACE: &str = "zqreader-assay";
+
+/// A self-proof finding: it points at this module's own source.
+fn zrbtdrq_self_finding(detail: String) -> zrbtchx_Finding {
+    zrbtchx_Finding {
+        file: RBTCHD_DAMNATIO_SELF.to_string(),
+        line: 0,
+        detail,
+    }
+}
+
+/// The value reader's self-proof, run before its verdict is trusted wherever the
+/// value read runs. Two files are planted, each in one of the shapes the read
+/// meets — a regime line and a readonly hardpoint line — and the held-rows
+/// function the reach splices is called over each. Each must come back holding
+/// its planted value; anything else is a finding against this module, so a
+/// reader gone blind can never report a sterile tree.
+fn zrbtdrq_value_self_proof(dir: &Path) -> Vec<zrbtchx_Finding> {
+    let mut findings = Vec::new();
+
+    let regime = dir.join(ZRBTDRQ_PLANT_REGIME_FILE);
+    let hardpoint = dir.join(ZRBTDRQ_PLANT_HARDPOINT_FILE);
+    let repo = dir.join(ZRBTDRQ_PLANT_REPO_FILE);
+    let plants = [
+        (
+            &regime,
+            format!(
+                "{}={}\n",
+                ZRBTDRQ_PLANT_REGIME_VAR,
+                ZRBTDRQ_PLANT_REGIME_VALUE, //
+            ),
+        ),
+        (
+            &hardpoint,
+            format!(
+                "readonly {}=\"{}\"\n",
+                ZRBTDRQ_PLANT_HARDPOINT_VAR,
+                ZRBTDRQ_PLANT_HARDPOINT_VALUE, //
+            ),
+        ),
+        (&repo, String::new()),
+    ];
+    for (path, body) in &plants {
+        if let Err(e) = std::fs::write(path, body) {
+            findings.push(zrbtdrq_self_finding(format!(
+                "value reader self-proof cannot plant {}: {}",
+                path.display(),
+                e, //
+            )));
+            return findings;
+        }
+    }
+
+    let regime_p = crate::rbtcep_platform::rbtcep_native_to_posix(&regime);
+    let hardpoint_p = crate::rbtcep_platform::rbtcep_native_to_posix(&hardpoint);
+    let script = format!(
+        "set -euo pipefail\n\
+         {states}\
+         RBCC_rbrr_file='{repo}'\n\
+         {held_rows}\
+         zrbtdrq_held_rows '{regime}' '{regime_var}'\n\
+         zrbtdrq_held_rows '{hardpoint}' '{hardpoint_var}'\n",
+        states = zrbtdrq_state_words(),
+        repo = crate::rbtcep_platform::rbtcep_native_to_posix(&repo),
+        held_rows = ZRBTDRQ_HELD_ROWS,
+        regime = regime_p,
+        regime_var = ZRBTDRQ_PLANT_REGIME_VAR,
+        hardpoint = hardpoint_p,
+        hardpoint_var = ZRBTDRQ_PLANT_HARDPOINT_VAR, //
+    );
+    let stdout = match rbtchf_run_bash(dir, &script, dir, ZRBTDRQ_VALUE_SELF_TRACE) {
+        Ok((0, stdout, _)) => stdout,
+        Ok((code, _, stderr)) => {
+            findings.push(zrbtdrq_self_finding(format!(
+                "value reader self-proof exited {}: {}",
+                code,
+                stderr.trim(), //
+            )));
+            return findings;
+        }
+        Err(e) => {
+            findings.push(zrbtdrq_self_finding(format!(
+                "value reader self-proof could not run: {}",
+                e, //
+            )));
+            return findings;
+        }
+    };
+
+    let expected = [
+        (
+            &regime_p,
+            ZRBTDRQ_PLANT_REGIME_VAR,
+            ZRBTDRQ_PLANT_REGIME_VALUE, //
+        ),
+        (
+            &hardpoint_p,
+            ZRBTDRQ_PLANT_HARDPOINT_VAR,
+            ZRBTDRQ_PLANT_HARDPOINT_VALUE, //
+        ),
+    ];
+    for (file, var, value) in expected {
+        let held = stdout.lines().any(|line| {
+            let fields: Vec<&str> = line.split('\t').collect();
+            fields.len() == 4
+                && fields[0] == file.as_str()
+                && fields[1] == var
+                && fields[2] == ZRBTDRQ_STATE_HOLDS
+                && fields[3] == value
+        });
+        if !held {
+            findings.push(zrbtdrq_self_finding(format!(
+                "value reader missed a planted value: {} in {} should hold {:?}",
+                var,
+                file,
+                value, //
+            )));
+        }
+    }
+    findings
+}
 
 /// What bash found one field to hold.
 enum zrbtdrq_Held {
@@ -591,9 +744,18 @@ struct zrbtchd_Reach {
 /// no regime kindles, and the values the homes and hardpoints hold are read by
 /// bash sourcing each file, so the case compares what bash would hold, never a
 /// line shape, and names every field it finds unsanctioned.
-fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtchd_Reach, String> {
-    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
-    let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
+///
+/// Two roots, which coincide on every tree save a scratch copy: the kit is
+/// sourced from `kit_root`, and the child starts in `homes_root`, where the
+/// homes and the hardpoints resolve, each named relative to the tree it judges.
+fn zrbtchd_reach(
+    kit_root: &Path,
+    homes_root: &Path,
+    dir: &Path,
+    kindle_regimes: bool,
+) -> Result<zrbtchd_Reach, String> {
+    let buv = crate::rbtcep_platform::rbtcep_native_to_posix(&kit_root.join(RBTCHF_BUV_VALIDATION));
+    let rbk = crate::rbtcep_platform::rbtcep_native_to_posix(&kit_root.join(RBTCHF_RBK_ROOT));
     let moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR;
     // The rbrf and rbrn kindles name their temp paths off BURD_TEMP_DIR, which
     // no dispatch supplies here, so the case's own scratch directory stands in.
@@ -641,18 +803,14 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
         mark_hardpoints = ZRBTCHD_MARK_HARDPOINTS, //
     );
     let held = format!(
-        "z_state_holds='{state_holds}'\n\
-         z_state_unset='{state_unset}'\n\
-         z_state_unwireable='{state_unwireable}'\n\
-         z_state_unsourced='{state_unsourced}'\n\
+        "{states}\
          echo '{mark_held}'\n\
-         {value_read}",
+         {held_rows}\
+         {home_loops}",
+        states = zrbtdrq_state_words(),
         mark_held = ZRBTDRQ_MARK_HELD,
-        state_holds = ZRBTDRQ_STATE_HOLDS,
-        state_unset = ZRBTDRQ_STATE_UNSET,
-        state_unwireable = ZRBTDRQ_STATE_UNWIREABLE,
-        state_unsourced = ZRBTDRQ_STATE_UNSOURCED,
-        value_read = ZRBTDRQ_VALUE_READ, //
+        held_rows = ZRBTDRQ_HELD_ROWS,
+        home_loops = ZRBTDRQ_HOME_LOOPS, //
     );
     let rolls = format!(
         "source '{moorings}/rbrr.env'\n\
@@ -683,7 +841,7 @@ fn zrbtchd_reach(root: &Path, dir: &Path, kindle_regimes: bool) -> Result<zrbtch
         if kindle_regimes { rolls } else { held }, //
     );
 
-    let stdout = match rbtchf_run_bash(root, &script, dir, "damnatio-reach")? {
+    let stdout = match rbtchf_run_bash(homes_root, &script, dir, "damnatio-reach")? {
         (0, stdout, _) => stdout,
         (code, _, stderr) => {
             return Err(format!(
@@ -826,17 +984,50 @@ fn zrbtdrq_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbt
 /// reach; this case reads no file text. A field a home does not assign is not an
 /// error — a bind vessel carries no graft image, a conjure vessel no bind image —
 /// while a hardpoint that is not assigned is.
+///
+/// The value reader proves itself first, its findings leading the case's, so a
+/// blind reader can never report a sterile tree.
 fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
     let root = match zrbtchx_root() {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtchd_reach(&root, dir, false) {
-        Ok(r) => r,
-        Err(e) => return rbtcee_Verdict::Fail(e),
-    };
+    zrbtdrq_proscribed_verdict(&root, &root, dir)
+}
 
-    let mut findings = Vec::new();
+/// The detail a site field holding an unsanctioned value is named with, after the
+/// field's own name.
+pub(crate) const ZRBTDRQ_DETAIL_UNSANCTIONED: &str =
+    "is site-scoped and holds a value the proscription did not sanction";
+
+/// The value case's verdict over a tree whose homes stand under `homes_root`,
+/// the kit sourced from `kit_root`: the findings reported to the case's traces.
+pub(crate) fn zrbtdrq_proscribed_verdict(
+    kit_root: &Path,
+    homes_root: &Path,
+    dir: &Path,
+) -> rbtcee_Verdict {
+    match zrbtdrq_proscribed_findings(kit_root, homes_root, dir) {
+        Ok((findings, inventory)) => zrbtchx_report(
+            dir,
+            "proscribed",
+            &findings,
+            &inventory,
+            "unsterilized site value(s)",
+        ),
+        Err(e) => rbtcee_Verdict::Fail(e),
+    }
+}
+
+/// The value case's findings and inventory over a tree whose homes stand under
+/// `homes_root`, the kit sourced from `kit_root`, the reader's self-proof leading.
+pub(crate) fn zrbtdrq_proscribed_findings(
+    kit_root: &Path,
+    homes_root: &Path,
+    dir: &Path,
+) -> Result<(Vec<zrbtchx_Finding>, BTreeSet<String>), String> {
+    let mut findings = zrbtdrq_value_self_proof(dir);
+    let reach = zrbtchd_reach(kit_root, homes_root, dir, false)?;
     let mut inventory = BTreeSet::new();
 
     for judgment in &reach.proscription {
@@ -866,8 +1057,9 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
                     file: home.clone(),
                     line: 0,
                     detail: format!(
-                        "{} is site-scoped and holds a value the proscription did not sanction",
-                        judgment.var, //
+                        "{} {}",
+                        judgment.var,
+                        ZRBTDRQ_DETAIL_UNSANCTIONED, //
                     ),
                 });
             }
@@ -911,13 +1103,7 @@ fn rbtchd_proscribed_values(dir: &Path) -> rbtcee_Verdict {
         }
     }
 
-    zrbtchx_report(
-        dir,
-        "proscribed",
-        &findings,
-        &inventory,
-        "unsterilized site value(s)",
-    )
+    Ok((findings, inventory))
 }
 
 // ── Case: proscription completeness ─────────────────────────
@@ -937,7 +1123,7 @@ fn rbtchd_proscription_complete(dir: &Path) -> rbtcee_Verdict {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
-    let reach = match zrbtchd_reach(&root, dir, true) {
+    let reach = match zrbtchd_reach(&root, &root, dir, true) {
         Ok(r) => r,
         Err(e) => return rbtcee_Verdict::Fail(e),
     };
