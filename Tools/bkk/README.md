@@ -37,12 +37,13 @@ The verbosity dial is the substrate's own `BURE_VERBOSE`.
 | `bkw-z.Muzzle` | none | Lint every collar the weaned set holds at the muzzle directory it declares |
 | `bkw-g.Gangline` | collar | Re-derive one collar's lock, the one act in which the leash lifts the lock flag |
 | `bkw-s.Scoop` | none | Remove every collar's build output, on your word alone |
+| `bkw-c.Scent` | collar | Derive an app collar's elected set from the record its build left: written beside the collar in a linked worktree for you to commit, refused without writing anywhere else |
 | `bkw-n.Delouse` | none | Take the day's sweep of every collar's build directory where none has landed today; derby and heel take it themselves, and a build door calls it ahead of its build |
 | `bkw-w.Whistle` | none | Report the kennel's own making, building it first where the seat has outrun it |
 | `bkw-r.Rebed` | none | Lay each required channel whose compiler does not answer, leaving every answering one as it stands, then converge the kennel and perform the heels and strikes the derby's preflight names; safe to drive at any time |
 | `bkw-k.Kennelman` | filter | Run this kit's own hurdles outside the kennel, so a broken kennel can still be told it is broken |
 
-The first ten are the kennel's own doors.
+The first eleven are the kennel's own doors.
 The last three are tabtargets of the kit standing outside that register: the whistle is the bootstrap and is bash, rebed re-lays the toolchain in bash for the same reason, and the kennelman runs the kennel's suite when the kennel cannot.
 No door is reached through another.
 
@@ -106,9 +107,9 @@ The file is bash-readable, and the kennel reads it without a shell, so it takes 
 - Nothing follows a closing quote on its line.
 
 ```bash
-BKRR_ROOTS="Tools/mine/src \
-  Tools/mine/Cargo.toml \
-  Tools/mine/Cargo.lock"
+BKRR_TAMED_CRATES="serde \
+  serde_json \
+  clap"
 ```
 
 ### A rust collar
@@ -129,7 +130,6 @@ Each field the collar owes must be declared even where its value is empty, since
 | `BKRR_KIND` | every collar | `bknre_app` or `bknre_suite`, closed |
 | `BKRR_MANIFEST` | every collar | the crate's `Cargo.toml`, which must stand |
 | `BKRR_TARGET` | every collar | an app: the cargo binary target's name. A suite: `bknre_manifest` for every test of the manifest, or one test target's name |
-| `BKRR_ROOTS` | every collar | the elected roots: git pathspecs, one or more (see below) |
 | `BKRR_FEATURES` | every collar | cargo feature names separated by whitespace; empty for none |
 | `BKRR_PROFILE` | every collar | a cargo profile name, `dev`, `test`, `release`, `bench` or a custom one. A suite may leave it empty for cargo's default; an app names one, since the built binary is found by it |
 | `BKRR_SPEND` | every collar | `bknre_reader` or `bknre_writer`, closed (see below) |
@@ -143,11 +143,11 @@ Each field the collar owes must be declared even where its value is empty, since
 | `BKRR_TONGUE` | a suite | the output shape the kennel reads: `bknre_harness` for cargo's harness, `bknre_nextest` for nextest, closed. Match it to the runner |
 | `BKRR_STRIKE` | a collar whose `BKRR_EXERGUE` names a file | the tabtargets that write those files |
 
-**The roots** say what the launchable is made from, and the kennel measures whether a binary is current by the newest commit touching them.
-An element may be a directory, a file, or a `:(exclude)` pathspec carving part of an earlier element back out.
-The set may not be empty, some commit must touch it, and it must reach every crate of yours that is compiled into the launchable: the crate itself and every local path dependency, followed through theirs.
-A suite is compiled with its own crate's dev-dependencies and an app is not, so the two kinds reach different sets.
-Reaching a crate means naming its directory, a directory above it, or paths inside it.
+**What a launchable is measured over** is never declared.
+An app whose collar names an exergue holds an elected set: its build door runs scent after the build, which derives the set from the record cargo writes beside the artifact — every file the build read — with the manifests, the lockfile, the toolchain pin and the collar's own file beside it, and writes it beside the collar as `bkrs.env`, which you commit as you commit a lockfile.
+A build that finds the record naming a file the set does not rewrites the set and refuses; commit the set and build again.
+Every other collar — every suite, and an app naming no exergue — holds no set, and the kennel measures it over its closure's package directories, read from cargo metadata.
+The kennel measures whether a binary is current by the newest commit touching what the collar is measured over.
 
 **The crate lists** part the manifest's direct dependencies, local and registry alike.
 Every one is named in `BKRR_TAMED_CRATES`, except that an app does not name its dev-dependencies, since they are never compiled into it.
@@ -155,11 +155,11 @@ Only direct edges are named, since the lock pins everything beyond them.
 A crate whose build script fetches during compilation is refused outright, so `BKRR_FERAL_CRATES` carries `bknre_tamed` alone: naming a crate there is a finding, and the remedy is to take the crate out of the closure.
 
 **The spend** says whether the launchable writes shared durable state.
-A `bknre_reader` borrows an installed binary wherever that binary is current with the roots.
+A `bknre_reader` holding an elected set borrows an installed binary wherever that binary is current with the set; a reader holding none never borrows, and runs its own build.
 A `bknre_writer` is always launched from the installed binary at its residence, whatever any position says, so a stale build never writes to a live store.
 
 **A reader app owes one answer.** Run with `--exergue` as its first argument, it prints the commit it was built at, forty hex characters on a line, and nothing else.
-The kennel asks before every launch and runs the binary only where the tree under the roots is the same at that commit as at your worktree; a binary that gives no answer is never launched, and rebuilding the same crate cannot make it answer.
+The kennel asks before every launch and runs the binary only where the tree over what the collar is measured over is the same at that commit as at your worktree; a binary that gives no answer is never launched, and rebuilding the same crate cannot make it answer.
 The kennel's doors state the commit into every build as `BKCH_COLLAR_POSITION`, so the crate needs a build script that refuses where the variable is unset, hands it to the compile with `cargo:rustc-env=BKCH_COLLAR_POSITION=…`, and asks cargo to rebuild when it changes with `cargo:rerun-if-env-changed=BKCH_COLLAR_POSITION`; the app prints it with `env!`.
 A crate that is also a library other crates link carries no build script for it: that script would run inside every linking crate's build, and the engine's and the census's build passthrough states no position, so each of those builds would fail.
 Such a crate reads the position with `env!("BKCH_COLLAR_POSITION")` in the code that answers `--exergue`, and a build missing the variable then fails to compile, which is its refusal.
@@ -180,10 +180,6 @@ BKRR_COLLAR="mine_suite"
 BKRR_KIND="bknre_suite"
 BKRR_MANIFEST="Tools/mine/Cargo.toml"
 BKRR_TARGET="bknre_manifest"
-BKRR_ROOTS="Tools/mine/src \
-  Tools/mine/tests \
-  Tools/mine/Cargo.toml \
-  Tools/mine/Cargo.lock"
 BKRR_FEATURES=""
 BKRR_PROFILE="test"
 BKRR_SPEND="bknre_reader"
@@ -202,10 +198,6 @@ BKRR_COLLAR="mine_app"
 BKRR_KIND="bknre_app"
 BKRR_MANIFEST="Tools/mine/Cargo.toml"
 BKRR_TARGET="mine"
-BKRR_ROOTS="Tools/mine/src \
-  Tools/mine/build.rs \
-  Tools/mine/Cargo.toml \
-  Tools/mine/Cargo.lock"
 BKRR_FEATURES=""
 BKRR_PROFILE="release"
 # A reader: the crate's build script compiles in the commit, and the app

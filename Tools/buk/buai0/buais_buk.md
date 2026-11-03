@@ -123,7 +123,7 @@ Annotations for the acronym homes indexed in `Tools/buk/buai0/buaip_buk.md` — 
 
 - **BUC**  → `Tools/buk/buc_command.sh` (command utilities, buc_* functions)
 - **BUD**  → `Tools/buk/bud_dispatch.sh` (dispatch utilities, zbud_* functions)
-- **BUE**  → `Tools/buk/bue_exergue.sh` (exergue module, bue_* functions — stamps a build with the source position it was struck from: the newest first-parent landing on the trunk counterpart that touched an elected root, written into a gitignored generated Rust module, write-if-changed, dying rather than shipping unstamped)
+- **BUE**  → `Tools/buk/bue_exergue.sh` (exergue module, bue_* functions — stamps a build with the source position it was struck from: the newest first-parent landing at or behind the merge base of HEAD and the trunk counterpart that touched an elected root, written into a gitignored generated Rust module, write-if-changed, dying rather than shipping unstamped)
 - **BUG**  → `Tools/buk/bug_git.sh` (bash git utilities, bug_* functions — home of the "tools never commit, gate on a clean tree" gate `bug_require_clean_tree_creed`)
 - **BUH**  → `Tools/buk/buh_handbook.sh` (handbook utilities, buh_* functions - always-visible user interaction)
 - **BUPE** → `Tools/buk/bupe_cli.sh` (parcel emplacement — the maintenance door for a lit station, colophon `buw-pe`: it takes the extracted parcel directory as an explicit argument, runs the install procedure through that parcel's own bundled engine rather than any binary in the consumer tree, and past the emplace only reads, its own file having stood in the directory just replaced. The parcel's `bpi_install.sh` remains the rescue door for a station too dark to dispatch)

@@ -202,7 +202,7 @@ pub fn bkci_recite(
     // dies at the listing exactly as it dies at the launch. One reading, stated
     // by every door holding the collar; the walk and its placement are the
     // run's, at `bkcm_mush::bkcm_run`, and not restated here.
-    let seat = crate::bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
+    let seat = crate::bkce_election::bkce_seat(repository, &collar.measure.bkcr_pathspecs())?;
 
     let recall = bkcl_leash::bkcl_recall(
         repository,

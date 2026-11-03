@@ -16,8 +16,9 @@
 //! The leash: the one chokepoint every cargo invocation the kennel issues
 //! passes through.
 //!
-//! Three disciplines, applied here and nowhere else, each closing a finding the
-//! rust-build memo's survey left standing:
+//! Four disciplines, applied here and nowhere else. The first three each close a
+//! finding the rust-build memo's survey left standing; the fourth closes the hole
+//! a later review found under the position stamp:
 //!
 //! THE PIN IS STATED, NEVER INHERITED. A toolchain file is discovered from the
 //! working directory, and the engine-invocation census found a build door
@@ -50,6 +51,18 @@
 //! routine invocation may not download: the pinned toolchain is laid by the rebed
 //! door, the kennel's readiness converge, and every refusal below that finds it
 //! missing or gutted names that door.
+//!
+//! WHAT CARGO INHERITS IS SIFTED, NEVER PASSED WHOLE. Cargo's top-level dep-info
+//! drops the variable lines its per-crate records carry, so a profile override,
+//! a rustflags value or the compiler's bootstrap variable standing in the
+//! caller's environment changes the artifact while every stamp stands
+//! unchanged. So within cargo's, rustup's and the compiler's families a name
+//! reaches cargo only where the kennel's own chain sets it for its children, or
+//! it is a home, the pin or the target directory; a name of the three hazard
+//! families is refused by name before anything is spawned; and every other name
+//! of those families is withheld. A name of no such family passes untouched. The
+//! bash roads that spell cargo themselves — the whistle, the kennelman and the
+//! format door — keep cargo's whole inheritance and are outside this discipline.
 
 use crate::bkcf_guard;
 use crate::bkco_output;
@@ -300,6 +313,19 @@ fn zbkcl_pin_at(home: &Path) -> Result<String, String> {
 /// walk finds it in a step, which is why the reading is the same one whether the
 /// kennel is driven over a lure or over an estate of many kits.
 pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
+    let governing = bkcl_pin_file(repository, crate_dir)?;
+    let standing = governing.parent().unwrap_or(crate_dir);
+    zbkcl_pin_at(standing)
+}
+
+/// The pin file that governs one crate, by the same walk `bkcl_pin` reads the
+/// channel through: the nearest at or above the crate, bounded by the repository.
+///
+/// A FACE OF ITS OWN because a second reader wants the FILE rather than the
+/// channel — an artifact's elected set carries the pin that bound its build, and
+/// a second walk to find it would be a second lookup free to answer differently
+/// from the one the build was pinned by.
+pub fn bkcl_pin_file(repository: &Path, crate_dir: &Path) -> Result<PathBuf, String> {
     let bound = zbkcl_resolved(repository).ok_or_else(|| {
         format!(
             "the repository at {} does not resolve",
@@ -333,7 +359,7 @@ pub fn bkcl_pin(repository: &Path, crate_dir: &Path) -> Result<String, String> {
 
     loop {
         if standing.join(BKCL_PIN_FILE).is_file() {
-            return zbkcl_pin_at(&standing);
+            return Ok(standing.join(BKCL_PIN_FILE));
         }
 
         if standing == bound {
@@ -664,6 +690,168 @@ pub fn bkcl_rustup_home(tackroom: &Path) -> PathBuf {
 fn zbkcl_homed(command: &mut Command, tackroom: &Path) {
     command.env(BKCL_CARGO_HOME_VAR, bkcl_cargo_home(tackroom));
     command.env(BKCL_RUSTUP_HOME_VAR, bkcl_rustup_home(tackroom));
+}
+
+/// The rule a refusal of the sift names, its words standing here once.
+pub const BKCL_ALLOWLIST_RULE: &str = "allowlisted-name rule";
+
+/// The heads of the three families the sift governs: cargo's, the compiler's and
+/// the compiler's documenter's. `CARGO` is also a name cargo sets for every
+/// child it launches, so it stands among the passed names as well; the other two
+/// cargo sets for a build script alone, and they are withheld.
+const ZBKCL_CARGO_FAMILY: &str = "CARGO";
+const ZBKCL_COMPILER_FAMILY: &str = "RUSTC";
+const ZBKCL_RUSTDOC_FAMILY: &str = "RUSTDOC";
+
+/// The two rustflags variables cargo reads, each also the ending every other
+/// member of that family wears — cargo's build, target and encoded spellings.
+const ZBKCL_FLAGS_VAR: &str = "RUSTFLAGS";
+const ZBKCL_DOC_FLAGS_VAR: &str = "RUSTDOCFLAGS";
+
+/// The prefixes the sift governs. A name wearing none passes to cargo untouched:
+/// the census behind the sift is of the families that decide what is built, and
+/// a name outside them is one it holds no reading of.
+///
+/// RUSTUP'S FAMILY IS GOVERNED TOO, AND PASSES WHOLE, so it stands among the
+/// passed families below and not here. Its proxies set the homes, the pin and
+/// the pin's source for their children, the hurdles state its auto-install
+/// switch, and what else it reads moves no artifact under this composition: the
+/// channel is stated, the home is stated, and the compiler is proven by its own
+/// answer before anything is spawned.
+const ZBKCL_SIFTED_FAMILIES: &[&str] = &[
+    ZBKCL_CARGO_FAMILY,
+    ZBKCL_COMPILER_FAMILY,
+    ZBKCL_RUSTDOC_FAMILY,
+    ZBKCL_FLAGS_VAR, //
+];
+
+/// THE PASSED NAMES, each a home, the target directory, or a name the census
+/// read the kennel's own chain setting for its children: cargo for every child,
+/// for the compiler and for a build script.
+///
+/// A NAME CARGO SETS FOR A BUILD SCRIPT ALONE AND WHICH MOVES THE ARTIFACT IS NOT
+/// AMONG THEM. Cargo sets the encoded rustflags variable and the compiler's and
+/// documenter's names for every build script, and a station setting any of them
+/// changes what is built; no build script in the chain reaches this composition,
+/// so none of the three is ever the chain's own here. The encoded variable is
+/// refused with the rustflags family it ends in, and the other two are withheld.
+const ZBKCL_PASSED_NAMES: &[&str] = &[
+    BKCL_CARGO_HOME_VAR,
+    BKCL_RUSTUP_HOME_VAR,
+    crate::bkch_heel::BKCH_TARGET_DIR_VAR,
+    ZBKCL_CARGO_FAMILY,
+    "CARGO_CRATE_NAME",
+    "CARGO_BIN_NAME",
+    "CARGO_PRIMARY_PACKAGE",
+    "CARGO_TARGET_TMPDIR",
+    "CARGO_MAKEFLAGS", //
+];
+
+/// The passed families: rustup's whole, and the families of names cargo sets
+/// for its children by the prefix each wears.
+const ZBKCL_PASSED_FAMILIES: &[&str] = &[
+    "RUSTUP_",
+    "CARGO_PKG_",
+    "CARGO_MANIFEST_",
+    "CARGO_CFG_",
+    "CARGO_FEATURE_",
+    "CARGO_BIN_EXE_", //
+];
+
+/// The profile overrides: every key of every profile, spelled as cargo reads it.
+const ZBKCL_PROFILE_FAMILY: &str = "CARGO_PROFILE_";
+
+/// The compiler's bootstrap variable, which unlocks unstable features on a
+/// stable compiler and which registry build scripts watch.
+const ZBKCL_BOOTSTRAP_VAR: &str = "RUSTC_BOOTSTRAP";
+
+/// Which hazard family a name belongs to, as a refusal names it, or `None`.
+fn zbkcl_hazard(name: &str) -> Option<&'static str> {
+    if name.starts_with(ZBKCL_PROFILE_FAMILY) {
+        Some("a cargo profile override")
+    } else if [ZBKCL_FLAGS_VAR, ZBKCL_DOC_FLAGS_VAR]
+        .iter()
+        .any(|ending| name.ends_with(ending))
+    {
+        Some("a rustflags variable")
+    } else if name == ZBKCL_BOOTSTRAP_VAR {
+        Some("the compiler's bootstrap variable")
+    } else {
+        None
+    }
+}
+
+/// Sift an inherited environment for cargo, answering the names cargo is not to
+/// inherit, or the refusal naming every name of a hazard family it carries.
+///
+/// THE PURE HALF, AND IT IS PURE SO IT CAN BE HURDLED, on
+/// `bkcl_channel_answers`' own ground: the environment is taken as a value, so
+/// a hurdle poses one without writing the process environment its neighbours
+/// read. The composition reads this process's environment once and hands it
+/// here.
+///
+/// EVERY GOVERNED NAME FALLS IN ONE CLASS, and the classes are tried in order.
+/// A passed name passes; a name of a hazard family is refused; every other name
+/// of a governed family is withheld. Passing is tried first because a name the
+/// chain sets for the children this composition runs in is never refused,
+/// whatever family its spelling falls in.
+///
+/// THE REFUSAL NAMES THEM ALL, sorted, so one unset answers every one of them.
+pub fn bkcl_sifted(
+    inherited: &[(std::ffi::OsString, std::ffi::OsString)],
+) -> Result<Vec<std::ffi::OsString>, String> {
+    let mut refused: Vec<String> = Vec::new();
+    let mut withheld = Vec::new();
+
+    for (name, _) in inherited {
+        let spelled = name.to_string_lossy();
+
+        if !ZBKCL_SIFTED_FAMILIES
+            .iter()
+            .any(|family| spelled.starts_with(family))
+        {
+            continue;
+        }
+
+        if ZBKCL_PASSED_NAMES.contains(&spelled.as_ref())
+            || ZBKCL_PASSED_FAMILIES
+                .iter()
+                .any(|family| spelled.starts_with(family))
+        {
+            continue;
+        }
+
+        match zbkcl_hazard(&spelled) {
+            Some(family) => refused.push(format!(
+                "{} ({})",
+                spelled,
+                family, //
+            )),
+            None => withheld.push(name.clone()),
+        }
+    }
+
+    if refused.is_empty() {
+        return Ok(withheld);
+    }
+
+    refused.sort();
+    Err(format!(
+        "cargo would inherit {}, and no profile override, rustflags variable or compiler \
+         bootstrap variable reaches cargo by inheritance, since each changes what is built while \
+         every stamp stands unchanged: unset each (the {})",
+        refused.join(", "),
+        BKCL_ALLOWLIST_RULE, //
+    ))
+}
+
+/// Withhold from one cargo the names the sift answered.
+///
+/// ON THE COMMAND AND NEVER ON THIS PROCESS, on `zbkcl_homed`'s own ground.
+pub(crate) fn zbkcl_withheld(command: &mut Command, withheld: &[std::ffi::OsString]) {
+    for name in withheld {
+        command.env_remove(name);
+    }
 }
 
 /// Prove the tackroom the dispatch names is a store the homes stand confined
@@ -1380,6 +1568,12 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
+    // THE SIFT IS READ FIRST, ahead of the fence and of every spawn, so a name
+    // of a hazard family refuses before anything is asked of the station. The
+    // process environment is read here once and nowhere else.
+    let inherited: Vec<(std::ffi::OsString, std::ffi::OsString)> = std::env::vars_os().collect();
+    let withheld = bkcl_sifted(&inherited)?;
+
     let tackroom = bkcl_fenced(dispatch)?;
 
     // The crate is where its manifest stands, and the pin is read from there
@@ -1437,6 +1631,10 @@ where
             (command, spelling)
         }
     };
+
+    // WITHHELD BEFORE ANYTHING BELOW STATES A NAME, though the order cannot
+    // bite: the sift withholds no name this composition or a caller states.
+    zbkcl_withheld(&mut command, &withheld);
 
     let mut say = |command: &mut Command, arg: &OsStr| {
         spelling.push(' ');

@@ -39,11 +39,11 @@
 //!   BORROW. A reader whose seat holds the tree the standing binary was struck
 //!   from borrows it. WHAT IS COMPARED IS CONTENT AND NOT POSITION: the binary
 //!   states the position it was struck at, and the election asks whether the
-//!   tree under the collar's elected roots is identical between that commit and
+//!   tree over the collar's measure is identical between that commit and
 //!   this seat's HEAD. Identical trees make identical binaries, so borrowing is
 //!   provably equivalent rather than a shortcut.
 //!
-//!   OWN BUILD. Anything else — the trees part under the elected roots, the
+//!   OWN BUILD. Anything else — the trees part over the measure, the
 //!   binary cannot say where it was struck, it names a position this repository
 //!   cannot resolve, git refused the comparison, or under dispatch the borrow
 //!   candidate's fence reading refuses it or the seat's own build is current and
@@ -57,17 +57,17 @@
 //!   A WALK MEMBERSHIP TEST BORROWS TOO MUCH. Reading the seat's position against
 //!   the whole walk behind a binary's stamp borrows whenever the seat stands at
 //!   ANY landing that binary carries — and every entry behind the walk's head is
-//!   a landing that CHANGED the elected roots, so a seat standing at one holds a
+//!   a landing that CHANGED the elected set, so a seat standing at one holds a
 //!   tree the binary was never struck from. That reading called itself provably
 //!   equivalent and was not.
 //!
 //!   AN EXACT STAMP MATCH BORROWS TOO LITTLE, and it fails the case this estate
 //!   makes constantly. A refit is a merge, and a merge commit stands on no trunk
 //!   line, so a refitted billet could never borrow again however identical its
-//!   tree — a rebuild demanded for a merge that moved nothing under the roots.
+//!   tree — a rebuild demanded for a merge that moved nothing it measures.
 //!
 //! Comparing the trees answers all three cases with one question: it survives a
-//! refit, a merge that moved nothing under the roots leaving the trees identical;
+//! refit, a merge that moved nothing measured leaving the trees identical;
 //! it refuses a seat forked behind a trunk that moved them; and it refuses a
 //! local edit, whoever made it and whatever line it stands on.
 //!
@@ -101,7 +101,7 @@
 //! A BORROW IS ALSO ASKED THE FENCE'S QUESTION, because an identical tree is not
 //! the only thing a borrowed binary must answer to. A binary carrying a staleness
 //! fence of its own judges the LANDED reading it was struck with — the newest
-//! trunk landing over its roots — against the record of landings, so a delivered
+//! trunk landing over its elected set — against the record of landings, so a delivered
 //! binary struck before a sibling's landing is one its own fence refuses however
 //! identical the tree this seat forked at. The kennel reads that question through
 //! its own instrument: the exergue files the collar declares, standing at the
@@ -110,13 +110,27 @@
 //! no contract obliges a binary to answer a fence question, and a binary given a
 //! question it does not know answers with whatever its door does with a stranger.
 //!
+//! THAT FENCE READING KEEPS THE COUNTERPART AS ITS FAR SIDE, though the striker
+//! walks from the merge base of `HEAD` and the counterpart. The question is
+//! whether the delivered binary's own fence would refuse it, and that fence
+//! judges against the store's newest landing, which the counterpart
+//! approximates and this seat's merge base does not: a seat standing behind
+//! would read a stale delivered binary as admitted, and the binary would then
+//! refuse at its own door. The preflight asks a different question of the
+//! seat's own struck file — whether a strike here would write a different
+//! stamp — and so reads the merge base the striker reads (`bkce_merge_base`).
+//!
 //! NOTHING HERE READS AN ENVIRONMENT. The geography is git's own answer from
 //! inside the repository the door entered (`bkce_geography`), taken once at the
 //! door face and threaded as a value the same way a repository is, which is
 //! what lets a hurdle pose a linked worktree by standing a real linked worktree
 //! rather than by mutating the process every other hurdle is also running in.
 
-use crate::bkcr_resolve::bkcr_Collar;
+use crate::bkcr_resolve::{
+    bkcr_Collar,
+    bkcr_Dispatch,
+    bkcr_Set, //
+};
 use std::path::{
     Path,
     PathBuf, //
@@ -151,12 +165,17 @@ pub const BKCE_EXERGUE_FLAG: &str = "--exergue";
 
 /// The far side of the election's concord: this seat's `HEAD`.
 ///
-/// NAMED BECAUSE IT IS NOT THE ONLY FAR SIDE. The election asks whether a
+/// NAMED BECAUSE IT IS ONE OF THREE FAR SIDES. The election asks whether a
 /// binary's tree matches the seat's, so its far side is `HEAD`. A struck
 /// exergue FILE carries the LANDED reading — the newest trunk landing over its
-/// roots — and is asked whether the trunk has moved beneath them, so its far
-/// side is the trunk counterpart (`bkce_trunk`). A far side spelled at every
-/// call is what keeps the two questions apart on the page.
+/// set's files that the seat holds — and the preflight asks whether a strike
+/// here would write a different one, so its far side is the merge base of
+/// `HEAD` and the trunk counterpart (`bkce_merge_base`), the position the
+/// striker walks from. The borrow fence asks whether a delivered binary's own
+/// fence would refuse it, and that fence judges against the store's newest
+/// landing, so its far side is the trunk counterpart itself (`bkce_trunk`). A
+/// far side spelled at every call is what keeps the three questions apart on
+/// the page.
 pub const BKCE_SEAT_FAR: &str = "HEAD";
 
 /// The remote whose recorded head names the trunk counterpart.
@@ -367,7 +386,7 @@ pub struct bkce_Verdict {
     /// and would re-derive it from the same geography by the same join — a
     /// second implementation of the one decision this module exists to hold.
     pub answers: Option<PathBuf>,
-    /// The seat's newest first-parent commit over the collar's elected roots.
+    /// The seat's newest first-parent commit over the collar's measure.
     /// `None` where the spend class pinned the collar and no position was asked
     /// for — an absence that says the question was never put, not that it had no
     /// answer.
@@ -464,7 +483,7 @@ impl bkce_Verdict {
 
         let seat = match &self.seat {
             Some(position) => format!(
-                "this seat stands at {} over the collar's elected roots",
+                "this seat stands at {} over the collar's measure",
                 position, //
             ),
             None => "this seat's position could not be read".to_string(),
@@ -475,7 +494,7 @@ impl bkce_Verdict {
         // the positions alone sends its reader to run the diff by hand.
         let plaint = match &self.plaint {
             Some(plaint) => plaint.as_str(),
-            None => "the trees under the collar's elected roots could not be compared",
+            None => "the trees over the collar's measure could not be compared",
         };
 
         // THE OWN RESIDENCE IS NAMED ONLY WHERE IT WAS ASKED. Under
@@ -521,7 +540,7 @@ impl bkce_Verdict {
 /// The whole rule, over facts alone.
 ///
 /// `borrowable` is whether the borrow candidate may answer: the concord
-/// reading's verdict — whether the tree under the collar's elected roots stands
+/// reading's verdict — whether the tree over the collar's measure stands
 /// the same at the binary's stamp and at this seat's HEAD — and, under dispatch,
 /// the fence reading beside it, which asks whether the trunk has moved beneath
 /// the exergue that binary was struck with (`bkce_elect`).
@@ -572,7 +591,7 @@ pub fn bkce_weigh(spend: &str, borrowable: bool, own: Option<bool>) -> (&'static
 /// where they do not, the plaint a refusal carries.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct bkce_Concord {
-    /// Whether the tree under the collar's elected roots is the same at both
+    /// Whether the tree over the collar's measure is the same at both
     /// positions.
     pub identical: bool,
     /// What stands between the two trees, or why the question could not be put.
@@ -580,23 +599,26 @@ pub struct bkce_Concord {
     pub plaint: String,
 }
 
-/// Whether the tree under the elected roots stands the same at the artifact's
+/// Whether the tree over the measured paths stands the same at the artifact's
 /// stamp and at the far side the caller names.
 ///
 /// TWO GIT QUESTIONS AND NO THIRD. First, whether the stamp resolves to a commit
 /// HERE — a binary struck at a seat this repository never held names a position
 /// that is no commit in it, and a comparison against a name git cannot look up is
-/// not a comparison. Second, whether the tree differs under the elected roots.
-/// The roots reach git VERBATIM, exclusion pathspecs and all, the election's
-/// grammar being git's own — so the one pathspec decides both what stales an
-/// artifact and what is compared, and the two can never come apart.
+/// not a comparison. Second, whether the tree differs over the measured paths.
+/// The paths reach git VERBATIM, the measure's grammar being git's own — so one
+/// list decides both what stales an artifact and what is compared, and the two
+/// can never come apart.
 ///
-/// THE FAR SIDE IS THE CALLER'S, because two artifacts carry two readings and
-/// each is asked a question of its own. The election asks whether a binary's
-/// tree is the SEAT's, so it passes `BKCE_SEAT_FAR`; the preflight asks whether the TRUNK has moved
-/// beneath a struck exergue file, so it passes the counterpart `bkce_trunk`
-/// names. One reading serves both because the question is the same shape —
-/// are two trees identical under one pathspec — and only which two differs.
+/// THE FAR SIDE IS THE CALLER'S, because each caller asks a question of its
+/// own. The election asks whether a binary's tree is the SEAT's, so it passes
+/// `BKCE_SEAT_FAR`; the preflight asks whether the seat's merge base with the
+/// trunk has moved beneath a struck exergue file, so it passes the commit
+/// `bkce_merge_base` reads, and a file it calls outrun is one a strike cures;
+/// the borrow fence asks whether the TRUNK has moved beneath a delivered
+/// binary's struck file, so it passes the counterpart `bkce_trunk` names. One
+/// reading serves all three because the question is the same shape — are two
+/// trees identical under one pathspec — and only which two differs.
 ///
 /// `HEAD` IS COMPARED AND NOT THE WORKING TREE where the far side is the seat,
 /// which is exact rather than approximate: the door law refuses a repository
@@ -613,7 +635,7 @@ pub fn bkce_concord(
     repository: &Path,
     stamp: Option<&str>,
     far: &str,
-    roots: &str,
+    measured: &str,
 ) -> bkce_Concord {
     let Some(stamp) = stamp else {
         return zbkce_apart(
@@ -622,11 +644,11 @@ pub fn bkce_concord(
         );
     };
 
-    let elected: Vec<&str> = roots.split_whitespace().collect();
+    let elected: Vec<&str> = measured.split_whitespace().collect();
 
     if elected.is_empty() {
         return zbkce_apart(
-            "the collar's elected roots stand empty, and a comparison over nothing would call \
+            "the collar's measure stands empty, and a comparison over nothing would call \
              every binary current",
         );
     }
@@ -681,11 +703,11 @@ pub fn bkce_concord(
             plaint: String::new(),
         },
         Ok(out) if out.status.code() == Some(1) => zbkce_apart(&format!(
-            "the trees differ under the elected roots: {}",
+            "the trees differ over the measured paths: {}",
             zbkce_parted(repository, stamp, far, &elected), //
         )),
         Ok(out) => zbkce_apart(&format!(
-            "git would not compare {} against {} over the elected roots: {}",
+            "git would not compare {} against {} over the measured paths: {}",
             stamp,
             far,
             String::from_utf8_lossy(&out.stderr).trim(), //
@@ -695,6 +717,12 @@ pub fn bkce_concord(
 
 /// The trunk counterpart as this repository last gleaned it: the ref the
 /// remote's recorded head names, spelled `<remote>/<branch>`.
+///
+/// THE BORROW FENCE'S FAR SIDE, AND THE PREFLIGHT'S ROAD TO ITS OWN. The borrow
+/// fence compares against the counterpart itself, standing in for the store's
+/// newest landing a delivered binary's fence judges against; the preflight
+/// compares against the merge base of `HEAD` and the counterpart
+/// (`bkce_merge_base`), which is where the striker's walk starts.
 ///
 /// RESOLVED THE WAY THE STRIKER RESOLVES IT, never taken as a branch name.
 /// `Tools/buk/bue_exergue.sh` reads `refs/remotes/<remote>/HEAD` so that no
@@ -781,6 +809,49 @@ pub fn bkce_trunk(repository: &Path) -> Result<String, String> {
     }
 
     Ok(trunk)
+}
+
+/// The merge base of this seat's `HEAD` and the trunk counterpart
+/// `bkce_trunk` named: the newest trunk commit the seat holds.
+///
+/// THE PREFLIGHT'S FAR SIDE, BECAUSE IT IS THE STRIKER'S START.
+/// `Tools/buk/bue_exergue.sh` walks from this commit, so a struck file compared
+/// against it reads outrun exactly where a strike here would write a different
+/// stamp. Compared against the counterpart instead, a seat standing behind would
+/// read its file outrun, and the strike rebed runs would write the same stamp,
+/// reporting the same absence on every pass.
+///
+/// A SEAT SHARING NO BASE WITH THE COUNTERPART REFUSES, as the striker dies
+/// there: no landing the seat holds can be named, and a far side guessed in its
+/// place would judge the file against a line it was never struck from.
+pub fn bkce_merge_base(repository: &Path, counterpart: &str) -> Result<String, String> {
+    let read = Command::new("git")
+        .arg("-C")
+        .arg(repository)
+        .arg("merge-base")
+        .arg("HEAD")
+        .arg(counterpart)
+        .output()
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
+
+    let base = String::from_utf8_lossy(&read.stdout).trim().to_string();
+
+    if !read.status.success() || base.is_empty() {
+        return Err(format!(
+            "{} shares no base with {}, so no landing this seat holds can be named — {}",
+            repository.display(),
+            counterpart,
+            String::from_utf8_lossy(&read.stderr).trim(), //
+        ));
+    }
+
+    Ok(base)
 }
 
 /// A concord that does not stand, carrying its plaint.
@@ -884,40 +955,57 @@ pub fn bkce_elect(
         });
     }
 
-    let roots = collar.bkcr_field("BKRR_ROOTS");
-    let seat = bkce_seat(repository, roots)?;
+    let measured = collar.measure.bkcr_pathspecs();
+    let seat = bkce_seat(repository, &measured)?;
+
+    // A READER HOLDING NO ELECTED SET IS NEVER BORROWED. Its measure is the
+    // closure's package directories, wider than what it is made from, and a
+    // borrow judged over a wider measure than the binary's own would be judged
+    // over a tree nobody proved it was struck from. So it always elects its own
+    // build: the one residence under self-geography, the seat's own under
+    // dispatch, either judged current over that wider measure.
+    let setless = !collar.measure.bkcr_elected();
 
     // THE SEAT POSITION IS READ THOUGH THE RULE NO LONGER WEIGHS IT, and that is
     // the refusal's doing rather than the election's: a reader told only that the
     // trees part cannot tell a seat that has moved from a binary that is old, and
     // the two positions are what places the grievance in time. The reading also
-    // refuses a collar electing nothing, which is the one malformation that would
-    // otherwise reach the comparison and be answered quietly.
+    // refuses a collar measuring nothing, which is the one malformation that
+    // would otherwise reach the comparison and be answered quietly.
     let standing = bkce_carried(&residence).first().cloned();
-    let concord = bkce_concord(repository, standing.as_deref(), BKCE_SEAT_FAR, roots);
+    let concord = bkce_concord(repository, standing.as_deref(), BKCE_SEAT_FAR, &measured);
 
     // THE FENCE'S QUESTION IS PUT ONLY TO A BORROW, and only where the trees
     // agreed: a candidate whose tree parts is refused already and its plaint
     // already says why, and under self-geography the residence is the seat's own
     // build, whose struck exergues the preflight reads at the seat itself.
     let fenced = match geography.bkce_delivered() {
-        Some(delivered) if concord.identical => zbkce_fenced(repository, delivered, collar),
+        Some(delivered) if concord.identical && !setless => {
+            zbkce_fenced(repository, delivered, collar)
+        }
         _ => None,
     };
 
     // THE OWN RESIDENCE IS ASKED WHEREVER THERE IS ONE, which is under dispatch
     // alone: a current own build answers ahead of a borrow, so its reading
     // decides the election whatever the delivered binary says. Under
-    // self-geography it would be asking the same file the same question twice.
+    // self-geography it would be asking the same file the same question twice —
+    // save for a setless reader, whose one residence IS its own build and is
+    // weighed as one.
     let own_carried = geography
         .bkce_delivered()
         .map(|_| bkce_carried(&own).first().cloned());
     let second = own_carried
         .as_ref()
-        .map(|carried| bkce_concord(repository, carried.as_deref(), BKCE_SEAT_FAR, roots));
-    let own_current = second.as_ref().map(|concord| concord.identical);
+        .map(|carried| bkce_concord(repository, carried.as_deref(), BKCE_SEAT_FAR, &measured));
+    let own_current = match &second {
+        Some(concord) => Some(concord.identical),
+        None if setless => Some(concord.identical),
+        None => None,
+    };
 
-    let (elected, runs) = bkce_weigh(spend, concord.identical && fenced.is_none(), own_current);
+    let borrowable = concord.identical && fenced.is_none() && !setless;
+    let (elected, runs) = bkce_weigh(spend, borrowable, own_current);
 
     // MUTE IS READ OFF THE BINARY THE CONVERGE WRITES, never the borrow
     // candidate's: under dispatch a mute delivered binary was built from another
@@ -944,6 +1032,22 @@ pub fn bkce_elect(
     // and the fence admitting it — the seat's own current build elected ahead.
     let plaint = if elected == BKCE_ELECTED_BORROW {
         None
+    } else if setless {
+        // UNDER SELF-GEOGRAPHY THE ONE RESIDENCE IS THE OWN BUILD, so its plaint
+        // is that build's and none where it runs; under dispatch the borrow was
+        // never weighed, and the plaint says so rather than reading a tree that
+        // decided nothing.
+        match geography.bkce_delivered() {
+            None if runs => None,
+            None => Some(concord.plaint),
+            Some(_) => Some(format!(
+                "the collar holds no elected set, so its measure is its closure's package \
+                 directories and the delivered binary at {} is never borrowed — the seat's own \
+                 build at {} answers or nothing does",
+                residence.display(),
+                own.display(), //
+            )),
+        }
     } else if !concord.identical {
         Some(concord.plaint)
     } else if let Some(fenced) = fenced {
@@ -982,7 +1086,10 @@ pub fn bkce_elect(
 /// the build that lays the binary, so the file at the delivered root carries the
 /// landed reading that binary compiled in; reading it is the kennel asking that
 /// binary's fence question with the instrument the preflight already holds,
-/// against the same far side the striker resolves.
+/// against the trunk counterpart itself — never the merge base the striker
+/// walks from, since that binary's fence judges against the store's newest
+/// landing, which the counterpart approximates and this seat's merge base does
+/// not.
 ///
 /// FAIL CLOSED, as an unreadable binary is. A declared file that is not there,
 /// that will not read, or a trunk counterpart that cannot be named leaves the
@@ -1020,12 +1127,12 @@ fn zbkce_fenced(repository: &Path, delivered: &Path, collar: &bkcr_Collar) -> Op
             }
         };
 
-        let concord = bkce_concord(repository, Some(&struck.sha), &far, &struck.roots);
+        let concord = bkce_concord(repository, Some(&struck.sha), &far, &struck.files);
 
         if !concord.identical {
             return Some(format!(
                 "the delivered binary's tree matches this seat's, but the exergue its build struck \
-                 at {} was struck at {} and {} has since moved the tree beneath its roots, so its \
+                 at {} was struck at {} and {} has since moved the tree beneath its files, so its \
                  own staleness fence refuses it — {}",
                 at.display(),
                 struck.sha,
@@ -1039,15 +1146,15 @@ fn zbkce_fenced(repository: &Path, delivered: &Path, collar: &bkcr_Collar) -> Op
 }
 
 /// What a struck exergue file says about its own striking: the sha, and the
-/// roots it was measured over.
+/// files it was measured over.
 pub struct bkce_Struck {
     /// The landed position the file was struck at.
     pub sha: String,
-    /// The roots, whitespace-joined into the form `bkce_concord` splits.
-    pub roots: String,
+    /// The files, whitespace-joined into the form `bkce_concord` splits.
+    pub files: String,
 }
 
-/// Read the sha and the roots off a struck exergue file.
+/// Read the sha and the files off a struck exergue file.
 ///
 /// A FACE OF THIS MODULE AND NOT THE PREFLIGHT'S LOCAL, because two readers put
 /// the landed question to a struck file: the preflight to the seat's own, and the
@@ -1056,9 +1163,9 @@ pub struct bkce_Struck {
 ///
 /// THE SHAPE IS THE STRIKER'S AND THE CONSTANT'S NAME IS THE CALLER'S.
 /// `Tools/buk/bue_exergue.sh` writes `pub const <NAME>: &str = "<sha>";` and
-/// `pub const <NAME>_ROOTS: &[&str] = &[ ... ];` with one quoted root per line,
-/// exclusion pathspecs included, and the striker's caller states `<NAME>`. So
-/// the sha is the first string constant shaped like a position, and the roots
+/// `pub const <NAME>_ROOTS: &[&str] = &[ ... ];` with one quoted file of the
+/// elected set per line, and the striker's caller states `<NAME>`. So
+/// the sha is the first string constant shaped like a position, and the files
 /// are the quoted elements of the `_ROOTS` block; the ancestry block is stepped
 /// over, being the record-holding reader's instrument and not this one's.
 ///
@@ -1066,7 +1173,7 @@ pub struct bkce_Struck {
 /// walking the trunk a second time here would be a second striker, and the two
 /// would part the day the walk changed. What the kennel asks is whether what the
 /// file states is still the tree, and that question consumes the sha and the
-/// roots as they stand.
+/// files as they stand.
 ///
 /// A FILE THAT DOES NOT SAY REFUSES, fail-closed like a binary that states no
 /// position: an exergue whose shape has moved from under this reader cannot be
@@ -1081,17 +1188,17 @@ pub fn bkce_struck(at: &Path) -> Result<bkce_Struck, String> {
     })?;
 
     let mut sha: Option<String> = None;
-    let mut roots: Vec<String> = Vec::new();
-    let mut within_roots = false;
+    let mut files: Vec<String> = Vec::new();
+    let mut within_files = false;
 
     for line in text.lines() {
         let line = line.trim();
 
-        if within_roots {
+        if within_files {
             if line.starts_with("];") {
-                within_roots = false;
-            } else if let Some(root) = zbkce_quoted(line) {
-                roots.push(root);
+                within_files = false;
+            } else if let Some(file) = zbkce_quoted(line) {
+                files.push(file);
             }
             continue;
         }
@@ -1101,7 +1208,7 @@ pub fn bkce_struck(at: &Path) -> Result<bkce_Struck, String> {
         };
 
         if declared.contains("_ROOTS:") && declared.ends_with("&[") {
-            within_roots = true;
+            within_files = true;
             continue;
         }
 
@@ -1123,9 +1230,9 @@ pub fn bkce_struck(at: &Path) -> Result<bkce_Struck, String> {
         ));
     };
 
-    if roots.is_empty() {
+    if files.is_empty() {
         return Err(format!(
-            "the exergue at {} carries no roots constant in the striker's shape — `pub const \
+            "the exergue at {} carries no files constant in the striker's shape — `pub const \
              <NAME>_ROOTS: &[&str] = &[ ... ];` — so the set its sha was measured over cannot be \
              read, and it may not be presumed current",
             at.display(), //
@@ -1134,7 +1241,7 @@ pub fn bkce_struck(at: &Path) -> Result<bkce_Struck, String> {
 
     Ok(bkce_Struck {
         sha,
-        roots: roots.join(" "),
+        files: files.join(" "),
     })
 }
 
@@ -1214,12 +1321,12 @@ pub fn bkce_residence(root: &Path, collar: &bkcr_Collar) -> PathBuf {
 /// The election's grammar is git's own — a directory reaches everything beneath
 /// it and an exclusion pathspec carves back out — so nothing here interprets an
 /// element.
-pub fn bkce_seat(repository: &Path, roots: &str) -> Result<String, String> {
-    let elected: Vec<&str> = roots.split_whitespace().collect();
+pub fn bkce_seat(repository: &Path, measured: &str) -> Result<String, String> {
+    let elected: Vec<&str> = measured.split_whitespace().collect();
 
     if elected.is_empty() {
         return Err(
-            "the collar's elected roots stand empty, and a position measured over nothing would \
+            "the collar's measure stands empty, and a position measured over nothing would \
              call every binary current"
                 .to_string(),
         );
@@ -1247,7 +1354,7 @@ pub fn bkce_seat(repository: &Path, roots: &str) -> Result<String, String> {
 
     if !out.status.success() {
         return Err(format!(
-            "git would not walk this seat's line over the collar's elected roots in {}: {}",
+            "git would not walk this seat's line over the collar's measure in {}: {}",
             repository.display(),
             String::from_utf8_lossy(&out.stderr).trim(), //
         ));
@@ -1257,7 +1364,7 @@ pub fn bkce_seat(repository: &Path, roots: &str) -> Result<String, String> {
 
     if position.is_empty() {
         return Err(
-            "no commit on this seat's line touches any elected root, so the collar's election \
+            "no commit on this seat's line touches anything the collar measures, so its measure \
              names nothing this tree has ever carried"
                 .to_string(),
         );
@@ -1315,6 +1422,460 @@ pub fn bkce_position_shaped(line: &str) -> bool {
         && line
             .chars()
             .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+}
+
+/// What one station's build of an artifact read, as cargo recorded it, filtered
+/// by rule.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct bkce_Record {
+    /// Every tracked file the record names, repo-relative, sorted.
+    pub files: Vec<String>,
+    /// Every path the record names that no rule drops and git does not track —
+    /// refused, because a set cannot elect what the tree does not hold.
+    pub refused: Vec<String>,
+}
+
+/// What the scent door found over one collar's elected set, and what it did.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum bkce_Scent {
+    /// The standing set already names everything the derivation composed.
+    Current,
+    /// The set stood short and this seat is a linked worktree, so it was
+    /// rewritten at every home named; the door refuses, naming the notch.
+    Rewritten {
+        written: Vec<PathBuf>,
+        added: Vec<String>,
+        dropped: Vec<String>,
+    },
+    /// The set stood short and this seat is no linked worktree, so nothing was
+    /// written; the door refuses, naming where the set is maintained.
+    Unwritten {
+        added: Vec<String>,
+        dropped: Vec<String>,
+    },
+}
+
+/// Where cargo leaves the record of one collar's artifact: beside the artifact,
+/// in the build directory cargo itself reports, under the profile's directory,
+/// named for the target.
+pub fn bkce_record_path(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    collar: &bkcr_Collar,
+) -> Result<PathBuf, String> {
+    let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
+    let built = crate::bkcr_resolve::bkcr_target_directory(repository, dispatch, &manifest)?;
+
+    Ok(built
+        .join(crate::bkch_heel::bkch_profile_dir(
+            collar.bkcr_field("BKRR_PROFILE"),
+        ))
+        .join(format!(
+            "{}{}",
+            collar.bkcr_field("BKRR_TARGET"),
+            ZBKCE_RECORD_SUFFIX, //
+        )))
+}
+
+/// The suffix cargo gives the record it writes beside an artifact.
+const ZBKCE_RECORD_SUFFIX: &str = ".d";
+
+/// The directory name git's own metadata wears wherever it stands, which the
+/// record names when a build script asks to rerun on a ref moving.
+const ZBKCE_GIT_METADATA: &str = ".git";
+
+/// Read the record standing at a path and filter it by rule, `None` where no
+/// record stands — a station that never built the artifact holds nothing to
+/// prove.
+///
+/// THE FILTER IS THE WHOLE OF THE RULE, and it drops by name and never by
+/// judgment. Git's own metadata is dropped wherever it stands, a build script
+/// rerunning on a ref being no source; the struck stamp modules the collar
+/// declares are dropped, being build output the strike writes; every other
+/// path is kept where git tracks it and refused where it does not, a path
+/// outside the repository among the refused, since no set of this tree could
+/// elect it.
+///
+/// `struck` is the collar's declared exergues, repo-relative.
+pub fn bkce_record_at(
+    repository: &Path,
+    record: &Path,
+    struck: &[&str],
+) -> Result<Option<bkce_Record>, String> {
+    let text = match std::fs::read_to_string(record) {
+        Ok(text) => text,
+        Err(err) if err.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(err) => {
+            return Err(format!(
+                "could not read the dep-info at {}: {}",
+                record.display(),
+                err, //
+            ));
+        }
+    };
+
+    let root = std::fs::canonicalize(repository).map_err(|err| {
+        format!(
+            "could not settle the repository at {}: {}",
+            repository.display(),
+            err, //
+        )
+    })?;
+
+    let mut kept: Vec<String> = Vec::new();
+    let mut refused: Vec<String> = Vec::new();
+
+    for named in zbkce_prerequisites(&text, record)? {
+        let path = Path::new(&named);
+        let path = if path.is_absolute() {
+            path.to_path_buf()
+        } else {
+            root.join(path)
+        };
+
+        if path
+            .components()
+            .any(|part| part.as_os_str() == std::ffi::OsStr::new(ZBKCE_GIT_METADATA))
+        {
+            continue;
+        }
+
+        let settled = std::fs::canonicalize(&path).unwrap_or_else(|_| zbkce_lexical(&path));
+
+        let Ok(inside) = settled.strip_prefix(&root) else {
+            refused.push(settled.display().to_string());
+            continue;
+        };
+
+        let relative = inside.to_string_lossy().replace('\\', "/");
+
+        if struck.contains(&relative.as_str()) {
+            continue;
+        }
+
+        if !kept.contains(&relative) {
+            kept.push(relative);
+        }
+    }
+
+    let tracked = bkce_tracked(repository, &kept)?;
+    let (files, untracked): (Vec<String>, Vec<String>) =
+        kept.into_iter().partition(|held| tracked.contains(held));
+
+    refused.extend(untracked);
+
+    let mut files = files;
+    files.sort();
+    refused.sort();
+    refused.dedup();
+
+    Ok(Some(bkce_Record { files, refused }))
+}
+
+/// The prerequisites of the record's first rule: every path after the target
+/// and its colon, backslash-escaped spaces unescaped and continuations joined.
+///
+/// THE RECORD IS MAKE'S GRAMMAR AND CARGO WRITES ONE RULE, the artifact and
+/// everything it read; what follows that rule is not read.
+fn zbkce_prerequisites(text: &str, record: &Path) -> Result<Vec<String>, String> {
+    let joined = text.replace("\\\n", " ");
+    let Some(rule) = joined.lines().find(|line| !line.trim().is_empty()) else {
+        return Ok(Vec::new());
+    };
+
+    let mut chars = rule.chars().peekable();
+    let mut seen_colon = false;
+    let mut current = String::new();
+    let mut named: Vec<String> = Vec::new();
+
+    while let Some(c) = chars.next() {
+        match c {
+            '\\' if chars.peek() == Some(&' ') => {
+                current.push(' ');
+                chars.next();
+            }
+            ':' if !seen_colon && chars.peek().is_none_or(|next| next.is_whitespace()) => {
+                seen_colon = true;
+                current.clear();
+            }
+            c if c.is_whitespace() => {
+                if seen_colon && !current.is_empty() {
+                    named.push(std::mem::take(&mut current));
+                }
+                current.clear();
+            }
+            c => current.push(c),
+        }
+    }
+
+    if seen_colon && !current.is_empty() {
+        named.push(current);
+    }
+
+    if !seen_colon {
+        return Err(format!(
+            "the dep-info at {} carries no rule naming its artifact, so what the build read cannot \
+             be read off it",
+            record.display(), //
+        ));
+    }
+
+    Ok(named)
+}
+
+/// A path with its `.` and `..` components resolved by spelling alone, for a
+/// path the filesystem cannot settle.
+fn zbkce_lexical(path: &Path) -> PathBuf {
+    let mut settled = PathBuf::new();
+    for part in path.components() {
+        match part {
+            std::path::Component::CurDir => {}
+            std::path::Component::ParentDir => {
+                settled.pop();
+            }
+            other => settled.push(other.as_os_str()),
+        }
+    }
+    settled
+}
+
+/// Which of these repo-relative paths git tracks.
+pub fn bkce_tracked(repository: &Path, paths: &[String]) -> Result<Vec<String>, String> {
+    if paths.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let out = Command::new("git")
+        .arg("-C")
+        .arg(repository)
+        .arg("ls-files")
+        .arg("-z")
+        .arg("--")
+        .args(paths)
+        .output()
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
+
+    if !out.status.success() {
+        return Err(format!(
+            "git would not list what it tracks in {}: {}",
+            repository.display(),
+            String::from_utf8_lossy(&out.stderr).trim(), //
+        ));
+    }
+
+    Ok(String::from_utf8_lossy(&out.stdout)
+        .split('\0')
+        .filter(|held| !held.is_empty())
+        .map(str::to_string)
+        .collect())
+}
+
+/// Derive one collar's elected set from its artifact's record, and settle it
+/// against the set standing beside the collar.
+///
+/// THE RECORD IS CARGO'S AND THE RIDERS ARE THE ONES IT NEVER NAMES: every
+/// manifest of the closure, the built crate's lockfile standing for every
+/// registry source, the pin the leash's own lookup binds the build to, and the
+/// collar's own file carrying its declared shape — and the set's own file, so a
+/// change to what counts as source moves the position measured over it.
+///
+/// A RECORD REFUSING A PATH REFUSES THE WHOLE DERIVATION, naming each: a set
+/// cannot elect what the tree does not hold, and writing the rest would stand a
+/// set that silently omitted what the build read.
+pub fn bkce_scent(
+    repository: &Path,
+    dispatch: &bkcr_Dispatch,
+    geography: &bkce_Geography,
+    collar: &bkcr_Collar,
+) -> Result<bkce_Scent, String> {
+    if !collar.bkcr_takes_set() {
+        return Err(format!(
+            "the collar '{}' takes no elected set — only an app collar striking an exergue holds \
+             one, and every other collar measures over its closure's package directories",
+            collar.name, //
+        ));
+    }
+
+    let record_at = bkce_record_path(repository, dispatch, collar)?;
+    let record =
+        bkce_record_at(repository, &record_at, &collar.bkcr_exergue())?.ok_or_else(|| {
+            format!(
+            "no dep-info stands at {}, so what the collar '{}' is made from cannot be read — the \
+             set is derived after a build of the artifact, by the door that built it",
+            record_at.display(),
+            collar.name, //
+        )
+        })?;
+
+    if !record.refused.is_empty() {
+        return Err(format!(
+            "the dep-info at {} names {} path(s) no rule drops and git does not track, so no set of \
+             this tree can elect them: {}",
+            record_at.display(),
+            record.refused.len(),
+            record.refused.join(", "), //
+        ));
+    }
+
+    let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
+    let crate_dir = manifest.parent().unwrap_or(repository).to_path_buf();
+    let packages = crate::bkcr_resolve::bkcr_closure(repository, dispatch, &manifest, false)?;
+
+    let root = std::fs::canonicalize(repository).map_err(|err| {
+        format!(
+            "could not settle the repository at {}: {}",
+            repository.display(),
+            err, //
+        )
+    })?;
+    let relative = |path: &Path| -> String {
+        let settled = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+        settled
+            .strip_prefix(&root)
+            .unwrap_or(&settled)
+            .to_string_lossy()
+            .replace('\\', "/")
+    };
+
+    let mut files = record.files;
+    for package in &packages {
+        files.push(if package.is_empty() {
+            ZBKCE_MANIFEST.to_string()
+        } else {
+            format!(
+                "{}/{}",
+                package,
+                ZBKCE_MANIFEST, //
+            )
+        });
+    }
+
+    let lockfile = crate_dir.join(ZBKCE_LOCKFILE);
+    if lockfile.is_file() {
+        files.push(relative(&lockfile));
+    }
+
+    let pin = crate::bkcl_leash::bkcl_pin_file(repository, &crate_dir)?;
+    files.push(relative(&pin));
+
+    let instance = &collar.instance;
+    for held in [
+        crate::bkcr_resolve::BKCR_FAMILY,
+        crate::bkcr_resolve::BKCR_SET,
+    ] {
+        files.push(instance.join(held).to_string_lossy().replace('\\', "/"));
+    }
+
+    let derived = bkcr_Set {
+        files,
+        packages: packages
+            .into_iter()
+            .map(crate::bkcr_resolve::bkcr_package_spec)
+            .collect(),
+    };
+
+    let homes = crate::bkcr_resolve::bkcr_set_homes(repository, collar)?;
+    bkce_settle(repository, geography, &homes, &derived)
+}
+
+/// Cargo's own name for a manifest and for the lockfile beside it.
+const ZBKCE_MANIFEST: &str = "Cargo.toml";
+const ZBKCE_LOCKFILE: &str = "Cargo.lock";
+
+/// Settle a derived set against the set standing at its homes: write nothing
+/// where it already stands current, write every home at a linked worktree, and
+/// write nothing anywhere else.
+///
+/// THE GEOGRAPHY IS A PARAMETER, which is what lets a hurdle pose the main
+/// checkout's refusal without standing one.
+///
+/// A UNION, AND A UNION PRUNED ONLY OF WHAT THE TREE NO LONGER HOLDS. A file
+/// compiled under one target alone appears in one station's record alone, so
+/// the standing set keeps what another station proved; a file git no longer
+/// tracks is read by no build anywhere, so it leaves, as a package directory
+/// that no longer stands does.
+///
+/// `homes` is every place the set stands, the weaned copy first: the copy and
+/// its brood are written together, so the two never part.
+pub fn bkce_settle(
+    repository: &Path,
+    geography: &bkce_Geography,
+    homes: &[PathBuf],
+    derived: &bkcr_Set,
+) -> Result<bkce_Scent, String> {
+    let Some(first) = homes.first() else {
+        return Err("no home was named for the elected set".to_string());
+    };
+
+    let standing = crate::bkcr_resolve::bkcr_set_read(first)?.unwrap_or_default();
+
+    let kept = bkce_tracked(repository, &standing.files)?;
+
+    let mut files: Vec<String> = derived.files.clone();
+    files.extend(kept);
+    files.sort();
+    files.dedup();
+
+    let mut packages: Vec<String> = derived.packages.clone();
+    packages.extend(
+        standing
+            .packages
+            .iter()
+            .filter(|held| repository.join(held).is_dir())
+            .cloned(),
+    );
+    packages.sort();
+    packages.dedup();
+
+    let settled = bkcr_Set { files, packages };
+    let rendered = crate::bkcr_resolve::bkcr_set_render(&settled);
+
+    let current = homes
+        .iter()
+        .all(|home| std::fs::read_to_string(home).is_ok_and(|held| held == rendered));
+
+    if current {
+        return Ok(bkce_Scent::Current);
+    }
+
+    let added: Vec<String> = settled
+        .files
+        .iter()
+        .filter(|held| !standing.files.contains(held))
+        .cloned()
+        .collect();
+    let dropped: Vec<String> = standing
+        .files
+        .iter()
+        .filter(|held| !settled.files.contains(held))
+        .cloned()
+        .collect();
+
+    if geography.bkce_delivered().is_none() {
+        return Ok(bkce_Scent::Unwritten { added, dropped });
+    }
+
+    for home in homes {
+        std::fs::write(home, &rendered).map_err(|err| {
+            format!(
+                "could not write the elected set at {}: {}",
+                home.display(),
+                err, //
+            )
+        })?;
+    }
+
+    Ok(bkce_Scent::Rewritten {
+        written: homes.to_vec(),
+        added,
+        dropped,
+    })
 }
 
 // eof

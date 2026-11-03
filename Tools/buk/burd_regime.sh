@@ -72,6 +72,7 @@ zburd_kindle() {
   buv_string_enroll  BURD_NOW_EPOCH             1   16  "UTC epoch seconds from same date invocation as BURD_NOW_STAMP"
   buv_string_enroll  BURD_TEMP_DIR              1  256  "Temporary directory for this invocation"
   buv_string_enroll  BURD_LOOSEBOX_DIR          1  256  "This checkout's ${BUBG_LOOSEBOX_BASE}, keyed on its dirname beneath the ${BUBG_LOOSEBOX_BASE} root"
+  buv_string_enroll  BURD_LOOSEBOX_ROOT_DIR     1  512  "The ${BUBG_LOOSEBOX_BASE} root this dispatch folded, absolute, recorded so a door handing a child the same root reads it rather than deriving it"
   buv_string_enroll  BURD_OUTPUT_DIR            1  256  "Output directory for this invocation (current/)"
   buv_string_enroll  BURD_PREVIOUS_DIR          1  256  "Prior dispatch's output directory (previous/), promoted from current/ at dispatch start"
   buv_string_enroll  BURD_TRANSCRIPT            1  256  "Path to transcript file for this invocation"

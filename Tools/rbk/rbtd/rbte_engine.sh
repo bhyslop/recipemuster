@@ -44,20 +44,17 @@ zrbte_kindle() {
   readonly ZRBTE_MANIFEST="${z_dir}/Cargo.toml"
   readonly ZRBTE_PIN_FILE="${ZRBTE_REPO_ROOT}/rust-toolchain.toml"
 
-  # The position's roots: the crate's own source and manifests, the root pin, and
-  # the floor crate it reads its dispatch through, the cfg(test) modules of both
-  # carved out. The position is the seat's newest
+  # The position's roots are the kennel's own measure for the theurge's app
+  # collar, which strikes nothing and so holds no elected set: the local package
+  # directories of the crate's compiled closure, the crate itself and the floor
+  # crate it reads its dispatch through. Nothing is carved out and nothing is
+  # added, so the kennel's heel and these doors state one position under one
+  # definition. The position is the seat's newest
   # first-parent commit touching them: the seat's own line, not a landed walk,
   # so a billet carrying unlanded commits states where it actually stands.
   ZRBTE_ROOTS=(
-    "Tools/rbk/rbtd/src"
-    "Tools/rbk/rbtd/build.rs"
-    "Tools/rbk/rbtd/Cargo.toml"
-    "Tools/rbk/rbtd/Cargo.lock"
-    "rust-toolchain.toml"
+    "Tools/rbk/rbtd"
     "Tools/bkk/bk0/bkp"
-    ":(exclude)Tools/rbk/rbtd/src/rbtdt*"
-    ":(exclude)Tools/bkk/bk0/bkp/src/bkpt*"
   )
   readonly ZRBTE_ROOTS
 

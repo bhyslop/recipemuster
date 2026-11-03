@@ -166,6 +166,7 @@ const ZBKM_DOOR_HEEL: &str = bkco_output::BKCO_VERB_HEEL;
 const ZBKM_DOOR_MUZZLE: &str = bkco_output::BKCO_VERB_MUZZLE;
 const ZBKM_DOOR_GANGLINE: &str = bkco_output::BKCO_VERB_GANGLINE;
 const ZBKM_DOOR_SCOOP: &str = bkco_output::BKCO_VERB_SCOOP;
+const ZBKM_DOOR_SCENT: &str = bkco_output::BKCO_VERB_SCENT;
 const ZBKM_DOOR_DELOUSE: &str = bkco_output::BKCO_VERB_DELOUSE;
 const ZBKM_DOOR_BLEACH: &str = bkco_output::BKCO_VERB_BLEACH;
 
@@ -408,10 +409,107 @@ fn zbkm_main() {
         ZBKM_DOOR_HEEL => zbkm_heel(&repository, &dispatch, rest),
         ZBKM_DOOR_GANGLINE => zbkm_gangline(&repository, &dispatch, rest),
         ZBKM_DOOR_SCOOP => zbkm_scoop(&repository, &dispatch, rest),
+        ZBKM_DOOR_SCENT => zbkm_scent(&repository, &dispatch, rest),
         ZBKM_DOOR_DELOUSE => zbkm_delouse(&repository, &dispatch, rest),
         ZBKM_DOOR_BLEACH => zbkm_bleach(&dispatch, rest),
         ZBKM_REBED => zbkm_rebed(&repository, &dispatch, rest),
         _ => zbkm_register(&repository, &dispatch, &arguments),
+    }
+}
+
+/// *scent* — derive one collar's elected set from the record its artifact's
+/// build left, and settle it against the set standing beside the collar.
+///
+/// THE TREE'S OWN BUILD DOOR CALLS IT, AFTER ITS BUILD AND AS ONE PASS. The
+/// record is written by the build, so a derivation run ahead of one reads a
+/// record that is not this tree's; and one pass is the whole of it — a set
+/// written here is committed by the operator and the build run again, never
+/// re-derived in a loop by the door that wrote it.
+///
+/// IT WRITES A TRACKED FILE AND THEN REFUSES, on the lock re-derivation's
+/// precedent: the set it writes is the only thing dirty when the drive ends,
+/// and every door refuses that tree until the notch, which is what makes the
+/// rewrite a change somebody commits rather than one that slips into a later
+/// landing. At a seat that is no linked worktree it refuses and writes nothing,
+/// a set being maintained where the work is and reaching a main checkout only by
+/// a landing.
+fn zbkm_scent(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
+    if rest.len() != 1 {
+        bkco_fatal_now!(
+            "'{}' takes exactly one collar as its imprint and was given {} — a set is derived for \
+             the one artifact a build door just built",
+            ZBKM_DOOR_SCENT,
+            rest.len(), //
+        );
+    }
+
+    let name = rest[0].to_string_lossy().into_owned();
+
+    let resolved = match bkcr_resolve::bkcr_resolve(repository, dispatch, &name) {
+        Ok(resolved) => resolved,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
+    let geography = zbkm_geography(repository);
+
+    match bkce_election::bkce_scent(repository, dispatch, &geography, &resolved.collar) {
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+        Ok(bkce_election::bkce_Scent::Current) => {
+            bkco_info_now!(
+                "the elected set of '{}' stands current: the dep-info its build left names nothing \
+                 the set does not",
+                name, //
+            );
+            std::process::exit(0);
+        }
+        Ok(bkce_election::bkce_Scent::Rewritten {
+            written,
+            added,
+            dropped,
+        }) => {
+            let shown: Vec<String> = written
+                .iter()
+                .map(|home| {
+                    home.strip_prefix(repository)
+                        .unwrap_or(home)
+                        .display()
+                        .to_string()
+                })
+                .collect();
+            bkco_error_now!(
+                "the elected set of '{}' did not cover what its build read, so it was rewritten at \
+                 {}: {} file(s) added ({}), {} dropped ({}). Commit what was written — the notch — \
+                 and run the build again: this tree now carries a tracked change, and every door \
+                 refuses it until it is committed",
+                name,
+                shown.join(" and "),
+                added.len(),
+                added.join(", "),
+                dropped.len(),
+                dropped.join(", "), //
+            );
+            zbkm_barred();
+        }
+        Ok(bkce_election::bkce_Scent::Unwritten { added, dropped }) => {
+            bkco_error_now!(
+                "the elected set of '{}' does not cover what its build read — {} file(s) to add \
+                 ({}), {} to drop ({}) — and this seat is no linked worktree, so nothing was \
+                 written. A set is maintained in a linked worktree and reaches this checkout by a \
+                 landing: build there, commit what it writes, and land it",
+                name,
+                added.len(),
+                added.join(", "),
+                dropped.len(),
+                dropped.join(", "), //
+            );
+            zbkm_barred();
+        }
     }
 }
 
@@ -3263,6 +3361,16 @@ enum zbkm_Supply {
 /// collar says supplies the absence, in the collar's order, and reads the exit.
 /// A heel or strike that fails ends this verb on its verdict, relayed.
 ///
+/// EACH STRIKE IS HANDED THE LOOSEBOX ROOT THIS DRIVE'S DISPATCH RECORDED, and
+/// nothing else, through the override inlet the dispatch regime admits. A
+/// strike is a fresh dispatch, which composes its loosebox from the regime it
+/// reads; under a harness that is another root than this drive's, holding no
+/// day, and the strike's own build door would sweep the yard the heels before
+/// it had just laid. Handed this root it keys the same loosebox, reads the day
+/// this drive swept for and sweeps nothing — so one drive readies a cold tree
+/// at any seat. A heel is handed nothing: it is this binary, whose start fences
+/// any override standing in its environment.
+///
 /// ONE ACT, THEN THE ROSTER READ AGAIN, because an act can uncover what it
 /// stood in front of: an environment read only by its record while uv was
 /// unplaced is read whole once uv is placed — and a project declaring this
@@ -3365,9 +3473,23 @@ fn zbkm_rebed(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
                 .arg(ZBKM_DOOR_HEEL)
                 .arg(name)
                 .status(),
-            zbkm_Supply::Strike(door) => std::process::Command::new(repository.join(door))
-                .current_dir(repository)
-                .status(),
+            zbkm_Supply::Strike(door) => {
+                let root = match bkcc_record::bkcc_loosebox_root(dispatch) {
+                    Ok(root) => root,
+                    Err(err) => {
+                        bkco_error_now!(
+                            "{}",
+                            err, //
+                        );
+                        bkco_output::bkco_broke();
+                    }
+                };
+
+                std::process::Command::new(repository.join(door))
+                    .current_dir(repository)
+                    .env("BURV_LOOSEBOX_ROOT_DIR", root)
+                    .status()
+            }
         };
 
         let status = match spawned {

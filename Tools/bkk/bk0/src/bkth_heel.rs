@@ -69,7 +69,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"Tools/lure/src\"
 BKRR_FEATURES=\"alpha beta\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -90,7 +89,6 @@ BKRR_COLLAR=\"app-lure\"
 BKRR_KIND=\"bknre_app\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"lure\"
-BKRR_ROOTS=\"Tools/lure/src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"release\"
 BKRR_SPEND=\"bknre_reader\"
@@ -108,7 +106,6 @@ BKRR_COLLAR=\"suite-lure\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"Tools/lure/src\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -126,6 +123,7 @@ fn zbkth_collar(name: &str, text: &str) -> bkcr_Collar {
         name: name.to_string(),
         instance: PathBuf::from(name),
         regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["Tools/lure/src".to_string()]),
     }
 }
 

@@ -293,7 +293,7 @@ pub fn bkcm_run(
     // THE COLLAR IS TAKEN HERE rather than carried on the launch, for the reason
     // the heel gives: the launch carries what the report owes, and this position
     // is not reported.
-    let seat = crate::bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
+    let seat = crate::bkce_election::bkce_seat(repository, &collar.measure.bkcr_pathspecs())?;
 
     let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(
         dispatch,

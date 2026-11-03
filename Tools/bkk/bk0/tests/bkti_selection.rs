@@ -99,7 +99,6 @@ fn zbkti_lure(name: &str) -> bktu_Lure {
          BKRR_KIND=\"bknre_suite\"\n\
          BKRR_MANIFEST=\"Cargo.toml\"\n\
          BKRR_TARGET=\"bknre_manifest\"\n\
-         BKRR_ROOTS=\"src Cargo.toml\"\n\
          BKRR_FEATURES=\"\"\n\
          BKRR_PROFILE=\"test\"\n\
          BKRR_SPEND=\"bknre_reader\"\n\

@@ -95,6 +95,15 @@ pub const BKTU_OUTPUT_DIR_VAR: &str = "BURD_OUTPUT_DIR";
 /// keeps its own.
 pub const BKTU_LOOSEBOX_DIR_VAR: &str = "BURD_LOOSEBOX_DIR";
 
+/// The root the dispatch folded and keyed the loosebox beneath, which a door
+/// handing a child the same root reads rather than climbing out of the loosebox.
+///
+/// A PLAIN DRIVE STATES THE LURE'S SEAT. The lure's loosebox is a directory of
+/// that seat and is not keyed on the lure's dirname, so the two do not compose
+/// as a dispatch composes them; a hurdle needing them to agree states both, the
+/// root and the loosebox keyed beneath it.
+pub const BKTU_LOOSEBOX_ROOT_DIR_VAR: &str = "BURD_LOOSEBOX_ROOT_DIR";
+
 /// The dispatch's config directory, which a bare kennel spawn does not inherit
 /// and is handed this lure's own in its place.
 ///
@@ -693,8 +702,9 @@ impl bktu_Lure {
     }
 
     /// The text of a plain dispatch file over this lure: its moorings, its output
-    /// pair and loosebox, the day, no log, and the station's tackroom, with every
-    /// stated pair wearing the dispatch's stem written over its own field.
+    /// pair, its loosebox and root, the day, no log, and the station's tackroom,
+    /// with every stated pair wearing the dispatch's stem written over its own
+    /// field.
     ///
     /// THE KENNEL'S READER IS THE ONE CHECK ON IT. Nothing here validates the
     /// text: a value the reader refuses is a refusal the child gives, which is
@@ -717,6 +727,10 @@ impl bktu_Lure {
             (
                 BKTU_LOOSEBOX_DIR_VAR.to_string(),
                 self.loosebox.display().to_string(),
+            ),
+            (
+                BKTU_LOOSEBOX_ROOT_DIR_VAR.to_string(),
+                self.zbktu_seat_dir().display().to_string(),
             ),
             (BKTU_NOW_VAR.to_string(), BKTU_NOW.to_string()),
             (
@@ -1209,7 +1223,6 @@ impl bktu_Lure {
                      BKRR_KIND=\"bknre_suite\"\n\
                      BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"\n\
                      BKRR_TARGET=\"bknre_manifest\"\n\
-                     BKRR_ROOTS=\"Tools/lure/src Tools/lure/Cargo.toml Tools/lure/Cargo.lock\"\n\
                      BKRR_FEATURES=\"\"\n\
                      BKRR_PROFILE=\"test\"\n\
                      BKRR_SPEND=\"bknre_reader\"\n\
@@ -1265,16 +1278,6 @@ impl bktu_Lure {
         self.bktu_write(&seat("src/lib.rs"), "pub fn seated() -> u32 {\n    7\n}\n");
         self.bktu_write("clippy.toml", "disallowed-methods = []\n");
 
-        let roots = if at.is_empty() {
-            "src \\\n  Cargo.toml".to_string()
-        } else {
-            format!(
-                "{}/src \\\n  {}/Cargo.toml",
-                at,
-                at, //
-            )
-        };
-
         self.bktu_write(
             &format!(
                 "{}/{}/{}/bkrr.env",
@@ -1288,7 +1291,6 @@ BKRR_COLLAR=\"{}\"
 BKRR_KIND=\"bknre_suite\"
 BKRR_MANIFEST=\"{}\"
 BKRR_TARGET=\"bknre_manifest\"
-BKRR_ROOTS=\"{}\"
 BKRR_FEATURES=\"\"
 BKRR_PROFILE=\"test\"
 BKRR_SPEND=\"bknre_reader\"
@@ -1300,8 +1302,7 @@ BKRR_RUNNER=\"bknre_cargo\"
 BKRR_TONGUE=\"bknre_harness\"
 ",
                 collar,
-                seat("Cargo.toml"),
-                roots, //
+                seat("Cargo.toml"), //
             ),
         );
     }

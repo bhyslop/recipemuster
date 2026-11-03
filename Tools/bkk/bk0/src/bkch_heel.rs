@@ -97,7 +97,7 @@ pub const BKCH_TARGET_DIR_VAR: &str = "CARGO_TARGET_DIR";
 
 /// The environment variable a door holding the collar states to the crate it is
 /// compiling — the converge, the suite launch and the listing alike — carrying
-/// the position walked over THAT COLLAR'S declared roots. The envelope rules the
+/// the position walked over THAT COLLAR'S measure. The envelope rules the
 /// shape once, and each door states it where it drives the leash.
 ///
 /// THE DOOR'S CONTRACT WITH THE CRATE, and the reason it is its own name: a
@@ -339,7 +339,7 @@ fn zbkch_resolved(path: &Path) -> PathBuf {
 ///
 /// THE COLLAR'S POSITION RIDES ACROSS THE EXEC BOUNDARY, because a converged
 /// crate cannot walk it for itself: a build script runs with cargo's environment
-/// and no repository to ask, and the reading wants the collar's declared roots,
+/// and no repository to ask, and the reading wants the collar's measure,
 /// which only the door holding the collar has. A crate declaring a build script
 /// that reads it is stamped with the tree it was built from; a crate declaring
 /// none is unaffected, an unread variable costing the child nothing.
@@ -366,7 +366,7 @@ pub fn bkch_build(
     // hands the operator the door to run without spending it.
     crate::bkcr_resolve::bkcr_exergue_stands(repository, collar)?;
 
-    let seat = bkce_election::bkce_seat(repository, collar.bkcr_field("BKRR_ROOTS"))?;
+    let seat = bkce_election::bkce_seat(repository, &collar.measure.bkcr_pathspecs())?;
 
     bkch_voiced_build(
         repository,
