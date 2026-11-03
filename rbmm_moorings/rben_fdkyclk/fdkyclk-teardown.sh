@@ -45,12 +45,17 @@ RBRO=../station-files/secrets/payor/rbro.env
 
 val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\$//"; }
 
+# The secrets ride jq's environment by command prefix, and the body jq composes in
+# memory reaches curl through a pipe: no secret stands in any process's arguments.
 payor_token() {
-  curl -s https://oauth2.googleapis.com/token \
-    --data-urlencode "client_id=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")" \
-    --data-urlencode "client_secret=$(val RBRO_zSECRET_CLIENT_SECRET "$RBRO")" \
-    --data-urlencode "refresh_token=$(val RBRO_zSECRET_REFRESH_TOKEN "$RBRO")" \
-    --data-urlencode "grant_type=refresh_token" | jq -r '.access_token // empty'
+  local z_cid zSECRET_csec zSECRET_rtok
+  z_cid=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")
+  zSECRET_csec=$(val RBRO_zSECRET_CLIENT_SECRET "$RBRO")
+  zSECRET_rtok=$(val RBRO_zSECRET_REFRESH_TOKEN "$RBRO")
+  Z_CID="${z_cid}" Z_CSEC="${zSECRET_csec}" Z_RTOK="${zSECRET_rtok}" \
+    jq -nr '"client_id=\(env.Z_CID|@uri)&client_secret=\(env.Z_CSEC|@uri)&refresh_token=\(env.Z_RTOK|@uri)&grant_type=refresh_token"' \
+    | curl -s https://oauth2.googleapis.com/token --data @- \
+    | jq -r '.access_token // empty'
 }
 
 # Remove an IAM binding, reporting cleanly whether it was present or already gone.

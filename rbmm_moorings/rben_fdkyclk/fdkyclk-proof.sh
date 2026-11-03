@@ -80,16 +80,17 @@ val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\
 b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
 
 # ---- payor access token (OAuth refresh-token exchange; never echoes secrets) ----
+# The secrets ride jq's environment by command prefix, and the body jq composes in
+# memory reaches curl through a pipe: no secret stands in any process's arguments.
 payor_token() {
-  local z_cid z_csec z_rtok
+  local z_cid zSECRET_csec zSECRET_rtok
   z_cid=$(val RBRP_OAUTH_CLIENT_ID "$RBRP")
-  z_csec=$(val RBRO_zSECRET_CLIENT_SECRET  "$RBRO")
-  z_rtok=$(val RBRO_zSECRET_REFRESH_TOKEN  "$RBRO")
-  curl -s https://oauth2.googleapis.com/token \
-    --data-urlencode "client_id=${z_cid}" \
-    --data-urlencode "client_secret=${z_csec}" \
-    --data-urlencode "refresh_token=${z_rtok}" \
-    --data-urlencode "grant_type=refresh_token" | jq -r '.access_token // empty'
+  zSECRET_csec=$(val RBRO_zSECRET_CLIENT_SECRET  "$RBRO")
+  zSECRET_rtok=$(val RBRO_zSECRET_REFRESH_TOKEN  "$RBRO")
+  Z_CID="${z_cid}" Z_CSEC="${zSECRET_csec}" Z_RTOK="${zSECRET_rtok}" \
+    jq -nr '"client_id=\(env.Z_CID|@uri)&client_secret=\(env.Z_CSEC|@uri)&refresh_token=\(env.Z_RTOK|@uri)&grant_type=refresh_token"' \
+    | curl -s https://oauth2.googleapis.com/token --data @- \
+    | jq -r '.access_token // empty'
 }
 
 fetch_jwks() {
@@ -142,31 +143,28 @@ mint_idtoken() {
   z_signing="$(printf '%s' "$z_header" | b64url).$(printf '%s' "$z_payload" | b64url)"
   z_sig=$(printf '%s' "$z_signing" | openssl dgst -sha256 -sign "$ASSERTER_KEY" -binary | b64url)
   z_assertion="${z_signing}.${z_sig}"
-  curl -s "$z_tokurl" \
-    -d "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer" \
-    -d "client_id=$KC_CLIENT" -d "client_secret=$KC_CLIENT_SECRET" -d "scope=openid" \
-    --data-urlencode "assertion=$z_assertion" | jq -r '.id_token // empty'
+  Z_KC_CLIENT="${KC_CLIENT}" Z_KC_CSEC="${KC_CLIENT_SECRET}" Z_ASSERTION="${z_assertion}" \
+    jq -nr '"grant_type=\("urn:ietf:params:oauth:grant-type:jwt-bearer"|@uri)&client_id=\(env.Z_KC_CLIENT|@uri)&client_secret=\(env.Z_KC_CSEC|@uri)&scope=openid&assertion=\(env.Z_ASSERTION|@uri)"' \
+    | curl -s "$z_tokurl" --data @- \
+    | jq -r '.id_token // empty'
 }
 
 # ---- STS exchange: Keycloak id_token -> Google federated token ----
 sts_exchange() {
   local z_idtok="$1"
   local z_aud="//iam.googleapis.com/locations/global/workforcePools/${GCP_POOL}/providers/${GCP_PROVIDER}"
-  curl -s -X POST "https://sts.googleapis.com/v1/token" \
-    -H "Content-Type: application/x-www-form-urlencoded" \
-    --data-urlencode "grant_type=urn:ietf:params:oauth:grant-type:token-exchange" \
-    --data-urlencode "audience=${z_aud}" \
-    --data-urlencode "scope=https://www.googleapis.com/auth/cloud-platform" \
-    --data-urlencode "requested_token_type=urn:ietf:params:oauth:token-type:access_token" \
-    --data-urlencode "subject_token_type=urn:ietf:params:oauth:token-type:id_token" \
-    --data-urlencode "subject_token=${z_idtok}"
+  Z_AUD="${z_aud}" Z_IDTOK="${z_idtok}" \
+    jq -nr '"grant_type=\("urn:ietf:params:oauth:grant-type:token-exchange"|@uri)&audience=\(env.Z_AUD|@uri)&scope=\("https://www.googleapis.com/auth/cloud-platform"|@uri)&requested_token_type=\("urn:ietf:params:oauth:token-type:access_token"|@uri)&subject_token_type=\("urn:ietf:params:oauth:token-type:id_token"|@uri)&subject_token=\(env.Z_IDTOK|@uri)"' \
+    | curl -s -X POST "https://sts.googleapis.com/v1/token" \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data @-
 }
 
 decode_jwt() {
-  python3 -c "import sys,base64,json;t=sys.argv[1].split('.')[1];t+='='*(-len(t)%4);d=json.loads(base64.urlsafe_b64decode(t));print(json.dumps({k:d.get(k) for k in ['iss','aud','sub','typ','exp']},indent=2))" "$1" 2>/dev/null || true
+  printf '%s' "$1" | python3 -c "import sys,base64,json;t=sys.stdin.read().split('.')[1];t+='='*(-len(t)%4);d=json.loads(base64.urlsafe_b64decode(t));print(json.dumps({k:d.get(k) for k in ['iss','aud','sub','typ','exp']},indent=2))" 2>/dev/null || true
 }
 decode_sub() {
-  python3 -c "import sys,base64,json;t=sys.argv[1].split('.')[1];t+='='*(-len(t)%4);print(json.loads(base64.urlsafe_b64decode(t))['sub'])" "$1"
+  printf '%s' "$1" | python3 -c "import sys,base64,json;t=sys.stdin.read().split('.')[1];t+='='*(-len(t)%4);print(json.loads(base64.urlsafe_b64decode(t))['sub'])"
 }
 
 # ---- Stage B: brevet (payor-direct), don, authorized AR call ----
@@ -184,9 +182,9 @@ brevet() {
 don() {
   local z_fed="$1" i z_tok
   for i in 1 2 3 4 5 6 7 8; do
-    z_tok=$(curl -s -X POST \
+    z_tok=$(printf 'Authorization: Bearer %s\n' "$z_fed" | curl -s -X POST \
       "https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/${MANTLE_SA}:generateAccessToken" \
-      -H "Authorization: Bearer ${z_fed}" \
+      -H @- \
       -H "x-goog-user-project: ${DEPOT_PROJECT}" \
       -H "Content-Type: application/json" \
       --data '{"scope":["https://www.googleapis.com/auth/cloud-platform"]}' \
@@ -201,7 +199,7 @@ don() {
 ar_call() {
   local z_tok="$1"
   local z_url="https://artifactregistry.googleapis.com/v1/projects/${DEPOT_PROJECT}/locations/${DEPOT_REGION}/repositories"
-  curl -s -H "Authorization: Bearer ${z_tok}" "$z_url" \
+  printf 'Authorization: Bearer %s\n' "$z_tok" | curl -s -H @- "$z_url" \
     | jq 'if has("repositories") then {RESULT:"AUTHORIZED-AR-CALL-OK", repo_count:(.repositories|length), repos:[.repositories[].name]} else {RESULT:"FAILED", error:.error} end'
 }
 
