@@ -49,6 +49,8 @@ use std::path::{
     PathBuf, //
 };
 
+use crate::rbvcem_perambulation;
+
 // ── Finding ─────────────────────────────────────────────────
 
 /// One leak: where it is and what it is. `line` is 0 for a whole-file finding
@@ -244,6 +246,24 @@ fn zrbvceu_repo_rel(root: &Path, path: &Path) -> String {
 // ── Census and matcher ──────────────────────────────────────
 
 /// True when `basename` is a withheld document — one of the extensions above.
+/// True when the perambulation withholds `rel`, the one judge of what ships
+/// (RBSHC "The cut, and the single matcher"). The walked roots say where
+/// shipping files live, never that everything under them ships: a withheld file
+/// standing inside one, such as a kennel collar under the moorings, never
+/// reaches a regulus, so its naming the veiled tree is no leak. A path no row
+/// judges is still scanned, so an unjudged file stays held to the veil.
+pub(crate) fn zrbvceu_withheld(rel: &str) -> bool {
+    matches!(
+        rbvcem_perambulation::rbvcem_judge(rel),
+        Some((rbvcem_perambulation::rbvcem_Disposition::Withhold, _)) //
+    )
+}
+
+/// Drop from a walked file list every path the perambulation withholds.
+fn zrbvceu_retain_shipping(root: &Path, files: &mut Vec<PathBuf>) {
+    files.retain(|path| !zrbvceu_withheld(&zrbvceu_repo_rel(root, path)));
+}
+
 fn zrbvceu_is_veil_doc(basename: &str) -> bool {
     ZRBVCEU_VEIL_DOC_EXTS.iter().any(|ext| {
         basename.ends_with(&format!(
@@ -470,6 +490,7 @@ pub(crate) fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
             zrbvceu_walk(&path, ZRBVCEU_VEIL_SKIP_DIRS, &mut files);
         }
     }
+    zrbvceu_retain_shipping(root, &mut files);
 
     // A basename naming BOTH a withheld document and a shipping file is an
     // ambiguity, not a leak — reading it as a leak would redden every honest
@@ -526,6 +547,7 @@ fn zrbvceu_hostname_leak(root: &Path) -> Vec<zrbvceu_Finding> {
             zrbvceu_walk(&path, ZRBVCEU_HOST_SCAN_SKIP_DIRS, &mut files);
         }
     }
+    zrbvceu_retain_shipping(root, &mut files);
     for sub in ZRBVCEU_VEIL_FILES {
         let path = root.join(sub);
         if path.is_file() {

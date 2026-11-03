@@ -159,6 +159,40 @@ fn rbvteu_veil_leak_admits_an_empty_census() {
     );
 }
 
+/// The walked roots say where shipping files live, never that everything under
+/// them ships: the perambulation is the one judge. A withheld file inside a
+/// walked root may name the veiled tree, and the same line in a shipped file
+/// beside it is still a leak.
+#[test]
+fn rbvteu_veil_leak_defers_to_the_perambulation() {
+    let root = std::env::temp_dir().join(format!(
+        "rbvteu-perambulation-root-{}",
+        std::process::id(), //
+    ));
+    let withheld = "rbmm_moorings/bkd_weaned/rbvn_app/bkrr.env";
+    let shipped = "rbmm_moorings/rben_tadmor/rbrn.env";
+    let line = "BKRR_MANIFEST=\"vov_veiled/rbv0/Cargo.toml\"\n";
+    for rel in [withheld, shipped] {
+        let path = root.join(rel);
+        let parent = path.parent().expect("a planted path has a parent");
+        std::fs::create_dir_all(parent).expect("plant the directory");
+        std::fs::write(&path, line).expect("plant the file");
+    }
+    let findings = zrbvceu_veil_leak(&root);
+    let _ = std::fs::remove_dir_all(&root);
+    let named: Vec<&str> = findings.iter().map(|f| f.file.as_str()).collect();
+    assert!(
+        named.contains(&shipped),
+        "the shipped file naming the veiled tree went unflagged: {:?}",
+        named, //
+    );
+    assert!(
+        !named.contains(&withheld),
+        "the withheld file was flagged though it never ships: {:?}",
+        named, //
+    );
+}
+
 /// The admission rests on the self-proof, so the proof must still fail a matcher
 /// that leaks: every planted positive it is handed goes missed, and each is named.
 #[test]
