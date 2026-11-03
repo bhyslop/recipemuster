@@ -259,6 +259,7 @@ Named for the pure metal that settles out of a crucible.
 
 <a id="Kerygma"></a>**Kerygma**
 
+Wire Contract Wythe.
 The single irreversible public act: the [Regulus](#Regulus) pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
 The staging push, not the promotion, carries promotion-grade gravity — a public object store cannot be un-disclosed; promotion after it is discoverability, not [Kerygma](#Kerygma).
 Named for a herald's public proclamation.
