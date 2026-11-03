@@ -705,6 +705,33 @@ pub const RBTGEB_SEDERUNT_POSSESSIVE_VERSAL: &str = rbtgeb_sederunt_possessive_v
 macro_rules! rbtgeb_sederunt_possessive_lettrine { () => { "Sederunt's" }; }
 pub(crate) use rbtgeb_sederunt_possessive_lettrine;
 pub const RBTGEB_SEDERUNT_POSSESSIVE_LETTRINE: &str = rbtgeb_sederunt_possessive_lettrine!();
+macro_rules! rbtgeb_barony_base { () => { "barony" }; }
+pub(crate) use rbtgeb_barony_base;
+pub const RBTGEB_BARONY_BASE: &str = rbtgeb_barony_base!();
+macro_rules! rbtgeb_barony_base_versal { () => { "BARONY" }; }
+pub(crate) use rbtgeb_barony_base_versal;
+pub const RBTGEB_BARONY_BASE_VERSAL: &str = rbtgeb_barony_base_versal!();
+macro_rules! rbtgeb_barony_base_lettrine { () => { "Barony" }; }
+pub(crate) use rbtgeb_barony_base_lettrine;
+pub const RBTGEB_BARONY_BASE_LETTRINE: &str = rbtgeb_barony_base_lettrine!();
+macro_rules! rbtgeb_barony_plural { () => { "baronies" }; }
+pub(crate) use rbtgeb_barony_plural;
+pub const RBTGEB_BARONY_PLURAL: &str = rbtgeb_barony_plural!();
+macro_rules! rbtgeb_barony_plural_versal { () => { "BARONIES" }; }
+pub(crate) use rbtgeb_barony_plural_versal;
+pub const RBTGEB_BARONY_PLURAL_VERSAL: &str = rbtgeb_barony_plural_versal!();
+macro_rules! rbtgeb_barony_plural_lettrine { () => { "Baronies" }; }
+pub(crate) use rbtgeb_barony_plural_lettrine;
+pub const RBTGEB_BARONY_PLURAL_LETTRINE: &str = rbtgeb_barony_plural_lettrine!();
+macro_rules! rbtgeb_barony_possessive { () => { "barony's" }; }
+pub(crate) use rbtgeb_barony_possessive;
+pub const RBTGEB_BARONY_POSSESSIVE: &str = rbtgeb_barony_possessive!();
+macro_rules! rbtgeb_barony_possessive_versal { () => { "BARONY'S" }; }
+pub(crate) use rbtgeb_barony_possessive_versal;
+pub const RBTGEB_BARONY_POSSESSIVE_VERSAL: &str = rbtgeb_barony_possessive_versal!();
+macro_rules! rbtgeb_barony_possessive_lettrine { () => { "Barony's" }; }
+pub(crate) use rbtgeb_barony_possessive_lettrine;
+pub const RBTGEB_BARONY_POSSESSIVE_LETTRINE: &str = rbtgeb_barony_possessive_lettrine!();
 macro_rules! rbtgeb_ark_abjure_base { () => { "abjure" }; }
 pub(crate) use rbtgeb_ark_abjure_base;
 pub const RBTGEB_ARK_ABJURE_BASE: &str = rbtgeb_ark_abjure_base!();
