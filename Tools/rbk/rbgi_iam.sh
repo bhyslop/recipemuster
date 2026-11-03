@@ -1629,7 +1629,7 @@ rbgi_jq_remove_member_from_role_capture() {
 # Provision service agent (Google-managed service account) for an enabled API.
 # Uses serviceusage.googleapis.com generateServiceIdentity to deterministically
 # ensure the service agent exists before granting it IAM roles.
-# Prints the service agent email to stdout.
+# Logs the service agent's email and writes nothing on stdout.
 rbgi_provision_service_agent() {
   zrbgi_sentinel
 
@@ -1692,7 +1692,6 @@ rbgi_provision_service_agent() {
   test -n "${z_email}" || buc_die_now "Provision service agent ${z_api_service}: no email in response"
 
   buc_log_args "Service agent provisioned: ${z_email}"
-  printf '%s' "${z_email}" || buc_die_now "Failed to print the service agent email"
 }
 
 # eof
