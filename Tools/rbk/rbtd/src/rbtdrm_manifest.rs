@@ -383,6 +383,11 @@ pub fn rbtcem_required_colophons(fixture: &str) -> Option<&'static [&'static str
         // and the probe's relay level drives the leaf through it again.
         crate::rbtdry_quiet::RBTDRY_NAME_ENVIRONMENT_QUIET
         | crate::rbtdry_quiet::RBTDRY_NAME_QUIET_HUSH => Some(&[RBTGEC_THEURGE_CASE]),
+        // publish-path drives the marshal doors in scratch clones: zero once,
+        // feign twice.
+        crate::rbtdrt_publish::RBTDRT_NAME_PUBLISH_PATH => {
+            Some(&[RBTGEC_MARSHAL_ZERO, RBTGEC_MARSHAL_FEIGN])
+        }
         RBTCEM_FIXTURE_DOCKERFILE_HYGIENE => {
             Some(&[RBTGEC_HYGIENE_CHECK_DOCKERFILE, RBTGEC_HYGIENE_CHECK_VESSEL])
         }

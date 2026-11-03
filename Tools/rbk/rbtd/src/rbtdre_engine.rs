@@ -860,8 +860,11 @@ pub struct rbtcee_Fixture {
     /// payor's mint by its refusal word, which its callers' guard rejects in
     /// that band) — the fixture cannot use credentials, by
     /// construction, regardless of which suite hosts it. True for exactly the
-    /// reveille-suite members; a guarded fixture's cases carry no tweaks of their
-    /// own (in the reveille tier the slot belongs to the guard).
+    /// reveille-suite members. The slot rule binds the tabtarget launches: a
+    /// guarded fixture's launches carry no tweaks of their own (in the reveille
+    /// tier the slot belongs to the guard). A direct-kindle child, which no
+    /// tabtarget launches, kindling no credential module and reaching no
+    /// network, may carry a seam of its own.
     pub credless: bool,
     /// Declared cost expectation — the wall-clock and invocation footprint a
     /// healthy green is checked against as the fixture completes. `RBTCEE_UNCHECKED`
