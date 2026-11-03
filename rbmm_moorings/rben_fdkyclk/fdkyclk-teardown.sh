@@ -34,16 +34,25 @@
 set -uo pipefail   # deliberately NOT -e: teardown tolerates already-gone state
 
 KC_POOL=fdkyclk-test
-DEPOT_PROJECT=cancbhm-d-canest3bhm100002
-MANTLE_SA="rbma-director@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 SUBJECT=67c2d407-fbd7-466b-aafc-2aca99a17de2
 PRINCIPAL="principal://iam.googleapis.com/locations/global/workforcePools/${KC_POOL}/subject/${SUBJECT}"
 RBRP=rbmm_moorings/rbrp.env
 RBRO=../station-files/secrets/payor/rbro.env
+RBRD=rbmm_moorings/rbrd.env
 
 [ -d rbmm_moorings ] || { echo "ERROR: run from the repository root"; exit 1; }
 
 val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\$//"; }
+
+# Depot project read from the depot regime (rbrd.env); derivation copied from
+# RBGC_depot_project_infix (Tools/rbk/rbgc_constants.sh) and RBDC_DEPOT_PROJECT_ID
+# (Tools/rbk/rbdc_derived.sh): prefix, then "d-", then moniker.
+z_depot_prefix=$(val RBRD_CLOUD_PREFIX "$RBRD")
+z_depot_moniker=$(val RBRD_DEPOT_MONIKER "$RBRD")
+[ -n "${z_depot_prefix}" ] && [ -n "${z_depot_moniker}" ] \
+  || { echo "ERROR: RBRD_CLOUD_PREFIX or RBRD_DEPOT_MONIKER missing in rbmm_moorings/rbrd.env"; exit 1; }
+DEPOT_PROJECT="${z_depot_prefix}d-${z_depot_moniker}"
+MANTLE_SA="rbma-director@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 
 # The secrets ride jq's environment by command prefix, and the body jq composes in
 # memory reaches curl through a pipe: no secret stands in any process's arguments.
