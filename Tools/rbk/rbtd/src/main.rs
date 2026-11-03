@@ -75,19 +75,18 @@ use rbt::rbtcei_invocation::{
 use rbt::rbtcep_platform::rbtdrx_path_from_dispatch;
 use rbt::rbtgec_consts::RBTGEC_CRUCIBLE_ACTIVE;
 
-/// The flag the kennel's election asks a standing binary before it launches or
-/// borrows one. Its home is `BKCE_EXERGUE_FLAG` in the kennel's election
-/// (`Tools/bkk/bk0/src/bkce_election.rs`); spelled here because this crate links
-/// no kennel.
+/// The flag the election that asks puts to a standing binary before it launches
+/// or borrows one. It is spelled here because this crate links no such home
+/// for it.
 const RBTM_FLAG_EXERGUE: &str = "--exergue";
 
-/// Answer the kennel's `--exergue` with the position this binary was struck
-/// from: what the kennel's converge stated to the build script, which handed it
+/// Answer `--exergue` with the position this binary was struck
+/// from: what the builder stated to the build script, which handed it
 /// to this compile.
 ///
 /// THE ONE STDOUT LINE THE THEURGE WRITES, and it stands here rather than in
 /// RBTDRG for the reason RBTDRG gives for leaving stdout clear: this is the
-/// machine-read channel, the kennel reading the answer's position-shaped lines
+/// machine-read channel, the asker reading the answer's position-shaped lines
 /// from stdout, so the answer is the bare position and nothing else.
 fn rbtm_answer_exergue() -> ExitCode {
     use std::io::Write;
