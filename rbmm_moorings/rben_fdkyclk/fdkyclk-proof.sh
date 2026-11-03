@@ -66,18 +66,25 @@ ISSUER="${FRONTEND_URL}/realms/${REALM}"
 JWKS_FILE=/tmp/fdkyclk-jwks.json
 RBRP=rbmm_moorings/rbrp.env
 RBRO=../station-files/secrets/payor/rbro.env
-
-# Stage B (don) — depot facts of the levied depot (rbrd.env + kludge image tags).
-DEPOT_PROJECT=cancbhm-d-canest3bhm100002
-DEPOT_REGION=us-central1
+RBRD=rbmm_moorings/rbrd.env
 MANTLE=director
-MANTLE_SA="rbma-${MANTLE}@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 
 [ -d rbmm_moorings ] || { echo "ERROR: run from the repository root"; exit 1; }
 
 say() { printf '\n=== %s ===\n' "$*"; }
 val() { grep -E "^$1=" "$2" | head -1 | cut -d= -f2- | sed "s/^[\"']//; s/[\"']\$//"; }
 b64url() { openssl base64 -A | tr '+/' '-_' | tr -d '='; }
+
+# Stage B (don) — depot facts of the levied depot, read from the depot regime (rbrd.env).
+# Project derivation copied from RBGC_depot_project_infix (Tools/rbk/rbgc_constants.sh)
+# and RBDC_DEPOT_PROJECT_ID (Tools/rbk/rbdc_derived.sh): prefix, then "d-", then moniker.
+z_depot_prefix=$(val RBRD_CLOUD_PREFIX "$RBRD" || true)
+z_depot_moniker=$(val RBRD_DEPOT_MONIKER "$RBRD" || true)
+DEPOT_REGION=$(val RBRD_GCP_REGION "$RBRD" || true)
+[ -n "${z_depot_prefix}" ] && [ -n "${z_depot_moniker}" ] && [ -n "${DEPOT_REGION}" ] \
+  || { echo "ERROR: RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER or RBRD_GCP_REGION missing in rbmm_moorings/rbrd.env"; exit 1; }
+DEPOT_PROJECT="${z_depot_prefix}d-${z_depot_moniker}"
+MANTLE_SA="rbma-${MANTLE}@${DEPOT_PROJECT}.iam.gserviceaccount.com"
 
 # ---- payor access token (OAuth refresh-token exchange; never echoes secrets) ----
 # The secrets ride jq's environment by command prefix, and the body jq composes in
