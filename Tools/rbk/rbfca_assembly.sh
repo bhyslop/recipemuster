@@ -216,7 +216,7 @@ zrbfca_assemble_vouch_steps() {
 # Internal: assemble single-step preflight JSON array file
 # Args: output_file temp_prefix
 # Reads ZRBFC0_RBGJR_STEPS_DIR and z_rbfc_tool_alpine from module state.
-# Single step prepends to every ordain-path Cloud Build job (conjure, bind,
+# Single step prepends to every ordain-path Cloud Build job (conjure, annex,
 # graft) as defense-in-depth: validates reliquary GAR-presence from
 # the worker pool's vantage before expensive work runs.
 zrbfca_assemble_preflight_step() {

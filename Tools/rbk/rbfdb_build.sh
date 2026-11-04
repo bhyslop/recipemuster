@@ -432,7 +432,7 @@ zrbfdb_stitch_build_json() {
 
   local -r z_cb_build_id='$BUILD_ID'
 
-  # Pool routing: conjure/bind use vessel's egress mode
+  # Pool routing: conjure/annex use vessel's egress mode
   local z_conjure_pool=""
   case "${RBRV_EGRESS_MODE}" in
     rbnve_tether) z_conjure_pool="${RBDC_POOL_TETHER}" ;;
@@ -513,7 +513,7 @@ zrbfdb_stitch_build_json() {
         _RBGA_GIT_BRANCH:          $zjq_git_branch,
         _RBGA_GIT_REPO:            $zjq_git_repo,
         _RBGA_INSCRIBE_TIMESTAMP:  $zjq_inscribe_ts,
-        _RBGA_BIND_SOURCE:         "",
+        _RBGA_ANNEX_SOURCE:        "",
         _RBGA_GRAFT_SOURCE:        "",
         _RBGA_DOCKERFILE_CONTENT:  $zjq_rbga_dockerfile,
         _RBGA_ARK_BASENAME_IMAGE:  $zjq_basename_image,
@@ -686,7 +686,7 @@ rbfdb_build() {
     > "${ZRBFC0_GIT_INFO_FILE}" || buc_die_now "Failed to write git info JSON for stitch"
   buc_info "Git: ${z_git_commit:0:8} on ${z_git_branch}"
 
-  # Mint hallmark on host — same pattern as bind/graft: inscribe + realized
+  # Mint hallmark on host — same pattern as annex/graft: inscribe + realized
   buc_step "Minting hallmark on host"
   local -r z_inscribe_ts="${RBGC_HALLMARK_PREFIX_CONJURE}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   local -r z_realized_ts_file="${BURD_TEMP_DIR}/rbfd_realized_ts.txt"

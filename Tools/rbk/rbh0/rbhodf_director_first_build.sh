@@ -166,7 +166,7 @@ rbho_director_first_build() {
   buh_e
   buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
   buh_line "it reads the ${RBYC_VESSEL} ${RBYC_RBRV} ${RBYC_REGIME} to determine the mode"
-  buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly."
+  buh_line "(${RBYC_CONJURE}, ${RBYC_ANNEX}, or ${RBYC_GRAFT}) and acts accordingly."
   buh_line "To see which mode a ${RBYC_VESSEL} is in, render its ${RBYC_REGIME}:"
   buh_e
   buh_tt "   " "${RBZ_RENDER_VESSEL}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"

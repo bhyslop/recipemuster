@@ -21,6 +21,51 @@
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
+macro_rules! rbtgeb_vessel_mode_annex_base { () => { "annex" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_base;
+pub const RBTGEB_VESSEL_MODE_ANNEX_BASE: &str = rbtgeb_vessel_mode_annex_base!();
+macro_rules! rbtgeb_vessel_mode_annex_base_versal { () => { "ANNEX" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_base_versal;
+pub const RBTGEB_VESSEL_MODE_ANNEX_BASE_VERSAL: &str = rbtgeb_vessel_mode_annex_base_versal!();
+macro_rules! rbtgeb_vessel_mode_annex_base_lettrine { () => { "Annex" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_base_lettrine;
+pub const RBTGEB_VESSEL_MODE_ANNEX_BASE_LETTRINE: &str = rbtgeb_vessel_mode_annex_base_lettrine!();
+macro_rules! rbtgeb_vessel_mode_annex_third_singular { () => { "annexes" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_third_singular;
+pub const RBTGEB_VESSEL_MODE_ANNEX_THIRD_SINGULAR: &str = rbtgeb_vessel_mode_annex_third_singular!();
+macro_rules! rbtgeb_vessel_mode_annex_third_singular_versal { () => { "ANNEXES" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_third_singular_versal;
+pub const RBTGEB_VESSEL_MODE_ANNEX_THIRD_SINGULAR_VERSAL: &str = rbtgeb_vessel_mode_annex_third_singular_versal!();
+macro_rules! rbtgeb_vessel_mode_annex_third_singular_lettrine { () => { "Annexes" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_third_singular_lettrine;
+pub const RBTGEB_VESSEL_MODE_ANNEX_THIRD_SINGULAR_LETTRINE: &str = rbtgeb_vessel_mode_annex_third_singular_lettrine!();
+macro_rules! rbtgeb_vessel_mode_annex_past { () => { "annexed" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_past;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PAST: &str = rbtgeb_vessel_mode_annex_past!();
+macro_rules! rbtgeb_vessel_mode_annex_past_versal { () => { "ANNEXED" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_past_versal;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PAST_VERSAL: &str = rbtgeb_vessel_mode_annex_past_versal!();
+macro_rules! rbtgeb_vessel_mode_annex_past_lettrine { () => { "Annexed" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_past_lettrine;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PAST_LETTRINE: &str = rbtgeb_vessel_mode_annex_past_lettrine!();
+macro_rules! rbtgeb_vessel_mode_annex_progressive { () => { "annexing" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_progressive;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PROGRESSIVE: &str = rbtgeb_vessel_mode_annex_progressive!();
+macro_rules! rbtgeb_vessel_mode_annex_progressive_versal { () => { "ANNEXING" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_progressive_versal;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PROGRESSIVE_VERSAL: &str = rbtgeb_vessel_mode_annex_progressive_versal!();
+macro_rules! rbtgeb_vessel_mode_annex_progressive_lettrine { () => { "Annexing" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_progressive_lettrine;
+pub const RBTGEB_VESSEL_MODE_ANNEX_PROGRESSIVE_LETTRINE: &str = rbtgeb_vessel_mode_annex_progressive_lettrine!();
+macro_rules! rbtgeb_vessel_mode_annex_nominalization { () => { "annexation" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_nominalization;
+pub const RBTGEB_VESSEL_MODE_ANNEX_NOMINALIZATION: &str = rbtgeb_vessel_mode_annex_nominalization!();
+macro_rules! rbtgeb_vessel_mode_annex_nominalization_versal { () => { "ANNEXATION" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_nominalization_versal;
+pub const RBTGEB_VESSEL_MODE_ANNEX_NOMINALIZATION_VERSAL: &str = rbtgeb_vessel_mode_annex_nominalization_versal!();
+macro_rules! rbtgeb_vessel_mode_annex_nominalization_lettrine { () => { "Annexation" }; }
+pub(crate) use rbtgeb_vessel_mode_annex_nominalization_lettrine;
+pub const RBTGEB_VESSEL_MODE_ANNEX_NOMINALIZATION_LETTRINE: &str = rbtgeb_vessel_mode_annex_nominalization_lettrine!();
 macro_rules! rbtgeb_bottle_base { () => { "bottle" }; }
 pub(crate) use rbtgeb_bottle_base;
 pub const RBTGEB_BOTTLE_BASE: &str = rbtgeb_bottle_base!();
@@ -3018,9 +3063,9 @@ pub const RBTGEB_RBHO_CRASH_COURSE_PEDIMENT: &str = rbtgeb_rbho_crash_course_ped
 macro_rules! rbtgeb_rbho_director_airgap_pediment { () => { "rbw-Oda" }; }
 pub(crate) use rbtgeb_rbho_director_airgap_pediment;
 pub const RBTGEB_RBHO_DIRECTOR_AIRGAP_PEDIMENT: &str = rbtgeb_rbho_director_airgap_pediment!();
-macro_rules! rbtgeb_rbho_director_bind_pediment { () => { "rbw-Odb" }; }
-pub(crate) use rbtgeb_rbho_director_bind_pediment;
-pub const RBTGEB_RBHO_DIRECTOR_BIND_PEDIMENT: &str = rbtgeb_rbho_director_bind_pediment!();
+macro_rules! rbtgeb_rbho_director_annex_pediment { () => { "rbw-Odb" }; }
+pub(crate) use rbtgeb_rbho_director_annex_pediment;
+pub const RBTGEB_RBHO_DIRECTOR_ANNEX_PEDIMENT: &str = rbtgeb_rbho_director_annex_pediment!();
 macro_rules! rbtgeb_rbho_director_first_build_pediment { () => { "rbw-Odf" }; }
 pub(crate) use rbtgeb_rbho_director_first_build_pediment;
 pub const RBTGEB_RBHO_DIRECTOR_FIRST_BUILD_PEDIMENT: &str = rbtgeb_rbho_director_first_build_pediment!();

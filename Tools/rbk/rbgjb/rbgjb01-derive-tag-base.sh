@@ -17,7 +17,7 @@
 # RBGJB Step 01: Receive host-minted hallmark and write to workspace
 # Builder: gcr.io/cloud-builders/gcloud
 #
-# Hallmark format: [cbgk]YYMMDDHHMMSS-rYYMMDDHHMMSS (conjure/bind/graft)
+# Hallmark format: [cbgk]YYMMDDHHMMSS-rYYMMDDHHMMSS (conjure/annex/graft)
 #                  kYYMMDDHHMMSS-{git_context} (kludge)
 # Host mints the full hallmark and passes it via _RBGY_HALLMARK substitution.
 # This step writes it to .hallmark (workspace) and /builder/outputs/output

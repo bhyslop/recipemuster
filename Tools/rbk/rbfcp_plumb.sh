@@ -74,7 +74,7 @@ zrbfcp_plumb_core() {
 
   rbfcv_require_vessel_sigil "${z_vessel}"
 
-  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
+  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_ANNEX_IMAGE, etc.)
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfcv_load_vessel "${z_vessel_dir}"
 
@@ -109,13 +109,13 @@ zrbfcp_plumb_core() {
       || buc_warn "Copied nothing from ${z_vouch_dir} — see ${ZRBFC0_PLUMB_PREFIX}_vouch_cp_stderr.txt"
   fi
 
-  # Bind vessels: fallback to static display if no about ark
-  if test "${RBRV_VESSEL_MODE}" = "rbnve_bind" && test "${z_has_about}" = "false"; then
-    zrbfcp_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
+  # Annex vessels: fallback to static display if no about ark
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_annex" && test "${z_has_about}" = "false"; then
+    zrbfcp_plumb_show_annex "${z_vessel}" "${z_hallmark}" "${z_mode}"
     return 0
   fi
 
-  # Require about ark for non-bind vessels
+  # Require about ark for non-annex vessels
   if test "${z_has_about}" = "false"; then
     buc_die_now "About ark not found in GAR: ${z_about_pkg}:${z_hallmark}"
   fi
@@ -149,24 +149,24 @@ zrbfcp_plumb_core() {
   fi
 }
 
-# Internal: display bind vessel info
+# Internal: display annex vessel info
 # Args: vessel hallmark mode
-zrbfcp_plumb_show_bind() {
+zrbfcp_plumb_show_annex() {
   zrbfc0_sentinel
 
   local -r z_vessel="${1:-}"
   local -r z_hallmark="${2:-}"
   local -r z_mode="${3:-}"
-  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_bind: vessel required"
-  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_bind: hallmark required"
-  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_show_bind: mode required"
+  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_annex: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_annex: hallmark required"
+  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_show_annex: mode required"
 
   if test "${z_mode}" = "compact"; then
     echo "" || buc_die_now
     echo "=== ${z_vessel} / ${z_hallmark} ===" || buc_die_now
-    echo "  Type: bind | Trust: digest-pin only" || buc_die_now
-    if test -n "${RBRV_BIND_IMAGE:-}"; then
-      echo "  Source: ${RBRV_BIND_IMAGE}" || buc_die_now
+    echo "  Type: ${RBCG_VESSEL_MODE_ANNEX_BASE} | Trust: digest-pin only" || buc_die_now
+    if test -n "${RBRV_ANNEX_IMAGE:-}"; then
+      echo "  Source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
     fi
     echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)" || buc_die_now
     echo "" || buc_die_now
@@ -178,15 +178,15 @@ zrbfcp_plumb_show_bind() {
   echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}" || buc_die_now
   echo "================================================================" || buc_die_now
   echo "" || buc_die_now
-  echo "  Vessel type:  BIND (external image pinned by digest)" || buc_die_now
+  echo "  Vessel type:  ${RBCG_VESSEL_MODE_ANNEX_BASE_VERSAL} (external image pinned by digest)" || buc_die_now
   echo "  Trust model:  Digest-pin only" || buc_die_now
   echo "" || buc_die_now
-  if test -n "${RBRV_BIND_IMAGE:-}"; then
-    echo "  Bind source:  ${RBRV_BIND_IMAGE}" || buc_die_now
+  if test -n "${RBRV_ANNEX_IMAGE:-}"; then
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
   fi
   echo "" || buc_die_now
   echo "  TRUST BOUNDARY" || buc_die_now
-  echo "  This is a bind vessel. The image was not built by Google Cloud" || buc_die_now
+  echo "  This is an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel. The image was not built by Google Cloud" || buc_die_now
   echo "  Build. No SLSA provenance, no SBOM, and no build transcript" || buc_die_now
   echo "  exist because GCB did not produce this image." || buc_die_now
   echo "" || buc_die_now
@@ -226,12 +226,12 @@ zrbfcp_plumb_show_sections() {
     z_vessel_mode="${z_mode_raw}"
   fi
 
-  if test -f "${z_bi}" && test "${z_vessel_mode}" = "rbnve_bind"; then
-    # ── Bind vessel sections ──────────────────────────────────────────
-    # Batch extract bind fields from build_info.json
+  if test -f "${z_bi}" && test "${z_vessel_mode}" = "rbnve_annex"; then
+    # ── Annex vessel sections ──────────────────────────────────────────
+    # Batch extract annex fields from build_info.json
     local z_bi_moniker="" z_bi_source_img="" z_bi_mirror_ts="" z_bi_hallmark=""
     local z_bi_image_uri="" z_bi_git_repo="" z_bi_git_branch="" z_bi_git_commit=""
-    local -r z_bi_stderr="${ZRBFC0_PLUMB_PREFIX}_bind_fields_stderr.txt"
+    local -r z_bi_stderr="${ZRBFC0_PLUMB_PREFIX}_annex_fields_stderr.txt"
     jq -r '
       (.moniker // "?"),
       (.source.image_ref // "?"),
@@ -242,22 +242,22 @@ zrbfcp_plumb_show_sections() {
       (.git.branch // "?"),
       (.git.commit // "?")
     ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_bi_stderr}" \
-      || buc_die_now "Failed to extract bind fields from ${z_bi} — see ${z_bi_stderr}"
-    { read -r z_bi_moniker     || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_source_img  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_mirror_ts   || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_hallmark    || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_image_uri   || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_repo    || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_branch  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_commit  || buc_die_now "Failed to read bind fields from ${ZRBFC0_SCRATCH_FILE}"
+      || buc_die_now "Failed to extract ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${z_bi} — see ${z_bi_stderr}"
+    { read -r z_bi_moniker     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_source_img  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_mirror_ts   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_hallmark    || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_image_uri   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_repo    || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_branch  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_commit  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
 
     echo "" || buc_die_now
     echo "  -- Vessel Type -------------------------------------------------" || buc_die_now
     echo "  How this image was produced." || buc_die_now
     echo "" || buc_die_now
-    echo "  Mode:           bind (upstream image mirrored to GAR)" || buc_die_now
+    echo "  Mode:           ${RBCG_VESSEL_MODE_ANNEX_BASE} (upstream image mirrored to GAR)" || buc_die_now
     echo "  Moniker:        ${z_bi_moniker}" || buc_die_now
 
     echo "" || buc_die_now
@@ -285,7 +285,7 @@ zrbfcp_plumb_show_sections() {
 
     echo "" || buc_die_now
     echo "  -- Trust --------------------------------------------------------" || buc_die_now
-    echo "  Bind vessels are NOT built by Cloud Build. Trust comes from the" || buc_die_now
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} vessels are NOT built by Cloud Build. Trust comes from the" || buc_die_now
     echo "  digest pin in rbrv.env — the image is exactly the bytes specified." || buc_die_now
     echo "" || buc_die_now
     echo "  SLSA provenance:  not applicable (no build step)" || buc_die_now
@@ -390,8 +390,8 @@ zrbfcp_plumb_show_sections() {
     echo "  build_info.json not found in -about artifact" || buc_die_now
   fi
 
-  # Base image section — conjure only (bind has no Dockerfile)
-  if test "${z_vessel_mode}" != "rbnve_bind"; then
+  # Base image section — conjure only (annex has no Dockerfile)
+  if test "${z_vessel_mode}" != "rbnve_annex"; then
     echo "" || buc_die_now
     echo "  -- Base Image ---------------------------------------------------" || buc_die_now
     echo "  The upstream image this build started FROM and the OS syft detected." || buc_die_now
@@ -453,8 +453,8 @@ zrbfcp_plumb_show_sections() {
     fi
   fi
 
-  # Build output — conjure only (bind has no buildx step)
-  if test "${z_vessel_mode}" != "rbnve_bind" && test -f "${z_bkmeta}"; then
+  # Build output — conjure only (annex has no buildx step)
+  if test "${z_vessel_mode}" != "rbnve_annex" && test -f "${z_bkmeta}"; then
     echo "" || buc_die_now
     echo "  -- Build Output -------------------------------------------------" || buc_die_now
     echo "  The container image manifest produced by this buildx invocation." || buc_die_now
@@ -520,7 +520,7 @@ zrbfcp_plumb_show_sections() {
   fi
 
   # Build cache delta — conjure only
-  if test "${z_vessel_mode}" != "rbnve_bind"; then
+  if test "${z_vessel_mode}" != "rbnve_annex"; then
     local -r z_cache_before="${z_dir}/cache_before.json"
     local -r z_cache_after="${z_dir}/cache_after.json"
     if test -f "${z_cache_after}"; then
@@ -591,7 +591,7 @@ zrbfcp_plumb_show_sections() {
     fi
   fi
 
-  # SBOM — present for both bind and conjure (if syft was available)
+  # SBOM — present for both annex and conjure (if syft was available)
   echo "" || buc_die_now
   echo "  -- SBOM Summary (syft) ------------------------------------------" || buc_die_now
   echo "  Software bill of materials: every package syft found installed." || buc_die_now
@@ -628,13 +628,13 @@ zrbfcp_plumb_show_sections() {
   # Vouch — branched by vessel mode
   echo "" || buc_die_now
   echo "  -- Vouch Results ------------------------------------------------" || buc_die_now
-  if test "${z_vessel_mode}" = "rbnve_bind"; then
-    echo "  Bind verification: was the mirrored image verified against its digest pin?" || buc_die_now
+  if test "${z_vessel_mode}" = "rbnve_annex"; then
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} verification: was the mirrored image verified against its digest pin?" || buc_die_now
     echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
       local z_vf_match="" z_vf_ts="" z_vf_source=""
-      local -r z_vf_stderr="${ZRBFC0_PLUMB_PREFIX}_bind_vouch_stderr.txt"
+      local -r z_vf_stderr="${ZRBFC0_PLUMB_PREFIX}_annex_vouch_stderr.txt"
       jq -r '
         (.verification.method // "?"),
         (.verification.result // .verification.verdict // "?"),
@@ -642,16 +642,16 @@ zrbfcp_plumb_show_sections() {
         (.verification.gar_digest // .verification.actual_digest // "?"),
         (.verification.digest_match // "?"),
         (.verification.timestamp // "?"),
-        (.verification.source_image // .verification.bind_source // "?")
+        (.verification.source_image // .verification.annex_source // "?")
       ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_vf_stderr}" \
-        || buc_die_now "Failed to extract bind verification from ${z_vs} — see ${z_vf_stderr}"
-      { read -r z_vf_method  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_result  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_pin     || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_gar     || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_match   || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_ts      || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_source  || buc_die_now "Failed to read bind verification from ${ZRBFC0_SCRATCH_FILE}"
+        || buc_die_now "Failed to extract ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${z_vs} — see ${z_vf_stderr}"
+      { read -r z_vf_method  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_result  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_pin     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_gar     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_match   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_ts      || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_source  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Method:      ${z_vf_method}" || buc_die_now
       echo "  Verdict:     ${z_vf_result}" || buc_die_now
@@ -709,7 +709,7 @@ zrbfcp_plumb_show_sections() {
   fi
 }
 
-# Internal: display compact vessel info (conjure or bind)
+# Internal: display compact vessel info (conjure or annex)
 # Args: vessel hallmark extract_dir has_vouch
 zrbfcp_plumb_show_compact() {
   zrbfc0_sentinel
@@ -734,7 +734,7 @@ zrbfcp_plumb_show_compact() {
   echo "" || buc_die_now
 }
 
-# Internal: display full vessel info (conjure or bind)
+# Internal: display full vessel info (conjure or annex)
 # Adds per-package inventory and Dockerfile (conjure only) to the compact sections.
 # Args: vessel hallmark extract_dir has_vouch
 zrbfcp_plumb_show_full() {

@@ -66,7 +66,7 @@ zrbho_furnish() {
   source "${z_rbh0_dir}/rbhots_tadmor_security.sh"      || buc_die_now "Failed to source rbhots_tadmor_security.sh"
   source "${z_rbh0_dir}/rbhodf_director_first_build.sh" || buc_die_now "Failed to source rbhodf_director_first_build.sh"
   source "${z_rbh0_dir}/rbhoda_director_airgap.sh"      || buc_die_now "Failed to source rbhoda_director_airgap.sh"
-  source "${z_rbh0_dir}/rbhodb_director_bind.sh"        || buc_die_now "Failed to source rbhodb_director_bind.sh"
+  source "${z_rbh0_dir}/rbhodb_director_annex.sh"        || buc_die_now "Failed to source rbhodb_director_annex.sh"
   source "${z_rbh0_dir}/rbhodg_director_graft.sh"       || buc_die_now "Failed to source rbhodg_director_graft.sh"
   source "${z_rbh0_dir}/rbhopw_payor_wrapper.sh"        || buc_die_now "Failed to source rbhopw_payor_wrapper.sh"
   zrbho_kindle

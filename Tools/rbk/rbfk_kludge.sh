@@ -105,7 +105,7 @@ rbfk_kludge() {
   # Load vessel configuration
   zrbfcv_load_vessel "${z_vessel_dir}"
 
-  # Validate conjure mode (bind and graft don't have local Dockerfiles)
+  # Validate conjure mode (annex and graft don't have local Dockerfiles)
   test "${RBRV_VESSEL_MODE}" = "rbnve_conjure" \
     || buc_die_now "Kludge only supports conjure vessels (got: ${RBRV_VESSEL_MODE})"
   test -n "${RBRV_CONJURE_DOCKERFILE:-}" \
@@ -246,7 +246,7 @@ rbfk_kludge() {
   docker tag "${z_image_ref}" "${z_vouch_ref}" \
     || buc_die_now "Failed to create vouch tag"
 
-  # Persist facts — mirror conjure/bind/graft so downstream consumers (theurge)
+  # Persist facts — mirror conjure/annex/graft so downstream consumers (theurge)
   # can build full refs uniformly regardless of mode.
   buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
   buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${RBGC_KLUDGE_REGISTRY_ROOT}"

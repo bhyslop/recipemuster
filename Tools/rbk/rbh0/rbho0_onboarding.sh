@@ -24,6 +24,11 @@ set -euo pipefail
 test -z "${ZRBHO_SOURCED:-}" || buc_die_now "Module rbho multiply sourced - check sourcing hierarchy"
 ZRBHO_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/../rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # rbho walkthroughs do not require rbho-local state (they probe the
 # filesystem directly and render via buh_*). The kindle exists to assert
 # the dependency ordering is correct at furnish time.
@@ -47,7 +52,7 @@ zrbho_kindle() {
   readonly RBHO_TRACK_TADMOR="Tadmor Security"
   readonly RBHO_TRACK_FIRST_BUILD="Your First Cloud Build"
   readonly RBHO_TRACK_AIRGAP="Airgap Cloud Build"
-  readonly RBHO_TRACK_BIND="Bind Cloud Build"
+  readonly RBHO_TRACK_ANNEX="${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} Cloud Build"
   readonly RBHO_TRACK_GRAFT="Graft Cloud Build"
 
   readonly ZRBHO_KINDLED=1

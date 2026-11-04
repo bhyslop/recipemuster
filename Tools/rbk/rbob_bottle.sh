@@ -316,7 +316,7 @@ zrbob_compose() {
 # Auto-Summon Helpers
 
 # Discriminate kludge hallmarks (local-only, no GAR presence) from conjure /
-# bind / graft hallmarks. Used by charge preflight to redirect the diagnostic
+# annex / graft hallmarks. Used by charge preflight to redirect the diagnostic
 # away from the summon path, which is guaranteed to fail for kludge stamps.
 zrbob_hallmark_is_kludge_predicate() {
   case "${1}" in
