@@ -31,6 +31,7 @@ zrbvz_kindle() {
   buz_enroll RBVZ_DOCIMASY "rbvw-d" "rbve_cli.sh" "rbve_docimasy" "imprint" "Docimasy — the reveal's reversible proving act (grants the cachet; the world is the imprint)"
   buz_enroll RBVZ_OSTEND "rbvw-o" "rbve_cli.sh" "rbve_ostend" "imprint" "Ostend — the reveal's irreversible showing (the world is the imprint)"
   buz_enroll RBVZ_HARBINGER "rbvw-h" "rbve_cli.sh" "rbve_harbinger" "imprint" "Harbinger — the stranger walk against promoted public main (zero remote acts; the world is the imprint)"
+  buz_enroll RBVZ_SEAT "rbvw-p" "rbve_cli.sh" "rbve_seat" "imprint" "Practice seat — stand up a palaestra seat beneath an absolute practice home (a station chore; the palaestra is the imprint)"
 
   readonly ZRBVZ_KINDLED=1
 }

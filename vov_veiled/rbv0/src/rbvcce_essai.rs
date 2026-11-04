@@ -18,7 +18,9 @@
 //
 // The lap conducts in the world its one argument elects (RBSHC "The
 // election"): the base it gates and cuts atop, the regulus directory, and the
-// temenos directory are the elected bundle's. Nothing else differs.
+// temenos directory are the elected bundle's. In the palaestra alone, step 1
+// also reads the stand-in and real public main, and refuses to cut atop a
+// stand-in that no longer carries public main's two branches at its commit.
 
 use std::path::{
     Path,
@@ -76,6 +78,14 @@ const RBVCCE_FEIGN_TT: &str = "rbw-MF.MarshalFeigns.sh";
 const RBVCCE_STATION_USER: &str = "regulus";
 const RBVCCE_STATION_TINCTURE: &str = "cnd";
 
+/// The real repository's trunk branch, which the practice stand-in carries
+/// beside the regulus branch, both at public main's commit (RBSHE step 1).
+const RBVCCE_MAIN_BRANCH: &str = "main";
+
+/// The placeholder the stand-in's seed steps print for the operator's fresh
+/// clone, exactly as the procedure writes it.
+const RBVCCE_FRESH_CLONE: &str = "«fresh clone»";
+
 /// Conduct one essai lap in the elected world. Fatal (exit 1) on any deficit or
 /// red; ExitCode::SUCCESS only when a walk-ready temenos stands beside a
 /// proven regulus.
@@ -94,7 +104,7 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
         top.display(), //
     ));
 
-    zrbvcce_gate(&top, bundle);
+    zrbvcce_gate(&top, world, bundle);
     zrbvcce_precut_assays(&top);
     let regulus_clone = zrbvcce_cut(&top, &parent, world);
     zrbvcce_prove(&parent, &regulus_clone, &top, bundle);
@@ -143,7 +153,11 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
 // ── Step 1: gate the maintainer tree and the base ───────────
 
-fn zrbvcce_gate(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
+fn zrbvcce_gate(
+    top: &Path,
+    world: rbvcew_world::rbvcew_World,
+    bundle: &rbvcew_world::rbvcew_Bundle,
+) {
     rbvcel_log::rbvcel_section("Gate the maintainer tree and the base (RBSHE step 1)");
 
     // Clean, fully-pushed working tree. The regulus is cut from COMMITTED
@@ -211,6 +225,190 @@ fn zrbvcce_gate(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
         "base {} configured, push side neutered",
         base_remote, //
     ));
+
+    if world == rbvcew_world::rbvcew_World::Palaestra {
+        zrbvcce_gate_standin(top, bundle);
+    }
+}
+
+/// The practice stand-in's fitness to cut atop (RBSHE step 1, the palaestra
+/// arm): the stand-in carries exactly real public main's `main` and the regulus
+/// branch, both at public main's commit, or the lap refuses and prints the
+/// procedure's recreate and seed steps. Here and never in the cut: the cut is
+/// also the freshness matcher docimasy and ostend re-run, after a practice
+/// round has already deleted the stand-in's regulus branch.
+fn zrbvcce_gate_standin(top: &Path, bundle: &rbvcew_world::rbvcew_Bundle) {
+    let seed_url = rbvcew_world::rbvcew_palaestra_seed_source();
+    rbvcel_log::rbvcel_step(&format!(
+        "Reading the stand-in {} and real public main {}",
+        bundle.base_url,
+        seed_url, //
+    ));
+    let (standin, seed) = zrbvcce_standin_reads(bundle.base_url, seed_url, top);
+    match zrbvcce_standin_verdict(&standin, &seed, bundle.base_url, seed_url) {
+        Ok(commit) => {
+            rbvcel_log::rbvcel_line(&format!(
+                "stand-in carries {} and {} at real public main's commit {}",
+                RBVCCE_MAIN_BRANCH,
+                rbvcex_expede::RBVCEX_REGULUS_BRANCH,
+                commit, //
+            ));
+        }
+        Err(refusal) => {
+            rbvcel_log::rbvcel_blank();
+            rbvcel_log::rbvcel_raw(&refusal);
+            rbvcel_log::rbvcel_blank();
+            crate::rbvcel_fatal!(
+                "the stand-in is not fit to cut atop — act on the lines above, then run {} again (RBSHE step 1)",
+                rbvgeb_breviary::RBVGEB_ESSAI_BASE, //
+            );
+        }
+    }
+}
+
+/// The two reads the stand-in gate judges, each with an unreachable remote
+/// captured rather than fatal: the stand-in's refs, then the seed source's.
+pub(crate) fn zrbvcce_standin_reads(
+    standin_url: &str,
+    seed_url: &str,
+    cwd: &Path,
+) -> (
+    Result<Vec<(String, String)>, String>,
+    Result<Vec<(String, String)>, String>,
+) {
+    (
+        rbvcep_repo::rbvcep_ls_remote_capture(standin_url, cwd),
+        rbvcep_repo::rbvcep_ls_remote_capture(seed_url, cwd),
+    )
+}
+
+/// The stand-in verdict, pure: real public main's commit where the stand-in
+/// carries exactly `refs/heads/main` and the regulus branch, both at that
+/// commit; otherwise the whole refusal text. A tag, a third branch, a missing
+/// branch, a branch at another commit, an empty or unreachable stand-in each
+/// refuse with the recreate and seed steps; real public main unreadable or
+/// absent refuses naming the read, since no reset can be judged without it.
+/// The URLs name the repositories in the text, apart from where the reads were
+/// taken.
+pub(crate) fn zrbvcce_standin_verdict(
+    standin: &Result<Vec<(String, String)>, String>,
+    seed: &Result<Vec<(String, String)>, String>,
+    standin_url: &str,
+    seed_url: &str,
+) -> Result<String, String> {
+    let main_ref = format!(
+        "refs/heads/{}",
+        RBVCCE_MAIN_BRANCH, //
+    );
+    let regulus_ref = format!(
+        "refs/heads/{}",
+        rbvcex_expede::RBVCEX_REGULUS_BRANCH, //
+    );
+    let seed_refs = seed.as_ref().map_err(|e| {
+        format!(
+            "cannot read real public main at {} — the stand-in cannot be judged without it. The station needs this read to answer:\n        git ls-remote --heads {} {}\n{}",
+            seed_url,
+            seed_url,
+            RBVCCE_MAIN_BRANCH,
+            e, //
+        )
+    })?;
+    let commit = seed_refs
+        .iter()
+        .find(|(_, name)| name == &main_ref)
+        .map(|(sha, _)| sha.clone())
+        .ok_or_else(|| {
+            format!(
+                "real public main is absent: {} carries no {}",
+                seed_url,
+                main_ref, //
+            )
+        })?;
+    let steps = zrbvcce_standin_steps(standin_url, seed_url);
+    let refs = standin.as_ref().map_err(|e| {
+        format!(
+            "cannot read the stand-in at {}:\n{}\n\n{}",
+            standin_url,
+            e,
+            steps, //
+        )
+    })?;
+    let carries = |name: &str| refs.iter().any(|(sha, n)| n == name && sha == &commit);
+    if refs.len() == 2 && carries(&main_ref) && carries(&regulus_ref) {
+        return Ok(commit);
+    }
+    let listing = if refs.is_empty() {
+        "  (no refs)".to_string()
+    } else {
+        refs.iter()
+            .map(|(sha, name)| {
+                format!(
+                    "  {} {}",
+                    sha,
+                    name, //
+                )
+            })
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    Err(format!(
+        "the stand-in {} does not carry exactly {} and {} at real public main's commit {}; it carries:\n{}\n\n{}",
+        standin_url,
+        RBVCCE_MAIN_BRANCH,
+        rbvcex_expede::RBVCEX_REGULUS_BRANCH,
+        commit,
+        listing,
+        steps, //
+    ))
+}
+
+/// The stand-in's recreate and seed steps, exactly as the procedure's "Opening
+/// a round" renders them: the console sentence, the five seed lines in order,
+/// and the closing re-read. Pure.
+pub(crate) fn zrbvcce_standin_steps(standin_url: &str, seed_url: &str) -> String {
+    let main = RBVCCE_MAIN_BRANCH;
+    let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
+    let fresh = RBVCCE_FRESH_CLONE;
+    [
+        format!(
+            "Recreate the stand-in (RELEASE.md \"Opening a round\"). At the GitHub console, by hand, delete the stand-in {} and create it again, private and empty, with no README, ignore file or license.",
+            rbvcep_repo::rbvcep_github_slug(standin_url), //
+        ),
+        format!(
+            "Then seed it from a fresh clone of real public main by two single-refspec pushes, {} first and then {} at the same commit. Type each line as shown, in order:",
+            main,
+            branch, //
+        ),
+        format!(
+            "        git clone {} {}",
+            seed_url,
+            fresh, //
+        ),
+        format!(
+            "        cd {}",
+            fresh, //
+        ),
+        "        git remote remove origin".to_string(),
+        format!(
+            "        git push {} {}:{}",
+            standin_url,
+            main,
+            main, //
+        ),
+        format!(
+            "        git push {} {}:{}",
+            standin_url,
+            main,
+            branch, //
+        ),
+        "Then read the stand-in again and confirm both branches stand at real public main's commit:".to_string(),
+        format!(
+            "        git ls-remote {}",
+            standin_url, //
+        ),
+        "Discard the fresh clone afterwards; it is never a working directory of the ceremony.".to_string(),
+    ]
+    .join("\n")
 }
 
 // ── Step 2: pre-cut assays, on the maintainer tree ──────────
