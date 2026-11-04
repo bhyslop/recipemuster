@@ -142,11 +142,11 @@ fn rbvtec_citation_integrity_catches_each_kind() {
 fn rbvtec_rivet_hoist_flags_only_the_unhoisted() {
     let home = (
         "vov_veiled/RBSAA-home.adoc",
-        "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own sheaf.\n",
+        "[[RBr_a11]]\nRBr_a11:: lives here.\nRBr_a11 cited again in its own document.\n",
     );
     let sibling = (
         "vov_veiled/RBSAB-sibling.adoc",
-        "Cites RBr_a11 from a different sheaf.\n",
+        "Cites RBr_a11 from a different document.\n",
     );
     let waived_home = (
         "vov_veiled/RBSAC-waived.adoc",
@@ -154,11 +154,11 @@ fn rbvtec_rivet_hoist_flags_only_the_unhoisted() {
     );
     let waived_citer = (
         "vov_veiled/RBSAD-waived-citer.adoc",
-        "Cites RBr_m4d from a different sheaf — waived.\n",
+        "Cites RBr_m4d from a different document — waived.\n",
     );
     let codex_home = (
         ZRBVCEC_CODEX_SHEAF,
-        "[[RBr_c0d]]\nRBr_c0d:: lives in the codex.\n",
+        "[[RBr_c0d]]\nRBr_c0d:: lives in the zzcanon.\n",
     );
     let codex_citer = (
         "vov_veiled/RBSAE-codex-citer.adoc",
@@ -200,21 +200,21 @@ const ZRBVTEC_SELF_FEODARY: &str = r#"{
   "jjfd_revision": 1,
   "jjfd_trees": [
     {
-      "jjfd_path": "/infield/kraal_billet_rb",
-      "jjfd_role": "billet",
+      "jjfd_path": "/zzfield/zzpen_work_rb",
+      "jjfd_role": "zzwork",
       "jjfd_sire": "rb"
     },
     {
-      "jjfd_path": "/infield/kraal_billet_vulgate",
+      "jjfd_path": "/zzfield/zzpen_work_vulgate",
       "jjfd_role": "vulgate"
     },
     {
-      "jjfd_path": "/infield/kraal_sumpter_jj",
+      "jjfd_path": "/zzfield/zzpen_pack_jj",
       "jjfd_role": "sumpter",
       "jjfd_sire": "jj"
     }
   ],
-  "jjfd_corrector_root": "/stand/correctors"
+  "jjfd_corrector_root": "/zzstand/zzfixers"
 }"#;
 
 /// Register parse, the reading half: every tree row is recovered with its path
@@ -229,7 +229,7 @@ fn rbvtec_register_parse_recovers_rows() {
         "expected 3 tree rows", //
     );
     assert!(
-        trees[0].path == "/infield/kraal_billet_rb" && trees[0].role == "billet",
+        trees[0].path == "/zzfield/zzpen_work_rb" && trees[0].role == "zzwork",
         "first row parsed as {} / {}",
         trees[0].path,
         trees[0].role, //
@@ -239,7 +239,7 @@ fn rbvtec_register_parse_recovers_rows() {
         .find(|t| ZRBVCEC_CORPUS_ROAD_ROLES.contains(&t.role.as_str()))
         .expect("corpus road not found by role");
     assert_eq!(
-        road.path, "/infield/kraal_billet_vulgate",
+        road.path, "/zzfield/zzpen_work_vulgate",
         "corpus road parsed wrong", //
     );
 }
@@ -302,8 +302,8 @@ fn rbvtec_register_refusals_hold() {
 /// locator and the assay are asked about.
 fn zrbvtec_kraal(base: &Path, name: &str, register: Option<&str>) -> PathBuf {
     let kraal = base.join(name);
-    let billet = kraal.join("billet");
-    std::fs::create_dir_all(&billet).expect("billet must be creatable");
+    let billet = kraal.join("zzwork");
+    std::fs::create_dir_all(&billet).expect("the work tree must be creatable");
     if let Some(body) = register {
         zrbvtec_write_register(&billet, body);
     }
@@ -312,8 +312,8 @@ fn zrbvtec_kraal(base: &Path, name: &str, register: Option<&str>) -> PathBuf {
 
 /// Write `body` as the register in the outspan beside `billet`.
 fn zrbvtec_write_register(billet: &Path, body: &str) {
-    let outspan = billet.parent().expect("billet has a kraal").join("outspan");
-    std::fs::create_dir_all(&outspan).expect("outspan must be creatable");
+    let outspan = billet.parent().expect("the work tree has a parent").join("zzseat");
+    std::fs::create_dir_all(&outspan).expect("the register directory must be creatable");
     std::fs::write(outspan.join(ZRBVCEC_FEODARY_BASENAME), body)
         .expect("register must be writable");
 }
@@ -322,7 +322,7 @@ fn zrbvtec_write_register(billet: &Path, body: &str) {
 fn zrbvtec_register(billet: &Path, extra: &str) -> String {
     format!(
         "{{\n  \"jjfd_revision\": {},\n  \"jjfd_trees\": [\n    \
-         {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"billet\", \"jjfd_sire\": \"rb\" }}{}\n  ]\n}}\n",
+         {{ \"jjfd_path\": \"{}\", \"jjfd_role\": \"zzwork\", \"jjfd_sire\": \"rb\" }}{}\n  ]\n}}\n",
         ZRBVTEC_FEODARY_REVISION,
         billet.display(),
         extra, //
@@ -351,7 +351,7 @@ fn zrbvtec_plant(root: &Path, rel: &str, content: &str) {
 /// billet root and the road root.
 fn zrbvtec_clean_kraal(base: &Path, name: &str) -> (PathBuf, PathBuf) {
     let billet = zrbvtec_kraal(base, name, None);
-    let road = billet.parent().expect("billet has a kraal").join("vulgate");
+    let road = billet.parent().expect("the work tree has a parent").join("vulgate");
     zrbvtec_plant(
         &road,
         &format!(
@@ -390,15 +390,15 @@ fn rbvtec_locator_tells_each_kraal_apart() {
     match zrbvcec_locate_corpus_road(&bare) {
         Ok(zrbvcec_CorpusRoad::Absent(reason)) => assert!(
             reason.contains(ZRBVCEC_FEODARY_BASENAME),
-            "registerless station stood down without naming what it looked for: {}",
+            "registerless tree stood down without naming what it looked for: {}",
             reason, //
         ),
         Ok(zrbvcec_CorpusRoad::Found(p)) => panic!(
-            "registerless station resolved a road at {}",
+            "registerless tree resolved a road at {}",
             p.display(), //
         ),
         Err(e) => panic!(
-            "registerless station failed: {}",
+            "registerless tree failed: {}",
             e, //
         ),
     }
@@ -514,7 +514,7 @@ fn rbvtec_assay_refuses_an_unfollowable_register() {
     );
 
     let hollow = zrbvtec_kraal(&base, "hollow", None);
-    let road = hollow.parent().expect("billet has a kraal").join("vulgate");
+    let road = hollow.parent().expect("the work tree has a parent").join("vulgate");
     std::fs::create_dir_all(road.join(ZRBVCEC_CORPUS_SPEC_SUBDIR)).expect("road must be creatable");
     zrbvtec_write_register(
         &hollow,
@@ -554,7 +554,7 @@ fn rbvtec_assay_runs_clean_on_a_clean_corpus() {
             );
             assert!(
                 tally.contains("1 judged") && tally.contains("1 in-repo .sh"),
-                "the tally does not count what was read: {}",
+                "the summary line does not count what was read: {}",
                 tally, //
             );
         }
@@ -563,7 +563,7 @@ fn rbvtec_assay_runs_clean_on_a_clean_corpus() {
             reason, //
         ),
         rbvcec_Reading::Unfollowable(e) => panic!(
-            "a clean kraal was unfollowable: {}",
+            "a clean layout was unfollowable: {}",
             e, //
         ),
     }
@@ -587,7 +587,7 @@ fn rbvtec_assay_reports_a_planted_finding() {
                 && findings[0].starts_with("tt/zzq-planted.sh:1:")
                 && findings[0].contains("broken-rivet-citation")
                 && findings[0].contains("RBr_zzz"),
-            "expected exactly the planted broken rivet citation, got:\n{}",
+            "expected exactly the planted broken citation, got:\n{}",
             findings.join("\n"), //
         ),
         rbvcec_Reading::Absent(reason) => panic!(
@@ -595,7 +595,7 @@ fn rbvtec_assay_reports_a_planted_finding() {
             reason, //
         ),
         rbvcec_Reading::Unfollowable(e) => panic!(
-            "a planted kraal was unfollowable: {}",
+            "a planted layout was unfollowable: {}",
             e, //
         ),
     }

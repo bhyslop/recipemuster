@@ -41,6 +41,7 @@ use crate::rbvcer_run;
 use crate::rbvceu_loupe;
 use crate::rbvcew_world;
 use crate::rbvcex_expede;
+use crate::rbvgeb_breviary;
 
 // ── Worker location: colophons and imprints ─────────────────
 
@@ -262,8 +263,9 @@ fn zrbvcce_precut_assays(top: &Path) {
         }
         rbvcec_collation::rbvcec_Reading::Unfollowable(reason) => {
             crate::rbvcel_fatal!(
-                "the one-home corpus check cannot follow the kraal register: {} — repair the kraal, then run essai again (RBSHE)",
-                reason, //
+                "the one-home corpus check cannot follow the register that claims this tree: {} — repair the register or its corpus road, then run {} again (RBSHE)",
+                reason,
+                rbvgeb_breviary::RBVGEB_ESSAI_BASE, //
             );
         }
         rbvcec_collation::rbvcec_Reading::Ran { findings, tally } => {
@@ -275,8 +277,9 @@ fn zrbvcce_precut_assays(top: &Path) {
                     ));
                 }
                 crate::rbvcel_fatal!(
-                    "the one-home corpus check found {} violation(s) — repair in the corpus or on the maintainer tree, then run essai again (RBSHE)",
-                    findings.len(), //
+                    "the one-home corpus check found {} violation(s) — repair in the corpus or on the maintainer tree, then run {} again (RBSHE)",
+                    findings.len(),
+                    rbvgeb_breviary::RBVGEB_ESSAI_BASE, //
                 );
             }
             rbvcel_log::rbvcel_line(&tally);
