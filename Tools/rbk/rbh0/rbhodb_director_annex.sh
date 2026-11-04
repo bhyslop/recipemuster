@@ -30,10 +30,15 @@ set -euo pipefail
 test -z "${ZRBHODB_SOURCED:-}" || return 0
 ZRBHODB_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/../rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 rbho_director_annex() {
   zrbho_sentinel
 
-  buc_doc_brief "${RBHO_TRACK_ANNEX} — pin upstream image by digest, mode-mixture pluml Crucible"
+  buc_doc_brief "${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buc_doc_shown || return 0
 
   local -r z_moniker="pluml"

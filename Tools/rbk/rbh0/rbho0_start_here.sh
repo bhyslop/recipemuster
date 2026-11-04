@@ -24,6 +24,11 @@ set -euo pipefail
 test -z "${ZRBHO0_SOURCED:-}" || return 0
 ZRBHO0_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/../rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # rbho_start_here — menu into the handbook family. The menu itself is
 # static prose; each track opens with its own filesystem probes, so
 # state-awareness lives in the tracks, not here.

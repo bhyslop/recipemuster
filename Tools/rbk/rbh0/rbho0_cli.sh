@@ -42,7 +42,6 @@ zrbho_furnish() {
   source "${BURD_BUK_DIR}/buwz_zipper.sh"            || buc_die_now "Failed to source buwz_zipper.sh"
   source "${z_rbk_kit_dir}/rbcc_constants.sh"        || buc_die_now "Failed to source rbcc_constants.sh"
   source "${z_rbk_kit_dir}/rbgc_constants.sh"        || buc_die_now "Failed to source rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbcg_breviary.sh"         || buc_die_now "Failed to source rbcg_breviary.sh"
   source "${z_rbk_kit_dir}/rbrr_regime.sh"           || buc_die_now "Failed to source rbrr_regime.sh"
   source "${z_rbk_kit_dir}/rbrd_regime.sh"           || buc_die_now "Failed to source rbrd_regime.sh"
   source "${RBCC_rbrr_file}"                         || buc_die_now "Failed to source ${RBCC_rbrr_file}"
