@@ -8,10 +8,49 @@ This is Recipe Bottle's internal test infrastructure only — Recipe Bottle does
 Two Rust binaries with completely different roles and build targets:
 
 - **Theurge** (`Tools/rbk/rbtd/`) — test orchestrator, runs on the **host** (macOS/Linux). Charges a crucible (sentry + pentacle + bottle containers), invokes attacks, observes results, produces verdicts. Built via `tt/rbw-tb.Build.sh`.
-- **Ifrit** (`rbmv_vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev_bottle_ifrit_tether` (and the forthcoming airgap variant). Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
+- **Ifrit** (`rbmv_vessels/common-ifrit-context/`) — attack binary, runs **inside the bottle container**. Probes network security boundaries from the attacker's perspective. Source lives in the shared build context consumed by `rbev_bottle_ifrit_tether` and `rbev_bottle_ifrit_airgap`. Built inside the Docker image during `docker build` — there is no host-side compilation, no cross-compile, no `cargo check` on macOS. The Dockerfile IS the build system.
 
 **Coordinated tests** are the distinctive capability: theurge simultaneously observes from outside (via sentry writ/fiat commands) while ifrit attacks from inside.
 Neither binary alone can do this.
+
+### Suites
+
+A suite runs with `tt/rbw-ts.TestSuite.<suite>.sh`.
+Which fixtures each suite holds is the `RBTCEA_SUITES` registry in `Tools/rbk/rbtd/src/rbtdra_almanac.rs`, the one authority, so the tables below say what each suite reaches and what it needs, never its member list.
+
+The dependency-tiered suites:
+
+| Suite | Tabtarget | Needs | Covers |
+|-------|-----------|-------|--------|
+| `reveille` | `tt/rbw-ts.TestSuite.reveille.sh` | Nothing outside the tree | The credless base: regime and enrollment validation, handbook render, hygiene and conformance checks, the fact-chain band |
+| `picket` | `tt/rbw-ts.TestSuite.picket.sh` | GCP credentials: a live sederunt | reveille, regime-poison, and the cloud fixtures: registry access, hallmark, Lode, reliquary, WSL and podman-machine lifecycles, batch vouch, admission denial, parley and the chained build facts |
+| `bivouac` | `tt/rbw-ts.TestSuite.bivouac.sh` | A container runtime | reveille, regime-poison, and the local crucibles: a fresh tadmor kludge, then tadmor, srjcl and pluml |
+| `echelon` | `tt/rbw-ts.TestSuite.echelon.sh` | Both | picket and bivouac together |
+
+`regime-poison` is the negative half of regime validation: real validate verbs against real regimes, one field corrupted through the regime-poison tweak, each case asserting the refusal code it expects.
+It rides above reveille, which keeps the tweak slot for the credless guard, so a regime or validation change runs reveille for the positives and `tt/rbw-tf.FixtureRun.sh regime-poison` for the negatives.
+Its station-local cases skip themselves where the regime is not configured on the machine.
+
+The release and probe suites, told apart by project churn, crucible and network posture rather than by dependency tier:
+
+| Suite | Tabtarget | Needs | Covers |
+|-------|-----------|-------|--------|
+| `gauntlet` | `tt/rbw-ts.TestSuite.gauntlet.sh` | A payor install; it levies its own projects | Release qualification from an unconfigured regime: depot lifecycle, freehold establish, credential readiness, the onboarding sequence, the reveille fixtures, hallmark lifecycle, then the tadmor, moriah, srjcl and pluml crucibles |
+| `skirmish` | `tt/rbw-ts.TestSuite.skirmish.sh` | A levied freehold depot and a live sederunt | The gauntlet's build-and-crucible chain on a standing depot, with no project levied or unmade |
+| `dogfight` | `tt/rbw-ts.TestSuite.dogfight.sh` | A levied freehold depot and a live sederunt | Cloud build viability: ordain, summon and run, with no crucible |
+| `siege` | `tt/rbw-ts.TestSuite.siege.sh` | Nothing beyond a container runtime | Fully local: kludge both tadmor vessels, then the tadmor security cases |
+| `blockade` | `tt/rbw-ts.TestSuite.blockade.sh` | A levied depot, a live sederunt and the moriah hallmark ordained | The moriah airgap crucible, its conjure hallmarks summoned from the depot |
+| `parley` | `tt/rbw-ts.TestSuite.parley.sh` | A levied freehold depot whose subject holds the retriever mantle by `brevet`, and a live sederunt | A positive admission round trip: `unseat` the retriever mantle and `brevet` it back, asserting through rehearse's manor roll that the muniment stands, vanishes and stands again |
+| `calibrant` | `tt/rbw-ts.TestSuite.calibrant.sh` | Nothing | Fails by design: the touchstone fixture runs it to prove a suite stops at its first failing fixture. Never run it as a check |
+
+The credentialed suites lead with the credential-readiness fixture, which fails in seconds, naming the remedy, when the sederunt or a mantle is not ready.
+
+After a code change, run the tier it touches:
+
+- Regime or validation changes: `reveille` plus `tt/rbw-tf.FixtureRun.sh regime-poison`
+- Foundry or credential changes: `picket`
+- Bottle, sentry or network changes: `bivouac`
+- Before a release, or after a change across many modules: `echelon`
 
 ### Crucible Iteration Loop
 
@@ -112,14 +151,14 @@ Rules for authoring a reveille-tier case:
 
 - **A reveille case may invoke any tabtarget freely** — if its chain reaches a token mint, the run dies with the credless band code instead of spending money or mutating the depot. The proof case is `rbtchf_rs_credless_guard_mint_refusal` (regime-smoke).
 - **Fast cases carry no tweaks of their own.** The BURE tweak slot belongs to the guard in the reveille tier (one tweak at a time, and the suite reserves the slot); `rbtcei_invoke*` fails loud if a guarded case supplies `BURE_TWEAK_NAME`. A case that needs a test seam has self-identified as not belonging in reveille — home it in a higher tier.
-- **A new reveille fixture must set `credless: true`** and join the reveille suite list in `rbtdrc_crucible.rs`; fixtures in higher tiers set `credless: false`.
+- **A new reveille fixture must set `credless: true`** and join the reveille base `RBTCEA_REVEILLE_BASE` and every suite that carries that base in `RBTCEA_SUITES`, both in `rbtdra_almanac.rs`, where a compile-time guard holds each reveille-bearing suite to the base; fixtures in higher tiers set `credless: false`.
 
 ### Fixture Config-Evolution Console
 
 A fixture that walks an onboarding or freehold track *evolves* the tracked config it tests — `mitring` hallmarks into nameplates, electing vessel anchors, setting regime fields — and commits each step so the next sees a clean tree.
 Those write-side actions are a named cohort homed in `rbtdre_engine.rs` (the "Fixture config-evolution console"), beside the read-side `rbtcee_tree_clean`.
 **When a fixture commits config, it goes through the console — never an ad-hoc `git add`/`git commit`.**
-`rbtcee_tree_clean` itself refuses every drive on a dirty tree — single-fixture, suite, and the marshal-zero attestation gate alike — and each refusal names the notch as the remedy.
+`rbtcee_tree_clean` itself refuses every drive on a dirty tree, a single fixture and a suite alike, and each refusal names the commit as the remedy.
 
 The console commits config in exactly three classes, each through its own scoped verb that derives its own paths from a class identifier and stages only those:
 
@@ -131,18 +170,17 @@ The console commits config in exactly three classes, each through its own scoped
 
 The load-bearing property is **no free-form file list**.
 The only entry that takes an arbitrary path set, `rbtcee_commit_paths`, is private to the engine module; every public verb is class-typed.
-So a fixture is *structurally incapable* of sweeping a surprise edit — another officium's work, an operator's half-finished change — into its commit (the wrap-sweeps-everything hazard).
+So a fixture is *structurally incapable* of sweeping a surprise edit, another session's work or a half-finished change, into its commit.
 A scoped `git status --porcelain -- <derived-paths>` runs first; if nothing in the class changed, the commit is a clean no-op, not an error.
 
-**Config-zero** (`rbtcee_config_zero`) is the console's reset seam, for the marshal-zero family of in-place TRACKED config.
+**Config-zero** (`rbtcee_config_zero`) is the console's reset seam, for tracked config written in place.
 Zeroing a field before an in-place write defeats the stale-value false-green — a silently-skipped write then leaves an obviously-empty value, not a passing stale one — and its fail-on-absent doubles as a schema-drift catch: a renamed field stops the run instead of writing nothing.
 It shares one validated core (`rbtcee_config_set_field`) with the vessel-env write; it is **one seam, never a per-field function farm**.
 Temp-vessel cases that construct known bytes need no zero call.
 
-**Dispersed sibling (not yet in the console).**
-The same validated field-rewrite still lives in `rbtcgf_replace_env_fields` (the regime multi-field rewrite).
-It is a migration candidate — fold it onto `rbtcee_config_set_field` when next in that code — left in place only to keep the console's introduction scoped.
-(The former `rbtcgo_drive_hallmark` nameplate-hallmark rewrite is gone: onboarding now invokes the real `rbw-nm` `mitre` tabtarget, so that write lives in one bash home, `rbrn_mitre`.)
+**A second home outside the console.**
+The same field rewrite also stands in `rbtcgf_replace_env_fields`, the regime multi-field rewrite in `rbtdrk_freehold.rs`; fold it onto `rbtcee_config_set_field` when next in that code.
+A nameplate's hallmark is written by the real `rbw-nm` `mitre` tabtarget, whose one home is `rbrn_mitre`.
 New fixture state-mutation helpers land in the console; they do not re-grow per module.
 
 ### Adding a New Test
