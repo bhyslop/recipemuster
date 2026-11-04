@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+# The curl codes this module branches on, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBUH_SOURCED:-}" || buc_die_now "Module rbuh multiply sourced - check sourcing hierarchy"
 ZRBUH_SOURCED=1
@@ -358,7 +363,8 @@ rbuh_json() {
     # request, so only a read is sent again; a connect failure (7) or a TLS
     # handshake failure (35) falls before the send and is replayed for every method.
     case "${z_curl_status}" in
-      28|56)
+      "${RBCG_TIMEOUT_ANTA}" |\
+      "${RBCG_RECEIVE_ANTA}")
         case "${z_method}" in
           GET|HEAD) : ;;
           *) buc_die_now "HTTP ${z_method} failed after the request may have been sent (curl exit ${z_curl_status}): the server may have acted, so it is not sent again" ;;
