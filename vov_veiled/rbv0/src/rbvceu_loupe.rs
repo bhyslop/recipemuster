@@ -598,11 +598,7 @@ fn zrbvceu_class_detail(class: zrbvceu_Class) -> &'static str {
 }
 
 /// Scan one shipping file's text for the shape classes `rel` is not excused from.
-pub(crate) fn zrbvceu_shape_scan_text(
-    rel: &str,
-    text: &str,
-    findings: &mut Vec<zrbvceu_Finding>,
-) {
+pub(crate) fn zrbvceu_shape_scan_text(rel: &str, text: &str, findings: &mut Vec<zrbvceu_Finding>) {
     for class in ZRBVCEU_SHAPE_CLASSES {
         if zrbvceu_exempt_from(rel, *class) {
             continue;

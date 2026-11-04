@@ -39,13 +39,13 @@
 use std::collections::BTreeSet;
 
 use crate::rbvceu_loupe::{
+    zrbvceu_Class,
+    zrbvceu_Finding,
     zrbvceu_class_names,
     zrbvceu_class_self_proof,
     zrbvceu_class_self_proof_by,
     zrbvceu_class_specimens,
     zrbvceu_exempt_from,
-    zrbvceu_Class,
-    zrbvceu_Finding,
     zrbvceu_names_token,
     zrbvceu_veil_leak,
     zrbvceu_veil_scan_text,
@@ -307,7 +307,10 @@ fn rbvteu_standing_exemptions_keep_only_the_veil_class() {
         "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
         "rbmm_moorings/buml_launchers/launcher.rbvw_workbench.sh",
     ] {
-        assert!(zrbvceu_exempt_from(rel, zrbvceu_Class::Veil), "{rel} lost its veil row");
+        assert!(
+            zrbvceu_exempt_from(rel, zrbvceu_Class::Veil),
+            "{rel} lost its veil row"
+        );
         for class in [
             zrbvceu_Class::Token,
             zrbvceu_Class::Memo,
