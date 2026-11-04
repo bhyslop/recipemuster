@@ -153,7 +153,7 @@ rbho_director_graft() {
   buh_e
   buh_line "  ${RBYC_CONJURE}  Cloud Build constructs the image from the project's"
   buh_line "            Dockerfile. Trust the build chain (SLSA ${RBYC_PROVENANCE})."
-  buh_line "  ${RBYC_ANNEX}     Mirror an upstream image by digest. Trust the"
+  buh_line "  ${RBYC_ANNEX}    Mirror an upstream image by digest. Trust the"
   buh_line "            upstream publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine"
   buh_line "            and the ${RBYC_DIRECTOR} who operated it."

@@ -225,7 +225,7 @@ rbho_director_annex() {
   buh_e
   buh_line "  ${RBYC_CONJURE}  Cloud Build constructs the image from project Dockerfile."
   buh_line "            Trust the build chain (SLSA ${RBYC_PROVENANCE})."
-  buh_line "  ${RBYC_ANNEX}     Mirror upstream image by digest. Trust the upstream"
+  buh_line "  ${RBYC_ANNEX}    Mirror upstream image by digest. Trust the upstream"
   buh_line "            publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine."
   buh_e
@@ -301,7 +301,7 @@ rbho_director_annex() {
   buh_line "its verdict names where trust for this ${RBYC_HALLMARK} comes from."
   buh_e
   buh_line "   ${RBYC_CONJURE}  project Dockerfile built by Cloud Build; SLSA ${RBYC_PROVENANCE}"
-  buh_line "   ${RBYC_ANNEX}     upstream image mirrored by digest; trust the publisher"
+  buh_line "   ${RBYC_ANNEX}    upstream image mirrored by digest; trust the publisher"
   buh_line "   ${RBYC_GRAFT}    locally-built image pushed to GAR; trust this machine"
   buh_e
   buh_line "Read the ${RBYC_VOUCH} verdict: full-SLSA / digest-pin / GRAFTED tells you"
