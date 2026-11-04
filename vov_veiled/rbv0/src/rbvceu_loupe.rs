@@ -154,35 +154,128 @@ const ZRBVCEU_VEIL_DOC_MARKS: &[&str] = &[
     ".md", //
 ];
 
-/// Repo-relative SHIPPED paths exempt from the veil scan, each with the reason —
-/// the sanctioned residue (operator ruling): a shipped file may spell the
-/// veiled-dir literal only to AIM A TREE-WALK — to keep one out of the veiled
-/// tree, or to send one in — never to name a withheld document. Exact path,
-/// never a prefix. This table IS the growth-containment allowlist: the residue
-/// stays frozen at exactly these sites.
-const ZRBVCEU_VEIL_EXEMPT: &[(&str, &str)] = &[
+/// The classes of leak the assay hunts. A class is the unit of exemption: a
+/// residue row names the classes its file is excused from, never the file whole.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum zrbvceu_Class {
+    /// The veiled-dir literal, and a withheld document's basename from the census.
+    Veil,
+    /// An internal path token: the `jjq` family's directory prefixes, and the
+    /// kraal-register basename.
+    Token,
+    /// The dated-memo name shape.
+    Memo,
+    /// The spec document-name shape: an upper-case acronym, a hyphen, a name,
+    /// and a document extension. Never a bare acronym.
+    Doc,
+}
+
+/// The three shape classes, each hunted by `zrbvceu_class_names`.
+const ZRBVCEU_SHAPE_CLASSES: &[zrbvceu_Class] = &[
+    zrbvceu_Class::Token,
+    zrbvceu_Class::Memo,
+    zrbvceu_Class::Doc, //
+];
+
+/// Why the federation diagrams are residue: their titles cite a dated memo and
+/// were ruled accepted until the diagrams next change.
+const ZRBVCEU_DIAGRAM_REASON: &str =
+    "accepted residue (operator ruling): the diagram's title cites an internal record, kept until the diagram next changes";
+
+/// Repo-relative SHIPPED paths exempt from the veil scan, each with the classes it
+/// is excused from and the reason — the sanctioned residue (operator ruling).
+/// Exact path, never a prefix; a class the row does not name is still hunted in
+/// that file. This table IS the growth-containment allowlist: the residue stays
+/// frozen at exactly these sites. The four veiled-dir rows may spell the literal
+/// only to AIM A TREE-WALK — to keep one out of the veiled tree, or to send one
+/// in — never to name a withheld document.
+const ZRBVCEU_VEIL_EXEMPT: &[(&str, &[zrbvceu_Class], &str)] = &[
     (
         "Tools/rbk/rbtd/src/rbtdrq_pyx.rs",
-        "its no-.adoc case's skip-dir list spells the veiled-dir literal it must not descend into, and its secret-scan roots spell it again as a tree the scan must descend INTO",
+        &[zrbvceu_Class::Veil, zrbvceu_Class::Doc],
+        "its no-.adoc case's skip-dir list spells the veiled-dir literal it must not descend into, and its secret-scan roots spell it again as a tree the scan must descend INTO; its sample document names are made-up data (accepted)",
     ),
     (
         "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs",
+        &[zrbvceu_Class::Veil],
         "its identity sweep's skip-dir list spells the veiled-dir literal it must not descend into",
     ),
     (
         "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
+        &[zrbvceu_Class::Veil],
         "its curl-scan exemption table addresses a withheld tree by path; dead in the stripped tree, where that tree is gone",
     ),
     (
         "rbmm_moorings/buml_launchers/launcher.rbvw_workbench.sh",
+        &[zrbvceu_Class::Veil],
         "the hierophant launcher must name the veiled workbench it dispatches to (the crate is veiled by construction), and is itself withheld — no regulus carries it",
+    ),
+    (
+        "Tools/buk/buym_yelp.sh",
+        &[zrbvceu_Class::Token],
+        "the parcel door spells the stand directory's name (accepted residue, operator ruling)",
+    ),
+    (
+        "diagrams/rbdgl_federation-login.puml",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgl_federation-login-light.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgl_federation-login-dark.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgm_federation-seam.puml",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgm_federation-seam-light.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgm_federation-seam-dark.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgs_federation-setup.puml",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgs_federation-setup-light.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
+    ),
+    (
+        "diagrams/rbdgs_federation-setup-dark.svg",
+        &[zrbvceu_Class::Token, zrbvceu_Class::Memo],
+        ZRBVCEU_DIAGRAM_REASON,
     ), //
 ];
+
+/// True when the residue table excuses `rel` from `class`.
+pub(crate) fn zrbvceu_exempt_from(rel: &str, class: zrbvceu_Class) -> bool {
+    ZRBVCEU_VEIL_EXEMPT
+        .iter()
+        .any(|(path, classes, _)| *path == rel && classes.contains(&class))
+}
 
 /// One line may name a withheld thing two ways. Reported distinctly so a finding
 /// says which law it broke.
 const ZRBVCEU_VEIL_PATH_DETAIL: &str = "names the withheld tree";
 const ZRBVCEU_VEIL_DOC_DETAIL: &str = "names withheld document";
+const ZRBVCEU_TOKEN_DETAIL: &str = "names an internal path token";
+const ZRBVCEU_MEMO_DETAIL: &str = "names an internal dated record";
+const ZRBVCEU_DOC_DETAIL: &str = "names an internal spec document";
 
 /// File extensions skipped by the file walk — compiled, compressed, or raster
 /// payloads in which a name cannot be authored by hand and a byte-coincidence
@@ -218,7 +311,8 @@ const ZRBVCEU_SIZE_CAP: u64 = 1_048_576;
 /// cost of the retired harvest, and the reason to add it at acquisition.
 pub(crate) const ZRBVCEU_HOST_CENSUS: &[&str] = &[
     "bujn-winpc",
-    "rocket", //
+    "rocket",
+    "cerebro", //
 ];
 
 /// Directories skipped while scanning shipping files for a hostname leak.
@@ -397,6 +491,226 @@ pub(crate) fn zrbvceu_veil_self_proof_by(
     findings
 }
 
+// ── The shape classes ───────────────────────────────────────
+
+/// True when the byte before `idx` is not part of an identifier, so a needle
+/// starting at `idx` stands at a left edge.
+fn zrbvceu_left_edge(bytes: &[u8], idx: usize) -> bool {
+    idx == 0 || !(bytes[idx - 1].is_ascii_alphanumeric() || bytes[idx - 1] == b'_')
+}
+
+/// An internal path token: `jjq`, one lower-case letter and an underscore at a
+/// left edge — the directory prefixes of the `jjq` family — or the kraal-register
+/// basename. A token, never a bare word: the bare words stand in shipped kit text.
+fn zrbvceu_names_store_token(line: &str) -> bool {
+    let bytes = line.as_bytes();
+    let mut start = 0;
+    while let Some(pos) = line[start..].find("jjq") {
+        let idx = start + pos;
+        if idx + 5 <= bytes.len()
+            && bytes[idx + 3].is_ascii_lowercase()
+            && bytes[idx + 4] == b'_'
+            && zrbvceu_left_edge(bytes, idx)
+        {
+            return true;
+        }
+        start = idx + 1;
+    }
+    zrbvceu_names_token(line, "feodary.json")
+}
+
+/// The dated-memo name shape: `memo-`, eight digits and a hyphen, at a left edge.
+fn zrbvceu_names_memo(line: &str) -> bool {
+    let bytes = line.as_bytes();
+    let mut start = 0;
+    while let Some(pos) = line[start..].find("memo-") {
+        let idx = start + pos;
+        let digits = idx + 5;
+        if digits + 9 <= bytes.len()
+            && bytes[digits..digits + 8].iter().all(|b| b.is_ascii_digit())
+            && bytes[digits + 8] == b'-'
+            && zrbvceu_left_edge(bytes, idx)
+        {
+            return true;
+        }
+        start = idx + 1;
+    }
+    false
+}
+
+/// The spec document-name shape: a document extension on a stem that opens with an
+/// upper-case acronym of two to eight characters, a hyphen and a name. A stem with
+/// no hyphen after its acronym — `README.md` — is no spec name.
+fn zrbvceu_names_doc(line: &str) -> bool {
+    let bytes = line.as_bytes();
+    for ext in [".adoc", ".md"] {
+        let mut start = 0;
+        while let Some(pos) = line[start..].find(ext) {
+            let dot = start + pos;
+            start = dot + 1;
+            let after = dot + ext.len();
+            if after < bytes.len() && (bytes[after].is_ascii_alphanumeric() || bytes[after] == b'_')
+            {
+                continue;
+            }
+            let mut from = dot;
+            while from > 0
+                && (bytes[from - 1].is_ascii_alphanumeric()
+                    || bytes[from - 1] == b'_'
+                    || bytes[from - 1] == b'-')
+            {
+                from -= 1;
+            }
+            let stem = &bytes[from..dot];
+            if stem.is_empty() || !stem[0].is_ascii_uppercase() {
+                continue;
+            }
+            let run = stem
+                .iter()
+                .take_while(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
+                .count();
+            if (2..=8).contains(&run) && stem.len() > run + 1 && stem[run] == b'-' {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+/// True when `line` carries a needle of the shape `class`. The veil class has no
+/// shape of its own — it is the scan above — and never fires here.
+pub(crate) fn zrbvceu_class_names(class: zrbvceu_Class, line: &str) -> bool {
+    match class {
+        zrbvceu_Class::Token => zrbvceu_names_store_token(line),
+        zrbvceu_Class::Memo => zrbvceu_names_memo(line),
+        zrbvceu_Class::Doc => zrbvceu_names_doc(line),
+        zrbvceu_Class::Veil => false,
+    }
+}
+
+fn zrbvceu_class_detail(class: zrbvceu_Class) -> &'static str {
+    match class {
+        zrbvceu_Class::Token => ZRBVCEU_TOKEN_DETAIL,
+        zrbvceu_Class::Memo => ZRBVCEU_MEMO_DETAIL,
+        zrbvceu_Class::Doc => ZRBVCEU_DOC_DETAIL,
+        zrbvceu_Class::Veil => ZRBVCEU_VEIL_PATH_DETAIL,
+    }
+}
+
+/// Scan one shipping file's text for the shape classes `rel` is not excused from.
+pub(crate) fn zrbvceu_shape_scan_text(
+    rel: &str,
+    text: &str,
+    findings: &mut Vec<zrbvceu_Finding>,
+) {
+    for class in ZRBVCEU_SHAPE_CLASSES {
+        if zrbvceu_exempt_from(rel, *class) {
+            continue;
+        }
+        for (index, line) in text.lines().enumerate() {
+            if zrbvceu_class_names(*class, line) {
+                findings.push(zrbvceu_Finding {
+                    file: rel.to_string(),
+                    line: index + 1,
+                    detail: zrbvceu_class_detail(*class).to_string(),
+                });
+            }
+        }
+    }
+}
+
+/// Planted leaks and their clean twins per shape class. The values are made up —
+/// they fit each shape and name nothing real.
+pub(crate) fn zrbvceu_class_specimens(
+    class: zrbvceu_Class,
+) -> (&'static [&'static str], &'static [&'static str]) {
+    match class {
+        zrbvceu_Class::Token => (
+            &[
+                "  see jjqz_example/notes for the rule",
+                "# kept in ../jjqz_sample-tree",
+                "reads feodary.json beside the entry",
+            ],
+            &[
+                "the estate rules name an infield and a kraal",
+                "no jjq prefix without its letter and underscore: jjq_x",
+                "a longer word such as xjjqz_example is no token",
+                "feodary.jsonl is a different file",
+            ],
+        ),
+        zrbvceu_Class::Memo => (
+            &[
+                "  (see memo-29990101-example-slug for the reasoning)",
+                "../notes/memo-29990231-another-sample.md",
+            ],
+            &[
+                "write a memo-style summary",
+                "memo-2999 is too short a date",
+                "a rememo-29990101-x is no name",
+            ],
+        ),
+        zrbvceu_Class::Doc => (
+            &[
+                "# Contract: ZZQ-Sample.adoc.",
+                "see specs/zzk/ZZQ9-Other-Sample.adoc for the law",
+                "cited as `ZZQ-Sample.md`",
+            ],
+            &[
+                "start with the README.md at the project root",
+                "ZZQ-Sample.txt is not a document",
+                "zzq-sample.adoc is lower case",
+                "ZZQ.adoc names a bare acronym",
+                "ZZQ-Sample.mdx is another extension",
+            ],
+        ),
+        zrbvceu_Class::Veil => (&[], &[]),
+    }
+}
+
+/// The shape classes' self-proof over a given matcher, so a hurdle can hand it one
+/// that leaks and watch the proof fail. Every planted positive must fire and every
+/// clean twin must stay silent.
+pub(crate) fn zrbvceu_class_self_proof_by(
+    names: fn(zrbvceu_Class, &str) -> bool,
+) -> Vec<zrbvceu_Finding> {
+    let mut findings = Vec::new();
+    for class in ZRBVCEU_SHAPE_CLASSES {
+        let (positives, negatives) = zrbvceu_class_specimens(*class);
+        for probe in positives {
+            if !names(*class, probe) {
+                findings.push(zrbvceu_Finding {
+                    file: "rbvceu_loupe.rs".to_string(),
+                    line: 0,
+                    detail: format!(
+                        "{:?} class matcher missed a known leak: {:?}",
+                        class,
+                        probe, //
+                    ),
+                });
+            }
+        }
+        for probe in negatives {
+            if names(*class, probe) {
+                findings.push(zrbvceu_Finding {
+                    file: "rbvceu_loupe.rs".to_string(),
+                    line: 0,
+                    detail: format!(
+                        "{:?} class matcher fired on a benign line: {:?}",
+                        class,
+                        probe, //
+                    ),
+                });
+            }
+        }
+    }
+    findings
+}
+
+/// The shape classes' self-proof over the real matcher.
+pub(crate) fn zrbvceu_class_self_proof() -> Vec<zrbvceu_Finding> {
+    zrbvceu_class_self_proof_by(zrbvceu_class_names)
+}
+
 /// Recursively collect scannable files under `dir` into `out`, skipping the
 /// `skip_dirs` directories, the unreadable extensions, and oversize payloads that
 /// cannot hold a hand-authored token.
@@ -470,7 +784,9 @@ pub fn rbvceu_assay(top: &Path) -> Vec<String> {
 }
 
 /// No shipping file may name what the distribution withholds — not the veiled
-/// tree by path, and not a withheld document by basename. The census is
+/// tree by path, not a withheld document by basename, and not an internal path
+/// token, dated record name or spec document name (the shape classes, each with
+/// its own self-proof run first). The census is
 /// harvested from the tree, so a document veiled tomorrow is protected tomorrow.
 /// An empty census is admitted: the consumer context was the one document the
 /// veiled tree held, and it now ships rendered at the root, so a census of none
@@ -478,6 +794,7 @@ pub fn rbvceu_assay(top: &Path) -> Vec<String> {
 /// matcher extracts, and the veiled-dir needle fires whatever the census holds.
 pub(crate) fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
     let mut findings = zrbvceu_veil_self_proof();
+    findings.extend(zrbvceu_class_self_proof());
 
     let census_root = root.join(ZRBVCEU_VEIL_CENSUS_ROOT);
     let mut census = BTreeSet::new();
@@ -510,15 +827,15 @@ pub(crate) fn zrbvceu_veil_leak(root: &Path) -> Vec<zrbvceu_Finding> {
 
     for path in files {
         let rel = zrbvceu_repo_rel(root, &path);
-        if ZRBVCEU_VEIL_EXEMPT.iter().any(|(exempt, _)| *exempt == rel) {
-            continue;
-        }
         let bytes = match std::fs::read(&path) {
             Ok(b) => b,
             Err(_) => continue,
         };
         let text = String::from_utf8_lossy(&bytes);
-        zrbvceu_veil_scan_text(&rel, &text, &census, &mut findings);
+        if !zrbvceu_exempt_from(&rel, zrbvceu_Class::Veil) {
+            zrbvceu_veil_scan_text(&rel, &text, &census, &mut findings);
+        }
+        zrbvceu_shape_scan_text(&rel, &text, &mut findings);
     }
 
     findings

@@ -372,11 +372,11 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
     rbvcel_log::rbvcel_raw(&RBVCEG_STRANGER_PROMPT.replace("__MEMO_PATH__", &memo));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!(
-        "When the walk is done, review {} in the temenos, commit it into",
+        "When the walk is done, review {} in the temenos where it stands, hand its path",
         zrbvceg_basename(&temenos.memo_path), //
     ));
     rbvcel_log::rbvcel_line(
-        "the studbook (jjqs_studbook/) affiliated to the pace, then discard the temenos.",
+        "to the session of the pace the walk serves, which commits it into the corpus through that pace's own vulgate billet; then discard the temenos.",
     );
 }
 

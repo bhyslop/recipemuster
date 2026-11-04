@@ -39,6 +39,12 @@
 use std::collections::BTreeSet;
 
 use crate::rbvceu_loupe::{
+    zrbvceu_class_names,
+    zrbvceu_class_self_proof,
+    zrbvceu_class_self_proof_by,
+    zrbvceu_class_specimens,
+    zrbvceu_exempt_from,
+    zrbvceu_Class,
     zrbvceu_Finding,
     zrbvceu_names_token,
     zrbvceu_veil_leak,
@@ -211,6 +217,156 @@ fn rbvteu_veil_self_proof_fails_a_leaking_matcher() {
             .iter()
             .map(|f| f.detail.clone())
             .collect::<Vec<_>>(), //
+    );
+}
+
+// ── The shape classes ───────────────────────────────────────
+
+/// A matcher that leaks: it names nothing.
+fn zrbvteu_blind_class(_class: zrbvceu_Class, _line: &str) -> bool {
+    false
+}
+
+fn zrbvteu_class_proves(class: zrbvceu_Class) {
+    let (planted, clean) = zrbvceu_class_specimens(class);
+    assert!(
+        !planted.is_empty() && !clean.is_empty(),
+        "class {:?} carries no specimens", //
+        class,
+    );
+    for line in planted {
+        assert!(
+            zrbvceu_class_names(class, line),
+            "class {:?} missed a planted leak: {:?}",
+            class,
+            line, //
+        );
+    }
+    for line in clean {
+        assert!(
+            !zrbvceu_class_names(class, line),
+            "class {:?} reddened on its clean twin: {:?}",
+            class,
+            line, //
+        );
+    }
+}
+
+#[test]
+fn rbvteu_token_class_fires_on_plant_and_spares_clean() {
+    zrbvteu_class_proves(zrbvceu_Class::Token);
+}
+
+#[test]
+fn rbvteu_memo_class_fires_on_plant_and_spares_clean() {
+    zrbvteu_class_proves(zrbvceu_Class::Memo);
+}
+
+#[test]
+fn rbvteu_doc_class_fires_on_plant_and_spares_clean() {
+    zrbvteu_class_proves(zrbvceu_Class::Doc);
+}
+
+#[test]
+fn rbvteu_class_self_proof_holds() {
+    let findings = zrbvceu_class_self_proof();
+    assert!(
+        findings.is_empty(),
+        "the shape classes' self-proof failed: {:?}",
+        findings
+            .iter()
+            .map(|f| f.detail.clone())
+            .collect::<Vec<_>>(), //
+    );
+}
+
+/// Handed a matcher that leaks, the proof fails for each class by name.
+#[test]
+fn rbvteu_class_self_proof_fails_a_leaking_matcher() {
+    let findings = zrbvceu_class_self_proof_by(zrbvteu_blind_class);
+    for class in ["Token", "Memo", "Doc"] {
+        assert!(
+            findings.iter().any(|f| f
+                .detail
+                .starts_with(&format!("{} class matcher missed a known leak", class))),
+            "the self-proof passed a leaking matcher for class {}: {:?}",
+            class,
+            findings
+                .iter()
+                .map(|f| f.detail.clone())
+                .collect::<Vec<_>>(), //
+        );
+    }
+}
+
+/// The four standing rows excuse the veiled-dir class alone, and no other.
+#[test]
+fn rbvteu_standing_exemptions_keep_only_the_veil_class() {
+    for rel in [
+        "Tools/rbk/rbtd/src/rbtdrq_damnatio.rs",
+        "Tools/rbk/rbtd/src/rbtdrn_conformance.rs",
+        "rbmm_moorings/buml_launchers/launcher.rbvw_workbench.sh",
+    ] {
+        assert!(zrbvceu_exempt_from(rel, zrbvceu_Class::Veil), "{rel} lost its veil row");
+        for class in [
+            zrbvceu_Class::Token,
+            zrbvceu_Class::Memo,
+            zrbvceu_Class::Doc,
+        ] {
+            assert!(
+                !zrbvceu_exempt_from(rel, class),
+                "{} is excused from {:?} — a standing row widened",
+                rel,
+                class, //
+            );
+        }
+    }
+}
+
+/// A store-token line planted in an excused residue path is not named for that
+/// class, while the same line in a non-excused shipped path is; and the excuse
+/// is per class, so a memo-shaped line in the same residue path is still named.
+#[test]
+fn rbvteu_residue_excuses_its_class_only() {
+    let root = std::env::temp_dir().join(format!(
+        "rbvteu-residue-root-{}",
+        std::process::id(), //
+    ));
+    let residue = "Tools/buk/buym_yelp.sh";
+    let shipped = "Tools/buk/bud_dispatch.sh";
+    let token_line = "STAND=../jjqz_example\n";
+    let memo_line = "NOTE=memo-29990101-example-slug\n";
+    for (rel, text) in [
+        (residue, format!("{}{}", token_line, memo_line)),
+        (shipped, token_line.to_string()),
+    ] {
+        let path = root.join(rel);
+        let parent = path.parent().expect("a planted path has a parent");
+        std::fs::create_dir_all(parent).expect("plant the directory");
+        std::fs::write(&path, text).expect("plant the file");
+    }
+    let findings = zrbvceu_veil_leak(&root);
+    let _ = std::fs::remove_dir_all(&root);
+    let named = |file: &str, detail: &str| {
+        findings
+            .iter()
+            .any(|f| f.file == file && f.detail == detail)
+    };
+    assert!(
+        named(shipped, "names an internal path token"),
+        "the shipped file carrying a store token went unflagged: {:?}",
+        findings
+            .iter()
+            .map(|f| (f.file.clone(), f.detail.clone()))
+            .collect::<Vec<_>>(), //
+    );
+    assert!(
+        !named(residue, "names an internal path token"),
+        "the excused residue path was flagged for its excused class", //
+    );
+    assert!(
+        named(residue, "names an internal dated record"),
+        "the residue path's excuse spread to a class it does not name", //
     );
 }
 
