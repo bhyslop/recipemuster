@@ -136,7 +136,9 @@ rbve_encamp() {
 
   zrbve_heel
   buc_step "Standing up a practice seat"
-  BURD_STATION_FILE="${BURD_STATION_FILE}" BURD_TACKROOM="${BURD_TACKROOM}" \
+  # Handed through env: the dispatch holds both names readonly, so a prefix
+  # assignment in this shell refuses; env sets them for the binary alone.
+  env BURD_STATION_FILE="${BURD_STATION_FILE}" BURD_TACKROOM="${BURD_TACKROOM}" \
     "${z_rbve_binary}" encamp "${BUZ_FOLIO:-}" "$@"
 }
 
