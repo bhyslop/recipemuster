@@ -662,15 +662,28 @@ fn zrbvcex_tracked(top: &Path) -> Vec<String> {
     tracked
 }
 
-/// Walk an object-graph range in the clone and return every PATH reachable in
-/// it. rev-list --objects emits "SHA path" for anything with a path and a
-/// bare SHA for commits; the bare lines are dropped. Fed --all it reads the
+/// Walk an object-graph range in the clone and return the PATH of every file
+/// reachable in it. rev-list --objects emits "SHA path" for anything with a path
+/// and a bare SHA for commits; the bare lines are dropped. Fed --all it reads the
 /// whole graph (the base inventory); fed {base}..HEAD it reads only what the
 /// regulus added — precisely the reading that would have caught the 292 MiB
 /// regulus, whose face was clean and whose history was not.
+///
+/// Files only: the object-type filter drops every folder entry before a path is
+/// judged. The perambulation judges files, and a folder on the way down to a
+/// shipped subtree inside a withheld tree, such as the floor crate under the
+/// withheld kennel kit, is no leak: shipping the subtree discloses its folder
+/// names by construction, and every withheld file beneath any folder is still a
+/// file the sweep reads. The filter needs git 2.32 or newer.
 fn zrbvcex_graph_paths(clone_dir: &Path, range: &[&str], label: &str) -> Vec<String> {
     let clone = rbvcep_repo::rbvcep_as_str(clone_dir);
-    let mut args: Vec<&str> = vec!["-C", &clone, "rev-list", "--objects"];
+    let mut args: Vec<&str> = vec![
+        "-C",
+        &clone,
+        "rev-list",
+        "--objects",
+        "--filter=object:type=blob", //
+    ];
     args.extend_from_slice(range);
     let got = rbvcer_run::rbvcer_capture("git", &args, clone_dir);
     if got.code != 0 {

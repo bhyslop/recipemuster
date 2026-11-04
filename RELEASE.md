@@ -65,19 +65,32 @@ Once per station, beside the real base remote.
 Add the practice base remote and neuter its push side exactly as the real one's; [Essai](#Essai) in the [Palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
 Type each line as shown:
 
-- `git remote add PALAESTRA_UPSTREAM git@github.com:scaleinv/recipebottle-palaestra.git`
+- `git remote add PALAESTRA_UPSTREAM git@github.com:bhyslop/recipebottle-grandstand-practice.git`
 - `git remote set-url --push PALAESTRA_UPSTREAM DISABLED-PALAESTRA_UPSTREAM-IS-READ-ONLY`
 
 ### <a id="PracticeOpening"></a>Opening a round
 
-At the GitHub console, by hand, delete both practice repositories and create them again, empty and private: the stand-in `scaleinv/recipebottle-palaestra` and the practice [Narthex](#Narthex) `scaleinv/recipebottle-palaestra-staging`.
-Then seed the stand-in from a fresh clone of real public main, by two single-refspec pushes — main, then `POSTULANT_LOCAL` at the same commit — so it carries the real repository's refs, and the round practices the real-sized delta and the stale-branch delete.
+At the GitHub console, by hand, delete the practice [Narthex](#Narthex) `bhyslop/recipebottle-picadero-practice` and create it again, private and empty, with no README, ignore file or license.
+It is recreated before every round: each preview push makes its branch the repository's default branch, which no push can delete, and [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
+
+The stand-in `bhyslop/recipebottle-grandstand-practice` is recreated only when it no longer carries exactly the real repository's two branches, main and `POSTULANT_LOCAL`, both at real public main's commit.
+Any round that went past its first command leaves it so.
+Read both repositories to decide:
+
+- `git ls-remote git@github.com:bhyslop/recipebottle-grandstand-practice.git`
+- `git ls-remote --heads git@github.com:scaleinv/recipebottle.git main POSTULANT_LOCAL`
+
+To recreate the stand-in, delete it at the console and create it again, private and empty, with no README, ignore file or license.
+Then seed it from a fresh clone of real public main by two single-refspec pushes, main first and then `POSTULANT_LOCAL` at the same commit, so it carries the real repository's branches and the round practices the real-sized delta and the stale-branch delete.
 Type each line as shown, in order:
 
 - `git clone git@github.com:scaleinv/recipebottle.git «fresh clone»`
 - `cd «fresh clone»`
-- `git push git@github.com:scaleinv/recipebottle-palaestra.git main:main`
-- `git push git@github.com:scaleinv/recipebottle-palaestra.git main:POSTULANT_LOCAL`
+- `git remote remove origin`
+- `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:main`
+- `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:POSTULANT_LOCAL`
+
+Then read the stand-in again with the first line above and confirm both branches stand at real public main's commit.
 
 Discard the fresh clone afterwards; it is never a working directory of the ceremony.
 
@@ -99,7 +112,7 @@ Run the four commands under their practice doors, reading each stop as the real 
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
 Type each line as shown, in order:
 
-- `git clone git@github.com:scaleinv/recipebottle-palaestra.git «fresh clone»`
+- `git clone git@github.com:bhyslop/recipebottle-grandstand-practice.git «fresh clone»`
 - `cd «fresh clone»`
 - `git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL`
 
@@ -109,7 +122,7 @@ Type each line as shown, in order:
 2. Check that every coldwalk findings memo is committed, including any inside a dated `palaestra_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `palaestra_*` directory beside the maintainer repository.
 3. Record what the round surfaced.
    A finding in the procedure is an edit to this ordinatio and a re-render; a finding in the instrument is a repair and another round.
-   The next round opens by deleting and recreating both practice repositories, so they need not be deleted here.
+   The next round opens by recreating the practice [Narthex](#Narthex), and the stand-in too where it no longer carries the real repository's two branches, so neither is deleted here.
 
 ## <a id="TheLaps"></a>The laps
 
