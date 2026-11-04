@@ -22,8 +22,15 @@ use crate::rbvcex_expede::RBVCEX_REGULUS_BRANCH;
 /// The practice narthex, as the console shows it.
 const ZRBVTCD_NARTHEX_SLUG: &str = "bhyslop/recipebottle-picadero-practice";
 
-/// The console recreate sentence the procedure gives the practice narthex.
-const ZRBVTCD_CONSOLE: &str = "At the GitHub console, by hand, delete the practice narthex bhyslop/recipebottle-picadero-practice and create it again, private and empty, with no README, ignore file or license.";
+/// The console recreate sentence the procedure gives the practice narthex,
+/// the governed word cited rather than spelled.
+fn zrbvtcd_console() -> String {
+    format!(
+        "At the GitHub console, by hand, delete the practice {} {} and create it again, private and empty, with no README, ignore file or license.",
+        crate::rbvgeb_breviary::RBVGEB_NARTHEX_BASE,
+        ZRBVTCD_NARTHEX_SLUG, //
+    )
+}
 
 /// The read proving the recreated narthex empty.
 const ZRBVTCD_EMPTY_READ: &str = "git ls-remote git@github.com:bhyslop/recipebottle-picadero-practice.git";
@@ -74,8 +81,9 @@ fn rbvtcd_practice_refusal_prints_the_narthex_steps_and_agora_does_not() {
         zrbvtcd_regulus_ref(), //
     );
 
+    let console = zrbvtcd_console();
     let practice = zrbvccd_narthex_refusal(&refs, rbvcew_World::Palaestra);
-    for needle in [ZRBVTCD_NARTHEX_SLUG, ZRBVTCD_CONSOLE, ZRBVTCD_EMPTY_READ, listing.as_str()] {
+    for needle in [ZRBVTCD_NARTHEX_SLUG, console.as_str(), ZRBVTCD_EMPTY_READ, listing.as_str()] {
         assert!(
             practice.contains(needle),
             "the practice refusal lacks '{}':\n{}",
@@ -87,19 +95,19 @@ fn rbvtcd_practice_refusal_prints_the_narthex_steps_and_agora_does_not() {
     let agora = zrbvccd_narthex_refusal(&refs, rbvcew_World::Agora);
     assert!(
         agora.contains(&listing),
-        "the agora refusal lost its ref listing:\n{}",
+        "the real-world refusal lost its ref listing:\n{}",
         agora, //
     );
-    for needle in [ZRBVTCD_NARTHEX_SLUG, ZRBVTCD_CONSOLE, ZRBVTCD_EMPTY_READ] {
+    for needle in [ZRBVTCD_NARTHEX_SLUG, console.as_str(), ZRBVTCD_EMPTY_READ] {
         assert!(
             !agora.contains(needle),
-            "the agora refusal carries '{}':\n{}",
+            "the real-world refusal carries '{}':\n{}",
             needle,
             agora, //
         );
     }
     assert!(
         practice.starts_with(&agora),
-        "the practice refusal does not open on the agora's text", //
+        "the practice refusal does not open on the real world's text", //
     );
 }

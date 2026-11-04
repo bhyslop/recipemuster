@@ -20,8 +20,8 @@
 # the binary alone judges the world and refuses a missing, unknown or extra
 # one, so no world is defaulted here.
 #
-# Beside them the practice seat, a station chore the palaestra imprint alone
-# carries, is handed the practice home behind the folio, and the maintainer
+# Beside them the practice seat, a chore beside the ceremony that the practice
+# imprint alone carries, is handed the practice home behind the folio, and the maintainer
 # station's file and tool store, which the binary does not inherit.
 
 set -euo pipefail
@@ -130,14 +130,14 @@ rbve_harbinger() {
   "${z_rbve_binary}" harbinger "${BUZ_FOLIO:-}" "$@"
 }
 
-rbve_seat() {
-  buc_doc_brief "Practice seat — stand up a palaestra seat beneath an absolute practice home (a station chore; contacts no remote)"
+rbve_encamp() {
+  buc_doc_brief "Practice seat — encamp a practice seat beneath an absolute practice home (a chore beside the ceremony; contacts no remote)"
   buc_doc_shown || return 0
 
   zrbve_heel
   buc_step "Standing up a practice seat"
   BURD_STATION_FILE="${BURD_STATION_FILE}" BURD_TACKROOM="${BURD_TACKROOM}" \
-    "${z_rbve_binary}" seat "${BUZ_FOLIO:-}" "$@"
+    "${z_rbve_binary}" encamp "${BUZ_FOLIO:-}" "$@"
 }
 
 rbve_test() {
@@ -158,7 +158,7 @@ zrbve_furnish() {
   buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided)"
   buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided; the kennel's home)"
   buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
-  buc_doc_env_row "BURD_STATION_FILE     " "The station file the dispatch sourced (dispatch-provided; the practice seat copies from it)"
+  buc_doc_env_row "BURD_STATION_FILE     " "The BURS file the dispatch sourced (dispatch-provided; the practice seat copies from it)"
   buc_doc_env_done || return 0
 
   source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh"

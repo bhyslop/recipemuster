@@ -15,7 +15,7 @@
 //   rbv harbinger <world> — the stranger walk against promoted public main (RBSHH).
 //
 // Beside them one station chore, never a ceremony act (RBSHC "The election"):
-//   rbv seat <world> <home> — stand up a practice seat beneath an absolute
+//   rbv encamp <world> <home> — stand up a practice seat beneath an absolute
 //   practice home; the palaestra alone (rbvces_seat).
 //
 // The world is judged by the library's own parser (rbvcew_world), where the
@@ -46,8 +46,9 @@ const RBVM_CMD_OSTEND: &str = "ostend";
 /// The harbinger subcommand token.
 const RBVM_CMD_HARBINGER: &str = "harbinger";
 
-/// The practice seat's subcommand token — a station chore, not a ceremony act.
-const RBVM_CMD_SEAT: &str = "seat";
+/// The practice seat's subcommand token — a chore beside the ceremony, not a
+/// ceremony act: it encamps a practice seat.
+const RBVM_CMD_ENCAMP: &str = "encamp";
 
 /// The world argv[2] elects for `command` — the ceremony's dangerous-seam
 /// input. The library's parser refuses a bare invocation, an unknown word and
@@ -65,12 +66,12 @@ fn zrbvm_world(command: &str, args: &[String]) -> rbvcew_world::rbvcew_World {
 }
 
 /// The practice home argv[3] names under the world argv[2] elects, for the
-/// seat chore. The library's parser refuses anything but the palaestra, a
+/// practice seat. The library's parser refuses anything but the palaestra, a
 /// missing or relative home and a trailing extra argument; each refusal is
 /// fatal here.
-fn zrbvm_seat_home(args: &[String]) -> std::path::PathBuf {
+fn zrbvm_encamp_home(args: &[String]) -> std::path::PathBuf {
     let rest = args.get(2..).unwrap_or(&[]);
-    rbv::rbvces_seat::rbvces_elect(RBVM_CMD_SEAT, rest).unwrap_or_else(|e| {
+    rbv::rbvces_seat::rbvces_elect(RBVM_CMD_ENCAMP, rest).unwrap_or_else(|e| {
         rbv::rbvcel_fatal!(
             "{}",
             e, //
@@ -114,13 +115,13 @@ fn main() -> ExitCode {
         Some(RBVM_CMD_DOCIMASY) => rbv::rbvccd_docimasy::rbvccd_docimasy_conduct(zrbvm_world(RBVM_CMD_DOCIMASY, &args)),
         Some(RBVM_CMD_OSTEND) => rbv::rbvcco_ostend::rbvcco_ostend_conduct(zrbvm_world(RBVM_CMD_OSTEND, &args)),
         Some(RBVM_CMD_HARBINGER) => rbv::rbvcch_harbinger::rbvcch_harbinger_conduct(zrbvm_world(RBVM_CMD_HARBINGER, &args)),
-        Some(RBVM_CMD_SEAT) => rbv::rbvces_seat::rbvces_seat_conduct(zrbvm_seat_home(&args)),
+        Some(RBVM_CMD_ENCAMP) => rbv::rbvces_seat::rbvces_seat_conduct(zrbvm_encamp_home(&args)),
         Some(other) => rbv::rbvcel_fatal!(
             "{}: unknown verb '{}' — usage: rbv {}|{}|{}|{} {}|{}, or rbv {} {} <home>",
             rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE, other,
             RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
             rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE,
-            RBVM_CMD_SEAT, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
+            RBVM_CMD_ENCAMP, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
         ),
         None => rbv::rbvcel_fatal!(
             "{}: no verb — usage: rbv {}|{}|{}|{} {}|{}, or rbv {} {} <home>\n\
@@ -128,7 +129,7 @@ fn main() -> ExitCode {
             rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE,
             RBVM_CMD_ESSAI, RBVM_CMD_DOCIMASY, RBVM_CMD_OSTEND, RBVM_CMD_HARBINGER,
             rbvgeb_breviary::RBVGEB_AGORA_BASE, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE,
-            RBVM_CMD_SEAT, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
+            RBVM_CMD_ENCAMP, rbvgeb_breviary::RBVGEB_PALAESTRA_BASE, //
         ),
     }
 }

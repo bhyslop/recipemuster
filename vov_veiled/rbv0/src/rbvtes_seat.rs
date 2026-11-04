@@ -42,7 +42,7 @@ use crate::rbvcew_world::{
 const ZRBVTES_BRANCH: &str = "pace-branch";
 
 /// The verb the election is told it serves.
-const ZRBVTES_VERB: &str = "seat";
+const ZRBVTES_VERB: &str = "encamp";
 
 fn zrbvtes_git(dir: &Path, args: &[&str], global: &Path) -> String {
     let out = Command::new("git")
@@ -89,7 +89,7 @@ fn zrbvtes_args(words: &[&str]) -> Vec<String> {
 fn rbvtes_seat_layout_over_a_scratch_maintainer() {
     let root = zrbvtes_scratch_root();
     let top = root.join("maintainer");
-    let tackroom = root.join("station").join("tackroom-buk");
+    let tackroom = root.join("stall").join("tackroom-buk");
     let home = root.join("practice-home");
     std::fs::create_dir_all(&top).expect("scratch maintainer must be creatable");
     std::fs::create_dir_all(&tackroom).expect("scratch tackroom must be creatable");
@@ -184,7 +184,7 @@ fn rbvtes_seat_layout_over_a_scratch_maintainer() {
     assert_eq!(
         std::fs::canonicalize(seat.clone_dir.join(&rel)).expect("the relative tool store must resolve"),
         station.tackroom,
-        "BURS_TACKROOM does not reach the station's store", //
+        "BURS_TACKROOM does not reach the tool store", //
     );
 
     // The empty secrets directory beside it.

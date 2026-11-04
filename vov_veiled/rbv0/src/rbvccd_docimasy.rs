@@ -185,8 +185,10 @@ pub(crate) fn zrbvccd_narthex_refusal(
         rbvcew_world::rbvcew_World::Palaestra => {
             let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
             format!(
-                "{}\n\nRecreate the practice narthex (RELEASE.md \"Opening a round\"). At the GitHub console, by hand, delete the practice narthex {} and create it again, private and empty, with no README, ignore file or license.\nThen read it and confirm it is empty — this line prints nothing:\n        git ls-remote {}\nThen run {} again.",
+                "{}\n\nRecreate the practice {} (RELEASE.md \"Opening a round\"). At the GitHub console, by hand, delete the practice {} {} and create it again, private and empty, with no README, ignore file or license.\nThen read it and confirm it is empty — this line prints nothing:\n        git ls-remote {}\nThen run {} again.",
                 listing,
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE,
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE,
                 rbvcep_repo::rbvcep_github_slug(narthex_url),
                 narthex_url,
                 rbvgeb_breviary::RBVGEB_DOCIMASY_BASE, //

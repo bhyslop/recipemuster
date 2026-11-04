@@ -4,8 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBVCES — the practice seat: a station chore beside the four ceremony
-// commands, never a ceremony act (RBSHC "The election"). It stands up the seat
+// RBVCES — the practice seat: a chore beside the four ceremony commands, never a ceremony act (RBSHC "The election"). It stands up the seat
 // a practice round runs from, beneath a practice home the operator names: a
 // clone of the maintainer tree at its checked-out branch, two levels below the
 // home, so the regulus and the walk clone land inside that home without any
@@ -148,7 +147,7 @@ pub fn rbvces_station_read(
     let got = rbvcer_run::rbvcer_capture("bash", &["-c", RBVCES_STATION_READ, "bash", &file], cwd);
     if got.code != 0 {
         return Err(format!(
-            "cannot read the maintainer station {} (bash exited {}): {}",
+            "cannot read the maintainer's BURS file {} (bash exited {}): {}",
             file,
             got.code,
             got.stderr.trim(), //
@@ -159,13 +158,13 @@ pub fn rbvces_station_read(
     let tincture = lines.next().unwrap_or("").trim().to_string();
     if user.is_empty() || tincture.is_empty() {
         return Err(format!(
-            "the maintainer station {} names no user or no tincture",
+            "the BURS file {} names no BURS_USER or no BURS_TINCTURE",
             file, //
         ));
     }
     let tackroom = std::fs::canonicalize(tackroom).map_err(|e| {
         format!(
-            "the station's tool store {} does not stand: {}",
+            "the tool store {} the dispatch named does not stand: {}",
             tackroom.display(),
             e, //
         )
@@ -199,7 +198,7 @@ pub fn rbvces_stand(
     let seat_dir = home.join(RBVCES_SEAT_SUBDIR);
     if std::fs::symlink_metadata(&seat_dir).is_ok() {
         return Err(format!(
-            "a seat already stands at {} — this door never seposes or deletes; name a fresh practice home, or dispose of that seat by hand",
+            "a seat already stands at {} — this door never moves a seat aside or deletes one; name a fresh practice home, or dispose of that seat by hand",
             seat_dir.display(), //
         ));
     }
@@ -275,7 +274,7 @@ pub fn rbvces_stand(
     let station_file = station_dir.join(rbvcep_repo::RBVCEP_STATION_FILE);
     std::fs::write(&station_file, burs).map_err(|e| {
         format!(
-            "cannot write the seat's station {}: {}",
+            "cannot write the seat's BURS file {}: {}",
             station_file.display(),
             e, //
         )
@@ -294,8 +293,11 @@ pub fn rbvces_seat_conduct(home: PathBuf) -> ExitCode {
     let world = rbvcew_world::rbvcew_World::Palaestra;
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
-    rbvcel_log::rbvcel_section("Hierophant practice seat — a station chore beside the ceremony");
-    rbvcel_log::rbvcel_line("Clone, practice base remote, station, kennel — no remote contacted.");
+    rbvcel_log::rbvcel_section(&format!(
+        "{} practice seat — a chore beside the ceremony",
+        rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE_LETTRINE, //
+    ));
+    rbvcel_log::rbvcel_line("Clone, practice base remote, BURS file, kennel — no remote contacted.");
 
     let top = rbvcep_repo::rbvcep_toplevel();
     rbvcel_log::rbvcel_line(&format!(
@@ -331,7 +333,7 @@ pub fn rbvces_seat_conduct(home: PathBuf) -> ExitCode {
         bundle.base_remote, //
     ));
     rbvcel_log::rbvcel_line(&format!(
-        "station:    {}",
+        "BURS file:  {}",
         seat.station_file.display(), //
     ));
     rbvcel_log::rbvcel_line(&format!(
@@ -394,7 +396,7 @@ fn zrbvces_env(name: &str) -> String {
     match std::env::var(name) {
         Ok(v) if !v.is_empty() => v,
         _ => crate::rbvcel_fatal!(
-            "{} is not set — launch the practice seat through its withheld tabtarget, which hands it in",
+            "{} is not set — launch the practice seat through its withheld door rbvw-p, which hands it in",
             name, //
         ),
     }

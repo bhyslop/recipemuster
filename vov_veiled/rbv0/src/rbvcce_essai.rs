@@ -306,8 +306,9 @@ pub(crate) fn zrbvcce_standin_verdict(
     );
     let seed_refs = seed.as_ref().map_err(|e| {
         format!(
-            "cannot read real public main at {} — the stand-in cannot be judged without it. The station needs this read to answer:\n        git ls-remote --heads {} {}\n{}",
+            "cannot read real public main at {} — the stand-in cannot be judged without it. This read must answer from where {} runs:\n        git ls-remote --heads {} {}\n{}",
             seed_url,
+            rbvgeb_breviary::RBVGEB_ESSAI_BASE,
             seed_url,
             RBVCCE_MAIN_BRANCH,
             e, //
