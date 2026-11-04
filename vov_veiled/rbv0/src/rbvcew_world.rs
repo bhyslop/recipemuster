@@ -11,7 +11,10 @@
 //
 // The election is single and whole: it selects one bundle, every address and
 // working-directory name the ceremony reaches, and every act reads the elected
-// bundle and nothing past it. The world-specific constants therefore live here
+// bundle and nothing past it — save one read, named here: practice essai's
+// stand-in gate reads real public main, the stand-in's seed source, through
+// rbvcew_palaestra_seed_source, which cites the real bundle's base and never
+// joins the practice bundle. The world-specific constants therefore live here
 // and nowhere else in the crate; a second copy of any of them beside its
 // consumer is how a practice run reaches the real public repository.
 //
@@ -143,6 +146,16 @@ pub const RBVCEW_PALAESTRA: rbvcew_Bundle = rbvcew_Bundle {
     freshness_dirname: "palaestra_regulus_freshness",
     temenos_dirname: "palaestra_coldwalk",
 };
+
+/// The stand-in's seed source: real public main's repository, which the
+/// operator seeds the practice stand-in from and which practice essai's gate
+/// reads to judge the stand-in (RBSHE step 1). The one read past the elected
+/// bundle, and only ever a read: it cites the real bundle's base rather than
+/// spelling a second copy, and it is no field of the practice bundle, whose
+/// values name no real address.
+pub fn rbvcew_palaestra_seed_source() -> &'static str {
+    RBVCEW_AGORA.base_url
+}
 
 /// The elected world's bundle — the one road from a world to an address.
 pub fn rbvcew_bundle(world: rbvcew_World) -> &'static rbvcew_Bundle {
