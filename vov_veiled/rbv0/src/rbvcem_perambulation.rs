@@ -88,6 +88,12 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // the agent-context markdown, the theurge crate, the in-pool python step
     // bodies, the ifrit attack corpus.
     ("Tools/buk/", Ship),
+    // The one exception inside BUK: its estate-geography agent text. It speaks
+    // of the maintainer's own estate, which the consumer has no seat in, so it
+    // is withheld here rather than waiting on its kit's home (operator ruling,
+    // 261103); the kit's passing mentions elsewhere stay. File grain, so its
+    // sibling agent texts beside it ship.
+    ("Tools/buk/buai0/buais_oikoumene.md", Withhold),
     ("Tools/rbk/", Ship),
     // The remaining release-rig verb module in the shipped kit tree. The bash
     // harbinger stands until the hierophant earns its retirement through real

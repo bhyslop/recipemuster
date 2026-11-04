@@ -243,7 +243,7 @@ For crucible testing work, editing test cases, adding security probes or debuggi
 - **A regime fails validation**: run its render command to see the values, then its validate command to name the faulty field; fix the `.env` file and retry.
 - **The payor's OAuth token is dead**: re-run payor install with the saved client-secret file, `tt/rbw-gPI.PayorInstall.sh «secrets-dir»/client_secrets/client_secret_*.json`; a dead token needs no new file.
 - **A command refuses for want of authority**: check the Sederunt with `tt/rbw-as.EspySederunt.sh` and open a fresh one with `tt/rbw-aN.NovateSederunt.sh`; if the Sederunt is healthy you hold no Brevet onto the mantle that command wears, so a governor must Brevet you with `tt/rbw-pB.GovernorBrevetsCitizen.sh`, and `tt/rbw-pr.GovernorRehearsesTerrier.sh` shows who holds what.
-- **Federated sign-in fails outright**: Descry the active foedus with `tt/rbw-jd.FoedusDescry.sh`, which reports its provider's health under the manor's pool or names the deficit.
+- **Federated sign-in fails outright**: Descry the active foedus with `tt/rbw-jd.FoedusDescry.sh «foedus»`, naming the foedus `RBRR_ACTIVE_FOEDUS` holds, which reports its provider's health under the manor's pool or names the deficit.
 - **A tabtarget is not found**: `tt/rbw-tq.QualifyFast.sh` checks tabtarget and colophon health.
 - **A build fails**: `tt/rbw-ft.RetrieverTalliesHallmarks.sh` shows which hallmarks are vouched, pending or incomplete, and the build's own logs stand in the Google Cloud Console under the depot's project.
 - **"Already exists" right after a delete**: almost always Google's post-delete read flap rather than stale local state, so wait a few seconds and retry.

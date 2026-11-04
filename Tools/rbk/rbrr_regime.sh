@@ -39,7 +39,7 @@ zrbrr_kindle() {
   buv_regime_enroll RBRR
 
   buv_group_enroll "Runtime Prefix"
-  buv_string_enroll  RBRR_RUNTIME_PREFIX       2   11  "Prefix prepended to local container and network names"
+  buv_string_enroll  RBRR_RUNTIME_PREFIX       2   11  "Prefix prepended to local container and network names — 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as rb-"
 
   buv_group_enroll "Vessel and Local Configuration"
   buv_string_enroll  RBRR_VESSEL_DIR           1  255  "Vessel definitions directory"
@@ -84,6 +84,12 @@ zrbrr_sentinel() {
 zrbrr_enforce() {
   zrbrr_sentinel
 
+  # A blank prefix is the case a stranger meets; the kit's own refusal says only
+  # that the field must not be empty, so this names the form. It catches the blank
+  # alone, in the enrollment band — never a format case, which stays in the regime band.
+  test -n "${RBRR_RUNTIME_PREFIX:-}" \
+    || buc_reject "${BUBG_ENROLL_DENTIL}" "RBRR_RUNTIME_PREFIX must not be empty: set 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as rb-"
+
   buv_vet RBRR
 
   test -d "${RBRR_VESSEL_DIR}" \
@@ -95,7 +101,7 @@ zrbrr_enforce() {
     || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"
 
   [[ "${RBRR_RUNTIME_PREFIX}" =~ ^[a-z][a-z0-9-]*-$ ]] \
-    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected lowercase starting with letter, ending in hyphen)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_RUNTIME_PREFIX format: ${RBRR_RUNTIME_PREFIX} (expected 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as rb-)"
 
   [[ "${RBRR_ACTIVE_FOEDUS}" == rbef_* ]] \
     || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_ACTIVE_FOEDUS must bear the rbef_ foedus-instance sprue: ${RBRR_ACTIVE_FOEDUS}"
