@@ -689,21 +689,18 @@ zrbfcp_plumb_show_sections() {
     echo "  Independent SLSA verification: did this image pass provenance checks?" || buc_die_now
     echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
-      local z_verifier_url="" z_verifier_sha=""
+      local z_verify_method=""
       local -r z_verifier_stderr="${ZRBFC0_PLUMB_PREFIX}_verifier_stderr.txt"
-      jq -r '(.verifier.url // "?"), (.verifier.sha256 // "?")' "${z_vs}" \
+      jq -r '.verify_method // "?"' "${z_vs}" \
         > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_verifier_stderr}" \
-        || buc_die_now "Failed to extract verifier from ${z_vs} — see ${z_verifier_stderr}"
-      { read -r z_verifier_url  || buc_die_now "Failed to read verifier from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_verifier_sha  || buc_die_now "Failed to read verifier from ${ZRBFC0_SCRATCH_FILE}"
+        || buc_die_now "Failed to extract verify method from ${z_vs} — see ${z_verifier_stderr}"
+      { read -r z_verify_method || buc_die_now "Failed to read verify method from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
-      echo "  Verifier:" || buc_die_now
-      echo "    URL:    ${z_verifier_url}" || buc_die_now
-      echo "    SHA256: ${z_verifier_sha}" || buc_die_now
+      echo "  Method:      ${z_verify_method}" || buc_die_now
       echo "" || buc_die_now
-      echo "  Per-platform verdicts:" || buc_die_now
+      echo "  Per-platform verification:" || buc_die_now
       local -r z_verdicts_stderr="${ZRBFC0_PLUMB_PREFIX}_verdicts_stderr.txt"
-      jq -r '.platforms[]? | "    \(.platform): \(.verdict)"' "${z_vs}" 2>"${z_verdicts_stderr}" \
+      jq -r '.platforms[]? | "    \(.platform // "?"): \(.verdict // "?")\n      Verifier: \(.verifier // "?")\n      Builder:  \(.builder_id // "?")"' "${z_vs}" 2>"${z_verdicts_stderr}" \
         || echo "    (unable to parse)" \
         || buc_die_now
     else
