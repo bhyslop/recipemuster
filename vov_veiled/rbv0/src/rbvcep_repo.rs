@@ -215,18 +215,38 @@ pub fn rbvcep_commit_sha(dir: &Path, cwd: &Path) -> String {
 /// real branch refs — counting it in would make "exactly one real branch"
 /// unreachable.
 pub fn rbvcep_ls_remote(url: &str, cwd: &Path) -> Vec<(String, String)> {
-    let got = rbvcer_run::rbvcer_capture("git", &["ls-remote", url], cwd);
-    if got.code != 0 {
+    rbvcep_ls_remote_capture(url, cwd).unwrap_or_else(|stderr| {
         crate::rbvcel_fatal!(
             "git ls-remote {} failed:\n{}",
             url,
-            got.stderr.trim(), //
-        );
+            stderr, //
+        )
+    })
+}
+
+/// The owner/name a GitHub SSH address names, as the console shows the
+/// repository: what follows the address's colon, its `.git` suffix dropped.
+/// Pure — the reset steps print it from the bundle's own address, so no
+/// repository name is spelled twice.
+pub fn rbvcep_github_slug(ssh_url: &str) -> &str {
+    let tail = ssh_url.rsplit_once(':').map(|(_, t)| t).unwrap_or(ssh_url);
+    tail.strip_suffix(".git").unwrap_or(tail)
+}
+
+/// The same read with an unreachable remote captured rather than fatal: the
+/// refs on success, git's trimmed stderr on a non-zero exit. For the caller
+/// whose refusal must carry its own text beside the git error (the practice
+/// stand-in gate, RBSHE step 1).
+pub fn rbvcep_ls_remote_capture(url: &str, cwd: &Path) -> Result<Vec<(String, String)>, String> {
+    let got = rbvcer_run::rbvcer_capture("git", &["ls-remote", url], cwd);
+    if got.code != 0 {
+        return Err(got.stderr.trim().to_string());
     }
-    got.stdout
+    Ok(got
+        .stdout
         .lines()
         .filter_map(|line| line.split_once('\t'))
         .map(|(sha, refname)| (sha.trim().to_string(), refname.trim().to_string()))
         .filter(|(_, refname)| refname != "HEAD")
-        .collect()
+        .collect())
 }

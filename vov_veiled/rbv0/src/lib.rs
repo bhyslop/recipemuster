@@ -11,7 +11,8 @@
 // reversible vs irreversible: essai (the repair lap), docimasy (the reveal's
 // reversible proving act), ostend (the reveal's irreversible showing), and
 // harbinger (the stranger walk), each conducting in the world its one argument
-// elects (rbvcew_world). This crate is withheld from delivery by
+// elects (rbvcew_world); beside them one station chore, the practice seat
+// (rbvces_seat), stands up the seat a practice round runs from. This crate is withheld from delivery by
 // directory construction; it may therefore cite the closed spec
 // (RBSHE/RBSHC/RBSHD/RBSHO/RBSHH, rbshc_ quoins) directly, which shipped
 // source may never do.
@@ -31,6 +32,7 @@ pub mod rbvcec_collation;
 pub mod rbvcex_expede;
 pub mod rbvceg_temenos;
 pub mod rbvcet_cachet;
+pub mod rbvces_seat;
 pub mod rbvcce_essai;
 pub mod rbvccd_docimasy;
 pub mod rbvcco_ostend;
@@ -48,3 +50,9 @@ mod rbvtet_cachet;
 mod rbvtew_world;
 #[cfg(test)]
 mod rbvteg_temenos;
+#[cfg(test)]
+mod rbvtes_seat;
+#[cfg(test)]
+mod rbvtce_essai;
+#[cfg(test)]
+mod rbvtcd_docimasy;

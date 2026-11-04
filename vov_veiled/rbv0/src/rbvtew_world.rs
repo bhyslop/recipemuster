@@ -16,6 +16,7 @@ use crate::rbvcew_world::{
     rbvcew_World,
     rbvcew_bundle,
     rbvcew_elect,
+    rbvcew_palaestra_seed_source,
     rbvcew_word,
     RBVCEW_AGORA,
     RBVCEW_PALAESTRA, //
@@ -90,6 +91,17 @@ fn rbvtew_bundles_share_no_address_and_no_basename() {
             );
         }
     }
+}
+
+/// The stand-in's seed source is the real base exactly — the one read past
+/// the elected bundle reaches real public main and nothing else.
+#[test]
+fn rbvtew_seed_source_is_the_real_base_exactly() {
+    assert_eq!(
+        rbvcew_palaestra_seed_source(),
+        RBVCEW_AGORA.base_url,
+        "the stand-in's seed source is not the real base", //
+    );
 }
 
 /// Each world's push sentinel spells its own remote, so a remote neutered with
