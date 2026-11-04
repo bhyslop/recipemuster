@@ -170,11 +170,11 @@ fn rbvtes_seat_layout_over_a_scratch_maintainer() {
     // The station file where the clone's regime looks, its stores relative.
     let station_dir = seat_dir.join(RBVCEP_STATION_SUBDIR);
     assert_eq!(seat.station_file, station_dir.join(RBVCEP_STATION_FILE));
-    let burs = std::fs::read_to_string(&seat.station_file).expect("station file must be readable");
+    let burs = std::fs::read_to_string(&seat.station_file).expect("the BURS file must be readable");
     let value = |key: &str| -> String {
         burs.lines()
             .find_map(|l| l.strip_prefix(&format!("{}=", key)).map(|v| v.to_string()))
-            .unwrap_or_else(|| panic!("the station names no {}:\n{}", key, burs))
+            .unwrap_or_else(|| panic!("the BURS file names no {}:\n{}", key, burs))
     };
     assert_eq!(value("BURS_USER"), "seatuser");
     assert_eq!(value("BURS_TINCTURE"), "tst");
