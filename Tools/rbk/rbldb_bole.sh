@@ -191,7 +191,7 @@ rbldb_ensconce() {
     || buc_die_now "Vessel '${RBRV_SIGIL}' declares ${z_origin_count} base slots; base-kind ensconce captures one base per Lode — invoke per base"
 
   # Reject producer-vessel pins: an origin naming a local vessel directory is a
-  # made-side hallmark-pin (bind/airgap), not an upstream base to capture.
+  # made-side hallmark-pin (annex/airgap), not an upstream base to capture.
   test ! -d "${RBRR_VESSEL_DIR}/${z_origin}" \
     || buc_die_now "Origin '${z_origin}' names a producer vessel — base-Lode capture is for upstream bases, not hallmark-pins"
 

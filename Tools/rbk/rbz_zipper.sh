@@ -25,6 +25,11 @@ set -euo pipefail
 test -z "${ZRBZ_SOURCED:-}" || return 0
 ZRBZ_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Colophon registry initialization
 
@@ -168,20 +173,20 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
   buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
   buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
-  buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
+  buz_enroll RBZ_ONBOARD_DIR_ANNEX      "rbw-Odb" "${z_mod}" "rbho_director_annex"       ""  "${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
   buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — establish a Manor and provision the Depot"
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
   z_mod="rbfd0_cli.sh"
-  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfdo_ordain"          "param1"  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfdo_ordain"          "param1"  "Ordain hallmark: conjure, ${RBCG_VESSEL_MODE_ANNEX_BASE}, or graft based on vessel mode"
   buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "rbfk_cli.sh" "rbfk_kludge"       "param1"  "Kludge a vessel image locally for development"
   z_mod="rbfl0_cli.sh"
   buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfld_abjure"          "param1"  "Abjure a hallmark (delete artifacts from GAR)"
   buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfln_tally"           ""  "Tally hallmarks by health state"
   z_mod="rbfv0_cli.sh"
-  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfvb_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfvb_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (${RBCG_VESSEL_MODE_ANNEX_BASE}), GRAFTED (graft)"
   z_mod="rbfr_cli.sh"
   buz_enroll RBZ_SUMMON_HALLMARK        "rbw-fs"  "${z_mod}" "rbfr_summon"          "param1"  "Summon vouched hallmark image locally"
   z_mod="rbfc0_cli.sh"

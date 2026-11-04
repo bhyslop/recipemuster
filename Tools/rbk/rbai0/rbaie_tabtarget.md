@@ -117,7 +117,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-Ots` | OnboardingTadmorSecurity | — | Verify Crucible containment under attack — charge tadmor and run the adversarial suite |
 | `rbw-Odf` | OnboardingDirectorFirstBuild | — | Your First Cloud Build — conclave, conjure, tour, summon, abjure |
 | `rbw-Oda` | OnboardingDirectorAirgap | — | Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb |
-| `rbw-Odb` | OnboardingDirectorBind | — | Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
+| `rbw-Odb` | OnboardingDirectorAnnex | — | Annex Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible |
 | `rbw-Odg` | OnboardingDirectorGraft | — | Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict |
 | `rbw-Op` | OnboardingPayor | — | Payor — establish a Manor and provision the Depot |
 
@@ -125,11 +125,11 @@ The Folio column shows how each tabtarget receives it:
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-fO` | DirectorOrdainsHallmark | param1 | Ordain hallmark: conjure, bind, or graft based on vessel mode |
+| `rbw-fO` | DirectorOrdainsHallmark | param1 | Ordain hallmark: conjure, annex, or graft based on vessel mode |
 | `rbw-fk` | LocalKludge | param1 | Kludge a vessel image locally for development |
 | `rbw-fA` | DirectorAbjuresHallmark | param1 | Abjure a hallmark (delete artifacts from GAR) |
 | `rbw-ft` | RetrieverTalliesHallmarks | — | Tally hallmarks by health state |
-| `rbw-fV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft) |
+| `rbw-fV` | DirectorVouchesHallmarks | — | Mode-aware vouch: SLSA (conjure), digest-pin (annex), GRAFTED (graft) |
 | `rbw-fs` | RetrieverSummonsHallmark | param1 | Summon vouched hallmark image locally |
 | `rbw-fpf` | RetrieverPlumbsFull | param1 | Full provenance display (SBOM, build info, Dockerfile) |
 | `rbw-fpc` | RetrieverPlumbsCompact | param1 | Compact provenance summary |

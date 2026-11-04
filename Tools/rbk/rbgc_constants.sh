@@ -181,7 +181,7 @@ zrbgc_kindle() {
   # Kludge hallmarks are local-only; the other three originate in GAR.
   readonly RBGC_HALLMARK_PREFIX_CONJURE="c"
   readonly RBGC_HALLMARK_PREFIX_KLUDGE="k"
-  readonly RBGC_HALLMARK_PREFIX_BIND="b"
+  readonly RBGC_HALLMARK_PREFIX_ANNEX="b"
   readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
 
   # GAR Categorical Namespaces (₢A_AAK layout)

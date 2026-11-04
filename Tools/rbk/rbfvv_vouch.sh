@@ -118,7 +118,7 @@ rbfvv_vouch() {
 # Internal: Submit vouch Cloud Build job (mode-aware verification)
 # All vessel modes use Cloud Build. The build scripts branch on _RBGV_VESSEL_MODE:
 #   conjure: DSSE envelope signature verification (Python 3 + openssl)
-#   bind: digest-pin comparison against upstream reference
+#   annex: digest-pin comparison against upstream reference
 #   graft: GRAFTED stamp (no verification)
 zrbfvv_vouch_submit() {
   zrbfv0_sentinel
@@ -134,12 +134,12 @@ zrbfvv_vouch_submit() {
   local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
 
   # Mode-specific substitution values (empty strings for non-applicable modes)
-  local z_bind_source=""
+  local z_annex_source=""
   local z_graft_source=""
 
   case "${RBRV_VESSEL_MODE}" in
     rbnve_conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
-    rbnve_bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
+    rbnve_annex)    z_annex_source="${RBRV_ANNEX_IMAGE:-}" ;;
     rbnve_graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
     *)             buc_die_now "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac
@@ -202,7 +202,7 @@ zrbfvv_vouch_submit() {
     --arg zjq_hallmark       "${z_hallmark}" \
     --arg zjq_vessel         "${RBRV_SIGIL}" \
     --arg zjq_vessel_mode    "${RBRV_VESSEL_MODE}" \
-    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_annex_source   "${z_annex_source}" \
     --arg zjq_graft_source   "${z_graft_source}" \
     --arg zjq_vi_ref_1       "${z_vi_ref_1}" \
     --arg zjq_vi_prov_1      "${z_vi_prov_1}" \
@@ -224,7 +224,7 @@ zrbfvv_vouch_submit() {
         _RBGV_HALLMARK:            $zjq_hallmark,
         _RBGV_VESSEL:              $zjq_vessel,
         _RBGV_VESSEL_MODE:         $zjq_vessel_mode,
-        _RBGV_BIND_SOURCE:         $zjq_bind_source,
+        _RBGV_ANNEX_SOURCE:        $zjq_annex_source,
         _RBGV_GRAFT_SOURCE:        $zjq_graft_source,
         _RBGV_IMAGE_1:             $zjq_vi_ref_1,
         _RBGV_IMAGE_1_PROVENANCE:  $zjq_vi_prov_1,

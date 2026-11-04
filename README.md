@@ -76,7 +76,7 @@ tt/rbw-o.ONBOARDING.sh
 
 Recipe Bottle's remote build orchestration system for producing, attesting, and distributing container images via Google Cloud Build and Google Artifact Registry.
 The [Foundry](#Foundry) encompasses [RB Depots](#Depot), [Vessels](#Vessel), and [Hallmark](#Hallmark) tracking.
-Three vessel modes determine how images enter the [Depot](#Depot): conjure (build from source with SLSA provenance, with or without public egress as each vessel elects), bind (digest-pinned upstream mirror), and graft (local push).
+Three vessel modes determine how images enter the [Depot](#Depot): conjure (build from source with SLSA provenance, with or without public egress as each vessel elects), annex (digest-pinned upstream mirror), and graft (local push).
 Peer to [Crucible](#Crucible), which handles local runtime containment.
 
 The [Foundry](#Foundry) orchestrates Google Cloud Build to produce container images with [SLSA](#Provenance) attestation, software bills of material, multi-architecture builds, and digest-pinned toolchains — so every image has a verifiable origin story.
@@ -128,7 +128,7 @@ The [Retriever](#Retriever) [Summons](#Summon) images for local use, [Tallies](#
 
 ### Vessel
 
-A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Bind](#Bind)), or pushed from local ([Graft](#Graft)).
+A specification for a container image — built from source ([Conjure](#Conjure)), mirrored from upstream ([Annex](#Annex)), or pushed from local ([Graft](#Graft)).
 Each [Vessel](#Vessel) is a directory under `rbmm_moorings/rbmv_vessels/` containing at minimum an `rbrv.env` configuration file; [Conjure](#Conjure) [Vessels](#Vessel) also include a Dockerfile.
 A [Conjure](#Conjure) [Vessel](#Vessel) can also be [Kludged](#Kludge) — built locally for development, its base images fetched beforehand — which is an operation rather than a fourth mode.
 
@@ -173,7 +173,7 @@ At runtime the [Citizen](#Citizen) [Avows](#Avow) to open a [Sederunt](#Sederunt
 
 #### Build and Retrieve
 
-The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Binding](#Bind) from upstream, or [Grafting](#Graft) from local builds.
+The [Director](#Director) [Ordains](#Ordain) [Hallmarks](#Hallmark) for each [Vessel](#Vessel) — [Conjuring](#Conjure) from source, [Annexing](#Annex) from upstream, or [Grafting](#Graft) from local builds.
 Each [Ordain](#Ordain) chains its own metadata and [Vouch](#Vouch) stages, and the [Director](#Director) can [Vouch](#Vouch) any [Hallmark](#Hallmark) still pending in one batch; the [Retriever](#Retriever) [Tallies](#Tally) [Hallmarks](#Hallmark) by health status.
 
 Build results become durable by being written into committed [Regime](#Regime) lines: each chain-link verb — [Yoke](#Yoke), [Feoff](#Feoff), [Anoint](#Anoint), [Mitre](#Mitre) — resolves a fresh build fact into the configuration lines it owns, which the operator then commits.
@@ -266,13 +266,13 @@ It pairs the [Sentry](#Sentry) with a conjure-mode Jupyter [Bottle](#Bottle) und
 <a id="pluml"></a>**pluml**
 
 A PlantUML diagram server that needs no outbound network.
-It pairs the [Sentry](#Sentry) with a bind-mode PlantUML [Bottle](#Bottle), an upstream image pinned by digest, its egress disabled: the renderer needs no internet, so the [Crucible](#Crucible) grants it none.
-It exercises the bind supply-chain path and the most restrictive network posture.
+It pairs the [Sentry](#Sentry) with an annex-mode PlantUML [Bottle](#Bottle), an upstream image pinned by digest, its egress disabled: the renderer needs no internet, so the [Crucible](#Crucible) grants it none.
+It exercises the annex supply-chain path and the most restrictive network posture.
 
 <a id="nineveh"></a>**nineveh**
 
 A Kroki diagram render server, for Graphviz, PlantUML and D2, that needs no outbound network.
-It pairs the [Sentry](#Sentry) with a bind-mode Kroki [Bottle](#Bottle) under the same disabled egress as [pluml](#pluml), with [Station](#Station) entry published to the render port, a second working service showing the pattern generalizes.
+It pairs the [Sentry](#Sentry) with an annex-mode Kroki [Bottle](#Bottle) under the same disabled egress as [pluml](#pluml), with [Station](#Station) entry published to the render port, a second working service showing the pattern generalizes.
 
 <a id="fdkyclk"></a>**fdkyclk**
 
@@ -337,7 +337,7 @@ Provenance guarantees are mode-aware:
 | [Vessel](#Vessel) Mode | Trust Basis | [Vouch](#Vouch) Verdict |
 | --- | --- | --- |
 | **[Conjure](#Conjure)** | Full SLSA v1.0 Level 3 — signed build provenance from GCB | DSSE envelope signature verification |
-| **[Bind](#Bind)** | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
+| **[Annex](#Annex)** | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
 | **[Graft](#Graft)** | Locally built and pushed — no Cloud Build for the image push | GRAFTED (explicit no-provenance marker) |
 
 Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the [Station](#Station), no `jq` in the verification path.
@@ -494,10 +494,10 @@ The annotated tree below maps its files to the concepts defined above.
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, airgap egress |
 | `        ├── rbev_bottle_ifrit_forge/` | [Conjure](#Conjure) (tether) — Build-time forge fixture for the airgap [Ifrit](#Ifrit) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode, tether egress |
-| `        ├── rbev_bottle_plantuml/` | [Bind](#Bind) — upstream image pinned by digest |
-| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
-| `        ├── rbev_bottle_kroki/` | [Bind](#Bind) — Kroki render server for [nineveh](#nineveh) |
-| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Bind](#Bind) mode, digest reference |
+| `        ├── rbev_bottle_plantuml/` | [Annex](#Annex) — upstream image pinned by digest |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Annex](#Annex) mode, digest reference |
+| `        ├── rbev_bottle_kroki/` | [Annex](#Annex) — Kroki render server for [nineveh](#nineveh) |
+| `        │   └── rbrv.env` | [RBRV](#RBRV) — [Annex](#Annex) mode, digest reference |
 | `        ├── rbev_bottle_fdkyclk/` | [Conjure](#Conjure) — Keycloak test IdP for [fdkyclk](#fdkyclk) |
 | `        │   └── rbrv.env` | [RBRV](#RBRV) — [Conjure](#Conjure) mode |
 | `        ├── rbev_bottle_anthropic_jupyter/` | [Conjure](#Conjure) — Jupyter notebook server |
@@ -567,10 +567,10 @@ A cloud operation finding no live [Sederunt](#Sederunt) never signs in on its ow
 
 Delete a whole [Lode](#Lode) from the registry.
 
-<a id="Bind"></a>**Bind**
+<a id="Annex"></a>**Annex**
 
 Mirror an upstream image pinned by digest.
-[Binding](#Bind) captures an external image at a specific digest into the [Depot's](#Depot) registry.
+[Annexing](#Annex) captures an external image at a specific digest into the [Depot's](#Depot) registry.
 Trust is established through digest-pin verification rather than build [provenance](#Provenance).
 
 <a id="Bottle"></a>**Bottle**
@@ -807,7 +807,7 @@ It verifies that the stored refresh token can obtain a valid access token — a 
 <a id="Ordain"></a>**Ordain**
 
 Create a [Hallmark](#Hallmark) — the production build operation.
-[Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Binds](#Bind), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration, and chains the metadata and [Vouch](#Vouch) stages after the build.
+[Ordaining](#Ordain) is mode-aware: it [Conjures](#Conjure), [Annexes](#Annex), or [Grafts](#Graft) depending on the [Vessel's](#Vessel) configuration, and chains the metadata and [Vouch](#Vouch) stages after the build.
 Each [Ordain](#Ordain) produces an image in the [Depot](#Depot) registry with its [About](#About) artifact and its mode's verification record.
 
 <a id="Payor"></a>**Payor**
@@ -878,7 +878,7 @@ Repository-wide configuration: runtime container prefix, vessel directory, conta
 
 <a id="RBRV"></a>**RBRV**
 
-[Vessel](#Vessel) configuration specifying [Bind](#Bind), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
+[Vessel](#Vessel) configuration specifying [Annex](#Annex), [Conjure](#Conjure), or [Graft](#Graft) mode for creating [Hallmarks](#Hallmark).
 
 <a id="RBRW"></a>**RBRW**
 
@@ -1000,7 +1000,7 @@ A specification for a container image, built from source, mirrored from upstream
 <a id="Vouch"></a>**Vouch**
 
 Record a [Hallmark's](#Hallmark) mode-aware verification results.
-[Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Bind](#Bind) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
+[Conjure](#Conjure) builds receive full [SLSA provenance](#Provenance) verification, [Annex](#Annex) builds receive digest-pin verification, and [Graft](#Graft) builds receive a GRAFTED verdict with no [provenance](#Provenance) chain.
 [Ordain](#Ordain) vouches as it builds, and the [Director](#Director) can vouch every [Hallmark](#Hallmark) still pending in one batch.
 
 <a id="Wrest"></a>**Wrest**
