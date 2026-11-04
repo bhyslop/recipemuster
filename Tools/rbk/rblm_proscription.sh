@@ -92,6 +92,12 @@ readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/mai
 # for the fixture's sweep to find) and obviously unset is the form that survives.
 readonly RBLM_unset_subject="unset-freehold-subject"
 
+# The runtime prefix's sterile value. NOT a blank: the field's minimum length is
+# two, so a blank refuses a stranger's first local command. A working default
+# inside the field's form (lowercase, hyphen-terminated) lets the first kludge run
+# with no setup.
+readonly RBLM_runtime_prefix_default="rb-"
+
 ######################################################################
 # Internal Functions (zrblm_*)
 
@@ -106,17 +112,19 @@ readonly RBLM_unset_subject="unset-freehold-subject"
 # The STERILE value is what lustration writes. An empty one blanks the field to
 # the onboarding-start state, which is what a consumer must fill in anyway. A
 # NON-EMPTY sterile value is used only where a blank would break the delivered
-# tree — never for cosmetics. Today that is RBRR_PUBLIC_DOCS_URL, whose whole
-# purpose is to be a live URL in the consumer's hands.
+# tree — never for cosmetics. Today those are RBRR_PUBLIC_DOCS_URL, whose whole
+# purpose is to be a live URL in the consumer's hands, and RBRR_RUNTIME_PREFIX,
+# whose blank refuses a stranger's first local command.
 #
 # The FEIGNED value is what feigning writes. A lustrated tree cannot VALIDATE:
-# thirteen of the site fields carry format checks a blank cannot satisfy, so the
-# candidate — correctly sterile — cannot run its own test suite. Feigning writes a
+# twelve of the site fields carry format checks a blank cannot satisfy and a
+# sterile value does not, so the candidate — correctly sterile — cannot run its own
+# test suite. Feigning writes a
 # shape-valid stand-in over each, on a throwaway probe branch, so the ceremony can
 # run the consumer's own reveille in the consumer's own tree. An empty feigned
 # value means "stay sterile": the eight min-length-0 site fields validate blank
-# and need no stand-in, and RBRR_PUBLIC_DOCS_URL must keep the sterile URL it was
-# just given.
+# and need no stand-in, RBRR_PUBLIC_DOCS_URL must keep the sterile URL it was
+# just given, and RBRR_RUNTIME_PREFIX already holds a valid sterile default.
 #
 # Every feigned value is deliberately, visibly false — zeros where an id is
 # numeric, the .invalid reserved TLD where a host is wanted, the verb's own name
@@ -130,7 +138,7 @@ readonly RBLM_unset_subject="unset-freehold-subject"
 # cannot ship undeclared, and this list cannot silently fall behind. Damnatio
 # also asserts every site field holds its STERILE value, so a feigned tree can
 # never be mistaken for a candidate: cut one by accident and the identity assay
-# reddens on all thirteen.
+# reddens on all twelve.
 #
 # The hardpoints
 #
@@ -171,7 +179,7 @@ zrblm_kindle() {
   z_rblm_feigned_roll=()
 
   # ── RBRR — repo regime ──
-  zrblm_enroll RBRR RBRR_RUNTIME_PREFIX              "${z_site}"    "" "feign-"
+  zrblm_enroll RBRR RBRR_RUNTIME_PREFIX              "${z_site}"    "${RBLM_runtime_prefix_default}" ""
   zrblm_enroll RBRR RBRR_VESSEL_DIR                  "${z_common}"
   zrblm_enroll RBRR RBRR_BOTTLE_WORKSPACE            "${z_common}"
   zrblm_enroll RBRR RBRR_DNS_SERVER                  "${z_common}"

@@ -1306,7 +1306,10 @@ rbgp_install() {
 
   buc_info ""
   if test "${z_config_ok}" = "true"; then
-    buc_info "Next: instaurate the manor — idempotently enables payor-project APIs, links billing, and founds the manor substrate"
+    buc_info "If this install renewed a lapsed credential on a manor already standing, nothing further is owed:"
+    buc_info "re-run the command that refused."
+    buc_info ""
+    buc_info "If this was the first install, instaurate the manor — idempotently enables payor-project APIs, links billing, and founds the manor substrate"
     buc_info "(set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in rbrd.env first — the depot regime is enforced and the terrier bucket's region rides RBRD_GCP_REGION):"
     buc_tabtarget "${RBZ_INSTAURATE_MANOR}"
     buc_info "Then levy the depot:"

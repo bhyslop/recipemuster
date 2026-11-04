@@ -105,7 +105,12 @@ runway=${z_runway}"
   if test "${z_verdict}" = "live"; then
     buc_success "${RBCC_noun_sederunt_lettrine} LIVE — runway ${z_runway}s (~$(( 10#${z_runway} / 3600 ))h$(( (10#${z_runway} % 3600) / 60 ))m remaining)"
   else
-    buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; open one with any federated command or rbw-aN (fresh full window)"
+    if test "${RBRF_MECHANISM}" = "rbnfe_interactive"; then
+      buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; ${RBCG_SEDERUNT_NOVATE_BASE} is the one road to a ${RBCC_noun_sederunt} (fresh full window), and no command signs in on its own:"
+    else
+      buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; a programmatic foedus opens one on demand at the next federated command, or ${RBCG_SEDERUNT_NOVATE_BASE} opens a fresh full window now:"
+    fi
+    buc_tabtarget "${RBZ_NOVATE_SEDERUNT}"
   fi
 }
 
