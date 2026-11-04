@@ -46,7 +46,7 @@ Validating the [Crucible's](#Crucible) containment yourself, or contributing, ad
 
 All configuration flows through [Regimes](#Regime) — structured `.env` files with typed validation, each with its own render and validate commands.
 Some regimes are committed in the repo: [Vessel](#Vessel) definitions ([RBRV](#RBRV)), [Nameplate](#Nameplate) configurations ([RBRN](#RBRN)), [Depot](#Depot) identity ([RBRD](#RBRD)), repository-wide settings ([RBRR](#RBRR)), [Payor](#Payor) identity ([RBRP](#RBRP)), the [Manor's](#Manor) workforce-pool record ([RBRW](#RBRW)), and [per-Foedus](#Foedus) federation trust ([RBRF](#RBRF)).
-Others live on the filesystem outside revision control: [Payor](#Payor) OAuth credentials ([RBRO](#RBRO)) and developer workstation paths ([BURS](#BURS)).
+Others live on the filesystem outside revision control: [Payor](#Payor) OAuth credentials ([RBRO](#RBRO)) and [Station](#Station) paths ([BURS](#BURS)).
 
 Every operation is launched through a [Tabtarget](#Tabtarget) — a shell script in the `tt/` directory.
 The critical property: tab completion finds the command you want.
@@ -189,9 +189,9 @@ The [Retriever](#Retriever) [Summons](#Summon) a [Hallmark's](#Hallmark) images 
 - [Software Bills of Material (SBOM)](#SBOM) for every build
 - Build metadata — the [SBOM](#SBOM), the build info and the build recipe — kept in an [About](#About) artifact beside the image
 - Upstream base images [Captured](#Capture) into the [Depot's](#Depot) registry as [Lodes](#Lode), so builds do not depend on third-party registry availability at build time
-- `gcloud` never runs on the workstation — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
+- `gcloud` never runs on the [Station](#Station) — REST calls via `curl` and `jq` drive all remote operations, and the Google-supplied `gcloud` binary is confined to Cloud Build step containers on the server side
 
-Each build's source context is packaged as a [Pouch](#Pouch) — the security boundary between workstation and build infrastructure.
+Each build's source context is packaged as a [Pouch](#Pouch) — the security boundary between the [Station](#Station) and build infrastructure.
 
 ## Crucible
 
@@ -226,7 +226,7 @@ Each [Nameplate](#Nameplate) declares its [Vessel](#Vessel) selections, [Hallmar
 
 The isolated network connecting a [Bottle](#Bottle) to its [Sentry](#Sentry) — the [Bottle's](#Bottle) only path to the outside world.
 All [Bottle](#Bottle) traffic routes through the [Enclave](#Enclave) to the [Sentry](#Sentry) gateway; the [Bottle](#Bottle) has no interface on any other network.
-The [Sentry](#Sentry) alone also stands on the [Transit](#Transit) network — the uplink that reaches the workstation and the world beyond — so the [Sentry](#Sentry) is the only container straddling both networks, and everything that leaves the [Enclave](#Enclave) crosses its policy.
+The [Sentry](#Sentry) alone also stands on the [Transit](#Transit) network — the uplink that reaches the [Station](#Station) and the world beyond — so the [Sentry](#Sentry) is the only container straddling both networks, and everything that leaves the [Enclave](#Enclave) crosses its policy.
 
 ### Crucible Lifecycle
 
@@ -243,7 +243,7 @@ Each pairs a [Sentry](#Sentry) with a [Bottle](#Bottle) [Vessel](#Vessel) and de
 <a id="ccyolo"></a>**ccyolo**
 
 The Claude Code sandbox [Nameplate](#Nameplate), for network-contained AI development.
-It pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an allowlist admitting Anthropic's service: SSH entry from the workstation, OAuth sign-in by copy and paste, everything else blocked.
+It pairs the [Sentry](#Sentry) with a Claude Code [Bottle](#Bottle) under an allowlist admitting Anthropic's service: SSH entry from the [Station](#Station), OAuth sign-in by copy and paste, everything else blocked.
 Its images are built locally and never in the cloud, so it needs no cloud account, [Manor](#Manor) or [Depot](#Depot), and the onboarding's first hands-on track teaches the [Crucible](#Crucible) lifecycle with it.
 
 <a id="tadmor"></a>**tadmor**
@@ -272,13 +272,13 @@ It exercises the bind supply-chain path and the most restrictive network posture
 <a id="nineveh"></a>**nineveh**
 
 A Kroki diagram render server, for Graphviz, PlantUML and D2, that needs no outbound network.
-It pairs the [Sentry](#Sentry) with a bind-mode Kroki [Bottle](#Bottle) under the same disabled egress as [pluml](#pluml), with workstation entry published to the render port, a second working service showing the pattern generalizes.
+It pairs the [Sentry](#Sentry) with a bind-mode Kroki [Bottle](#Bottle) under the same disabled egress as [pluml](#pluml), with [Station](#Station) entry published to the render port, a second working service showing the pattern generalizes.
 
 <a id="fdkyclk"></a>**fdkyclk**
 
 The Keycloak synthetic-federation test identity provider.
 It pairs the [Sentry](#Sentry) with a conjure-mode Keycloak [Bottle](#Bottle) that mints programmatic OIDC tokens, the self-contained identity provider the federation test-bed [Charges](#Charge) to prove federated sign-in end to end without a corporate identity tenant.
-It has no outbound network, and its entry is from the workstation only.
+It has no outbound network, and its entry is from the [Station](#Station) only.
 
 It is a synthetic test identity provider and no security boundary.
 Its asserter signing key and client secret are committed in the repository by design, so the federation-admission path is proven deterministically with no human and no corporate tenant.
@@ -293,7 +293,7 @@ This appendix names that conventional stack, so the comparison stays honest and 
 
 Knowing where an image came from — and proving it — is the domain of software supply-chain security.
 The stabilized toolchain pairs build provenance ([SLSA](https://slsa.dev)) with cryptographic signing ([Sigstore](https://www.sigstore.dev)/cosign), a [software bill of materials](#SBOM) ([Syft](https://github.com/anchore/syft)), vulnerability scanning, and deploy-time admission control ([Kyverno](https://kyverno.io), OPA Gatekeeper) that rejects unsigned or unattested images.
-Reaching SLSA Build Level 2 with this stack is a matter of weeks; the [Foundry](#Foundry) reaches **Level 3** with none of it resident on the workstation.
+Reaching SLSA Build Level 2 with this stack is a matter of weeks; the [Foundry](#Foundry) reaches **Level 3** with none of it resident on the [Station](#Station).
 
 ### <a id="RestrictingAccess"></a>Restricting access
 
@@ -340,7 +340,7 @@ Provenance guarantees are mode-aware:
 | **[Bind](#Bind)** | Digest-pin comparison — image in GAR matches pinned upstream reference | Digest-pin match |
 | **[Graft](#Graft)** | Locally built and pushed — no Cloud Build for the image push | GRAFTED (explicit no-provenance marker) |
 
-Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the workstation, no `jq` in the verification path.
+Deliberately excluded: no `slsa-verifier` binary, no `gcloud` CLI on the [Station](#Station), no `jq` in the verification path.
 The [Vouch](#Vouch) verifier reconstructs Pre-Authenticated Encoding (PAE), decodes the base64url payload and signature, and verifies via `openssl dgst` against embedded attestor keys — a minimal, auditable trust chain.
 
 ## <a id="SBOM"></a>Appendix: Software Bill of Materials
@@ -425,8 +425,9 @@ A registry that ships images with no durable reference has decided reproducibili
 
 The following features are not yet implemented but are under consideration:
 
+- <a id="AwsNativeBuilder"></a>**[AWS-Native Builder](#AwsNativeBuilder)** - A second [Foundry](#Foundry) realized on AWS, with CodeBuild and ECR standing where Cloud Build and Artifact Registry stand today and the same roles and admission verbs on AWS primitives; variations from the Google backend are expected, build provenance among them.
 - <a id="CrucibleConduit"></a>**[Crucible Conduit for Cloud Services](#CrucibleConduit)** - An encrypted tunnel, its local end a dedicated vessel rather than the [Sentry](#Sentry), that lets [Bottles](#Bottle) reach cloud AI services (AWS Bedrock, Vertex AI, Azure OpenAI) without listing floating cloud IP ranges in the CIDR allowlist.
-- <a id="BottleCredentialCustody"></a>**[Bottle Credential Custody](#BottleCredentialCustody)** - Move the service secrets a [Bottle](#Bottle) workload uses (cloud API keys, IAM keys, SSH keys) off the operator's workstation and into the [Bottle](#Bottle) itself, so a compromised workstation — holding only permission to [Charge](#Charge) — cannot leak them.
+- <a id="BottleCredentialCustody"></a>**[Bottle Credential Custody](#BottleCredentialCustody)** - Move the service secrets a [Bottle](#Bottle) workload uses (cloud API keys, IAM keys, SSH keys) off the [Station](#Station) and into the [Bottle](#Bottle) itself, so a compromised [Station](#Station) — holding only permission to [Charge](#Charge) — cannot leak them.
 - <a id="VpcServiceControls"></a>**[VPC Service Controls](#VpcServiceControls)** - Google Cloud security perimeters that prevent data from being copied out of a project even if an attacker holds valid credentials.
 - <a id="CosignSigning"></a>**[Cosign Container Signing](#CosignSigning)** - Cryptographic image signatures independent of registry trust.
 - <a id="CdnAwareIpGating"></a>**[CDN-Aware IP Gating](#CdnAwareIpGating)** - Precise IP-level gating for allowed domains served by shared CDN address ranges (e.g. Cloudflare), where the [Sentry's](#Sentry) CIDR allowlist is necessarily coarse.
@@ -468,7 +469,7 @@ The annotated tree below maps its files to the concepts defined above.
 | `    ├── rben_nineveh/` | [Nameplate](#Nameplate) — [nineveh](#nineveh) Kroki render server |
 | `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Kroki, no-egress allowlist |
 | `    ├── rben_fdkyclk/` | [Nameplate](#Nameplate) — [fdkyclk](#fdkyclk) Keycloak test IdP |
-| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Keycloak, no-egress, workstation entry |
+| `    │   └── rbrn.env` | [RBRN](#RBRN) — [Sentry](#Sentry) + Keycloak, no-egress, [Station](#Station) entry |
 | `    ├── buml_launchers/` | Launcher scripts (environment gates) — `launcher.*.sh` |
 | `    └── rbmv_vessels/` | [Vessel](#Vessel) definitions |
 | `        ├── common-sentry-context/` | Shared [Sentry](#Sentry) and [Pentacle](#Pentacle) build context |
@@ -534,7 +535,7 @@ A [Payor](#Payor) ceremony with founding gravity, run once per [Foedus](#Foedus)
 <a id="Anoint"></a>**Anoint**
 
 Rewrite a [Graft](#Graft) [Vessel's](#Vessel) image reference from the chained facts of a fresh build.
-The grafted image's [provenance](#Provenance) begins here, on the station, before [Graft](#Graft) pushes it.
+The grafted image's [provenance](#Provenance) begins here, on the [Station](#Station), before [Graft](#Graft) pushes it.
 
 <a id="Ark"></a>**Ark**
 
@@ -589,9 +590,7 @@ Project structure configuration, in the repo.
 
 <a id="BURS"></a>**BURS**
 
-Developer workstation configuration.
-Not in git.
-Log directory, station paths.
+One [Station's](#Station) own configuration, not in git: its log directory and local paths.
 
 <a id="Capture"></a>**Capture**
 
@@ -662,7 +661,7 @@ The isolated network joining a [Bottle](#Bottle) to its [Sentry](#Sentry), the [
 <a id="Ensconce"></a>**Ensconce**
 
 [Capture](#Capture) an upstream base image into a [Lode](#Lode).
-Capture-pure and cloud-side — the workstation fetches no upstream bytes and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
+Capture-pure and cloud-side — the [Station](#Station) fetches no upstream bytes and no [Vessel](#Vessel) configuration is written; electing the captured base into a [Vessel](#Vessel) is [Feoff's](#Feoff) separate act.
 
 <a id="Escheat"></a>**Escheat**
 
@@ -750,7 +749,8 @@ Tearing down the pool itself is a manor-teardown act, deliberately not [Jilt](#J
 <a id="Kludge"></a>**Kludge**
 
 Build a [Conjure](#Conjure) [Vessel's](#Vessel) image locally for fast iteration, without [Depot](#Depot) registry push.
-[Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build, its base images already fetched to the station.
+[Kludging](#Kludge) produces a local Docker image for development and testing without involving Cloud Build, its base images already fetched to the [Station](#Station).
+It builds for the [Station's](#Station) own platform alone; an image for another platform is [Conjured](#Conjure) in Cloud Build.
 The resulting image can be used to [Charge](#Charge) a [Crucible](#Crucible) directly.
 
 <a id="Levy"></a>**Levy**
@@ -828,7 +828,7 @@ Two views are available: full ([SBOM](#SBOM), build info, Dockerfile) and compac
 
 Build context packaged as a FROM SCRATCH OCI image and pushed to the [Depot's](#Depot) registry before a Cloud Build job runs.
 The [Director](#Director) controls what enters the [Pouch](#Pouch) — Dockerfile, context files, build scripts — and the cloud receives only what the [Pouch](#Pouch) contains.
-This is the security boundary between workstation and build infrastructure.
+This is the security boundary between the [Station](#Station) and build infrastructure.
 
 <a id="Presage"></a>**Presage**
 
@@ -934,6 +934,11 @@ The security container that enforces a [Crucible's](#Crucible) network policy wi
 
 One named escape attempt in the [Ifrit's](#Ifrit) repertoire: a single attack vector, carried through end to end, returning its own verdict on whether the [Sentry's](#Sentry) containment held.
 
+<a id="Station"></a>**Station**
+
+The machine you run Recipe Bottle's commands on, described by its [BURS](#BURS) station file.
+Any machine carrying a station file is a station; the one you type on is the usual case.
+
 <a id="StaleDeleteRead"></a>**"Already Exists" After a Delete**
 
 An operation that fails with "already exists" immediately after you deleted a same-named service account is almost always GCP's [post-delete read flap](#EventualConsistency), not leftover local state.
@@ -971,7 +976,7 @@ The shared `-mark` ending signals the kinship with [Hallmark](#Hallmark) — a [
 
 <a id="Transit"></a>**Transit**
 
-The uplink network reaching the workstation and the world beyond, on which only the [Sentry](#Sentry) stands.
+The uplink network reaching the [Station](#Station) and the world beyond, on which only the [Sentry](#Sentry) stands.
 
 <a id="Underpin"></a>**Underpin**
 
