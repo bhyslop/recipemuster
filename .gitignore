@@ -50,9 +50,9 @@ lenses/.idea/
 **/target/
 
 # rbef_keycloak live federation regime — the ONE sanctioned deviation from
-# RBSRF ships-committed: the Keycloak orchestrator (rbxk_keycloak) renders this
+# the ships-committed rule for federation regimes: the Keycloak orchestrator (rbxk_keycloak) renders this
 # live rbrf.env per charge from rbrf.env.template plus the ephemeral public JWKS
-# (committed nowhere, RBSFK). The template beside it IS committed; only the
+# (committed nowhere). The template beside it IS committed; only the
 # rendered live file is ignored, so setup keeps the tree clean (untracked, ungated).
 rbmm_moorings/rbmf_foedera/rbef_keycloak/rbrf.env
 
