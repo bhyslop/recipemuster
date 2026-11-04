@@ -180,7 +180,7 @@ const ZRBVCEU_SHAPE_CLASSES: &[zrbvceu_Class] = &[
 /// Why the federation diagrams are residue: their titles cite a dated memo and
 /// were ruled accepted until the diagrams next change.
 const ZRBVCEU_DIAGRAM_REASON: &str =
-    "accepted residue (operator ruling): the diagram's title cites an internal record, kept until the diagram next changes";
+    "accepted residue (operator ruling): the diagram's title cites a dated internal name, kept until the diagram next changes";
 
 /// Repo-relative SHIPPED paths exempt from the veil scan, each with the classes it
 /// is excused from and the reason — the sanctioned residue (operator ruling).
@@ -274,7 +274,7 @@ pub(crate) fn zrbvceu_exempt_from(rel: &str, class: zrbvceu_Class) -> bool {
 const ZRBVCEU_VEIL_PATH_DETAIL: &str = "names the withheld tree";
 const ZRBVCEU_VEIL_DOC_DETAIL: &str = "names withheld document";
 const ZRBVCEU_TOKEN_DETAIL: &str = "names an internal path token";
-const ZRBVCEU_MEMO_DETAIL: &str = "names an internal dated record";
+const ZRBVCEU_MEMO_DETAIL: &str = "names a dated internal name";
 const ZRBVCEU_DOC_DETAIL: &str = "names an internal spec document";
 
 /// File extensions skipped by the file walk — compiled, compressed, or raster
@@ -632,7 +632,7 @@ pub(crate) fn zrbvceu_class_specimens(
                 "reads feodary.json beside the entry",
             ],
             &[
-                "the estate rules name an infield and a kraal",
+                "the rules of the estate stand beside the entry",
                 "no jjq prefix without its letter and underscore: jjq_x",
                 "a longer word such as xjjqz_example is no token",
                 "feodary.jsonl is a different file",

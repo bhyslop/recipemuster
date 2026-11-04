@@ -376,7 +376,7 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
         zrbvceg_basename(&temenos.memo_path), //
     ));
     rbvcel_log::rbvcel_line(
-        "to the session of the pace the walk serves, which commits it into the corpus through that pace's own vulgate billet; then discard the temenos.",
+        "to the session the walk serves, which commits it into the corpus as a memo through its own vulgate work tree; then discard the temenos.",
     );
 }
 

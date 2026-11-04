@@ -365,7 +365,7 @@ fn rbvteu_residue_excuses_its_class_only() {
         "the excused residue path was flagged for its excused class", //
     );
     assert!(
-        named(residue, "names an internal dated record"),
+        named(residue, "names a dated internal name"),
         "the residue path's excuse spread to a class it does not name", //
     );
 }
