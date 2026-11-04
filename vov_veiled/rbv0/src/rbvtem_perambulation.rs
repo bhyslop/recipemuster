@@ -264,6 +264,23 @@ fn rbvtem_matcher_longest_wins() {
     );
 }
 
+/// The utilities kit's estate-geography agent text is withheld at file grain, and
+/// its sibling agent text beside it still ships. Totality stays green with the
+/// row in the table, which proves the row wins for a tracked path.
+#[test]
+fn rbvtem_estate_geography_text_is_withheld() {
+    let geography = rbvcem_judge("Tools/buk/buai0/buais_oikoumene.md");
+    assert!(
+        matches!(geography, Some((rbvcem_Disposition::Withhold, _))),
+        "the estate-geography text must be withheld", //
+    );
+    let sibling = rbvcem_judge("Tools/buk/buai0/buais_buk.md");
+    assert!(
+        matches!(sibling, Some((rbvcem_Disposition::Ship, _))),
+        "the kit's other agent text must still ship", //
+    );
+}
+
 // ── The table's structural invariants ───────────────────────
 
 /// The enrollment-time checks the bash table ran, held as validation: an
