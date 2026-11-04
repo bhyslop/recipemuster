@@ -134,7 +134,7 @@ rbho_start_here() {
   buh_line "      PlantUML renders diagrams but its Docker Hub image could"
   buh_line "      phone home. ${RBYC_ANNEX} pins it; the ${RBYC_SENTRY} blocks all egress."
   buh_line "      The ${z_pluml} ${RBYC_CRUCIBLE} deliberately mixes a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} with"
-  buh_line "      a bound ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
+  buh_line "      an annexed ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
   buh_line "      expected shape, not a defect."
   buh_line "      Steps:"
   buh_line "        * Prepare the guard image                  (${RBYC_KLUDGE} ${RBYC_SENTRY} or reuse ${RBYC_CONJURED})"

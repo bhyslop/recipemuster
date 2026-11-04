@@ -982,7 +982,7 @@ fn zrbtdrq_unjudged(reach: &zrbtchd_Reach, file: &str, var: &str) -> Option<zrbt
 ///
 /// The value judged is the one bash holds after sourcing the file, read in the
 /// reach; this case reads no file text. A field a home does not assign is not an
-/// error — a bind vessel carries no graft image, a conjure vessel no bind image —
+/// error — an annex vessel carries no graft image, a conjure vessel no annex image —
 /// while a hardpoint that is not assigned is.
 ///
 /// The value reader proves itself first, its findings leading the case's, so a

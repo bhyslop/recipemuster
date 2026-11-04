@@ -127,7 +127,7 @@ zrbfva_about_submit() {
 
   # Determine mode-specific substitution values
   local z_vessel_mode="${RBRV_VESSEL_MODE}"
-  local z_bind_source=""
+  local z_annex_source=""
   local z_graft_source=""
   local z_inscribe_ts=""
   local z_dockerfile_content=""
@@ -148,8 +148,8 @@ zrbfva_about_submit() {
         fi
       fi
       ;;
-    rbnve_bind)
-      z_bind_source="${RBRV_ANNEX_IMAGE:-}"
+    rbnve_annex)
+      z_annex_source="${RBRV_ANNEX_IMAGE:-}"
       if test -n "${RBRV_ANNEX_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"; then
         z_dockerfile_content=$(<"${RBRV_ANNEX_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"
         if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
@@ -203,7 +203,7 @@ zrbfva_about_submit() {
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_build_id       "${z_conjure_build_id}" \
     --arg zjq_inscribe_ts    "${z_inscribe_ts}" \
-    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_annex_source   "${z_annex_source}" \
     --arg zjq_graft_source   "${z_graft_source}" \
     --arg zjq_dockerfile     "${z_dockerfile_content}" \
     --arg zjq_pool           "${RBDC_POOL_AIRGAP}" \
@@ -222,7 +222,7 @@ zrbfva_about_submit() {
         _RBGA_GIT_REPO:              $zjq_git_repo,
         _RBGA_BUILD_ID:              $zjq_build_id,
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
-        _RBGA_BIND_SOURCE:           $zjq_bind_source,
+        _RBGA_ANNEX_SOURCE:          $zjq_annex_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
         _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile
       },

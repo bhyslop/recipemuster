@@ -42,8 +42,8 @@ zrbrv_kindle() {
   buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
   buv_string_enroll RBRV_USER              0   64  "Container runtime user (unset means image default)"
-  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind, conjure, or graft" \
-                    rbnve_bind rbnve_conjure rbnve_graft
+  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: annex, conjure, or graft" \
+                    rbnve_annex rbnve_conjure rbnve_graft
 
   buv_group_enroll "Tool Image Reliquary"
   buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary Lode touchmark (e.g., r260324193326) — identifies the conclave tool-image Lode in GAR"
@@ -52,10 +52,10 @@ zrbrv_kindle() {
   buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
                     rbnve_tether rbnve_airgap
 
-  buv_group_enroll "Binding Configuration"
-  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_bind
-  buv_fqin_enroll   RBRV_ANNEX_IMAGE                1  512  "Source image to copy from registry"
-  buv_string_enroll RBRV_ANNEX_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
+  buv_group_enroll "Annexing Configuration"
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_annex
+  buv_fqin_enroll   RBRV_ANNEX_IMAGE               1  512  "Source image to copy from registry"
+  buv_string_enroll RBRV_ANNEX_OPTIONAL_DOCKERFILE 0  512  "Optional Dockerfile for about recipe.txt"
 
   buv_group_enroll "Conjuring Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
@@ -96,14 +96,14 @@ zrbrv_enforce() {
 
   buv_vet RBRV
 
-  # Bind vessels must be digest-pinned: the vouch's verify-provenance pins the
+  # Annex vessels must be digest-pinned: the vouch's verify-provenance pins the
   # mirrored image against the @sha256: digest in RBRV_ANNEX_IMAGE, so a tag-only
   # source passes the mirror but fails the vouch deep in the cloud build. Reject
   # it here at config time.
-  if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
-    local -r z_bind_digest_re='@sha256:[0-9a-f]{64}$'
-    [[ "${RBRV_ANNEX_IMAGE}" =~ ${z_bind_digest_re} ]] \
-      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_ANNEX_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_ANNEX_IMAGE}'"
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_annex"; then
+    local -r z_annex_digest_re='@sha256:[0-9a-f]{64}$'
+    [[ "${RBRV_ANNEX_IMAGE}" =~ ${z_annex_digest_re} ]] \
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_ANNEX_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for an annex vessel; got '${RBRV_ANNEX_IMAGE}'"
   fi
 }
 

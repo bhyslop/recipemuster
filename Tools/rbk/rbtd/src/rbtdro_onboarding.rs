@@ -157,7 +157,7 @@ const RBTCGO_CONSUMERS_SENTRY_TETHER: &[&str] = &[
 /// Nameplates that receive the airgap-bottle hallmark from ordain-airgap.
 const RBTCGO_CONSUMERS_AIRGAP_BOTTLE: &[&str] = &[RBTCGO_NAMEPLATE_MORIAH];
 
-/// Nameplates that receive the plantuml-bottle hallmark from ordain-bind.
+/// Nameplates that receive the plantuml-bottle hallmark from ordain-annex.
 const RBTCGO_CONSUMERS_PLANTUML_BOTTLE: &[&str] = &[RBTCGO_NAMEPLATE_PLUML];
 
 /// Nameplates that receive the jupyter-bottle hallmark from conjure-srjcl.
@@ -1083,7 +1083,7 @@ fn zrbtcgo_ordain_airgap_chain_impl(ctx: &mut rbtcei_Context, dir: &Path) -> rbt
     rbtcee_Verdict::Pass
 }
 
-/// Pin upstream PlantUML by digest. Bind mode reads RBRV_ANNEX_IMAGE from
+/// Pin upstream PlantUML by digest. Annex mode reads RBRV_ANNEX_IMAGE from
 /// rbev_bottle_plantuml/rbrv.env and mirrors the digest into GAR via Cloud
 /// Build (gcrane from reliquary + about/vouch metadata). Propagates plantuml
 /// hallmark to pluml via RBRN_BOTTLE_HALLMARK.
@@ -1098,7 +1098,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
     let root = ctx.rbtcei_project_root().to_path_buf();
 
     let hallmark =
-        match rbtcei_ordain_capture(ctx, dir, RBTCGO_VESSEL_DIR_PLANTUML, &[], "ordain-bind") {
+        match rbtcei_ordain_capture(ctx, dir, RBTCGO_VESSEL_DIR_PLANTUML, &[], "ordain-annex") {
             Ok(h) => h,
             Err(v) => return v,
         };
@@ -1120,7 +1120,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         &[&wrest_locator],
         &[],
         dir,
-        "wrest-bind",
+        "wrest-annex",
     ) {
         return v;
     }
@@ -1133,7 +1133,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         &[&hallmark],
         &[],
         dir,
-        "plumb-compact-bind",
+        "plumb-compact-annex",
     ) {
         Ok(r) => r,
         Err(v) => return v,
@@ -1163,7 +1163,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         &[&jettison_locator],
         &[(RBTCEI_BURE_CONFIRM_KEY, RBTCEI_BURE_CONFIRM_SKIP)],
         dir,
-        "jettison-pouch-bind",
+        "jettison-pouch-annex",
     ) {
         return v;
     }
@@ -1176,7 +1176,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
         &[&hallmark],
         &[],
         dir,
-        "rekon-after-jettison-bind",
+        "rekon-after-jettison-annex",
     ) {
         Ok(r) => r,
         Err(v) => return v,
@@ -1205,7 +1205,7 @@ fn zrbtcgo_ordain_annex_plantuml_impl(ctx: &mut rbtcei_Context, dir: &Path) -> r
     if let Err(e) = rbtcee_commit_nameplates(
         &root,
         RBTCGO_CONSUMERS_PLANTUML_BOTTLE,
-        "ordain-bind: plantuml-bottle hallmark + propagate to pluml",
+        "ordain-annex: plantuml-bottle hallmark + propagate to pluml",
     ) {
         return rbtcee_Verdict::Fail(e);
     }

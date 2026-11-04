@@ -32,7 +32,7 @@
 #     pulling it for step execution; failure to pull alpine produces Cloud
 #     Build's own "image not pullable" error before this script runs.
 #   - Base anchor locators (slots 1/2/3 if non-empty). Conjure populates
-#     these; bind and graft pass them through empty.
+#     these; annex and graft pass them through empty.
 #
 # Failure mode: structured "this pool can't see «TOOL»" message naming each
 # missed item. Operator remediation: re-conclave the reliquary, re-yoke the

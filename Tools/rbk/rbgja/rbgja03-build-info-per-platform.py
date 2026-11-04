@@ -6,14 +6,14 @@
 #   ${_RBGA_HALLMARK} ${_RBGA_VESSEL_MODE}
 #   ${_RBGA_GIT_COMMIT} ${_RBGA_GIT_BRANCH} ${_RBGA_GIT_REPO}
 #   ${_RBGA_BUILD_ID} ${_RBGA_INSCRIBE_TIMESTAMP}
-#   ${_RBGA_BIND_SOURCE} ${_RBGA_GRAFT_SOURCE}
+#   ${_RBGA_ANNEX_SOURCE} ${_RBGA_GRAFT_SOURCE}
 #   ${_RBGA_DOCKERFILE_CONTENT}
 #
 # Generates one build_info-{arch}{variant}.json per platform with mode-aware fields.
 # Shared fields: vessel_mode, vessel_name, platform, image_digest, about_timestamp,
 #                git_commit, git_branch, git_repo
 # Conjure fields: build_id, inscribe_timestamp, qemu_used, slsa_*
-# Bind fields: bind_source
+# Annex fields: annex_source
 # Graft fields: graft_source
 
 import json
@@ -131,8 +131,8 @@ def main():
                 ],
                 "provenance_builder_id": "https://cloudbuild.googleapis.com/GoogleHostedWorker",
             }
-        elif vessel_mode == "rbnve_bind":
-            info["bind"] = {"source": os.environ.get("_RBGA_BIND_SOURCE", "")}
+        elif vessel_mode == "rbnve_annex":
+            info["annex"] = {"source": os.environ.get("_RBGA_ANNEX_SOURCE", "")}
         elif vessel_mode == "rbnve_graft":
             info["graft"] = {"source": os.environ.get("_RBGA_GRAFT_SOURCE", "")}
         else:

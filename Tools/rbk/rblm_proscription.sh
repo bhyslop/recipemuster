@@ -241,8 +241,8 @@ zrblm_kindle() {
   zrblm_enroll RBRV RBRV_VESSEL_MODE                 "${z_common}"
   zrblm_enroll RBRV RBRV_RELIQUARY                   "${z_site}"    "" "r000000000000"
   zrblm_enroll RBRV RBRV_EGRESS_MODE                 "${z_common}"
-  zrblm_enroll RBRV RBRV_ANNEX_IMAGE                  "${z_common}"
-  zrblm_enroll RBRV RBRV_ANNEX_OPTIONAL_DOCKERFILE    "${z_common}"
+  zrblm_enroll RBRV RBRV_ANNEX_IMAGE                 "${z_common}"
+  zrblm_enroll RBRV RBRV_ANNEX_OPTIONAL_DOCKERFILE   "${z_common}"
   zrblm_enroll RBRV RBRV_CONJURE_DOCKERFILE          "${z_common}"
   zrblm_enroll RBRV RBRV_CONJURE_BLDCONTEXT          "${z_common}"
   zrblm_enroll RBRV RBRV_CONJURE_PLATFORMS           "${z_common}"
@@ -502,7 +502,7 @@ zrblm_value_recite() {
 
 # zrblm_scrub_regime FILE SCOPE COLUMN — rewrite every site-scoped field in one
 # regime file to the named column's value. A field the file does not carry is not
-# an error: a bind vessel has no graft image, a conjure vessel no bind image.
+# an error: an annex vessel has no graft image, a conjure vessel no annex image.
 # Comments, blanks and common fields pass through byte-for-byte.
 zrblm_scrub_regime() {
   zrblm_sentinel

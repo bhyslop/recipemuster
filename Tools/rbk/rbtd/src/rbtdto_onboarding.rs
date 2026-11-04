@@ -21,7 +21,7 @@ use crate::rbtcea_almanac::rbtcea_lookup_fixture;
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_ONBOARDING_SEQUENCE;
 
 /// Case order is load-bearing for StateProgressing — conclave must precede
-/// all reliquary-consuming cases (kludge, conjure, srjcl, airgap, bind).
+/// all reliquary-consuming cases (kludge, conjure, srjcl, airgap, annex).
 #[test]
 fn rbttgo_conclave_precedes_reliquary_consumers() {
     let fix = rbtcea_lookup_fixture(RBTCEM_FIXTURE_ONBOARDING_SEQUENCE)
@@ -51,14 +51,14 @@ fn rbttgo_conclave_precedes_reliquary_consumers() {
         .iter()
         .position(|n| n.contains("rbtcgo_ordain_airgap_chain"))
         .expect("airgap case present");
-    let bind_idx = names
+    let annex_idx = names
         .iter()
         .position(|n| n.contains("rbtcgo_ordain_annex_plantuml"))
-        .expect("ordain-bind case present");
+        .expect("ordain-annex case present");
     assert!(conclave_idx < kludge_tadmor_idx);
     assert!(conclave_idx < kludge_ccyolo_idx);
     assert!(conclave_idx < conjure_idx);
     assert!(conclave_idx < srjcl_idx);
     assert!(conclave_idx < airgap_idx);
-    assert!(conclave_idx < bind_idx);
+    assert!(conclave_idx < annex_idx);
 }

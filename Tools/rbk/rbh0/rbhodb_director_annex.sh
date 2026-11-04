@@ -17,11 +17,11 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# Recipe Bottle Handbook Onboarding - Director Bind Mode
+# Recipe Bottle Handbook Onboarding - Director Annex Mode
 #
-# Teaches bind mode using rbev_bottle_plantuml: pin an upstream image
+# Teaches annex mode using rbev_bottle_plantuml: pin an upstream image
 # by digest into GAR, no Dockerfile, no build context, no SLSA. The
-# pluml Crucible deliberately mixes a kludged Sentry with a bound
+# pluml Crucible deliberately mixes a kludged Sentry with an annexed
 # Bottle — two ordain modes cohabiting in one Crucible is the
 # expected shape, not a defect.
 
@@ -95,7 +95,7 @@ rbho_director_annex() {
   buh_line "Cloud Build runs gcrane to copy the digest-pinned upstream image into"
   buh_line "your ${RBYC_DEPOT}, then about/vouch records what was mirrored."
   buh_e
-  buh_line "This track binds ${z_lk_vessel} — the PlantUML server image. PlantUML"
+  buh_line "This track annexes ${z_lk_vessel} — the PlantUML server image. PlantUML"
   buh_line "renders diagrams, but its Docker Hub source could phone home if run"
   buh_line "naked. ${RBYC_ANNEX} pins it by content hash; the ${RBYC_SENTRY} blocks all"
   buh_line "egress at runtime. You get the tool without the risk."
@@ -122,7 +122,7 @@ rbho_director_annex() {
   buh_section "Mode mixture — name it explicitly"
   buh_e
   buh_line "The ${z_lk_pluml} ${RBYC_CRUCIBLE} in this track pairs a ${RBYC_KLUDGE_D}"
-  buh_line "(or ${RBYC_CONJURED}) ${RBYC_SENTRY} with a ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
+  buh_line "(or ${RBYC_CONJURED}) ${RBYC_SENTRY} with an ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
   buh_line "Two different ${RBYC_ORDAIN} modes cohabiting in one ${RBYC_CRUCIBLE} is the"
   buh_line "expected shape, not a defect — each ${RBYC_HALLMARK} carries its own"
   buh_line "${RBYC_VOUCH} verdict, and a ${RBYC_NAMEPLATE} can pin ${RBYC_HALLMARKS} of"
@@ -130,7 +130,7 @@ rbho_director_annex() {
   buh_e
   buh_line "The ${RBYC_SENTRY} enforces network policy regardless of how it was"
   buh_line "built; the policy is what's load-bearing, not the build mode behind"
-  buh_line "it. The bind lesson is about what happens to the ${RBYC_BOTTLE} image."
+  buh_line "it. The annex lesson is about what happens to the ${RBYC_BOTTLE} image."
   buh_e
 
   buh_step_style "Step " " — "
@@ -156,7 +156,7 @@ rbho_director_annex() {
   buh_e
   buh_line "  The ${RBYC_SENTRY} ${RBYC_HALLMARK} can come"
   buh_line "  from either build path — a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} is fine for"
-  buh_line "  learning ${RBYC_ANNEX}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The bind"
+  buh_line "  learning ${RBYC_ANNEX}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The annex"
   buh_line "  lesson is about the ${RBYC_BOTTLE}, not the ${RBYC_SENTRY}."
   buh_e
   if test "${z_sentry_ready}" = "1"; then
@@ -206,7 +206,7 @@ rbho_director_annex() {
   buh_line "${RBYC_ANNEX} mode mirrors an upstream image into your ${RBYC_DEPOT} by"
   buh_line "content hash. The ${RBYC_VESSEL} ${RBYC_RBRV} declares the upstream digest:"
   buh_e
-  buh_code "   RBRV_VESSEL_MODE=rbnve_bind"
+  buh_code "   RBRV_VESSEL_MODE=rbnve_annex"
   buh_code "   RBRV_ANNEX_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
   buh_e
   buh_line "${RBYC_ORDAIN} reads the mode from the ${RBYC_RBRV} and routes accordingly."
@@ -255,7 +255,7 @@ rbho_director_annex() {
   buh_line "— that is what the verdict honestly reports."
   buh_e
   if test "${z_bottle_bound}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} bound and recorded"
+    buh_line "${RBYC_PROBE_YES}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} annexed and recorded"
   else
     buh_line "${RBYC_PROBE_NO}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} not set — ${RBYC_ORDAIN} above"
   fi
@@ -264,7 +264,7 @@ rbho_director_annex() {
   buh_step1 "${RBYC_CHARGE} the ${z_lk_pluml} ${RBYC_CRUCIBLE}"
   buh_e
   buh_line "Now both ${RBYC_HALLMARKS} are in your ${RBYC_DEPOT} — a ${RBYC_KLUDGE_D} (or"
-  buh_line "${RBYC_CONJURED}) ${RBYC_SENTRY} and a ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
+  buh_line "${RBYC_CONJURED}) ${RBYC_SENTRY} and an ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
   buh_line "${RBYC_CHARGE} the ${RBYC_CRUCIBLE} to assemble them at runtime:"
   buh_e
   buh_tt "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"

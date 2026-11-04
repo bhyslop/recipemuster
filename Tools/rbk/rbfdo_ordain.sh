@@ -19,7 +19,7 @@
 #
 # Recipe Bottle Foundry Director Build - ordain body (guard-free cluster,
 # sourced by rbfd0_director): rbfdo_ordain — the mode dispatcher over the
-# operation bodies (conjure -> rbfdb_build, bind -> rbfdm_mirror, graft ->
+# operation bodies (conjure -> rbfdb_build, annex -> rbfdm_mirror, graft ->
 # rbfdg_graft), then the metadata pipeline (vouch or graft-metadata submit,
 # cross-module into rbfv) and the hallmark beckon. Owns no operation
 # machinery of its own.
@@ -32,7 +32,7 @@ set -euo pipefail
 rbfdo_ordain() {
   zrbfd0_sentinel
 
-  buc_doc_brief "Ordain a hallmark from a vessel (conjure, bind, or graft based on vessel mode)"
+  buc_doc_brief "Ordain a hallmark from a vessel (conjure, annex, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
@@ -55,11 +55,11 @@ rbfdo_ordain() {
   z_mode="${z_mode:-rbnve_conjure}"
 
   # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
-  # inside rbfdb_build, bind gates inside rbfdm_mirror, graft is deliberately
+  # inside rbfdb_build, annex gates inside rbfdm_mirror, graft is deliberately
   # ungated (RBr_d71).
   case "${z_mode}" in
     rbnve_conjure) rbfdb_build "${z_vessel_dir}" ;;
-    rbnve_bind)    rbfdm_mirror "${z_vessel_dir}" ;;
+    rbnve_annex)    rbfdm_mirror "${z_vessel_dir}" ;;
     rbnve_graft)   rbfdg_graft "${z_vessel_dir}" ;;
     *)             buc_die_now "Unknown vessel mode: ${z_mode}" ;;
   esac
@@ -71,7 +71,7 @@ rbfdo_ordain() {
     || buc_die_now "Failed to read hallmark from output"
   test -n "${z_hallmark}" || buc_die_now "Empty hallmark in output"
 
-  # Metadata pipeline: graft uses combined about+vouch; conjure/bind already have about, need standalone vouch
+  # Metadata pipeline: graft uses combined about+vouch; conjure/annex already have about, need standalone vouch
   case "${z_mode}" in
     rbnve_conjure)
       buc_info "About produced by combined conjure job — proceeding to vouch"
@@ -80,8 +80,8 @@ rbfdo_ordain() {
     rbnve_graft)
       zrbfvm_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
       ;;
-    rbnve_bind)
-      buc_info "About produced by combined bind job — proceeding to vouch"
+    rbnve_annex)
+      buc_info "About produced by combined annex job — proceeding to vouch"
       rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     *)

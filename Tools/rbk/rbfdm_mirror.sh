@@ -18,7 +18,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # Recipe Bottle Foundry Director Build - mirror body (guard-free cluster,
-# sourced by rbfd0_director): rbfdm_mirror — bind vessel image mirrored from
+# sourced by rbfd0_director): rbfdm_mirror — annex vessel image mirrored from
 # upstream into GAR via combined Cloud Build (gcrane cp + about) — and its
 # per-operation submit helper zrbfdm_mirror_submit. Reads the entry's
 # ZRBFD0_MIRROR_PREFIX and ZRBFD0_RBGJM_STEPS_DIR kindle constants; the
@@ -35,7 +35,7 @@ rbfdm_mirror() {
   local z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Mirror a bind vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
+  buc_doc_brief "Mirror an annex vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -55,10 +55,10 @@ rbfdm_mirror() {
 
   # Load and validate vessel
   zrbfcv_load_vessel "${z_vessel_dir}"
-  test "${RBRV_VESSEL_MODE:-}" = "rbnve_bind" \
-    || buc_die_now "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+  test "${RBRV_VESSEL_MODE:-}" = "rbnve_annex" \
+    || buc_die_now "Vessel '${RBRV_SIGIL}' is not an annex vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
   test -n "${RBRV_ANNEX_IMAGE:-}" \
-    || buc_die_now "RBRV_ANNEX_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
+    || buc_die_now "RBRV_ANNEX_IMAGE not set for annex vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
   zrbfca_resolve_tool_images
@@ -104,7 +104,7 @@ rbfdm_mirror() {
   # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
   buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
 
-  # Write yield fact file (single-platform bind image)
+  # Write yield fact file (single-platform annex image)
   buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
     "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
 
@@ -187,8 +187,8 @@ zrbfdm_mirror_submit() {
   local z_git_repo=""
   z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
-  # Mode-specific substitution values for bind
-  local -r z_bind_source="${RBRV_ANNEX_IMAGE:-}"
+  # Mode-specific substitution values for annex
+  local -r z_annex_source="${RBRV_ANNEX_IMAGE:-}"
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
   if test -n "${RBRV_ANNEX_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"; then
@@ -201,7 +201,7 @@ zrbfdm_mirror_submit() {
     fi
   fi
 
-  # Pool routing: bind uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
+  # Pool routing: annex uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
   local z_mirror_pool=""
   case "${RBRV_EGRESS_MODE}" in
     rbnve_tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
@@ -221,13 +221,13 @@ zrbfdm_mirror_submit() {
     --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
     --arg zjq_hallmark       "${z_hallmark}" \
     --arg zjq_vessel         "${RBRV_SIGIL}" \
-    --arg zjq_vessel_mode    "rbnve_bind" \
+    --arg zjq_vessel_mode    "rbnve_annex" \
     --arg zjq_git_commit     "${z_git_commit}" \
     --arg zjq_git_branch     "${z_git_branch}" \
     --arg zjq_git_repo       "${z_git_repo}" \
     --arg zjq_build_id       "" \
     --arg zjq_inscribe_ts    "" \
-    --arg zjq_bind_source    "${z_bind_source}" \
+    --arg zjq_annex_source   "${z_annex_source}" \
     --arg zjq_graft_source   "" \
     --arg zjq_dockerfile     "${z_dockerfile_content}" \
     --arg zjq_pool           "${z_mirror_pool}" \
@@ -252,7 +252,7 @@ zrbfdm_mirror_submit() {
         _RBGA_GIT_REPO:              $zjq_git_repo,
         _RBGA_BUILD_ID:              $zjq_build_id,
         _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
-        _RBGA_BIND_SOURCE:           $zjq_bind_source,
+        _RBGA_ANNEX_SOURCE:          $zjq_annex_source,
         _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
         _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
         _RBGA_ARK_BASENAME_IMAGE:    $zjq_basename_image,

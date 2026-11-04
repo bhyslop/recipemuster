@@ -481,7 +481,7 @@ fn rbtchs_rbrn_port_conflict(dir: &Path) -> rbtcee_Verdict {
 
 // ── RBRV (vessel) — verb rbw-rvv against a real vessel ───────
 //
-// Mode-specific: the conjure cases use a conjure vessel, the bind case a bind
+// Mode-specific: the conjure cases use a conjure vessel, the annex case an annex
 // vessel, so the gated field being poisoned is active. Folio is the vessel
 // moniker (= RBRV_SIGIL).
 
@@ -521,27 +521,27 @@ fn rbtchs_rbrv_partial_conjure(dir: &Path) -> rbtcee_Verdict {
 }
 
 fn rbtchs_rbrv_no_annex_image(dir: &Path) -> rbtcee_Verdict {
-    // Unset the bind-gated required field on a bind vessel → enroll.
+    // Unset the annex-gated required field on an annex vessel → enroll.
     rbtchs_poison(
         dir,
         RBTGEC_VALIDATE_VESSEL,
         &[RBTCHS_VESSEL_PLANTUML],
         "RBRV_ANNEX_IMAGE",
         RBTGEB_BUSX_ENROLL_DENTIL,
-        "rbrv-no-bind-image",
+        "rbrv-no-annex-image",
     )
 }
 
 fn rbtchs_rbrv_annex_image_tag_only(dir: &Path) -> rbtcee_Verdict {
     // A tag-pinned FQIN clears the buv_fqin enroll but lacks the @sha256:<64-hex>
-    // digest, tripping the zrbrv_enforce bind-digest check → regime.
+    // digest, tripping the zrbrv_enforce annex-digest check → regime.
     rbtchs_poison(
         dir,
         RBTGEC_VALIDATE_VESSEL,
         &[RBTCHS_VESSEL_PLANTUML],
         "RBRV_ANNEX_IMAGE=docker.io/plantuml/plantuml-server:1.2024.7",
         RBTGEB_BUSX_REGIME_DENTIL,
-        "rbrv-bind-image-tag-only",
+        "rbrv-annex-image-tag-only",
     )
 }
 
