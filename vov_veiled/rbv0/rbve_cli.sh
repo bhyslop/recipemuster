@@ -19,6 +19,10 @@
 # binary as it stands, empty included, with any trailing argument behind it:
 # the binary alone judges the world and refuses a missing, unknown or extra
 # one, so no world is defaulted here.
+#
+# Beside them the practice seat, a chore beside the ceremony that the practice
+# imprint alone carries, is handed the practice home behind the folio, and the maintainer
+# station's file and tool store, which the binary does not inherit.
 
 set -euo pipefail
 
@@ -126,6 +130,18 @@ rbve_harbinger() {
   "${z_rbve_binary}" harbinger "${BUZ_FOLIO:-}" "$@"
 }
 
+rbve_encamp() {
+  buc_doc_brief "Practice seat — encamp a practice seat beneath an absolute practice home (a chore beside the ceremony; contacts no remote)"
+  buc_doc_shown || return 0
+
+  zrbve_heel
+  buc_step "Standing up a practice seat"
+  # Handed through env: the dispatch holds both names readonly, so a prefix
+  # assignment in this shell refuses; env sets them for the binary alone.
+  env BURD_STATION_FILE="${BURD_STATION_FILE}" BURD_TACKROOM="${BURD_TACKROOM}" \
+    "${z_rbve_binary}" encamp "${BUZ_FOLIO:-}" "$@"
+}
+
 rbve_test() {
   buc_doc_brief "Run the hierophant crate tests — the cut's self-proofs (totality, planted-leak sweep)"
   buc_doc_shown || return 0
@@ -144,6 +160,7 @@ zrbve_furnish() {
   buc_doc_env_row "BURD_TEMP_DIR         " "Temp directory (dispatch-provided)"
   buc_doc_env_row "BURD_TOOLS_DIR        " "Project tools root directory (dispatch-provided; the kennel's home)"
   buc_doc_env_row "BURD_TACKROOM         " "The station's shared toolchain and registry store (dispatch-provided)"
+  buc_doc_env_row "BURD_STATION_FILE     " "The BURS file the dispatch sourced (dispatch-provided; the practice seat copies from it)"
   buc_doc_env_done || return 0
 
   source "${BURD_TOOLS_DIR}/bkk/bk0/bkcp_position.sh"

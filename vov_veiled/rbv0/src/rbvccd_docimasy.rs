@@ -20,7 +20,10 @@
 // election"). In the real world every step runs. In the practice world the
 // credential preflight and the gauntlet stage are skipped — their cost an hour
 // and two payor projects a round — and the cachet granted records the
-// practice world, so it admits a showing there alone.
+// practice world, so it admits a showing there alone. There too, a narthex
+// gate refusing a narthex that is not fresh prints the practice narthex's
+// recreate steps and the read proving it empty, since the practice narthex is
+// recreated before every round.
 
 use std::path::{
     Path,
@@ -142,22 +145,56 @@ fn zrbvccd_gate_narthex(top: &Path, regulus_tip: &str, world: rbvcew_world::rbvc
 
     let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
     let refs = rbvcep_repo::rbvcep_ls_remote(narthex_url, top);
+    if !zrbvccd_narthex_fresh(&refs, regulus_tip) {
+        crate::rbvcel_fatal!(
+            "{}",
+            zrbvccd_narthex_refusal(&refs, world), //
+        );
+    }
+    rbvcel_log::rbvcel_line("narthex fresh: no refs, or exactly this cut's own preview");
+}
+
+/// The narthex freshness predicate, pure: no refs at all, or exactly this
+/// cut's own preview — the regulus branch at the regulus tip.
+pub(crate) fn zrbvccd_narthex_fresh(refs: &[(String, String)], regulus_tip: &str) -> bool {
     let branch_ref = format!(
         "refs/heads/{}",
         rbvcex_expede::RBVCEX_REGULUS_BRANCH, //
     );
-    let fresh =
-        refs.is_empty() || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip);
-    if !fresh {
-        crate::rbvcel_fatal!(
-            "the narthex is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
-            refs.len(),
-            rbvcex_expede::RBVCEX_REGULUS_BRANCH,
-            refs.iter().map(|(sha, name)| format!("  {} {}", sha, name, //
-            )).collect::<Vec<_>>().join("\n"), //
-        );
+    refs.is_empty() || (refs.len() == 1 && refs[0].1 == branch_ref && refs[0].0 == regulus_tip)
+}
+
+/// The not-fresh refusal, pure: the ref listing in both worlds, and in the
+/// palaestra alone the procedure's narthex steps beside it — the console
+/// recreate and the read proving the recreated narthex empty (RELEASE.md
+/// "Opening a round"). The practice narthex is recreated before every round,
+/// so this is where the reset is owed.
+pub(crate) fn zrbvccd_narthex_refusal(
+    refs: &[(String, String)],
+    world: rbvcew_world::rbvcew_World,
+) -> String {
+    let listing = format!(
+        "the narthex is not fresh — it carries {} ref(s) other than this cut's own {}, an undispositioned prior cut the operator must dispose of:\n{}",
+        refs.len(),
+        rbvcex_expede::RBVCEX_REGULUS_BRANCH,
+        refs.iter().map(|(sha, name)| format!("  {} {}", sha, name, //
+        )).collect::<Vec<_>>().join("\n"), //
+    );
+    match world {
+        rbvcew_world::rbvcew_World::Agora => listing,
+        rbvcew_world::rbvcew_World::Palaestra => {
+            let narthex_url = rbvcew_world::rbvcew_bundle(world).narthex_url;
+            format!(
+                "{}\n\nRecreate the practice {} (RELEASE.md \"Opening a round\"). At the GitHub console, by hand, delete the practice {} {} and create it again, private and empty, with no README, ignore file or license.\nThen read it and confirm it is empty — this line prints nothing:\n        git ls-remote {}\nThen run {} again.",
+                listing,
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE,
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE,
+                rbvcep_repo::rbvcep_github_slug(narthex_url),
+                narthex_url,
+                rbvgeb_breviary::RBVGEB_DOCIMASY_BASE, //
+            )
+        }
     }
-    rbvcel_log::rbvcel_line("narthex fresh: no refs, or exactly this cut's own preview");
 }
 
 // ── Step 2 is rbvcex_expede::rbvcex_assert_fresh, called directly by conduct ──
