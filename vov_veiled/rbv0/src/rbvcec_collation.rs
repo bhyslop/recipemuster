@@ -260,7 +260,8 @@ pub(crate) fn zrbvcec_check_citations(
             }
         }
     }
-    let known_families: HashSet<&str> = mapping.keys().map(|name| zrbvcec_prefix_of(name)).collect();
+    let known_families: HashSet<&str> =
+        mapping.keys().map(|name| zrbvcec_prefix_of(name)).collect();
 
     let mut hits = Vec::new();
 
