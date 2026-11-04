@@ -33,7 +33,8 @@ fn zrbvtcd_console() -> String {
 }
 
 /// The read proving the recreated narthex empty.
-const ZRBVTCD_EMPTY_READ: &str = "git ls-remote git@github.com:bhyslop/recipebottle-picadero-practice.git";
+const ZRBVTCD_EMPTY_READ: &str =
+    "git ls-remote git@github.com:bhyslop/recipebottle-picadero-practice.git";
 
 const ZRBVTCD_TIP: &str = "1111111111111111111111111111111111111111";
 const ZRBVTCD_OTHER: &str = "2222222222222222222222222222222222222222";
@@ -55,8 +56,14 @@ fn zrbvtcd_regulus_ref() -> String {
 fn rbvtcd_narthex_freshness_admits_empty_and_own_preview_only() {
     let own = zrbvtcd_regulus_ref();
     assert!(zrbvccd_narthex_fresh(&[], ZRBVTCD_TIP));
-    assert!(zrbvccd_narthex_fresh(&[zrbvtcd_ref(ZRBVTCD_TIP, &own)], ZRBVTCD_TIP));
-    assert!(!zrbvccd_narthex_fresh(&[zrbvtcd_ref(ZRBVTCD_OTHER, &own)], ZRBVTCD_TIP));
+    assert!(zrbvccd_narthex_fresh(
+        &[zrbvtcd_ref(ZRBVTCD_TIP, &own)],
+        ZRBVTCD_TIP
+    ));
+    assert!(!zrbvccd_narthex_fresh(
+        &[zrbvtcd_ref(ZRBVTCD_OTHER, &own)],
+        ZRBVTCD_TIP
+    ));
     assert!(!zrbvccd_narthex_fresh(
         &[zrbvtcd_ref(ZRBVTCD_TIP, "refs/heads/main")],
         ZRBVTCD_TIP
@@ -83,7 +90,12 @@ fn rbvtcd_practice_refusal_prints_the_narthex_steps_and_agora_does_not() {
 
     let console = zrbvtcd_console();
     let practice = zrbvccd_narthex_refusal(&refs, rbvcew_World::Palaestra);
-    for needle in [ZRBVTCD_NARTHEX_SLUG, console.as_str(), ZRBVTCD_EMPTY_READ, listing.as_str()] {
+    for needle in [
+        ZRBVTCD_NARTHEX_SLUG,
+        console.as_str(),
+        ZRBVTCD_EMPTY_READ,
+        listing.as_str(),
+    ] {
         assert!(
             practice.contains(needle),
             "the practice refusal lacks '{}':\n{}",

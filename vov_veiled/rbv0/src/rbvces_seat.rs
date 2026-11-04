@@ -231,7 +231,14 @@ pub fn rbvces_stand(
         "clone the maintainer tree",
     )?;
     zrbvces_git(
-        &["-C", &clone_str, "remote", "add", bundle.base_remote, bundle.base_url],
+        &[
+            "-C",
+            &clone_str,
+            "remote",
+            "add",
+            bundle.base_remote,
+            bundle.base_url,
+        ],
         home,
         "add the practice base remote",
     )?;
@@ -297,7 +304,9 @@ pub fn rbvces_seat_conduct(home: PathBuf) -> ExitCode {
         "{} practice seat — a chore beside the ceremony",
         rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE_LETTRINE, //
     ));
-    rbvcel_log::rbvcel_line("Clone, practice base remote, BURS file, kennel — no remote contacted.");
+    rbvcel_log::rbvcel_line(
+        "Clone, practice base remote, BURS file, kennel — no remote contacted.",
+    );
 
     let top = rbvcep_repo::rbvcep_toplevel();
     rbvcel_log::rbvcel_line(&format!(
@@ -407,7 +416,11 @@ fn zrbvces_env(name: &str) -> String {
 pub(crate) fn zrbvces_relative(from: &Path, to: &Path) -> PathBuf {
     let from: Vec<Component> = from.components().collect();
     let to: Vec<Component> = to.components().collect();
-    let shared = from.iter().zip(to.iter()).take_while(|(a, b)| a == b).count();
+    let shared = from
+        .iter()
+        .zip(to.iter())
+        .take_while(|(a, b)| a == b)
+        .count();
     let mut rel = PathBuf::new();
     for _ in shared..from.len() {
         rel.push("..");

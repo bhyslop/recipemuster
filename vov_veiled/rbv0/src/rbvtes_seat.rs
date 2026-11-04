@@ -20,21 +20,21 @@ use std::path::{
 };
 use std::process::Command;
 
-use crate::rbvces_seat::{
-    rbvces_elect,
-    rbvces_stand,
-    rbvces_Station,
-    RBVCES_CLONE_SUBDIR,
-    RBVCES_SEAT_SUBDIR, //
-};
 use crate::rbvcep_repo::{
     RBVCEP_SECRETS_SUBDIR,
     RBVCEP_STATION_FILE,
     RBVCEP_STATION_SUBDIR, //
 };
+use crate::rbvces_seat::{
+    rbvces_Station,
+    rbvces_elect,
+    rbvces_stand,
+    RBVCES_CLONE_SUBDIR,
+    RBVCES_SEAT_SUBDIR, //
+};
 use crate::rbvcew_world::{
-    rbvcew_word,
     rbvcew_World,
+    rbvcew_word,
     RBVCEW_PALAESTRA, //
 };
 
@@ -118,10 +118,18 @@ fn rbvtes_seat_layout_over_a_scratch_maintainer() {
     let seat_dir = home.join(RBVCES_SEAT_SUBDIR);
     assert_eq!(seat.clone_dir, seat_dir.join(RBVCES_CLONE_SUBDIR));
     assert_eq!(
-        zrbvtes_git(&seat.clone_dir, &["rev-parse", "--abbrev-ref", "HEAD"], &global).trim(),
+        zrbvtes_git(
+            &seat.clone_dir,
+            &["rev-parse", "--abbrev-ref", "HEAD"],
+            &global
+        )
+        .trim(),
         ZRBVTES_BRANCH,
     );
-    assert_eq!(zrbvtes_git(&seat.clone_dir, &["rev-parse", "HEAD"], &global), tip);
+    assert_eq!(
+        zrbvtes_git(&seat.clone_dir, &["rev-parse", "HEAD"], &global),
+        tip
+    );
 
     // Origin and the practice base alone, its push side the sentinel.
     let remotes = zrbvtes_git(&seat.clone_dir, &["remote", "-v"], &global);
@@ -182,7 +190,8 @@ fn rbvtes_seat_layout_over_a_scratch_maintainer() {
     let rel = value("BURS_TACKROOM");
     assert!(!rel.starts_with('/'), "BURS_TACKROOM is absolute: {}", rel);
     assert_eq!(
-        std::fs::canonicalize(seat.clone_dir.join(&rel)).expect("the relative tool store must resolve"),
+        std::fs::canonicalize(seat.clone_dir.join(&rel))
+            .expect("the relative tool store must resolve"),
         station.tackroom,
         "BURS_TACKROOM does not reach the tool store", //
     );
@@ -199,7 +208,10 @@ fn rbvtes_seat_layout_over_a_scratch_maintainer() {
 
     // A seat already standing refuses, touching nothing.
     let again = rbvces_stand(&top, &home, &RBVCEW_PALAESTRA, &station);
-    assert!(again.is_err(), "a second stand-up over a standing seat landed");
+    assert!(
+        again.is_err(),
+        "a second stand-up over a standing seat landed"
+    );
 
     std::fs::remove_dir_all(&root).expect("scratch root must be removable");
 }

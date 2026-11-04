@@ -44,7 +44,8 @@ const ZRBVTCE_SEED_LINES: [&str; 5] = [
 ];
 
 /// The closing re-read the steps end on.
-const ZRBVTCE_REREAD: &str = "git ls-remote git@github.com:bhyslop/recipebottle-grandstand-practice.git";
+const ZRBVTCE_REREAD: &str =
+    "git ls-remote git@github.com:bhyslop/recipebottle-grandstand-practice.git";
 
 struct zrbvtce_Scratch {
     root: PathBuf,
@@ -105,8 +106,16 @@ fn zrbvtce_scratch(tag: &str) -> zrbvtce_Scratch {
     .expect("scratch global must be writable");
     let public = root.join("public.git");
     let standin = root.join("standin.git");
-    zrbvtce_git(&root, &["init", "-q", "--bare", &zrbvtce_str(&public)], &global);
-    zrbvtce_git(&root, &["init", "-q", "--bare", &zrbvtce_str(&standin)], &global);
+    zrbvtce_git(
+        &root,
+        &["init", "-q", "--bare", &zrbvtce_str(&public)],
+        &global,
+    );
+    zrbvtce_git(
+        &root,
+        &["init", "-q", "--bare", &zrbvtce_str(&standin)],
+        &global,
+    );
     zrbvtce_git(&seed, &["init", "-q", "-b", "main"], &global);
     std::fs::write(seed.join("README.md"), "first\n").expect("seed file must be writable");
     zrbvtce_git(&seed, &["add", "README.md"], &global);
@@ -117,7 +126,12 @@ fn zrbvtce_scratch(tag: &str) -> zrbvtce_Scratch {
     let second = zrbvtce_git(&seed, &["rev-parse", "HEAD"], &global);
     zrbvtce_git(
         &seed,
-        &["push", "-q", &zrbvtce_str(&public), &format!("{}:refs/heads/main", first)],
+        &[
+            "push",
+            "-q",
+            &zrbvtce_str(&public),
+            &format!("{}:refs/heads/main", first),
+        ],
         &global,
     );
     zrbvtce_Scratch {
@@ -135,7 +149,12 @@ fn zrbvtce_scratch(tag: &str) -> zrbvtce_Scratch {
 fn zrbvtce_plant(s: &zrbvtce_Scratch, commit: &str, refname: &str) {
     zrbvtce_git(
         &s.seed,
-        &["push", "-q", &zrbvtce_str(&s.standin), &format!("{}:{}", commit, refname)],
+        &[
+            "push",
+            "-q",
+            &zrbvtce_str(&s.standin),
+            &format!("{}:{}", commit, refname),
+        ],
         &s.global,
     );
 }
@@ -300,12 +319,10 @@ fn rbvtce_public_main_unreadable_or_absent_refuses() {
 
     let (standin_read, _) =
         zrbvtce_reads(&zrbvtce_str(&s.standin), &zrbvtce_str(&s.public), &s.root);
-    let no_main: Result<Vec<(String, String)>, String> = Ok(vec![(
-        s.first.clone(),
-        "refs/heads/other".to_string(),
-    )]);
-    let absent_main =
-        zrbvtce_verdict(&standin_read, &no_main).expect_err("a public repository without main must refuse");
+    let no_main: Result<Vec<(String, String)>, String> =
+        Ok(vec![(s.first.clone(), "refs/heads/other".to_string())]);
+    let absent_main = zrbvtce_verdict(&standin_read, &no_main)
+        .expect_err("a public repository without main must refuse");
     assert!(
         absent_main.contains("real public main is absent"),
         "the refusal does not name the absent main:\n{}",
