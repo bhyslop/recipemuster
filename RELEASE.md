@@ -56,7 +56,7 @@ Once per station, before the first lap.
 The whole ceremony is practiced end to end in the [Palaestra](#Palaestra) before the real cycle, from the first [Lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
 Practice protects against a fumble — a wrong push, a misread prompt, a hygiene step that bites — and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [Regulus](#Regulus) and the private [Narthex](#Narthex) guard that.
 
-Practice differs from the real ceremony in three ways only: [Docimasy](#Docimasy) skips the sign-in and the `gauntlet`, the [Cachet](#Cachet) it grants admits a showing in the [Palaestra](#Palaestra) alone, and the practice [Regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
+Practice differs from the real ceremony in these ways alone: [Essai](#Essai) reads the stand-in before it cuts and refuses one that has drifted, printing the steps to recreate it; [Docimasy](#Docimasy) skips the sign-in and the `gauntlet`, and prints the steps to recreate the practice [Narthex](#Narthex) when it refuses one that is not fresh; the [Cachet](#Cachet) it grants admits a showing in the [Palaestra](#Palaestra) alone; and the practice [Regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
 Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [Harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
 
 ### <a id="PracticeGround"></a>Practice standing ground
@@ -68,10 +68,21 @@ Type each line as shown:
 - `git remote add PALAESTRA_UPSTREAM git@github.com:bhyslop/recipebottle-grandstand-practice.git`
 - `git remote set-url --push PALAESTRA_UPSTREAM DISABLED-PALAESTRA_UPSTREAM-IS-READ-ONLY`
 
+Or stand up a practice seat, a clone that keeps the practice rounds apart from the maintainer repository.
+From the maintainer repository, run `tt/rbvw-p.PracticeSeat.palaestra.sh «practice home»`, naming the home by its absolute path.
+It clones the maintainer repository at its checked-out branch into `«practice home»/seat/rb`, adds the practice base remote there with its push side neutered, writes the seat's station file and an empty secrets directory under `«practice home»/seat/station-files`, the station file naming this station's own tool store, and builds the seat's kennel.
+It contacts no remote, and refuses a home where a seat already stands.
+Run the practice doors from the seat: its [Regulus](#Regulus) and [Temenos](#Temenos) land inside the practice home.
+
 ### <a id="PracticeOpening"></a>Opening a round
 
 At the GitHub console, by hand, delete the practice [Narthex](#Narthex) `bhyslop/recipebottle-picadero-practice` and create it again, private and empty, with no README, ignore file or license.
 It is recreated before every round: each preview push makes its branch the repository's default branch, which no push can delete, and [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
+Read it and confirm it is empty; the line prints nothing:
+
+- `git ls-remote git@github.com:bhyslop/recipebottle-picadero-practice.git`
+
+The tool prints each reset where it is owed: in the [Palaestra](#Palaestra), [Docimasy](#Docimasy) prints the steps above when it refuses a [Narthex](#Narthex) that is not fresh, and [Essai](#Essai) reads both repositories below before it cuts and prints the stand-in steps when the stand-in has drifted.
 
 The stand-in `bhyslop/recipebottle-grandstand-practice` is recreated only when it no longer carries exactly the real repository's two branches, main and `POSTULANT_LOCAL`, both at real public main's commit.
 Any round that went past its first command leaves it so.
