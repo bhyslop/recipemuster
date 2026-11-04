@@ -312,7 +312,10 @@ fn zrbvtec_kraal(base: &Path, name: &str, register: Option<&str>) -> PathBuf {
 
 /// Write `body` as the register in the outspan beside `billet`.
 fn zrbvtec_write_register(billet: &Path, body: &str) {
-    let outspan = billet.parent().expect("the work tree has a parent").join("zzseat");
+    let outspan = billet
+        .parent()
+        .expect("the work tree has a parent")
+        .join("zzseat");
     std::fs::create_dir_all(&outspan).expect("the register directory must be creatable");
     std::fs::write(outspan.join(ZRBVCEC_FEODARY_BASENAME), body)
         .expect("register must be writable");
@@ -351,7 +354,10 @@ fn zrbvtec_plant(root: &Path, rel: &str, content: &str) {
 /// billet root and the road root.
 fn zrbvtec_clean_kraal(base: &Path, name: &str) -> (PathBuf, PathBuf) {
     let billet = zrbvtec_kraal(base, name, None);
-    let road = billet.parent().expect("the work tree has a parent").join("vulgate");
+    let road = billet
+        .parent()
+        .expect("the work tree has a parent")
+        .join("vulgate");
     zrbvtec_plant(
         &road,
         &format!(
@@ -514,7 +520,10 @@ fn rbvtec_assay_refuses_an_unfollowable_register() {
     );
 
     let hollow = zrbvtec_kraal(&base, "hollow", None);
-    let road = hollow.parent().expect("the work tree has a parent").join("vulgate");
+    let road = hollow
+        .parent()
+        .expect("the work tree has a parent")
+        .join("vulgate");
     std::fs::create_dir_all(road.join(ZRBVCEC_CORPUS_SPEC_SUBDIR)).expect("road must be creatable");
     zrbvtec_write_register(
         &hollow,
