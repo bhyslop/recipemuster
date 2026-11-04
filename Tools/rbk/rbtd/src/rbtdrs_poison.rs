@@ -520,26 +520,26 @@ fn rbtchs_rbrv_partial_conjure(dir: &Path) -> rbtcee_Verdict {
     )
 }
 
-fn rbtchs_rbrv_no_bind_image(dir: &Path) -> rbtcee_Verdict {
+fn rbtchs_rbrv_no_annex_image(dir: &Path) -> rbtcee_Verdict {
     // Unset the bind-gated required field on a bind vessel → enroll.
     rbtchs_poison(
         dir,
         RBTGEC_VALIDATE_VESSEL,
         &[RBTCHS_VESSEL_PLANTUML],
-        "RBRV_BIND_IMAGE",
+        "RBRV_ANNEX_IMAGE",
         RBTGEB_BUSX_ENROLL_DENTIL,
         "rbrv-no-bind-image",
     )
 }
 
-fn rbtchs_rbrv_bind_image_tag_only(dir: &Path) -> rbtcee_Verdict {
+fn rbtchs_rbrv_annex_image_tag_only(dir: &Path) -> rbtcee_Verdict {
     // A tag-pinned FQIN clears the buv_fqin enroll but lacks the @sha256:<64-hex>
     // digest, tripping the zrbrv_enforce bind-digest check → regime.
     rbtchs_poison(
         dir,
         RBTGEC_VALIDATE_VESSEL,
         &[RBTCHS_VESSEL_PLANTUML],
-        "RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server:1.2024.7",
+        "RBRV_ANNEX_IMAGE=docker.io/plantuml/plantuml-server:1.2024.7",
         RBTGEB_BUSX_REGIME_DENTIL,
         "rbrv-bind-image-tag-only",
     )
@@ -672,8 +672,8 @@ pub static RBTCHS_CASES_REGIME_POISON: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchs_rbrv_missing_sigil),
     rbtcee_case!(rbtchs_rbrv_unexpected_var),
     rbtcee_case!(rbtchs_rbrv_partial_conjure),
-    rbtcee_case!(rbtchs_rbrv_no_bind_image),
-    rbtcee_case!(rbtchs_rbrv_bind_image_tag_only),
+    rbtcee_case!(rbtchs_rbrv_no_annex_image),
+    rbtcee_case!(rbtchs_rbrv_annex_image_tag_only),
     rbtcee_case!(rbtchs_rbro_missing_refresh_token),
     rbtcee_case!(rbtchs_burs_bad_tincture), //
 ];

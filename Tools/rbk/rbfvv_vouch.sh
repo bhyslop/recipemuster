@@ -139,7 +139,7 @@ zrbfvv_vouch_submit() {
 
   case "${RBRV_VESSEL_MODE}" in
     rbnve_conjure) : ;;  # DSSE verification uses embedded keys, no extra substitutions
-    rbnve_bind)    z_bind_source="${RBRV_BIND_IMAGE:-}" ;;
+    rbnve_bind)    z_bind_source="${RBRV_ANNEX_IMAGE:-}" ;;
     rbnve_graft)   z_graft_source="${RBRV_GRAFT_IMAGE:-}" ;;
     *)             buc_die_now "Unknown vessel mode: ${RBRV_VESSEL_MODE}" ;;
   esac

@@ -149,9 +149,9 @@ zrbfva_about_submit() {
       fi
       ;;
     rbnve_bind)
-      z_bind_source="${RBRV_BIND_IMAGE:-}"
-      if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
-        z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_BIND_OPTIONAL_DOCKERFILE}"
+      z_bind_source="${RBRV_ANNEX_IMAGE:-}"
+      if test -n "${RBRV_ANNEX_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"; then
+        z_dockerfile_content=$(<"${RBRV_ANNEX_OPTIONAL_DOCKERFILE}") || buc_die_now "Failed to read: ${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"
         if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
           buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
           z_dockerfile_content=""

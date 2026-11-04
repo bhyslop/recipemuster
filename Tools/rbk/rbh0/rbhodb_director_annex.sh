@@ -30,10 +30,10 @@ set -euo pipefail
 test -z "${ZRBHODB_SOURCED:-}" || return 0
 ZRBHODB_SOURCED=1
 
-rbho_director_bind() {
+rbho_director_annex() {
   zrbho_sentinel
 
-  buc_doc_brief "${RBHO_TRACK_BIND} — pin upstream image by digest, mode-mixture pluml Crucible"
+  buc_doc_brief "${RBHO_TRACK_ANNEX} — pin upstream image by digest, mode-mixture pluml Crucible"
   buc_doc_shown || return 0
 
   local -r z_moniker="pluml"
@@ -86,18 +86,18 @@ rbho_director_bind() {
   buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_vessel}";   local -r z_lk_vessel="${z_buym_yelp}"
   buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";  local -r z_lk_pluml="${z_buym_yelp}"
 
-  buh_section "${RBHO_TRACK_BIND} — Pin Upstream by Digest"
+  buh_section "${RBHO_TRACK_ANNEX} — Pin Upstream by Digest"
   buh_e
   buh_line "${RBHO_TRACK_FIRST_BUILD} taught ${RBYC_CONJURE} — Cloud Build constructs"
   buh_line "the ${RBYC_VESSEL} image from the project's Dockerfile, and SLSA"
-  buh_line "${RBYC_PROVENANCE} attests the build chain. ${RBYC_BIND} is the simplest"
+  buh_line "${RBYC_PROVENANCE} attests the build chain. ${RBYC_ANNEX} is the simplest"
   buh_line "${RBYC_ORDAIN} mode: no Dockerfile, no build context, no image build —"
   buh_line "Cloud Build runs gcrane to copy the digest-pinned upstream image into"
   buh_line "your ${RBYC_DEPOT}, then about/vouch records what was mirrored."
   buh_e
   buh_line "This track binds ${z_lk_vessel} — the PlantUML server image. PlantUML"
   buh_line "renders diagrams, but its Docker Hub source could phone home if run"
-  buh_line "naked. ${RBYC_BIND} pins it by content hash; the ${RBYC_SENTRY} blocks all"
+  buh_line "naked. ${RBYC_ANNEX} pins it by content hash; the ${RBYC_SENTRY} blocks all"
   buh_line "egress at runtime. You get the tool without the risk."
   buh_e
 
@@ -122,7 +122,7 @@ rbho_director_bind() {
   buh_section "Mode mixture — name it explicitly"
   buh_e
   buh_line "The ${z_lk_pluml} ${RBYC_CRUCIBLE} in this track pairs a ${RBYC_KLUDGE_D}"
-  buh_line "(or ${RBYC_CONJURED}) ${RBYC_SENTRY} with a ${RBYC_BIND}-pinned PlantUML ${RBYC_BOTTLE}."
+  buh_line "(or ${RBYC_CONJURED}) ${RBYC_SENTRY} with a ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
   buh_line "Two different ${RBYC_ORDAIN} modes cohabiting in one ${RBYC_CRUCIBLE} is the"
   buh_line "expected shape, not a defect — each ${RBYC_HALLMARK} carries its own"
   buh_line "${RBYC_VOUCH} verdict, and a ${RBYC_NAMEPLATE} can pin ${RBYC_HALLMARKS} of"
@@ -156,7 +156,7 @@ rbho_director_bind() {
   buh_e
   buh_line "  The ${RBYC_SENTRY} ${RBYC_HALLMARK} can come"
   buh_line "  from either build path — a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} is fine for"
-  buh_line "  learning ${RBYC_BIND}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The bind"
+  buh_line "  learning ${RBYC_ANNEX}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The bind"
   buh_line "  lesson is about the ${RBYC_BOTTLE}, not the ${RBYC_SENTRY}."
   buh_e
   if test "${z_sentry_ready}" = "1"; then
@@ -168,8 +168,8 @@ rbho_director_bind() {
 
   buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
-  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
-  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_BIND}"
+  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_ANNEX}, and"
+  buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_ANNEX}"
   buh_line "uses gcrane from the ${RBYC_RELIQUARY} to copy the upstream image into"
   buh_line "your ${RBYC_DEPOT}, and the about/vouch pipeline that follows runs on"
   buh_line "${RBYC_RELIQUARY} tool images regardless of mode."
@@ -201,16 +201,16 @@ rbho_director_bind() {
   fi
   buh_e
 
-  buh_step1 "${RBYC_BIND} the PlantUML ${RBYC_BOTTLE}"
+  buh_step1 "${RBYC_ANNEX} the PlantUML ${RBYC_BOTTLE}"
   buh_e
-  buh_line "${RBYC_BIND} mode mirrors an upstream image into your ${RBYC_DEPOT} by"
+  buh_line "${RBYC_ANNEX} mode mirrors an upstream image into your ${RBYC_DEPOT} by"
   buh_line "content hash. The ${RBYC_VESSEL} ${RBYC_RBRV} declares the upstream digest:"
   buh_e
   buh_code "   RBRV_VESSEL_MODE=rbnve_bind"
-  buh_code "   RBRV_BIND_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
+  buh_code "   RBRV_ANNEX_IMAGE=docker.io/plantuml/plantuml-server@sha256:cd3d67a..."
   buh_e
   buh_line "${RBYC_ORDAIN} reads the mode from the ${RBYC_RBRV} and routes accordingly."
-  buh_line "For ${RBYC_BIND}, that means: a Cloud Build job runs gcrane (from your"
+  buh_line "For ${RBYC_ANNEX}, that means: a Cloud Build job runs gcrane (from your"
   buh_line "${RBYC_RELIQUARY}) to copy the digest-pinned image from upstream into"
   buh_line "your ${RBYC_DEPOT} under a ${RBYC_HALLMARK} tag, then the about steps assemble"
   buh_line "${RBYC_SBOM} and metadata. No project Dockerfile, no ${RBYC_POUCH} —"
@@ -220,7 +220,7 @@ rbho_director_bind() {
   buh_e
   buh_line "  ${RBYC_CONJURE}  Cloud Build constructs the image from project Dockerfile."
   buh_line "            Trust the build chain (SLSA ${RBYC_PROVENANCE})."
-  buh_line "  ${RBYC_BIND}     Mirror upstream image by digest. Trust the upstream"
+  buh_line "  ${RBYC_ANNEX}     Mirror upstream image by digest. Trust the upstream"
   buh_line "            publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine."
   buh_e
@@ -237,7 +237,7 @@ rbho_director_bind() {
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"
   buh_e
   buh_line "${RBYC_VOUCH} is mode-aware. For ${RBYC_CONJURED} ${RBYC_HALLMARKS} it verifies"
-  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_BIND}, the verdict is honest:"
+  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_ANNEX}, the verdict is honest:"
   buh_line "there is no SLSA chain because Cloud Build never ran. The ${RBYC_VOUCH}"
   buh_line "verdict reads digest-pin — what's attested is that the image in"
   buh_line "your ${RBYC_DEPOT} matches the upstream digest exactly."
@@ -264,7 +264,7 @@ rbho_director_bind() {
   buh_step1 "${RBYC_CHARGE} the ${z_lk_pluml} ${RBYC_CRUCIBLE}"
   buh_e
   buh_line "Now both ${RBYC_HALLMARKS} are in your ${RBYC_DEPOT} — a ${RBYC_KLUDGE_D} (or"
-  buh_line "${RBYC_CONJURED}) ${RBYC_SENTRY} and a ${RBYC_BIND}-pinned PlantUML ${RBYC_BOTTLE}."
+  buh_line "${RBYC_CONJURED}) ${RBYC_SENTRY} and a ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
   buh_line "${RBYC_CHARGE} the ${RBYC_CRUCIBLE} to assemble them at runtime:"
   buh_e
   buh_tt "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
@@ -296,7 +296,7 @@ rbho_director_bind() {
   buh_line "its verdict names where trust for this ${RBYC_HALLMARK} comes from."
   buh_e
   buh_line "   ${RBYC_CONJURE}  project Dockerfile built by Cloud Build; SLSA ${RBYC_PROVENANCE}"
-  buh_line "   ${RBYC_BIND}     upstream image mirrored by digest; trust the publisher"
+  buh_line "   ${RBYC_ANNEX}     upstream image mirrored by digest; trust the publisher"
   buh_line "   ${RBYC_GRAFT}    locally-built image pushed to GAR; trust this machine"
   buh_e
   buh_line "Read the ${RBYC_VOUCH} verdict: full-SLSA / digest-pin / GRAFTED tells you"

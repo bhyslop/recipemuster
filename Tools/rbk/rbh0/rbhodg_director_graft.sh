@@ -102,7 +102,7 @@ rbho_director_graft() {
 
   buh_section "Graft — Push a Local Image to the Depot"
   buh_e
-  buh_line "${RBYC_CONJURE} and ${RBYC_BIND} teach images whose ${RBYC_PROVENANCE} the"
+  buh_line "${RBYC_CONJURE} and ${RBYC_ANNEX} teach images whose ${RBYC_PROVENANCE} the"
   buh_line "project can attest. ${RBYC_GRAFT} teaches the opposite case: the"
   buh_line "${RBYC_DIRECTOR} builds an image on their own machine and pushes it to"
   buh_line "the ${RBYC_DEPOT} as-is. No project Dockerfile, no ${RBYC_POUCH}, no SLSA"
@@ -153,7 +153,7 @@ rbho_director_graft() {
   buh_e
   buh_line "  ${RBYC_CONJURE}  Cloud Build constructs the image from the project's"
   buh_line "            Dockerfile. Trust the build chain (SLSA ${RBYC_PROVENANCE})."
-  buh_line "  ${RBYC_BIND}     Mirror an upstream image by digest. Trust the"
+  buh_line "  ${RBYC_ANNEX}     Mirror an upstream image by digest. Trust the"
   buh_line "            upstream publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine"
   buh_line "            and the ${RBYC_DIRECTOR} who operated it."
@@ -193,7 +193,7 @@ rbho_director_graft() {
 
   buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
-  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
+  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_ANNEX}, and"
   buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_GRAFT}"
   buh_line "skips Cloud Build for the image push, but the about+vouch metadata"
   buh_line "that follows runs on ${RBYC_RELIQUARY} tool images (gcloud, docker,"
@@ -251,7 +251,7 @@ rbho_director_graft() {
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"
   buh_e
   buh_line "${RBYC_VOUCH} is mode-aware. For ${RBYC_CONJURED} ${RBYC_HALLMARKS} it verifies"
-  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_BIND} it attests the"
+  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_ANNEX} it attests the"
   buh_line "digest-pin relationship to the upstream image. For ${RBYC_GRAFT}"
   buh_line "there is nothing to verify — no build record, no upstream digest,"
   buh_line "just an image the ${RBYC_DIRECTOR} asserted is theirs. The verdict"
@@ -287,7 +287,7 @@ rbho_director_graft() {
   buh_e
   buh_line "The three ${RBYC_ORDAIN} modes now form a trust hierarchy you can"
   buh_line "read at a glance from the ${RBYC_VOUCH} verdict: ${RBYC_CONJURE} (SLSA),"
-  buh_line "${RBYC_BIND} (digest-pin), ${RBYC_GRAFT} (GRAFTED). A ${RBYC_NAMEPLATE} can"
+  buh_line "${RBYC_ANNEX} (digest-pin), ${RBYC_GRAFT} (GRAFTED). A ${RBYC_NAMEPLATE} can"
   buh_line "mix modes freely because runtime containment is enforced by the"
   buh_line "${RBYC_SENTRY}, not by the build chain."
   buh_e

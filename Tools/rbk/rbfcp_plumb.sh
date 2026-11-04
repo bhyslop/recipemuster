@@ -74,7 +74,7 @@ zrbfcp_plumb_core() {
 
   rbfcv_require_vessel_sigil "${z_vessel}"
 
-  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_BIND_IMAGE, etc.)
+  # Load vessel config (sets RBRV_VESSEL_MODE, RBRV_ANNEX_IMAGE, etc.)
   local -r z_vessel_dir="${RBRR_VESSEL_DIR}/${z_vessel}"
   zrbfcv_load_vessel "${z_vessel_dir}"
 
@@ -111,7 +111,7 @@ zrbfcp_plumb_core() {
 
   # Bind vessels: fallback to static display if no about ark
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind" && test "${z_has_about}" = "false"; then
-    zrbfcp_plumb_show_bind "${z_vessel}" "${z_hallmark}" "${z_mode}"
+    zrbfcp_plumb_show_annex "${z_vessel}" "${z_hallmark}" "${z_mode}"
     return 0
   fi
 
@@ -151,22 +151,22 @@ zrbfcp_plumb_core() {
 
 # Internal: display bind vessel info
 # Args: vessel hallmark mode
-zrbfcp_plumb_show_bind() {
+zrbfcp_plumb_show_annex() {
   zrbfc0_sentinel
 
   local -r z_vessel="${1:-}"
   local -r z_hallmark="${2:-}"
   local -r z_mode="${3:-}"
-  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_bind: vessel required"
-  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_bind: hallmark required"
-  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_show_bind: mode required"
+  test -n "${z_vessel}" || buc_die_now "zrbfcp_plumb_show_annex: vessel required"
+  test -n "${z_hallmark}" || buc_die_now "zrbfcp_plumb_show_annex: hallmark required"
+  test -n "${z_mode}" || buc_die_now "zrbfcp_plumb_show_annex: mode required"
 
   if test "${z_mode}" = "compact"; then
     echo "" || buc_die_now
     echo "=== ${z_vessel} / ${z_hallmark} ===" || buc_die_now
     echo "  Type: bind | Trust: digest-pin only" || buc_die_now
-    if test -n "${RBRV_BIND_IMAGE:-}"; then
-      echo "  Source: ${RBRV_BIND_IMAGE}" || buc_die_now
+    if test -n "${RBRV_ANNEX_IMAGE:-}"; then
+      echo "  Source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
     fi
     echo "  No SLSA provenance, SBOM, or build transcript (not built by GCB)" || buc_die_now
     echo "" || buc_die_now
@@ -181,8 +181,8 @@ zrbfcp_plumb_show_bind() {
   echo "  Vessel type:  BIND (external image pinned by digest)" || buc_die_now
   echo "  Trust model:  Digest-pin only" || buc_die_now
   echo "" || buc_die_now
-  if test -n "${RBRV_BIND_IMAGE:-}"; then
-    echo "  Bind source:  ${RBRV_BIND_IMAGE}" || buc_die_now
+  if test -n "${RBRV_ANNEX_IMAGE:-}"; then
+    echo "  Bind source:  ${RBRV_ANNEX_IMAGE}" || buc_die_now
   fi
   echo "" || buc_die_now
   echo "  TRUST BOUNDARY" || buc_die_now

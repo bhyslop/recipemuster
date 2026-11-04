@@ -60,7 +60,7 @@ zrbyc_kindle() {
   # Operations
   buym_link_yawp "${z_docs}" "Ordain"; local -r z_ordain="${z_buym_yelp}"; readonly RBYC_ORDAIN="${z_ordain}"
   buym_link_yawp "${z_docs}" "Conjure"; local -r z_conjure="${z_buym_yelp}"; readonly RBYC_CONJURE="${z_conjure}"
-  buym_link_yawp "${z_docs}" "Bind"; local -r z_bind="${z_buym_yelp}"; readonly RBYC_BIND="${z_bind}"
+  buym_link_yawp "${z_docs}" "Bind"; local -r z_bind="${z_buym_yelp}"; readonly RBYC_ANNEX="${z_bind}"
   buym_link_yawp "${z_docs}" "Graft"; local -r z_graft="${z_buym_yelp}"; readonly RBYC_GRAFT="${z_graft}"
   buym_link_yawp "${z_docs}" "Kludge"; local -r z_kludge="${z_buym_yelp}"; readonly RBYC_KLUDGE="${z_kludge}"
   buym_link_yawp "${z_docs}" "Kludge" "Kludged"; local -r z_kludge_d="${z_buym_yelp}"; readonly RBYC_KLUDGE_D="${z_kludge_d}"

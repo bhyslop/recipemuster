@@ -53,7 +53,7 @@ fn rbttgo_conclave_precedes_reliquary_consumers() {
         .expect("airgap case present");
     let bind_idx = names
         .iter()
-        .position(|n| n.contains("rbtcgo_ordain_bind_plantuml"))
+        .position(|n| n.contains("rbtcgo_ordain_annex_plantuml"))
         .expect("ordain-bind case present");
     assert!(conclave_idx < kludge_tadmor_idx);
     assert!(conclave_idx < kludge_ccyolo_idx);

@@ -47,7 +47,7 @@ zrbho_kindle() {
   readonly RBHO_TRACK_TADMOR="Tadmor Security"
   readonly RBHO_TRACK_FIRST_BUILD="Your First Cloud Build"
   readonly RBHO_TRACK_AIRGAP="Airgap Cloud Build"
-  readonly RBHO_TRACK_BIND="Bind Cloud Build"
+  readonly RBHO_TRACK_ANNEX="Bind Cloud Build"
   readonly RBHO_TRACK_GRAFT="Graft Cloud Build"
 
   readonly ZRBHO_KINDLED=1

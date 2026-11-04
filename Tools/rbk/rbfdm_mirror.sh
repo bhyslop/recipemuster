@@ -57,8 +57,8 @@ rbfdm_mirror() {
   zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_bind" \
     || buc_die_now "Vessel '${RBRV_SIGIL}' is not a bind vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
-  test -n "${RBRV_BIND_IMAGE:-}" \
-    || buc_die_now "RBRV_BIND_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
+  test -n "${RBRV_ANNEX_IMAGE:-}" \
+    || buc_die_now "RBRV_ANNEX_IMAGE not set for bind vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
   zrbfca_resolve_tool_images
@@ -81,7 +81,7 @@ rbfdm_mirror() {
   local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
-  local -r z_mirror_ts="${RBGC_HALLMARK_PREFIX_BIND}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_mirror_ts="${RBGC_HALLMARK_PREFIX_ANNEX}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
   local -r z_build_ts_file="${ZRBFD0_MIRROR_PREFIX}build_ts.txt"
   date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die_now "Failed to generate build timestamp"
   local z_build_ts
@@ -188,12 +188,12 @@ zrbfdm_mirror_submit() {
   z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
 
   # Mode-specific substitution values for bind
-  local -r z_bind_source="${RBRV_BIND_IMAGE:-}"
+  local -r z_bind_source="${RBRV_ANNEX_IMAGE:-}"
   local z_dockerfile_content=""
   local -r z_dockerfile_max_bytes=4000
-  if test -n "${RBRV_BIND_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_BIND_OPTIONAL_DOCKERFILE}"; then
+  if test -n "${RBRV_ANNEX_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"; then
     local z_dockerfile_content_status=0
-    z_dockerfile_content=$(<"${RBRV_BIND_OPTIONAL_DOCKERFILE}") || z_dockerfile_content_status=$?
+    z_dockerfile_content=$(<"${RBRV_ANNEX_OPTIONAL_DOCKERFILE}") || z_dockerfile_content_status=$?
     test "${z_dockerfile_content_status}" -eq 0 || z_dockerfile_content=""
     if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
       buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"

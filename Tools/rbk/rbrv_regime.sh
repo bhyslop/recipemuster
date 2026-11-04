@@ -54,8 +54,8 @@ zrbrv_kindle() {
 
   buv_group_enroll "Binding Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_bind
-  buv_fqin_enroll   RBRV_BIND_IMAGE                1  512  "Source image to copy from registry"
-  buv_string_enroll RBRV_BIND_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
+  buv_fqin_enroll   RBRV_ANNEX_IMAGE                1  512  "Source image to copy from registry"
+  buv_string_enroll RBRV_ANNEX_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   buv_group_enroll "Conjuring Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
@@ -97,13 +97,13 @@ zrbrv_enforce() {
   buv_vet RBRV
 
   # Bind vessels must be digest-pinned: the vouch's verify-provenance pins the
-  # mirrored image against the @sha256: digest in RBRV_BIND_IMAGE, so a tag-only
+  # mirrored image against the @sha256: digest in RBRV_ANNEX_IMAGE, so a tag-only
   # source passes the mirror but fails the vouch deep in the cloud build. Reject
   # it here at config time.
   if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
     local -r z_bind_digest_re='@sha256:[0-9a-f]{64}$'
-    [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \
-      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
+    [[ "${RBRV_ANNEX_IMAGE}" =~ ${z_bind_digest_re} ]] \
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_ANNEX_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_ANNEX_IMAGE}'"
   fi
 }
 

@@ -168,7 +168,7 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
   buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
   buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
-  buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
+  buz_enroll RBZ_ONBOARD_DIR_ANNEX       "rbw-Odb" "${z_mod}" "rbho_director_annex"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
   buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — establish a Manor and provision the Depot"
 
