@@ -27,6 +27,7 @@ pub mod rbvcer_run;
 pub mod rbvcep_repo;
 pub mod rbvcem_perambulation;
 pub mod rbvceu_loupe;
+pub mod rbvcec_collation;
 pub mod rbvcex_expede;
 pub mod rbvceg_temenos;
 pub mod rbvcet_cachet;
@@ -39,6 +40,8 @@ pub mod rbvcch_harbinger;
 mod rbvtem_perambulation;
 #[cfg(test)]
 mod rbvteu_loupe;
+#[cfg(test)]
+mod rbvtec_collation;
 #[cfg(test)]
 mod rbvtet_cachet;
 #[cfg(test)]

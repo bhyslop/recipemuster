@@ -36,6 +36,7 @@ use crate::rbvccd_docimasy::{
 use crate::rbvceg_temenos;
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
+use crate::rbvcec_collation;
 use crate::rbvcer_run;
 use crate::rbvceu_loupe;
 use crate::rbvcew_world;
@@ -244,6 +245,44 @@ fn zrbvcce_precut_assays(top: &Path) {
         );
     }
     rbvcel_log::rbvcel_line("maintainer tree green; the veiled-tree assay passes");
+
+    // The one-home corpus check, in-process beside the veil assay (RBSHC "Worker,
+    // never authority": one of the hierophant's own absorbed modules). It reads
+    // the corpus road the kraal's register names, so it is meaningful only on a
+    // maintainer tree standing in a kraal. No register claiming the tree is an
+    // absence to log and pass, the locator's self-proof carrying the trust that
+    // the absence is honest; a register that cannot be followed is fatal, and so
+    // is any finding.
+    match rbvcec_collation::rbvcec_assay(top) {
+        rbvcec_collation::rbvcec_Reading::Absent(reason) => {
+            rbvcel_log::rbvcel_warn(&format!(
+                "the one-home corpus check stands down: {}",
+                reason, //
+            ));
+        }
+        rbvcec_collation::rbvcec_Reading::Unfollowable(reason) => {
+            crate::rbvcel_fatal!(
+                "the one-home corpus check cannot follow the kraal register: {} — repair the kraal, then run essai again (RBSHE)",
+                reason, //
+            );
+        }
+        rbvcec_collation::rbvcec_Reading::Ran { findings, tally } => {
+            if !findings.is_empty() {
+                for finding in &findings {
+                    rbvcel_log::rbvcel_line(&format!(
+                        "one-home: {}",
+                        finding, //
+                    ));
+                }
+                crate::rbvcel_fatal!(
+                    "the one-home corpus check found {} violation(s) — repair in the corpus or on the maintainer tree, then run essai again (RBSHE)",
+                    findings.len(), //
+                );
+            }
+            rbvcel_log::rbvcel_line(&tally);
+            rbvcel_log::rbvcel_line("the one-home corpus check passes");
+        }
+    }
 }
 
 // ── Step 3: cut the regulus — the absorbed cut, in-process ─
