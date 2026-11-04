@@ -110,7 +110,7 @@ runway=${z_runway}"
     else
       buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; a programmatic foedus opens one on demand at the next federated command, or ${RBCG_SEDERUNT_NOVATE_BASE} opens a fresh full window now:"
     fi
-    buc_tabtarget "${RBZ_NOVATE_SEDERUNT}"
+    buc_tabtarget "${RBCG_SEDERUNT_NOVATE_PEDIMENT}"
   fi
 }
 
