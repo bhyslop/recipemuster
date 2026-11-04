@@ -21,6 +21,11 @@
 
 set -euo pipefail
 
+# The curl codes this module classifies, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
 test -z "${ZRBGO_SOURCED:-}" || buc_die_now "Module rbgo multiply sourced - check sourcing hierarchy"
 ZRBGO_SOURCED=1
@@ -91,8 +96,11 @@ rbgo_curl_status_is_transient_predicate() {
   zrbgo_sentinel
 
   case "${1:-}" in
-    7|28|35|56) return 0 ;;
-    *)          return 1 ;;
+    "${RBCG_CONNECT_ANTA}"   |\
+    "${RBCG_TIMEOUT_ANTA}"   |\
+    "${RBCG_HANDSHAKE_ANTA}" |\
+    "${RBCG_RECEIVE_ANTA}")  return 0 ;;
+    *) return 1 ;;
   esac
 }
 

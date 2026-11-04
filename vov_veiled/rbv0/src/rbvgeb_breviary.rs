@@ -3351,6 +3351,18 @@ pub const RBVGEB_UNSEISED_DENTIL: i32 = rbvgeb_unseised_dentil!();
 macro_rules! rbvgeb_vacant_dentil { () => { 110 }; }
 pub(crate) use rbvgeb_vacant_dentil;
 pub const RBVGEB_VACANT_DENTIL: i32 = rbvgeb_vacant_dentil!();
+macro_rules! rbvgeb_connect_anta { () => { 7 }; }
+pub(crate) use rbvgeb_connect_anta;
+pub const RBVGEB_CONNECT_ANTA: i32 = rbvgeb_connect_anta!();
+macro_rules! rbvgeb_handshake_anta { () => { 35 }; }
+pub(crate) use rbvgeb_handshake_anta;
+pub const RBVGEB_HANDSHAKE_ANTA: i32 = rbvgeb_handshake_anta!();
+macro_rules! rbvgeb_receive_anta { () => { 56 }; }
+pub(crate) use rbvgeb_receive_anta;
+pub const RBVGEB_RECEIVE_ANTA: i32 = rbvgeb_receive_anta!();
+macro_rules! rbvgeb_timeout_anta { () => { 28 }; }
+pub(crate) use rbvgeb_timeout_anta;
+pub const RBVGEB_TIMEOUT_ANTA: i32 = rbvgeb_timeout_anta!();
 macro_rules! rbvgeb_rbte_build_pediment { () => { "rbw-tb" }; }
 pub(crate) use rbvgeb_rbte_build_pediment;
 pub const RBVGEB_RBTE_BUILD_PEDIMENT: &str = rbvgeb_rbte_build_pediment!();
