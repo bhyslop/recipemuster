@@ -2486,7 +2486,7 @@ rbgp_manor_escheat() {
     IFS=$'\t' read -r z_action z_kind z_reason z_name <<<"${z_plan_lines[${z_i}]}" || buc_die_now "Malformed plan line"
     test "${z_action}" = "sweep" || continue
     test "${z_kind}" = "object"  || continue
-    rbgft_escheat_expunge_raw "${zSECRET_token}" "${z_bucket}" "${z_name}" >/dev/null \
+    rbgft_escheat_expunge_raw "${zSECRET_token}" "${z_bucket}" "${z_name}" \
       || buc_die_now "Escheat: raw expunge failed for ${z_name}"
   done
   for z_i in "${!z_plan_lines[@]}"; do
@@ -2796,7 +2796,7 @@ rbgp_depot_levy() {
   # needs serviceAccountTokenCreator on Mason to impersonate it during builds.create.
   # The service agent is auto-created when the Cloud Build API is enabled; its email is
   # deterministic from the project number.
-  rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" > /dev/null \
+  rbgi_provision_service_agent "cloudbuild" "${RBDC_DEPOT_PROJECT_ID}" "${zSECRET_token}" \
     || buc_die_now "Failed to provision Cloud Build service agent"
   local -r z_cb_service_agent="service-${z_project_number}@gcp-sa-cloudbuild.${RBGC_SA_EMAIL_DOMAIN}"
   buc_log_args "CB service agent: ${z_cb_service_agent}"
@@ -3472,7 +3472,7 @@ zrbgp_brevet_core() {
   buc_step "Brevet ${z_subject} onto the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: write the muniment before any binding'
-  rbgft_engross "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_engross "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}"
 
   buc_log_args 'Ensure tokenCreator on the mantle SA (the don grant)'
   rbgi_add_sa_principal_iam_role "${zSECRET_token}" "${z_mantle_email}" "${z_principal}" \
@@ -3509,7 +3509,7 @@ zrbgp_unseat_core() {
   buc_step "Unseat ${z_subject} from the ${z_mantle} mantle"
 
   buc_log_args 'Intent-first: withdraw the muniment before removing the binding'
-  rbgft_expunge "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}" >/dev/null
+  rbgft_expunge "${zSECRET_token}" "${z_bucket}" "${z_depot}" "${z_mantle}" "${z_subject}"
 
   buc_log_args 'Remove tokenCreator on the mantle SA (depot-scoped binding stays: suspension)'
   rbgi_revoke_sa_principal_member "${zSECRET_token}" "${z_mantle_email}" "${z_principal}" \
