@@ -26,13 +26,18 @@
 
 set -euo pipefail
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # External Functions (rbfdo_*)
 
 rbfdo_ordain() {
   zrbfd0_sentinel
 
-  buc_doc_brief "Ordain a hallmark from a vessel (conjure, annex, or graft based on vessel mode)"
+  buc_doc_brief "Ordain a hallmark from a vessel (conjure, ${RBCG_VESSEL_MODE_ANNEX_BASE}, or graft based on vessel mode)"
   buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
   buc_doc_shown || return 0
 
@@ -81,7 +86,7 @@ rbfdo_ordain() {
       zrbfvm_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
       ;;
     rbnve_annex)
-      buc_info "About produced by combined annex job — proceeding to vouch"
+      buc_info "About produced by combined ${RBCG_VESSEL_MODE_ANNEX_BASE} job — proceeding to vouch"
       rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
       ;;
     *)

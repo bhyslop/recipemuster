@@ -164,7 +164,7 @@ zrbfcp_plumb_show_annex() {
   if test "${z_mode}" = "compact"; then
     echo "" || buc_die_now
     echo "=== ${z_vessel} / ${z_hallmark} ===" || buc_die_now
-    echo "  Type: annex | Trust: digest-pin only" || buc_die_now
+    echo "  Type: ${RBCG_VESSEL_MODE_ANNEX_BASE} | Trust: digest-pin only" || buc_die_now
     if test -n "${RBRV_ANNEX_IMAGE:-}"; then
       echo "  Source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
     fi
@@ -178,15 +178,15 @@ zrbfcp_plumb_show_annex() {
   echo "  HALLMARK PLUMB: ${z_vessel} / ${z_hallmark}" || buc_die_now
   echo "================================================================" || buc_die_now
   echo "" || buc_die_now
-  echo "  Vessel type:  ANNEX (external image pinned by digest)" || buc_die_now
+  echo "  Vessel type:  ${RBCG_VESSEL_MODE_ANNEX_BASE_VERSAL} (external image pinned by digest)" || buc_die_now
   echo "  Trust model:  Digest-pin only" || buc_die_now
   echo "" || buc_die_now
   if test -n "${RBRV_ANNEX_IMAGE:-}"; then
-    echo "  Annex source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} source: ${RBRV_ANNEX_IMAGE}" || buc_die_now
   fi
   echo "" || buc_die_now
   echo "  TRUST BOUNDARY" || buc_die_now
-  echo "  This is an annex vessel. The image was not built by Google Cloud" || buc_die_now
+  echo "  This is an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel. The image was not built by Google Cloud" || buc_die_now
   echo "  Build. No SLSA provenance, no SBOM, and no build transcript" || buc_die_now
   echo "  exist because GCB did not produce this image." || buc_die_now
   echo "" || buc_die_now
@@ -242,22 +242,22 @@ zrbfcp_plumb_show_sections() {
       (.git.branch // "?"),
       (.git.commit // "?")
     ' "${z_bi}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_bi_stderr}" \
-      || buc_die_now "Failed to extract annex fields from ${z_bi} — see ${z_bi_stderr}"
-    { read -r z_bi_moniker     || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_source_img  || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_mirror_ts   || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_hallmark    || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_image_uri   || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_repo    || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_branch  || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
-      read -r z_bi_git_commit  || buc_die_now "Failed to read annex fields from ${ZRBFC0_SCRATCH_FILE}"
+      || buc_die_now "Failed to extract ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${z_bi} — see ${z_bi_stderr}"
+    { read -r z_bi_moniker     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_source_img  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_mirror_ts   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_hallmark    || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_image_uri   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_repo    || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_branch  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
+      read -r z_bi_git_commit  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} fields from ${ZRBFC0_SCRATCH_FILE}"
     } < "${ZRBFC0_SCRATCH_FILE}"
 
     echo "" || buc_die_now
     echo "  -- Vessel Type -------------------------------------------------" || buc_die_now
     echo "  How this image was produced." || buc_die_now
     echo "" || buc_die_now
-    echo "  Mode:           annex (upstream image mirrored to GAR)" || buc_die_now
+    echo "  Mode:           ${RBCG_VESSEL_MODE_ANNEX_BASE} (upstream image mirrored to GAR)" || buc_die_now
     echo "  Moniker:        ${z_bi_moniker}" || buc_die_now
 
     echo "" || buc_die_now
@@ -285,7 +285,7 @@ zrbfcp_plumb_show_sections() {
 
     echo "" || buc_die_now
     echo "  -- Trust --------------------------------------------------------" || buc_die_now
-    echo "  Annex vessels are NOT built by Cloud Build. Trust comes from the" || buc_die_now
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} vessels are NOT built by Cloud Build. Trust comes from the" || buc_die_now
     echo "  digest pin in rbrv.env — the image is exactly the bytes specified." || buc_die_now
     echo "" || buc_die_now
     echo "  SLSA provenance:  not applicable (no build step)" || buc_die_now
@@ -629,7 +629,7 @@ zrbfcp_plumb_show_sections() {
   echo "" || buc_die_now
   echo "  -- Vouch Results ------------------------------------------------" || buc_die_now
   if test "${z_vessel_mode}" = "rbnve_annex"; then
-    echo "  Annex verification: was the mirrored image verified against its digest pin?" || buc_die_now
+    echo "  ${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} verification: was the mirrored image verified against its digest pin?" || buc_die_now
     echo "" || buc_die_now
     if test "${z_has_vouch}" = "true" && test -f "${z_vs}"; then
       local z_vf_method="" z_vf_result="" z_vf_pin="" z_vf_gar=""
@@ -644,14 +644,14 @@ zrbfcp_plumb_show_sections() {
         (.verification.timestamp // "?"),
         (.verification.source_image // .verification.annex_source // "?")
       ' "${z_vs}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_vf_stderr}" \
-        || buc_die_now "Failed to extract annex verification from ${z_vs} — see ${z_vf_stderr}"
-      { read -r z_vf_method  || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_result  || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_pin     || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_gar     || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_match   || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_ts      || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
-        read -r z_vf_source  || buc_die_now "Failed to read annex verification from ${ZRBFC0_SCRATCH_FILE}"
+        || buc_die_now "Failed to extract ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${z_vs} — see ${z_vf_stderr}"
+      { read -r z_vf_method  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_result  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_pin     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_gar     || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_match   || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_ts      || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
+        read -r z_vf_source  || buc_die_now "Failed to read ${RBCG_VESSEL_MODE_ANNEX_BASE} verification from ${ZRBFC0_SCRATCH_FILE}"
       } < "${ZRBFC0_SCRATCH_FILE}"
       echo "  Method:      ${z_vf_method}" || buc_die_now
       echo "  Verdict:     ${z_vf_result}" || buc_die_now

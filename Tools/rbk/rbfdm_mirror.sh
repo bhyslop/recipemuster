@@ -26,6 +26,11 @@
 
 set -euo pipefail
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # External Functions (rbfdm_*)
 
@@ -35,7 +40,7 @@ rbfdm_mirror() {
   local z_vessel_dir="${1:-}"
 
   # Documentation block
-  buc_doc_brief "Mirror an annex vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
+  buc_doc_brief "Mirror an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
   buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
   buc_doc_shown || return 0
 
@@ -56,9 +61,9 @@ rbfdm_mirror() {
   # Load and validate vessel
   zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_annex" \
-    || buc_die_now "Vessel '${RBRV_SIGIL}' is not an annex vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' is not an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
   test -n "${RBRV_ANNEX_IMAGE:-}" \
-    || buc_die_now "RBRV_ANNEX_IMAGE not set for annex vessel '${RBRV_SIGIL}'"
+    || buc_die_now "RBRV_ANNEX_IMAGE not set for ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel '${RBRV_SIGIL}'"
 
   # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
   zrbfca_resolve_tool_images

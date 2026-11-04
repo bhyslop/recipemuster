@@ -42,9 +42,9 @@ The tables below map what you want to do to the verb you will meet.
 | --- | --- |
 | **Conclave** | Capture the co-versioned cohort of builder tool images into one Lode, the reliquary, named by its touchmark; Cloud Build jobs run their steps from its members. |
 | **Ensconce** | Capture an upstream base image into your depot's registry as a Lode, recording the exact digest captured, so builds draw from your own copy. |
-| **Ordain** | Build a hallmark: it reads the vessel's mode and conjures, binds or grafts. |
+| **Ordain** | Build a hallmark: it reads the vessel's mode and conjures, annexes or grafts. |
 | **Conjure** | Build from source in Cloud Build with SLSA provenance; a mode of ordain. |
-| **Bind** | Mirror an upstream image pinned by digest; a mode of ordain. |
+| **Annex** | Mirror an upstream image pinned by digest; a mode of ordain. |
 | **Graft** | Push a locally built image to the depot's registry, with no provenance chain; a mode of ordain. |
 | **Kludge** | Build a conjure vessel's image locally for fast iteration, with no Cloud Build and no registry push. |
 
@@ -57,7 +57,7 @@ The supply chain runs in that order: conclave captures the reliquary, ensconce c
 | **Audit** | List the hallmark identifiers in the depot's registry, a flat catalog at the director tier. |
 | **Tally** | Classify hallmarks by health, vouched, pending or incomplete; a retriever operation. |
 | **Rekon** | Report which of one hallmark's artifacts stand in the registry. |
-| **Vouch** | Record a hallmark's verification: SLSA provenance for conjure, the digest pin for bind, a GRAFTED verdict for graft. |
+| **Vouch** | Record a hallmark's verification: SLSA provenance for conjure, the digest pin for annex, a GRAFTED verdict for graft. |
 | **Plumb** | Inspect a hallmark's provenance: the full view shows its SBOM, build info and Dockerfile, the compact view its trust posture. |
 
 ### Getting and removing images

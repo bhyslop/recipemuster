@@ -37,7 +37,7 @@ test -n "${_RBGA_ANNEX_SOURCE}"    || { echo "_RBGA_ANNEX_SOURCE missing"    >&2
 
 DEST_REF="${_RBGA_GAR_HOST}/${_RBGA_GAR_PATH}/${_RBGA_HALLMARKS_ROOT}/${_RBGA_HALLMARK}/image:${_RBGA_HALLMARK}"
 
-echo "=== Mirroring annex image via gcrane ==="
+echo "=== Mirroring the pinned upstream image via gcrane ==="
 echo "Source: ${_RBGA_ANNEX_SOURCE}"
 echo "Dest:   ${DEST_REF}"
 

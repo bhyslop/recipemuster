@@ -95,7 +95,7 @@ rbho_director_annex() {
   buh_line "Cloud Build runs gcrane to copy the digest-pinned upstream image into"
   buh_line "your ${RBYC_DEPOT}, then about/vouch records what was mirrored."
   buh_e
-  buh_line "This track annexes ${z_lk_vessel} — the PlantUML server image. PlantUML"
+  buh_line "This track ${RBCG_VESSEL_MODE_ANNEX_THIRD_SINGULAR} ${z_lk_vessel} — the PlantUML server image. PlantUML"
   buh_line "renders diagrams, but its Docker Hub source could phone home if run"
   buh_line "naked. ${RBYC_ANNEX} pins it by content hash; the ${RBYC_SENTRY} blocks all"
   buh_line "egress at runtime. You get the tool without the risk."
@@ -130,7 +130,7 @@ rbho_director_annex() {
   buh_e
   buh_line "The ${RBYC_SENTRY} enforces network policy regardless of how it was"
   buh_line "built; the policy is what's load-bearing, not the build mode behind"
-  buh_line "it. The annex lesson is about what happens to the ${RBYC_BOTTLE} image."
+  buh_line "it. The ${RBCG_VESSEL_MODE_ANNEX_BASE} lesson is about what happens to the ${RBYC_BOTTLE} image."
   buh_e
 
   buh_step_style "Step " " — "
@@ -156,7 +156,7 @@ rbho_director_annex() {
   buh_e
   buh_line "  The ${RBYC_SENTRY} ${RBYC_HALLMARK} can come"
   buh_line "  from either build path — a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} is fine for"
-  buh_line "  learning ${RBYC_ANNEX}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The annex"
+  buh_line "  learning ${RBYC_ANNEX}; a ${RBYC_CONJURED} ${RBYC_SENTRY} is fine too. The ${RBCG_VESSEL_MODE_ANNEX_BASE}"
   buh_line "  lesson is about the ${RBYC_BOTTLE}, not the ${RBYC_SENTRY}."
   buh_e
   if test "${z_sentry_ready}" = "1"; then
@@ -255,7 +255,7 @@ rbho_director_annex() {
   buh_line "— that is what the verdict honestly reports."
   buh_e
   if test "${z_bottle_bound}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} annexed and recorded"
+    buh_line "${RBYC_PROBE_YES}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} ${RBCG_VESSEL_MODE_ANNEX_PAST} and recorded"
   else
     buh_line "${RBYC_PROBE_NO}${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK} not set — ${RBYC_ORDAIN} above"
   fi
