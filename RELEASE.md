@@ -1,47 +1,47 @@
 # <a id="ReleaseRunbook"></a>Release Procedure
 
 How the maintainer takes a candidate from repair to a promoted public release.
-The [Hierophant](#Hierophant) conducts four commands and stops wherever your hands are needed; this procedure says what to do at each stop and between the commands.
+The [hierophant](#Hierophant) conducts four commands and stops wherever your hands are needed; this procedure says what to do at each stop and between the commands.
 The law behind it is the Marshal Operations branch of the spec: where the two disagree the law wins, and the disagreement is a finding to raise.
 The words in capitals are defined in the glossary at the end.
 
-Run every command from the maintainer repository, with its tree committed and pushed: each [Hierophant](#Hierophant) command refuses an uncommitted tree, [Essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
+Run every command from the maintainer repository, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
-Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [Agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [Palaestra](#Palaestra), against a private stand-in for the public repository.
-There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [Cachet](#Cachet), and every banner the tool prints names the world it is in.
+Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
+There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [cachet](#Cachet), and every banner the tool prints names the world it is in.
 
 1. [Standing ground](#StandingGround) — once per station.
-2. [Practice](#ThePractice) — rounds in the [Palaestra](#Palaestra) until one surfaces nothing.
-3. [The laps](#TheLaps) — [Essai](#Essai), repeated until a [Lap](#Lap) runs dry.
-4. [The reveal](#TheReveal) — [Docimasy](#Docimasy), then [Ostend](#Ostend), then [Harbinger](#Harbinger).
+2. [Practice](#ThePractice) — rounds in the [palaestra](#Palaestra) until one surfaces nothing.
+3. [The laps](#TheLaps) — [essai](#Essai), repeated until a [lap](#Lap) runs dry.
+4. [The reveal](#TheReveal) — [docimasy](#Docimasy), then [ostend](#Ostend), then [harbinger](#Harbinger).
 5. [The walk](#GreenfieldWalk) — the greenfield manor walk against promoted public main.
 6. [Closeout](#Closeout) — liveness, the spot-check, the deletes and the record.
 
 ## <a id="Rules"></a>Rules
 
-- Only the staging push inside [Ostend](#Ostend) cannot be undone. [Essai](#Essai), [Docimasy](#Docimasy) and [Harbinger](#Harbinger) never touch the public face, but once a [Cachet](#Cachet) stands, run [Essai](#Essai) again only when a finding forces a re-cut: a new [Lap](#Lap) discards the [Cachet](#Cachet) and the preview.
+- Only the staging push inside [ostend](#Ostend) cannot be undone. [Essai](#Essai), [docimasy](#Docimasy) and [harbinger](#Harbinger) never touch the public face, but once a [cachet](#Cachet) stands, run [essai](#Essai) again only when a finding forces a re-cut: a new [lap](#Lap) discards the [cachet](#Cachet) and the preview.
 - The tool never pushes. When it prints a push line, leave its prompt waiting, type the line exactly in the second pane, and answer `y` only after the push has returned.
-- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [Lap](#Lap).
-- The [Regulus](#Regulus) the reveal shows is the one the dry [Lap](#Lap) proved, never a fresh cut.
-- A [Cachet](#Cachet) granted in the [Palaestra](#Palaestra) never admits a showing in the [Agora](#Agora), nor one granted in the [Agora](#Agora) a showing in the [Palaestra](#Palaestra); [Ostend](#Ostend) refuses it and names both worlds.
+- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [lap](#Lap).
+- The [regulus](#Regulus) the reveal shows is the one the dry [lap](#Lap) proved, never a fresh cut.
+- A [cachet](#Cachet) granted in the [palaestra](#Palaestra) never admits a showing in the [agora](#Agora), nor one granted in the [agora](#Agora) a showing in the [palaestra](#Palaestra); [ostend](#Ostend) refuses it and names both worlds.
 
 <a id="RuledOrder"></a>The standing doctrine is that the walk gates promotion.
-This release runs under the operator's ruled exception to it: [Ostend](#Ostend) stages and promotes in one run, and the walk follows against promoted public main.
+This release runs under the operator's ruled exception to it: [ostend](#Ostend) stages and promotes in one run, and the walk follows against promoted public main.
 
 ## <a id="StandingGround"></a>Standing ground
 
 Once per station, before the first lap.
 
 1. Add the read-only base remote and neuter its push side.
-   A push-capable remote to the public repository is the one forbidden catastrophe, and [Essai](#Essai) refuses to cut unless the push side reads exactly this sentinel:
+   A push-capable remote to the public repository is the one forbidden catastrophe, and [essai](#Essai) refuses to cut unless the push side reads exactly this sentinel:
 
    ```
    git remote add ENGROSSMENT_UPSTREAM git@github.com:scaleinv/recipebottle.git
    git remote set-url --push ENGROSSMENT_UPSTREAM DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY
    ```
 2. Bring the kennel current with `tt/bkw-w.Whistle.sh`.
-   Run it again whenever a [Hierophant](#Hierophant) command refuses because the tree has outrun the kennel.
+   Run it again whenever a [hierophant](#Hierophant) command refuses because the tree has outrun the kennel.
 3. Prove that SSH reaches the public repository, since every push in the reveal travels it:
 
    ```
@@ -49,20 +49,20 @@ Once per station, before the first lap.
    ```
 4. At the cloud console, count the projects linked to the billing account and confirm three free link slots: two for the `gauntlet` and one for the walk.
    Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
-5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [Hierophant](#Hierophant) never uses them.
+5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [hierophant](#Hierophant) never uses them.
 
 ## <a id="ThePractice"></a>Practice
 
-The whole ceremony is practiced end to end in the [Palaestra](#Palaestra) before the real cycle, from the first [Lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
-Practice protects against a fumble — a wrong push, a misread prompt, a hygiene step that bites — and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [Regulus](#Regulus) and the private [Narthex](#Narthex) guard that.
+The whole ceremony is practiced end to end in the [palaestra](#Palaestra) before the real cycle, from the first [lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
+Practice protects against a fumble — a wrong push, a misread prompt, a hygiene step that bites — and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [regulus](#Regulus) and the private [narthex](#Narthex) guard that.
 
-Practice differs from the real ceremony in these ways alone: [Essai](#Essai) reads the stand-in before it cuts and refuses one that has drifted, printing the steps to recreate it; [Docimasy](#Docimasy) skips the sign-in and the `gauntlet`, and prints the steps to recreate the practice [Narthex](#Narthex) when it refuses one that is not fresh; the [Cachet](#Cachet) it grants admits a showing in the [Palaestra](#Palaestra) alone; and the practice [Regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
-Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [Harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
+Practice differs from the real ceremony in these ways alone: [essai](#Essai) reads the stand-in before it cuts and refuses one that has drifted, printing the steps to recreate it; [docimasy](#Docimasy) skips the sign-in and the `gauntlet`, and prints the steps to recreate the practice [narthex](#Narthex) when it refuses one that is not fresh; the [cachet](#Cachet) it grants admits a showing in the [palaestra](#Palaestra) alone; and the practice [regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
+Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
 
 ### <a id="PracticeGround"></a>Practice standing ground
 
 Once per station, beside the real base remote.
-Add the practice base remote and neuter its push side exactly as the real one's; [Essai](#Essai) in the [Palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
+Add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
 Type each line as shown:
 
 - `git remote add PALAESTRA_UPSTREAM git@github.com:bhyslop/recipebottle-grandstand-practice.git`
@@ -72,17 +72,17 @@ Or stand up a practice seat, a clone that keeps the practice rounds apart from t
 From the maintainer repository, run `tt/rbvw-p.PracticeSeat.palaestra.sh «practice home»`, naming the home by its absolute path.
 It clones the maintainer repository at its checked-out branch into `«practice home»/seat/rb`, adds the practice base remote there with its push side neutered, writes the seat's station file and an empty secrets directory under `«practice home»/seat/station-files`, the station file naming this station's own tool store, and builds the seat's kennel.
 It contacts no remote, and refuses a home where a seat already stands.
-Run the practice doors from the seat: its [Regulus](#Regulus) and [Temenos](#Temenos) land inside the practice home.
+Run the practice doors from the seat: its [regulus](#Regulus) and [temenos](#Temenos) land inside the practice home.
 
 ### <a id="PracticeOpening"></a>Opening a round
 
-At the GitHub console, by hand, delete the practice [Narthex](#Narthex) `bhyslop/recipebottle-picadero-practice` and create it again, private and empty, with no README, ignore file or license.
-It is recreated before every round: each preview push makes its branch the repository's default branch, which no push can delete, and [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
+At the GitHub console, by hand, delete the practice [narthex](#Narthex) `bhyslop/recipebottle-picadero-practice` and create it again, private and empty, with no README, ignore file or license.
+It is recreated before every round: each preview push makes its branch the repository's default branch, which no push can delete, and [docimasy](#Docimasy) refuses a [narthex](#Narthex) holding an earlier cut.
 Read it and confirm it is empty; the line prints nothing:
 
 - `git ls-remote git@github.com:bhyslop/recipebottle-picadero-practice.git`
 
-The tool prints each reset where it is owed: in the [Palaestra](#Palaestra), [Docimasy](#Docimasy) prints the steps above when it refuses a [Narthex](#Narthex) that is not fresh, and [Essai](#Essai) reads both repositories below before it cuts and prints the stand-in steps when the stand-in has drifted.
+The tool prints each reset where it is owed: in the [palaestra](#Palaestra), [docimasy](#Docimasy) prints the steps above when it refuses a [narthex](#Narthex) that is not fresh, and [essai](#Essai) reads both repositories below before it cuts and prints the stand-in steps when the stand-in has drifted.
 
 The stand-in `bhyslop/recipebottle-grandstand-practice` is recreated only when it no longer carries exactly the real repository's two branches, main and `POSTULANT_LOCAL`, both at real public main's commit.
 Any round that went past its first command leaves it so.
@@ -110,14 +110,14 @@ Discard the fresh clone afterwards; it is never a working directory of the cerem
 Run the four commands under their practice doors, reading each stop as the real section of the same name describes it:
 
 1. Run `tt/rbvw-e.Essai.palaestra.sh`.
-   It cuts the [Regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [Temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
-   Walk the coldwalk and read the [Regulus](#Regulus) as the laps below describe, with those paths.
+   It cuts the [regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
+   Walk the coldwalk and read the [regulus](#Regulus) as the laps below describe, with those paths.
 2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
 3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
-   It gates the practice [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and stops once, for the preview push line into the practice [Narthex](#Narthex): type it in the second pane, then answer `y`.
-   It asks for no sign-in and runs no `gauntlet`, and grants a practice [Cachet](#Cachet).
+   It gates the practice [narthex](#Narthex), confirms the [regulus](#Regulus) still matches the maintainer tree, and stops once, for the preview push line into the practice [narthex](#Narthex): type it in the second pane, then answer `y`.
+   It asks for no sign-in and runs no `gauntlet`, and grants a practice [cachet](#Cachet).
 4. Run `tt/rbvw-o.Ostend.palaestra.sh`.
-   It stops three times, exactly as the real [Ostend](#Ostend) does — the file list, the staging push line, the promotion line — but every push it prints targets the stand-in, never the public repository.
+   It stops three times, exactly as the real [ostend](#Ostend) does — the file list, the staging push line, the promotion line — but every push it prints targets the stand-in, never the public repository.
 5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
 
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
@@ -133,21 +133,21 @@ Type each line as shown, in order:
 2. Check that every coldwalk findings memo is committed, including any inside a dated `palaestra_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `palaestra_*` directory beside the maintainer repository.
 3. Record what the round surfaced.
    A finding in the procedure is an edit to this ordinatio and a re-render; a finding in the instrument is a repair and another round.
-   The next round opens by recreating the practice [Narthex](#Narthex), and the stand-in too where it no longer carries the real repository's two branches, so neither is deleted here.
+   The next round opens by recreating the practice [narthex](#Narthex), and the stand-in too where it no longer carries the real repository's two branches, so neither is deleted here.
 
 ## <a id="TheLaps"></a>The laps
 
 1. Run `tt/rbvw-e.Essai.agora.sh`.
-   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [Regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [Temenos](#Temenos).
-   A [Regulus](#Regulus) already standing there is first moved aside by [Sepose](#Sepose).
+   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [temenos](#Temenos).
+   A [regulus](#Regulus) already standing there is first moved aside by [sepose](#Sepose).
 2. Read its verdict and the base inventory it prints.
    On any red, repair on the maintainer tree, commit and push, and run it again.
 
 ### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
-Every green lap ends with a [Temenos](#Temenos) waiting to be walked.
+Every green lap ends with a [temenos](#Temenos) waiting to be walked.
 Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
-Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [Temenos](#Temenos) aside.
+Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [temenos](#Temenos) aside.
 A finding means a repair and another lap.
 A lap whose battery is green and whose coldwalk finds nothing has run dry, and only then do the three steps below follow.
 
@@ -158,8 +158,8 @@ If it does not, repair and run another lap.
 
 ### <a id="RegulusReading"></a>Reading the regulus
 
-The [Regulus](#Regulus) is one commit atop public main, so that commit is everything the public will newly see.
-Read it yourself, privately, before the reveal; the file list [Ostend](#Ostend) shows later carries names only.
+The [regulus](#Regulus) is one commit atop public main, so that commit is everything the public will newly see.
+Read it yourself, privately, before the reveal; the file list [ostend](#Ostend) shows later carries names only.
 
 ```
 git -C ../rbthdr_regulus/regulus show --stat HEAD
@@ -173,8 +173,8 @@ Anything that should not be public means a repair and another lap.
 ### <a id="QuietTrunk"></a>Hold the trunk quiet
 
 From the dry lap until promotion, land nothing on the trunk that changes delivered bytes, a kit parcel install above all.
-The reveal re-checks that the [Regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to laps.
-The commits [Docimasy](#Docimasy) itself makes are expected and are not drift.
+The reveal re-checks that the [regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to laps.
+The commits [docimasy](#Docimasy) itself makes are expected and are not drift.
 
 ## <a id="TheReveal"></a>The reveal
 
@@ -182,8 +182,8 @@ The commits [Docimasy](#Docimasy) itself makes are expected and are not drift.
 
 At the GitHub console, by hand:
 
-1. Delete the [Narthex](#Narthex) repository `scaleinv/recipebottle-staging` and create it again, empty and private.
-   [Docimasy](#Docimasy) refuses a [Narthex](#Narthex) holding an earlier cut.
+1. Delete the [narthex](#Narthex) repository `scaleinv/recipebottle-staging` and create it again, empty and private.
+   [Docimasy](#Docimasy) refuses a [narthex](#Narthex) holding an earlier cut.
 2. Delete the public repository's `POSTULANT_LOCAL` branch left by the previous release, so the staging push creates it fresh.
    If a branch ruleset refuses the delete, relax it for the delete and restore it at once.
 3. Confirm three free billing link slots again.
@@ -192,9 +192,9 @@ At the GitHub console, by hand:
 ### <a id="DocimasyAct"></a>Docimasy
 
 Run `tt/rbvw-d.Docimasy.agora.sh` in the multiplexer session, since its last hour runs unattended.
-It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches the maintainer tree, and then stops three times:
+It gates the [narthex](#Narthex), confirms the [regulus](#Regulus) still matches the maintainer tree, and then stops three times:
 
-1. It prints the preview push line into the private [Narthex](#Narthex).
+1. It prints the preview push line into the private [narthex](#Narthex).
    Type it in the second pane, then answer `y`.
 2. It prints a sign-in URL and code to renew your session.
    Open the URL in a browser and enter the code before it times out; this is the fresh sign-in the unattended hour needs.
@@ -202,38 +202,38 @@ It gates the [Narthex](#Narthex), confirms the [Regulus](#Regulus) still matches
    Answer `y`; that answer is marshal zero's confirmation too, so it lists what it blanks and asks nothing more.
    Leave only once the `gauntlet` has begun: marshal zero blanks the regime and commits that, and the `gauntlet` runs for about an hour on two new cloud projects, committing regime changes as it goes.
 
-On green it grants the [Cachet](#Cachet) and points you to [Ostend](#Ostend).
+On green it grants the [cachet](#Cachet) and points you to [ostend](#Ostend).
 Push the commits it left on the maintainer tree.
-Before [Ostend](#Ostend), browse the `POSTULANT_LOCAL` branch of the [Narthex](#Narthex) on GitHub: the file tree, the rendered README with its pictures and anchors, and the single commit.
+Before [ostend](#Ostend), browse the `POSTULANT_LOCAL` branch of the [narthex](#Narthex) on GitHub: the file tree, the rendered README with its pictures and anchors, and the single commit.
 Go on only when it reads as a clean public face.
 
 On red:
 
-- First push whatever commits the failed run left on the maintainer tree, or the next [Docimasy](#Docimasy) or [Essai](#Essai) refuses.
-- If the payor credential check fails, reinstall it with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, the JSON saved when the payor was established, then run [Docimasy](#Docimasy) again.
-- If the sign-in fails or times out, run [Docimasy](#Docimasy) again; if it fails twice, read the identity trust's health with `tt/rbw-jd.FoedusDescry.sh`.
-- If the `gauntlet` failed for a reason outside the candidate, such as a quota wall or a transient cloud fault, release the depot it stranded with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»` and run [Docimasy](#Docimasy) again; a preview already pushed is recognized and not asked for again.
+- First push whatever commits the failed run left on the maintainer tree, or the next [docimasy](#Docimasy) or [essai](#Essai) refuses.
+- If the payor credential check fails, reinstall it with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, the JSON saved when the payor was established, then run [docimasy](#Docimasy) again.
+- If the sign-in fails or times out, run [docimasy](#Docimasy) again; if it fails twice, read the identity trust's health with `tt/rbw-jd.FoedusDescry.sh`.
+- If the `gauntlet` failed for a reason outside the candidate, such as a quota wall or a transient cloud fault, release the depot it stranded with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»` and run [docimasy](#Docimasy) again; a preview already pushed is recognized and not asked for again.
 - If the `gauntlet` found a real defect, release the stranded depot the same way, repair on the maintainer tree, and return to the laps.
 
 ### <a id="OstendAct"></a>Ostend
 
 Run `tt/rbvw-o.Ostend.agora.sh` and stay with it throughout; it is short.
-It requires the [Cachet](#Cachet), re-checks the [Narthex](#Narthex) and the maintainer tree, and then stops three times:
+It requires the [cachet](#Cachet), re-checks the [narthex](#Narthex) and the maintainer tree, and then stops three times:
 
-1. It shows the full file list of the [Regulus](#Regulus).
+1. It shows the full file list of the [regulus](#Regulus).
    Read it, then answer `y`.
 2. It prints the staging push line.
-   This is the [Kerygma](#Kerygma), the one act that cannot be undone: type it in the second pane, then answer `y`.
-   It confirms public main did not move and `POSTULANT_LOCAL` stands at the [Regulus](#Regulus) tip.
+   This is the [kerygma](#Kerygma), the one act that cannot be undone: type it in the second pane, then answer `y`.
+   It confirms public main did not move and `POSTULANT_LOCAL` stands at the [regulus](#Regulus) tip.
 3. It prints the promotion line.
    Type it in the second pane from a fresh clone of the public repository, as below, then answer `y`.
-   It confirms public main now equals the [Regulus](#Regulus) tip.
+   It confirms public main now equals the [regulus](#Regulus) tip.
 
-If a push did not land — mistyped, refused by a repository rule, or answered before it returned — fix the cause, relaxing and restoring a ruleset if one refused, and run [Ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
+If a push did not land — mistyped, refused by a repository rule, or answered before it returned — fix the cause, relaxing and restoring a ruleset if one refused, and run [ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
 If promotion is refused as a non-fast-forward, public main moved since the cut: stop, never force, and re-cut atop it.
-Ostend closes by pointing you to [Harbinger](#Harbinger).
+Ostend closes by pointing you to [harbinger](#Harbinger).
 
-<a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [Regulus](#Regulus) directory.
+<a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [regulus](#Regulus) directory.
 At the promotion stop, in the second pane:
 
 ```
@@ -269,7 +269,7 @@ Dispose of each finding:
 1. Confirm the public README serves at its URL and that every anchor in it resolves on the live page.
    Links into main go live only at promotion; before the push only their structure was checked, by the `pyx` sweep.
 2. Spot-check the repository front page and the github.io render.
-3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [Narthex](#Narthex) repository.
+3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [narthex](#Narthex) repository.
 4. Check that every coldwalk findings memo is committed, including any inside a dated `rbthdr_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `rbthdr_*` directory beside the maintainer repository.
 5. Record the release in `RBSPH-ProjectHistory.adoc`, the project's history; this procedure carries no dated record.
 
@@ -278,14 +278,14 @@ Dispose of each finding:
 <a id="Regulus"></a>**Regulus**
 
 The cut deliverable: exactly one commit atop the live public base, built by addition from the paths the perambulation ships, on the sole branch `POSTULANT_LOCAL`, holding zero remotes.
-The dry [Regulus](#Regulus) the reveal discloses is bit-for-bit the [Regulus](#Regulus) the [Laps](#Lap) proved — a terminal re-cut would break exactly that identity.
+The dry [regulus](#Regulus) the reveal discloses is bit-for-bit the [regulus](#Regulus) the [laps](#Lap) proved — a terminal re-cut would break exactly that identity.
 Named for the pure metal that settles out of a crucible.
 
 <a id="Kerygma"></a>**Kerygma**
 
 Wire Contract Wythe.
-The single irreversible public act: the [Regulus](#Regulus) pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
-The staging push, not the promotion, carries promotion-grade gravity — a public object store cannot be un-disclosed; promotion after it is discoverability, not [Kerygma](#Kerygma).
+The single irreversible public act: the [regulus](#Regulus) pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
+The staging push, not the promotion, carries promotion-grade gravity — a public object store cannot be un-disclosed; promotion after it is discoverability, not [kerygma](#Kerygma).
 Named for a herald's public proclamation.
 
 <a id="Hierophant"></a>**Hierophant**
@@ -294,15 +294,15 @@ The veiled application that conducts the release ceremony through four commands;
 
 <a id="Essai"></a>**Essai**
 
-The repair command: gates, cuts the [Regulus](#Regulus), proves it and stands up a coldwalk [Temenos](#Temenos), with no remote act.
+The repair command: gates, cuts the [regulus](#Regulus), proves it and stands up a coldwalk [temenos](#Temenos), with no remote act.
 
 <a id="Lap"></a>**Lap**
 
-One run of [Essai](#Essai), repeated until one runs dry: green, with a coldwalk that finds nothing.
+One run of [essai](#Essai), repeated until one runs dry: green, with a coldwalk that finds nothing.
 
 <a id="Docimasy"></a>**Docimasy**
 
-The proving command: previews the [Regulus](#Regulus) into the [Narthex](#Narthex), runs the `gauntlet`, and grants the [Cachet](#Cachet).
+The proving command: previews the [regulus](#Regulus) into the [narthex](#Narthex), runs the `gauntlet`, and grants the [cachet](#Cachet).
 
 <a id="Narthex"></a>**Narthex**
 
@@ -310,15 +310,15 @@ The private repository the preview is pushed into, created and deleted by hand.
 
 <a id="Cachet"></a>**Cachet**
 
-The recorded verdict that the `gauntlet` ran green against exactly this [Regulus](#Regulus); [Ostend](#Ostend) will not run without it.
+The recorded verdict that the `gauntlet` ran green against exactly this [regulus](#Regulus); [ostend](#Ostend) will not run without it.
 
 <a id="Ostend"></a>**Ostend**
 
-The showing command: the file-list review, the [Kerygma](#Kerygma) and promotion.
+The showing command: the file-list review, the [kerygma](#Kerygma) and promotion.
 
 <a id="Harbinger"></a>**Harbinger**
 
-The command that stands up a stranger [Temenos](#Temenos) against promoted public main.
+The command that stands up a stranger [temenos](#Temenos) against promoted public main.
 
 <a id="Temenos"></a>**Temenos**
 
@@ -330,8 +330,8 @@ Moving a prior working directory aside to a timestamped sibling instead of delet
 
 <a id="Agora"></a>**Agora**
 
-The real world: the public repository, the real [Narthex](#Narthex) and the `rbthdr_` working directories; what is shown here is disclosed.
+The real world: the public repository, the real [narthex](#Narthex) and the `rbthdr_` working directories; what is shown here is disclosed.
 
 <a id="Palaestra"></a>**Palaestra**
 
-The practice world: a private stand-in for the public repository, its own [Narthex](#Narthex) and the `palaestra_` working directories; nothing shown here is public.
+The practice world: a private stand-in for the public repository, its own [narthex](#Narthex) and the `palaestra_` working directories; nothing shown here is public.
