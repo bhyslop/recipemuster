@@ -19,6 +19,9 @@
 //             planted leak cannot be trusted to catch a real one, and a sweep
 //             that reddens on a clean list would be worked around in a week.
 //
+//   PUNCTUATION  the withheld release procedure carries no em-dash, the
+//             shipped renders' check standing in the pyx fixture.
+//
 // The tracked set is derived from git at test time, never from a list: the
 // judgment is against what the repository actually carries at this commit.
 
@@ -38,7 +41,7 @@ use crate::rbvcem_perambulation::{
 /// The maintainer repo root, from git, anchored on the crate directory (tests
 /// run with an arbitrary cwd). Panics, not fatals — a fatal would exit the
 /// whole test harness.
-fn zrbvtem_tracked() -> Vec<String> {
+fn zrbvtem_root() -> String {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let out = Command::new("git")
         .args(["-C", manifest_dir, "rev-parse", "--show-toplevel"])
@@ -54,6 +57,12 @@ fn zrbvtem_tracked() -> Vec<String> {
         !root.is_empty(),
         "git returned an empty repository root", //
     );
+    root
+}
+
+/// Every path the maintainer repo tracks at this commit, read from git.
+fn zrbvtem_tracked() -> Vec<String> {
+    let root = zrbvtem_root();
 
     let out = Command::new("git")
         .args(["-C", &root, "ls-files"])
@@ -74,6 +83,36 @@ fn zrbvtem_tracked() -> Vec<String> {
         "no tracked paths — the perambulation has nothing to judge", //
     );
     tracked
+}
+
+// ── The withheld procedure's punctuation ────────────────────
+
+/// The rendered release procedure carries no em-dash (U+2014). The shipped
+/// pyx fixture holds the shipped renders to the same and never names a withheld
+/// file, so this withheld one is held here, read from the root that every
+/// judgment in this module reads.
+#[test]
+fn rbvtem_release_procedure_carries_no_em_dash() {
+    let path = std::path::Path::new(&zrbvtem_root()).join("RELEASE.md");
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
+        panic!(
+            "cannot read {}: {}",
+            path.display(),
+            e, //
+        )
+    });
+    let dashed: Vec<String> = text
+        .lines()
+        .enumerate()
+        .filter(|(_, line)| line.contains('\u{2014}'))
+        .map(|(index, _)| format!("RELEASE.md:{}", index + 1))
+        .collect();
+    assert!(
+        dashed.is_empty(),
+        "{} line(s) carry an em-dash (U+2014); rewrite each at its source and render again:\n{}",
+        dashed.len(),
+        dashed.join("\n"), //
+    );
 }
 
 // ── The totality proof ──────────────────────────────────────
