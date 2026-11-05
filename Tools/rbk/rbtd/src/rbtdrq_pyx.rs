@@ -50,8 +50,8 @@
 //
 // Checker proves itself (the rbtchn_conformance precedent).
 // The secret-shape matcher is exercised against known in-memory positives and
-// negatives before its verdict on the live tree is trusted, and the license
-// allowlist is proved internally consistent — every vetted expression drawn from
+// negatives before its verdict on the live tree is trusted, as are the .adoc and
+// em-dash checks, and the license allowlist is proved internally consistent — every vetted expression drawn from
 // the approved set — so a typo in the table cannot quietly widen it. No case
 // plants a real violation in the repo.
 
@@ -1217,6 +1217,112 @@ fn rbtchx_no_adoc(dir: &Path) -> rbtcee_Verdict {
     zrbtchx_report(dir, "adoc", &findings, &inventory, "shipped .adoc file(s)")
 }
 
+// ── Case: no em-dash in the rendered documents ──────────────
+
+/// The character the no-em-dash case forbids, U+2014, spelled as an escape so
+/// this source carries none of its own.
+pub(crate) const ZRBTCHX_EM_DASH: char = '\u{2014}';
+
+/// Repo-relative rendered documents the no-em-dash case reads. Both ship, so
+/// both stand in the stripped candidate as well as the maintainer tree.
+pub(crate) const ZRBTCHX_EM_DASH_FILES: &[&str] = &[
+    "README.md",
+    "CLAUDE.md", //
+];
+
+/// Push one finding per line of `text` carrying the forbidden character, naming
+/// the line and how many it carries. Factored out of the case so the scanner can
+/// be proven in memory before its live-tree verdict is trusted.
+pub(crate) fn zrbtchx_em_dash_scan(rel: &str, text: &str, findings: &mut Vec<zrbtchx_Finding>) {
+    for (index, line) in text.lines().enumerate() {
+        let count = line.chars().filter(|c| *c == ZRBTCHX_EM_DASH).count();
+        if count > 0 {
+            findings.push(zrbtchx_Finding {
+                file: rel.to_string(),
+                line: index + 1,
+                detail: format!(
+                    "{} em-dash(es), U+2014",
+                    count, //
+                ),
+            });
+        }
+    }
+}
+
+/// The em-dash scanner's self-proof, run before its live-tree verdict is
+/// trusted: a known positive must be found on its own line and nowhere else, and
+/// a negative carrying the hyphen and the en-dash (U+2013) beside it must pass.
+/// Both probes are in memory; no violation is planted in the repo.
+fn zrbtchx_em_dash_self_proof() -> Vec<zrbtchx_Finding> {
+    let mut findings = Vec::new();
+
+    let positive = format!(
+        "a clean line\nwords {} more words\nanother clean line\n",
+        ZRBTCHX_EM_DASH, //
+    );
+    let mut probe = Vec::new();
+    zrbtchx_em_dash_scan(ZRBTCHX_SELF_EXEMPT, &positive, &mut probe);
+    if probe.len() != 1 || probe[0].line != 2 {
+        findings.push(zrbtchx_Finding {
+            file: ZRBTCHX_SELF_EXEMPT.to_string(),
+            line: 0,
+            detail: "em-dash scanner missed line 2's em-dash, or fired elsewhere".to_string(),
+        });
+    }
+
+    let negative = "a hyphen - and an en-dash \u{2013} and a colon: none forbidden\n";
+    let mut probe = Vec::new();
+    zrbtchx_em_dash_scan(ZRBTCHX_SELF_EXEMPT, negative, &mut probe);
+    if !probe.is_empty() {
+        findings.push(zrbtchx_Finding {
+            file: ZRBTCHX_SELF_EXEMPT.to_string(),
+            line: 0,
+            detail: "em-dash scanner fired on a line carrying none".to_string(),
+        });
+    }
+
+    findings
+}
+
+/// No em-dash in the rendered documents that ship. Their prose is rendered from
+/// sources outside this tree, so a dash reappears there only by a render, and
+/// this case is what notices. Both files ship, so an unreadable one is a
+/// finding, never a skip: the stripped candidate carries them too.
+fn rbtchx_no_em_dash(dir: &Path) -> rbtcee_Verdict {
+    let root = match zrbtchx_root() {
+        Ok(r) => r,
+        Err(e) => return rbtcee_Verdict::Fail(e),
+    };
+
+    let mut findings = zrbtchx_em_dash_self_proof();
+    let mut inventory = BTreeSet::new();
+
+    for rel in ZRBTCHX_EM_DASH_FILES {
+        match std::fs::read_to_string(root.join(rel)) {
+            Ok(text) => {
+                inventory.insert(format!(
+                    "{}\t{} line(s) read",
+                    rel,
+                    text.lines().count(), //
+                ));
+                zrbtchx_em_dash_scan(rel, &text, &mut findings);
+            }
+            Err(e) => {
+                findings.push(zrbtchx_Finding {
+                    file: rel.to_string(),
+                    line: 0,
+                    detail: format!(
+                        "cannot read: {}",
+                        e, //
+                    ),
+                });
+            }
+        }
+    }
+
+    zrbtchx_report(dir, "emdash", &findings, &inventory, "em-dash violation(s)")
+}
+
 // ── Cases and fixture ───────────────────────────────────────
 
 pub static RBTCHX_CASES_PYX: &[rbtcee_Case] = &[
@@ -1224,7 +1330,8 @@ pub static RBTCHX_CASES_PYX: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchx_license_file),
     rbtcee_case!(rbtchx_secret_shapes),
     rbtcee_case!(rbtchx_readme_anchors),
-    rbtcee_case!(rbtchx_no_adoc), //
+    rbtcee_case!(rbtchx_no_adoc),
+    rbtcee_case!(rbtchx_no_em_dash), //
 ];
 
 pub static RBTCHX_FIXTURE_PYX: rbtcee_Fixture = rbtcee_Fixture {
