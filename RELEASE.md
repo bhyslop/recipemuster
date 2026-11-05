@@ -11,12 +11,12 @@ Run the long commands inside a terminal multiplexer session, and keep a second p
 Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
 There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [cachet](#Cachet), and every banner the tool prints names the world it is in.
 
-1. [Standing ground](#StandingGround) — once per station.
-2. [Practice](#ThePractice) — rounds in the [palaestra](#Palaestra) until one surfaces nothing.
-3. [The laps](#TheLaps) — [essai](#Essai), repeated until a [lap](#Lap) runs dry.
-4. [The reveal](#TheReveal) — [docimasy](#Docimasy), then [ostend](#Ostend), then [harbinger](#Harbinger).
-5. [The walk](#GreenfieldWalk) — the greenfield manor walk against promoted public main.
-6. [Closeout](#Closeout) — liveness, the spot-check, the deletes and the record.
+1. [Standing ground](#StandingGround): once per station.
+2. [Practice](#ThePractice): rounds in the [palaestra](#Palaestra) until one surfaces nothing.
+3. [The laps](#TheLaps): [essai](#Essai), repeated until a [lap](#Lap) runs dry.
+4. [The reveal](#TheReveal): [docimasy](#Docimasy), then [ostend](#Ostend), then [harbinger](#Harbinger).
+5. [The walk](#GreenfieldWalk): the greenfield manor walk against promoted public main.
+6. [Closeout](#Closeout): liveness, the spot-check, the deletes and the record.
 
 ## <a id="Rules"></a>Rules
 
@@ -54,7 +54,7 @@ Once per station, before the first lap.
 ## <a id="ThePractice"></a>Practice
 
 The whole ceremony is practiced end to end in the [palaestra](#Palaestra) before the real cycle, from the first [lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
-Practice protects against a fumble — a wrong push, a misread prompt, a hygiene step that bites — and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [regulus](#Regulus) and the private [narthex](#Narthex) guard that.
+Practice protects against a fumble (a wrong push, a misread prompt, a hygiene step that bites) and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [regulus](#Regulus) and the private [narthex](#Narthex) guard that.
 
 Practice differs from the real ceremony in these ways alone: [essai](#Essai) reads the stand-in before it cuts and refuses one that has drifted, printing the steps to recreate it; [docimasy](#Docimasy) skips the sign-in and the `gauntlet`, and prints the steps to recreate the practice [narthex](#Narthex) when it refuses one that is not fresh; the [cachet](#Cachet) it grants admits a showing in the [palaestra](#Palaestra) alone; and the practice [regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
 Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
@@ -117,7 +117,7 @@ Run the four commands under their practice doors, reading each stop as the real 
    It gates the practice [narthex](#Narthex), confirms the [regulus](#Regulus) still matches the maintainer tree, and stops once, for the preview push line into the practice [narthex](#Narthex): type it in the second pane, then answer `y`.
    It asks for no sign-in and runs no `gauntlet`, and grants a practice [cachet](#Cachet).
 4. Run `tt/rbvw-o.Ostend.palaestra.sh`.
-   It stops three times, exactly as the real [ostend](#Ostend) does — the file list, the staging push line, the promotion line — but every push it prints targets the stand-in, never the public repository.
+   It stops three times, exactly as the real [ostend](#Ostend) does (the file list, the staging push line, the promotion line), but every push it prints targets the stand-in, never the public repository.
 5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
 
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
@@ -229,7 +229,7 @@ It requires the [cachet](#Cachet), re-checks the [narthex](#Narthex) and the mai
    Type it in the second pane from a fresh clone of the public repository, as below, then answer `y`.
    It confirms public main now equals the [regulus](#Regulus) tip.
 
-If a push did not land — mistyped, refused by a repository rule, or answered before it returned — fix the cause, relaxing and restoring a ruleset if one refused, and run [ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
+If a push did not land (mistyped, refused by a repository rule, or answered before it returned), fix the cause, relaxing and restoring a ruleset if one refused, and run [ostend](#Ostend) again; a staging push that already landed is simply confirmed again.
 If promotion is refused as a non-fast-forward, public main moved since the cut: stop, never force, and re-cut atop it.
 Ostend closes by pointing you to [harbinger](#Harbinger).
 
@@ -278,14 +278,14 @@ Dispose of each finding:
 <a id="Regulus"></a>**Regulus**
 
 The cut deliverable: exactly one commit atop the live public base, built by addition from the paths the perambulation ships, on the sole branch `POSTULANT_LOCAL`, holding zero remotes.
-The dry [regulus](#Regulus) the reveal discloses is bit-for-bit the [regulus](#Regulus) the [laps](#Lap) proved — a terminal re-cut would break exactly that identity.
+The dry [regulus](#Regulus) the reveal discloses is bit-for-bit the [regulus](#Regulus) the [laps](#Lap) proved; a terminal re-cut would break exactly that identity.
 Named for the pure metal that settles out of a crucible.
 
 <a id="Kerygma"></a>**Kerygma**
 
 Wire Contract Wythe.
 The single irreversible public act: the [regulus](#Regulus) pushed onto the public repository as the unmerged `POSTULANT_LOCAL` branch, `main` untouched.
-The staging push, not the promotion, carries promotion-grade gravity — a public object store cannot be un-disclosed; promotion after it is discoverability, not [kerygma](#Kerygma).
+The staging push, not the promotion, carries promotion-grade gravity: a public object store cannot be un-disclosed; promotion after it is discoverability, not [kerygma](#Kerygma).
 Named for a herald's public proclamation.
 
 <a id="Hierophant"></a>**Hierophant**

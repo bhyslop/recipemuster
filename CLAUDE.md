@@ -57,7 +57,7 @@ The supply chain runs in that order: conclave captures the reliquary, ensconce c
 | **Audit** | List the hallmark identifiers in the depot's registry, a flat catalog at the director tier. |
 | **Tally** | Classify hallmarks by health, vouched, pending or incomplete; a retriever operation. |
 | **Rekon** | Report which of one hallmark's artifacts stand in the registry. |
-| **Vouch** | Record a hallmark's verification: SLSA provenance for conjure, the digest pin for annex, a GRAFTED verdict for graft. |
+| **Vouch** | Record a hallmark's verification: SLSA provenance for conjure, the digest pin for annex, a `GRAFTED` verdict for graft. |
 | **Plumb** | Inspect a hallmark's provenance: the full view shows its SBOM, build info and Dockerfile, the compact view its trust posture. |
 
 ### Getting and removing images
@@ -129,7 +129,8 @@ Each role, as the project defines it:
 
 An RB Role that enables an Operator to manage billing accounts and create depot projects using OAuth user authentication rather than service accounts.
 The [Payor Role](#rbsfr_payor) operates through OAuth 2.0 desktop application flow.
-Everyday depot-side management requires no organization-level permissions; the payor's one org-scoped authority is exercising the Manor's command of its GCP Organization — founding the manor's workforce pool at manor setup and pledging or dissolving foedus providers (Affiance, Jilt) — the asymmetry that keeps every RB Depot org-blind.
+Everyday depot-side management requires no organization-level permissions; the payor's one org-scoped authority is exercising the Manor's command of its GCP Organization: founding the manor's workforce pool at manor setup and pledging or dissolving foedus providers (Affiance, Jilt).
+That asymmetry keeps every RB Depot org-blind.
 
 <a id="rbsfr_governor"></a>**Governor Role**
 
