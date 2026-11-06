@@ -174,7 +174,8 @@ zrbte_build_binary() {
 
   zrbte_codegen
   buc_step "Building theurge"
-  zrbte_cargo build || buc_die_now "The theurge did not build"
+  # Build, test and clean run quiet; lint stays whole, its verdict being read from its report.
+  zrbte_cargo build --quiet || buc_die_now "The theurge did not build"
   test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
 }
 
@@ -332,7 +333,7 @@ rbte_test() {
 
   zrbte_codegen
   buc_step "Testing theurge"
-  zrbte_cargo test ${z_filter:+"${z_filter}"} || buc_die_now "Theurge tests failed"
+  zrbte_cargo test --quiet ${z_filter:+"${z_filter}"} || buc_die_now "Theurge tests failed"
   buc_success "All theurge tests passed"
 }
 
@@ -371,7 +372,7 @@ rbte_clean() {
   test "$#" -eq 0 || buc_die_now "The theurge clean takes no argument"
 
   buc_step "Cleaning theurge"
-  zrbte_cargo clean || buc_die_now "The theurge clean failed"
+  zrbte_cargo clean --quiet || buc_die_now "The theurge clean failed"
   buc_success "Theurge build output removed"
 }
 
