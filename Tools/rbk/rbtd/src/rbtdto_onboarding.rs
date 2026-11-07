@@ -30,7 +30,10 @@ fn rbttgo_conclave_precedes_reliquary_consumers() {
     let conclave_idx = names
         .iter()
         .position(|n| n.contains("rbtcgo_conclave_reliquary"))
-        .expect("conclave case present");
+        .expect(concat!(
+            crate::rbtgeb_breviary::rbtgeb_lode_conclave_base!(),
+            " case present"
+        ));
     let kludge_tadmor_idx = names
         .iter()
         .position(|n| n.contains("rbtcgo_kludge_tadmor_onboarding"))

@@ -654,8 +654,8 @@ fn rbttee_tariff_bounds_are_independent() {
 // None, and each test overrides with its synthetic declared set AFTER
 // set_context. rbtccc_take_context disarms, leaving the worker thread clean.
 
-const ZRBTTEE_CENSUS_COL_USED: &str = "zrbtdte-col-used";
-const ZRBTTEE_CENSUS_COL_UNUSED: &str = "zrbtdte-col-unused";
+const ZRBTTEE_CENSUS_COL_USED: &str = "zrbtdte-plinch-used";
+const ZRBTTEE_CENSUS_COL_UNUSED: &str = "zrbtdte-plinch-unused";
 
 fn zrbttee_census_invoke_used(_dir: &Path) -> rbtcee_Verdict {
     crate::rbtccc_crucible::rbtccc_with_ctx(|ctx| {

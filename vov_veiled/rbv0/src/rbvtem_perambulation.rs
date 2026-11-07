@@ -188,7 +188,7 @@ const ZRBVTEM_SWEEP_CLEAN: &[&str] = &[
     "LICENSE",
     "Tools/rbk/rbau_auth.sh",
     "Tools/buk/buc_command.sh",
-    "tt/rbw-cC.Charge.tadmor.sh",
+    "tt/rbw-cC.Zarnell.tadmor.sh",
     "rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem", //
 ];
 
@@ -204,8 +204,9 @@ fn rbvtem_sweep_catches_planted_leaks() {
     for planted in ZRBVTEM_SWEEP_PLANTED {
         assert!(
             leaks.iter().any(|leak| leak == planted),
-            "the sweep did not catch planted withheld path {} — it would ride a regulus",
-            planted, //
+            "the sweep did not catch planted withheld path {} — it would ride a {}",
+            planted,
+            crate::rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
         );
     }
     for clean in ZRBVTEM_SWEEP_CLEAN {
@@ -246,7 +247,8 @@ fn rbvtem_matcher_longest_wins() {
     let harbinger = rbvcem_judge("Tools/rbk/rblm_harbinger.sh");
     assert!(
         matches!(harbinger, Some((rbvcem_Disposition::Withhold, _))),
-        "the harbinger must outrank the shipping kit", //
+        "the {} must outrank the shipping kit",
+        crate::rbvgeb_breviary::RBVGEB_HARBINGER_BASE, //
     );
 
     let shipped_code = rbvcem_judge("Tools/rbk/rbau_auth.sh");
@@ -261,13 +263,14 @@ fn rbvtem_matcher_longest_wins() {
         "the marshal stem must outrank tt/rbw-", //
     );
 
-    let hierophant_tt = rbvcem_judge("tt/rbvw-e.Essai.sh");
+    let hierophant_tt = rbvcem_judge("tt/rbvw-e.Vornick.sh");
     assert!(
         matches!(hierophant_tt, Some((rbvcem_Disposition::Withhold, _))),
-        "the hierophant stem is withheld", //
+        "the {} stem is withheld",
+        crate::rbvgeb_breviary::RBVGEB_HIEROPHANT_BASE, //
     );
 
-    let shipped_tt = rbvcem_judge("tt/rbw-cC.Charge.tadmor.sh");
+    let shipped_tt = rbvcem_judge("tt/rbw-cC.Zarnell.tadmor.sh");
     assert!(
         matches!(shipped_tt, Some((rbvcem_Disposition::Ship, _))),
         "the shipped tabtarget family ships", //

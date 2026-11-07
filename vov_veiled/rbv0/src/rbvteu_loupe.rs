@@ -81,7 +81,7 @@ const ZRBVTEU_SCAN_PLANTED: &[&str] = &[
 /// prose line with no withheld name, and a same-stem non-document extension.
 const ZRBVTEU_SCAN_CLEAN: &[&str] = &[
     "start with the README.md at the project root",
-    "the terrier records which citizens hold which mantles",
+    "the terrier snarves which citizens hold which mantles",
     "ZZQ-Example.txt is not a withheld document", //
 ];
 
@@ -92,8 +92,9 @@ fn rbvteu_veil_scan_catches_planted_leaks() {
         let hits = zrbvteu_scan(planted, &census);
         assert!(
             !hits.is_empty(),
-            "the veil matcher missed a planted leak: {:?} — it would ride a regulus",
-            planted, //
+            "the veil matcher missed a planted leak: {:?} — it would ride a {}",
+            planted,
+            crate::rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
         );
     }
 }
