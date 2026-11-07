@@ -57,14 +57,12 @@ if test -z "${ZBUV_SOURCED:-}"; then
     "  current launcher contract. It is consumer-owned: no kit install" \
     "  replaces it, and it will not heal on its own." \
     "" \
-    "  Remedy - restore the canonical four-line stub, the shape buut_launcher" \
+    "  Remedy - restore the canonical two-line stub, the shape buut_launcher" \
     "  emits (tt/buw-tt-cl.CreateLauncher.sh). Where every stub is stale," \
     "  repair one by hand first: the emitter dispatches through a stub too." \
     "" \
     '    #!/bin/bash' \
-    '    # Launcher stub - delegates to <name> workbench' \
-    '    source "Tools/buk/bul_launcher.sh"' \
-    '    bul_launch "${BURC_TOOLS_DIR}/<kit>/<name>_workbench.sh" "$@"' \
+    '    exec "Tools/buk/bul_launcher.sh" "Tools/<kit>/<name>_workbench.sh" "$@"' \
     >&2 || exit 1
   exit "${BUBG_DESUETUDE_DENTIL}"
 fi

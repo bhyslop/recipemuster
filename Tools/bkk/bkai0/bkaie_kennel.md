@@ -34,7 +34,7 @@ needs no flag.
 
 | door | takes | does |
 |------|-------|------|
-| **mush** | a collar, then what its kind owns | the launch seam: muzzle the suite, then run the selection pipeline; an app execs its elected binary |
+| **mush** | a collar, then what its kind owns | the launch seam: muzzle the suite, then run the selection pipeline; an app runs its elected binary, attended as a suite is where its collar declares a tongue and holding the terminal where it declares none |
 | **derby** | nothing | every weaned suite collar, naming every red course at the end |
 | **futurity** | selection patterns | the derby's set narrowed: one match over every course's listing, each runner handed its share, naming every red course and every course not launched |
 | **heel** | a collar | converge — build current through the leash and install at the residence |

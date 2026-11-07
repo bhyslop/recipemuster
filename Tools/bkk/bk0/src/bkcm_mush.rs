@@ -17,7 +17,9 @@
 //!
 //! One door launches a launchable named by its collar. What it launches is the
 //! collar's kind: an app runs the binary the election names, a suite runs under
-//! the runner the collar declares. Both go through the leash, so the pin is
+//! the runner the collar declares. An app whose collar declares a tongue is
+//! attended as a suite is; an app declaring none holds the terminal, and the
+//! door spawns it itself. Both go through the leash, so the pin is
 //! stated, the lock is enforced and the tackroom fence is stood on for a launch
 //! exactly as for a build.
 //!
@@ -413,6 +415,65 @@ pub fn bkcm_python(
             }
         },
     );
+    let run = match attended {
+        Ok(run) => run,
+        Err(err) => return Err(voice.bkcv_abandon(err)),
+    };
+
+    let tally = voice.bkcv_close(&run)?;
+
+    if let Some(err) = grievance {
+        return Err(err);
+    }
+
+    Ok((run, tally))
+}
+
+/// Run an ATTENDED APP's elected binary as a captured child, rendering the
+/// door's own voice from its stream and writing the record as it goes.
+///
+/// THE SAME POSTURE AS THE TWO RUNS ABOVE, and deliberately so: an app that
+/// speaks a tongue sounds like every test door, the console carrying the
+/// heartbeat, the failures and the verdict and the record the whole stream.
+/// What parts it from them is the leash face it reaches, which spawns an
+/// already-built binary at its path and composes no toolchain in front of it.
+///
+/// THE ELECTION IS THE DOOR'S AND RIDES IN AS THE PREAMBLE, on the cargo run's
+/// own ground: the record opens truncating, so the line the door said about
+/// which binary it elected can stand ahead of the run only by being handed in.
+pub fn bkcm_app(
+    dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+    binary: &std::path::Path,
+    carried: &[OsString],
+    tongue: &str,
+    preamble: &[String],
+) -> Result<(bkcl_leash::bkcl_Run, bkcv_voice::bkcv_Tally), String> {
+    let mut voice = bkcv_voice::bkcv_Voice::bkcv_open(
+        dispatch,
+        tongue,
+        &bkcv_voice::bkcv_Record::bkcv_invocation(),
+    )?;
+
+    for line in preamble {
+        voice.bkcv_mark(line)?;
+    }
+
+    let mut spelled = vec![binary.display().to_string()];
+    spelled.extend(carried.iter().map(|one| one.to_string_lossy().into_owned()));
+    voice.bkcv_mark(&format!(
+        "launching: {}",
+        spelled.join(" "), //
+    ))?;
+
+    let mut grievance: Option<String> = None;
+    let attended =
+        bkcl_leash::bkcl_app_attend(binary, carried, bkcv_voice::BKCV_CADENCE, |heard| {
+            if let Err(err) = voice.bkcv_heed(heard) {
+                if grievance.is_none() {
+                    grievance = Some(err);
+                }
+            }
+        });
     let run = match attended {
         Ok(run) => run,
         Err(err) => return Err(voice.bkcv_abandon(err)),

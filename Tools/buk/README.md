@@ -10,20 +10,20 @@ BUK provides a three-layer architecture for bash-based CLI tools:
 2. **BURC** (`mymm_moorings/burc.env`): project-level configuration defining repository structure.
 3. **BURS** (`../station-files/burs.env`): developer and machine-level configuration, never committed.
 
-This separation lets one BUK serve any repository, configured through regime files rather than code modification.
+This separation lets one BUK serve any repository, configured through the assignment files of its [Config Regimes](#Config-Regime) rather than code modification.
 
 ## Core Concepts
 
 ### Launchers
 
-<a id="Launcher"></a>**Launcher**
+<a id="Moorings-Launcher"></a>**Moorings-Launcher**
 
-The moorings launcher stub a tabtarget reaches through the trampoline: a script in the moorings' `buml_launchers/` directory, named `launcher.{workbench}.sh`, that sources the shared launcher and delegates to dispatch with the [Workbench](#Workbench) it names as coordinator.
-Its four-line shape is kit law, and the kit's launcher door, buut\_launcher, writes it, so a stub is regenerated rather than edited by hand.
+The moorings launcher stub a tabtarget reaches through the trampoline: a script in the moorings' `buml_launchers/` directory, named `launcher.{workbench}.sh`, that execs the shared script `bul_launcher.sh`, which delegates to dispatch with the [workbench](#Workbench) the stub names as coordinator.
+Its two-line shape is kit law, and the kit's [Moorings-Launcher](#Moorings-Launcher) door, buut\_launcher, writes it, so a stub is regenerated rather than edited by hand.
 
-A [Launcher](#Launcher) is the environment gate of every tabtarget invocation.
-The shared launcher it sources validates the BURC and BURS regimes before dispatch runs, so a configuration error is caught before any [Formulary](#Formulary) starts.
-A tabtarget a [Testbench](#Testbench) invokes passes through its own [Launcher](#Launcher) too, which revalidates the regimes and establishes a fresh dispatch environment, so the testbench's state never bleeds into the code under test.
+A [Moorings-Launcher](#Moorings-Launcher) is the environment gate of every tabtarget invocation.
+The shared script it execs validates [BURC](#BURC) and [BURS](#BURS) before dispatch runs, so a configuration error is caught before any [formulary](#Formulary) starts.
+A tabtarget a [testbench](#Testbench) invokes passes through its own [Moorings-Launcher](#Moorings-Launcher) too, which revalidates the [Config Regimes](#Config-Regime) and establishes a fresh dispatch environment, so the testbench's state never bleeds into the code under test.
 
 **Naming Pattern**: `launcher.{workbench_name}.sh`
 
@@ -41,16 +41,16 @@ The subdirectory name is fixed by the kit; the moorings directory itself is your
 
 <a id="Formulary"></a>**Formulary**
 
-The coordinator script dispatch runs for a tabtarget, routing its [Colophon](#Colophon) to the implementation.
-A [Formulary](#Formulary) holds no command logic of its own: it kindles a zipper, a sourced module whose kindle enrolls each [Colophon](#Colophon) with the executable CLI module and command implementing it, the channel by which that command receives its folio, and a one-line description, and it hands the [Colophon](#Colophon) to the zipper's lookup, `buz_exec_lookup`, which execs the enrolled module.
+The coordinator script dispatch runs for a tabtarget, routing its [colophon](#Colophon) to the implementation.
+A [formulary](#Formulary) holds no command logic of its own: it kindles a zipper, a sourced module whose kindle enrolls each [colophon](#Colophon) with the executable CLI module and command implementing it, the channel by which that command receives its folio, and a one-line description, and it hands the [colophon](#Colophon) to the zipper's lookup, `buz_exec_lookup`, which execs the enrolled module.
 
-Two types exist: the [Workbench](#Workbench) routes commands for a kit, and the [Testbench](#Testbench) routes tests.
+Two types exist: the [workbench](#Workbench) routes commands for a kit, and the [testbench](#Testbench) routes tests.
 
-The [Launcher](#Launcher) names the [Formulary](#Formulary) that dispatch runs as its coordinator, the [Colophon](#Colophon) its command and the tabtarget's further arguments after it.
+The [Moorings-Launcher](#Moorings-Launcher) names the [formulary](#Formulary) that dispatch runs as its coordinator, the [colophon](#Colophon) its command and the tabtarget's further arguments after it.
 
 <a id="Workbench"></a>**Workbench**
 
-A [Formulary](#Formulary) that routes commands for a kit.
+A [formulary](#Formulary) that routes commands for a kit.
 Named `{prefix}w_workbench.sh`.
 It kindles BUK's dispatch and zipper modules and then its own zipper, and every command it routes runs in an executable CLI module that zipper enrolls.
 
@@ -72,7 +72,7 @@ It kindles BUK's dispatch and zipper modules and then its own zipper, and every 
 
 <a id="Testbench"></a>**Testbench**
 
-A [Formulary](#Formulary) that routes tests for a kit.
+A [formulary](#Formulary) that routes tests for a kit.
 Named `{prefix}t_testbench.sh`.
 Its scenarios invoke the tabtargets under test and assess what each did, and BUK itself ships none.
 
@@ -148,24 +148,24 @@ TabTarget filenames encode structured information in publishing terminology:
 <a id="Colophon"></a>**Colophon**
 
 The routing identifier in a tabtarget Inscription.
-A [Colophon](#Colophon) determines which [Formulary](#Formulary) handles the dispatch.
+A [colophon](#Colophon) determines which [formulary](#Formulary) handles the dispatch.
 Includes the hyphen and the case-significant suffix that follows it — the whole of the signet\_case that Tabtarget Vesture declares — as its identity (e.g., `rbw-cr`).
 
 <a id="Frontispiece"></a>**Frontispiece**
 
 The human-readable description in a tabtarget Inscription.
-A [Frontispiece](#Frontispiece) uses PascalCase and describes the operation.
+A [frontispiece](#Frontispiece) uses PascalCase and describes the operation.
 
-Appears after the [Colophon](#Colophon) and dot separator.
+Appears after the [colophon](#Colophon) and dot separator.
 
 Examples: `Build`, `Rack`, `RunVVX`, `Saddle`.
 
 <a id="Imprint"></a>**Imprint**
 
 An optional embedded parameter in a tabtarget Inscription.
-An [Imprint](#Imprint) specifies a target, instance, or configuration variant.
+An [imprint](#Imprint) specifies a target, instance, or configuration variant.
 
-Appears after a second dot separator following the [Frontispiece](#Frontispiece).
+Appears after a second dot separator following the [frontispiece](#Frontispiece).
 
 Examples:
 
@@ -202,24 +202,24 @@ rbw-cC.Charge.pluml.sh
 **Examples**:
 
 - `tt/buw-tt-ll.ListLaunchers.sh`: list launchers (no imprint).
-- `tt/buw-rcv.ValidateConfigRegime.sh`: validate the configuration regime (no imprint).
+- `tt/buw-rcv.ValidateConfigRegime.sh`: validate BURC, the project's [Config-Regime](#Config-Regime) (no imprint).
 - `tt/rbw-cr.Rack.tadmor.sh`: rack a bottle on tadmor (with imprint).
 
 **Creation**: the `buw-tt-c*` doors create tabtargets:
 
-- `buw-tt-cbl`: batch and logging, the default.
-- `buw-tt-cbn`: batch and no log, for secret-handling operations and for a door that runs before a station file stands.
+- `buw-tt-cbl`: batch, keeping a Station Log, the default.
+- `buw-tt-cbn`: batch, keeping no Station Log, for secret-handling operations and for a door that runs before a station file stands.
 - `buw-tt-cbo`: batch, for a door whose command writes its own record.
-- `buw-tt-cil`: interactive and logging, for shells.
-- `buw-tt-cin`: interactive and no log, for secret entry.
+- `buw-tt-cil`: interactive, keeping a Station Log, for shells.
+- `buw-tt-cin`: interactive, keeping no Station Log, for secret entry.
 
 These doors write every tabtarget a repository stands, a kit's and your own alike.
 A kit's door carries nothing of the repository it stands in, so the door they write is the door the kit ships, flags and all.
 
 **Which form a door takes is a fact of the door, never of the roster.** A zipper enrolls how a door is routed, its module, its command and its channel, and not how its dispatch keeps a record, so neither the roll call nor any listing drawn from the zipper can say it.
-The kit that ships a door names each of its doors that takes a form other than batch and logging, in its own README.
-BUK's own are the six regime doors, `buw-rcv`, `buw-rcr`, `buw-rsv`, `buw-rsr`, `buw-rev` and `buw-rer`, which take no log because they run before a station file stands.
-A door minted in batch and logging where its kit names another form still runs; it is only recorded where its kit asked otherwise.
+The kit that ships a door names each of its doors that takes a form other than the default, in its own README.
+BUK's own are the six doors validating and rendering its [Config Regimes](#Config-Regime), `buw-rcv`, `buw-rcr`, `buw-rsv`, `buw-rsr`, `buw-rev` and `buw-rer`, which keep no Station Log because they run before a station file stands.
+A door minted in the default form where its kit names another form still runs; it is only recorded where its kit asked otherwise.
 
 **Token Parsing**: dispatch splits the filename into tokens on [BURC\_TABTARGET\_DELIMITER](#burc_tabtarget_delimiter):
 
@@ -250,32 +250,32 @@ The first token, the colophon, is what the workbench routes on.
 A Config Regime is a structured configuration system consisting of:
 
 - An **assignment**: a shell-sourceable file (`.env`) holding the actual values.
-- A **regime module**: a script whose kindle enrolls every variable's type, constraints and one-line purpose, the delivered home of the regime's own documentation, and which validates and renders them.
+- A **config regime module**: a script whose kindle enrolls every variable's type, constraints and one-line purpose, the delivered home of the config regime's own documentation, and which validates and renders them.
 
-Each regime has a unique uppercase prefix (`BURC_`, `BURS_`, `RBRN_`, `RBRR_`) that keeps its variables from colliding with another's.
+Each [Config-Regime](#Config-Regime) has a unique uppercase prefix (`BURC_`, `BURS_`, `RBRN_`, `RBRR_`) that keeps its variables from colliding with another's.
 
-A regime module performs three operations:
+A config regime module performs three operations:
 
 <a id="Kindle"></a>**Kindle**
 
-Silent initialization of Bash Utility Kit regime state from [Assignments](#Assignment).
+Silent initialization of Bash Utility Kit config regime state from [assignments](#Assignment).
 Sets defaults, detects unexpected variables, builds derived structures.
 
 <a id="Validate"></a>**Validate**
 
-Strict field validation for Bash Utility Kit [Regimes](#Regime).
-Checks every variable the regime's kindle enrolled, through `buv_regime_enroll` and the typed enrollments beside it, against its type and constraints, rejecting on the first that fails.
+Strict field validation for Bash Utility Kit [Config Regimes](#Config-Regime).
+Checks every variable a config regime's kindle enrolled, through `buv_regime_enroll` and the typed enrollments beside it, against its type and constraints, rejecting on the first that fails.
 
 <a id="Render"></a>**Render**
 
-Diagnostic display of Bash Utility Kit [Regime](#Regime) state, including the source-file path from which the regime was sourced.
+Diagnostic display of Bash Utility Kit [Config-Regime](#Config-Regime) state, including the source-file path from which it was sourced.
 
 **File Naming Pattern**:
 
 - **Assignment**: `{regime}.env`, concise because it is frequently sourced.
 - **Support files**: `{regime}_{full_word}.{ext}`, readable and self-documenting.
 
-| Regime | Assignment | Regime Module |
+| Config Regime | Assignment | Config Regime Module |
 | --- | --- | --- |
 | BURC | `mymm_moorings/burc.env` | `Tools/buk/burc_regime.sh` |
 | BURS | `../station-files/burs.env` | `Tools/buk/burs_regime.sh` |
@@ -291,7 +291,7 @@ Diagnostic display of Bash Utility Kit [Regime](#Regime) state, including the so
 2. **Type safety**: validation catches errors early.
 3. **Documentation**: each variable's purpose is enrolled beside its type.
 4. **Tooling**: generic validators and renderers reduce boilerplate.
-5. **Scalability**: multiple regimes coexist without conflicts.
+5. **Scalability**: multiple [Config Regimes](#Config-Regime) coexist without conflicts.
 
 ## Architecture
 
@@ -311,14 +311,14 @@ Project Root/
 │
 ├── Tools/                             # BURC_TOOLS_DIR: installed kits and your own toolkits
 │   ├── buk/                           # BUK core utilities (installed from a parcel)
-│   │   ├── bul_launcher.sh            # Shared launcher logic every stub sources
+│   │   ├── bul_launcher.sh            # Shared launcher every stub execs
 │   │   ├── bud_dispatch.sh            # Dispatch system
 │   │   ├── buc_command.sh             # Command utilities
 │   │   ├── buv_validation.sh          # Validation (type system)
 │   │   ├── buw_workbench.sh           # BUK workbench
 │   │   ├── buwz_zipper.sh             # BUK workbench zipper
-│   │   ├── burc_regime.sh             # BURC regime module
-│   │   ├── burs_regime.sh             # BURS regime module
+│   │   ├── burc_regime.sh             # BURC config regime module
+│   │   ├── burs_regime.sh             # BURS config regime module
 │   │   ├── burs_template.sh           # BURS field list and defaults
 │   │   └── README.md                  # This file
 │   │
@@ -349,10 +349,10 @@ Which step creates each directory:
 **Execution Flow**:
 
 1. You invoke a tabtarget: `tt/buw-tt-ll.ListLaunchers.sh`.
-2. The tabtarget execs the trampoline, `tt/z-launcher.sh`, naming its launcher in `BURD_LAUNCHER`.
-3. The trampoline changes to the repository root, exports [BURD\_CONFIG\_DIR](#burd_config_dir), and execs the launcher stub `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`.
-4. The launcher stub sources `bul_launcher.sh`, which loads and enforces BURC and BURS, the station file's absence stopping it with the setup it needs, and execs dispatch with the workbench as coordinator.
-5. Dispatch parses the colophon, frontispiece and imprints from the filename, creates the temporary and output directories, sets up logging, and runs `buw_workbench.sh` with the colophon as its command.
+2. The tabtarget says its configuration on one line, naming its launcher stub first, and execs the trampoline, `tt/z-launcher.sh`, with its own basename ahead of it.
+3. The trampoline changes to the repository root and execs the launcher stub `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`, handing it the configuration, the seat and the moorings directory as arguments and exporting nothing.
+4. The launcher stub execs `bul_launcher.sh` with the workbench path ahead of those arguments, and the launcher loads and enforces BURC and BURS, the station file's absence stopping it with the setup it needs, and execs dispatch with the workbench as coordinator.
+5. Dispatch parses the colophon, frontispiece and imprints from the filename, creates the temporary and output directories, sets up the Station Log, and runs `buw_workbench.sh` with the colophon as its command.
 6. The workbench kindles its zipper, and `buz_exec_lookup` execs the CLI module enrolled for `buw-tt-ll`.
 7. Dispatch writes the transcript and propagates the exit status.
 
@@ -368,7 +368,7 @@ That kit stands beside this one in the parcel it arrived in; read its README bef
 What follows is the contract BUK places on a repository, each requirement stated once here and in full where the pointer leads.
 
 - **A config regime file**, `burc.env`, in a moorings directory of your naming at the repository root. It declares exactly the twelve variables `Tools/buk/burc_regime.sh` enrolls, and its validator refuses fewer or more; the install door reads three of them, [BURC\_PROJECT\_ROOT](#burc_project_root), [BURC\_TOOLS\_DIR](#burc_tools_dir) and [BURC\_MANAGED\_KITS](#burc_managed_kits). See Config Regimes above.
-- **The trampoline**, `tt/z-launcher.sh`, which is yours to write and no door generates. It has two duties: export [BURD\_CONFIG\_DIR](#burd_config_dir) naming the moorings directory, and resolve the launcher a tabtarget names under that directory's `buml_launchers/` subdirectory, a name the kit reads as a literal. See Architecture above.
+- **The trampoline**, `tt/z-launcher.sh`, which is yours to write and no door generates. It has two duties: hold the moorings directory's name, the one place the kit learns it, and resolve the launcher a tabtarget names under that directory's `buml_launchers/` subdirectory, a name the kit reads as a literal, handing the stub the moorings directory by argument and exporting nothing. See Architecture above.
 - **Launcher stubs and tabtargets**, one stub per workbench and one tabtarget per door you use. The creation doors write every one, a kit's and your own alike, and only the first stub and the first tabtarget are placed by hand, in exactly the shapes those doors emit. See Launchers and TabTargets above.
 - **The doors you use, and no more.** A workbench routes whatever tabtargets stand and sweeps nothing at dispatch, so a partial roster is a smaller installation rather than a broken one. The roll call, `tt/buw-tt-rc.RollCall.sh`, reads every zipper the kits your `burc.env` declares carry. It lists each enrolled door not yet standing, with what it does and how it takes its folio, and names in red each standing door whose colophon no installed kit enrolls, the trace a kit edition leaves when it drops or renames a door. Stand the doors you want with the creation doors. Remove a door the roll call names, or install the kit edition that enrolls it. The source tree proves its own roster complete by test. See Zipper above.
 - **The substrate's suite, only where the kennel kit is installed.** BUK holds no Rust, and its self-test crate and suite collar ship with the kennel kit, never with BUK. Where the kennel kit is installed, its own README says how to wean that suite.
@@ -392,13 +392,13 @@ BUK modules use `bu{x}_` prefixes, where `{x}` identifies the module.
 | `buf_` | Fact-file primitives |
 | `bug_` | Git utilities |
 | `buh_` | Handbook: always-visible user interaction |
-| `bul_` | Shared launcher logic every launcher stub sources |
+| `bul_` | Shared launcher every launcher stub execs |
 | `bupe_` | Parcel emplacement into a station that can dispatch |
-| `bupr_` | Shared rendering for regime CLI modules |
+| `bupr_` | Shared rendering for config regime CLI modules |
 | `buq_` | Tabtarget structural qualification |
 | `burc_` | Project-level config regime |
-| `burd_` | Dispatch runtime regime |
-| `bure_` | Environment regime: ambient overrides |
+| `burd_` | Dispatch runtime config regime |
+| `bure_` | Environment config regime: ambient overrides |
 | `burs_` | Station-level config regime |
 | `buur_` | Roll call: the installed kits' enrollments against the doors standing |
 | `buut_` | TabTarget and launcher creation |
@@ -416,13 +416,13 @@ BUK modules use `bu{x}_` prefixes, where `{x}` identifies the module.
 <a id="BURD"></a>**BURD**
 
 Ephemeral runtime state assembled by bud\_dispatch.sh during tabtarget execution.
-Constructed inline, then written once to the run's dispatch file, which [BURD\_BURD\_FILE](#burd_dispatch_file) names: every coordinator and CLI below the dispatch reads the regime from that file and holds it kindled, the command module sourcing it.
+Constructed inline, then written once to the run's dispatch file, which [BURD\_BURD\_FILE](#burd_dispatch_file) names: every coordinator and CLI below the dispatch reads it from that file and holds it kindled, the command module sourcing it.
 Inlets, by group: Tabtarget Inlet (input), Derived Inlet (computed, parsed).
 
 **Key Responsibilities**:
 
 - Parse the tabtarget filename into tokens.
-- Set up the environment: temporary directories, output directories, logging.
+- Set up the environment: temporary directories, output directories, the Station Log.
 - Source BURS, the station configuration.
 - Resolve the color policy.
 - Write the dispatch file once, in the temporary directory and copied into the output directory, before the workbench starts.
@@ -445,23 +445,23 @@ Git describe output capturing repository state at dispatch time.
 <a id="burd_config_dir"></a>**BURD\_CONFIG\_DIR**
 
 Absolute path to the project's config/moorings directory.
-Handed by the project-intimate tabtarget trampoline (`tt/z-launcher.sh`) as an argument, set by the shared launcher from it, and handed on to the dispatch as an argument in turn.
+Handed by the project-intimate tabtarget trampoline (`tt/z-launcher.sh`) as an argument, set by `bul_launcher.sh` from it, and handed on to the dispatch as an argument in turn.
 
 <a id="burd_seat"></a>**BURD\_SEAT**
 
 The directory whose `tt/` the tabtarget was reached through, absolute and symlink-resolved.
-The trampoline derives it from its own path and hands it to the launcher as an argument; a trampoline that enters another tree than its own, as the census family's does, still hands the seat it stood in.
+The trampoline derives it from its own path and hands it to the [Moorings-Launcher](#Moorings-Launcher) as an argument; a trampoline that enters another tree than its own, as the census family's does, still hands the seat it stood in.
 
 <a id="burd_dispatch_file"></a>**BURD\_BURD\_FILE**
 
 The pointer: the path of this run's dispatch file, `burd.env` in [BURD\_TEMP\_DIR](#burd_temp_dir), which the dispatch writes once before the coordinator starts and copies under the same name into [BURD\_OUTPUT\_DIR](#burd_output_dir).
-It crosses the exec beside [BURD\_BUK\_DIR](#burd_buk_dir), the one so a child can find the file and the other so it can find the kit's reader of it; a launcher withdraws an inherited pointer and composes its own run's.
+It crosses the exec beside [BURD\_BUK\_DIR](#burd_buk_dir), the one so a child can find the file and the other so it can find the kit's reader of it; `bul_launcher.sh` withdraws an inherited pointer and composes its own run's.
 
 #### Token Explosion
 
 The tabtarget's filename is split on [BURC\_TABTARGET\_DELIMITER](#burc_tabtarget_delimiter).
 For `rbw-cr.Rack.tadmor.sh`, the first three tokens are `rbw-cr`, `Rack` and `tadmor`.
-The first is the command the workbench is handed, and the third is the one token that crosses into the regime.
+The first is the command the workbench is handed, and the third is the one token that crosses into [BURD](#BURD).
 
 <a id="burd_token_3"></a>**BURD\_TOKEN\_3**
 
@@ -497,19 +497,19 @@ Path to the project tools root directory, derived from [BURC\_TOOLS\_DIR](#burc_
 
 Path to the BUK subdirectory, derived as [BURC\_TOOLS\_DIR](#burc_tools_dir)/buk during dispatch setup.
 
-#### Logging
+#### Station Log Paths
 
 <a id="burd_log_last"></a>**BURD\_LOG\_LAST**
 
-Path to the "last" log file, overwritten each dispatch.
+Absolute path to the "last" Station Log member, overwritten each dispatch.
 
 <a id="burd_log_same"></a>**BURD\_LOG\_SAME**
 
-Path to the curated "same" log file for the command+target combination.
+Absolute path to the curated "same" Station Log member for the command+target combination.
 
 <a id="burd_log_hist"></a>**BURD\_LOG\_HIST**
 
-Path to the timestamped historical log file.
+Absolute path to the timestamped historical Station Log member.
 
 #### Control Variables
 
@@ -517,8 +517,8 @@ Set these before invoking a tabtarget to modify dispatch behavior.
 
 <a id="BURE"></a>**BURE**
 
-Ambient regime for caller-supplied behavioral overrides to BUK primitives.
-Unlike file-sourced regimes, BURE variables are set directly in the caller's environment.
+The ambient [Config-Regime](#Config-Regime) for caller-supplied behavioral overrides to BUK primitives.
+Unlike file-sourced [Config Regimes](#Config-Regime), BURE variables are set directly in the caller's environment.
 Kindled and validated by its own CLI, `bure_cli.sh`, the one site that kindles it; every other reader takes a value as the caller set it.
 Inlet: Ambient Inlet — the one family whose values legitimately ride the session environment and its inheritance (BUr\_q2m).
 Two sub-natures share the family, separated by doctrine: operator comfort dials (BURE\_COUNTDOWN, [BURE\_VERBOSE](#bure_verbose), [BURE\_COLOR](#bure_color), [BURE\_HYPERLINKS](#bure_hyperlinks)) and the test tweak seam (BURE\_TWEAK\_NAME, BURE\_TWEAK\_VALUE), which the Tweak Mechanism bounds to sparing, one-at-a-time use.
@@ -547,20 +547,20 @@ The tabtarget's own declaration that its dispatch runs unlogged, said by the con
 
 <a id="burd_interactive"></a>**BURD\_INTERACTIVE**
 
-The tabtarget's own declaration of interactive mode, said by the configuration word `buuc_interactive` — output goes to the terminal via uncurated tee rather than the curated log pipeline.
+The tabtarget's own declaration of interactive mode, said by the configuration word `buuc_interactive` — output goes to the terminal via uncurated tee rather than the curated Station Log pipeline.
 Same inlet law as [BURD\_NO\_LOG](#burd_no_log): a static property of the tabtarget file, never inherited (BUr\_q2m).
 
-#### The Three-Log Pattern
+#### The Three-Member Pattern
 
-A dispatch that logs writes three files under [BURS\_LOG\_DIR](#burs_log_dir), one record read three ways:
+A dispatch that keeps a Station Log writes three files under [BURS\_LOG\_DIR](#burs_log_dir), one record read three ways:
 
-| Log | Variable | Lifecycle | Purpose |
+| Member | Variable | Lifecycle | Purpose |
 | --- | --- | --- | --- |
 | **Historical** | [BURD\_LOG\_HIST](#burd_log_hist) | Never overwritten | This dispatch alone, every line stamped; the only race-free member |
 | **Latest** | [BURD\_LOG\_LAST](#burd_log_last) | Overwritten by every dispatch | The most recent dispatch through the directory, whichever tabtarget ran |
 | **Same-name** | [BURD\_LOG\_SAME](#burd_log_same) | Overwritten per tabtarget | The most recent dispatch of this one tabtarget, normalized so two runs over unchanged work differ nowhere |
 
-The first two are overwritten by the next dispatch that shares their name, so the historical log is the one to read, and the dispatch prints all three paths.
+The first two are overwritten by the next dispatch that shares their name, so the historical member is the one to read, and the dispatch prints all three paths.
 
 **Filename Conventions**:
 
@@ -568,7 +568,7 @@ The first two are overwritten by the next dispatch that shares their name, so th
 - Latest: `{BURC_LOG_LAST}.{ext}`, for example `last.txt`.
 - Same-name: `same-{tabtarget}.{ext}`, for example `same-buw-tt-ll-sh.txt`.
 
-The log directory is [BURS\_LOG\_DIR](#burs_log_dir) in the station configuration.
+The Station Log stands in the directory [BURS\_LOG\_DIR](#burs_log_dir) names in the station configuration.
 
 ### BUC: Command Utilities
 
@@ -581,7 +581,7 @@ Common command-line utilities: output at each verbosity level, documentation of 
 **File**: `Tools/buk/buv_validation.sh`
 
 The type system for Config Regimes.
-A regime's kindle opens its scope with `buv_regime_enroll`, may group its variables with `buv_group_enroll`, and enrolls each variable under its type with one `buv_{type}_enroll` call; the regime then validates, renders and locks what it enrolled.
+The kindle of a [Config-Regime](#Config-Regime) opens its scope with `buv_regime_enroll`, may group its variables with `buv_group_enroll`, and enrolls each variable under its type with one `buv_{type}_enroll` call; the module then validates, renders and locks what it enrolled.
 
 ```bash
 buv_regime_enroll MYR
@@ -604,15 +604,15 @@ The self-management workbench for BUK itself.
 **TabTarget Subsystem** (`buw-tt-*`):
 
 - `buw-tt-ll`: list the launchers in `buml_launchers/`.
-- `buw-tt-cbl <launcher> <name>...`: create batch and logging tabtargets, the default.
-- `buw-tt-cbn <launcher> <name>...`: create batch and no-log tabtargets.
+- `buw-tt-cbl <launcher> <name>...`: create batch tabtargets keeping a Station Log, the default.
+- `buw-tt-cbn <launcher> <name>...`: create batch tabtargets keeping no Station Log.
 - `buw-tt-cbo <launcher> <name>...`: create batch tabtargets whose command writes its own record.
-- `buw-tt-cil <launcher> <name>...`: create interactive and logging tabtargets.
-- `buw-tt-cin <launcher> <name>...`: create interactive and no-log tabtargets.
+- `buw-tt-cil <launcher> <name>...`: create interactive tabtargets keeping a Station Log.
+- `buw-tt-cin <launcher> <name>...`: create interactive tabtargets keeping no Station Log.
 - `buw-tt-cl <workbench> <name>`: create a launcher.
 - `buw-tt-rc`: the roll call, naming each standing door whose colophon no installed kit enrolls (in red) and each enrolled colophon with no door standing. It judges a door only where the door execs a trampoline and its launcher's workbench stands in a kit [BURC\_MANAGED\_KITS](#burc_managed_kits) declares; a kit whose workbench keeps no zipper enrolls nothing, so a door over it is named.
 
-**Regime Management**:
+**Config Regime Management**:
 
 - `buw-rcv` and `buw-rcr`: validate and render BURC.
 - `buw-rsv` and `buw-rsr`: validate and render BURS.
@@ -656,7 +656,7 @@ A module other files `source` carries state only once it is kindled, so sourcing
 
 | Rule | Shown in |
 | --- | --- |
-| It guards against a second inclusion at the top, in the form shown below the table. Each process sources a module from one place, so a second inclusion is a wrong sourcing hierarchy and dies. A file sourced before `buc_command.sh` dies through its own `printf` to stderr and `exit 1`; a generated constant file alone returns quietly, being sourced by every module that cites it | `Tools/buk/burs_regime.sh`; `Tools/buk/bul_launcher.sh` (before `buc_command.sh`); `Tools/buk/bubg_breviary.sh` (generated, returns) |
+| It guards against a second inclusion at the top, in the form shown below the table. Each process sources a module from one place, so a second inclusion is a wrong sourcing hierarchy and dies. A file sourced before `buc_command.sh` dies through its own `printf` to stderr and `exit 1`; a generated constant file alone returns quietly, being sourced by every module that cites it | `Tools/buk/burs_regime.sh`; `Tools/buk/buc_command.sh` (ahead of its own die); `Tools/buk/bubg_breviary.sh` (generated, returns) |
 | A module holding state defines `z{prefix}_kindle`, which dies if already kindled, sets up that state, and ends `readonly Z<PREFIX>_KINDLED=1` | `Tools/buk/burs_regime.sh` (`zburs_kindle`) |
 | It defines `z{prefix}_sentinel`, which dies unless `Z<PREFIX>_KINDLED` is `1` | `Tools/buk/burs_regime.sh` (`zburs_sentinel`) |
 | Every function that reads kindled state calls the sentinel first | `Tools/buk/buz_zipper.sh` (`buz_enroll` calls `zbuz_sentinel`) |
@@ -737,13 +737,13 @@ myw_main "$@"
 
 ## Reference Implementation: BURC and BURS
 
-BURC and BURS are BUK's own Config Regimes, serving both as working regimes for BUK's operation and as the canonical demonstration of the Config Regime pattern.
+BURC and BURS are BUK's own Config Regimes, serving both as the configuration BUK operates by and as the canonical demonstration of the Config Regime pattern.
 
 ### BURC
 
 <a id="BURC"></a>**BURC**
 
-Configuration regime for project-level BUK settings.
+The [Config-Regime](#Config-Regime) for project-level BUK settings.
 BURC assignment files stand as `burc.env` under BURD\_MOORINGS\_DIR, and define repository structure and tabtarget infrastructure.
 Inlet: Assignment Inlet.
 
@@ -776,12 +776,12 @@ Repo root, expressed relative to the assignment file's location.
 A repository's own identity, as the repository itself declares it: the name it gives itself, which no reader derives from a directory, a remote or a path, standing distinct from every other repository's across the estate.
 A repository states its own through BURC\_ENDONYM.
 
-`BURC_ENDONYM` states the repository's [Endonym](#Endonym) in its own assignment file, derived from nothing: the head `buon_`, then a lowercase letter, then lowercase letters and digits.
+`BURC_ENDONYM` states the repository's [endonym](#Endonym) in its own assignment file, derived from nothing: the head `buon_`, then a lowercase letter, then lowercase letters and digits.
 It is required, with no default, and a value not wearing the head is refused.
 
 <a id="burc_managed_kits"></a>**BURC\_MANAGED\_KITS**
 
-The kits this repository receives by parcel, carried as a [Catena](#Catena).
+The kits this repository receives by parcel, carried as a [catena](#Catena).
 Each element is a kit identifier — the kit's own directory name beneath [BURC\_TOOLS\_DIR](#burc_tools_dir).
 
 The install door still reads this value comma-separated, so author it with commas until the door reads the whitespace shape.
@@ -796,15 +796,15 @@ Parent directory containing `current/`.
 
 <a id="burc_loosebox_root_dir"></a>**BURC\_LOOSEBOX\_ROOT\_DIR**
 
-Parent directory holding one [Loosebox](#Loosebox) per worktree.
+Parent directory holding one [loosebox](#Loosebox) per worktree.
 
 <a id="burc_log_last"></a>**BURC\_LOG\_LAST**
 
-Filename stem for the most recent command execution log.
+Filename stem of the Station Log member holding the most recent dispatch's stream.
 
 <a id="burc_log_ext"></a>**BURC\_LOG\_EXT**
 
-File extension for log files, without leading dot.
+File extension of every Station Log member, without leading dot.
 
 **Example**:
 
@@ -829,9 +829,9 @@ BURC lets projects organize their directories differently while using the same B
 
 <a id="BURS"></a>**BURS**
 
-Configuration regime for developer-level BUK settings.
+The [Config-Regime](#Config-Regime) for developer-level BUK settings.
 BURS assignment files are personal to each developer and not committed to version control.
-Every path value of this regime is relative to the project root, and enforce refuses an absolute one, naming the variable and the relative form; no override admits it.
+Every path value it carries is relative to the project root, and enforce refuses an absolute one, naming the variable and the relative form; no override admits it.
 The values judged are the assignment file's own: a dispatch's override is folded over a value for the composed child alone, and is never judged as the station's.
 Inlet: Assignment Inlet.
 
@@ -847,31 +847,45 @@ Local developer username.
 
 <a id="burs_log_dir"></a>**BURS\_LOG\_DIR**
 
-Directory where this developer stores BUK operation logs, relative to the project root.
+`station-log-buk`
+
+Directory where the Station Log stands, relative to the project root.
+The station template writes it as a folder beside the project root, so the clones standing side by side share one Station Log.
 
 <a id="burs_tackroom"></a>**BURS\_TACKROOM**
 
+`tackroom-buk`
+
 Root of the tool store the clones beside a project draw from — the one place kits keep large immutable tooling rather than each clone holding its own copy.
 Relative to the project root, as [BURS\_LOG\_DIR](#burs_log_dir) is, so a station holds one store beside each group of clones and may hold several.
-An absolute [BURS\_TACKROOM](#burs_tackroom) is refused by the regime, naming the variable and the relative form, and no door makes a store at a path it then refuses.
-The regime requires the field, as it requires the others, and a station file omitting it is refused naming the variable; a kit whose store is missing still fails loud in its own voice and names this variable, never falling back to a per-clone copy or to the station user's personal tool homes.
+An absolute [BURS\_TACKROOM](#burs_tackroom) is refused by [BURS](#BURS), naming the variable and the relative form, and no door makes a store at a path it then refuses.
+[BURS](#BURS) leaves the field optional, and the station template carries no line for it: a station file omitting it is admitted, and a kit whose store is missing fails loud in its own voice and names this variable, never falling back to a per-clone copy or to the station user's personal tool homes.
+
+<a id="burs_hayloft"></a>**BURS\_HAYLOFT**
+
+`station-hayloft-buk`
+
+Folder where a station keeps the archives of its aged Station Log members and run folders.
+Relative to the project root, as [BURS\_LOG\_DIR](#burs_log_dir) is.
+An absolute [BURS\_HAYLOFT](#burs_hayloft) is refused by [BURS](#BURS), naming the variable and the relative form.
+[BURS](#BURS) takes no opinion on how a station keeps its archives beyond where they stand: the field is optional, the station template carries no line for it, and a kit that needs the folder refuses in its own voice, naming the line to add.
 
 **Example**:
 
 ```bash
 BURS_USER=alice
 BURS_TINCTURE=a1
-BURS_LOG_DIR=../logs-buk
+BURS_LOG_DIR=../station-log-buk
 BURS_TACKROOM=../tackroom-buk
 ```
 
-Each developer keeps their own station file, so logging and the other station preferences differ from machine to machine.
+Each developer keeps their own station file, so where the Station Log stands and the other station preferences differ from machine to machine.
 
 ## Design Philosophy
 
 ### Portability
 
-BUK serves any project unchanged: install it from a parcel, configure it through regime files, and it works.
+BUK serves any project unchanged: install it from a parcel, configure it through the assignment files of its [Config Regimes](#Config-Regime), and it works.
 No modification to BUK code is needed.
 
 ### Immutability
@@ -891,7 +905,7 @@ Type `tt/buw-<TAB>` to see all BUK commands.
 
 ### Fail Fast
 
-Launchers validate regimes before execution.
+Launchers validate [Config Regimes](#Config-Regime) before execution.
 This catches configuration errors immediately, with helpful error messages.
 
 ### Exit Status Propagation
@@ -907,7 +921,7 @@ BUK achieves reliable status propagation through:
 
 1. **`exec` in TabTargets**: replaces the shell process entirely, so the exit status flows directly to the caller without an intermediate shell's interference.
 2. **`exec` in Launchers**: the same benefit at the launcher layer, with no wrapper shell to mask the exit code.
-3. **Pipeline status capture in dispatch**: when output is piped through `tee` for logging, dispatch captures the command's own exit code rather than the pipeline's final status, which would be the exit code of `tee`.
+3. **Pipeline status capture in dispatch**: when output is piped through `tee` into the Station Log, dispatch captures the command's own exit code rather than the pipeline's final status, which would be the exit code of `tee`.
 
 **Anti-patterns to avoid**:
 
@@ -945,7 +959,7 @@ May eventually involve:
 
 ### Hidden Configuration Workbench
 
-Vision: a wholly internal workbench, separate from the portable BUK toolkit, that manages Claude Code-specific configuration and behavior using BUK's tabtarget, dispatch and regime infrastructure internally.
+Vision: a wholly internal workbench, separate from the portable BUK toolkit, that manages Claude Code-specific configuration and behavior using BUK's tabtarget, dispatch and config regime infrastructure internally.
 
 May eventually involve:
 
@@ -969,8 +983,8 @@ When extending BUK:
 
 1. **Follow the Module Contract** above.
 2. **Maintain portability**: no project-specific logic in `Tools/buk/`.
-3. **Use Config Regimes**: configuration belongs in regime files, not code.
-4. **Document the regime**: enroll every variable's type, constraints and purpose in its regime module (`{regime}_regime.sh`).
+3. **Use Config Regimes**: configuration belongs in the assignment files of [Config Regimes](#Config-Regime), not code.
+4. **Document the config regime**: enroll every variable's type, constraints and purpose in its config regime module (`{regime}_regime.sh`).
 5. **Add validation**: use the BUV type system for every config variable.
 
 ## License
@@ -985,17 +999,17 @@ Brad Hyslop \<bhyslop@scaleinvariant.org\>
 
 ## Glossary
 
-<a id="Regime"></a>**Regime**
+<a id="Config-Regime"></a>**Config-Regime**
 
-A structured configuration family: an assignment of values, and a regime module enrolling each variable's type, constraints and purpose, which validates and renders them.
+A structured configuration family: an assignment of values, and a config regime module enrolling each variable's type, constraints and purpose, which validates and renders them.
 
 <a id="Assignment"></a>**Assignment**
 
-A shell-sourceable file of `VAR=value` lines carrying one regime's values.
+A shell-sourceable file of `VAR=value` lines carrying one config regime's values.
 
 <a id="Catena"></a>**Catena**
 
-A regime variable whose one value carries several elements, delimited by runs of whitespace.
+A config regime variable whose one value carries several elements, delimited by runs of whitespace.
 
 <a id="Loosebox"></a>**Loosebox**
 

@@ -6837,3 +6837,337 @@ fn bktd_bleach_refuses_an_argument_and_removes_nothing() {
         );
     }
 }
+
+/// The case the attended app reports passing, made up so it names nothing
+/// governed.
+const ZBKTD_PASSING_CASE: &str = "the frumble greets";
+
+/// The case the attended app reports skipped, made up on the same ground.
+const ZBKTD_SKIPPED_CASE: &str = "the frumble naps on purpose";
+
+/// The line the planted app prints where it speaks no tongue.
+const ZBKTD_SAYS_PLAIN: &str = "the frumble speaks plainly";
+
+/// The statement the record of a tongue-less app carries in place of its output.
+const ZBKTD_HOLDS_THE_TERMINAL: &str = "the tenant holds the terminal";
+
+/// The hollow sentence's own words, which name a run that counted nothing.
+const ZBKTD_COUNTED_NO_CASE: &str = "counted no case";
+
+/// One case line in the kennel's own tongue: the verdict word, one space, the
+/// case's name. The words are the tongue's own, spelled where each line is
+/// composed.
+fn zbktd_spoken(word: &str, case: &str) -> String {
+    format!(
+        "{} {}",
+        word,
+        case, //
+    )
+}
+
+/// Lay an app collar that speaks the kennel's own tongue over the same lure the
+/// dispatched arm is driven over, and hand back the committed position it
+/// stands at.
+///
+/// THE COLLAR IS THE GEOGRAPHY LURE'S WITH ONE LINE MORE, the tongue, so the
+/// tongue is the only thing that parts an attended drive from the relay drives
+/// beside it.
+fn zbktd_attended_lure(lure: &bktu_Lure) -> String {
+    lure.bktu_write("clippy.toml", BKTD_CLIPPY);
+    zbktd_crate(lure, "Tools/lure", "lure", "src/main.rs", "fn main() {}\n");
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
+        "\
+BKRR_COLLAR=\"app-lure\"
+BKRR_KIND=\"bknre_app\"
+BKRR_MANIFEST=\"Tools/lure/Cargo.toml\"
+BKRR_TARGET=\"lure\"
+BKRR_FEATURES=\"\"
+BKRR_PROFILE=\"release\"
+BKRR_SPEND=\"bknre_reader\"
+BKRR_TAMED_CRATES=\"\"
+BKRR_FERAL_CRATES=\"bknre_tamed\"
+BKRR_MUZZLE=\".\"
+BKRR_EXERGUE=\"bknre_unstruck\"
+BKRR_RESIDENCE=\"Tools/bin\"
+BKRR_BYNAME=\"lurex\"
+BKRR_TONGUE=\"bknre_passfail\"
+",
+    );
+    lure.bktu_commit("compose an app collar that speaks the kennel's own tongue");
+
+    zbktd_head(lure)
+}
+
+/// Plant an app at a lure's residence join that answers the exergue with one
+/// composed position, and run any other way prints the lines given and exits
+/// the code given — the ruler's own shape, speaking.
+fn zbktd_speaker(lure: &bktu_Lure, said: &[String], code: i32, answer: &str) {
+    let planted = lure.bktu_root().join("Tools/bin/lurex");
+
+    let spoken: String = said
+        .iter()
+        .map(|line| {
+            format!(
+                "echo '{}'; ",
+                line, //
+            )
+        })
+        .collect();
+
+    bkp::bkprs_scrivener::bkprs_program_write(
+        &planted,
+        format!(
+            "#!/bin/sh\ntest \"$1\" = \"--exergue\" || {{ {}exit {}; }}\ncat <<'ANSWER'\n{}\nANSWER\n",
+            spoken, code, answer, //
+        ),
+    )
+    .unwrap_or_else(|err| panic!("{}", err, //
+    ));
+}
+
+/// A lure whose app collar elects a current residence speaking the lines given
+/// and exiting the code given, the collar declaring the kennel's own tongue or
+/// none.
+fn zbktd_speaking(named: &str, tongued: bool, said: &[String], code: i32) -> bktu_Lure {
+    let lure = bktu_Lure::bktu_compose(named);
+
+    let struck = if tongued {
+        zbktd_attended_lure(&lure)
+    } else {
+        zbktd_geography_lure(&lure)
+    };
+    zbktd_speaker(&lure, said, code, &struck);
+    lure.bktu_commit("the app's converge, its residence speaking the lines under test");
+
+    lure
+}
+
+/// Drive the launch door over a speaking lure's app collar under a composed
+/// family of three members: what the door did, and where each member stands.
+fn zbktd_spoken_drive(
+    lure: &bktu_Lure,
+) -> (
+    std::process::Output,
+    Vec<(&'static str, std::path::PathBuf)>,
+) {
+    let family = zbktd_log_family(lure);
+    let stated: Vec<(&str, &OsStr)> = family
+        .iter()
+        .map(|(name, path)| (*name, path.as_os_str()))
+        .collect();
+
+    let out = lure.bktu_drive_stating(zbktd_kennel(), &[BKTD_DOOR, "app-lure"], &stated);
+
+    (out, family)
+}
+
+/// The historical member a drive's family wrote, read whole.
+fn zbktd_historical(family: &[(&'static str, std::path::PathBuf)]) -> String {
+    let hist = family
+        .iter()
+        .find(|(name, _)| *name == bkcv_voice::BKCV_LOG_HIST_VAR)
+        .map(|(_, path)| path.clone())
+        .unwrap_or_else(|| {
+            panic!(
+                "the family carries {}",
+                bkcv_voice::BKCV_LOG_HIST_VAR, //
+            )
+        });
+
+    std::fs::read_to_string(&hist).unwrap_or_else(|err| {
+        panic!(
+            "the historical member is readable at {}: {}",
+            hist.display(),
+            err, //
+        )
+    })
+}
+
+/// AN APP THAT SPEAKS THE KENNEL'S OWN TONGUE IS ATTENDED AS A SUITE IS: the
+/// console carries one verdict that counts the passing case, keeps the skipped
+/// one out of the count and names it, and says nothing of the case that passed;
+/// the record takes the whole stream and closes on its digest.
+///
+/// THE SKIP IS NAMED SO IT STAYS LEGIBLE, and it moves no count a reader would
+/// take for driven work: one ran and one passed, though the tenant reported two
+/// lines.
+#[test]
+fn bktd_mush_attends_an_app_speaking_the_tongue_and_names_its_skip() {
+    let said = vec![
+        zbktd_spoken("pass", ZBKTD_PASSING_CASE),
+        zbktd_spoken("skip", ZBKTD_SKIPPED_CASE),
+    ];
+    let lure = zbktd_speaking("attended-app", true, &said, 0);
+
+    let (out, family) = zbktd_spoken_drive(&lure);
+    let console = String::from_utf8_lossy(&out.stdout).into_owned();
+    let aside = String::from_utf8_lossy(&out.stderr).into_owned();
+
+    assert!(
+        out.status.success(),
+        "the attended app runs green: {} {} {}",
+        out.status,
+        console,
+        aside, //
+    );
+
+    let verdicts: Vec<&str> = console
+        .lines()
+        .filter(|line| line.starts_with(ZBKTD_GREEN_VERDICT))
+        .collect();
+
+    assert_eq!(
+        verdicts.len(),
+        1,
+        "one verdict and one only: {:?}",
+        console, //
+    );
+    assert!(
+        verdicts[0].contains("1 ran") && verdicts[0].contains("1 passed"),
+        "the verdict counts the one passing case and not the skipped one: {}",
+        verdicts[0], //
+    );
+    assert!(
+        verdicts[0].contains(ZBKTD_SKIPPED_CASE),
+        "the verdict names the skipped case: {}",
+        verdicts[0], //
+    );
+    assert!(
+        !console.contains(ZBKTD_PASSING_CASE),
+        "the quiet console names no passing case: {}",
+        console, //
+    );
+
+    for (var, path) in &family {
+        assert!(
+            path.is_file(),
+            "the dispatch's {} stands as a file: {}",
+            var,
+            path.display(), //
+        );
+    }
+
+    let written = zbktd_historical(&family);
+
+    for line in &said {
+        assert!(
+            written.contains(line.as_str()),
+            "the historical member carries the tenant's line '{}': {}",
+            line,
+            written, //
+        );
+    }
+
+    let last = written
+        .lines()
+        .last()
+        .unwrap_or_else(|| panic!("the historical member ends on a line"));
+    assert!(
+        last.starts_with(ZBKTD_CHECKSUM_LEAD),
+        "the historical member closes on its digest: {}",
+        last, //
+    );
+}
+
+/// AN ATTENDED APP WHOSE EVERY CASE SKIPPED COUNTED NOTHING DRIVEN, and reads
+/// hollow and red: a skip never silences the hollow gate.
+#[test]
+fn bktd_mush_bars_an_attended_app_whose_every_case_skipped() {
+    let said = vec![zbktd_spoken("skip", ZBKTD_SKIPPED_CASE)];
+    let lure = zbktd_speaking("attended-hollow", true, &said, 0);
+
+    let (out, _family) = zbktd_spoken_drive(&lure);
+    let aside = String::from_utf8_lossy(&out.stderr).into_owned();
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_VERDICT_BARRED),
+        "a run of skips alone bars as hollow: {} {}",
+        String::from_utf8_lossy(&out.stdout),
+        aside, //
+    );
+    assert!(
+        aside.contains(ZBKTD_COUNTED_NO_CASE),
+        "the door says the run counted nothing: {}",
+        aside, //
+    );
+}
+
+/// AN APP THAT SPEAKS NO TONGUE STILL HOLDS THE TERMINAL: its line reaches the
+/// console as it printed it, its record says the output went there and carries
+/// none of it, and its exit is relayed as a verdict.
+///
+/// THE PLANTED EXIT IS FENCED, which an attended run would have read as barred,
+/// so the relay is what this proves rather than a red exit of any kind.
+#[test]
+fn bktd_mush_passes_an_app_without_a_tongue_through_to_the_terminal() {
+    let said = vec![ZBKTD_SAYS_PLAIN.to_string()];
+    let lure = zbktd_speaking("plain-app", false, &said, ZBKTD_VERDICT_FENCED);
+
+    let (out, family) = zbktd_spoken_drive(&lure);
+    let console = String::from_utf8_lossy(&out.stdout).into_owned();
+    let aside = String::from_utf8_lossy(&out.stderr).into_owned();
+
+    assert_eq!(
+        out.status.code(),
+        Some(ZBKTD_VERDICT_FENCED),
+        "the app's fenced crosses the door as fenced: {} {}",
+        console,
+        aside, //
+    );
+    assert!(
+        console.lines().any(|line| line == ZBKTD_SAYS_PLAIN),
+        "the app's own line reaches the console as it printed it: {}",
+        console, //
+    );
+
+    let written = zbktd_historical(&family);
+
+    assert!(
+        written.contains(ZBKTD_HOLDS_THE_TERMINAL),
+        "the historical member says the tenant held the terminal: {}",
+        written, //
+    );
+    assert!(
+        !written.contains(ZBKTD_SAYS_PLAIN),
+        "the historical member carries none of what the tenant printed: {}",
+        written, //
+    );
+}
+
+/// THE LISTING AND THE PROCLAMATION REFUSE AN APP THAT SPEAKS A TONGUE, barred
+/// and saying nothing on the console: neither is built for it yet, and neither
+/// invents one.
+#[test]
+fn bktd_lineup_and_tattoo_refuse_an_attended_app() {
+    let said = vec![zbktd_spoken("pass", ZBKTD_PASSING_CASE)];
+    let lure = zbktd_speaking("attended-refusals", true, &said, 0);
+
+    for door in [ZBKTD_DOOR_LINEUP, ZBKTD_DOOR_TATTOO] {
+        let out = lure.bktu_drive_door(zbktd_kennel(), &[door, "app-lure"]);
+        let console = String::from_utf8_lossy(&out.stdout).into_owned();
+        let aside = String::from_utf8_lossy(&out.stderr).into_owned();
+
+        assert_eq!(
+            out.status.code(),
+            Some(ZBKTD_VERDICT_BARRED),
+            "{} refuses the attended app barred: {} {}",
+            door,
+            console,
+            aside, //
+        );
+        assert!(
+            console.trim().is_empty(),
+            "{} lists no hurdle and proclaims nothing: {}",
+            door,
+            console, //
+        );
+        assert!(
+            !console.contains("BKRC_"),
+            "{} prints no proclamation line: {}",
+            door,
+            console, //
+        );
+    }
+}

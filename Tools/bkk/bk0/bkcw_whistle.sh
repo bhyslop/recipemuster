@@ -83,6 +83,9 @@ zbkcw_kindle() {
   readonly ZBKCW_PIN_FILE="${ZBKCW_CRATE_DIR}/rust-toolchain.toml"
   readonly ZBKCW_BINARY="${ZBKCW_CRATE_DIR}/target/release/bkx"
 
+  # The hayloft tool's app collar, which bale and unbale launch through mush.
+  readonly ZBKCW_HAYLOFT_COLLAR="bkhln_app"
+
   # The hurdles' own declaration of the toolchains they demand, which rebed
   # reads as the kennelman does rather than restating: a second list here would
   # be free to drift from the one the suite asserts against, and the drift would
@@ -124,10 +127,13 @@ zbkcw_converge() {
     || buc_die_now "The kennel's pin at ${ZBKCW_PIN_FILE} names no channel"
 
   bkcb_channel_answers_or_die "${z_channel}"
+  buc_step "Building the kennel binary where its source has moved - a first build takes a few minutes"
 
   local z_cargo_status=0
+  # Cargo's progress lines are noise at a cold seat, so the quiet flag stands
+  # here; cargo still prints a build's errors under it.
   CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
-    cargo "+${z_channel}" build --release --manifest-path "${ZBKCW_MANIFEST}" --locked \
+    cargo "+${z_channel}" build --release --quiet --manifest-path "${ZBKCW_MANIFEST}" --locked \
     || z_cargo_status=$?
   test "${z_cargo_status}" -eq 0 \
     || buc_die_now "The kennel did not build (exit ${z_cargo_status})"
@@ -158,6 +164,24 @@ zbkcw_door() {
   zbkcw_converge
 
   exec "${ZBKCW_BINARY}" "${z_word}" ${BUZ_FOLIO:+"${BUZ_FOLIO}"} "$@" \
+    || buc_die_now "Could not exec the kennel at ${ZBKCW_BINARY}"
+}
+
+# One hayloft verb: converge the kennel, then exec its own mush of the hayloft
+# tool's app collar with the verb, the folio put back first and the rest after
+# it, exactly as zbkcw_door re-heads the folio.
+#
+# THE KENNEL'S OWN LAUNCH, TAKEN AS A STEP. No tabtarget nests: the mush is the
+# kennel binary's own arm, reached here as every door reaches it, so the app's
+# writer pin holds and the binary launched is always the installed one.
+zbkcw_hayloft() {
+  local -r z_verb="${1:-}"
+  test -n "${z_verb}" || buc_die_now "zbkcw_hayloft requires the hayloft verb"
+  shift || buc_die_now "Could not step past the hayloft verb"
+
+  zbkcw_converge
+
+  exec "${ZBKCW_BINARY}" mush "${ZBKCW_HAYLOFT_COLLAR}" "${z_verb}" ${BUZ_FOLIO:+"${BUZ_FOLIO}"} "$@" \
     || buc_die_now "Could not exec the kennel at ${ZBKCW_BINARY}"
 }
 
@@ -464,6 +488,31 @@ bkcw_bleach() {
   buc_doc_shown || return 0
 
   zbkcw_door bleach "$@"
+}
+
+# Packs what dispatches have left in their two working folders, dated on or
+# before the day given, into one tar.gz in the folder BURS_HAYLOFT names,
+# removing the originals only once the archive reads back equal to them; a
+# missing, malformed or too recent day is refused, naming the latest day it
+# takes.
+bkcw_bale() {
+  buc_doc_brief "Packs what dispatches have left in their two working folders, dated on or before the day given, into one tar.gz in the folder BURS_HAYLOFT names, removing the originals only once the archive reads back equal to them; a missing, malformed or too recent day is refused, naming the latest day it takes."
+  buc_doc_param "day" "the last day included, eight digits as year, month and day in UTC, no later than two days ago"
+  buc_doc_shown || return 0
+
+  zbkcw_hayloft bale "$@"
+}
+
+# Lists the archives in the folder BURS_HAYLOFT names, each ready to paste as an
+# argument; given an archive and a folder that is empty or absent, unpacks the
+# archive there.
+bkcw_unbale() {
+  buc_doc_brief "Lists the archives in the folder BURS_HAYLOFT names, each ready to paste as an argument; given an archive and a folder that is empty or absent, unpacks the archive there."
+  buc_doc_param "archive" "optional: an archive, as the bare listing spells it"
+  buc_doc_param "target" "the folder to unpack into, empty or absent, owed with an archive"
+  buc_doc_shown || return 0
+
+  zbkcw_hayloft unbale "$@"
 }
 
 # delouse - the day's sweep, taken ahead of a build.

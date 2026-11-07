@@ -816,40 +816,6 @@ zbuv_exported_rule() {
   done
 }
 
-# buv_docker_env SCOPE ARRAY_VAR — populate ARRAY_VAR with -e VARNAME=val pairs for all enrolled vars in SCOPE
-# Usage: buv_docker_env RBRN ZRBRN_DOCKER_ENV
-# The pairs are built up in a local array and assigned to ARRAY_VAR once. The
-# one assignment names that local by reference, so eval parses only the checked
-# array name and never a regime value.
-buv_docker_env() {
-  zbuv_sentinel
-
-  local -r z_scope="${1:-}"
-  local -r z_array_var="${2:-}"
-  test -n "${z_scope}"     || buc_die_now "buv_docker_env: scope required"
-  test -n "${z_array_var}" || buc_die_now "buv_docker_env: array variable name required"
-  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-  [[ "${z_array_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
-    || buc_die_now "buv_docker_env: invalid array variable name: '${z_array_var}'"
-
-  local z_pairs=()
-  local z_varname=""
-  local z_i
-  for z_i in "${!z_buv_scope_roll[@]}"; do
-    test "${z_buv_scope_roll[${z_i}]}" = "${z_scope}" || continue
-    z_varname="${z_buv_varname_roll[${z_i}]}"
-    [[ "${z_varname}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
-      || buc_die_now "buv_docker_env: invalid variable name: '${z_varname}'"
-    z_pairs+=("-e" "${z_varname}=${!z_varname:-}")
-  done
-
-  if test "${#z_pairs[@]}" -gt 0; then
-    eval "${z_array_var}=(\"\${z_pairs[@]}\")" || buc_die_now "buv_docker_env: could not assign ${z_array_var}"
-  else
-    eval "${z_array_var}=()" || buc_die_now "buv_docker_env: could not assign ${z_array_var}"
-  fi
-}
-
 # buv_vet SCOPE — iterate all enrolled vars in scope; reject on first failure
 # A failed value check is the buv enrollment-validation gate firing — it
 # rejects with BUBG_ENROLL_DENTIL so negative tests can assert WHICH layer

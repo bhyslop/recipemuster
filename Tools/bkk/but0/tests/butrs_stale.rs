@@ -16,11 +16,12 @@
 //! A bootstrap predating the contract meets a named refusal, not a bash accident.
 //!
 //! Ported from the bash bench's `stale-launcher` fixture, four cases, all four
-//! carried. The guard stands at a seam between two custodies: the moorings
-//! launcher stub belongs to the consumer's tree and the modules it sources belong
+//! carried, and a fifth for the stub that sources the shared launcher. The
+//! guards stand at a seam between two custodies: the moorings launcher stub
+//! belongs to the consumer's tree and the launcher and modules it reaches belong
 //! to the kit, so a stub written before the kit's bootstrap contract existed goes
-//! on sourcing what it always sourced and reaches a module that is no longer
-//! willing to load alone.
+//! on doing what it always did and reaches kit code that is no longer willing to
+//! run that way.
 //!
 //! WHAT WENT WRONG BEFORE THE GUARD, and why the fixture asserts a shape rather
 //! than only a code: a stale stub used to die as a bash `command not found` at
@@ -60,15 +61,24 @@ const BUTRS_STALE: &str = "#!/bin/bash\n\
                           source \"${1}/burc_regime.sh\"\n\
                           zburc_kindle\n";
 
+/// The stub shape the shared launcher now refuses: four lines sourcing it and
+/// then calling a function, the launcher reached by the kit directory the
+/// coordinator hands the bootstrap. The refusal fires at source time, so the
+/// call line is never reached and its function is a made-up word.
+const BUTRS_SOURCING: &str = "#!/bin/bash\n\
+                             # Launcher stub - delegates to quob workbench\n\
+                             source \"${1}/bul_launcher.sh\"\n\
+                             quob_launch \"${BURC_TOOLS_DIR}/quobk/quobw_workbench.sh\" \"$@\"\n";
+
 /// The contract met, in the order `bul_launcher` itself orders it.
 const BUTRS_SOUND: &str = "#!/bin/bash\n\
                           source \"${1}/buv_validation.sh\"\n\
                           source \"${1}/bubc_constants.sh\"\n\
                           source \"${1}/burc_regime.sh\"\n\
-                          echo \"burc regime module loaded\"\n";
+                          echo \"burc grubbet module loaded\"\n";
 
 /// What the sound bootstrap says when the guard lets it through untouched.
-const BUTRS_LOADED: &str = "burc regime module loaded";
+const BUTRS_LOADED: &str = "burc grubbet module loaded";
 
 /// Compose a seat whose coordinator writes the given bootstrap and runs it
 /// against the kit the dispatch pointed it at.
@@ -114,7 +124,7 @@ fn butrs_the_refusal_names_the_condition_the_remedy_and_the_canonical_stub() {
         .buth_carries("STALE LAUNCHER STUB")
         .buth_carries("buut_launcher")
         .buth_carries("tt/buw-tt-cl.CreateLauncher.sh")
-        .buth_carries("source \"Tools/buk/bul_launcher.sh\"");
+        .buth_carries("exec \"Tools/buk/bul_launcher.sh\"");
 }
 
 #[test]
@@ -133,6 +143,21 @@ fn butrs_the_bash_command_not_found_death_is_gone() {
         said.buth_text, //
     );
     said.buth_lacks("command not found");
+}
+
+#[test]
+fn butrs_a_stub_sourcing_the_launcher_exits_on_the_band_code_naming_the_exec_stub() {
+    // THE LAUNCHER IS RUN, NEVER SOURCED. A four-line stub of the old shape
+    // hands the launcher exactly the arguments a sound stub would, so the
+    // contract test alone would pass it; the sourced refusal stands ahead of
+    // that test and is what this case reads. The refusal carries the canonical
+    // exec line, since a station dark at its stubs reaches no door to print it.
+    butrs_bootstrap("substrate-stale-sourcing", BUTRS_SOURCING)
+        .buth_took(BUTRS_DESUETUDE)
+        .buth_carries("STALE LAUNCHER STUB")
+        .buth_carries("tt/buw-tt-cl.CreateLauncher.sh")
+        .buth_carries("exec \"Tools/buk/bul_launcher.sh\"")
+        .buth_lacks("command not found");
 }
 
 #[test]

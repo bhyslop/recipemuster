@@ -28,6 +28,13 @@ license = "Apache-2.0"
 name = "bkp"
 path = "src/lib.rs"
 
+# THE CATCH HURDLE'S CHILD, and no door face. The code a panic ends a process on
+# is the runtime's to assign, so the catch is proven on a real process: cargo
+# builds this example beside the tests, and the hurdle runs it.
+[[example]]
+name = "bkpxl_lanyard"
+path = "examples/bkpxl_lanyard.rs"
+
 # NO EXTERNAL CRATES, and the emptiness is a declaration. Every jj-sired crate
 # links this one, so whatever it depends on stands beneath all of them; std alone
 # keeps that closure empty. The regime reader holds the sharpest form of the same

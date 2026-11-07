@@ -352,15 +352,17 @@ fn zbkm_dispatched(repository: &Path) -> bkcr_resolve::bkcr_Dispatch {
 /// constants carry, so this match sees a door's return only from the bare
 /// self-report.
 ///
-/// A GENUINE PANIC IS NOT BROKE and is not answered as one. Its payload is
-/// handed back to the unwind it came from, which ends the process as a panic
-/// does, its hook having already said where.
+/// A GENUINE PANIC IS NOT THIS MATCH'S TO ANSWER. Its payload is handed back to
+/// the unwind it came from, its hook having already said where, and the re-raise
+/// lands in the floor's catch around the match (`bkp::bkprl_lanyard`), which ends
+/// the process broke as well. Both arms now end on the one failure code; the match
+/// stands so broke keeps a road of its own that never passes the hook.
 fn main() -> std::process::ExitCode {
-    match std::panic::catch_unwind(zbkm_main) {
+    bkp::bkprl_lanyard::bkprl_run(|| match std::panic::catch_unwind(zbkm_main) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(payload) if payload.is::<bkco_output::bkco_Broke>() => std::process::ExitCode::FAILURE,
         Err(payload) => std::panic::resume_unwind(payload),
-    }
+    })
 }
 
 /// The door face: the door law, then the door the first argument names.
@@ -907,6 +909,8 @@ fn zbkm_tattoo(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: 
         }
     };
 
+    zbkm_attended_unbuilt(ZBKM_DOOR_TATTOO, &resolved.collar, &name);
+
     // THE ELECTION IS READ HERE AND NOT IN THE RENDER, which is what keeps the
     // proclamation a pure function of a collar. It is a reading of a repository
     // and of a standing binary, and this door is the one holding a repository.
@@ -1399,6 +1403,11 @@ fn zbkm_python_narrowed(
 
 /// The app arm: hold the election, then run what it named.
 ///
+/// AN APP WHOSE COLLAR DECLARES A TONGUE IS ATTENDED, and parts here once its
+/// election is said: a captured child whose stream the voice reads as a suite's
+/// is read, its exit read as a course's (`zbkm_mush_attended`). What follows
+/// that branch is the road of an app declaring none, which holds the terminal.
+///
 /// THE EXIT IS THE TENANT'S VERDICT. A tenant exiting sound, barred or fenced
 /// crosses the door as that verdict, so a program that rules on what it reads —
 /// the census tool on its subject road among them — is read by its caller exactly
@@ -1458,7 +1467,7 @@ fn zbkm_mush_app(
     // AND IT SAYS WHY THE BORROW DID NOT ANSWER, where it did not: an own build
     // elected over an identical borrow is a reading nobody could infer from the
     // word, and the election's plaint is the one sentence that states it.
-    bkco_info_now!(
+    let elected = format!(
         "the collar '{}' elects {} under geography {} — running {}{}",
         name,
         verdict.elected,
@@ -1473,11 +1482,20 @@ fn zbkm_mush_app(
             ))
             .unwrap_or_default(), //
     );
+    bkco_info_now!(
+        "{}",
+        elected, //
+    );
+
+    if collar.bkcr_attended() {
+        zbkm_mush_attended(dispatch, collar, name, &answers, elected, carried);
+    }
 
     // THE APP ARM WRITES A RECORD AND NOT A TRANSCRIPT, which is a consequence
     // of the mode this door's tabtarget declares and is stated rather than left
     // to be discovered. Under the amanuensis mode the dispatch tees nothing, and
-    // this arm hands the tenant THIS PROCESS'S STREAMS — the freeze's own shape,
+    // this road — an app declaring no tongue, the attended one having parted
+    // above — hands the tenant THIS PROCESS'S STREAMS — the freeze's own shape,
     // an app's arguments and output passing through verbatim, which an
     // interactive tenant requires. So the family carries the invocation, the
     // position and the election, and says plainly that the tenant's own output
@@ -1524,6 +1542,69 @@ fn zbkm_mush_app(
             answers.display(), //
         ),
     }
+}
+
+/// Run an ATTENDED app: the elected binary as a captured child under the
+/// collar's tongue, its exit read as a course's.
+///
+/// THE VOICE WRITES THE RECORD, so the record the terminal road writes is not
+/// written here: the family's three members carry the election, the launch and
+/// the tenant's whole stream, and the console the heartbeat, failures and
+/// verdict.
+///
+/// THE HOLLOW GATE STANDS, and it is what makes a run of skips alone red: a
+/// skipped case is counted apart from what ran, so a tenant whose every case
+/// skipped counted nothing and proved nothing.
+///
+/// NO COURSE IS BANKED. An attended app is no course of the walks, and listing
+/// and measuring one are the kennel's next rung; the course record's roster is
+/// the suites' alone.
+fn zbkm_mush_attended(
+    dispatch: &bkcr_resolve::bkcr_Dispatch,
+    collar: &bkcr_resolve::bkcr_Collar,
+    name: &str,
+    answers: &Path,
+    elected: String,
+    carried: &[OsString],
+) -> ! {
+    let (run, tally) = match bkcm_mush::bkcm_app(
+        dispatch,
+        answers,
+        carried,
+        collar.bkcr_field("BKRR_TONGUE"),
+        &[elected],
+    ) {
+        Ok(answered) => answered,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
+    zbkm_hollow(name, &run, &tally);
+
+    zbkm_exit_as_ran(&run)
+}
+
+/// What a listing or a proclamation of an attended app says while neither is
+/// built, as the work rather than as the plan that carries it.
+const ZBKM_ATTENDED_UNBUILT: &str = "a listing and a proclamation of an app that speaks a \
+     tongue are the kennel's next rung and are not built yet; the app runs through mush, which \
+     attends it";
+
+/// Refuse a listing or proclamation door over an attended app, barred.
+fn zbkm_attended_unbuilt(door: &str, collar: &bkcr_resolve::bkcr_Collar, name: &str) {
+    if !collar.bkcr_attended() {
+        return;
+    }
+
+    bkco_error_now!(
+        "'{}' cannot read the collar '{}': {}",
+        door,
+        name,
+        ZBKM_ATTENDED_UNBUILT, //
+    );
+    zbkm_barred();
 }
 
 /// Write the app arm's record: what was asked, where it stood, and the plain
@@ -1735,6 +1816,8 @@ fn zbkm_lineup(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: 
     }
 
     let resolved = zbkm_sound_collar(repository, dispatch, &name);
+
+    zbkm_attended_unbuilt(ZBKM_DOOR_LINEUP, &resolved.collar, &name);
 
     let listing = match bkci_pipeline::bkci_listing(repository, &resolved.collar) {
         Ok(listing) => listing,

@@ -31,8 +31,9 @@
 //! coordinator — it is fair to ask what a survival case is still for. The others
 //! vary the DEATH and hold the chain fixed: each asks which number a given
 //! membrane produces. The capture case varies the CHAIN and holds the death fixed: it
-//! raises the rejection where the estate's own fixture raises it, inside a
-//! command substitution beneath a `|| buc_die_now`, and asks whether the number
+//! raises the rejection inside a command substitution beneath a `|| buc_die_now`
+//! (the estate's own fixture raises it inside an isolation subshell, and this
+//! hurdle keeps the capture deliberately), and asks whether the number
 //! reaches the caller from there. A capture is the one place in this path where a
 //! status is genuinely at risk of being read, discarded and replaced, so the
 //! capture case is a reading of the path rather than one more reading of the
@@ -175,7 +176,9 @@ fn butb_a_rejection_outside_the_band_is_itself_refused() {
 
 #[test]
 fn butb_a_rejection_survives_a_capture_and_the_whole_exec_path() {
-    // THE ESTATE'S OWN FIXTURE SHAPE, spelled as `bux_band_chain` spells it. The
+    // THE CAPTURE SHAPE, kept deliberately: `bux_band_chain` now raises its
+    // rejection inside an isolation subshell, and this hurdle keeps the
+    // substitution because the capture is the shape worth proving. The
     // rejection is raised INSIDE a command substitution: bash runs that in a
     // subshell whose status the assignment then carries, so this is the one place
     // in the path where a deliberate number is genuinely at risk of being read as

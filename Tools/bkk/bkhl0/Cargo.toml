@@ -1,0 +1,54 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# THE HAYLOFT TOOL — one binary carrying two verbs: bale packs the aged
+# contents of the folders BURS_LOG_DIR and BURC_TEMP_ROOT_DIR name into one
+# tar.gz in the folder BURS_HAYLOFT names, removing the originals only once the
+# written archive reads back equal to them; unbale unpacks one archive into an
+# empty or absent folder.
+#
+# Read it beside its two collars, bkhln_app and bkhln_suite, in the kit's brood.
+# No pin stands beside this manifest: the pin at the repository root answers
+# for it. No build script stands beside it either: the app collar declares the
+# writer spend, so the kennel launches the installed binary and never asks it
+# where it was struck.
+
+[package]
+name = "bkhl"
+version = "0.0.1"
+edition = "2021"
+description = "The kennel's hayloft tool: bale aged folder contents into one tar.gz, unbale one back out"
+license = "Apache-2.0"
+
+# THE LIBRARY carries every act behind parameters — the clock's day, the
+# read-back check and every folder — so a hurdle composes a day and a folder
+# tree and calls the same surface the binary calls.
+[lib]
+name = "bkhl"
+path = "src/lib.rs"
+
+# THE BINARY THE APP COLLAR NAMES, its BKRR_TARGET and its BKRR_BYNAME.
+[[bin]]
+name = "bkhl"
+path = "src/main.rs"
+
+# THREE DIRECT EDGES, each named in both collars' tamed lists. The tar crate
+# writes and reads the archive; flate2 compresses it on its default pure-Rust
+# backend; the floor reads the regime files. Extended attributes are not
+# carried, so tar's default xattr feature is left off.
+[dependencies]
+tar = { version = "0.4.44", default-features = false }
+flate2 = "1.1.1"
+bkp = { path = "../bk0/bkp" }

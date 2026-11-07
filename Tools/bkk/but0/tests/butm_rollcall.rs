@@ -76,15 +76,13 @@ fn zbutm_plant() -> Vec<(&'static str, String)> {
         (
             "moorings/buml_launchers/launcher.quobw_workbench.sh",
             "#!/bin/bash\n\
-             source \"Tools/buk/bul_launcher.sh\"\n\
-             bul_launch \"${BURC_TOOLS_DIR}/quobk/quobw_workbench.sh\" \"$@\"\n"
+             exec \"Tools/buk/bul_launcher.sh\" \"Tools/quobk/quobw_workbench.sh\" \"$@\"\n"
                 .to_string(),
         ),
         (
             "moorings/buml_launchers/launcher.marfw_workbench.sh",
             "#!/bin/bash\n\
-             source \"Tools/buk/bul_launcher.sh\"\n\
-             bul_launch \"${BURC_TOOLS_DIR}/marfk/marfw_workbench.sh\" \"$@\"\n"
+             exec \"Tools/buk/bul_launcher.sh\" \"Tools/marfk/marfw_workbench.sh\" \"$@\"\n"
                 .to_string(),
         ),
         ("Tools/quobk/quobw_workbench.sh", "#!/bin/bash\n".to_string()),

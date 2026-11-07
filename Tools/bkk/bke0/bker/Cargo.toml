@@ -14,9 +14,10 @@
 # limitations under the License.
 
 # THE HELLO EXEMPLAR — the smallest rust crate the kennel carries from its
-# first lock to a green suite, and the one whose app collar shows a binary.
+# first lock to a green suite, and the one whose app collars show a binary.
 #
-# Read it beside its two collars, bkern_app and bkern_suite, in the kit's brood.
+# Read it beside its three collars, bkern_app, bkercn_app and bkern_suite, in the
+# kit's brood.
 # What the kennel owns is stated to cargo on every invocation and appears nowhere
 # here. No pin stands beside this manifest: the pin at the repository root
 # answers for it, as it answers for every crate that does not state its own.
@@ -39,6 +40,13 @@ license = "Apache-2.0"
 [[bin]]
 name = "bker"
 path = "src/main.rs"
+
+# THE BINARY THE ATTENDED APP COLLAR NAMES, bkercn_app: the same crate's second
+# app, which speaks the kennel's own tongue so the launch door attends it as it
+# attends a suite. Named here for the same reason as the first.
+[[bin]]
+name = "bkerc"
+path = "src/bkerc.rs"
 
 # NO DEPENDENCIES, so both collars' tamed lists stand empty and the lock pins
 # this crate alone.

@@ -26,8 +26,9 @@
 //!
 //! ONE SAFE SURFACE PER MODULE. Each module states its own law in its own doc,
 //! and this one states only what they share. The regime reader
-//! (`bkprc_catena`) is one such surface, and the program writers
-//! (`bkprs_scrivener`) are another.
+//! (`bkprc_catena`) is one such surface, the program writers
+//! (`bkprs_scrivener`) are another, and the catch every estate main runs its
+//! body through (`bkprl_lanyard`) is a third.
 //!
 //! IT STANDS BESIDE THE KENNEL rather than inside it. The kennel is its first
 //! consumer and not its owner, so nothing here knows what a collar is.
@@ -39,10 +40,13 @@
 #![allow(non_camel_case_types)]
 
 pub mod bkprc_catena;
+pub mod bkprl_lanyard;
 pub mod bkprs_scrivener;
 
 #[cfg(test)]
 mod bkptc_catena;
+#[cfg(test)]
+mod bkptl_lanyard;
 #[cfg(test)]
 mod bkpts_scrivener;
 

@@ -30,11 +30,14 @@
 # of `tt/`. So each description says what its door DOES, in a line, and the
 # roster below is complete on purpose.
 #
-# THREE ENROLLMENTS ARE NOT DOORS of the collar register: the kennelman, which
+# FIVE ENROLLMENTS ARE NOT DOORS of the collar register: the kennelman, which
 # runs this kit's hurdles outside the kennel; the whistle, which is the bash
-# bootstrap the envelope names interior; and rebed, the readiness converge,
-# whose toolchain half is bash because a gutted toolchain is exactly when no
-# kennel can be built. They stand at the foot of the list for that reason.
+# bootstrap the envelope names interior; rebed, the readiness converge, whose
+# toolchain half is bash because a gutted toolchain is exactly when no kennel
+# can be built; and the hayloft tool's two verbs, bale and unbale, each a mush
+# of the tool's app collar taken as a step. The first three stand at the foot of
+# the list for that reason; the hayloft's two stand beside bleach, the other
+# operator act that reaches past the tree.
 
 set -euo pipefail
 
@@ -93,6 +96,14 @@ zbkz_kindle() {
   # capital as the release door's is, for an act whose reach is the whole
   # station rather than one tree.
   buz_enroll BKZ_BLEACH    "bkw-B" "${z_mod}" "bkcw_bleach"   "param1" "Empties what the kennel keeps on the station for every tree, and this worktree's python environments. Run it deliberately, on your own word: nothing calls it, and rebed lays it all again."
+
+  # BALE AND UNBALE, the hayloft tool's two verbs. Neither is a door of the
+  # collar register: each converges the kennel and execs its own mush of the
+  # tool's app collar as one step, so no tabtarget nests and the writer's pin
+  # holds. Bale's letter is its word's capital, b being taken and B bleach's;
+  # unbale's is the u of its word, free in both cases.
+  buz_enroll BKZ_BALE      "bkw-A" "${z_mod}" "bkcw_bale"     "param1" "Packs what dispatches have left in their two working folders, dated on or before the day given, into one tar.gz in the folder BURS_HAYLOFT names, removing the originals only once the archive reads back equal to them; a missing, malformed or too recent day is refused, naming the latest day it takes."
+  buz_enroll BKZ_UNBALE    "bkw-u" "${z_mod}" "bkcw_unbale"   "param1" "Lists the archives in the folder BURS_HAYLOFT names, each ready to paste as an argument; given an archive and a folder that is empty or absent, unpacks the archive there."
 
   # THE NINTH DOOR, contracted at the nesting lope: the derby's set narrowed by
   # selection patterns across every course at once. The letter is f, its word's

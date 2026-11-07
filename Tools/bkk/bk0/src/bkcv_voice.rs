@@ -91,6 +91,25 @@ pub struct bkcv_Tally {
     pub passed: usize,
     /// The names of the cases reported as having failed, in the order seen.
     pub failed: Vec<String>,
+    /// The names of the cases a tenant reported skipped, in the order seen.
+    /// COUNTED APART AND NEVER AS DRIVEN: a skipped case adds nothing to `ran`,
+    /// `passed` or `failed`, so a run whose every case skipped counted nothing
+    /// and reads hollow.
+    pub skipped: Vec<String>,
+}
+
+/// How a recognizer read one case's outcome.
+///
+/// THREE VALUES, AND THE THIRD IS A ROUGH EDGE CARRIED IN THE OPEN. Only the
+/// kennel's own tongue reports a skip; the three foreign recognizers step over
+/// their runners' skip words on their membranes' own rulings, so they answer
+/// passed or failed alone. A skip is named in the verdict so it stays legible,
+/// and it never moves the exit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum bkcv_Outcome {
+    Passed,
+    Failed,
+    Skipped,
 }
 
 /// One case as a recognizer read it off the child's stream.
@@ -98,8 +117,8 @@ pub struct bkcv_Tally {
 pub struct bkcv_Case {
     /// The case's full name as the runner spelled it.
     pub name: String,
-    /// Whether the runner reported it as having passed.
-    pub passed: bool,
+    /// What the runner reported of it.
+    pub outcome: bkcv_Outcome,
 }
 
 /// The output shapes the kennel recognizes, as a collar's tongue field declares
@@ -107,6 +126,11 @@ pub struct bkcv_Case {
 /// runner being askable for an output shape other than its own.
 pub const BKCV_TONGUE_NEXTEST: &str = "bknre_nextest";
 pub const BKCV_TONGUE_HARNESS: &str = "bknre_harness";
+
+/// The kennel's own tongue, which an app collar declares to be attended: one
+/// bare line per case, a verdict word and then the case name. Admitted on an app
+/// alone, the suite tongues being its runners' shapes.
+pub const BKCV_TONGUE_PASSFAIL: &str = "bknre_passfail";
 
 /// The python family's tongue, CITED FROM THE FAMILY THAT DECLARES IT rather
 /// than spelled again here. The two rust tongues are spelled twice across this
@@ -154,9 +178,9 @@ fn zbkcv_nextest_case(line: &str) -> Option<bkcv_Case> {
     let mut words = line.split_whitespace();
     let status = words.next()?;
 
-    let passed = match status {
-        "PASS" => true,
-        "FAIL" | "TIMEOUT" | "SIGSEGV" | "ABORT" => false,
+    let outcome = match status {
+        "PASS" => bkcv_Outcome::Passed,
+        "FAIL" | "TIMEOUT" | "SIGSEGV" | "ABORT" => bkcv_Outcome::Failed,
         // LEAK is a passing case whose process left something behind, and SLOW
         // is a progress notice about a case still running rather than a report
         // of one finished. Neither is a verdict and both are stepped over: a
@@ -195,7 +219,7 @@ fn zbkcv_nextest_case(line: &str) -> Option<bkcv_Case> {
 
     Some(bkcv_Case {
         name: rest.join(" "),
-        passed,
+        outcome,
     })
 }
 
@@ -249,9 +273,9 @@ fn zbkcv_harness_case(line: &str) -> Option<bkcv_Case> {
     // still be a guess about a name, and the outcome is always last.
     let (name, outcome) = body.rsplit_once(" ... ")?;
 
-    let passed = match outcome.trim() {
-        "ok" => true,
-        "FAILED" => false,
+    let outcome = match outcome.trim() {
+        "ok" => bkcv_Outcome::Passed,
+        "FAILED" => bkcv_Outcome::Failed,
         // `ignored` and the bench forms are outside the surveyed signature.
         _ => return None,
     };
@@ -262,7 +286,50 @@ fn zbkcv_harness_case(line: &str) -> Option<bkcv_Case> {
 
     Some(bkcv_Case {
         name: name.trim().to_string(),
-        passed,
+        outcome,
+    })
+}
+
+/// Read one line of the kennel's OWN tongue and answer the case it reports, if
+/// it reports one.
+///
+/// THE KENNEL'S OWN DIALECT AND NO FOREIGN SIGNATURE, so it carries no membrane:
+/// the grammar is ruled here rather than surveyed off a neighbour's rendering.
+/// A case line opens on a verdict word — exactly `pass`, `fail` or `skip` — then
+/// one space, and the case name is the rest of the line, trimmed and never
+/// empty:
+///
+/// ```text
+/// pass the position is forty hex characters
+/// skip a case skipped on purpose
+/// ```
+///
+/// ANY OTHER LINE IS NOT A CASE AND YIELDS NOTHING — a line opening on any other
+/// word, on whitespace, or on a verdict word with no name behind it. A tenant
+/// speaking this tongue is free to print whatever else it likes around its case
+/// lines, and the record keeps it all.
+///
+/// THE SKIP WORD IS A TENANT'S ROUGH EDGE and never a word of the test dialect:
+/// a skipped case is counted apart and named in the verdict so it stays legible,
+/// until the skip is ruled up front.
+fn zbkcv_passfail_case(line: &str) -> Option<bkcv_Case> {
+    let (word, name) = line.split_once(' ')?;
+
+    let outcome = match word {
+        "pass" => bkcv_Outcome::Passed,
+        "fail" => bkcv_Outcome::Failed,
+        "skip" => bkcv_Outcome::Skipped,
+        _ => return None,
+    };
+
+    let name = name.trim();
+    if name.is_empty() {
+        return None;
+    }
+
+    Some(bkcv_Case {
+        name: name.to_string(),
+        outcome,
     })
 }
 
@@ -342,9 +409,9 @@ fn zbkcv_pytest_case(line: &str) -> Option<bkcv_Case> {
 
     let (name, outcome) = body.rsplit_once(char::is_whitespace)?;
 
-    let passed = match outcome.trim() {
-        "PASSED" => true,
-        "FAILED" | "ERROR" => false,
+    let outcome = match outcome.trim() {
+        "PASSED" => bkcv_Outcome::Passed,
+        "FAILED" | "ERROR" => bkcv_Outcome::Failed,
         // Outside the surveyed signature, on the ruling stated above.
         _ => return None,
     };
@@ -356,7 +423,7 @@ fn zbkcv_pytest_case(line: &str) -> Option<bkcv_Case> {
 
     Some(bkcv_Case {
         name: name.to_string(),
-        passed,
+        outcome,
     })
 }
 
@@ -401,6 +468,7 @@ pub fn bkcv_case(tongue: &str, line: &str) -> Result<Option<bkcv_Case>, String> 
         BKCV_TONGUE_NEXTEST => Ok(zbkcv_nextest_case(line)),
         BKCV_TONGUE_HARNESS => Ok(zbkcv_harness_case(line)),
         BKCV_TONGUE_PYTEST => Ok(zbkcv_pytest_case(line)),
+        BKCV_TONGUE_PASSFAIL => Ok(zbkcv_passfail_case(line)),
         other => Err(format!(
             "the collar declares the tongue '{}', which is no output shape the kennel \
              recognizes — it renders what a collar says and infers none, so a value outside \
@@ -1318,24 +1386,37 @@ impl bkcv_Voice {
                 return Ok(());
             }
 
-            self.tally.ran += 1;
-            if case.passed {
-                self.tally.passed += 1;
-            } else {
-                self.tally.failed.push(case.name.clone());
+            // A SKIPPED CASE IS COUNTED APART AND NEVER AS DRIVEN, so it adds
+            // nothing a reader would take for work done and cannot silence the
+            // hollow gate.
+            match case.outcome {
+                bkcv_Outcome::Passed => {
+                    self.tally.ran += 1;
+                    self.tally.passed += 1;
+                }
+                bkcv_Outcome::Failed => {
+                    self.tally.ran += 1;
+                    self.tally.failed.push(case.name.clone());
+                }
+                bkcv_Outcome::Skipped => self.tally.skipped.push(case.name.clone()),
             }
 
             // THE QUIET FLAVOR SPEAKS ONLY OF FAILURE, and speaks of it once per
             // case with the depth at a path. An agent reading test output pays
             // for every line out of its working context, so failure output is
-            // bounded exactly as green output is.
+            // bounded exactly as green output is. A skipped case is said by the
+            // verdict, which names every one.
             if self.throat.verbose {
                 self.throat.zbkcv_say(&format!(
                     "  {} {}",
-                    if case.passed { "pass" } else { "FAIL" },
+                    match case.outcome {
+                        bkcv_Outcome::Passed => "pass",
+                        bkcv_Outcome::Failed => "FAIL",
+                        bkcv_Outcome::Skipped => "skip",
+                    },
                     case.name, //
                 ));
-            } else if !case.passed {
+            } else if case.outcome == bkcv_Outcome::Failed {
                 let failure = self.zbkcv_failure(&case.name);
                 self.throat.zbkcv_say(&failure);
             }
@@ -1422,31 +1503,54 @@ pub fn bkcv_unfinished(code: Option<i32>, cut: Option<&str>, tally: &bkcv_Tally)
 /// pipe stands in the way; the counts are what this door itself saw reported,
 /// never a summary read back off the child. A CUT STREAM IS RED OVER A CLEAN
 /// EXIT, since the counts it would print were taken over half a run.
+///
+/// A SKIPPED CASE IS NAMED AND MOVES NOTHING. Where a tenant reported any, a
+/// clause after the counts names each one, on the unhitched course's precedent
+/// at the walks; the exit decides green or red exactly as it would without them.
 pub(crate) fn zbkcv_verdict(
     tally: &bkcv_Tally,
     code: Option<i32>,
     cut: Option<&str>,
     hist: Option<&str>,
 ) -> String {
+    let skipped = zbkcv_skipped_said(&tally.skipped);
+
     match bkcv_unfinished(code, cut, tally) {
         Some(clause) => match hist {
             Some(path) => format!(
-                "RED: {}; the depth is at {}",
+                "RED: {}{}; the depth is at {}",
                 clause,
+                skipped,
                 path, //
             ),
             None => format!(
-                "RED: {}",
-                clause, //
+                "RED: {}{}",
+                clause,
+                skipped, //
             ),
         },
         None => format!(
-            "{}: {} ran, {} passed, {} failed",
+            "{}: {} ran, {} passed, {} failed{}",
             if code == Some(0) { "green" } else { "RED" },
             tally.ran,
             tally.passed,
-            tally.failed.len(), //
+            tally.failed.len(),
+            skipped, //
         ),
+    }
+}
+
+/// The clause a verdict carries where a tenant skipped cases, and nothing where
+/// it skipped none: each skipped case by name, counted apart from what ran.
+fn zbkcv_skipped_said(skipped: &[String]) -> String {
+    if skipped.is_empty() {
+        String::new()
+    } else {
+        format!(
+            "; {} case(s) skipped and not counted as run: {}",
+            skipped.len(),
+            skipped.join(", "), //
+        )
     }
 }
 

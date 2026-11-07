@@ -250,6 +250,9 @@ pub const BKG_BUS_LOOSEBOX_POSSESSIVE_LETTRINE: &str = bkg_bus_loosebox_possessi
 macro_rules! bkg_bkck_suite_pediment { () => { "bkw-k" }; }
 pub(crate) use bkg_bkck_suite_pediment;
 pub const BKG_BKCK_SUITE_PEDIMENT: &str = bkg_bkck_suite_pediment!();
+macro_rules! bkg_bkcw_bale_pediment { () => { "bkw-A" }; }
+pub(crate) use bkg_bkcw_bale_pediment;
+pub const BKG_BKCW_BALE_PEDIMENT: &str = bkg_bkcw_bale_pediment!();
 macro_rules! bkg_bkcw_bleach_pediment { () => { "bkw-B" }; }
 pub(crate) use bkg_bkcw_bleach_pediment;
 pub const BKG_BKCW_BLEACH_PEDIMENT: &str = bkg_bkcw_bleach_pediment!();
@@ -265,6 +268,9 @@ pub const BKG_BKCW_REBED_PEDIMENT: &str = bkg_bkcw_rebed_pediment!();
 macro_rules! bkg_bkcw_scent_pediment { () => { "bkw-c" }; }
 pub(crate) use bkg_bkcw_scent_pediment;
 pub const BKG_BKCW_SCENT_PEDIMENT: &str = bkg_bkcw_scent_pediment!();
+macro_rules! bkg_bkcw_unbale_pediment { () => { "bkw-u" }; }
+pub(crate) use bkg_bkcw_unbale_pediment;
+pub const BKG_BKCW_UNBALE_PEDIMENT: &str = bkg_bkcw_unbale_pediment!();
 macro_rules! bkg_delouse_pediment { () => { "bkw-n" }; }
 pub(crate) use bkg_delouse_pediment;
 pub const BKG_DELOUSE_PEDIMENT: &str = bkg_delouse_pediment!();
