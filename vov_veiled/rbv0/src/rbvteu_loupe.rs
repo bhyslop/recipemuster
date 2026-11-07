@@ -81,7 +81,7 @@ const ZRBVTEU_SCAN_PLANTED: &[&str] = &[
 /// prose line with no withheld name, and a same-stem non-document extension.
 const ZRBVTEU_SCAN_CLEAN: &[&str] = &[
     "start with the README.md at the project root",
-    "the terrier snarves which citizens hold which mantles",
+    "the terrier must snarve which citizens hold which mantles",
     "ZZQ-Example.txt is not a withheld document", //
 ];
 
