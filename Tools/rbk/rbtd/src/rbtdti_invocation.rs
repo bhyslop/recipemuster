@@ -593,7 +593,7 @@ fn rbttei_invoke_global_passes_extra_env() {
         "{}.DirectorOrdains.sh",
         RBTGEC_ORDAIN_HALLMARK, //
     );
-    rbttei_write_script(&tt, &script_name, "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n");
+    rbttei_write_script(&tt, &script_name, "echo \"frobwick:${BURE_TWEAK_NAME}\"\n");
 
     let burv_temp_root = tmp.join("burv-temp");
     let burv_output_root = tmp.join("burv-output");
@@ -606,7 +606,7 @@ fn rbttei_invoke_global_passes_extra_env() {
     )
     .unwrap();
 
-    assert!(result.stdout.contains("TWEAK:buost_example"));
+    assert!(result.stdout.contains("frobwick:buost_example"));
 
     let _ = std::fs::remove_dir_all(&tmp);
 }
@@ -627,7 +627,7 @@ fn rbttei_credless_armed_applies_guard_env() {
             "{}.DirectorOrdains.sh",
             RBTGEC_ORDAIN_HALLMARK, //
         ),
-        "echo \"TWEAK:${BURE_TWEAK_NAME}\"\n",
+        "echo \"frobwick:${BURE_TWEAK_NAME}\"\n",
     );
 
     let burv_temp_root = tmp.join("burv-temp");
@@ -641,7 +641,7 @@ fn rbttei_credless_armed_applies_guard_env() {
     let result = result.unwrap();
     assert!(
         result.stdout.contains(&format!(
-            "TWEAK:{}",
+            "frobwick:{}",
             RBTGEC_TWEAK_CREDLESS_GUARD, //
         )),
         "guard env missing from spawned tabtarget: {}",
@@ -697,7 +697,7 @@ fn rbttei_credless_disarmed_leaves_tweak_slot_free() {
             "{}.DirectorOrdains.sh",
             RBTGEC_ORDAIN_HALLMARK, //
         ),
-        "echo \"TWEAK:${BURE_TWEAK_NAME:-unset}\"\n",
+        "echo \"frobwick:${BURE_TWEAK_NAME:-unset}\"\n",
     );
 
     let burv_temp_root = tmp.join("burv-temp");
@@ -706,7 +706,7 @@ fn rbttei_credless_disarmed_leaves_tweak_slot_free() {
 
     let result = rbtcei_invoke_global(&mut ctx, RBTGEC_ORDAIN_HALLMARK, &[], &[]).unwrap();
     assert!(
-        result.stdout.contains("TWEAK:unset"),
+        result.stdout.contains("frobwick:unset"),
         "disarmed invoke must not carry the guard: {}",
         result.stdout, //
     );
@@ -721,12 +721,12 @@ fn rbttei_invoke_imprint_finds_correct_target() {
     let tmp = rbtteh_make_scratch("invoke-imprint");
     let tt = rbttei_make_tt_dir(&tmp);
     let charge_tadmor = format!(
-        "{}.Charge.{}.sh",
+        "{}.Zarnell.{}.sh",
         RBTGEC_CRUCIBLE_CHARGE,
         RBTCEM_FIXTURE_TADMOR, //
     );
     let charge_srjcl = format!(
-        "{}.Charge.{}.sh",
+        "{}.Zarnell.{}.sh",
         RBTGEC_CRUCIBLE_CHARGE,
         RBTCEM_FIXTURE_SRJCL, //
     );

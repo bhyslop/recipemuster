@@ -67,11 +67,13 @@ fn rbvtet_parse_accepts_well_formed_content() {
 fn rbvtet_parse_refuses_malformed_content() {
     assert!(
         rbvcet_parse("").is_err(),
-        "an empty cachet must refuse — every field is required", //
+        "an empty {} must refuse — every field is required",
+        crate::rbvgeb_breviary::RBVGEB_CACHET_BASE, //
     );
     assert!(
         rbvcet_parse("RBTHDR_CACHET_TREE=abc\n").is_err(),
-        "a cachet missing tip/maintainer_head/stamp must refuse", //
+        "a {} missing tip/maintainer_head/stamp must refuse",
+        crate::rbvgeb_breviary::RBVGEB_CACHET_BASE, //
     );
     assert!(
         rbvcet_parse("RBTHDR_CACHET_TREE=abc\nnot-a-key-value-line\n").is_err(),
@@ -150,7 +152,11 @@ fn rbvtet_tree_hash_mismatch_refuses() {
         "different-tree-hash-after-recut",
         rbvcew_World::Agora,
     )
-    .expect_err("a drifted tree hash (a re-cut regulus) must be refused");
+    .expect_err(concat!(
+        "a drifted tree hash (a re-cut ",
+        crate::rbvgeb_breviary::rbvgeb_regulus_base!(),
+        ") must be refused"
+    ));
     assert!(
         err.contains("granted-tree-hash"),
         "the refusal must name the granted tree: {}",
