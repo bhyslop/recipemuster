@@ -25,6 +25,11 @@
 // stay out of every green suite. In the assay asterism: the calibrant needles
 // are streaked on this touchstone and compared against known verdicts.
 //
+// Case verdicts are asserted as whole tongue lines composed by the engine's
+// own rbtcee_tongue_line, so the expectation and the emission share one
+// spelling; trace files and the tariff and census lines keep the
+// RBTCEE_WORD_* words.
+//
 // Assertion surfaces: BUK dispatch folds the coordinator's stderr into stdout
 // (2>&1 through its logging loop), so a child rbt's diagnostics — which the
 // RBTDRG discipline routes entirely to stderr — arrive on the PARENT'S
@@ -58,6 +63,7 @@ use crate::rbtcee_engine::{
     rbtcee_Fixture,
     rbtcee_Tariff,
     rbtcee_Verdict,
+    rbtcee_tongue_line,
     RBTCEE_FLAG_KEEP_GOING,
     RBTCEE_TRACE_FILE,
     RBTCEE_WORD_FAILED,
@@ -81,11 +87,13 @@ use crate::rbtcem_manifest::{
 };
 use crate::rbtcep_platform::rbtcep_native_to_posix;
 use crate::rbtchl_calibrant::{
+    RBTCHL_CASES_COVERAGE_ALIGNED,
     RBTCHL_CASES_COVERAGE_UNDECLARED,
     RBTCHL_CASES_COVERAGE_UNUSED,
     RBTCHL_CASES_FAIL_FAST,
     RBTCHL_CASES_PROGRESSING,
     RBTCHL_CASES_SENTINEL,
+    RBTCHL_CASES_TARIFF_DRIFT,
     RBTCHL_CASES_VERDICTS,
     RBTCHL_OUTPUT_FILE,
     RBTCHL_SENTINEL_FILE, //
@@ -260,6 +268,45 @@ fn zrbtcct_expect_lacks(hay: &str, needle: &str, what: &str) -> Result<(), rbtce
     )
 }
 
+/// One case's tongue line, standing whole on a line of its own: a name that
+/// prefixes another case's name never satisfies it.
+fn zrbtcct_expect_case_line(
+    hay: &str,
+    verdict: &rbtcee_Verdict,
+    case_name: &str,
+    what: &str,
+) -> Result<(), rbtcee_Verdict> {
+    let line = rbtcee_tongue_line(verdict, case_name);
+    zrbtcct_expect(
+        hay.lines().any(|l| l.trim_end_matches('\r') == line),
+        format!(
+            "{}: expected the line '{}'\n--- observed tail ---\n{}",
+            what,
+            line,
+            zrbtcct_tail(hay), //
+        ),
+    )
+}
+
+/// The negation of `zrbtcct_expect_case_line`.
+fn zrbtcct_expect_no_case_line(
+    hay: &str,
+    verdict: &rbtcee_Verdict,
+    case_name: &str,
+    what: &str,
+) -> Result<(), rbtcee_Verdict> {
+    let line = rbtcee_tongue_line(verdict, case_name);
+    zrbtcct_expect(
+        !hay.lines().any(|l| l.trim_end_matches('\r') == line),
+        format!(
+            "{}: expected NO line '{}'\n--- observed tail ---\n{}",
+            what,
+            line,
+            zrbtcct_tail(hay), //
+        ),
+    )
+}
+
 fn zrbtcct_expect_nonzero(child: &zrbtcct_Child, what: &str) -> Result<(), rbtcee_Verdict> {
     zrbtcct_expect(
         child.exit_code != 0,
@@ -355,8 +402,8 @@ fn zrbtcct_run(body: impl FnOnce() -> Result<(), rbtcee_Verdict>) -> rbtcee_Verd
 // the case arrays (stringify!'d fn names), so a calibrant rename tracks here
 // automatically.
 
-/// Single-case child running the deterministic pass case: exit 0, PASSED on
-/// the operator stream, trace file recording the verdict.
+/// Single-case child running the deterministic pass case: exit 0, its pass
+/// line on the operator stream, trace file recording the verdict.
 fn rbtcct_verdict_pass_exits_zero(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "single-pass";
@@ -370,8 +417,7 @@ fn rbtcct_verdict_pass_exits_zero(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_zero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "single-pass stdout")?;
-        zrbtcct_expect_contains(&child.stdout, pass_case, "single-pass stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Pass, pass_case, "single-pass stdout")?;
         let trace = zrbtcct_child_case_dir(&child, label, pass_case)?.join(RBTCEE_TRACE_FILE);
         let content = zrbtcct_read(&trace, "single-pass trace")?;
         zrbtcct_expect_contains(&content, RBTCEE_WORD_PASSED, "single-pass trace content")
@@ -379,7 +425,7 @@ fn rbtcct_verdict_pass_exits_zero(dir: &Path) -> rbtcee_Verdict {
 }
 
 /// Single-case child running the deterministic skip case: a skip is not a
-/// failure, so the child exits 0 with SKIPPED on the operator stream.
+/// failure, so the child exits 0 with its skip line on the operator stream.
 fn rbtcct_verdict_skip_exits_zero(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "single-skip";
@@ -393,7 +439,7 @@ fn rbtcct_verdict_skip_exits_zero(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_zero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_SKIPPED, "single-skip stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Skip(String::new()), skip_case, "single-skip stdout")?;
         let trace = zrbtcct_child_case_dir(&child, label, skip_case)?.join(RBTCEE_TRACE_FILE);
         let content = zrbtcct_read(&trace, "single-skip trace")?;
         zrbtcct_expect_contains(&content, RBTCEE_WORD_SKIPPED, "single-skip trace content")
@@ -418,10 +464,8 @@ fn rbtcct_verdict_fail_exits_nonzero(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "verdicts-default stdout")?;
-        zrbtcct_expect_contains(&child.stdout, pass_case, "verdicts-default stdout")?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_FAILED, "verdicts-default stdout")?;
-        zrbtcct_expect_contains(&child.stdout, fail_case, "verdicts-default stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Pass, pass_case, "verdicts-default stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Fail(String::new()), fail_case, "verdicts-default stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
             "calibrant deterministic fail verdict",
@@ -444,6 +488,7 @@ fn rbtcct_verdict_fail_exits_nonzero(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_verdict_keep_going_runs_all(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "verdicts-keep-going";
+        let skip_case = RBTCHL_CASES_VERDICTS[2].name;
         let output_case = RBTCHL_CASES_VERDICTS[3].name;
         let child = zrbtcct_child(
             dir,
@@ -454,9 +499,10 @@ fn rbtcct_verdict_keep_going_runs_all(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(
+        zrbtcct_expect_case_line(
             &child.stdout,
-            RBTCEE_WORD_SKIPPED,
+            &rbtcee_Verdict::Skip(String::new()),
+            skip_case,
             "verdicts-keep-going stdout",
         )?;
         zrbtcct_expect_contains(
@@ -562,18 +608,8 @@ fn rbtcct_progressing_default_runs_fail_fast(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(
-            &child.stdout,
-            RBTCEE_WORD_PASSED,
-            "progressing-default stdout",
-        )?;
-        zrbtcct_expect_contains(&child.stdout, ok_case, "progressing-default stdout")?;
-        zrbtcct_expect_contains(
-            &child.stdout,
-            RBTCEE_WORD_FAILED,
-            "progressing-default stdout",
-        )?;
-        zrbtcct_expect_contains(&child.stdout, err_case, "progressing-default stdout")
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Pass, ok_case, "progressing-default stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Fail(String::new()), err_case, "progressing-default stdout")
     })
 }
 
@@ -656,8 +692,7 @@ fn rbtcct_suite_abort_halts_sentinel(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_FAILED, "suite-abort stdout")?;
-        zrbtcct_expect_contains(&child.stdout, fail_case, "suite-abort stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Fail(String::new()), fail_case, "suite-abort stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
             &format!(
@@ -767,6 +802,7 @@ fn rbtcct_cli_single_usage_lists_fixtures(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_coverage_aligned_exits_zero(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "coverage-aligned";
+        let case_name = RBTCHL_CASES_COVERAGE_ALIGNED[0].name;
         let child = zrbtcct_child(
             dir,
             label,
@@ -776,7 +812,7 @@ fn rbtcct_coverage_aligned_exits_zero(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_zero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "coverage-aligned stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Pass, case_name, "coverage-aligned stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
             &format!(
@@ -803,12 +839,7 @@ fn rbtcct_coverage_undeclared_fails_naming_colophon(dir: &Path) -> rbtcee_Verdic
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(
-            &child.stdout,
-            RBTCEE_WORD_FAILED,
-            "coverage-undeclared stdout",
-        )?;
-        zrbtcct_expect_contains(&child.stdout, case_name, "coverage-undeclared stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Fail(String::new()), case_name, "coverage-undeclared stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
             &format!(
@@ -835,8 +866,7 @@ fn rbtcct_coverage_unused_fails_naming_colophon(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_PASSED, "coverage-unused stdout")?;
-        zrbtcct_expect_contains(&child.stdout, case_name, "coverage-unused stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Pass, case_name, "coverage-unused stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
             &format!(
@@ -864,12 +894,12 @@ fn rbtcct_coverage_unused_single_case_exempt(dir: &Path) -> rbtcee_Verdict {
             false,
         )?;
         zrbtcct_expect_zero(&child, label)?;
-        zrbtcct_expect_contains(
+        zrbtcct_expect_case_line(
             &child.stdout,
-            RBTCEE_WORD_PASSED,
+            &rbtcee_Verdict::Pass,
+            case_name,
             "coverage-unused-single stdout",
         )?;
-        zrbtcct_expect_contains(&child.stdout, case_name, "coverage-unused-single stdout")?;
         zrbtcct_expect_lacks(
             &child.stdout,
             "declared but never invoked",
@@ -895,6 +925,7 @@ fn rbtcct_coverage_unused_single_case_exempt(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "tariff-drift";
+        let skip_case = RBTCHL_CASES_TARIFF_DRIFT[0].name;
         let child = zrbtcct_child(
             dir,
             label,
@@ -907,7 +938,8 @@ fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
         // The skip is what would have carried it to a zero exit — assert it
         // happened, so a needle that started failing its case instead (and so
         // reddened for the wrong reason) cannot pass this case.
-        zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_SKIPPED, "tariff-drift stdout")?;
+        zrbtcct_expect_case_line(&child.stdout, &rbtcee_Verdict::Skip(String::new()), skip_case, "tariff-drift stdout")?;
+        // The count-drift tariff line, which still speaks the FAILED word.
         zrbtcct_expect_contains(&child.stdout, RBTCEE_WORD_FAILED, "tariff-drift stdout")?;
         zrbtcct_expect_contains(
             &child.stdout,
@@ -931,6 +963,7 @@ fn rbtcct_tariff_drift_fails_naming_counts(dir: &Path) -> rbtcee_Verdict {
 fn rbtcct_stream_placement_diags_on_stderr(dir: &Path) -> rbtcee_Verdict {
     zrbtcct_run(|| {
         let label = "stream-placement";
+        let fail_case = RBTCHL_CASES_VERDICTS[1].name;
         let child = zrbtcct_child(
             dir,
             label,
@@ -940,13 +973,13 @@ fn rbtcct_stream_placement_diags_on_stderr(dir: &Path) -> rbtcee_Verdict {
             true,
         )?;
         zrbtcct_expect_nonzero(&child, label)?;
-        zrbtcct_expect_contains(&child.stderr, RBTCEE_WORD_FAILED, "stream-placement stderr")?;
+        zrbtcct_expect_case_line(&child.stderr, &rbtcee_Verdict::Fail(String::new()), fail_case, "stream-placement stderr")?;
         zrbtcct_expect_contains(
             &child.stderr,
             "calibrant deterministic fail verdict",
             "stream-placement stderr",
         )?;
-        zrbtcct_expect_lacks(&child.stdout, RBTCEE_WORD_FAILED, "stream-placement stdout")
+        zrbtcct_expect_no_case_line(&child.stdout, &rbtcee_Verdict::Fail(String::new()), fail_case, "stream-placement stdout")
     })
 }
 

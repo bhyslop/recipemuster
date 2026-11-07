@@ -20,7 +20,9 @@
 // All theurge emissions route through these macros, written to stderr.
 // Stdout is reserved for future tabtarget-bypass needs.
 //
-// Format: `[LEVEL] [file:line] message`
+// Format: `[LEVEL] [file:line] message`, save the bare form, which writes
+// its line exactly as given with no level and no position, for a line another
+// program reads as a whole.
 //
 // Suffix families implemented: `_now` only. `_if` and comparison variants
 // can be added as callers grow a need for them.
@@ -49,6 +51,17 @@ pub fn zrbtcel_emit(level: &str, file: &str, line: u32, msg: &str) {
         stderr,
         "{}",
         zrbtcel_format(level, file, line, msg), //
+    );
+}
+
+/// Write one line to stderr exactly as given: no level, no position.
+#[doc(hidden)]
+pub fn zrbtcel_emit_bare(msg: &str) {
+    let mut stderr = std::io::stderr().lock();
+    let _ = writeln!(
+        stderr,
+        "{}",
+        msg, //
     );
 }
 
@@ -83,6 +96,15 @@ macro_rules! rbtcel_info_now {
         $crate::rbtcel_log::zrbtcel_emit(
             $crate::rbtcel_log::RBTCEL_LEVEL_INFO,
             file!(), line!(),
+            &format!($($arg)*),
+        )
+    };
+}
+
+#[macro_export]
+macro_rules! rbtcel_bare_now {
+    ($($arg:tt)*) => {
+        $crate::rbtcel_log::zrbtcel_emit_bare(
             &format!($($arg)*),
         )
     };

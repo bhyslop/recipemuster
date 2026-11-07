@@ -566,7 +566,7 @@ fn rbtm_run_single(args: &[String]) -> ExitCode {
     };
 
     let colors = rbtcee_detect_colors();
-    let result = match rbtcee_run_single_case(case, &colors, &roots.trace_root) {
+    let result = match rbtcee_run_single_case(case, &roots.trace_root) {
         Ok(r) => r,
         Err(msg) => rbt::rbtcel_fatal_now!(
             "rbt: case execution error: {}",

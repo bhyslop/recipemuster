@@ -65,7 +65,7 @@ fn rbttee_counts_all_verdict_types() {
     ];
 
     let tmp = rbtteh_make_scratch("counts");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 1);
     assert_eq!(result.skipped, 1);
@@ -86,7 +86,7 @@ fn rbttee_fail_fast_stops_after_first_failure() {
     ];
 
     let tmp = rbtteh_make_scratch("failfast");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, true, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, true, &tmp).unwrap();
     assert_eq!(result.failed, 1);
     assert_eq!(result.passed, 0);
     let _ = std::fs::remove_dir_all(&tmp);
@@ -110,7 +110,7 @@ fn rbttee_fail_fast_reports_unreached_cases() {
     ];
 
     let tmp = rbtteh_make_scratch("unreached");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, true, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, true, &tmp).unwrap();
     assert_eq!(result.registered, 3);
     assert_eq!(result.unreached, vec!["un-p1", "un-p2"]);
     let _ = std::fs::remove_dir_all(&tmp);
@@ -130,7 +130,7 @@ fn rbttee_full_reach_leaves_unreached_empty() {
     ];
 
     let tmp = rbtteh_make_scratch("fullreach");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, true, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, true, &tmp).unwrap();
     assert_eq!(result.registered, 2);
     assert!(result.unreached.is_empty());
     let _ = std::fs::remove_dir_all(&tmp);
@@ -150,7 +150,7 @@ fn rbttee_trace_files_written() {
     ];
 
     let tmp = rbtteh_make_scratch("trace");
-    let _ = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let _ = rbtcee_run_cases(CASES, false, &tmp).unwrap();
 
     let pass_trace = std::fs::read_to_string(tmp.join("traced-pass").join("trace.txt")).unwrap();
     assert!(pass_trace.contains("PASSED"));
@@ -180,7 +180,7 @@ fn rbttee_cases_run_in_declaration_order() {
     ];
 
     let tmp = rbtteh_make_scratch("order");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.skipped, 1);
     assert_eq!(result.failed, 0);
@@ -193,7 +193,7 @@ fn rbttee_cases_run_in_declaration_order() {
 fn rbttee_zero_cases() {
     static CASES: &[rbtcee_Case] = &[];
     let tmp = rbtteh_make_scratch("zerocases");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 0);
@@ -218,7 +218,7 @@ fn rbttee_all_skip() {
     ];
 
     let tmp = rbtteh_make_scratch("allskip");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 3);
@@ -233,7 +233,7 @@ fn rbttee_single_case_pass() {
     }];
 
     let tmp = rbtteh_make_scratch("solopass");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 1);
     assert_eq!(result.failed, 0);
     assert_eq!(result.skipped, 0);
@@ -248,7 +248,7 @@ fn rbttee_single_case_fail() {
     }];
 
     let tmp = rbtteh_make_scratch("solofail");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 0);
     assert_eq!(result.failed, 1);
     assert_eq!(result.skipped, 0);
@@ -279,7 +279,7 @@ fn rbttee_run_all_executes_every_case_despite_failures() {
     ];
 
     let tmp = rbtteh_make_scratch("runall");
-    let result = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let result = rbtcee_run_cases(CASES, false, &tmp).unwrap();
     assert_eq!(result.passed, 2);
     assert_eq!(result.failed, 2);
     // All four case dirs were created — every case ran
@@ -311,7 +311,7 @@ fn rbttee_temp_dirs_are_distinct_and_isolated() {
     ];
 
     let tmp = rbtteh_make_scratch("isolation");
-    let _ = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let _ = rbtcee_run_cases(CASES, false, &tmp).unwrap();
 
     let dir_a = tmp.join("iso-a");
     let dir_b = tmp.join("iso-b");
@@ -415,7 +415,7 @@ fn rbttee_trace_file_skip_contains_reason() {
     }];
 
     let tmp = rbtteh_make_scratch("skiptrace");
-    let _ = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let _ = rbtcee_run_cases(CASES, false, &tmp).unwrap();
 
     let trace = std::fs::read_to_string(tmp.join("traced-skip").join("trace.txt")).unwrap();
     assert!(trace.contains("SKIPPED"));
@@ -438,7 +438,7 @@ fn rbttee_case_output_files_survive_in_trace_dir() {
     }];
 
     let tmp = rbtteh_make_scratch("caseoutput");
-    let _ = rbtcee_run_cases(CASES, &RBTTEE_COLORS, false, &tmp).unwrap();
+    let _ = rbtcee_run_cases(CASES, false, &tmp).unwrap();
 
     let output = std::fs::read_to_string(tmp.join("output-case").join("output.txt")).unwrap();
     assert!(output.contains("custom output data"));
@@ -774,7 +774,7 @@ fn rbttee_run_single_case_ignores_unused_declared_colophons() {
         &[],
     );
 
-    let result = rbtcee_run_single_case(&ZRBTTEE_CENSUS_CASES[0], &RBTTEE_COLORS, &tmp).unwrap();
+    let result = rbtcee_run_single_case(&ZRBTTEE_CENSUS_CASES[0], &tmp).unwrap();
 
     let _ = crate::rbtccc_crucible::rbtccc_take_context();
 
@@ -917,4 +917,30 @@ fn rbttee_run_fixture_skip_suppresses_negative_census() {
     );
 
     let _ = std::fs::remove_dir_all(&tmp);
+}
+
+// ── Tongue line ──────────────────────────────────────────────────
+//
+// The literal shape the kennel's launch door reads, pinned once per verdict:
+// the word, one space, the case name, and nothing else.
+
+#[test]
+fn rbttee_tongue_line_pass() {
+    assert_eq!(rbtcee_tongue_line(&rbtcee_Verdict::Pass, "p1"), "pass p1");
+}
+
+#[test]
+fn rbttee_tongue_line_fail() {
+    assert_eq!(
+        rbtcee_tongue_line(&rbtcee_Verdict::Fail("boom".to_string()), "f1"),
+        "fail f1"
+    );
+}
+
+#[test]
+fn rbttee_tongue_line_skip() {
+    assert_eq!(
+        rbtcee_tongue_line(&rbtcee_Verdict::Skip("nope".to_string()), "s1"),
+        "skip s1"
+    );
 }

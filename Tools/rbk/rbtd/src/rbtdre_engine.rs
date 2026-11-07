@@ -932,9 +932,10 @@ pub fn rbtcee_detect_colors() -> rbtcee_Colors {
 /// the same name the engine writes.
 pub const RBTCEE_TRACE_FILE: &str = "trace.txt";
 
-/// Verdict words as emitted on the operator stream and written into trace
-/// files — single definitions consumed by the case runners here and asserted
-/// against child output by the touchstone surface fixture.
+/// Verdict words as written into trace files and as the tariff, census and
+/// summary lines print them — single definitions consumed here and asserted
+/// against child output by the touchstone surface fixture. A case's own verdict
+/// line is `rbtcee_tongue_line`'s, never these.
 pub const RBTCEE_WORD_PASSED: &str = "PASSED:";
 pub const RBTCEE_WORD_FAILED: &str = "FAILED:";
 pub const RBTCEE_WORD_SKIPPED: &str = "SKIPPED:";
@@ -968,6 +969,28 @@ fn rbtcee_write_trace(case_dir: &Path, display_name: &str, verdict: &rbtcee_Verd
     let _ = std::fs::write(case_dir.join(RBTCEE_TRACE_FILE), content);
 }
 
+// ── Tongue ─────────────────────────────────────────────────────
+
+/// One case's verdict as the line the kennel's launch door reads: a verdict
+/// word, one space, then the case name, with no color and no prefix.
+///
+/// THE LINE IS UNCONDITIONAL AND THE SAME ON EVERY ROAD. It reads no terminal
+/// and no verbosity dial, since a tenant that fell silent would count nothing
+/// and read hollow. The words are spelled here and nowhere else; the runners
+/// print this line and the touchstone builds its expectations from it.
+pub fn rbtcee_tongue_line(verdict: &rbtcee_Verdict, name: &str) -> String {
+    let word = match verdict {
+        rbtcee_Verdict::Pass => "pass",
+        rbtcee_Verdict::Fail(_) => "fail",
+        rbtcee_Verdict::Skip(_) => "skip",
+    };
+    format!(
+        "{} {}",
+        word,
+        name, //
+    )
+}
+
 // ── Dispatch ───────────────────────────────────────────────────
 
 /// Aggregate results from running a fixture's cases.
@@ -995,7 +1018,6 @@ pub struct rbtcee_RunResult {
 /// Run all cases sequentially, dispatching each with per-case temp dir isolation.
 pub fn rbtcee_run_cases(
     cases: &[rbtcee_Case],
-    colors: &rbtcee_Colors,
     fail_fast: bool,
     root_temp: &Path,
 ) -> Result<rbtcee_RunResult, String> {
@@ -1016,26 +1038,16 @@ pub fn rbtcee_run_cases(
 
         let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
         rbtcee_write_trace(&case_dir, case.name, &verdict);
+        crate::rbtcel_bare_now!(
+            "{}",
+            rbtcee_tongue_line(&verdict, case.name), //
+        );
 
         match &verdict {
             rbtcee_Verdict::Pass => {
-                crate::rbtcel_info_now!(
-                    "{}{}{} {}",
-                    colors.green,
-                    RBTCEE_WORD_PASSED,
-                    colors.reset,
-                    case.name, //
-                );
                 passed += 1;
             }
             rbtcee_Verdict::Fail(msg) => {
-                crate::rbtcel_info_now!(
-                    "{}{}{} {}",
-                    colors.red,
-                    RBTCEE_WORD_FAILED,
-                    colors.reset,
-                    case.name, //
-                );
                 crate::rbtcel_info_now!(
                     "{}",
                     msg, //
@@ -1047,13 +1059,6 @@ pub fn rbtcee_run_cases(
                 }
             }
             rbtcee_Verdict::Skip(_) => {
-                crate::rbtcel_info_now!(
-                    "{}{}{} {}",
-                    colors.yellow,
-                    RBTCEE_WORD_SKIPPED,
-                    colors.reset,
-                    case.name, //
-                );
                 skipped += 1;
             }
         }
@@ -1162,7 +1167,7 @@ pub fn rbtcee_run_fixture(
     };
 
     let mut run_result = match setup_result {
-        Ok(()) => rbtcee_run_cases(fixture.cases, colors, fail_fast, root_temp),
+        Ok(()) => rbtcee_run_cases(fixture.cases, fail_fast, root_temp),
         Err(msg) => Err(format!(
             "rbt: fixture '{}' setup failed: {}",
             fixture.name,
@@ -1217,7 +1222,6 @@ pub fn rbtcee_run_fixture(
 /// Run a single case without charge/quench lifecycle.
 pub fn rbtcee_run_single_case(
     case: &rbtcee_Case,
-    colors: &rbtcee_Colors,
     root_temp: &Path,
 ) -> Result<rbtcee_RunResult, String> {
     let case_dir = root_temp.join(case.name);
@@ -1231,38 +1235,15 @@ pub fn rbtcee_run_single_case(
 
     let verdict = rbtcee_run_with_heartbeat(case, &case_dir);
     rbtcee_write_trace(&case_dir, case.name, &verdict);
+    crate::rbtcel_bare_now!(
+        "{}",
+        rbtcee_tongue_line(&verdict, case.name), //
+    );
 
     let (passed, failed, skipped) = match &verdict {
-        rbtcee_Verdict::Pass => {
-            crate::rbtcel_info_now!(
-                "{}{}{} {}",
-                colors.green,
-                RBTCEE_WORD_PASSED,
-                colors.reset,
-                case.name, //
-            );
-            (1, 0, 0)
-        }
-        rbtcee_Verdict::Fail(_) => {
-            crate::rbtcel_info_now!(
-                "{}{}{} {}",
-                colors.red,
-                RBTCEE_WORD_FAILED,
-                colors.reset,
-                case.name, //
-            );
-            (0, 1, 0)
-        }
-        rbtcee_Verdict::Skip(_) => {
-            crate::rbtcel_info_now!(
-                "{}{}{} {}",
-                colors.yellow,
-                RBTCEE_WORD_SKIPPED,
-                colors.reset,
-                case.name, //
-            );
-            (0, 0, 1)
-        }
+        rbtcee_Verdict::Pass => (1, 0, 0),
+        rbtcee_Verdict::Fail(_) => (0, 1, 0),
+        rbtcee_Verdict::Skip(_) => (0, 0, 1),
     };
 
     Ok(rbtcee_RunResult {
