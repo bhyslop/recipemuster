@@ -42,6 +42,10 @@ source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" \
 # Global context variable for info and error messages
 z_buc_context=""
 
+# The tint function's slot: the rendered text zbuc_tint_yawp leaves for its
+# caller. The command module has no kindle, so it is initialized here.
+z_buc_tint=""
+
 # Help mode flag
 z_buc_doc_mode=false
 
@@ -80,9 +84,15 @@ zbuc_tag_args() {
   zbuc_make_tag "${z_d}" "${z_label}"
   local z_arg
   for z_arg in "$@"; do
-    buym_strip_yawp "${z_arg}"
-    printf '%s\n' "${z_buym_format}" || exit 1
+    zbuc_tag_line "${z_arg}"
   done | zbuc_log "${z_buc_tag}" " ---- "
+}
+
+# One argument of zbuc_tag_args, stripped of its yelp spans and printed.
+# Usage: zbuc_tag_line <arg>
+zbuc_tag_line() {
+  buym_strip_yawp "${1:-}"; local -r z_stripped="${z_buym_format}"
+  printf '%s\n' "${z_stripped}" || exit 1
 }
 
 ######################################################################
@@ -91,8 +101,8 @@ zbuc_tag_args() {
 buc_log_args() { zbuc_tag_args 3 "buc_log_args " "$@"; }
 buc_log_pipe() { zbuc_make_tag 3 "buc_log_pipe "; zbuc_log "${z_buc_tag}" " ---- "; }
 
-buc_step()     { zbuc_tag_args 3 "buc_step     " "$@"; zbuc_print 0 BUYC_BRIGHT_WHITE "$*"; }
-buc_code()     { zbuc_tag_args 3 "buc_code     " "$@"; zbuc_print 0 BUYC_CYAN         "$*"; }
+buc_step()     { zbuc_tag_args 3 "buc_step     " "$@"; zbuc_print 0 "${BUYC_BRIGHT_WHITE:-}" "$*"; }
+buc_code()     { zbuc_tag_args 3 "buc_code     " "$@"; zbuc_print 0 "${BUYC_CYAN:-}"         "$*"; }
 buc_info()     { zbuc_tag_args 3 "buc_info     " "$@"; zbuc_print 0 ""                "$@"; }
 buc_debug()    { zbuc_tag_args 3 "buc_debug    " "$@"; zbuc_print 2 ""                "$@"; }
 buc_trace()    { zbuc_tag_args 3 "buc_trace    " "$@"; zbuc_print 3 ""                "$@"; }
@@ -103,8 +113,8 @@ buc_warn() {
 }
 buc_success() {
   zbuc_tag_args 3 "buc_success  " "$@"
-  zbuc_tint BUYC_GREEN "$*"
-  printf '%s\n' "${z_buym_format}" >&2 || buc_die_now
+  zbuc_tint_yawp "${BUYC_GREEN:-}" "$*"; local -r z_tinted="${z_buc_tint}"
+  printf '%s\n' "${z_tinted}" >&2 || buc_die_now
 }
 # Band membrane: $? captured before any command so a `cmd || buc_die_now` chain
 # whose cmd exited with a precision-band code (the band's range in the
@@ -155,8 +165,8 @@ buc_reject() {
 # Sigil-less by design — routes color through the core but skips the context tag.
 buc_bare() {
   zbuc_tag_args 3 "buc_bare     " "$@"
-  zbuc_tint BUYC_CYAN "$*"
-  printf '%s\n' "${z_buym_format}" >&2 || buc_die_now
+  zbuc_tint_yawp "${BUYC_CYAN:-}" "$*"; local -r z_tinted="${z_buc_tint}"
+  printf '%s\n' "${z_tinted}" >&2 || buc_die_now
 }
 
 # Display tabtarget hint: resolves colophon to tabtarget filename
@@ -203,8 +213,8 @@ buc_doc_env_row() {
 
   # In doc mode, show documentation only (no validation — env vars may not be set)
   if zbuc_doc_mode_predicate; then
-    zbuc_tint BUYC_MAGENTA "${1}"
-    echo "  ${z_buym_format}:  ${z_env_var_info}" || buc_die_now
+    zbuc_tint_yawp "${BUYC_MAGENTA:-}" "${1}"; local -r z_tinted="${z_buc_tint}"
+    echo "  ${z_tinted}:  ${z_env_var_info}" || buc_die_now
     return 0
   fi
 
@@ -232,8 +242,8 @@ buc_doc_brief() {
   z_buc_usage_string="${z_buc_context}"
   zbuc_doc_mode_predicate || return 0
   echo || buc_die_now
-  zbuc_tint BUYC_BRIGHT_WHITE "${z_buc_context}"
-  echo "  ${z_buym_format}" || buc_die_now
+  zbuc_tint_yawp "${BUYC_BRIGHT_WHITE:-}" "${z_buc_context}"; local -r z_tinted="${z_buc_tint}"
+  echo "  ${z_tinted}" || buc_die_now
   echo "    brief: ${1}" || buc_die_now
 }
 
@@ -258,8 +268,8 @@ buc_doc_oparm() {
 }
 
 zbuc_usage() {
-  zbuc_tint BUYC_CYAN "${z_buc_usage_string}"
-  printf '    usage: %s\n' "${z_buym_format}" || buc_die_now
+  zbuc_tint_yawp "${BUYC_CYAN:-}" "${z_buc_usage_string}"; local -r z_tinted="${z_buc_tint}"
+  printf '    usage: %s\n' "${z_tinted}" || buc_die_now
 }
 
 # Idiomatic last step of documentation in the bash api.
@@ -278,54 +288,57 @@ buc_set_doc_mode() {
 buc_usage_die() {
   set -e
   # The line zbuc_usage prints, composed here rather than captured from it.
-  zbuc_tint BUYC_CYAN "${z_buc_usage_string}"
-  local -r z_usage="    usage: ${z_buym_format}"
+  zbuc_tint_yawp "${BUYC_CYAN:-}" "${z_buc_usage_string}"; local -r z_cyan="${z_buc_tint}"
+  local -r z_usage="    usage: ${z_cyan}"
   buym_fail_yawp "ERROR:"; local -r z_pfx="${z_buym_yelp}"
-  zbuc_tint "" "${z_pfx} ${z_usage}"
-  printf '%s\n' "${z_buym_format}" || exit 1
+  zbuc_tint_yawp "" "${z_pfx} ${z_usage}"; local -r z_line="${z_buc_tint}"
+  printf '%s\n' "${z_line}" || exit 1
   exit 1
 }
 
-# Tint <text> through the buym core with the ambient named by <BUYC_name>
-# (empty name => default/no ambient).  Sentinel-guarded and name-indirect so
-# every BUYC_* dereference happens after kindle — a cold caller (doc-mode,
-# pre-kindle buc_die_now) is set -u safe.  Resolved string lands in z_buym_format.
-zbuc_tint() {
+# Tint <text> through the buym core with the ambient the caller hands by value
+# (empty => default/no ambient).  Sentinel-guarded; a caller spells a palette
+# constant as "${BUYC_name:-}", so a cold caller (doc-mode, pre-kindle
+# buc_die_now) is set -u safe.  Resolved string lands in z_buc_tint.
+# zbuc_tint_yawp <ambient> <text> — the tinted text
+# → local -r z_tinted="${z_buc_tint}"
+zbuc_tint_yawp() {
   zbuym_sentinel
-  local z_name="${1:-}"
-  local z_ambient=""
-  if test -n "${z_name}"; then
-    local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-    [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
-      || buc_die_now "zbuc_tint: invalid ambient name: '${z_name}'"
-    z_ambient="${!z_name}"
-  fi
-  buym_format_yawp "${z_ambient}" "${2:-}"
+  local -r z_ambient="${1:-}"
+  buym_format_yawp "${z_ambient}" "${2:-}"; local -r z_formatted="${z_buym_format}"
+  z_buc_tint="${z_formatted}"
 }
 
 # Multi-line print function with verbosity control.
-# Usage: zbuc_print <min_verbosity> <BUYC_ambient_name> [message...]
+# Usage: zbuc_print <min_verbosity> <ambient> [message...]
 # Sends output to stderr to avoid interfering with stdout returns.  Each
-# message renders through the shared buym resolver (via zbuc_tint), so inline
+# message renders through the shared buym resolver (via zbuc_tint_yawp), so inline
 # yawp spans resolve, the named ambient and gray operation sigil are
 # terminal-aware, and a cold display does not trip set -u.
 zbuc_print() {
   local z_min_verbosity="${1}"
-  local z_ambient_name="${2}"
+  local -r z_ambient="${2}"
   test "$#" -lt 2 || shift 2
 
   # Always print if z_min_verbosity is -1, otherwise check BURE_VERBOSE
   if test "${z_min_verbosity}" -eq -1 || test "${BURE_VERBOSE:-0}" -ge "${z_min_verbosity}"; then
     zbuym_sentinel
     while test $# -gt 0; do
-      zbuc_tint "${z_ambient_name}" "${1}"
-      if test -n "${z_buc_context}"; then
-        printf '%s%s%s %s\n' "${BUYC_GRAY}" "${z_buc_context}" "${BUYC_RESET}" "${z_buym_format}" >&2 || exit 1
-      else
-        printf '%s\n' "${z_buym_format}" >&2 || exit 1
-      fi
+      zbuc_print_line "${z_ambient}" "${1}"
       test "$#" -eq 0 || shift
     done
+  fi
+}
+
+# One message of zbuc_print: tinted by the named ambient and printed, behind the
+# context sigil when one is set.
+# Usage: zbuc_print_line <ambient> <message>
+zbuc_print_line() {
+  zbuc_tint_yawp "${1:-}" "${2:-}"; local -r z_tinted="${z_buc_tint}"
+  if test -n "${z_buc_context}"; then
+    printf '%s%s%s %s\n' "${BUYC_GRAY}" "${z_buc_context}" "${BUYC_RESET}" "${z_tinted}" >&2 || exit 1
+  else
+    printf '%s\n' "${z_tinted}" >&2 || exit 1
   fi
 }
 
@@ -441,8 +454,8 @@ buc_countdown() {
 
   buc_step "Countdown: ${z_seconds}s to cancel (Ctrl-C)"
   sleep 1 || buc_die_now "sleep failed"
-  zbuc_tint BUYC_BRIGHT_YELLOW "${z_prompt}"
-  printf '%s ' "${z_buym_format}" >/dev/tty || buc_die_now
+  zbuc_tint_yawp "${BUYC_BRIGHT_YELLOW:-}" "${z_prompt}"; local -r z_tinted="${z_buc_tint}"
+  printf '%s ' "${z_tinted}" >/dev/tty || buc_die_now
   local z_i
   for (( z_i=10#${z_seconds}; z_i>=1; z_i-- )); do
     printf '%d... ' "${z_i}" >/dev/tty || buc_die_now
@@ -463,8 +476,8 @@ buc_require() {
   test -z "${BURE_CONFIRM:-}" || buc_die_now "BURE_CONFIRM must be 'skip' or unset, got '${BURE_CONFIRM}'"
 
   sleep 1 || buc_die_now "sleep failed"
-  zbuc_tint BUYC_BRIGHT_YELLOW "${z_prompt}"
-  printf '%s\n' "${z_buym_format}" >&2 || buc_die_now
+  zbuc_tint_yawp "${BUYC_BRIGHT_YELLOW:-}" "${z_prompt}"; local -r z_tinted="${z_buc_tint}"
+  printf '%s\n' "${z_tinted}" >&2 || buc_die_now
   # Newline-terminated by necessity: the non-interactive dispatch relay forwards
   # this stream a whole line at a time, so a partial line never reaches the
   # terminal — the operator would face a blocked read with no visible prompt.

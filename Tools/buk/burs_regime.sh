@@ -52,7 +52,8 @@ zburs_kindle() {
   buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs, relative to the project root"
 
   buv_group_enroll "Shared Tooling"
-  buv_string_enroll  BURS_TACKROOM 1  512  "Required. Root for large immutable tool stores the clones beside this one draw from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here). Relative to the project root, as the log directory is"
+  buv_string_enroll  BURS_TACKROOM 0  512  "Optional. Root for large immutable tool stores the clones beside this one draw from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here); a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the log directory is"
+  buv_string_enroll  BURS_HAYLOFT  0  512  "Optional. Folder where the archives of aged logs and run folders are kept; a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the log directory is"
 
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_
@@ -80,11 +81,15 @@ zburs_enforce() {
   # refusal is the whole mechanism: there is no override. The values read here
   # are the station file's own, the launcher folding no BURV_ override over
   # them ahead of this check — a dispatch's override is absolute by
-  # construction and is the dispatch's, never the station's.
+  # construction and is the dispatch's, never the station's. The two kennel
+  # stores are optional, so each is judged only where the file sets it, and
+  # each refusal's example is the folder its definition suggests.
   [[ "${BURS_LOG_DIR}" != /* ]] \
-    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_LOG_DIR is absolute (${BURS_LOG_DIR}) - the station file names it relative to the project root, e.g. BURS_LOG_DIR=../logs-buk"
-  [[ "${BURS_TACKROOM}" != /* ]] \
-    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_TACKROOM is absolute (${BURS_TACKROOM}) - the station file names it relative to the project root, e.g. BURS_TACKROOM=../tackroom-buk"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_LOG_DIR is absolute (${BURS_LOG_DIR}) - the ${BUBG_STATION_BASE} file names it relative to the project root, e.g. BURS_LOG_DIR=../${BUBG_LOG_DIR_SOCLE}"
+  [[ "${BURS_TACKROOM:-}" != /* ]] \
+    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_TACKROOM is absolute (${BURS_TACKROOM}) - the ${BUBG_STATION_BASE} file names it relative to the project root, e.g. BURS_TACKROOM=../${BUBG_TACKROOM_SOCLE}"
+  [[ "${BURS_HAYLOFT:-}" != /* ]] \
+    || buc_reject "${BUBG_REGIME_DENTIL}" "BURS_HAYLOFT is absolute (${BURS_HAYLOFT}) - the ${BUBG_STATION_BASE} file names it relative to the project root, e.g. BURS_HAYLOFT=../${BUBG_HAYLOFT_SOCLE}"
 }
 
 # eof

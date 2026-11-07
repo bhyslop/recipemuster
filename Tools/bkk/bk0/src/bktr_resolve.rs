@@ -1072,3 +1072,135 @@ fn bktr_an_absent_exergue_refuses_and_names_the_doors() {
     super::bkcr_resolve::bkcr_exergue_stands(lure.bktu_root(), &unstruck.collar)
         .expect("a collar declaring no exergue is never refused for one");
 }
+
+/// AN APP MAY SPEAK THE KENNEL'S OWN TONGUE, and speaking it is what makes the
+/// app attended; an app speaking none stands as it always did, holding the
+/// terminal. Both resolve with no finding.
+#[test]
+fn bktr_an_app_declaring_the_kennels_tongue_or_none_resolves_with_no_finding() {
+    let lure = zbktr_kennel("app-tongue");
+
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
+        &format!(
+            "{}BKRR_TONGUE=\"{}\"\n",
+            ZBKTR_APP,
+            super::bkcv_voice::BKCV_TONGUE_PASSFAIL, //
+        ),
+    );
+    let attended = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "app-lure")
+        .expect("an app speaking the kennel's tongue resolves");
+    assert!(
+        attended.findings.is_empty(),
+        "an app may declare the kennel's own tongue: {:?}",
+        attended.findings, //
+    );
+    assert!(
+        attended.collar.bkcr_attended(),
+        "an app holding a tongue is attended", //
+    );
+
+    lure.bktu_write(&lure.bktu_weaned_at("app-lure/bkrr.env"), ZBKTR_APP);
+    let plain = bkcr_resolve(lure.bktu_root(), &bktr_lured(&lure), "app-lure")
+        .expect("an app speaking no tongue resolves");
+    assert!(
+        plain.findings.is_empty(),
+        "an app declaring no tongue owes none: {:?}",
+        plain.findings, //
+    );
+    assert!(
+        !plain.collar.bkcr_attended(),
+        "an app holding no tongue is not attended", //
+    );
+}
+
+/// A RUNNER'S TONGUE ON AN APP IS A FINDING NAMING WHAT AN APP ADMITS: an app
+/// is no runner, and its reader is the kennel's own.
+#[test]
+fn bktr_a_runner_tongue_on_an_app_is_a_finding_naming_what_an_app_admits() {
+    let lure = zbktr_kennel("app-runner-tongue");
+
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
+        &format!(
+            "{}BKRR_TONGUE=\"{}\"\n",
+            ZBKTR_APP,
+            super::bkcv_voice::BKCV_TONGUE_HARNESS, //
+        ),
+    );
+    let findings = zbktr_findings(&lure, "app-lure");
+
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("an app")
+            && findings[0].contains(super::bkcv_voice::BKCV_TONGUE_PASSFAIL),
+        "it names what an app admits: {}",
+        findings[0], //
+    );
+}
+
+/// THE KENNEL'S OWN TONGUE ON A SUITE IS A FINDING NAMING WHAT A SUITE ADMITS: a
+/// suite speaks the shape of the runner it declares.
+#[test]
+fn bktr_the_kennels_tongue_on_a_suite_is_a_finding_naming_what_a_suite_admits() {
+    let lure = zbktr_kennel("suite-own-tongue");
+
+    lure.bktu_write(
+        &lure.bktu_weaned_at("suite-lure/bkrr.env"),
+        &ZBKTR_SOUND.replace(
+            "BKRR_TONGUE=\"bknre_harness\"",
+            &format!(
+                "BKRR_TONGUE=\"{}\"",
+                super::bkcv_voice::BKCV_TONGUE_PASSFAIL, //
+            ),
+        ),
+    );
+    let findings = zbktr_findings(&lure, "suite-lure");
+
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("a suite")
+            && findings[0].contains(super::bkcv_voice::BKCV_TONGUE_HARNESS)
+            && findings[0].contains(super::bkcv_voice::BKCV_TONGUE_NEXTEST),
+        "it names what a suite admits: {}",
+        findings[0], //
+    );
+}
+
+/// THE RUNNER STAYS A SUITE'S ALONE: the tongue is admitted on an app, and the
+/// runner beside it is still a field of the other kind there.
+#[test]
+fn bktr_a_runner_on_an_app_still_belongs_to_the_other_kind() {
+    let lure = zbktr_kennel("app-runner");
+
+    lure.bktu_write(
+        &lure.bktu_weaned_at("app-lure/bkrr.env"),
+        &format!(
+            "{}BKRR_RUNNER=\"bknre_cargo\"\n",
+            ZBKTR_APP, //
+        ),
+    );
+    let findings = zbktr_findings(&lure, "app-lure");
+
+    assert_eq!(
+        findings.len(),
+        1,
+        "findings: {:?}",
+        findings, //
+    );
+    assert!(
+        findings[0].contains("BKRR_RUNNER") && findings[0].contains("other kind"),
+        "it reads: {}",
+        findings[0], //
+    );
+}

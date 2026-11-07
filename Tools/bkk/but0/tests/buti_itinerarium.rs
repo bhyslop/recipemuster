@@ -68,8 +68,8 @@ fn buti_the_warn_control_prints_its_label() {
 }
 
 #[test]
-fn buti_the_store_control_prints_its_label() {
-    zbuti_control_prints("render-store", "buh_control_store", "RECORD");
+fn buti_the_stow_control_prints_its_label() {
+    zbuti_control_prints("render-keep", "buh_control_stow", "STOW");
 }
 
 #[test]

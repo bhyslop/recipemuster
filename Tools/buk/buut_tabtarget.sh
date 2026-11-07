@@ -260,20 +260,14 @@ buut_launcher() {
   buc_step "Creating launcher: ${z_launcher_file}"
   zbuut_show "Workbench path: ${z_workbench_path}"
 
-  # Extract comment description from launcher name (strip common suffixes)
-  local z_description="${z_launcher_name}"
-  z_description="${z_description%_workbench}"
-  z_description="${z_description%_testbench}"
-  z_description="${z_description%_Coordinator}"
-
-  # Write the 4-line launcher stub. z-launcher.sh chdirs to repo root before
-  # exec'ing the stub, so the bul_launcher source path is repo-root-relative —
-  # no directory-depth counting, immune to where the launcher dir sits.
+  # Write the two-line launcher stub: a shebang and one exec of the shared
+  # launcher, the workbench path ahead of the arguments the trampoline handed.
+  # z-launcher.sh chdirs to repo root before exec'ing the stub, so both paths
+  # are repo-root-relative — no directory-depth counting, immune to where the
+  # launcher dir sits.
   {
     echo '#!/bin/bash' || buc_die_now
-    echo "# Launcher stub - delegates to ${z_description} workbench" || buc_die_now
-    echo 'source "Tools/buk/bul_launcher.sh"' || buc_die_now
-    echo "bul_launch \"\${BURC_TOOLS_DIR}/${z_workbench_path#Tools/}\" \"\$@\"" || buc_die_now
+    echo "exec \"Tools/buk/bul_launcher.sh\" \"${z_workbench_path}\" \"\$@\"" || buc_die_now
   } > "${z_launcher_file}"
 
   chmod +x "${z_launcher_file}" || buc_die_now "Failed to make launcher executable: ${z_launcher_file}"

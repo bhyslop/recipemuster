@@ -138,7 +138,11 @@ zbud_setup() {
     source                           "${BURC_STATION_FILE}" || zbud_die "Failed to source the station file: ${BURC_STATION_FILE}"
 
     BURS_LOG_DIR="${BURV_LOG_DIR:-${BURS_LOG_DIR}}"
-    BURD_TACKROOM="${BURV_TACKROOM:-${BURS_TACKROOM}}"
+
+    # The tackroom is optional to the station regime, so an absent line reads
+    # as the empty value a kit's own refusal then speaks to, never as an
+    # unbound variable.
+    BURD_TACKROOM="${BURV_TACKROOM:-${BURS_TACKROOM:-}}"
 
     # Absolutize a relative tackroom against the repo root, the same idiom the
     # temp directory takes below: z-launcher normalizes cwd to the repo root, so
@@ -316,10 +320,19 @@ zbud_process_args() {
 
   # Setup log paths and files (skip entirely for no-log tabtargets)
   if test -z "${BURD_NO_LOG}"; then
-    BURD_LOG_LAST="${BURS_LOG_DIR}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
-    BURD_LOG_SAME="${BURS_LOG_DIR}/same-${z_tag}.${BURC_LOG_EXT}"
-    BURD_LOG_HIST="${BURS_LOG_DIR}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
-    mkdir -p "${BURS_LOG_DIR}" || zbud_die "Failed to create log directory: ${BURS_LOG_DIR}"
+    # The members are written absolute, against the repo root z-launcher left
+    # this process standing in, as the tackroom is: a station names its log
+    # directory relative, and the dispatch file records where the record
+    # actually stands. The station value itself is left as it reads.
+    local z_log_dir="${BURS_LOG_DIR}"
+    case "${z_log_dir}" in
+      /*) ;;
+      *)  z_log_dir="${PWD}/${z_log_dir}" ;;
+    esac
+    BURD_LOG_LAST="${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
+    BURD_LOG_SAME="${z_log_dir}/same-${z_tag}.${BURC_LOG_EXT}"
+    BURD_LOG_HIST="${z_log_dir}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
+    mkdir -p "${z_log_dir}" || zbud_die "Failed to create log directory: ${z_log_dir}"
     # Under the own-log mode the names are the dispatch's and the writing is the
     # coordinator's, so the three enter the dispatch file under this mode alone,
     # which is how the coordinator reads them, and no file is created: an absent
@@ -544,11 +557,11 @@ zbud_main() {
   zbud_show "Starting BDU dispatch"
 
   # The launcher hands the coordinator, the tabtarget's configuration, the seat
-  # and the moorings directory ahead of the tabtarget basename
-  # (bul_launch), by argument and never by export. The configuration is the
-  # launcher stub's basename and its buuc_ words, which the launcher has
-  # already checked; the own-log word is this dispatch's to hold.
-  test "$#" -ge 5 || zbud_die "The dispatch takes the coordinator, the configuration, the seat, the ${BUBG_MOORINGS_BASE} directory and the ${BUBG_TABTARGET_BASE}, in that order (bul_launch hands them)"
+  # and the moorings directory ahead of the tabtarget basename, by argument and
+  # never by export. The configuration is the launcher stub's basename and its
+  # buuc_ words, which the launcher has already checked; the own-log word is
+  # this dispatch's to hold.
+  test "$#" -ge 5 || zbud_die "The dispatch takes the coordinator, the configuration, the seat, the ${BUBG_MOORINGS_BASE} directory and the ${BUBG_TABTARGET_BASE}, in that order (the shared launcher hands them)"
   z_bud_coordinator_script="${1:-}"
   local -r z_configuration="${2:-}"
   BURD_SEAT="${3:-}"

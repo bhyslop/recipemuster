@@ -42,7 +42,7 @@ const BUTK_MODULES: &[&str] = &[
 ];
 
 /// What the coordinator says once enforce has passed.
-const BUTK_ENFORCED: &str = "butk regime enforced";
+const BUTK_ENFORCED: &str = "butk grubbet enforced";
 
 /// The carrier lines the reference hurdles plant: a bare token, then a value
 /// built from it by a reference.

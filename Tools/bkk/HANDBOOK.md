@@ -19,6 +19,7 @@ That is one act apiece, through the substrate's own emitters.
 
 **A tackroom.** The kennel homes the pinned Rust toolchain and the cargo registry in a store beside the clone, apart from the station user's own rustup and cargo homes.
 One store serves every clone standing beside it.
+A station file may leave the tackroom out, so it is the kennel that refuses a station without one.
 
 **The pinned channel answering from it.** The kennel states its channel on every cargo invocation rather than inheriting whatever the store defaults to, and proves it by asking that toolchain's own compiler for its release before anything runs.
 A routine invocation verifies and refuses; it never downloads unasked.
@@ -62,7 +63,8 @@ Add the tackroom to your station file — the one your `burc.env` names in `BURC
 BURS_TACKROOM=../tackroom-buk
 ```
 
-It is relative to the project root, as the log directory is; the station regime refuses an absolute value, naming the variable.
+It is relative to the project root, as the station log's directory is; the station regime refuses an absolute value, naming the variable.
+A station file without it is admitted, so the kennel refuses a missing tackroom at the first kennel door, naming the variable and this line.
 It must not be the station user's home directory, nor anything inside that user's `.rustup` or `.cargo` — keeping the kennel's store apart from the station user's own toolchain is the whole point of the redirection, and the kennel refuses a declaration that collapses it.
 
 The pinned channel — the one named in `Tools/bkk/bk0/rust-toolchain.toml` — is laid into that store by the kennel's own door rather than by hand, so nothing is installed here.
@@ -77,32 +79,32 @@ It goes in your moorings launcher directory, `«moorings»/buml_launchers/` — 
 tt/buw-tt-cl.CreateLauncher.sh Tools/bkk/bk0/bkw_workbench.sh bkw_workbench
 ```
 
-That writes `«moorings»/buml_launchers/launcher.bkw_workbench.sh` — four lines, sourcing the substrate's launcher and handing it the workbench path.
+That writes `«moorings»/buml_launchers/launcher.bkw_workbench.sh` — two lines, a shebang and one exec of the substrate's launcher handing it the workbench path.
 
 ## Act 3 — Mint the door roster
 
-Fourteen doors, each written by the substrate's creation doors over the launcher stub Act 2 made.
+Seventeen doors, each written by the substrate's creation doors over the launcher stub Act 2 made.
 A kennel door's file carries nothing of the repository it stands in, so the door these write is the door the kennel ships.
 
-Eleven take the plain form:
+Twelve take the plain form:
 
 ```bash
 tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh «moorings»/buml_launchers/launcher.bkw_workbench.sh \
   bkw-w.Whistle bkw-l.Lineup bkw-t.Tattoo bkw-h.Heel bkw-z.Muzzle \
-  bkw-g.Gangline bkw-s.Scoop bkw-c.Scent bkw-n.Delouse bkw-k.Kennelman bkw-r.Rebed
+  bkw-g.Gangline bkw-s.Scoop bkw-B.Bleach bkw-c.Scent bkw-n.Delouse bkw-k.Kennelman bkw-r.Rebed
 ```
 
-Three — Mush, Derby and Futurity — take the form whose command writes its own record:
+Five — Mush, Derby, Futurity, bale and unbale — take the form whose command writes its own record:
 
 ```bash
 tt/buw-tt-cbo.CreateTabTargetBatchOwnlog.sh «moorings»/buml_launchers/launcher.bkw_workbench.sh \
-  bkw-m.Mush bkw-d.Derby bkw-f.Futurity
+  bkw-m.Mush bkw-d.Derby bkw-f.Futurity bkw-A.Bale bkw-u.Unbale
 ```
 
-That form's configuration line says `buuc_ownlog`: each of the three consumes its tenant's streams and renders the record itself, and under that word the dispatch composes the three log names and creates no file, leaving the kennel to write all three members or none — without it the dispatch curates the log line by line and destroys the interleaving the record exists to hold.
+That form's configuration line says `buuc_ownlog`: each of the five consumes its tenant's streams and renders the record itself, and under that word the dispatch composes the names of the station log's three members and creates no file, leaving the kennel to write all three members or none — without it the dispatch curates the members line by line and destroys the interleaving the record exists to hold.
 A door minted in the plain form, its configuration line saying no word, still runs; it is simply a poorer record than the kennel writes.
 
-The workbench routes whatever doors stand, so mint the ones you use; the whole fourteen is the ordinary choice — and rebed is not optional, since every refusal that finds the pinned toolchain missing names it.
+The workbench routes whatever doors stand, so mint the ones you use; the whole seventeen is the ordinary choice — and rebed is not optional, since every refusal that finds the pinned toolchain missing names it.
 The substrate's roll call, `tt/buw-tt-rc.RollCall.sh`, lists any kennel door you have not stood, and names in red any that a later kennel edition no longer enrolls.
 
 Then ignore the kennel's build directory, if your repository does not already:

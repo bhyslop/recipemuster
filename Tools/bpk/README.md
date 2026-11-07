@@ -141,9 +141,8 @@ After the install:
    `tt/buw-tt-cl.CreateLauncher.sh` writes a workbench's launcher stub, and
    `buw-tt-cbl`, `buw-tt-cbn` and `buw-tt-cbo` write tabtargets over it in the
    form each door takes. No test compares what they write with the copies
-   standing in the repository that cut your parcel, and the two can differ —
-   that repository's own launcher stubs carry a comment line the launcher door
-   does not write. The door they write is the one your repository runs.
+   standing in the repository that cut your parcel, so the two can differ, and
+   the door they write is the one your repository runs.
    Stand the roll call first, `buw-tt-rc.RollCall` over the bash utility kit's
    launcher: it lists every door the installed kits enroll that you have not
    stood, with what each does and how it takes its folio. Which doors take a

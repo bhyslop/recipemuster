@@ -1649,10 +1649,11 @@ impl bktu_Lure {
     /// test is the one standing in that tree — the same bytes the suite was built
     /// from, rather than a copy free to drift from them.
     ///
-    /// ONE DEVIATION FROM THE CANONICAL STUB, and it is forced. The stub's source
-    /// line is repo-root-relative because a consumer's kit stands inside the
-    /// consumer's own tree; a seat's does not, by the sentence above, so the line
-    /// is rooted here. Every other line the law states is spelled as it stands.
+    /// ONE DEVIATION FROM THE CANONICAL STUB, and it is forced. The stub's
+    /// launcher path is repo-root-relative because a consumer's kit stands inside
+    /// the consumer's own tree; a seat's does not, by the sentence above, so that
+    /// path is rooted here. Every other token the law states is spelled as it
+    /// stands.
     pub fn bktu_substrate_seat(&self, coordinator: &str) -> PathBuf {
         let substrate = zbktu_substrate();
 
@@ -1739,11 +1740,11 @@ impl bktu_Lure {
         );
 
         // The launcher stub, in the shape the Launcher Stub Law states, with the
-        // one rooted line the doc comment above accounts for. The coordinator is
-        // consumer-owned and stands in the moorings beside the regime files, so
-        // the stub reaches it through the config directory the launcher took from
-        // the trampoline's arguments rather than through `BURC_TOOLS_DIR`, which
-        // names the kit.
+        // one rooted launcher path the doc comment above accounts for. The
+        // coordinator is consumer-owned and stands in the moorings beside the
+        // regime files, so the stub names it from the seat's root through the
+        // moorings directory rather than under the tools directory, which names
+        // the kit.
         self.zbktu_program(
             &format!(
                 "{}/launchers/launcher.lure_workbench.sh",
@@ -1751,10 +1752,9 @@ impl bktu_Lure {
             ),
             &format!(
                 "#!/bin/bash\n\
-                 # Launcher stub - delegates to lure workbench\n\
-                 source \"{substrate}/buk/bul_launcher.sh\"\n\
-                 bul_launch \"${{BURD_CONFIG_DIR}}/lure_workbench.sh\" \"$@\"\n",
-                substrate = substrate.display(), //
+                 exec \"{substrate}/buk/bul_launcher.sh\" \"{moorings}/lure_workbench.sh\" \"$@\"\n",
+                substrate = substrate.display(),
+                moorings = ZBKTU_MOORINGS, //
             ),
         );
 

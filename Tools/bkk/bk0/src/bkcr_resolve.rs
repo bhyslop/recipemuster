@@ -127,6 +127,25 @@ pub const BKCR_FIELDS_SUITE: &[&str] = &[
     "BKRR_TONGUE", //
 ];
 
+/// The suite fields an app may declare as well: the tongue, whose presence makes
+/// the app ATTENDED — a child whose stream the voice reads as a suite's is read,
+/// where an app declaring none holds the terminal. Owed by a suite and admitted
+/// on an app, so it is neither owed nor foreign there.
+pub const BKCR_FIELDS_APP_ADMITS: &[&str] = &[
+    "BKRR_TONGUE", //
+];
+
+/// The tongues each kind admits. A suite speaks a runner's shape and an app the
+/// kennel's own, so a tongue declared on the wrong kind names a reader that kind
+/// never feeds, and is a finding naming what the kind admits.
+const ZBKCR_TONGUES_SUITE: &[&str] = &[
+    crate::bkcv_voice::BKCV_TONGUE_HARNESS,
+    crate::bkcv_voice::BKCV_TONGUE_NEXTEST, //
+];
+const ZBKCR_TONGUES_APP: &[&str] = &[
+    crate::bkcv_voice::BKCV_TONGUE_PASSFAIL, //
+];
+
 /// The kind values, in the substrate's enum sprue form under this kit's own
 /// plane. No bare word is admitted anywhere in this roster: bare, a value is
 /// invisible to its enum family, and a recognizable prefix makes one grep return
@@ -159,13 +178,6 @@ const ZBKCR_ENUMS: &[(&str, &[&str])] = &[
         "BKRR_RUNNER",
         &[
             "bknre_cargo",
-            "bknre_nextest", //
-        ],
-    ),
-    (
-        "BKRR_TONGUE",
-        &[
-            "bknre_harness",
             "bknre_nextest", //
         ],
     ), //
@@ -367,6 +379,14 @@ impl bkcr_Collar {
     /// Whether this collar declares an app.
     pub fn bkcr_app(&self) -> bool {
         self.bkcr_field("BKRR_KIND") == BKCR_KIND_APP
+    }
+
+    /// Whether this collar declares an ATTENDED app: an app holding a tongue,
+    /// which the launch door runs as a captured child and reads as it reads a
+    /// suite. An app holding none holds the terminal. Asked here once, so no
+    /// door reads the field to decide it.
+    pub fn bkcr_attended(&self) -> bool {
+        self.bkcr_app() && self.regime.bkprc_holds("BKRR_TONGUE")
     }
 
     /// Every exergue this collar's compile requires and cargo does not produce,
@@ -1056,6 +1076,9 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     }
 
     for field in foreign {
+        if kind == BKCR_KIND_APP && BKCR_FIELDS_APP_ADMITS.contains(field) {
+            continue;
+        }
         if collar.regime.bkprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the other kind — this collar declares {} = {}",
@@ -1080,6 +1103,8 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
         }
     }
 
+    zbkcr_tongue(collar, kind, findings);
+
     zbkcr_exergue(collar, findings);
 
     if collar.regime.bkprc_holds("BKRR_MUZZLE") && collar.bkcr_field("BKRR_MUZZLE").is_empty() {
@@ -1088,6 +1113,35 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
              own root being the ordinary value"
                 .to_string(),
         );
+    }
+}
+
+/// The tongue a collar declares is one its kind admits.
+///
+/// THE ROSTER IS THE KIND'S, NEVER ONE FOR EVERY COLLAR. A suite speaks the shape
+/// of the runner it declares beside the tongue, and an app speaks the kennel's
+/// own, so a runner's tongue on an app and the kennel's tongue on a suite each
+/// name a reader that kind never feeds. A collar of no admitted kind is already a
+/// finding, and its tongue is not judged against a roster it has none of.
+fn zbkcr_tongue(collar: &bkcr_Collar, kind: &str, findings: &mut Vec<String>) {
+    let Some(held) = collar.regime.bkprc_scalar("BKRR_TONGUE") else {
+        return;
+    };
+
+    let (admitted, owner): (&[&str], &str) = match kind {
+        BKCR_KIND_APP => (ZBKCR_TONGUES_APP, "an app"),
+        BKCR_KIND_SUITE => (ZBKCR_TONGUES_SUITE, "a suite"),
+        _ => return,
+    };
+
+    if !admitted.contains(&held) {
+        findings.push(format!(
+            "BKRR_TONGUE carries '{}', which is no tongue {} admits — {} takes one of: {}",
+            held,
+            owner,
+            owner,
+            admitted.join(", "), //
+        ));
     }
 }
 

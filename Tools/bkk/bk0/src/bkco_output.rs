@@ -255,7 +255,8 @@ macro_rules! bkco_fatal_now {
 ///
 /// THE PANIC HOOK NEVER HEARS IT: `resume_unwind` raises a payload without the
 /// hook, so the fatal's own line is the whole of what is said. A genuine panic
-/// carries no such payload, and `main` lets it continue as the panic it is.
+/// carries no such payload: `main` re-raises it into the floor's catch, which
+/// ends the process broke too, after the hook has said where.
 pub struct bkco_Broke;
 
 /// End the door broke, by the road `bkco_Broke` describes. Never returns.

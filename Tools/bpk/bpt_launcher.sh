@@ -18,13 +18,11 @@
 # TEMPLATE — copy to `«moorings»/buml_launchers/launcher.buw_workbench.sh` in
 # your own repository and make it executable. Then delete this whole header:
 # every line after the first, through the blank line that ends it. What remains
-# is four lines, byte for byte what the bash utility kit's launcher door writes
+# is two lines, byte for byte what the bash utility kit's launcher door writes
 # for its own workbench, which is why this template carries no substitution.
 #
 # This is the bootstrap seed's launcher stub. No door runs before a stub and a
 # tabtarget exist to reach it, so this one is placed by hand; every later stub
 # is written by that door.
 
-# Launcher stub - delegates to buw workbench
-source "Tools/buk/bul_launcher.sh"
-bul_launch "${BURC_TOOLS_DIR}/buk/buw_workbench.sh" "$@"
+exec "Tools/buk/bul_launcher.sh" "Tools/buk/buw_workbench.sh" "$@"

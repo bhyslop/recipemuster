@@ -565,6 +565,109 @@ fn butw_a_bumped_pin_reaches_the_compiler_that_answers() {
     );
 }
 
+/// The part of the whistle's one step line that a build is announced with, held
+/// as the phrase and not the whole sentence so that a rewording of its tail
+/// moves nothing here.
+const BUTW_BUILD_STEP: &str = "Building the kennel binary where its source has moved";
+
+/// The phrase a planted compile error carries: a made-up token matching no
+/// governed word and no family the estate seats.
+const BUTW_PLANTED_ERROR: &str = "QUOBW plainly refuses to compile";
+
+/// A COLD BUILD SAYS ITS STEP AND NO PROGRESS. A fresh lure holds no binary, so
+/// the first drive compiles the stand-in; the whistle must announce that build
+/// with its one step line and must not let cargo's status lines through. The
+/// seat line is the control: it proves a binary was built from a lure that held
+/// none, so the build was cold.
+#[test]
+fn butw_quiet_a_cold_build_says_its_step_and_no_progress() {
+    zbutw_toolchains_or_die();
+
+    let lure = bktu_Lure::bktu_compose("substrate-whistle-quiet-cold");
+    zbutw_stand_in_kennel(&lure, BUTW_PIN);
+    let tabtarget = lure.bktu_substrate_seat(&zbutw_coordinator());
+
+    let out = lure.bktu_dispatch(&tabtarget, &[]);
+    let said = zbutw_said(&out);
+    assert_eq!(
+        out.status.code(),
+        Some(0),
+        "the cold drive stands the kennel up:\n{}",
+        said, //
+    );
+
+    let struck = zbutw_elected_position(&lure);
+    assert!(
+        said.contains(&format!(
+            "{}{}",
+            BUTW_SEAT_SAID,
+            struck, //
+        )),
+        "the control: the artifact states the position the election names ({}):\n{}",
+        struck,
+        said, //
+    );
+
+    assert!(
+        said.contains(BUTW_BUILD_STEP),
+        "the whistle says its step ahead of the build:\n{}",
+        said, //
+    );
+
+    for line in said.lines() {
+        let trimmed = line.trim_start();
+        assert!(
+            !trimmed.starts_with("Compiling ") && !trimmed.starts_with("Finished "),
+            "cargo's progress line reached the output: {}\n{}",
+            line,
+            said, //
+        );
+    }
+}
+
+/// A FAILING BUILD STILL PRINTS ITS ERRORS. The quiet flag silences progress and
+/// never a build's errors, so a planted compile error must reach the output
+/// beside the whistle's own refusal, and no binary may state a seat.
+#[test]
+fn butw_quiet_a_failing_build_still_prints_its_errors() {
+    zbutw_toolchains_or_die();
+
+    let lure = bktu_Lure::bktu_compose("substrate-whistle-quiet-failing");
+    zbutw_stand_in_kennel(&lure, BUTW_PIN);
+    lure.bktu_write(
+        "Tools/bkk/bk0/src/main.rs",
+        &format!(
+            "fn main() {{ compile_error!(\"{}\"); }}\n",
+            BUTW_PLANTED_ERROR, //
+        ),
+    );
+    let tabtarget = lure.bktu_substrate_seat(&zbutw_coordinator());
+
+    let out = lure.bktu_dispatch(&tabtarget, &[]);
+    let said = zbutw_said(&out);
+    assert_ne!(
+        out.status.code(),
+        Some(0),
+        "the drive stood over a build that cannot compile:\n{}",
+        said, //
+    );
+    assert!(
+        said.contains(&format!("error: {}", BUTW_PLANTED_ERROR)),
+        "the compiler's error reached the output:\n{}",
+        said, //
+    );
+    assert!(
+        said.contains("The kennel did not build"),
+        "the whistle names its own refusal:\n{}",
+        said, //
+    );
+    assert!(
+        !said.contains(BUTW_SEAT_SAID),
+        "no binary stated a seat over a build that failed:\n{}",
+        said, //
+    );
+}
+
 /// Both of a dispatch's streams as one text.
 ///
 /// The control planted exported at the top of the whistle's drive: a made-up

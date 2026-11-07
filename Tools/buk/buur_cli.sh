@@ -115,11 +115,12 @@ zbuur_door_launcher_capture() {
 
 # zbuur_launcher_kit_capture() - The kit directory a launcher's workbench stands in, or exit 1
 # Args: launcher path
-# Read off the launcher's bul_launch line, which names the workbench under
-# BURC_TOOLS_DIR; the first directory beneath it is the kit.
+# Read off the launcher's exec line, which names the workbench from the
+# repository root under the tools directory; the first directory beneath it is
+# the kit.
 zbuur_launcher_kit_capture() {
   local -r z_file="${1:-}"
-  local -r z_launch_re='^bul_launch "\$\{BURC_TOOLS_DIR\}/([^/"]+)/'
+  local -r z_launch_re='^exec "Tools/buk/bul_launcher\.sh" "Tools/([^/"]+)/'
 
   test -f "${z_file}" || return 1
 

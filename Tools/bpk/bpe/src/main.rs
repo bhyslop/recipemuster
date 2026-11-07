@@ -366,7 +366,15 @@ fn zbpe_vacate(rest: &[String]) -> ExitCode {
     ExitCode::SUCCESS
 }
 
+/// The process's own entry: the verbs beneath the floor's catch
+/// (`bkp::bkprl_lanyard`), so a panic ends the process broke rather than on the
+/// runtime's own code. Every other end is the body's.
 fn main() -> ExitCode {
+    bkp::bkprl_lanyard::bkprl_run(zbpe_main)
+}
+
+/// The parcel engine's body: the verb its first argument names.
+fn zbpe_main() -> ExitCode {
     let mut args: Vec<String> = Vec::new();
     for arg in std::env::args_os().skip(1) {
         match arg.into_string() {

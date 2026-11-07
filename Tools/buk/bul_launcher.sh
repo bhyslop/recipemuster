@@ -18,39 +18,66 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # BUL Launcher - Shared launcher logic for BUK workbenches.
-# Sourced by individual launcher stubs in rbmm_moorings/buml_launchers/
+# Run as a command by every launcher stub in a moorings launcher directory,
+# which execs it with the workbench path ahead of the trampoline's arguments.
 # Compatible with Bash 3.2 (e.g., macOS default shell)
 #
-# NOTE: This is bootstrap infrastructure, not a full module.
+# NOTE: This is bootstrap infrastructure, not a module.
 # No kindle/sentinel pattern - this runs before other modules are loaded.
 
-# Guard against multiple inclusion — dies through printf and exit, since
-# buc_command.sh is not loaded yet
-test -z "${ZBUL_LAUNCHER_SOURCED:-}" || { printf '%s\n' "Module bul multiply sourced - check sourcing hierarchy" >&2 || exit 1; exit 1; }
-ZBUL_LAUNCHER_SOURCED=1
+set -euo pipefail
+
+# RUN, NEVER SOURCED. A launcher stub predating the exec form sources this file
+# and calls a function that no longer stands. That stub is consumer-owned, no
+# kit install replaces it, and it will not heal on its own, so the refusal is
+# the desuetude gate's and carries the canonical stub inline: a station dark at
+# its stubs reaches no door that could print it. The test reads this file's own
+# path against the process's, as the dispatcher's does, and stands ahead of the
+# contract test, since a sourcing stub hands on exactly the trampoline's
+# contract arguments. The gate's code is read from the generated constants
+# file, which calls nothing, and only once the file is found sourced.
+z_bul_run=1
+test "${BASH_SOURCE[0]}" = "${0}" || z_bul_run=0
+if test "${z_bul_run}" = "0"; then
+  source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || exit 1
+  printf '%s\n' \
+    "bul_launcher: STALE LAUNCHER STUB - the launcher is run, never sourced." \
+    "" \
+    "  This project's ${BUBG_MOORINGS_BASE} launcher stub sources the shared launcher, a" \
+    "  form the kit no longer runs. It is consumer-owned: no kit install replaces" \
+    "  it, and it will not heal on its own. Regenerate every stub through the" \
+    "  launcher door, buut_launcher (tt/buw-tt-cl.CreateLauncher.sh). Where" \
+    "  every stub is stale, write the BUK workbench's stub by hand first, since" \
+    "  that door dispatches through a stub too. The canonical stub is two lines:" \
+    "" \
+    '    #!/bin/bash' \
+    '    exec "Tools/buk/bul_launcher.sh" "Tools/<kit>/<name>_workbench.sh" "$@"' \
+    >&2 || exit 1
+  exit "${BUBG_DESUETUDE_DENTIL}"
+fi
 
 # THE TRAMPOLINE'S CONTRACT, tested from the arguments alone before any file is
-# sourced. This file is sourced by a launcher stub with no arguments of its own,
-# so it reads the stub's: the trampoline hands the configuration, the seat and
-# the moorings directory, both absolute, then the tabtarget basename and the
-# user's arguments. A trampoline predating the configuration line hands the
-# tabtarget basename first and exports its launcher instead. That trampoline is
+# sourced. The launcher stub hands the workbench path first, then what the
+# trampoline handed the stub: the configuration, the seat and the moorings
+# directory, both absolute, then the tabtarget basename and the user's
+# arguments. A trampoline predating the configuration line hands the tabtarget
+# basename first and exports its launcher instead. That trampoline is
 # consumer-owned, no kit install replaces it, and it will not heal on its own,
 # so the refusal is the desuetude gate's and carries the canonical trampoline
 # inline: a station dark at its trampoline reaches no door that could print it.
 # The gate's code is read from the generated constants file, which calls
 # nothing, and only once the contract has failed.
 z_bul_contract=1
-test "$#" -ge 4 || z_bul_contract=0
-case "${1:-}" in
+test "$#" -ge 5 || z_bul_contract=0
+case "${2:-}" in
   launcher.*.sh|launcher.*.sh" "*) ;;
   *) z_bul_contract=0 ;;
 esac
-case "${2:-}" in
+case "${3:-}" in
   /*) ;;
   *) z_bul_contract=0 ;;
 esac
-case "${3:-}" in
+case "${4:-}" in
   /*) ;;
   *) z_bul_contract=0 ;;
 esac
@@ -96,9 +123,10 @@ fi
 # the buuc_ sprue, the own-log word standing alone. A tabtarget is generated, so
 # a malformed word is a hand edit, and it dies imprecisely naming the canonical
 # line rather than spending a band code.
-ZBUL_CONFIGURATION="${1:-}"
-ZBUL_SEAT="${2:-}"
-z_bul_moorings="${3:-}"
+z_bul_coordinator="${1:-}"
+ZBUL_CONFIGURATION="${2:-}"
+ZBUL_SEAT="${3:-}"
+z_bul_moorings="${4:-}"
 z_bul_canonical="set -- 'launcher.<id>_workbench.sh[ buuc_interactive][ buuc_nolog]' \"\$@\", or 'launcher.<id>_workbench.sh buuc_ownlog'"
 z_bul_words=()
 read -r -a z_bul_words <<< "${ZBUL_CONFIGURATION}" || {
@@ -125,9 +153,9 @@ if test "${z_bul_i}" -ge 99 \
   exit 1
 fi
 
-# The three contract arguments are consumed here, so the stub's own bul_launch
-# line hands on the tabtarget basename and the user's arguments alone.
-set -- "${@:4}"
+# The workbench path and the three contract arguments are consumed here, so
+# what stands is the tabtarget basename and the user's arguments alone.
+set -- "${@:5}"
 
 # A pointer and a kit directory inherited from a parent door are that door's
 # hand-offs. This launch composes its own run's, so the inherited pair is
@@ -161,12 +189,14 @@ BURD_REGIME_FILE="${BURD_CONFIG_DIR}/burc.env"
 source "${BURD_REGIME_FILE}" || exit 1 # buc_die_now not available yet
 
 # Apply BURV (Bash Utility Regime Verification) overrides if set
-BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR}}"
-BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR}}"
-BURC_LOOSEBOX_ROOT_DIR="${BURV_LOOSEBOX_ROOT_DIR:-${BURC_LOOSEBOX_ROOT_DIR}}"
+# A regime value the file omits stands empty here, so its absence is the
+# enforce's to name rather than an unbound-variable death.
+BURC_OUTPUT_ROOT_DIR="${BURV_OUTPUT_ROOT_DIR:-${BURC_OUTPUT_ROOT_DIR:-}}"
+BURC_TEMP_ROOT_DIR="${BURV_TEMP_ROOT_DIR:-${BURC_TEMP_ROOT_DIR:-}}"
+BURC_LOOSEBOX_ROOT_DIR="${BURV_LOOSEBOX_ROOT_DIR:-${BURC_LOOSEBOX_ROOT_DIR:-}}"
 
 # Source BUK modules
-BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
+BURD_STATION_FILE="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE:-}"
 source "${BURC_TOOLS_DIR}/buk/buc_command.sh" || exit 1 # buc_die_now not available yet
 
 # The band's range, its gate codes and the verdict codes, from the substrate's
@@ -195,6 +225,66 @@ source "${BURC_TOOLS_DIR}/buk/burc_regime.sh" || buc_die_now "Failed to source b
 zburc_kindle
 zburc_enforce
 
+# The SETUP NEEDED display for a missing station file: prints the guidance and
+# exits, since nothing past it can run without the file.
+# Usage: zbul_setup_needed <station-file-path>
+zbul_setup_needed() {
+  local -r z_station_path="${1:-}"
+  test -n "${z_station_path}" || buc_die_now "zbul_setup_needed: path required"
+  buym_ui_yawp "${z_station_path}"; local -r z_path_yp="${z_buym_yelp}"
+  buym_ui_yawp "${BURC_STATION_FILE}"; local -r z_rel_yp="${z_buym_yelp}"
+  buym_ui_yawp "${BURD_REGIME_FILE}"; local -r z_burc_yp="${z_buym_yelp}"
+
+  buh_e
+  buh_section "SETUP NEEDED: Station Regime file not found"
+  buh_e
+  buh_line    "  Missing: ${z_path_yp}"
+  buh_e
+  buh_line    "  The Bash Utility Kit (BUK) launcher uses two regime files:"
+  buh_e
+  buh_line    "    Config Regime (BURC) - checked into the repo at ${z_burc_yp}"
+  buh_line    "      Project-level settings: tool paths, tabtarget layout, and the"
+  buh_line    "      location of the Station Regime file."
+  buh_tt      "      Inspect: " "buw-rcr"
+  buh_e
+  buh_line    "    Station Regime (BURS) - developer-specific, NOT in git"
+  buh_line    "      Machine-level settings that vary per developer or workstation."
+  buh_line    "      The Config Regime says to look for it at: ${z_rel_yp}"
+  buh_tt      "      Inspect: " "buw-rsr"
+  buh_e
+  buh_line    "  Other toolkits in the project may define additional regime files."
+  buh_e
+  buh_line    "  The fastest fix: run the fresh-station bootstrap, which writes a"
+  buh_line    "  complete Station Regime file for you."
+  buh_tt      "  " "buw-SI"
+  buh_e
+  buh_line    "  Or create it yourself with this content:"
+  buh_e
+  local z_i=""
+  for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
+    zbul_template_line "${ZBURS_TEMPLATE_NAMES[${z_i}]}" "${ZBURS_TEMPLATE_VALUES[${z_i}]}"
+  done
+  buh_e
+  buh_line    "  All ${#ZBURS_TEMPLATE_NAMES[@]} variables are required."
+  buh_e
+  for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
+    buh_line    "  ${ZBURS_TEMPLATE_NAMES[${z_i}]}: ${ZBURS_TEMPLATE_COMMENTS[${z_i}]}"
+    buh_e
+  done
+  buh_e
+  exit 1
+}
+
+# One template line of the station file's recommended content.
+# Usage: zbul_template_line <name> <value>
+zbul_template_line() {
+  local -r z_template_name="${1:-}"
+  local -r z_template_value="${2:-}"
+  test -n "${z_template_name}" || buc_die_now "zbul_template_line: name required"
+  buym_cmd_yawp "${z_template_name}=${z_template_value}"; local -r z_cmd_yp="${z_buym_yelp}"
+  buh_line    "    ${z_cmd_yp}"
+}
+
 # BURS station load is skipped under the no-log word. No-log tabtargets (e.g.
 # handbooks) need only BURC and must run on a fresh clone before any station
 # file exists. The word is the tabtarget's own — said on its configuration line,
@@ -214,48 +304,7 @@ if test -z "${z_bul_nolog}"; then
   # Load BURS configuration and kindle
   z_station_file="${ZBUL_PROJECT_ROOT}/${BURC_STATION_FILE}"
   if ! test -f "${z_station_file}"; then
-    buym_ui_yawp  "${z_station_file}";              z_path_yp="${z_buym_yelp}"
-    buym_ui_yawp  "${BURC_STATION_FILE}";           z_rel_yp="${z_buym_yelp}"
-    buym_ui_yawp  "${BURD_REGIME_FILE}";            z_burc_yp="${z_buym_yelp}"
-
-    buh_e
-    buh_section "SETUP NEEDED: Station Regime file not found"
-    buh_e
-    buh_line    "  Missing: ${z_path_yp}"
-    buh_e
-    buh_line    "  The Bash Utility Kit (BUK) launcher uses two regime files:"
-    buh_e
-    buh_line    "    Config Regime (BURC) - checked into the repo at ${z_burc_yp}"
-    buh_line    "      Project-level settings: tool paths, tabtarget layout, and the"
-    buh_line    "      location of the Station Regime file."
-    buh_tt      "      Inspect: " "buw-rcr"
-    buh_e
-    buh_line    "    Station Regime (BURS) - developer-specific, NOT in git"
-    buh_line    "      Machine-level settings that vary per developer or workstation."
-    buh_line    "      The Config Regime says to look for it at: ${z_rel_yp}"
-    buh_tt      "      Inspect: " "buw-rsr"
-    buh_e
-    buh_line    "  Other toolkits in the project may define additional regime files."
-    buh_e
-    buh_line    "  The fastest fix: run the fresh-station bootstrap, which writes a"
-    buh_line    "  complete Station Regime file for you."
-    buh_tt      "  " "buw-SI"
-    buh_e
-    buh_line    "  Or create it yourself with this content:"
-    buh_e
-    for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
-      buym_cmd_yawp "${ZBURS_TEMPLATE_NAMES[${z_i}]}=${ZBURS_TEMPLATE_VALUES[${z_i}]}"
-      buh_line    "    ${z_buym_yelp}"
-    done
-    buh_e
-    buh_line    "  All ${#ZBURS_TEMPLATE_NAMES[@]} variables are required."
-    buh_e
-    for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
-      buh_line    "  ${ZBURS_TEMPLATE_NAMES[${z_i}]}: ${ZBURS_TEMPLATE_COMMENTS[${z_i}]}"
-      buh_e
-    done
-    buh_e
-    exit 1
+    zbul_setup_needed "${z_station_file}"
   fi
   source "${z_station_file}" || buc_die_now "Failed to source: ${z_station_file}"
 
@@ -268,14 +317,8 @@ if test -z "${z_bul_nolog}"; then
   zburs_enforce
 fi
 
-# Helper function to delegate to BURD
-# Usage: bul_launch "path/to/workbench.sh" "$@"
-bul_launch() {
-  local z_coordinator="${1}"
-  test "$#" -eq 0 || shift
-
-  # The dispatch takes the coordinator, the configuration, the seat and the
-  # moorings directory as its leading arguments, then the tabtarget basename
-  # and the user's arguments: the hand-off crosses by argument, never by export.
-  exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${z_coordinator}" "${ZBUL_CONFIGURATION}" "${ZBUL_SEAT}" "${BURD_CONFIG_DIR}" "${1##*/}" "${@:2}" || buc_die_now "exec failed"
-}
+# The dispatch takes the coordinator, the configuration, the seat and the
+# moorings directory as its leading arguments, then the tabtarget basename and
+# the user's arguments: the hand-off crosses by argument, never by export. The
+# coordinator is the workbench path the stub handed first.
+exec "${BURC_TOOLS_DIR}/buk/bud_dispatch.sh" "${z_bul_coordinator}" "${ZBUL_CONFIGURATION}" "${ZBUL_SEAT}" "${BURD_CONFIG_DIR}" "${1##*/}" "${@:2}" || buc_die_now "exec failed"

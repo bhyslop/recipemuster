@@ -52,7 +52,7 @@ ZBUH_SOURCED=1
 # a renderer finds the label by the kind it renders.
 readonly BUH_label_fatal="STOP"
 readonly BUH_label_warn="CAUTION"
-readonly BUH_label_store="RECORD"
+readonly BUH_label_stow="STOW"
 readonly BUH_label_require="VERIFY"
 readonly BUH_label_show="NOTE"
 
@@ -267,13 +267,13 @@ buh_control_warn() {
   zbuh_control "${BUYC_BRIGHT_YELLOW}" "${BUH_label_warn}" "${1:-}"
 }
 
-buh_control_store() {
-  buc_doc_brief "Render the store control: a value the performer records"
-  buc_doc_param "text" "What to record and where"
+buh_control_stow() {
+  buc_doc_brief "Render the control for a value the performer keeps for a later step"
+  buc_doc_param "text" "What to keep and where"
   buc_doc_shown || return 0
 
   zbuh_sentinel
-  zbuh_control "${BUYC_CYAN}" "${BUH_label_store}" "${1:-}"
+  zbuh_control "${BUYC_CYAN}" "${BUH_label_stow}" "${1:-}"
 }
 
 buh_control_require() {

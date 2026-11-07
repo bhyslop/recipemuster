@@ -223,20 +223,92 @@ buq_tabtargets() {
     }
   done
 
+  # Every launcher stub standing under the launcher directory, held once whether
+  # a tabtarget names it or not. Prescribed form (from buut_tabtarget.sh's
+  # launcher door), two lines:
+  #   Line 1: #!/bin/bash
+  #   Line 2: exec "Tools/buk/bul_launcher.sh" "<workbench path>" "$@"
+  # The workbench path is the stub's one varying token. A stub sources nothing,
+  # and a source line is refused by name.
+  local -r z_stub_prefix='exec "Tools/buk/bul_launcher.sh" "'
+  local -r z_stub_suffix='" "$@"'
+  local -r z_stub_dir="${z_project_root}/${BURD_MOORINGS_DIR}/${BUBC_launchers_subdir}"
+  local z_stub_count=0
+  local z_stub=""
+  local z_stub_name=""
+  local z_stub_lines=()
+  local z_stub_line=""
+  local z_source_line=""
+  local z_stub_workbench=""
+  for z_stub in "${z_stub_dir}"/launcher.*.sh; do
+    test -e "${z_stub}" || continue
+    z_stub_count=$((z_stub_count + 1))
+    z_stub_name="${BUBC_launchers_subdir}/${z_stub##*/}"
+
+    z_stub_lines=()
+    while IFS= read -r z_stub_line || test -n "${z_stub_line}"; do
+      z_stub_lines+=("${z_stub_line}")
+    done < "${z_stub}"
+
+    z_source_line=""
+    for z_stub_line in "${z_stub_lines[@]+"${z_stub_lines[@]}"}"; do
+      case "${z_stub_line}" in
+        'source '*|'. '*|*[[:space:]]'source '*|*[[:space:]]'. '*) z_source_line="${z_stub_line}" ;;
+      esac
+    done
+    test -z "${z_source_line}" || {
+      z_fail_files+=("${z_stub_name}")
+      z_fail_reasons+=("carries a source line, which no launcher stub carries: '${z_source_line}'")
+      continue
+    }
+
+    test "${#z_stub_lines[@]}" -eq 2 || {
+      z_fail_files+=("${z_stub_name}")
+      z_fail_reasons+=("expected 2 lines (shebang, exec), got ${#z_stub_lines[@]}")
+      continue
+    }
+
+    test "${z_stub_lines[0]}" = "${z_prescribed_shebang}" || {
+      z_fail_files+=("${z_stub_name}")
+      z_fail_reasons+=("line 1: expected '${z_prescribed_shebang}', got '${z_stub_lines[0]}'")
+      continue
+    }
+
+    # An unmatched line, or a workbench path carrying a quote, leaves the path
+    # empty, and the test then refuses it.
+    z_stub_workbench=""
+    case "${z_stub_lines[1]}" in
+      "${z_stub_prefix}"*"${z_stub_suffix}")
+        z_stub_workbench="${z_stub_lines[1]#"${z_stub_prefix}"}"
+        z_stub_workbench="${z_stub_workbench%"${z_stub_suffix}"}"
+        ;;
+    esac
+    case "${z_stub_workbench}" in
+      *'"'*) z_stub_workbench="" ;;
+    esac
+    test -n "${z_stub_workbench}" || {
+      z_fail_files+=("${z_stub_name}")
+      z_fail_reasons+=("line 2: expected '${z_stub_prefix}<workbench path>${z_stub_suffix}', got '${z_stub_lines[1]}'")
+      continue
+    }
+  done
+
   local z_checked=$((z_count - z_exempt_count))
   local z_summary="Checked ${z_checked} tabtargets"
   test "${z_exempt_count}" = "0" || z_summary="${z_summary} (${z_exempt_count} exempt)"
+  z_summary="${z_summary} and ${z_stub_count} launcher stubs"
   buc_log_args "${z_summary}"
 
+  local -r z_held=$((z_checked + z_stub_count))
   if (( ${#z_fail_files[@]} )); then
     local z_j=0
     for z_j in "${!z_fail_files[@]}"; do
       buc_warn "${z_fail_files[${z_j}]}: ${z_fail_reasons[${z_j}]}" || buc_die_now "Failed to warn"
     done
-    buc_die_now "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
+    buc_die_now "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_held} tabtargets and launcher stubs"
   fi
 
-  buc_log_args "All ${z_checked} tabtargets structurally valid"
+  buc_log_args "All ${z_checked} tabtargets and ${z_stub_count} launcher stubs structurally valid"
 }
 
 ######################################################################

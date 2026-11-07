@@ -28,12 +28,15 @@
 //! constants has somewhere to show up.
 
 use super::bkcv_voice::{
+    bkcv_Outcome,
     bkcv_case,
     zbkcv_normalized,
     zbkcv_sha256,
     zbkcv_uncolored,
     BKCV_TONGUE_HARNESS,
-    BKCV_TONGUE_NEXTEST, //
+    BKCV_TONGUE_NEXTEST,
+    BKCV_TONGUE_PASSFAIL,
+    BKCV_TONGUE_PYTEST, //
 };
 
 /// A green nextest case line, verbatim from the capture this membrane was
@@ -65,8 +68,9 @@ fn bktv_the_nextest_reader_takes_a_case_and_leaves_the_summary() {
     let passed = bkcv_case(BKCV_TONGUE_NEXTEST, ZBKTV_NEXTEST_PASS)
         .expect("the tongue is one the kennel recognizes")
         .expect("a PASS line reports a case");
-    assert!(
-        passed.passed,
+    assert_eq!(
+        passed.outcome,
+        bkcv_Outcome::Passed,
         "a PASS line reports a passing case", //
     );
     assert_eq!(
@@ -77,8 +81,9 @@ fn bktv_the_nextest_reader_takes_a_case_and_leaves_the_summary() {
     let failed = bkcv_case(BKCV_TONGUE_NEXTEST, ZBKTV_NEXTEST_FAIL)
         .expect("the tongue is one the kennel recognizes")
         .expect("a FAIL line reports a case");
-    assert!(
-        !failed.passed,
+    assert_eq!(
+        failed.outcome,
+        bkcv_Outcome::Failed,
         "a FAIL line reports a failing case", //
     );
 
@@ -97,7 +102,7 @@ fn bktv_the_harness_reader_parts_a_case_from_the_summary_by_the_separator() {
     let passed = bkcv_case(BKCV_TONGUE_HARNESS, ZBKTV_HARNESS_PASS)
         .expect("recognized tongue")
         .expect("an ok line reports a case");
-    assert!(passed.passed);
+    assert_eq!(passed.outcome, bkcv_Outcome::Passed);
     assert_eq!(
         passed.name,
         "butd_the_die_path_speaks_with_no_transcript_standing"
@@ -106,7 +111,7 @@ fn bktv_the_harness_reader_parts_a_case_from_the_summary_by_the_separator() {
     let failed = bkcv_case(BKCV_TONGUE_HARNESS, ZBKTV_HARNESS_FAIL)
         .expect("recognized tongue")
         .expect("a FAILED line reports a case");
-    assert!(!failed.passed);
+    assert_eq!(failed.outcome, bkcv_Outcome::Failed);
 
     // THE CONTROL THAT MATTERS FOR THIS RUNNER: the summary begins with the very
     // word a case line begins with, so a reader keying on `test ` alone would
@@ -255,6 +260,7 @@ fn zbktv_forty_passed() -> super::bkcv_voice::bkcv_Tally {
         ran: 40,
         passed: 40,
         failed: Vec::new(),
+        skipped: Vec::new(),
     }
 }
 
@@ -432,6 +438,186 @@ fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
             written, //
         );
     }
+}
+
+/// A pytest case line, verbatim from the capture its membrane was written
+/// against, for the cross controls of the kennel's own tongue.
+const ZBKTV_PYTEST_PASS: &str =
+    "tests/test_alpha.py::test_one PASSED                                     [ 25%]";
+
+/// THE KENNEL'S OWN TONGUE READS EACH OF ITS THREE WORDS, the case name being
+/// the rest of the line, trimmed.
+#[test]
+fn bktv_the_kennels_tongue_reads_each_verdict_word_and_the_name_behind_it() {
+    for (line, outcome) in [
+        (
+            "pass the position is forty hex characters",
+            bkcv_Outcome::Passed,
+        ),
+        (
+            "fail the position is forty hex characters",
+            bkcv_Outcome::Failed,
+        ),
+        (
+            "skip the position is forty hex characters",
+            bkcv_Outcome::Skipped,
+        ),
+    ] {
+        let case = bkcv_case(BKCV_TONGUE_PASSFAIL, line)
+            .expect("the tongue is one the kennel recognizes")
+            .unwrap_or_else(|| {
+                panic!(
+                    "a case line reports a case: {}",
+                    line, //
+                )
+            });
+        assert_eq!(
+            case.outcome,
+            outcome,
+            "the verdict word decides the outcome: {}",
+            line, //
+        );
+        assert_eq!(
+            case.name,
+            "the position is forty hex characters",
+            "the name is the rest of the line: {}",
+            line, //
+        );
+    }
+
+    let trimmed = bkcv_case(BKCV_TONGUE_PASSFAIL, "pass   a spaced name  ")
+        .expect("recognized tongue")
+        .expect("a case line with room around its name reports a case");
+    assert_eq!(
+        trimmed.name, "a spaced name",
+        "the name is trimmed", //
+    );
+}
+
+/// ANY OTHER LINE IS NOT A CASE: another first word, a capital, whitespace ahead
+/// of the word, another separator, or a verdict word with no name behind it.
+#[test]
+fn bktv_the_kennels_tongue_takes_no_line_outside_its_grammar() {
+    for line in [
+        "passed the frumble greets",
+        "PASS the frumble greets",
+        "  pass the frumble greets",
+        "pass\tthe frumble greets",
+        "note: pass the frumble greets",
+        "pass",
+        "skip",
+        "fail ",
+        "skip    ",
+        "",
+    ] {
+        assert_eq!(
+            bkcv_case(BKCV_TONGUE_PASSFAIL, line).expect("recognized tongue"),
+            None,
+            "not a case: {:?}",
+            line, //
+        );
+    }
+}
+
+/// THE CROSS CONTROL FOR THE KENNEL'S OWN TONGUE: it takes nothing from a
+/// runner's case line, and no runner's reader takes anything from its own.
+#[test]
+fn bktv_the_kennels_tongue_and_the_runners_tongues_decline_each_others_lines() {
+    for line in [ZBKTV_HARNESS_PASS, ZBKTV_NEXTEST_PASS, ZBKTV_PYTEST_PASS] {
+        assert_eq!(
+            bkcv_case(BKCV_TONGUE_PASSFAIL, line).expect("recognized tongue"),
+            None,
+            "the kennel's tongue takes nothing from a runner's line: {}",
+            line, //
+        );
+    }
+
+    for tongue in [BKCV_TONGUE_HARNESS, BKCV_TONGUE_NEXTEST, BKCV_TONGUE_PYTEST] {
+        for line in [
+            "pass the frumble greets",
+            "fail the frumble greets",
+            "skip the frumble greets",
+        ] {
+            assert_eq!(
+                bkcv_case(tongue, line).expect("recognized tongue"),
+                None,
+                "the {} reader takes nothing from the kennel's own line: {}",
+                tongue,
+                line, //
+            );
+        }
+    }
+}
+
+/// A SKIPPED CASE IS COUNTED APART AND NEVER AS DRIVEN, and the verdict names
+/// it in a clause after the counts while the exit alone decides the colour.
+#[test]
+fn bktv_the_verdict_names_a_skipped_case_and_keeps_it_out_of_ran_and_passed() {
+    use super::bkcl_leash::{
+        bkcl_Heard,
+        bkcl_Run, //
+    };
+    use super::bkcv_voice::{
+        bkcv_Voice,
+        zbkcv_verdict, //
+    };
+
+    let mut voice = bkcv_Voice::zbkcv_with(BKCV_TONGUE_PASSFAIL, None, None);
+    for line in [
+        "pass the frumble greets",
+        "skip the frumble naps on purpose",
+        "fail the frumble stumbles",
+    ] {
+        voice
+            .bkcv_heed(bkcl_Heard::Said(line.to_string()))
+            .expect("the voice takes the line");
+    }
+
+    let run = bkcl_Run {
+        spelling: "bkerc".to_string(),
+        code: Some(1),
+        cut: None,
+    };
+    let tally = voice.bkcv_close(&run).expect("the voice closes");
+
+    assert_eq!(
+        (tally.ran, tally.passed, tally.failed.clone()),
+        (2, 1, vec!["the frumble stumbles".to_string()]),
+        "the skipped case adds nothing to ran, passed or failed: {:?}",
+        tally, //
+    );
+    assert_eq!(
+        tally.skipped,
+        vec!["the frumble naps on purpose".to_string()],
+        "the skipped case is counted apart, by name", //
+    );
+
+    let skipped = super::bkcv_voice::bkcv_Tally {
+        ran: 1,
+        passed: 1,
+        failed: Vec::new(),
+        skipped: vec!["the frumble naps on purpose".to_string()],
+    };
+
+    let green = zbkcv_verdict(&skipped, Some(0), None, None);
+    assert!(
+        green.starts_with("green: 1 ran, 1 passed, 0 failed; "),
+        "a skip moves neither the colour nor the counts: {}",
+        green, //
+    );
+    assert!(
+        green.contains("the frumble naps on purpose"),
+        "the verdict names the skipped case: {}",
+        green, //
+    );
+
+    // THE CONTROL: a tally with no skip carries no clause, so the clause above
+    // is the skip's and not the verdict having grown a tail.
+    assert_eq!(
+        zbkcv_verdict(&zbktv_forty_passed(), Some(0), None, None),
+        "green: 40 ran, 40 passed, 0 failed",
+        "a run that skipped nothing says nothing of skips", //
+    );
 }
 
 // eof

@@ -51,7 +51,7 @@ The kit is bash alone. Where the kennel kit is installed, the Rust hurdles that 
 
 **Never use `cd` in Bash commands — NO exceptions.**
 
-The working directory persists across Bash tool calls, so a `cd` is never scoped to the command that ran it: it is a durable edit to the seat, inherited by every command after it. That is a hazard here because relative paths are contract rather than convenience. A tabtarget is invoked as `./tt/...` from the project root, and what it resolves from there — its launcher, its regime config, the `../logs-buk` its station file names by default — silently follows the working directory wherever it has been moved. A cd'd session runs the same tabtarget against a different tree, or writes its logs where nobody will look, and nothing announces the shift, because each command still succeeds on its own terms.
+The working directory persists across Bash tool calls, so a `cd` is never scoped to the command that ran it: it is a durable edit to the seat, inherited by every command after it. That is a hazard here because relative paths are contract rather than convenience. A tabtarget is invoked as `./tt/...` from the project root, and what it resolves from there — its launcher, its regime config, the `../station-log-buk` its station file names by default — silently follows the working directory wherever it has been moved. A cd'd session runs the same tabtarget against a different tree, or writes its logs where nobody will look, and nothing announces the shift, because each command still succeeds on its own terms.
 
 - Reach the tree instead of moving to it, and reach it RELATIVE TO YOUR SEAT. A seat that never moves is a fixed origin, so `../sibling-repo/...` names one tree for the whole session and needs nothing discovered. A sibling repo, a peer worktree, a tree beside the one you stand in — all are reached that way; it is the idiom, not a workaround for the rule.
 - A rooted spelling is not forbidden and is not the idiom either: what is banned is one verb, not a path shape. A rooted path obeys the rule but pins the text to one machine's layout, which is why the seat-relative form is what to reach for. That choice is about LIVE INVOCATION, which anchors on the seat; durable text a LATER reader runs names no root at all, its author not knowing the seat it will run from.
@@ -66,7 +66,7 @@ Rivet `BUr_k7d` governs, cited here rather than restated: tooling never stages o
 
 **Never pipe a tabtarget invocation — into `tee`, `tail`, `head`, `grep`, or anything else — and never send one to `/dev/null`. NO exceptions.**
 
-Tabtargets self-log to the directory the station file's `BURS_LOG_DIR` names, and there are two seats. **Station ground** is the default: `../logs-buk/`, relative to the project root, shared by every clone and worktree on that machine — and a door a dispatched session runs from its own shell lands there too. **A door run through the engine's tabtarget door is the other seat** — that door composes `BURV_LOG_DIR` onto the run, which overrides the station value, so its logs land under the kraal's own scratch container. Three files are written either way, and the seat decides only how wide the race on the first two runs:
+Tabtargets self-log to the directory the station file's `BURS_LOG_DIR` names, and there are two seats. **Station ground** is the default: `../station-log-buk/`, relative to the project root, shared by every clone and worktree on that machine — and a door a dispatched session runs from its own shell lands there too. **A door run through the engine's tabtarget door is the other seat** — that door composes `BURV_LOG_DIR` onto the run, which overrides the station value, so its logs land under the kraal's own scratch container. Three files are written either way, and the seat decides only how wide the race on the first two runs:
 - `last.txt` — most recent invocation across **all** tabtargets writing into that directory. **Never read this** — any tabtarget run that shares the directory, between your dispatch and your read, overwrites it out from under you.
 - `same-{cmd}.txt` — most recent invocation of this specific tabtarget. Same race, narrowed to one colophon: another run of the identical tabtarget still overwrites it.
 - `hist-{cmd}-{timestamp}.txt` — one immutable file per invocation. The only race-free pointer, and the only one safe to read at either seat.
@@ -75,7 +75,7 @@ Both stdout and stderr are captured already, so adding your own `tee` or `2>&1` 
 
 **The line is between discard and capture, not between pipe and redirect.** A redirect to a real file stays lawful on every door and every spelling — `tt/buw-rcv.ValidateConfigRegime.sh > regime.log` as much as `>> regime.log` — because a door captured to a file keeps its verdict whole and readable. What is refused is the two shapes that throw the verdict away: a pipe into a reader, and `/dev/null` standing anywhere in the door's own segment.
 
-- Run the tabtarget directly, then read the announced `hist-` path in a separate command. Non-interactive dispatch prints all three paths on a `log files:` line; interactive dispatch prints the `hist-` path alone on a `log (interactive:)` line — either way the path is handed to you, so use it verbatim.
+- Run the tabtarget directly, then read the announced `hist-` path in a separate command. Non-interactive dispatch prints all three paths, each absolute, on a `log files:` line; interactive dispatch prints the `hist-` path alone on a `log (interactive:)` line — either way the path is handed to you, so use it verbatim.
 - **Never locate the hist file by `ls -t` or any other newest-match search** — that reinstates the race the announced path exists to avoid, another invocation sharing the log directory being free to drop a newer `hist-` file between your dispatch and your search. If the announced path wasn't captured, re-run the tabtarget and read its freshly printed line.
 - Environment variables before the command are fine: `BURE_CONFIRM=skip ./tt/rbw-cQ.Quench.tadmor.sh`
 
@@ -91,11 +91,11 @@ Both stdout and stderr are captured already, so adding your own `tee` or `2>&1` 
 
 # Right — separate commands; exit code preserved; read the hist path the dispatch announced
 ./tt/rbw-ts.TestSuite.gauntlet.sh
-# (dispatch's "log files:" line named ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt — use that verbatim)
-tail -80 ../logs-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt
+# (dispatch's "log files:" line named /home/alice/projects/myrepo/../station-log-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt — use that verbatim)
+tail -80 /home/alice/projects/myrepo/../station-log-buk/hist-ts-gauntlet-20260723-103812-51023-4.txt
 
 # Right — capture to a real file is lawful; only discard is refused
-./tt/rbw-ts.TestSuite.gauntlet.sh > ../logs-buk/capture.txt
+./tt/rbw-ts.TestSuite.gauntlet.sh > ../station-log-buk/capture.txt
 ```
 
 **There is no safe `tee | tail`, and no safe `> /dev/null`.** Do not reason "I'll just truncate the output for readability" — the truncation and the exit-code-eating are inseparable. Do not reason "I don't need this door's output" either: the verdict *is* the output, and a run you silenced is a run you cannot report. Truncate by reading the log file afterward.

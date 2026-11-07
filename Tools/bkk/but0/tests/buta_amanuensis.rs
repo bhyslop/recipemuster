@@ -81,11 +81,15 @@ fn buta_drive(name: &str, words: &str) -> (buth_Bench, but::buth_hurdle::buth_Sa
         )
     };
     let body = format!(
-        // The scratch stands under this seat's own temp directory and is reported
-        // before anything can fail, so a hurdle whose sub-dispatch is SUPPOSED to
-        // die still learns where to look for what it must not find.
+        // The scratch is reported before anything can fail, so a hurdle whose
+        // sub-dispatch is SUPPOSED to die still learns where to look for what it
+        // must not find. The log directory is handed to the sub-dispatch
+        // RELATIVE, as a station names its own, and reported absolute under the
+        // seat it stands in: a member recorded absolute and under it is one the
+        // dispatch composed, where a relative one would carry the bare name.
         "source \"${{BURD_BURD_FILE}}\"\n\
-         z_logs=\"${{BURD_TEMP_DIR}}/buja-logs\"\n\
+         z_logs_rel=\"buja-logs\"\n\
+         z_logs=\"${{PWD}}/${{z_logs_rel}}\"\n\
          z_report=\"${{BURD_TEMP_DIR}}/buja-report.env\"\n\
          z_probe=\"${{BURD_TEMP_DIR}}/buja-coordinator.sh\"\n\
          mkdir -p \"${{z_logs}}\"\n\
@@ -103,7 +107,7 @@ fn buta_drive(name: &str, words: &str) -> (buth_Bench, but::buth_hurdle::buth_Sa
          echo \"buja probe coordinator ran\"\n\
          BUTA_PROBE\n\
          chmod +x \"${{z_probe}}\"\n\
-         env \"BURV_LOG_DIR=${{z_logs}}\" \\\n\
+         env \"BURV_LOG_DIR=${{z_logs_rel}}\" \\\n\
          \x20 bash \"${{BURD_BUK_DIR}}/bud_dispatch.sh\" \"${{z_probe}}\" '{configuration}' \"${{PWD}}\" \"${{BURD_CONFIG_DIR}}\" \"buja-probe.LogFamily.sh\"\n",
         configuration = configuration, //
     );
@@ -167,6 +171,27 @@ fn buta_field(report: &str, name: &str) -> String {
             )
         });
     line[prefix.len()..].trim().trim_matches('"').to_string()
+}
+
+/// Assert a member the dispatch file records is absolute and stands under the
+/// directory the sub-dispatch was handed relative.
+fn buta_absolute_under(member: &str, path: &str, at: &buta_Where) {
+    assert!(
+        path.starts_with('/'),
+        "{} is recorded as {}, which is not absolute",
+        member,
+        path, //
+    );
+    assert!(
+        path.starts_with(&format!(
+            "{}/",
+            at.logs, //
+        )),
+        "{} is recorded as {}, which stands outside the log directory {}",
+        member,
+        path,
+        at.logs, //
+    );
 }
 
 /// How many members stand in the driven log directory.
@@ -252,6 +277,7 @@ fn buta_the_logged_control_writes_the_whole_family() {
         "the historical member is recorded:\n{}",
         body, //
     );
+    buta_absolute_under("BURD_LOG_HIST", &buta_field(&body, "BURD_LOG_HIST"), &at);
     assert!(
         !body.lines().any(|l| l.starts_with("BURD_LOG_LAST=")),
         "no last member outside own-log:\n{}",
@@ -305,6 +331,7 @@ fn buta_the_fact_file_names_the_same_historical_member_the_coordinator_was_hande
             "the dispatch file and the coordinator's environment name different paths for {}",
             member, //
         );
+        buta_absolute_under(member, &buta_field(&burd, member), &at);
     }
 }
 

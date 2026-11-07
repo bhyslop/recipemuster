@@ -28,10 +28,11 @@
 //! THE ABSOLUTE STORE IS ASSERTED ABSENT AFTER THE REFUSAL, since the property
 //! these hurdles hold is that a door refusing a path makes nothing at it.
 //!
-//! THE RELATIVE TACKROOM IS THE POSITIVE CONTROL, AND THE OMITTED ONE IS THE
-//! REFUSAL. A relative value passing says the check reads the form and not the
-//! field's presence; a station file omitting the field is refused naming it,
-//! since the field is required as the others are.
+//! THE TWO STORES ARE OPTIONAL, AND THE ABSOLUTE ONE IS THE REFUSAL. A file
+//! carrying neither store and a file carrying both relative are each admitted,
+//! so the check reads the form and never the field's presence; each refusal is
+//! driven beside them, so an admission cannot read green for a launcher that
+//! judged nothing.
 
 #![deny(warnings)]
 
@@ -113,7 +114,7 @@ fn butv_an_absolute_log_dir_is_refused_naming_the_relative_form() {
     });
     said.buth_died()
         .buth_carries("BURS_LOG_DIR is absolute")
-        .buth_carries("BURS_LOG_DIR=../logs-buk")
+        .buth_carries("BURS_LOG_DIR=../station-log-buk")
         .buth_lacks(BUTV_ADMITTED);
     assert!(
         !bench.buth_root().join("absolute-logs").exists(),
@@ -123,23 +124,42 @@ fn butv_an_absolute_log_dir_is_refused_naming_the_relative_form() {
 }
 
 #[test]
-fn butv_a_relative_tackroom_is_admitted() {
-    let (_bench, said) = butv_station("substrate-station-relative-tackroom", |_| {
-        "BURS_LOG_DIR=logs\nBURS_TACKROOM=../tackroom-buk\n".to_string()
+fn butv_an_absolute_hayloft_is_refused_naming_the_relative_form() {
+    let (bench, said) = butv_station("substrate-station-absolute-hayloft", |root| {
+        format!(
+            "BURS_LOG_DIR=logs\nBURS_HAYLOFT={}\n",
+            root.join("absolute-quux-loft").display(), //
+        )
+    });
+    said.buth_died()
+        .buth_carries("BURS_HAYLOFT is absolute")
+        .buth_carries("BURS_HAYLOFT=../station-hayloft-buk")
+        .buth_lacks(BUTV_ADMITTED);
+    assert!(
+        !bench.buth_root().join("absolute-quux-loft").exists(),
+        "the refused folder under {} was made",
+        bench.buth_root().display(), //
+    );
+}
+
+#[test]
+fn butv_both_stores_relative_are_admitted() {
+    let (_bench, said) = butv_station("substrate-station-relative-stores", |_| {
+        "BURS_LOG_DIR=logs\nBURS_TACKROOM=../tackroom-buk\nBURS_HAYLOFT=../quux-loft\n".to_string()
     });
     said.buth_thrived().buth_carries(BUTV_ADMITTED);
 }
 
 /// The clean environment is the lure's own strip, which removes every `BURS_`
-/// and `BURV_` variable from a seat's dispatch, so no inherited value fills the
+/// and `BURV_` variable from a seat's dispatch, so no inherited value fills an
 /// omitted field.
 #[test]
-fn butv_an_omitted_tackroom_is_refused_naming_it() {
-    let (_bench, said) = butv_station("substrate-station-omitted-tackroom", |_| {
+fn butv_neither_store_is_admitted() {
+    let (_bench, said) = butv_station("substrate-station-omitted-stores", |_| {
         "BURS_LOG_DIR=logs\n".to_string()
     });
-    said.buth_died()
-        .buth_carries("BURS_TACKROOM is not set")
-        .buth_lacks(BUTV_ADMITTED);
+    said.buth_thrived()
+        .buth_carries(BUTV_ADMITTED)
+        .buth_lacks("is not set");
 }
 // eof

@@ -1217,7 +1217,7 @@ fn bktx_the_tongue_reads_a_case_off_the_verbose_line() {
 
     assert_eq!(green.name, "tests/test_alpha.py::test_one");
     assert!(
-        green.passed,
+        green.outcome == crate::bkcv_voice::bkcv_Outcome::Passed,
         "a PASSED case did not read as passed", //
     );
 
@@ -1230,7 +1230,7 @@ fn bktx_the_tongue_reads_a_case_off_the_verbose_line() {
 
     assert_eq!(red.name, "tests/test_beta.py::test_red");
     assert!(
-        !red.passed,
+        red.outcome == crate::bkcv_voice::bkcv_Outcome::Failed,
         "a FAILED case did not read as failed", //
     );
 }
@@ -1283,7 +1283,7 @@ fn bktx_the_tongue_steps_over_the_outcomes_outside_the_signature() {
     .expect("an ERROR line reports a case");
 
     assert!(
-        !errored.passed,
+        errored.outcome == crate::bkcv_voice::bkcv_Outcome::Failed,
         "an ERROR case did not read as failed", //
     );
 }

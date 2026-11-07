@@ -561,7 +561,7 @@ fn zbkth_pose(
 }
 
 /// Where a haynet's release is composed, beside the haynet itself.
-const ZBKTH_RELEASE: &str = "release";
+const ZBKTH_RELEASE: &str = "flomish";
 
 /// Converge a posed kibble over its haynet.
 fn zbkth_converge(haynet: &bktu_Haynet, kibble: &bkcq_Kibble) -> Result<bkch_Kibbled, String> {

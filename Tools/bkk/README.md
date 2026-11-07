@@ -37,14 +37,17 @@ The verbosity dial is the substrate's own `BURE_VERBOSE`.
 | `bkw-z.Muzzle` | none | Lint every collar the weaned set holds at the muzzle directory it declares |
 | `bkw-g.Gangline` | collar | Re-derive one collar's lock, the one act in which the leash lifts the lock flag |
 | `bkw-s.Scoop` | none | Remove every collar's build output, on your word alone |
+| `bkw-B.Bleach` | none | Empty what the kennel keeps on the station for every tree, and this worktree's python environments, on your word alone: nothing calls it, and rebed lays it all again |
 | `bkw-c.Scent` | collar | Derive an app collar's elected set from the record its build left: written beside the collar in a linked worktree for you to commit, refused without writing anywhere else |
 | `bkw-n.Delouse` | none | Take the day's sweep of every collar's build directory where none has landed today; derby and heel take it themselves, and a build door calls it ahead of its build |
 | `bkw-w.Whistle` | none | Report the kennel's own making, building it first where the seat has outrun it |
 | `bkw-r.Rebed` | none | Lay each required channel whose compiler does not answer, leaving every answering one as it stands, then converge the kennel and perform the heels and strikes the derby's preflight names; safe to drive at any time |
 | `bkw-k.Kennelman` | filter | Run this kit's own hurdles outside the kennel, so a broken kennel can still be told it is broken |
+| `bkw-A.Bale` | day | Pack what dispatches have left in their two working folders, dated on or before the day given, into one tar.gz in the folder `BURS_HAYLOFT` names, removing the originals only once the archive reads back equal to them; a missing, malformed or too recent day is refused, naming the latest day it takes |
+| `bkw-u.Unbale` | archive and folder, or none | List the archives in the folder `BURS_HAYLOFT` names, each ready to paste as an argument; given an archive and a folder that is empty or absent, unpack the archive there |
 
-The first eleven are the kennel's own doors.
-The last three are tabtargets of the kit standing outside that register: the whistle is the bootstrap and is bash, rebed re-lays the toolchain in bash for the same reason, and the kennelman runs the kennel's suite when the kennel cannot.
+The first twelve are the kennel's own doors.
+The last five are tabtargets of the kit standing outside that register: the whistle is the bootstrap and is bash, rebed re-lays the toolchain in bash for the same reason, the kennelman runs the kennel's suite when the kennel cannot, and bale and unbale each launch the kit's archive tool as one step of its own.
 No door is reached through another.
 
 A collar is a declaration, one per launchable, named by the directory it sits in; "Declaring a collar" below is how to write one.
@@ -114,7 +117,8 @@ BKRR_TAMED_CRATES="serde \
 
 ### A rust collar
 
-The kit ships a rust hello crate, `Tools/bkk/bke0/bker`, with an app and a suite collar in the kit's brood (`bkern_app`, `bkern_suite`): std alone, no dependencies, every field in its plainest lawful shape, and the one obligation a reader app owes shown in a build script and a few lines of its output module.
+The kit ships a rust hello crate, `Tools/bkk/bke0/bker`, with two app collars and a suite collar in the kit's brood (`bkern_app`, `bkercn_app`, `bkern_suite`): std alone, no dependencies, every field in its plainest lawful shape, and the one obligation a reader app owes shown in a build script and a few lines of its output module.
+Its second binary, under `bkercn_app`, is an attended app: it declares `BKRR_TONGUE` and prints one line per case, one of them skipped on purpose, so the launch door runs it as it runs a suite and names the skip in its verdict.
 Read it beside this section, and wean it to prove the rust tenant on your station.
 
 #### The fields
@@ -122,6 +126,7 @@ Read it beside this section, and wean it to prove the rust tenant on your statio
 Seventeen fields exist.
 Every collar declares the first twelve.
 An app declares two more, a suite declares a different two, and the seventeenth stands only beside a generated file.
+An app may also declare `BKRR_TONGUE`, one of the suite's two: an app declaring it is attended, run as a suite is run, its output read and recorded and its cases counted, where an app declaring none keeps the terminal and its output passes straight through.
 Each field the collar owes must be declared even where its value is empty, since a door cannot tell an empty declaration from an omission; a field that belongs to the other kind is a finding.
 
 | Field | Owed by | Admits |
@@ -140,7 +145,7 @@ Each field the collar owes must be declared even where its value is empty, since
 | `BKRR_RESIDENCE` | an app | the directory the built binary is installed into and launched from |
 | `BKRR_BYNAME` | an app | the binary's file name inside the residence, usually the target's name |
 | `BKRR_RUNNER` | a suite | `bknre_cargo` (`cargo test`) or `bknre_nextest` (`cargo nextest run`), closed |
-| `BKRR_TONGUE` | a suite | the output shape the kennel reads: `bknre_harness` for cargo's harness, `bknre_nextest` for nextest, closed. Match it to the runner |
+| `BKRR_TONGUE` | a suite, and an app that chooses it | the output shape the kennel reads. A suite: `bknre_harness` for cargo's harness, `bknre_nextest` for nextest, closed; match it to the runner. An app: `bknre_passfail` alone, one line per case, `pass`, `fail` or `skip` then the case's name, a skipped case named in the verdict and never counted as run |
 | `BKRR_STRIKE` | a collar whose `BKRR_EXERGUE` names a file | the tabtargets that write those files |
 
 **What a launchable is measured over** is never declared.
@@ -273,7 +278,7 @@ A project with an app declares its entry point under `[project.scripts]` and a b
 | `BKRP_RUNNER` | a suite | `bknre_pytest`, closed |
 | `BKRP_TONGUE` | a suite | `bknre_pytest`, closed |
 
-No residence is declared: an app's entry point stands only in the environment the kennel builds for the project, under the [Loosebox](#bkspy_loosebox), outside your tree.
+No residence is declared: an app's entry point stands only in the environment the kennel builds for the project, under the [loosebox](#bkspy_loosebox), outside your tree.
 
 **The package lists** part the project's direct dependencies by how they arrive.
 Every direct dependency the lock's own account of the manifest carries is named in `BKRP_BAKED_PACKAGES`, the dev group's included for an app and a suite alike, since one environment per project carries both; a name is spelled as the lock spells it, so `Jinja2` is `jinja2`.
@@ -309,6 +314,67 @@ Every python suite collar you wean is a course of the derby and of `bkw-f`, like
 Before any course runs, their preflight reads each python course's environment and refuses, naming heel, where the environment stands nowhere or no longer answers its lock.
 So a fresh worktree heels each python collar once before its first derby, and again whenever a lock it pulls has moved.
 
+## Baling what dispatches leave
+
+`bkw-A.Bale` packs what dispatches have left in their two working folders, dated on or before the day given, into one tar.gz in the folder `BURS_HAYLOFT` names, removing the originals only once the archive reads back equal to them.
+A missing, malformed or too recent day is refused, naming the latest day it takes.
+`bkw-u.Unbale` lists the archives in that folder, each ready to paste as an argument; given an archive and a folder that is empty or absent, it unpacks the archive there.
+
+The archive folder is a line of your station file, the one your `burc.env` names in `BURC_STATION_FILE`:
+
+```bash
+BURS_HAYLOFT=../station-hayloft-buk
+```
+
+It is relative to the project root, and an absolute value is refused, naming the variable.
+The line is optional, so a station file without it is admitted, and a kit that needs the folder refuses in its own voice, naming the line to add.
+
+Bale, and unbale's bare listing, refuse where the line is missing, naming it.
+Unbale given an archive does not need the line.
+
+Bale and unbale both converge the kennel and launch the app collar `bkhln_app`, which this kit's brood carries.
+It is a writer, so the kennel always launches its installed binary.
+Wean it like any collar:
+
+```bash
+cp -r Tools/bkk/bkd_brood/bkhln_app «moorings»/bkd_weaned/
+```
+
+Commit the copy, then heel it before your first bale:
+
+```bash
+tt/bkw-h.Heel.sh bkhln_app
+```
+
+Bale takes one argument, the last day included:
+
+```bash
+tt/bkw-A.Bale.sh «day»
+```
+
+The day is eight digits, year then month then day, a calendar day in UTC.
+It is always given and has no default.
+A missing or malformed day is refused, and so is one later than two days before today; each refusal names the latest day bale takes.
+
+Bale takes every top-level entry of the folder `BURS_LOG_DIR` names and of the folder `BURC_TEMP_ROOT_DIR` names whose newest file is dated on or before the day.
+It judges by modification time alone and reads no names.
+The two folders themselves stay, and the dispatch output folder, `BURC_OUTPUT_ROOT_DIR`, is never touched.
+
+Each run writes one archive into the archive folder, creating the folder where it is absent.
+The archive is named `«tincture»-«first»-«last».tar.gz`: the station's `BURS_TINCTURE`, the day of the oldest file taken, and the day given.
+An archive already standing is never overwritten, and a run that finds nothing old enough writes nothing.
+Bale reads the archive back against the originals, and only then removes exactly what it packed; a failed check removes nothing.
+
+Unbale takes no argument, or two:
+
+```bash
+tt/bkw-u.Unbale.sh
+tt/bkw-u.Unbale.sh «archive» «folder»
+```
+
+With no argument it lists the archive folder's archives, one per line, each a path relative to the project root and ready to paste.
+Given an archive and a folder, it unpacks the archive into that folder, which must be empty or absent and never one inside either folder bale sweeps.
+
 ## Refusals you will meet
 
 Every kennel refusal names what it found and the act that answers it.
@@ -317,7 +383,7 @@ Four are worth knowing before you meet them:
 **The repository carries uncommitted changes.** Commit, then drive the door again.
 This is the house rule that no test runs without a commit, so every record maps to a position.
 
-**`BURS_TACKROOM` is not set.** The station regime refuses a station file that omits the tackroom, naming it, before any kennel door runs.
+**`BURS_TACKROOM` is not set.** A station file that omits the tackroom is admitted, so the kennel refuses a missing tackroom in its own voice, naming the variable and the line to add.
 Declare the tackroom in your station file, as the handbook's first act says.
 The kennel will not fall back to a per-clone copy of the toolchain.
 

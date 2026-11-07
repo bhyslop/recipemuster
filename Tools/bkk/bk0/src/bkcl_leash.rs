@@ -16,6 +16,12 @@
 //! The leash: the one chokepoint every cargo invocation the kennel issues
 //! passes through.
 //!
+//! IT ALSO HOLDS THE ATTENDED LOOP every captured child is heard through, and
+//! one face reaches that loop with no toolchain at all: an attended app's
+//! elected binary, spawned at its path with the caller's arguments and the
+//! whole environment, composed under none of the disciplines below because no
+//! cargo, uv or compiler stands in that spawn.
+//!
 //! Four disciplines, applied here and nowhere else. The first three each close a
 //! finding the rust-build memo's survey left standing; the fourth closes the hole
 //! a later review found under the position stamp:
@@ -1103,9 +1109,11 @@ const ZBKCL_KIT_FAMILIES: &[&str] = &[
 /// Hand an attended child — every course a suite door launches, and the heel's
 /// own builds — the dispatch's pointer and nothing else of the kit.
 ///
-/// STRIPPED AT THE COURSE LAUNCH, on the two attended faces, and nowhere else:
-/// the app arm hands its tenant this process's streams and environment as the
-/// tenant's own, and rebed's heel and strike spawns are doors of their own. A
+/// STRIPPED AT THE COURSE LAUNCH, on the two toolchain faces that attend, and
+/// nowhere else: an app keeps this process's environment whole as the tenant's
+/// own — a tenant holding the terminal takes its streams too, and an attended
+/// app's face hands it the environment and attends its streams — and rebed's
+/// heel and strike spawns are doors of their own. A
 /// course reads its dispatch's values from the file the pointer names, so a value
 /// of the kit this process carried that survived into it would be a second
 /// channel for a fact the file already states — the run-root overrides and the
@@ -1133,11 +1141,60 @@ fn zbkcl_coursed(command: &mut Command, dispatch: &crate::bkcr_resolve::bkcr_Dis
 const ZBKCL_CARGO: &str = "cargo";
 const ZBKCL_UV: &str = "uv";
 
+/// What the app face spawns, as a refusal names it: the binary the election
+/// named, whose path the refusal's spelling carries beside it.
+const ZBKCL_ELECTED: &str = "the elected binary";
+
+/// Run an ATTENDED APP's elected binary at its path with the arguments carried,
+/// hearing both streams line by line as they arrive — the attended loop with no
+/// toolchain composed in front of it.
+///
+/// NO CARGO DISCIPLINE STANDS HERE, which is the face's whole difference from
+/// the two beside it: an elected binary is already built, so there is no pin to
+/// state, no lock to ride and no manifest to name, and composing either
+/// toolchain's chokepoint over it would be a discipline about nothing.
+///
+/// THE ENVIRONMENT CROSSES WHOLE, as it crosses to an app holding the terminal:
+/// what an app reads is its own business, and the kit's names are stripped only
+/// at a course launch. What this face takes from the tenant is its streams,
+/// merged and heard live on the cadence; its stdin is closed, so a tenant asking
+/// for input meets an end rather than a wait.
+///
+/// THE EXIT IS THE CHILD'S, as at every attended face.
+pub fn bkcl_app_attend<I, S, F>(
+    binary: &Path,
+    carried: I,
+    cadence: std::time::Duration,
+    heed: F,
+) -> Result<bkcl_Run, String>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+    F: FnMut(bkcl_Heard),
+{
+    let carried: Vec<std::ffi::OsString> = carried
+        .into_iter()
+        .map(|one| one.as_ref().to_os_string())
+        .collect();
+
+    let mut spelling = binary.display().to_string();
+    for one in &carried {
+        spelling.push(' ');
+        spelling.push_str(&one.to_string_lossy());
+    }
+
+    let mut command = Command::new(binary);
+    command.args(&carried);
+
+    zbkcl_attended(command, spelling, ZBKCL_ELECTED, cadence, heed)
+}
+
 /// Spawn a composed command with both streams taken, and hand each line to
 /// `heed` as it arrives and each silence of a whole cadence as a lull.
 ///
 /// ONE ATTENDED LOOP FOR EVERY ATTENDED FACE. What parts the faces is the
-/// composition — cargo's discipline with the lock riding or lifted, or uv's —
+/// composition — cargo's discipline with the lock riding or lifted, uv's, or
+/// none for an elected binary —
 /// and what they do with the child once composed is the same act, so it is
 /// spelled once.
 fn zbkcl_attended<F>(

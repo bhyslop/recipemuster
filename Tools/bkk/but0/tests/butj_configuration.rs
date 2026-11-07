@@ -56,6 +56,18 @@ const BUTJ_EXEC: &str = "exec \"${BASH_SOURCE[0]%/*}/z-launcher.sh\" \"${0##*/}\
 /// The seat's own launcher stub.
 const BUTJ_LAUNCHER: &str = "launcher.lure_workbench.sh";
 
+/// A launcher stub in the form the structure check holds: a shebang and one
+/// exec of the shared launcher naming its workbench from the root.
+const BUTJ_STUB_SOUND: &str =
+    "#!/bin/bash\nexec \"Tools/buk/bul_launcher.sh\" \"Tools/quobk/quob_workbench.sh\" \"$@\"\n";
+
+/// A launcher stub of the shape the kit no longer runs, sourcing the shared
+/// launcher: the control the structure check refuses by name.
+const BUTJ_STUB_SOURCING: &str = "#!/bin/bash\n\
+     # Launcher stub - delegates to quoc workbench\n\
+     source \"Tools/buk/bul_launcher.sh\"\n\
+     quoc_launch \"${BURC_TOOLS_DIR}/quock/quoc_workbench.sh\" \"$@\"\n";
+
 /// The desuetude gate's code, the value the substrate's generated constants
 /// declare as `BUBG_DESUETUDE_DENTIL`, spelled here as a literal on purpose
 /// (BUr_vsm).
@@ -550,7 +562,7 @@ fn butj_the_structure_check_admits_the_configuration_form_and_refuses_an_export_
         root.join("quobmm")
             .join("buml_launchers")
             .join("launcher.quob_workbench.sh"),
-        "#!/bin/bash\n",
+        BUTJ_STUB_SOUND,
     )
     .expect("launcher");
     std::fs::write(root.join("tt").join("z-launcher.sh"), "#!/bin/bash\n").expect("trampoline");
@@ -619,6 +631,88 @@ fn butj_the_structure_check_admits_the_configuration_form_and_refuses_an_export_
     assert!(
         said.contains("quob-e.Exported.sh") && said.contains("export line"),
         "by name:\n{}",
+        said, //
+    );
+}
+
+#[test]
+fn butj_the_structure_check_refuses_a_launcher_stub_carrying_a_source_line_by_name() {
+    // THE STRUCTURE CHECK HOLDS EVERY LAUNCHER STUB, a tabtarget naming it or
+    // not: a stub in the exec form passes, and a stub standing beside it that
+    // sources the shared launcher is refused, the refusal naming that stub and
+    // its source line. The harness is the export case's, the moorings name
+    // assigned in the child's own script.
+    let lure = bktu_Lure::bktu_compose("substrate-config-stub-structure");
+    let root = lure.bktu_root().to_path_buf();
+    let launchers = root.join("quobmm").join("buml_launchers");
+    std::fs::create_dir_all(root.join("tt")).expect("tt");
+    std::fs::create_dir_all(&launchers).expect("launchers");
+    std::fs::write(
+        launchers.join("launcher.quob_workbench.sh"),
+        BUTJ_STUB_SOUND,
+    )
+    .expect("sound launcher");
+    std::fs::write(root.join("tt").join("z-launcher.sh"), "#!/bin/bash\n").expect("trampoline");
+    std::fs::write(
+        root.join("tt").join("quob-s.Sound.sh"),
+        butj_stub("set -- 'launcher.quob_workbench.sh' \"$@\""),
+    )
+    .expect("sound stub");
+    let substrate = but::buts_seat::buts_substrate();
+    let check = |yard: &Path| {
+        let out = std::process::Command::new("bash")
+            .env_remove("BURD_BURD_FILE")
+            .arg("-c")
+            .arg(
+                "set -euo pipefail\n\
+                 source \"$1/buc_command.sh\"\n\
+                 source \"$1/buym_yelp.sh\"\n\
+                 source \"$1/bubc_constants.sh\"\n\
+                 source \"$1/buq_qualify.sh\"\n\
+                 BURD_MOORINGS_DIR='quobmm'\n\
+                 buq_tabtargets \"$2/tt\" \"$2\" 'z-*.sh'\n\
+                 echo structure-holds\n",
+            )
+            .arg("butj")
+            .arg(&substrate)
+            .arg(yard)
+            .output()
+            .expect("bash spawns");
+        let said = format!(
+            "{}{}",
+            String::from_utf8_lossy(&out.stdout),
+            String::from_utf8_lossy(&out.stderr), //
+        );
+        (out.status.code(), said)
+    };
+    let (code, said) = check(&root);
+    assert_eq!(
+        code,
+        Some(0),
+        "a stub in the exec form passes:\n{}",
+        said, //
+    );
+
+    std::fs::write(
+        launchers.join("launcher.quoc_workbench.sh"),
+        BUTJ_STUB_SOURCING,
+    )
+    .expect("sourcing launcher");
+    let (code, said) = check(&root);
+    assert_ne!(
+        code,
+        Some(0),
+        "a stub carrying a source line is refused, though no door names it:\n{}",
+        said, //
+    );
+    assert!(
+        said.contains("launcher.quoc_workbench.sh") && said.contains("source line"),
+        "by name:\n{}",
+        said, //
+    );
+    assert!(
+        !said.contains("launcher.quob_workbench.sh:"),
+        "the sound stub beside it is not named:\n{}",
         said, //
     );
 }

@@ -327,7 +327,7 @@ fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
 
 /// The python collar every hurdle below composes, and where its project stands.
 const ZBKTY_PYTHON_COLLAR: &str = "suite-lure";
-const ZBKTY_PYTHON_AT: &str = "project";
+const ZBKTY_PYTHON_AT: &str = "plindox";
 
 /// A lure carrying one uv project and a python collar over it, with the seat
 /// that names where its environment stands.

@@ -18,7 +18,7 @@
 # Co-maintained constants - do not hand-edit.
 # The human-presentation surface forms of the governed words homed in BUK.
 # A string that spells one of these words in its own bytes has left the home.
-# Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
+# Beside them, the colophons, exit codes and suggested values attached at definitions, each named for the definition it is attached at.
 # Beside them, the face names this kit's documents wear, each named for the anchor it is worn on.
 
 test -z "${ZBUBG_SOURCED:-}" || return 0
@@ -57,6 +57,15 @@ readonly BUBG_STATION_PLURAL_LETTRINE="Stations"
 readonly BUBG_STATION_POSSESSIVE="station's"
 readonly BUBG_STATION_POSSESSIVE_VERSAL="STATION'S"
 readonly BUBG_STATION_POSSESSIVE_LETTRINE="Station's"
+readonly BUBG_STATION_LOG_BASE="station log"
+readonly BUBG_STATION_LOG_BASE_VERSAL="STATION LOG"
+readonly BUBG_STATION_LOG_BASE_LETTRINE="Station log"
+readonly BUBG_STATION_LOG_PLURAL="station logs"
+readonly BUBG_STATION_LOG_PLURAL_VERSAL="STATION LOGS"
+readonly BUBG_STATION_LOG_PLURAL_LETTRINE="Station logs"
+readonly BUBG_STATION_LOG_POSSESSIVE="station log's"
+readonly BUBG_STATION_LOG_POSSESSIVE_VERSAL="STATION LOG'S"
+readonly BUBG_STATION_LOG_POSSESSIVE_LETTRINE="Station log's"
 readonly BUBG_TABTARGET_BASE="tabtarget"
 readonly BUBG_TABTARGET_BASE_VERSAL="TABTARGET"
 readonly BUBG_TABTARGET_BASE_LETTRINE="Tabtarget"
@@ -90,13 +99,25 @@ readonly BUBG_DESUETUDE_BASE_LETTRINE="Desuetude"
 readonly BUBG_DESUETUDE_POSSESSIVE="desuetude's"
 readonly BUBG_DESUETUDE_POSSESSIVE_VERSAL="DESUETUDE'S"
 readonly BUBG_DESUETUDE_POSSESSIVE_LETTRINE="Desuetude's"
+readonly BUBG_LAUNCHER_BASE="moorings launcher"
+readonly BUBG_LAUNCHER_BASE_VERSAL="MOORINGS LAUNCHER"
+readonly BUBG_LAUNCHER_BASE_LETTRINE="Moorings launcher"
+readonly BUBG_LAUNCHER_PLURAL="moorings launchers"
+readonly BUBG_LAUNCHER_PLURAL_VERSAL="MOORINGS LAUNCHERS"
+readonly BUBG_LAUNCHER_PLURAL_LETTRINE="Moorings launchers"
+readonly BUBG_LAUNCHER_POSSESSIVE="moorings launcher's"
+readonly BUBG_LAUNCHER_POSSESSIVE_VERSAL="MOORINGS LAUNCHER'S"
+readonly BUBG_LAUNCHER_POSSESSIVE_LETTRINE="Moorings launcher's"
 readonly BUBG_CONFIG_RENDER_PEDIMENT="buw-rcr"
 readonly BUBG_CONFIG_VALIDATE_PEDIMENT="buw-rcv"
 readonly BUBG_ENVIRONMENT_RENDER_PEDIMENT="buw-rer"
 readonly BUBG_ENVIRONMENT_VALIDATE_PEDIMENT="buw-rev"
+readonly BUBG_HAYLOFT_SOCLE="station-hayloft-buk"
+readonly BUBG_LOG_DIR_SOCLE="station-log-buk"
 readonly BUBG_STATION_INIT_PEDIMENT="buw-SI"
 readonly BUBG_STATION_RENDER_PEDIMENT="buw-rsr"
 readonly BUBG_STATION_VALIDATE_PEDIMENT="buw-rsv"
+readonly BUBG_TACKROOM_SOCLE="tackroom-buk"
 readonly BUBG_EMPLACE_PEDIMENT="buw-pe"
 readonly BUBG_BAND_CHAIN_PEDIMENT="buw-xb"
 readonly BUBG_BATCH_AMANUENSIS_PEDIMENT="buw-tt-cbo"
@@ -109,17 +130,23 @@ readonly BUBG_LAUNCHER_STUB_PEDIMENT="buw-tt-cl"
 readonly BUBG_LIST_LAUNCHERS_PEDIMENT="buw-tt-ll"
 readonly BUBG_ROLL_CALL_PEDIMENT="buw-tt-rc"
 readonly BUBG_DESUETUDE_DENTIL=119
+readonly BUBG_BAILOUT_ANTA=101
 readonly BUBG_BAND_FRIEZE_BASE=100
 readonly BUBG_BAND_FRIEZE_WIDTH=24
 readonly BUBG_BARRED_PSEPHOS=3
 readonly BUBG_CLEAN_DENTIL=108
+readonly BUBG_ECH_ANTA=101
 readonly BUBG_ENROLL_DENTIL=101
 readonly BUBG_FENCED_PSEPHOS=4
+readonly BUBG_FLUNK_ANTA=100
+readonly BUBG_MISFIRE_ANTA=125
+readonly BUBG_OVERGROWN_ANTA=100
+readonly BUBG_OVERTIME_ANTA=124
 readonly BUBG_REGIME_DENTIL=100
 readonly BUBG_SELFTEST_DENTIL=123
 readonly BUBG_SYNCHRONY_DENTIL=117
 readonly BUBG_WORKTREE_DENTIL=121
-readonly BUBG_BUSPL_LAUNCHER_PROSOPON="Launcher"
+readonly BUBG_BUSPL_LAUNCHER_PROSOPON="Moorings-Launcher"
 readonly BUBG_BUSPM_FORMULARY_PROSOPON="Formulary"
 readonly BUBG_BUSPM_WORKBENCH_PROSOPON="Workbench"
 readonly BUBG_BUSPM_TESTBENCH_PROSOPON="Testbench"
@@ -133,7 +160,7 @@ readonly BUBG_BURC_REGIME_PROSOPON="BURC"
 readonly BUBG_BURS_REGIME_PROSOPON="BURS"
 readonly BUBG_BURD_REGIME_PROSOPON="BURD"
 readonly BUBG_BURE_REGIME_PROSOPON="BURE"
-readonly BUBG_BUS_REGIME_PROSOPON="Regime"
+readonly BUBG_BUS_CONFIG_REGIME_PROSOPON="Config-Regime"
 readonly BUBG_BUS_ASSIGNMENT_PROSOPON="Assignment"
 readonly BUBG_BUS_CATENA_PROSOPON="Catena"
 readonly BUBG_BUS_LOOSEBOX_PROSOPON="Loosebox"

@@ -217,7 +217,7 @@ fn butq_every_level_of_a_nested_chain_holds_its_hand_offs_alone() {
             )
         });
     }
-    let override_logs = lure.bktu_root().join("burv-logs");
+    let override_logs = lure.bktu_root().join("burv-snorvel");
 
     let out = lure.bktu_dispatch_stating(
         &lure.bktu_root().join(BUTQ_OUTER),
@@ -952,8 +952,38 @@ fn butq_a_rust_course_is_handed_the_pointer_alone_and_the_tackroom_homes() {
 const BUTQ_PYTHON_PIN: &str = "3.12.7";
 const BUTQ_PY_COLLAR: &str = "suite-lure";
 
-/// A python lure converged and committed: its project, its lock authored, its
-/// environment synced — the road the kennel's own python drives take.
+/// The kennel's hello exemplar, the project a python lure plants whole: its
+/// manifest, pin and lock are the repository's own, which rebed has already
+/// heeled into the station's cache and interpreter store.
+fn zbutq_exemplar() -> std::path::PathBuf {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../bke0/bkep")
+}
+
+/// Every file beneath `dir`, as paths relative to `under`.
+fn zbutq_files(under: &std::path::Path, dir: &std::path::Path, into: &mut Vec<std::path::PathBuf>) {
+    let mut entries: Vec<std::path::PathBuf> = std::fs::read_dir(dir)
+        .unwrap_or_else(|err| panic!("{} could not be listed: {}", dir.display(), err))
+        .map(|entry| entry.expect("an entry reads").path())
+        .collect();
+    entries.sort();
+    for path in entries {
+        if path.is_dir() {
+            zbutq_files(under, &path, into);
+        } else {
+            into.push(
+                path.strip_prefix(under)
+                    .expect("the file stands beneath the exemplar")
+                    .to_path_buf(),
+            );
+        }
+    }
+}
+
+/// A python lure converged and committed, OFFLINE: the hello exemplar planted
+/// whole, its lock the repository's own, and every uv step this lure drives
+/// stated sealed — so a lure that stands is itself the proof that its course
+/// reaches no index. The case is written where the exemplar's own runner
+/// configuration collects it.
 fn zbutq_pythoned(named: &str, case: &str) -> bktu_Lure {
     let lure = bktu_Lure::bktu_compose(named);
     lure.bktu_project(
@@ -961,17 +991,25 @@ fn zbutq_pythoned(named: &str, case: &str) -> bktu_Lure {
         BUTQ_PY_COLLAR,
         &bkk::bktu_lure::bktu_Bent {
             pin: BUTQ_PYTHON_PIN.to_string(),
-            requires: ">=3.12".to_string(),
             lockless: true,
             baked: "pytest".to_string(),
             ..Default::default()
         },
     );
-    lure.bktu_write(
-        "project/pyproject.toml",
-        "[project]\nname = \"lure\"\nversion = \"0.0.1\"\nrequires-python = \">=3.12\"\ndependencies = [\"pytest\"]\n",
-    );
-    lure.bktu_write("project/tests/test_quiet.py", case);
+    let exemplar = zbutq_exemplar();
+    let mut files = Vec::new();
+    zbutq_files(&exemplar, &exemplar, &mut files);
+    for relative in &files {
+        let text = std::fs::read_to_string(exemplar.join(relative)).unwrap_or_else(|err| {
+            panic!(
+                "the exemplar's {} reads: {}",
+                relative.display(),
+                err, //
+            )
+        });
+        lure.bktu_write(&format!("project/{}", relative.display()), &text);
+    }
+    lure.bktu_write("project/bkep0/bkept_quiet.py", case);
     lure.bktu_stationed().bktu_uv_seat(&lure);
 
     let dispatch = bkk::bkcr_resolve::bkcr_Dispatch::bkcr_read(&lure.bktu_dispatch_file())
@@ -984,49 +1022,26 @@ fn zbutq_pythoned(named: &str, case: &str) -> bktu_Lure {
     let seat = bkk::bkcx_python::bkcx_seat_at(lure.bktu_loosebox(), &tackroom, &collar);
     let project = lure.bktu_root().join(collar.bkcx_project());
 
-    for (posture, args) in [
-        (
-            bkk::bkcx_python::bkcx_Posture::Fetching,
-            vec![
-                std::ffi::OsString::from("python"),
-                "install".into(),
-                "--no-bin".into(),
-                BUTQ_PYTHON_PIN.into(),
-            ],
-        ),
-        (
-            bkk::bkcx_python::bkcx_Posture::Reaching,
-            vec![
-                "lock".into(),
-                "--project".into(),
-                project.clone().into_os_string(),
-            ],
-        ),
-    ] {
-        let stated = bkk::bkcx_python::bkcx_stated(&seat, posture);
-        let run = bkk::bkcl_leash::bkcl_uv(
-            lure.bktu_root(),
-            &dispatch,
-            &project,
-            &args,
-            &bkk::bkcx_python::bkcx_borne(&stated),
-        )
-        .expect("uv is reached");
-        assert!(
-            run.bkcl_landed(),
-            "the python lure did not stand: {}",
-            run.spelling, //
-        );
-    }
-
-    bkk::bkch_heel::bkch_python_at(lure.bktu_root(), &dispatch, &collar, &seat).unwrap_or_else(
-        |err| {
-            panic!(
-                "the python lure would not converge: {}",
-                err, //
-            )
-        },
+    let stated = bkk::bkcx_python::bkcx_stated(&seat, bkk::bkcx_python::bkcx_Posture::Sealed);
+    let run = bkk::bkcl_leash::bkcl_uv(
+        lure.bktu_root(),
+        &dispatch,
+        &project,
+        &[
+            std::ffi::OsString::from("sync"),
+            "--locked".into(),
+            "--project".into(),
+            project.clone().into_os_string(),
+        ],
+        &bkk::bkcx_python::bkcx_borne(&stated),
+    )
+    .expect("uv is reached");
+    assert!(
+        run.bkcl_landed(),
+        "the python lure did not stand sealed: {}",
+        run.spelling, //
     );
+
     lure.bktu_commit("the converged python lure");
     lure
 }
@@ -1040,7 +1055,7 @@ fn butq_a_python_course_is_handed_the_pointer_alone() {
     let lure = zbutq_pythoned(
         "quiet-python-course",
         &format!(
-            "import os\n\n\ndef test_writes():\n    with open({:?}, \"w\") as said:\n        for name, value in os.environ.items():\n            said.write(name + \"=\" + value + \"\\n\")\n",
+            "import os\n\n\ndef bkept_writes():\n    with open({:?}, \"w\") as said:\n        for name, value in os.environ.items():\n            said.write(name + \"=\" + value + \"\\n\")\n",
             record.display().to_string(), //
         ),
     );
