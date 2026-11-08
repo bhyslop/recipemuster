@@ -15,23 +15,35 @@
 # limitations under the License.
 #
 #
-# srjcl post-charge hook
+# srjcl envoi
 #
-# Warns if the operator's shell did not export ANTHROPIC_API_KEY (in which case
-# notebook cells that call the Anthropic API will fail authentication). The
-# JupyterLab URL is surfaced declaratively via rbnnh_charge_note.txt — this hook
-# retains only the conditional check, which a note cannot express.
+# Prints the JupyterLab URL, its port read from the rbrn.env beside this
+# script, then warns if the operator's shell did not export ANTHROPIC_API_KEY
+# (in which case notebook cells that call the Anthropic API will fail
+# authentication).
 #
-# Self-contained by contract: no BUK/RBK utility-module dependencies. Inherits
-# RBRN_*/RBRR_* environment from the charge process.
+# Self-contained by contract: it sources no kit module, and every nameplate
+# value it prints is read from the rbrn.env beside it, never from the
+# environment it runs in.
 
 set -euo pipefail
+
+readonly z_self="${BASH_SOURCE[0]}"
+z_dir="."
+case "${z_self}" in
+  */*) z_dir="${z_self%/*}" ;;
+esac
+readonly z_dir
+
+source "${z_dir}/rbrn.env"
 
 readonly z_yellow=$'\033[33m'
 readonly z_bold=$'\033[1m'
 readonly z_reset=$'\033[0m'
 
+printf 'JupyterLab ready: http://localhost:%s/lab\n' "${RBRN_ENTRY_PORT_WORKSTATION}" || exit 1
+
 if test -z "${ANTHROPIC_API_KEY:-}"; then
   printf '%sWARNING:%s ANTHROPIC_API_KEY is not set in your shell — Anthropic API calls in the notebook will fail.\n' "${z_yellow}" "${z_reset}" || exit 1
-  printf '  Remediation: %sexport ANTHROPIC_API_KEY=sk-...%s in your shell, then re-charge srjcl to pick it up.\n' "${z_bold}" "${z_reset}" || exit 1
+  printf '  Remediation: %sexport ANTHROPIC_API_KEY=sk-...%s in your shell, then restart srjcl to pick it up.\n' "${z_bold}" "${z_reset}" || exit 1
 fi

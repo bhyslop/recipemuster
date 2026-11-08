@@ -138,11 +138,8 @@ zrbob_kindle() {
   readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
 
-  readonly ZRBOB_POST_CHARGE_HOOK="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_post_charge.sh"
-  # Hook is optional — existence + executable bit checked at charge tail
-
-  readonly ZRBOB_CHARGE_NOTE="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_charge_note.txt"
-  # Note is optional — existence checked at charge tail
+  readonly ZRBOB_ENVOI="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_envoi.sh"
+  # Envoi is optional — checked in the charge preflight, run through bash at the charge tail
 
   # Env file paths (for compose --env-file: YAML interpolation + container env forwarding)
   readonly ZRBOB_ENV_RBRR="${RBCC_rbrr_file}"
@@ -693,75 +690,6 @@ zrbob_reclaim_subnet() {
 }
 
 ######################################################################
-# Charge Note (rbnnh_charge_note.txt)
-
-# Closed placeholder vocabulary for the per-nameplate usage note. A token names
-# one of these exactly; anything else is a typo and is fatal. Widening the
-# vocabulary is adding an arm here plus a line in the spec — not a format change.
-# Dies unless the name is a sanctioned charge-note placeholder.
-zrbob_note_vocab_ok() {
-  zrbob_sentinel
-
-  case "${1}" in
-    RBRN_ENTRY_PORT_WORKSTATION) ;;
-    *) buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: unknown placeholder {{${1}}} — not in the closed vocabulary" ;;
-  esac
-}
-
-# Surface the optional per-nameplate usage note at the charge tail. The note is
-# data — read, never sourced or executed. Placeholder tokens {{NAME}} resolve by
-# indirect expansion (${!NAME}) after NAME is validated against the closed
-# vocabulary; an unknown or malformed token is fatal, never emitted raw
-# (rbnnh_charge_note). Emission routes through BUC.
-zrbob_render_charge_note() {
-  zrbob_sentinel
-
-  test -f "${ZRBOB_CHARGE_NOTE}" || return 0
-
-  local z_content_status=0
-  local z_content
-  z_content=$(<"${ZRBOB_CHARGE_NOTE}") || z_content_status=$?
-  test "${z_content_status}" -eq 0 || return 0
-  test -n "${z_content}" || return 0
-
-  # Resolve each distinct {{NAME}} token: validate the name against the closed
-  # vocabulary, then globally substitute its indirect-expanded value. Every
-  # vocabulary member is a required, kindle-exported field, so the value is
-  # always set; a mis-curated vocabulary trips set -u loudly at expansion.
-  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-  local z_name=""
-  local z_value=""
-  while [[ "${z_content}" =~ \{\{([A-Za-z_][A-Za-z0-9_]*)\}\} ]]; do
-    z_name="${BASH_REMATCH[1]}"
-    zrbob_note_vocab_ok "${z_name}"
-    [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
-      || buc_die_now "Invalid variable name: ${z_name}"
-    z_value="${!z_name}"
-    case "${z_value}" in
-      *[\&\\]*) buc_die_now "Note ${ZRBOB_CHARGE_NOTE}: value of {{${z_name}}} carries '&' or a backslash" ;;
-    esac
-    z_content="${z_content//"{{${z_name}}}"/${z_value}}"
-  done
-
-  # A residual doubled brace is a malformed token — reject, never emit it raw.
-  case "${z_content}" in
-    *'{{'* | *'}}'*)
-      buc_die_now "Charge note ${ZRBOB_CHARGE_NOTE}: malformed placeholder token (stray {{ or }})" ;;
-  esac
-
-  buc_step "Nameplate usage note (${RBRN_MONIKER}):"
-  local z_note_lines=()
-  local z_line=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
-    z_note_lines+=("${z_line}")
-  done <<< "${z_content}"
-  local z_i=0
-  for z_i in "${!z_note_lines[@]}"; do
-    buc_info "${z_note_lines[${z_i}]}"
-  done
-}
-
-######################################################################
 # Public API
 
 # Start the crucible (sentry + pentacle + bottle) via compose
@@ -786,6 +714,19 @@ rbob_charge() {
   # and the exec verbs stay legal on a vacant nameplate. The gate is homed in
   # the rbrn regime module (the hallmarks' own home); charge cites it.
   rbrn_require_armed "${RBRN_MONIKER}" "${RBRN_SENTRY_HALLMARK}" "${RBRN_BOTTLE_HALLMARK}"
+
+  # Envoi gate: a present envoi must be a regular readable file that bash
+  # parses, refused here ahead of any compose so a broken one starts no
+  # container (rbnnh_envoi). Absence is silent.
+  if test -e "${ZRBOB_ENVOI}" || test -L "${ZRBOB_ENVOI}"; then
+    test -f "${ZRBOB_ENVOI}" || buc_die_now "Not a regular file: ${ZRBOB_ENVOI}"
+    test -r "${ZRBOB_ENVOI}" || buc_die_now "Not a readable file: ${ZRBOB_ENVOI}"
+    local z_parse_status=0
+    bash -n "${ZRBOB_ENVOI}" 2>"${z_charge_prefix}syntax_stderr.txt" \
+      || z_parse_status=$?
+    test "${z_parse_status}" -eq 0 \
+      || buc_die_now "Bash cannot parse ${ZRBOB_ENVOI} (status ${z_parse_status}) — see ${z_charge_prefix}syntax_stderr.txt"
+  fi
 
   # Currency gate: a pinned kludge image whose source has moved is stale, and
   # stands ahead of the presence preflight below — a stale pin that happens to
@@ -859,17 +800,16 @@ rbob_charge() {
       || buc_die_now "Failed to wait for Bottle service readiness"
   fi
 
-  if test -x "${ZRBOB_POST_CHARGE_HOOK}"; then
-    buc_step "Running post-charge hook: ${ZRBOB_POST_CHARGE_HOOK}"
-    local z_hook_status=0
-    "${ZRBOB_POST_CHARGE_HOOK}" || z_hook_status=$?
-    test "${z_hook_status}" -eq 0 \
-      || buc_die_now "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK} (status ${z_hook_status})"
+  # The envoi runs last, after the readiness wait, through bash, so its
+  # executable bit is never consulted; charge promises it no value by argument
+  # or environment, and its output is raw (rbnnh_envoi).
+  if test -f "${ZRBOB_ENVOI}"; then
+    buc_step "Running ${ZRBOB_ENVOI}"
+    local z_envoi_status=0
+    bash "${ZRBOB_ENVOI}" || z_envoi_status=$?
+    test "${z_envoi_status}" -eq 0 \
+      || buc_die_now "${ZRBOB_ENVOI} exited with status ${z_envoi_status}"
   fi
-
-  # Usage note surfaces last — after the hook, so a hook precondition failure
-  # suppresses it (rbnnh_charge_note). No-op when the note file is absent.
-  zrbob_render_charge_note
 }
 
 # Check whether the crucible is charged — sentry, pentacle, and bottle must each
