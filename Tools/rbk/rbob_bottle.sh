@@ -719,8 +719,8 @@ rbob_charge() {
   # parses, refused here ahead of any compose so a broken one starts no
   # container (rbnnh_envoi). Absence is silent.
   if test -e "${ZRBOB_ENVOI}" || test -L "${ZRBOB_ENVOI}"; then
-    test -f "${ZRBOB_ENVOI}" && test -r "${ZRBOB_ENVOI}" \
-      || buc_die_now "Not a regular readable file: ${ZRBOB_ENVOI}"
+    test -f "${ZRBOB_ENVOI}" || buc_die_now "Not a regular file: ${ZRBOB_ENVOI}"
+    test -r "${ZRBOB_ENVOI}" || buc_die_now "Not a readable file: ${ZRBOB_ENVOI}"
     local z_parse_status=0
     bash -n "${ZRBOB_ENVOI}" 2>"${z_charge_prefix}syntax_stderr.txt" \
       || z_parse_status=$?
