@@ -138,7 +138,7 @@ zrbob_kindle() {
   readonly ZRBOB_COMPOSE_FRAGMENT="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_compose.yml"
   # Fragment is optional — existence checked at compose invocation time
 
-  readonly ZRBOB_POST_CHARGE_HOOK="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_post_charge.sh"
+  readonly ZRBOB_ENVOI="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_post_charge.sh"
   # Hook is optional — existence + executable bit checked at charge tail
 
   readonly ZRBOB_CHARGE_NOTE="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/rbnnh_charge_note.txt"
@@ -859,12 +859,12 @@ rbob_charge() {
       || buc_die_now "Failed to wait for Bottle service readiness"
   fi
 
-  if test -x "${ZRBOB_POST_CHARGE_HOOK}"; then
-    buc_step "Running post-charge hook: ${ZRBOB_POST_CHARGE_HOOK}"
+  if test -x "${ZRBOB_ENVOI}"; then
+    buc_step "Running post-charge hook: ${ZRBOB_ENVOI}"
     local z_hook_status=0
-    "${ZRBOB_POST_CHARGE_HOOK}" || z_hook_status=$?
+    "${ZRBOB_ENVOI}" || z_hook_status=$?
     test "${z_hook_status}" -eq 0 \
-      || buc_die_now "Post-charge hook failed: ${ZRBOB_POST_CHARGE_HOOK} (status ${z_hook_status})"
+      || buc_die_now "Post-charge hook failed: ${ZRBOB_ENVOI} (status ${z_hook_status})"
   fi
 
   # Usage note surfaces last — after the hook, so a hook precondition failure
