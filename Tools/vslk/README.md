@@ -35,8 +35,8 @@ This will:
 
 VSLK uses a split configuration model for portability:
 
-**Launcher-provided (repo-specific):**
-- `VSLW_TEMPLATE_DIR` - Path to directory containing `.vpj` and `.vpw` template files
+**Workbench-declared (repo-specific):**
+- `VSLW_TEMPLATE_DIR` - Path to directory containing `.vpj` and `.vpw` template files, set at the workbench head
 
 **Workbench-computed (automatic):**
 - `VSLW_PROJECT_BASE_NAME` - Detected from current directory (`${PWD##*/}`)
@@ -45,7 +45,7 @@ VSLK uses a split configuration model for portability:
 To use VSLK in a new repo:
 1. Copy `Tools/vslk/` to your repo
 2. Create a directory with your `.vpj` and `.vpw` template files
-3. Set `VSLW_TEMPLATE_DIR` in your launcher to point to that directory
+3. Edit the `VSLW_TEMPLATE_DIR` line at the workbench head to point at your template directory
 4. Create the tabtarget and launcher following BUK patterns
 
 ## Design Philosophy
@@ -53,5 +53,5 @@ To use VSLK in a new repo:
 - **Bash 3.2 Compatible**: Uses only bash parameter expansion and standard utilities
 - **Template-Based**: Pre-made project files, no code generation complexity
 - **Self-Adapting**: Destination directory name matches project folder
-- **Portable**: Kit code is repo-agnostic; configuration comes from launcher
+- **Portable**: Kit code is repo-agnostic except the one line at the workbench head naming the template directory
 - **Integration-Ready**: Works within BUK infrastructure via launcher + workbench pattern
