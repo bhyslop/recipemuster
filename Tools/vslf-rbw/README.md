@@ -12,7 +12,7 @@ VSLK is a portable kit in `Tools/vslk/` that copies these templates to the insta
 - **VSLK** (`Tools/vslk/`) - Portable installer logic, can be copied to other repos
 - **VSLF-RBW** (`Tools/vslf-rbw/`) - Repo-specific project templates
 
-The launcher sets `VSLW_TEMPLATE_DIR="Tools/vslf-rbw"` to connect them.
+The VSLK workbench names this directory in its `VSLW_TEMPLATE_DIR` constant.
 
 ## Projects
 

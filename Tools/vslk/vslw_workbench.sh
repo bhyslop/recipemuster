@@ -44,6 +44,7 @@ vslw_show() {
 # SlickEdit destination configuration
 VSLW_PROJECT_BASE_NAME="${PWD##*/}"
 VSLW_DEST_DIR="../_vs/${VSLW_PROJECT_BASE_NAME}"
+VSLW_TEMPLATE_DIR="Tools/vslf-rbw"
 
 # Simple routing function
 vslw_route() {
@@ -53,8 +54,6 @@ vslw_route() {
   vslw_show "Routing command: ${z_command} with args: $*"
 
   zburd_sentinel
-
-  test -n "${VSLW_TEMPLATE_DIR:-}" || buc_die_now "VSLW_TEMPLATE_DIR not set - must be set by launcher"
 
   vslw_show "BUD environment verified"
 
