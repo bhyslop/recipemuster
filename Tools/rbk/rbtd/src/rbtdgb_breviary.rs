@@ -21,6 +21,33 @@
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
 
+macro_rules! rbtgeb_envoi_base { () => { "envoi" }; }
+pub(crate) use rbtgeb_envoi_base;
+pub const RBTGEB_ENVOI_BASE: &str = rbtgeb_envoi_base!();
+macro_rules! rbtgeb_envoi_base_versal { () => { "ENVOI" }; }
+pub(crate) use rbtgeb_envoi_base_versal;
+pub const RBTGEB_ENVOI_BASE_VERSAL: &str = rbtgeb_envoi_base_versal!();
+macro_rules! rbtgeb_envoi_base_lettrine { () => { "Envoi" }; }
+pub(crate) use rbtgeb_envoi_base_lettrine;
+pub const RBTGEB_ENVOI_BASE_LETTRINE: &str = rbtgeb_envoi_base_lettrine!();
+macro_rules! rbtgeb_envoi_plural { () => { "envois" }; }
+pub(crate) use rbtgeb_envoi_plural;
+pub const RBTGEB_ENVOI_PLURAL: &str = rbtgeb_envoi_plural!();
+macro_rules! rbtgeb_envoi_plural_versal { () => { "ENVOIS" }; }
+pub(crate) use rbtgeb_envoi_plural_versal;
+pub const RBTGEB_ENVOI_PLURAL_VERSAL: &str = rbtgeb_envoi_plural_versal!();
+macro_rules! rbtgeb_envoi_plural_lettrine { () => { "Envois" }; }
+pub(crate) use rbtgeb_envoi_plural_lettrine;
+pub const RBTGEB_ENVOI_PLURAL_LETTRINE: &str = rbtgeb_envoi_plural_lettrine!();
+macro_rules! rbtgeb_envoi_possessive { () => { "envoi's" }; }
+pub(crate) use rbtgeb_envoi_possessive;
+pub const RBTGEB_ENVOI_POSSESSIVE: &str = rbtgeb_envoi_possessive!();
+macro_rules! rbtgeb_envoi_possessive_versal { () => { "ENVOI'S" }; }
+pub(crate) use rbtgeb_envoi_possessive_versal;
+pub const RBTGEB_ENVOI_POSSESSIVE_VERSAL: &str = rbtgeb_envoi_possessive_versal!();
+macro_rules! rbtgeb_envoi_possessive_lettrine { () => { "Envoi's" }; }
+pub(crate) use rbtgeb_envoi_possessive_lettrine;
+pub const RBTGEB_ENVOI_POSSESSIVE_LETTRINE: &str = rbtgeb_envoi_possessive_lettrine!();
 macro_rules! rbtgeb_vessel_mode_annex_base { () => { "annex" }; }
 pub(crate) use rbtgeb_vessel_mode_annex_base;
 pub const RBTGEB_VESSEL_MODE_ANNEX_BASE: &str = rbtgeb_vessel_mode_annex_base!();
