@@ -227,19 +227,19 @@ rbq_shellcheck() {
 
   # Load-bearing bash lives outside Tools/ too: the vessel security-boundary
   # jailers (sentry + pentacle, shipped in every vessel build context) and the
-  # per-nameplate charge hooks. Enumerate them as explicit extras so the gate
+  # per-nameplate envois. Enumerate them as explicit extras so the gate
   # covers them by construction — a directory-root widening would sweep in the
   # deliberately-excluded launcher shims, Study/ scratch, POC drivers, and
-  # example-vessel scripts that share those parents. The charge hooks are
-  # globbed (per-nameplate, recurring by construction); the jailers are singletons.
+  # example-vessel scripts that share those parents. The envois are globbed
+  # (per-nameplate, recurring by construction); the jailers are singletons.
   local z_extras=(
     "${ZRBQ_PROJECT_ROOT}/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh"
     "${ZRBQ_PROJECT_ROOT}/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjp_pentacle.sh"
   )
-  local z_hook=""
-  for z_hook in "${ZRBQ_PROJECT_ROOT}"/rbmm_moorings/*/rbnnh_post_charge.sh; do
-    test -e "${z_hook}" || continue
-    z_extras+=("${z_hook}")
+  local z_envoi=""
+  for z_envoi in "${ZRBQ_PROJECT_ROOT}"/rbmm_moorings/*/rbnnh_envoi.sh; do
+    test -e "${z_envoi}" || continue
+    z_extras+=("${z_envoi}")
   done
 
   buq_shellcheck "${BURC_TOOLS_DIR}" \
