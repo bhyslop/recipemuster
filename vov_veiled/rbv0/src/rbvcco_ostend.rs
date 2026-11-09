@@ -255,12 +255,13 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
         rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
     ));
     rbvcel_log::rbvcel_line(
-        "In the second pane, name the fresh clone once in the first line, then copy each line as printed:",
+        "In the second pane, give the fresh clone an absolute path once in the first line, then copy each line as printed:",
     );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!(
-        "        export {}=«a new directory of your choosing»",
-        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR, //
+        "        export {}={}",
+        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR,
+        rbvcex_expede::RBVCEX_FRESH_CLONE_PLACE, //
     ));
     rbvcel_log::rbvcel_raw(&format!(
         "        git clone {} \"${{{}}}\"",

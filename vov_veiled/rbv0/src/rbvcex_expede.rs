@@ -62,6 +62,12 @@ pub const RBVCEX_REGULUS_BRANCH: &str = "POSTULANT_LOCAL";
 /// verbatim, as the rendered procedure's recipes spell it.
 pub const RBVCEX_FRESH_CLONE_VAR: &str = "FRESH_CLONE";
 
+/// The placeholder the one editable line of every fresh-clone recipe prints.
+/// It asks for an absolute path because the recipe discards the clone with
+/// rm -rf on the variable: a relative path resolved after a change of
+/// directory would aim that delete somewhere else.
+pub const RBVCEX_FRESH_CLONE_PLACE: &str = "«an absolute path for a new directory»";
+
 /// The subject of the single commit the regulus carries. One commit, so one
 /// subject: it names the act, not the contents.
 const RBVCEX_REGULUS_SUBJECT: &str = "Recipe Bottle release candidate";

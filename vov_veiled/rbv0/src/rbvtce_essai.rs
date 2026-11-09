@@ -36,7 +36,7 @@ const ZRBVTCE_STANDIN_SLUG: &str = "bhyslop/recipebottle-grandstand-practice";
 
 /// The six seed lines, in order, exactly as the procedure renders them.
 const ZRBVTCE_SEED_LINES: [&str; 6] = [
-    "export FRESH_CLONE=«a new directory of your choosing»",
+    "export FRESH_CLONE=«an absolute path for a new directory»",
     "git clone git@github.com:scaleinv/recipebottle.git \"${FRESH_CLONE}\"",
     "cd \"${FRESH_CLONE}\"",
     "git remote remove origin",

@@ -82,10 +82,6 @@ const RBVCCE_STATION_TINCTURE: &str = "cnd";
 /// beside the regulus branch, both at public main's commit (RBSHE step 1).
 const RBVCCE_MAIN_BRANCH: &str = "main";
 
-/// The placeholder the one editable seed line prints for the operator's fresh
-/// clone, exactly as the procedure writes it.
-const RBVCCE_FRESH_CLONE_PLACE: &str = "«a new directory of your choosing»";
-
 /// Conduct one essai lap in the elected world. Fatal (exit 1) on any deficit or
 /// red; ExitCode::SUCCESS only when a walk-ready temenos stands beside a
 /// proven regulus.
@@ -394,14 +390,14 @@ pub(crate) fn zrbvcce_standin_steps(standin_url: &str, seed_url: &str) -> String
             rbvcep_repo::rbvcep_github_slug(standin_url), //
         ),
         format!(
-            "Then seed it from a fresh clone of real public main by two single-refspec pushes, {} first and then {} at the same commit. Type each line in order, editing only the first to name a new directory, and copy every other line as shown:",
+            "Then seed it from a fresh clone of real public main by two single-refspec pushes, {} first and then {} at the same commit. Type each line in order, editing only the first to give an absolute path for a new directory, and copy every other line as shown:",
             main,
             branch, //
         ),
         format!(
             "        export {}={}",
             fresh,
-            RBVCCE_FRESH_CLONE_PLACE, //
+            rbvcex_expede::RBVCEX_FRESH_CLONE_PLACE, //
         ),
         format!(
             "        git clone {} \"${{{}}}\"",
