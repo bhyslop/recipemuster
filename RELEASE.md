@@ -47,7 +47,8 @@ Once per station, before the first lap.
    ```
    git ls-remote git@github.com:scaleinv/recipebottle.git
    ```
-4. At the cloud console, count the projects linked to the billing account and confirm three free link slots: two for the `gauntlet` and one for the walk.
+4. At the cloud console, open Billing, then the billing account's Account management page, and count the rows of its table of projects linked to this billing account by hand, since the page shows no total.
+   Confirm three free link slots: two for the `gauntlet` and one for the walk.
    Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [hierophant](#Hierophant) never uses them.
 
