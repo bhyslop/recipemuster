@@ -199,11 +199,11 @@ zrbob_kindle() {
   # compose as an env file beside the regime files. Compose takes every value it
   # interpolates or forwards bare from those files, and this process exports
   # none of them. An empty vessel user is written empty: the image's default.
-  local z_codicil="${BURD_TEMP_DIR}/rbscc_codicil.env"
+  local -r z_codicil="${BURD_TEMP_DIR}/rbscc_codicil.env"
   printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\nRBOB_CHARGE_PROVENANCE=%s\nRBRV_USER=%s\nRBOB_HOST_UID=%s\nRBOB_HOST_GID=%s\n' \
     "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" "${ZRBOB_PROVENANCE}" \
     "${ZRBOB_BOTTLE_USER}" "${z_host_uid}" "${z_host_gid}" > "${z_codicil}" \
-    || buc_die_now "Failed to write the codicil compose env file: ${z_codicil}"
+    || buc_die_now "Failed to write compose env file: ${z_codicil}"
   readonly ZRBOB_ENV_CODICIL="${z_codicil}"
 
   readonly ZRBOB_KINDLED=1
@@ -236,7 +236,7 @@ zrbob_compose() {
     || buc_die_now "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
   local z_native_codicil=""
   z_native_codicil=$(buc_native_path_capture "${ZRBOB_ENV_CODICIL}") \
-    || buc_die_now "Cannot normalize compose --env-file (codicil): ${ZRBOB_ENV_CODICIL}"
+    || buc_die_now "Cannot normalize compose --env-file: ${ZRBOB_ENV_CODICIL}"
   local z_native_rbje=""
   z_native_rbje=$(buc_native_path_capture "${ZRBOB_ENV_RBJE}") \
     || buc_die_now "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
