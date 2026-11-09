@@ -224,7 +224,9 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
         bundle.base_noun,
         rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
     ));
-    rbvcel_log::rbvcel_line("In the second pane, make the fresh clone and fetch the staging branch:");
+    rbvcel_log::rbvcel_line(
+        "In the second pane, make the fresh clone and fetch the staging branch:",
+    );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!(
         "        git clone {} «fresh clone»",
