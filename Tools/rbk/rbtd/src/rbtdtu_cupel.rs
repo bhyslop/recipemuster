@@ -29,6 +29,7 @@ use super::rbtchb_bash::{
 use super::rbtchc_cupel::{
     zrbtchc_Domain,
     zrbtchc_Finding,
+    zrbtchc_export_names,
     ZRBTCHC_DECLARED_DEPS,
     ZRBTCHC_EVICTIONS,
     ZRBTCHC_GCB_ALLOWED,
@@ -521,6 +522,56 @@ fn rbtthc_py_scan_subprocess_dynamic_argv0_skipped() {
 #[test]
 fn rbtthc_py_scan_string_mention_not_flagged() {
     assert!(zrbtthc_py_findings("msg = \"do not eval(this) or exec(that)\"\n").is_empty());
+}
+
+#[test]
+fn rbtthc_unquoted_backslash_escapes_quote() {
+    // An escaped quote in a case pattern opens no string, so the commands
+    // after it stay in view.
+    let src = "case \"${v}\" in\n  *\\\"*|*\\'*)\n    die \"q\"\n    ;;\nesac\nexport A\n";
+    assert_eq!(
+        zrbtchb_command_words(src),
+        vec![
+            (3, "die".to_string()),
+            (6, "export".to_string()), //
+        ]
+    );
+}
+
+#[test]
+fn rbtthc_unquoted_backslash_newline_counts_a_line() {
+    let src = "printf x\\\ny\nexport B\n";
+    let words = zrbtchb_command_words(src);
+    assert_eq!(words.last(), Some(&(3, "export".to_string())));
+}
+
+#[test]
+fn rbtthc_export_names_reads_the_line() {
+    assert_eq!(zrbtchc_export_names("export GNUPGHOME"), vec!["GNUPGHOME"]);
+    assert_eq!(
+        zrbtchc_export_names("  export RBOB_HOST_UID=\"${z_host_uid}\""),
+        vec!["RBOB_HOST_UID"]
+    );
+    assert_eq!(
+        zrbtchc_export_names("export -n A B=\"x y\" # trailing"),
+        vec!["A", "B"]
+    );
+    assert_eq!(zrbtchc_export_names("cd x && export C; echo D"), vec!["C"]);
+    // The reader judges no command position — the lexer does, before a line
+    // reaches it — so an argument word reads like the command.
+    assert_eq!(zrbtchc_export_names("echo export E"), vec!["E"]);
+    assert!(zrbtchc_export_names("buh_code \"export F=1\"").is_empty());
+}
+
+#[test]
+fn rbtthc_export_quoted_mention_not_command_position() {
+    let words = zrbtchb_command_words("buh_code \"   export FORGE=\\$(cat f)\"\nexport G\n");
+    let exports: Vec<usize> = words
+        .iter()
+        .filter(|(_, w)| w == "export")
+        .map(|(l, _)| *l)
+        .collect();
+    assert_eq!(exports, vec![2]);
 }
 
 // eof

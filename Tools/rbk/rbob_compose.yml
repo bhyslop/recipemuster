@@ -4,7 +4,7 @@
 # Recipe Bottle base compose file — static infrastructure
 #
 # Invoked via:
-#   docker compose --env-file rbmm_moorings/rbrr.env --env-file {temp}/rbob_images_compose.env \
+#   docker compose --env-file rbmm_moorings/rbrr.env --env-file {temp}/rbscc_codicil.env \
 #     --env-file rbmm_moorings/{moniker}/rbrn.env \
 #     -f Tools/rbk/rbob_compose.yml [-f rbmm_moorings/{moniker}/rbnnh_compose.yml] -p {moniker} up -d
 #
@@ -12,7 +12,7 @@
 #   1. YAML interpolation (${VAR} in this file — image refs, subnet, container names)
 #   2. Container environment forwarding (bare names in environment: sections)
 #
-# Image refs arrive whole via the rbob_images_compose.env bridge (written at
+# Image refs arrive whole via the rbscc_codicil.env codicil (written at
 # zrbob_kindle): per-vessel, kludge-namespace or GAR-namespace by hallmark kind.
 #
 # Network topology:
