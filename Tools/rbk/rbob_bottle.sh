@@ -69,16 +69,16 @@ zrbob_validate_compose_env() {
     [[ "${z_field}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
       || buc_die_now "Invalid variable name: ${z_field}"
     local z_value="${!z_field:-}"
-    # Check for quotes (compose does not strip them)
+    # Refuse quotes: bash and compose read the nameplate under different quoting rules
     case "${z_value}" in
       *\"*|*\'*)
-        buc_die_now "Compose compatibility: ${z_field} contains quotes — compose --env-file does not strip quotes, they become part of the value"
+        buc_die_now "Compose compatibility: ${z_field} contains a quote — bash reads this nameplate value for this door and compose reads the same nameplate from its --env-file under its own quoting rules, so the value the containers receive could differ from the one this door holds"
         ;;
     esac
     # Check for ${VAR} references (compose interpolates them)
     case "${z_value}" in
       *'${'*)
-        buc_die_now "Compose compatibility: ${z_field} contains \${VAR} reference — compose --env-file interpolates these, causing unintended expansion"
+        buc_die_now "Compose compatibility: ${z_field} contains a \${VAR} reference — bash reads this nameplate value literally for this door and compose interpolates the same nameplate from its --env-file, so the value the containers receive could differ from the one this door holds"
         ;;
     esac
   done
