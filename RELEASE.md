@@ -8,6 +8,9 @@ The words in capitals are defined in the glossary at the end.
 Run every command from the maintainer repository, or in practice from the practice seat where one stands, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
+Some acts need your own hands: every console act, every push, every answer to a prompt, launching the real coldwalks and the walk, the private reading of the [regulus](#Regulus) before the reveal, and ruling each finding.
+An agent working beside you may conduct the rest: the commands that prompt nothing, reading what they print against this procedure, committing findings memos, and in practice the coldwalk and the reading of the [regulus](#Regulus).
+
 Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
 There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [cachet](#Cachet), and every banner the tool prints names the world it is in.
 
@@ -131,6 +134,7 @@ A practice coldwalk, the lap's and the confirmation's alike, proves the rig and 
 Walk it until the stranger hands you the cloud setup, and stop it there.
 Commit its findings memo where the hand-off directs and carry its findings about the shipped product to the laps; they never stop the round.
 A practice lap whose battery is green and whose walk reached that hand-off has run dry for the round.
+In practice an agent may take the reading of the [regulus](#Regulus): it runs the three lines, reports the summary and anything that should not be public, and the full private reading of `regulus.diff` waits for the real dry lap.
 
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
 Type each line as shown, in order:
