@@ -13,7 +13,7 @@
 #
 # THE RULING. The calls that make or carry a runnable file are barred, because
 # the surface that replaces them is the floor crate's: Pastern's program
-# writers (bkp::bkprs_scrivener), which put the write in a child so no thread
+# writers (brp::brprs_scrivener), which put the write in a child so no thread
 # of the running process ever holds a runnable file open for writing. A sibling
 # thread's fork inherits every write handle the process holds, and a file still
 # open for writing anywhere refuses its exec with ETXTBSY.
@@ -23,9 +23,9 @@
 # ours to govern it, so the kit's list travels with the kit.
 
 disallowed-methods = [
-  { path = "std::fs::copy", reason = "a copy carries its source's executable bit, and a sibling thread's fork can inherit the copy's write handle so the copy refuses its exec with ETXTBSY. Use bkp::bkprs_scrivener: bkprs_copy carries whether the source is a program, bkprs_program_copy arms the copy, and each copies a program in a child." },
-  { path = "std::fs::set_permissions", reason = "arming a file this process wrote means a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
-  { path = "std::fs::File::set_permissions", reason = "arming a file this process holds open is the ETXTBSY race itself: a sibling thread's fork inherits the handle. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
-  { path = "std::os::unix::fs::PermissionsExt::set_mode", reason = "an executable mode marks a file this process means to run, and a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
-  { path = "std::os::unix::fs::OpenOptionsExt::mode", reason = "opening a file with a mode creates it already armed while this process holds it open for writing, which a sibling thread's fork inherits, so its exec refuses with ETXTBSY. Use bkp::bkprs_scrivener::bkprs_program_write, which writes and arms the program in a child." },
+  { path = "std::fs::copy", reason = "a copy carries its source's executable bit, and a sibling thread's fork can inherit the copy's write handle so the copy refuses its exec with ETXTBSY. Use brp::brprs_scrivener: brprs_copy carries whether the source is a program, brprs_program_copy arms the copy, and each copies a program in a child." },
+  { path = "std::fs::set_permissions", reason = "arming a file this process wrote means a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use brp::brprs_scrivener::brprs_program_write, which writes and arms the program in a child." },
+  { path = "std::fs::File::set_permissions", reason = "arming a file this process holds open is the ETXTBSY race itself: a sibling thread's fork inherits the handle. Use brp::brprs_scrivener::brprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::PermissionsExt::set_mode", reason = "an executable mode marks a file this process means to run, and a sibling thread's fork may still hold its write handle, so its exec refuses with ETXTBSY. Use brp::brprs_scrivener::brprs_program_write, which writes and arms the program in a child." },
+  { path = "std::os::unix::fs::OpenOptionsExt::mode", reason = "opening a file with a mode creates it already armed while this process holds it open for writing, which a sibling thread's fork inherits, so its exec refuses with ETXTBSY. Use brp::brprs_scrivener::brprs_program_write, which writes and arms the program in a child." },
 ]

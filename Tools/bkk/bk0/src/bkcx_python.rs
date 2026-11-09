@@ -38,7 +38,7 @@
 //! to uv's own refusal rather than being guessed at.
 //!
 //! THE FIELD ROSTER STANDS HERE AND NOT IN THE READER CRATE, on the kibble
-//! family's own ground: `bkp` reads regime files and stops, and what a family's
+//! family's own ground: `brp` reads regime files and stops, and what a family's
 //! fields MEAN belongs to the family that declared them.
 //!
 //! THE WEANED READING IS THE COLLAR RESOLVER'S, PARAMETERIZED. Two readings of
@@ -68,9 +68,9 @@ use crate::bkg_breviary::{
     BKG_BAKED_BASE,
     BKG_CRUDE_BASE, //
 };
-use bkp::bkprc_catena::{
-    bkprc_Regime,
-    bkprc_read, //
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_read, //
 };
 use toml::de::{
     DeTable,
@@ -315,14 +315,14 @@ pub struct bkcx_Collar {
     /// The instance directory, repo-relative.
     pub instance: PathBuf,
     /// Everything the family file declared.
-    pub regime: bkprc_Regime,
+    pub regime: brprc_Regime,
 }
 
 impl bkcx_Collar {
     /// One field's value, or the empty string where the field is absent. The
     /// absence is a finding of its own, so a reader here is never guessing.
     pub fn bkcx_field(&self, key: &str) -> &str {
-        self.regime.bkprc_scalar(key).unwrap_or("")
+        self.regime.brprc_scalar(key).unwrap_or("")
     }
 
     /// Whether this collar declares an app.
@@ -402,7 +402,7 @@ pub fn bkcx_resolve(
 
     bkcr_drift(repository, &repository.join(&instance), BKCX_FAMILY)?;
 
-    let regime = bkprc_read(&repository.join(&instance).join(BKCX_FAMILY))?;
+    let regime = brprc_read(&repository.join(&instance).join(BKCX_FAMILY))?;
 
     let collar = bkcx_Collar {
         name: name.to_string(),
@@ -487,7 +487,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
     };
 
     for field in BKCX_FIELDS_BOTH.iter().chain(owed.iter()) {
-        if !collar.regime.bkprc_holds(field) {
+        if !collar.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is not declared — every python collar of this kind declares it, and a door \
                  reading a meaning out of an absence cannot tell a declaration from an omission",
@@ -497,7 +497,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
     }
 
     for field in foreign {
-        if collar.regime.bkprc_holds(field) {
+        if collar.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the {} kind — this collar declares {} = {}",
                 field,
@@ -509,7 +509,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
     }
 
     for (field, admitted) in ZBKCX_ENUMS {
-        let Some(held) = collar.regime.bkprc_scalar(field) else {
+        let Some(held) = collar.regime.brprc_scalar(field) else {
             continue;
         };
         if !admitted.contains(&held) {
@@ -523,7 +523,7 @@ fn zbkcx_declared(collar: &bkcx_Collar, findings: &mut Vec<String>) {
     }
 
     for field in ["BKRP_BYNAME", "BKRP_TARGET"] {
-        if collar.regime.bkprc_holds(field) && collar.bkcx_field(field).trim().is_empty() {
+        if collar.regime.brprc_holds(field) && collar.bkcx_field(field).trim().is_empty() {
             findings.push(format!(
                 "{} stands vacant — the launch coordinate is composed from it, so a vacant one \
                  names nothing for a door to run",
@@ -1292,13 +1292,13 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
         return;
     }
 
-    let Some(baked) = collar.regime.bkprc_catena("BKRP_BAKED_PACKAGES") else {
+    let Some(baked) = collar.regime.brprc_catena("BKRP_BAKED_PACKAGES") else {
         return;
     };
 
     // THE NONE-SPRUE IS NOT A PACKAGE NAME, so it leaves the reading here and the
     // union below is over packages alone.
-    let crude: Vec<&str> = match collar.regime.bkprc_catena("BKRP_CRUDE_PACKAGES") {
+    let crude: Vec<&str> = match collar.regime.brprc_catena("BKRP_CRUDE_PACKAGES") {
         None => Vec::new(),
         Some(declared) => {
             if !declared.contains(&BKCX_BAKED) {

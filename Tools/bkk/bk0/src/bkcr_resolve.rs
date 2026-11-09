@@ -41,10 +41,10 @@ use crate::bkcj_json::{
     bkcj_read, //
 };
 use crate::bkcl_leash;
-use bkp::bkprc_catena::{
-    bkprc_Regime,
-    bkprc_admit,
-    bkprc_read, //
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_admit,
+    brprc_read, //
 };
 use std::path::{
     Path,
@@ -305,11 +305,11 @@ pub fn bkcr_set_read(at: &Path) -> Result<Option<bkcr_Set>, String> {
 /// commit's tree rather than a working tree, and a hurdle composing one — reaches
 /// the same parse and the same catena names rather than a second copy of either.
 pub fn bkcr_set_admit(source: &str, whence: &str) -> Result<bkcr_Set, String> {
-    let regime = bkprc_admit(source, whence)?;
+    let regime = brprc_admit(source, whence)?;
 
     let catena = |key: &str| -> Result<Vec<String>, String> {
         regime
-            .bkprc_catena(key)
+            .brprc_catena(key)
             .map(|held| held.into_iter().map(str::to_string).collect())
             .ok_or_else(|| {
                 format!(
@@ -358,7 +358,7 @@ pub struct bkcr_Collar {
     /// The instance directory, repo-relative.
     pub instance: PathBuf,
     /// Everything the family file declared.
-    pub regime: bkprc_Regime,
+    pub regime: brprc_Regime,
     /// What this collar's currency is measured over, read at resolution.
     pub measure: bkcr_Measure,
 }
@@ -373,7 +373,7 @@ impl bkcr_Collar {
     /// One field's value, or the empty string where the field is absent. The
     /// absence is a finding of its own, so a reader here is never guessing.
     pub fn bkcr_field(&self, key: &str) -> &str {
-        self.regime.bkprc_scalar(key).unwrap_or("")
+        self.regime.brprc_scalar(key).unwrap_or("")
     }
 
     /// Whether this collar declares an app.
@@ -386,7 +386,7 @@ impl bkcr_Collar {
     /// suite. An app holding none holds the terminal. Asked here once, so no
     /// door reads the field to decide it.
     pub fn bkcr_attended(&self) -> bool {
-        self.bkcr_app() && self.regime.bkprc_holds("BKRR_TONGUE")
+        self.bkcr_app() && self.regime.brprc_holds("BKRR_TONGUE")
     }
 
     /// Every exergue this collar's compile requires and cargo does not produce,
@@ -407,7 +407,7 @@ impl bkcr_Collar {
     /// behaves as it did before this field existed rather than inventing a
     /// meaning the collar never declared.
     pub fn bkcr_exergue(&self) -> Vec<&str> {
-        match self.regime.bkprc_catena("BKRR_EXERGUE") {
+        match self.regime.brprc_catena("BKRR_EXERGUE") {
             None => Vec::new(),
             Some(declared) => declared
                 .into_iter()
@@ -426,7 +426,7 @@ impl bkcr_Collar {
     /// have bought nothing a refusal renders and would have made the collar's
     /// two lists silently order-dependent.
     pub fn bkcr_strike(&self) -> Vec<&str> {
-        match self.regime.bkprc_catena("BKRR_STRIKE") {
+        match self.regime.brprc_catena("BKRR_STRIKE") {
             None => Vec::new(),
             Some(declared) => declared
                 .into_iter()
@@ -564,7 +564,7 @@ pub const BKCR_DISPATCH_FILE_VAR: &str = "BURD_BURD_FILE";
 /// every reading that walks it.
 #[derive(Debug, Clone)]
 pub struct bkcr_Dispatch {
-    regime: bkprc_Regime,
+    regime: brprc_Regime,
     whence: String,
     weaned: PathBuf,
 }
@@ -573,20 +573,20 @@ impl bkcr_Dispatch {
     /// The dispatch stated by regime text already in hand, `whence` naming where
     /// it came from for the refusals — the road a hurdle composing one takes.
     pub fn bkcr_admit(source: &str, whence: &str) -> Result<bkcr_Dispatch, String> {
-        zbkcr_dispatch(bkp::bkprc_catena::bkprc_admit(source, whence)?, whence)
+        zbkcr_dispatch(brp::brprc_catena::brprc_admit(source, whence)?, whence)
     }
 
     /// The dispatch stated by the file at `path`, read through the estate's one
     /// regime reader.
     pub fn bkcr_read(path: &Path) -> Result<bkcr_Dispatch, String> {
-        zbkcr_dispatch(bkprc_read(path)?, &path.display().to_string())
+        zbkcr_dispatch(brprc_read(path)?, &path.display().to_string())
     }
 
     /// One field's value, or `None` where the file does not assign it or
     /// assigns it blank.
     pub fn bkcr_said(&self, field: &str) -> Option<&str> {
         self.regime
-            .bkprc_scalar(field)
+            .brprc_scalar(field)
             .map(str::trim)
             .filter(|value| !value.is_empty())
     }
@@ -613,9 +613,9 @@ impl bkcr_Dispatch {
 ///
 /// ABSENT MOORINGS ARE A REFUSAL, never a fallback: there is no other weaned set
 /// to read.
-fn zbkcr_dispatch(regime: bkprc_Regime, whence: &str) -> Result<bkcr_Dispatch, String> {
+fn zbkcr_dispatch(regime: brprc_Regime, whence: &str) -> Result<bkcr_Dispatch, String> {
     let config = regime
-        .bkprc_scalar(BKCR_CONFIG_DIR_VAR)
+        .brprc_scalar(BKCR_CONFIG_DIR_VAR)
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .ok_or_else(|| {
@@ -926,7 +926,7 @@ pub fn bkcr_resolve(
 
     bkcr_drift(repository, &repository.join(&instance), BKCR_FAMILY)?;
 
-    let regime = bkprc_read(&repository.join(&instance).join(BKCR_FAMILY))?;
+    let regime = brprc_read(&repository.join(&instance).join(BKCR_FAMILY))?;
     let set = bkcr_set_read(&repository.join(&instance).join(BKCR_SET))?;
 
     // THE MEASURE IS READ HERE, ONCE, and carried on the collar, because every
@@ -968,17 +968,17 @@ pub fn bkcr_resolve(
 fn zbkcr_packages(
     repository: &Path,
     dispatch: &bkcr_Dispatch,
-    regime: &bkprc_Regime,
+    regime: &brprc_Regime,
     unmeasured: &mut Option<String>,
 ) -> Vec<String> {
-    let declared = regime.bkprc_scalar("BKRR_MANIFEST").unwrap_or("");
+    let declared = regime.brprc_scalar("BKRR_MANIFEST").unwrap_or("");
     let manifest = repository.join(declared);
 
     if declared.is_empty() || !manifest.is_file() {
         return Vec::new();
     }
 
-    let tested = regime.bkprc_scalar("BKRR_KIND") != Some(BKCR_KIND_APP);
+    let tested = regime.brprc_scalar("BKRR_KIND") != Some(BKCR_KIND_APP);
 
     match bkcr_closure(repository, dispatch, &manifest, tested) {
         Ok(packages) => packages.into_iter().map(bkcr_package_spec).collect(),
@@ -1066,7 +1066,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     };
 
     for field in BKCR_FIELDS_BOTH.iter().chain(owed.iter()) {
-        if !collar.regime.bkprc_holds(field) {
+        if !collar.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is not declared — every collar declares it, and a door reading a meaning out \
                  of an absence cannot tell a declaration from an omission",
@@ -1079,7 +1079,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
         if kind == BKCR_KIND_APP && BKCR_FIELDS_APP_ADMITS.contains(field) {
             continue;
         }
-        if collar.regime.bkprc_holds(field) {
+        if collar.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the other kind — this collar declares {} = {}",
                 field,
@@ -1090,7 +1090,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
     }
 
     for (field, admitted) in ZBKCR_ENUMS {
-        let Some(held) = collar.regime.bkprc_scalar(field) else {
+        let Some(held) = collar.regime.brprc_scalar(field) else {
             continue;
         };
         if !admitted.contains(&held) {
@@ -1107,7 +1107,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
 
     zbkcr_exergue(collar, findings);
 
-    if collar.regime.bkprc_holds("BKRR_MUZZLE") && collar.bkcr_field("BKRR_MUZZLE").is_empty() {
+    if collar.regime.brprc_holds("BKRR_MUZZLE") && collar.bkcr_field("BKRR_MUZZLE").is_empty() {
         findings.push(
             "BKRR_MUZZLE stands vacant — it is required and never vacant, the consuming tree's \
              own root being the ordinary value"
@@ -1124,7 +1124,7 @@ fn zbkcr_declared(collar: &bkcr_Collar, findings: &mut Vec<String>) {
 /// name a reader that kind never feeds. A collar of no admitted kind is already a
 /// finding, and its tongue is not judged against a roster it has none of.
 fn zbkcr_tongue(collar: &bkcr_Collar, kind: &str, findings: &mut Vec<String>) {
-    let Some(held) = collar.regime.bkprc_scalar("BKRR_TONGUE") else {
+    let Some(held) = collar.regime.brprc_scalar("BKRR_TONGUE") else {
         return;
     };
 
@@ -1155,7 +1155,7 @@ fn zbkcr_tongue(collar: &bkcr_Collar, kind: &str, findings: &mut Vec<String>) {
 /// authoring slip — a strike left standing under a collar whose generated file
 /// has since moved into the tree.
 fn zbkcr_exergue(collar: &bkcr_Collar, findings: &mut Vec<String>) {
-    if !collar.regime.bkprc_holds("BKRR_EXERGUE") {
+    if !collar.regime.brprc_holds("BKRR_EXERGUE") {
         return;
     }
 
@@ -1553,13 +1553,13 @@ fn zbkcr_crates(
     tested: bool,
     findings: &mut Vec<String>,
 ) {
-    let Some(tamed) = collar.regime.bkprc_catena("BKRR_TAMED_CRATES") else {
+    let Some(tamed) = collar.regime.brprc_catena("BKRR_TAMED_CRATES") else {
         return;
     };
 
     // The none-sprue is not a crate name, so it leaves the reading here and the
     // union below is over crates alone.
-    let feral: Vec<&str> = match collar.regime.bkprc_catena("BKRR_FERAL_CRATES") {
+    let feral: Vec<&str> = match collar.regime.brprc_catena("BKRR_FERAL_CRATES") {
         None => Vec::new(),
         Some(declared) => declared
             .into_iter()

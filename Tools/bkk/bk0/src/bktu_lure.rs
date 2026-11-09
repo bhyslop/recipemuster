@@ -32,7 +32,7 @@
 //! A PROGRAM IS WRITTEN BY A CHILD, NEVER BY THIS PROCESS. Hurdles run as
 //! threads of one process, and every spawn below forks it, so every file a
 //! hurdle means to run is written or copied by Pastern's program writers
-//! (`bkp::bkprs_scrivener`), whose module states the race and why a child closes
+//! (`brp::brprs_scrivener`), whose module states the race and why a child closes
 //! it. The kennel's muzzle bars the calls that arm or copy a file in-process,
 //! and `bktu_write` refuses a file already armed.
 //!
@@ -42,8 +42,8 @@
 //! can be driven through its own door rather than sourced bare. A hurdle asking
 //! for one gets it from here for the same reason it gets a lure from here.
 
-use bkp::bkprc_catena::bkprc_read;
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprc_catena::brprc_read;
+use brp::brprs_scrivener::brprs_program_write;
 use std::path::{
     Path,
     PathBuf, //
@@ -2510,7 +2510,7 @@ pub fn bktu_suite_said(field: &str) -> Option<String> {
             BKTU_DISPATCH_FILE_VAR, //
         )
     });
-    let regime = bkprc_read(Path::new(&pointer)).unwrap_or_else(|err| {
+    let regime = brprc_read(Path::new(&pointer)).unwrap_or_else(|err| {
         panic!(
             "{} names no readable dispatch file: {}",
             BKTU_DISPATCH_FILE_VAR,
@@ -2519,7 +2519,7 @@ pub fn bktu_suite_said(field: &str) -> Option<String> {
     });
 
     regime
-        .bkprc_scalar(field)
+        .brprc_scalar(field)
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .map(str::to_string)
@@ -2718,7 +2718,7 @@ fn zbktu_put(path: &Path, body: &str) {
 /// Write a hurdle's program at `path` and arm it, refusing the hurdle if the
 /// writer fails.
 fn zbktu_armed(path: &Path, body: &str) {
-    bkprs_program_write(path, body).unwrap_or_else(|err| {
+    brprs_program_write(path, body).unwrap_or_else(|err| {
         panic!(
             "{}",
             err, //
@@ -2738,7 +2738,7 @@ fn zbktu_unarmed(path: &Path) {
         assert!(
             standing.permissions().mode() & 0o111 == 0,
             "{} stands armed, so it is a program and not an ordinary file: rewrite it with \
-             bkprs_program_write, which writes in a child",
+             brprs_program_write, which writes in a child",
             path.display(), //
         );
     }

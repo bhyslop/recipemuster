@@ -56,7 +56,7 @@ use super::bktu_lure::{
     bktu_Bent,
     bktu_Lure, //
 };
-use bkp::bkprc_catena::bkprc_admit;
+use brp::brprc_catena::brprc_admit;
 use std::path::{
     Path,
     PathBuf, //
@@ -105,7 +105,7 @@ fn zbktd_collar(declared: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bkprc_admit(declared, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(declared, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Packages(vec!["src".to_string()]),
     }
 }
@@ -146,7 +146,7 @@ fn zbktd_suite(declared: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
-        regime: bkprc_admit(declared, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(declared, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Packages(vec!["src".to_string()]),
     }
 }

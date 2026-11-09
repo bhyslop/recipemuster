@@ -63,6 +63,8 @@ repository without a dispatch has none.
 @Tools/buk/buai0/buais_buk.md
 
 @Tools/vvk/vvai0/vvais_vvk.md
+
+@Tools/bpk/bpai0/bpais_bpk.md
 ```
 
 One line per context file of a kit this repository receives by parcel, as

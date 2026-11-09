@@ -12,13 +12,13 @@ checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 name = "bkhl"
 version = "0.0.1"
 dependencies = [
- "bkp",
+ "brp",
  "flate2",
  "tar",
 ]
 
 [[package]]
-name = "bkp"
+name = "brp"
 version = "0.0.1"
 
 [[package]]

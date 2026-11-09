@@ -11,9 +11,10 @@ tungstenite = "0.24"
 # deliberately test-binary-only: no clipboard-read primitive exists on the
 # shipped bash surface (operator ruling 260704).
 arboard = "3"
-# The floor crate: the estate's one regime reader, through which theurge reads
-# the dispatch file its pointer names; and the program writers, for the test
+# The floor crate, carried by the brk kit: the estate's one regime reader,
+# through which theurge reads the dispatch file its pointer names; and the
+# program writers, for the test
 # cases that write a script and run it from a threaded runner — a write left to
 # this process races every sibling's fork into ETXTBSY. No shipped path writes
 # a program.
-bkp = { path = "../../bkk/bk0/bkp" }
+brp = { path = "../../brk/brp0" }

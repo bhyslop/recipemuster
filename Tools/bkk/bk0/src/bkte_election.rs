@@ -46,8 +46,8 @@ use super::bkch_heel::BKCH_COLLAR_POSITION_VAR;
 use super::bkcr_resolve::bkcr_Collar;
 use super::bktd_preflight::bktd_strike_at;
 use super::bktu_lure::bktu_Lure;
-use bkp::bkprc_catena::bkprc_admit;
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprc_catena::brprc_admit;
+use brp::brprs_scrivener::brprs_program_write;
 use std::path::{
     Path,
     PathBuf, //
@@ -305,7 +305,7 @@ fn zbkte_plant(lure: &bktu_Lure, name: &str, answer: &str) -> std::path::PathBuf
 /// files, so what a posed residence answers is composed in one place.
 pub(crate) fn bkte_plant_at(lure: &bktu_Lure, relative: &str, answer: &str) -> std::path::PathBuf {
     let planted = lure.bktu_root().join(relative);
-    bkprs_program_write(
+    brprs_program_write(
         &planted,
         format!(
             "#!/bin/sh\ntest \"$1\" = \"{}\" || exit 64\ncat <<'ANSWER'\n{}\nANSWER\n",
@@ -353,7 +353,7 @@ fn bkte_the_residence_joins_the_byname_rather_than_the_target() {
     let collar = bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bkprc_admit(ZBKTE_RENAMED, "composed")
+        regime: brprc_admit(ZBKTE_RENAMED, "composed")
             .expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src".to_string()]),
     };
@@ -426,7 +426,7 @@ BKRR_BYNAME=\"answerer\"
     bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bkprc_admit(&text, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(&text, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(
             measured.split_whitespace().map(str::to_string).collect(),
         ),
@@ -958,7 +958,7 @@ BKRR_BYNAME=\"answerer\"
     let collar = bkcr_Collar {
         name: "app-lure".to_string(),
         instance: PathBuf::from("app-lure"),
-        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(text, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src".to_string()]),
     };
     let geography = bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf());

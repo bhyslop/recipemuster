@@ -41,12 +41,12 @@ test "${BASH_SOURCE[0]}" = "${0}" || z_bul_run=0
 if test "${z_bul_run}" = "0"; then
   source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || exit 1
   printf '%s\n' \
-    "bul_launcher: STALE LAUNCHER STUB - the launcher is run, never sourced." \
+    "bul_launcher: STALE STUB - bul_launcher.sh is run, never sourced." \
     "" \
-    "  This project's ${BUBG_MOORINGS_BASE} launcher stub sources the shared launcher, a" \
+    "  This project's ${BUBG_LAUNCHER_BASE} stub sources the shared script, a" \
     "  form the kit no longer runs. It is consumer-owned: no kit install replaces" \
     "  it, and it will not heal on its own. Regenerate every stub through the" \
-    "  launcher door, buut_launcher (tt/buw-tt-cl.CreateLauncher.sh). Where" \
+    "  stub door, buut_launcher (tt/buw-tt-cl.CreateLauncher.sh). Where" \
     "  every stub is stale, write the BUK workbench's stub by hand first, since" \
     "  that door dispatches through a stub too. The canonical stub is two lines:" \
     "" \
@@ -87,7 +87,7 @@ if test "${z_bul_contract}" = "0"; then
     "bul_launcher: STALE TRAMPOLINE - the launch contract is unmet." \
     "" \
     "  This project's tt/z-launcher.sh predates the configuration line: it" \
-    "  handed the launcher stub no configuration, seat and ${BUBG_MOORINGS_BASE} directory." \
+    "  handed the stub no configuration, seat and ${BUBG_MOORINGS_BASE} directory." \
     "  It is consumer-owned: no kit install replaces it, and it will not heal" \
     "  on its own. Restore the canonical trampoline, filling the one name:" \
     "" \
@@ -107,7 +107,7 @@ if test "${z_bul_contract}" = "0"; then
     '      *) echo "z-launcher: no configuration: ${z_canonical}" >&2; exit 1 ;;' \
     '    esac' \
     '    z_launcher="${z_dir}/../${z_moorings_dir}/buml_launchers/${z_launcher_name}"' \
-    '    test -f "${z_launcher}" || { echo "z-launcher: no launcher stub ${z_launcher}: ${z_canonical}" >&2; exit 1; }' \
+    '    test -f "${z_launcher}" || { echo "z-launcher: no stub ${z_launcher}: ${z_canonical}" >&2; exit 1; }' \
     '    cd -P "${z_dir}/.." || { echo "z-launcher: cannot cd to repo root" >&2; exit 1; }' \
     '    exec "${z_launcher}" "${2}" "${PWD}" "${PWD}/${z_moorings_dir}" "${1}" "${@:3}"' \
     "" \
@@ -236,26 +236,26 @@ zbul_setup_needed() {
   buym_ui_yawp "${BURD_REGIME_FILE}"; local -r z_burc_yp="${z_buym_yelp}"
 
   buh_e
-  buh_section "SETUP NEEDED: Station Regime file not found"
+  buh_section "SETUP NEEDED: Station Config Regime file not found"
   buh_e
   buh_line    "  Missing: ${z_path_yp}"
   buh_e
-  buh_line    "  The Bash Utility Kit (BUK) launcher uses two regime files:"
+  buh_line    "  The Bash Utility Kit (BUK) script bul_launcher.sh uses two config regime files:"
   buh_e
   buh_line    "    Config Regime (BURC) - checked into the repo at ${z_burc_yp}"
   buh_line    "      Project-level settings: tool paths, tabtarget layout, and the"
-  buh_line    "      location of the Station Regime file."
+  buh_line    "      location of the Station Config Regime file."
   buh_tt      "      Inspect: " "buw-rcr"
   buh_e
-  buh_line    "    Station Regime (BURS) - developer-specific, NOT in git"
+  buh_line    "    Station Config Regime (BURS) - developer-specific, NOT in git"
   buh_line    "      Machine-level settings that vary per developer or workstation."
   buh_line    "      The Config Regime says to look for it at: ${z_rel_yp}"
   buh_tt      "      Inspect: " "buw-rsr"
   buh_e
-  buh_line    "  Other toolkits in the project may define additional regime files."
+  buh_line    "  Other toolkits in the project may define additional config regime files."
   buh_e
   buh_line    "  The fastest fix: run the fresh-station bootstrap, which writes a"
-  buh_line    "  complete Station Regime file for you."
+  buh_line    "  complete Station Config Regime file for you."
   buh_tt      "  " "buw-SI"
   buh_e
   buh_line    "  Or create it yourself with this content:"

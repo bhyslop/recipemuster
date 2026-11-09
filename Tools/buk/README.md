@@ -14,7 +14,7 @@ This separation lets one BUK serve any repository, configured through the assign
 
 ## Core Concepts
 
-### Launchers
+### [Moorings Launchers](#Moorings-Launcher)
 
 <a id="Moorings-Launcher"></a>**Moorings-Launcher**
 
@@ -32,10 +32,10 @@ The subdirectory name is fixed by the kit; the moorings directory itself is your
 
 **Examples**:
 
-- `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`: the BUK workbench launcher.
-- `mymm_moorings/buml_launchers/launcher.myw_workbench.sh`: a consumer's workbench launcher (`myw` is a naming specimen throughout this file, standing for your own prefix).
+- `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`: the [Moorings-Launcher](#Moorings-Launcher) of the BUK workbench.
+- `mymm_moorings/buml_launchers/launcher.myw_workbench.sh`: the [Moorings-Launcher](#Moorings-Launcher) of a consumer's workbench (`myw` is a naming specimen throughout this file, standing for your own prefix).
 
-**Creation**: use `tt/buw-tt-cl.CreateLauncher.sh` to create new launchers.
+**Creation**: use `tt/buw-tt-cl.CreateLauncher.sh` to create a new [Moorings-Launcher](#Moorings-Launcher).
 
 ### Workbenches
 
@@ -79,14 +79,14 @@ Its scenarios invoke the tabtargets under test and assess what each did, and BUK
 **Two-Layer Dispatch**:
 
 ```
-tt/myt-s.Scenario.sh → Launcher → BUD → myt_testbench.sh
-                                              │
-                                              ▼ invokes
-                                    tt/myw-p.Provision.sh → Launcher → BUD → myw_workbench.sh
-                                              │                           ▲
-                                              ▼ assesses                  │
-                                         [pass/fail]                 environment
-                                                                        gate
+tt/myt-s.Scenario.sh → Moorings Launcher → BUD → myt_testbench.sh
+                                                       │
+                                                       ▼ invokes
+                                             tt/myw-p.Provision.sh → Moorings Launcher → BUD → myw_workbench.sh
+                                                       │                                    ▲
+                                                       ▼ assesses                           │
+                                                  [pass/fail]                          environment
+                                                                                          gate
 ```
 
 The names in the diagram are naming specimens.
@@ -133,7 +133,7 @@ BUK implements the pattern as bash dispatch, and the rest of this section descri
 
 #### BUK TabTarget Implementation
 
-In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to workbenches through launchers.
+In BUK, TabTargets are lightweight shell scripts in the `tt/` directory that delegate to workbenches through [Moorings Launchers](#Moorings-Launcher).
 
 **Naming Pattern**: `{colophon}.{frontispiece}[.{imprint}...].sh`
 
@@ -201,7 +201,7 @@ rbw-cC.Charge.pluml.sh
 
 **Examples**:
 
-- `tt/buw-tt-ll.ListLaunchers.sh`: list launchers (no imprint).
+- `tt/buw-tt-ll.ListLaunchers.sh`: list the [Moorings Launchers](#Moorings-Launcher) (no imprint).
 - `tt/buw-rcv.ValidateConfigRegime.sh`: validate BURC, the project's [Config-Regime](#Config-Regime) (no imprint).
 - `tt/rbw-cr.Rack.tadmor.sh`: rack a bottle on tadmor (with imprint).
 
@@ -243,7 +243,7 @@ The first token, the colophon, is what the workbench routes on.
 - Colophons route through the workbench to implementations.
 - Frontispieces serve as inline documentation for humans.
 - Imprints allow the same command to target different instances.
-- Delegating to launchers ensures validation happens on every invocation.
+- Delegating to [Moorings Launchers](#Moorings-Launcher) ensures validation happens on every invocation.
 
 ### Config Regimes
 
@@ -299,19 +299,19 @@ Diagnostic display of Bash Utility Kit [Config-Regime](#Config-Regime) state, in
 Project Root/
 ├── mymm_moorings/                     # Moorings: the project's bootstrap config (name is yours; naming specimen)
 │   ├── burc.env                       # BURC assignment (project structure config)
-│   └── buml_launchers/                # Launcher stubs (subdirectory name is fixed by the kit)
-│       ├── launcher.buw_workbench.sh  # BUK launcher stub
-│       └── launcher.myw_workbench.sh  # your launcher stub (naming specimen)
+│   └── buml_launchers/                # Moorings launchers (subdirectory name is fixed by the kit)
+│       ├── launcher.buw_workbench.sh  # BUK's moorings launcher
+│       └── launcher.myw_workbench.sh  # your moorings launcher (naming specimen)
 │
 ├── tt/                                # TabTargets (tab-completion-friendly commands)
 │   ├── z-launcher.sh                  # The trampoline every tabtarget execs into
-│   ├── buw-tt-ll.ListLaunchers.sh     # List all launchers
+│   ├── buw-tt-ll.ListLaunchers.sh     # List all moorings launchers
 │   ├── buw-rcv.ValidateConfigRegime.sh # Validate BURC
 │   └── myw-p.Provision.sh             # your command (naming specimen)
 │
 ├── Tools/                             # BURC_TOOLS_DIR: installed kits and your own toolkits
 │   ├── buk/                           # BUK core utilities (installed from a parcel)
-│   │   ├── bul_launcher.sh            # Shared launcher every stub execs
+│   │   ├── bul_launcher.sh            # The shared script every stub execs
 │   │   ├── bud_dispatch.sh            # Dispatch system
 │   │   ├── buc_command.sh             # Command utilities
 │   │   ├── buv_validation.sh          # Validation (type system)
@@ -349,9 +349,9 @@ Which step creates each directory:
 **Execution Flow**:
 
 1. You invoke a tabtarget: `tt/buw-tt-ll.ListLaunchers.sh`.
-2. The tabtarget says its configuration on one line, naming its launcher stub first, and execs the trampoline, `tt/z-launcher.sh`, with its own basename ahead of it.
-3. The trampoline changes to the repository root and execs the launcher stub `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`, handing it the configuration, the seat and the moorings directory as arguments and exporting nothing.
-4. The launcher stub execs `bul_launcher.sh` with the workbench path ahead of those arguments, and the launcher loads and enforces BURC and BURS, the station file's absence stopping it with the setup it needs, and execs dispatch with the workbench as coordinator.
+2. The tabtarget says its configuration on one line, naming its [Moorings-Launcher](#Moorings-Launcher) first, and execs the trampoline, `tt/z-launcher.sh`, with its own basename ahead of it.
+3. The trampoline changes to the repository root and execs the [Moorings-Launcher](#Moorings-Launcher) `mymm_moorings/buml_launchers/launcher.buw_workbench.sh`, handing it the configuration, the seat and the moorings directory as arguments and exporting nothing.
+4. The [Moorings-Launcher](#Moorings-Launcher) execs the shared script `bul_launcher.sh` with the workbench path ahead of those arguments, and the shared script loads and enforces BURC and BURS, the station file's absence stopping it with the setup it needs, and execs dispatch with the workbench as coordinator.
 5. Dispatch parses the colophon, frontispiece and imprints from the filename, creates the temporary and output directories, sets up the Station Log, and runs `buw_workbench.sh` with the colophon as its command.
 6. The workbench kindles its zipper, and `buz_exec_lookup` execs the CLI module enrolled for `buw-tt-ll`.
 7. Dispatch writes the transcript and propagates the exit status.
@@ -368,13 +368,13 @@ That kit stands beside this one in the parcel it arrived in; read its README bef
 What follows is the contract BUK places on a repository, each requirement stated once here and in full where the pointer leads.
 
 - **A config regime file**, `burc.env`, in a moorings directory of your naming at the repository root. It declares exactly the twelve variables `Tools/buk/burc_regime.sh` enrolls, and its validator refuses fewer or more; the install door reads three of them, [BURC\_PROJECT\_ROOT](#burc_project_root), [BURC\_TOOLS\_DIR](#burc_tools_dir) and [BURC\_MANAGED\_KITS](#burc_managed_kits). See Config Regimes above.
-- **The trampoline**, `tt/z-launcher.sh`, which is yours to write and no door generates. It has two duties: hold the moorings directory's name, the one place the kit learns it, and resolve the launcher a tabtarget names under that directory's `buml_launchers/` subdirectory, a name the kit reads as a literal, handing the stub the moorings directory by argument and exporting nothing. See Architecture above.
-- **Launcher stubs and tabtargets**, one stub per workbench and one tabtarget per door you use. The creation doors write every one, a kit's and your own alike, and only the first stub and the first tabtarget are placed by hand, in exactly the shapes those doors emit. See Launchers and TabTargets above.
+- **The trampoline**, `tt/z-launcher.sh`, which is yours to write and no door generates. It has two duties: hold the moorings directory's name, the one place the kit learns it, and resolve the [Moorings-Launcher](#Moorings-Launcher) a tabtarget names under that directory's `buml_launchers/` subdirectory, a name the kit reads as a literal, handing the stub the moorings directory by argument and exporting nothing. See Architecture above.
+- **[Moorings Launchers](#Moorings-Launcher) and tabtargets**, one stub per workbench and one tabtarget per door you use. The creation doors write every one, a kit's and your own alike, and only the first stub and the first tabtarget are placed by hand, in exactly the shapes those doors emit. See [Moorings Launchers](#Moorings-Launcher) and TabTargets above.
 - **The doors you use, and no more.** A workbench routes whatever tabtargets stand and sweeps nothing at dispatch, so a partial roster is a smaller installation rather than a broken one. The roll call, `tt/buw-tt-rc.RollCall.sh`, reads every zipper the kits your `burc.env` declares carry. It lists each enrolled door not yet standing, with what it does and how it takes its folio, and names in red each standing door whose colophon no installed kit enrolls, the trace a kit edition leaves when it drops or renames a door. Stand the doors you want with the creation doors. Remove a door the roll call names, or install the kit edition that enrolls it. The source tree proves its own roster complete by test. See Zipper above.
 - **The substrate's suite, only where the kennel kit is installed.** BUK holds no Rust, and its self-test crate and suite collar ship with the kennel kit, never with BUK. Where the kennel kit is installed, its own README says how to wean that suite.
 - **A station file**, per machine and never committed, at the path [BURC\_STATION\_FILE](#burc_station_file) names from the repository root. Its fields and defaults stand in `Tools/buk/burs_template.sh`, and every door run before it exists stops and prints the fields it needs. See Config Regimes above.
 
-Your own workbench's launcher stub is then one door away, `tt/buw-tt-cl.CreateLauncher.sh Tools/myk/myw_workbench.sh myw_workbench`, and its tabtargets are made with the `buw-tt-c*` doors naming that stub.
+Your own workbench's [Moorings-Launcher](#Moorings-Launcher) is then one door away, `tt/buw-tt-cl.CreateLauncher.sh Tools/myk/myw_workbench.sh myw_workbench`, and its tabtargets are made with the `buw-tt-c*` doors naming that stub.
 
 ## Components
 
@@ -392,7 +392,7 @@ BUK modules use `bu{x}_` prefixes, where `{x}` identifies the module.
 | `buf_` | Fact-file primitives |
 | `bug_` | Git utilities |
 | `buh_` | Handbook: always-visible user interaction |
-| `bul_` | Shared launcher every launcher stub execs |
+| `bul_` | The shared script every [Moorings-Launcher](#Moorings-Launcher) execs |
 | `bupe_` | Parcel emplacement into a station that can dispatch |
 | `bupr_` | Shared rendering for config regime CLI modules |
 | `buq_` | Tabtarget structural qualification |
@@ -401,7 +401,7 @@ BUK modules use `bu{x}_` prefixes, where `{x}` identifies the module.
 | `bure_` | Environment config regime: ambient overrides |
 | `burs_` | Station-level config regime |
 | `buur_` | Roll call: the installed kits' enrollments against the doors standing |
-| `buut_` | TabTarget and launcher creation |
+| `buut_` | TabTarget and [Moorings-Launcher](#Moorings-Launcher) creation |
 | `buv_` | Type system, validation |
 | `buw_` | BUK self-management workbench |
 | `buwz_` | BUK workbench zipper |
@@ -603,14 +603,14 @@ The self-management workbench for BUK itself.
 
 **TabTarget Subsystem** (`buw-tt-*`):
 
-- `buw-tt-ll`: list the launchers in `buml_launchers/`.
+- `buw-tt-ll`: list the [Moorings Launchers](#Moorings-Launcher) in `buml_launchers/`.
 - `buw-tt-cbl <launcher> <name>...`: create batch tabtargets keeping a Station Log, the default.
 - `buw-tt-cbn <launcher> <name>...`: create batch tabtargets keeping no Station Log.
 - `buw-tt-cbo <launcher> <name>...`: create batch tabtargets whose command writes its own record.
 - `buw-tt-cil <launcher> <name>...`: create interactive tabtargets keeping a Station Log.
 - `buw-tt-cin <launcher> <name>...`: create interactive tabtargets keeping no Station Log.
-- `buw-tt-cl <workbench> <name>`: create a launcher.
-- `buw-tt-rc`: the roll call, naming each standing door whose colophon no installed kit enrolls (in red) and each enrolled colophon with no door standing. It judges a door only where the door execs a trampoline and its launcher's workbench stands in a kit [BURC\_MANAGED\_KITS](#burc_managed_kits) declares; a kit whose workbench keeps no zipper enrolls nothing, so a door over it is named.
+- `buw-tt-cl <workbench> <name>`: create a [Moorings-Launcher](#Moorings-Launcher).
+- `buw-tt-rc`: the roll call, naming each standing door whose colophon no installed kit enrolls (in red) and each enrolled colophon with no door standing. It judges a door only where the door execs a trampoline and the workbench of its [Moorings-Launcher](#Moorings-Launcher) stands in a kit [BURC\_MANAGED\_KITS](#burc_managed_kits) declares; a kit whose workbench keeps no zipper enrolls nothing, so a door over it is named.
 
 **Config Regime Management**:
 
@@ -629,7 +629,7 @@ To create a new workbench:
 
 1. **Study the delivered workbench** as a template: `Tools/buk/buw_workbench.sh`, the workbench, kindling and routing; `Tools/buk/buwz_zipper.sh`, its zipper, enrolling each colophon to a CLI module; and `Tools/buk/burs_cli.sh`, a CLI module the zipper enrolls.
 2. **Create the workbench, its zipper and its CLI modules** in `Tools/{prefix}/`, following the Module Contract below.
-3. **Create the launcher** with `buw-tt-cl`: `tt/buw-tt-cl.CreateLauncher.sh Tools/myw/myw_workbench.sh myw_workbench`.
+3. **Create the [Moorings-Launcher](#Moorings-Launcher)** with `buw-tt-cl`: `tt/buw-tt-cl.CreateLauncher.sh Tools/myw/myw_workbench.sh myw_workbench`.
 4. **Create tabtargets** with `buw-tt-cbl`, or the variant that fits: `tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh mymm_moorings/buml_launchers/launcher.myw_workbench.sh myw-cmd.CommandName`.
 
 ## Module Contract
@@ -905,7 +905,7 @@ Type `tt/buw-<TAB>` to see all BUK commands.
 
 ### Fail Fast
 
-Launchers validate [Config Regimes](#Config-Regime) before execution.
+Every [Moorings-Launcher](#Moorings-Launcher) execs the shared script `bul_launcher.sh`, which validates [Config Regimes](#Config-Regime) before execution.
 This catches configuration errors immediately, with helpful error messages.
 
 ### Exit Status Propagation
@@ -920,7 +920,7 @@ This is critical for:
 BUK achieves reliable status propagation through:
 
 1. **`exec` in TabTargets**: replaces the shell process entirely, so the exit status flows directly to the caller without an intermediate shell's interference.
-2. **`exec` in Launchers**: the same benefit at the launcher layer, with no wrapper shell to mask the exit code.
+2. **`exec` in [Moorings Launchers](#Moorings-Launcher)**: the same benefit one layer down: the [Moorings-Launcher](#Moorings-Launcher) and the shared script `bul_launcher.sh` each exec what follows, so no wrapper shell masks the exit code.
 3. **Pipeline status capture in dispatch**: when output is piped through `tee` into the Station Log, dispatch captures the command's own exit code rather than the pipeline's final status, which would be the exit code of `tee`.
 
 **Anti-patterns to avoid**:

@@ -19,7 +19,7 @@
 
 use std::path::Path;
 
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprs_scrivener::brprs_program_write;
 
 use super::rbtcee_engine::*;
 use super::rbtteh_helpers::rbtteh_make_scratch;
@@ -693,7 +693,7 @@ fn zrbttee_census_scratch(label: &str) -> std::path::PathBuf {
         "{}.Foo.sh",
         ZRBTTEE_CENSUS_COL_USED, //
     ));
-    bkprs_program_write(&script, "#!/bin/bash\nexit 0\n").unwrap();
+    brprs_program_write(&script, "#!/bin/bash\nexit 0\n").unwrap();
     tmp
 }
 

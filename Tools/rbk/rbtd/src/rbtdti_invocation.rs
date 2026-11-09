@@ -19,7 +19,7 @@
 
 use std::path::PathBuf;
 
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprs_scrivener::brprs_program_write;
 
 use super::rbtcee_engine::rbtcee_Verdict;
 use super::rbtcei_invocation::*;
@@ -44,7 +44,7 @@ fn rbttei_make_tt_dir(root: &PathBuf) -> PathBuf {
 
 fn rbttei_write_script(tt_dir: &PathBuf, name: &str, body: &str) {
     let path = tt_dir.join(name);
-    bkprs_program_write(
+    brprs_program_write(
         &path,
         format!(
             "#!/bin/bash\n{}",

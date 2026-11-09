@@ -13,12 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! The catch hurdle's child (`bkptl_lanyard`): a real main running its body
+//! The catch hurdle's child (`brptl_lanyard`): a real main running its body
 //! through the catch, which panics with its first argument where one is given
 //! and returns where none is.
 
 fn main() -> std::process::ExitCode {
-    bkp::bkprl_lanyard::bkprl_run(|| {
+    brp::brprl_lanyard::brprl_run(|| {
         if let Some(word) = std::env::args().nth(1) {
             panic!("{}", word);
         }

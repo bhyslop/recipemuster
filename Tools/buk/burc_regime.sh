@@ -50,11 +50,11 @@ source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || exit 1
 # be the kit reaching across the very custody line it stands to police.
 if test -z "${ZBUV_SOURCED:-}"; then
   printf '%s\n' \
-    "burc_regime: STALE LAUNCHER STUB - the bootstrap contract is unmet." \
+    "burc_regime: STALE STUB - the bootstrap contract is unmet." \
     "" \
     "  This project's moorings launcher reached the BUK kit without loading" \
     "  the validation module, so no kit code can run. The stub predates the" \
-    "  current launcher contract. It is consumer-owned: no kit install" \
+    "  current stub contract. It is consumer-owned: no kit install" \
     "  replaces it, and it will not heal on its own." \
     "" \
     "  Remedy - restore the canonical two-line stub, the shape buut_launcher" \
@@ -90,7 +90,7 @@ zburc_kindle() {
   buv_string_enroll  BURC_STATION_FILE          1  512  "Path to developer's BURS station file"
 
   buv_group_enroll "Tabtarget Infrastructure"
-  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Project dir containing launcher scripts"
+  buv_string_enroll  BURC_TABTARGET_DIR         1  128  "Project dir containing entry scripts"
   buv_string_enroll  BURC_TABTARGET_DELIMITER   1    1  "Token separator in tabtarget filenames"
 
   buv_group_enroll "Project Structure"
@@ -104,9 +104,9 @@ zburc_kindle() {
   buv_string_enroll  BURC_OUTPUT_ROOT_DIR       1  512  "Parent dir containing 'current/', cleared and recreated each dispatch"
   buv_string_enroll  BURC_LOOSEBOX_ROOT_DIR     1  512  "Parent dir holding one checkout-keyed ${BUBG_LOOSEBOX_BASE} per checkout, for derived rebuildable build products"
 
-  buv_group_enroll "Logging"
-  buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for last-run log"
-  buv_xname_enroll   BURC_LOG_EXT               1   16  "Log file extension (without dot)"
+  buv_group_enroll "${BUBG_STATION_LOG_BASE_LETTRINE}"
+  buv_xname_enroll   BURC_LOG_LAST              1   64  "Filename stem for the last member of the ${BUBG_STATION_LOG_BASE}"
+  buv_xname_enroll   BURC_LOG_EXT               1   16  "File extension of the ${BUBG_STATION_LOG_POSSESSIVE} members (without dot)"
   buv_string_enroll  BURC_BUK_DIR               1  256  "Derived: BUK directory"
 
   # Guard against unexpected BURC_ variables not in enrollment

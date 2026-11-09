@@ -2550,7 +2550,7 @@ fn bktd_the_delouse_spares_the_yard_its_own_binary_stands_in() {
     let standing = sheltering.join("release");
     std::fs::create_dir_all(&standing).expect("the hurdle composes the residence it poses");
     let posed = standing.join("bkx");
-    bkp::bkprs_scrivener::bkprs_program_copy(zbktd_kennel(), &posed).unwrap_or_else(|err| {
+    brp::brprs_scrivener::brprs_program_copy(zbktd_kennel(), &posed).unwrap_or_else(|err| {
         panic!(
             "{}",
             err, //
@@ -2856,7 +2856,7 @@ fn zbktd_head(lure: &bktu_Lure) -> String {
 fn zbktd_answerer(lure: &bktu_Lure, marker: &str, answer: &str) -> std::path::PathBuf {
     let planted = lure.bktu_root().join("Tools/bin/lurex");
 
-    bkp::bkprs_scrivener::bkprs_program_write(
+    brp::brprs_scrivener::brprs_program_write(
         &planted,
         format!(
             "#!/bin/sh\ntest \"$1\" = \"--exergue\" || {{ echo \"{}\"; exit 0; }}\ncat              <<'ANSWER'\n{}\nANSWER\n",
@@ -2950,7 +2950,7 @@ const ZBKTD_SAYS_RULED: &str = "the frumble spoke";
 fn zbktd_ruler(lure: &bktu_Lure, code: i32, answer: &str) {
     let planted = lure.bktu_root().join("Tools/bin/lurex");
 
-    bkp::bkprs_scrivener::bkprs_program_write(
+    brp::brprs_scrivener::brprs_program_write(
         &planted,
         format!(
             "#!/bin/sh\ntest \"$1\" = \"--exergue\" || {{ echo \"{}\"; exit {}; }}\ncat <<'ANSWER'\n{}\nANSWER\n",
@@ -6230,7 +6230,7 @@ fn zbktd_exergue_reader(lure: &bktu_Lure) {
 /// writes nothing else — so whatever it was declared to supply stays unmet.
 fn zbktd_struck_app(lure: &bktu_Lure, mark: &Path) {
     zbktd_exergue_crate(lure, "app-lure", BKTD_KIND_APP);
-    bkp::bkprs_scrivener::bkprs_program_write(
+    brp::brprs_scrivener::brprs_program_write(
         &lure.bktu_root().join(BKTD_STRIKE_DOOR),
         format!(
             "#!/bin/sh\nprintf 'struck\\n' >> '{}'\n",
@@ -6915,7 +6915,7 @@ fn zbktd_speaker(lure: &bktu_Lure, said: &[String], code: i32, answer: &str) {
         })
         .collect();
 
-    bkp::bkprs_scrivener::bkprs_program_write(
+    brp::brprs_scrivener::brprs_program_write(
         &planted,
         format!(
             "#!/bin/sh\ntest \"$1\" = \"--exergue\" || {{ {}exit {}; }}\ncat <<'ANSWER'\n{}\nANSWER\n",

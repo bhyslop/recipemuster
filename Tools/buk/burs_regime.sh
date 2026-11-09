@@ -48,12 +48,12 @@ zburs_kindle() {
   buv_xname_enroll   BURS_USER     1   32  "Local developer username (routes to ${BURD_MOORINGS_DIR}/${BUBC_rbmu_users_subdir}/ profiles)"
   buv_string_enroll  BURS_TINCTURE 1    3  "Per-station tincture, under two charters: test fixtures compose it into cloud/runtime prefixes and family stems for parallel-run disjointness on a shared payor manor, and a kit keeping a per-station record names this station's share by it, so it must stay stable for the station's life and unique across the estate; a reader outside bash takes it from this file directly (lowercase alphanumeric, leading letter, no hyphen)"
 
-  buv_group_enroll "Developer Logging"
-  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory for BUK operation logs, relative to the project root"
+  buv_group_enroll "${BUBG_STATION_LOG_BASE_LETTRINE}"
+  buv_string_enroll  BURS_LOG_DIR  1  512  "Directory of the ${BUBG_STATION_LOG_BASE}, relative to the project root"
 
   buv_group_enroll "Shared Tooling"
-  buv_string_enroll  BURS_TACKROOM 0  512  "Optional. Root for large immutable tool stores the clones beside this one draw from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here); a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the log directory is"
-  buv_string_enroll  BURS_HAYLOFT  0  512  "Optional. Folder where the archives of aged logs and run folders are kept; a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the log directory is"
+  buv_string_enroll  BURS_TACKROOM 0  512  "Optional. Root for large immutable tool stores the clones beside this one draw from, rather than each keeping its own copy (VOK keeps the pinned Rust toolchain and the cargo registry cache here); a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the ${BUBG_STATION_LOG_POSSESSIVE} directory is"
+  buv_string_enroll  BURS_HAYLOFT  0  512  "Optional. Folder where the archives of aged ${BUBG_STATION_LOG_BASE} members and run folders are kept; a kit needing it refuses in its own voice where it is absent. Relative to the project root, as the ${BUBG_STATION_LOG_POSSESSIVE} directory is"
 
   # Guard against unexpected BURS_ variables not in enrollment
   buv_scope_sentinel BURS BURS_

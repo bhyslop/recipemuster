@@ -9,7 +9,7 @@ description = "Hierophant — delivery-ceremony conductor for Recipe Bottle (vei
 # workers as subprocesses (RBSHC "Worker, never authority") and needs only std:
 # process, fs, path, time. A veiled release-ceremony conductor pulls in no
 # third-party crate — the smaller its own surface, the less there is to trust.
-# The one dependency is the estate's std-only floor crate, whose program writers
-# arm every file the ceremony means to run.
+# The one dependency is the estate's std-only floor crate, carried by the brk
+# kit, whose program writers arm every file the ceremony means to run.
 [dependencies]
-bkp = { path = "../../Tools/bkk/bk0/bkp" }
+brp = { path = "../../Tools/brk/brp0" }

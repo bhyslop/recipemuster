@@ -36,7 +36,7 @@
 //! THE RAW CALLS ARE BARRED WHEREVER A MUZZLE REACHES, each bar naming the
 //! writer here that replaces it. A file nobody will run needs no writer: an
 //! ordinary write is safe, because a file without an executable bit cannot be
-//! exec'd, and `bkprs_copy` takes that road itself for a source that is not
+//! exec'd, and `brprs_copy` takes that road itself for a source that is not
 //! armed.
 //!
 //! Every writer makes the directories above its target, and a copy onto its own
@@ -50,29 +50,29 @@ use std::process::{
 };
 
 /// The shell a writer hands its write to.
-const ZBKPRS_SHELL: &str = "/bin/sh";
+const ZBRPRS_SHELL: &str = "/bin/sh";
 
 /// What the writing child runs: the body arrives on its input, and the file is
 /// armed before the child exits.
-const ZBKPRS_WRITE: &str = "rm -f -- \"$1\" && cat > \"$1\" && chmod 755 \"$1\"";
+const ZBRPRS_WRITE: &str = "rm -f -- \"$1\" && cat > \"$1\" && chmod 755 \"$1\"";
 
 /// What the program-copying child runs, arming the copy whatever its source's
 /// mode.
-const ZBKPRS_PROGRAM_COPY: &str = "rm -f -- \"$2\" && cp -- \"$1\" \"$2\" && chmod 755 \"$2\"";
+const ZBRPRS_PROGRAM_COPY: &str = "rm -f -- \"$2\" && cp -- \"$1\" \"$2\" && chmod 755 \"$2\"";
 
 /// What the carrying child runs: the copy takes its source's mode, as a fresh
 /// file under the process's own mask.
-const ZBKPRS_CARRY: &str = "rm -f -- \"$2\" && cp -- \"$1\" \"$2\"";
+const ZBRPRS_CARRY: &str = "rm -f -- \"$2\" && cp -- \"$1\" \"$2\"";
 
 /// Write a program at `path` and arm it.
-pub fn bkprs_program_write(path: &Path, body: impl AsRef<[u8]>) -> Result<(), String> {
-    zbkprs_child(ZBKPRS_WRITE, &[path], Some(body.as_ref()))
+pub fn brprs_program_write(path: &Path, body: impl AsRef<[u8]>) -> Result<(), String> {
+    zbrprs_child(ZBRPRS_WRITE, &[path], Some(body.as_ref()))
 }
 
 /// Copy a program from `from` to `to` and arm the copy.
-pub fn bkprs_program_copy(from: &Path, to: &Path) -> Result<(), String> {
-    zbkprs_apart(from, to)?;
-    zbkprs_child(ZBKPRS_PROGRAM_COPY, &[from, to], None)
+pub fn brprs_program_copy(from: &Path, to: &Path) -> Result<(), String> {
+    zbrprs_apart(from, to)?;
+    zbrprs_child(ZBRPRS_PROGRAM_COPY, &[from, to], None)
 }
 
 /// Copy any file from `from` to `to`, carrying whether it is a program.
@@ -82,7 +82,7 @@ pub fn bkprs_program_copy(from: &Path, to: &Path) -> Result<(), String> {
 /// no handle to it stands in this process; an UNARMED SOURCE is read and
 /// written here, the target removed first so a copy never keeps the bit of a
 /// program it replaces.
-pub fn bkprs_copy(from: &Path, to: &Path) -> Result<(), String> {
+pub fn brprs_copy(from: &Path, to: &Path) -> Result<(), String> {
     let standing = std::fs::metadata(from).map_err(|err| {
         format!(
             "could not read {}: {}",
@@ -90,9 +90,9 @@ pub fn bkprs_copy(from: &Path, to: &Path) -> Result<(), String> {
             err, //
         )
     })?;
-    zbkprs_apart(from, to)?;
-    if zbkprs_armed(&standing) {
-        return zbkprs_child(ZBKPRS_CARRY, &[from, to], None);
+    zbrprs_apart(from, to)?;
+    if zbrprs_armed(&standing) {
+        return zbrprs_child(ZBRPRS_CARRY, &[from, to], None);
     }
 
     let body = std::fs::read(from).map_err(|err| {
@@ -102,7 +102,7 @@ pub fn bkprs_copy(from: &Path, to: &Path) -> Result<(), String> {
             err, //
         )
     })?;
-    zbkprs_parent(to)?;
+    zbrprs_parent(to)?;
     match std::fs::remove_file(to) {
         Ok(()) => {}
         Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
@@ -129,7 +129,7 @@ pub fn bkprs_copy(from: &Path, to: &Path) -> Result<(), String> {
 /// source would be gone before it was read. Compared as resolved paths, so a
 /// spelling through a symlink or a `.` still answers the same; a target that
 /// does not stand yet cannot be its source.
-fn zbkprs_apart(from: &Path, to: &Path) -> Result<(), String> {
+fn zbrprs_apart(from: &Path, to: &Path) -> Result<(), String> {
     match (std::fs::canonicalize(from), std::fs::canonicalize(to)) {
         (Ok(source), Ok(target)) if source == target => Err(format!(
             "{} is its own source, and a copy onto it would remove what it reads",
@@ -141,7 +141,7 @@ fn zbkprs_apart(from: &Path, to: &Path) -> Result<(), String> {
 
 /// Whether a file carries any executable bit.
 #[cfg(unix)]
-fn zbkprs_armed(standing: &std::fs::Metadata) -> bool {
+fn zbrprs_armed(standing: &std::fs::Metadata) -> bool {
     use std::os::unix::fs::PermissionsExt;
 
     standing.permissions().mode() & 0o111 != 0
@@ -149,12 +149,12 @@ fn zbkprs_armed(standing: &std::fs::Metadata) -> bool {
 
 /// Whether a file carries any executable bit: none can, off unix.
 #[cfg(not(unix))]
-fn zbkprs_armed(_standing: &std::fs::Metadata) -> bool {
+fn zbrprs_armed(_standing: &std::fs::Metadata) -> bool {
     false
 }
 
 /// Make the directories above `target`.
-fn zbkprs_parent(target: &Path) -> Result<(), String> {
+fn zbrprs_parent(target: &Path) -> Result<(), String> {
     match target.parent() {
         Some(parent) if !parent.as_os_str().is_empty() => {
             std::fs::create_dir_all(parent).map_err(|err| {
@@ -170,14 +170,14 @@ fn zbkprs_parent(target: &Path) -> Result<(), String> {
 }
 
 /// Run one writer's child to its exit; the last operand is the file it writes.
-fn zbkprs_child(script: &str, operands: &[&Path], body: Option<&[u8]>) -> Result<(), String> {
+fn zbrprs_child(script: &str, operands: &[&Path], body: Option<&[u8]>) -> Result<(), String> {
     let target = operands[operands.len() - 1];
-    zbkprs_parent(target)?;
+    zbrprs_parent(target)?;
 
-    let mut child = Command::new(ZBKPRS_SHELL)
+    let mut child = Command::new(ZBRPRS_SHELL)
         .arg("-c")
         .arg(script)
-        .arg(ZBKPRS_SHELL)
+        .arg(ZBRPRS_SHELL)
         .args(operands)
         .stdin(if body.is_some() {
             Stdio::piped()

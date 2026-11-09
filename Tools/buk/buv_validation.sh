@@ -158,14 +158,14 @@ zbuv_poison_apply() {
   test "${BURE_TWEAK_NAME}" = "${BUBC_tweak_regime_poison}" || return 0
 
   local z_spec="${BURE_TWEAK_VALUE:-}"
-  test -n "${z_spec}" || buc_die_now "regime poison: BURE_TWEAK_VALUE required ('VAR=value' to set, 'VAR' to unset)"
+  test -n "${z_spec}" || buc_die_now "config regime poison: BURE_TWEAK_VALUE required ('VAR=value' to set, 'VAR' to unset)"
   local -r z_var="${z_spec%%=*}"
   local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   [[ "${z_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
-    || buc_die_now "regime poison: invalid variable name '${z_var}'"
+    || buc_die_now "config regime poison: invalid variable name '${z_var}'"
   case "${z_var}" in
     [ABCDEFGHIJKLMNOPQRSTUVWXYZ]*) : ;;
-    *) buc_die_now "regime poison: invalid variable name '${z_var}'" ;;
+    *) buc_die_now "config regime poison: invalid variable name '${z_var}'" ;;
   esac
 
   case "${z_var}" in
@@ -178,11 +178,11 @@ zbuv_poison_apply() {
   # refuses the seam's own poison. printf -v assigns at global scope where a
   # declare inside this function would scope the name local.
   if test "${z_spec}" = "${z_var}"; then
-    unset "${z_var}" || buc_die_now "regime poison: cannot unset ${z_var}"
-    buc_log_args "regime poison: unset ${z_var} (scope ${z_scope})"
+    unset "${z_var}" || buc_die_now "config regime poison: cannot unset ${z_var}"
+    buc_log_args "config regime poison: unset ${z_var} (scope ${z_scope})"
   else
-    printf -v "${z_var}" '%s' "${z_spec#*=}" || buc_die_now "regime poison: cannot set ${z_var}"
-    buc_log_args "regime poison: set ${z_var} (scope ${z_scope})"
+    printf -v "${z_var}" '%s' "${z_spec#*=}" || buc_die_now "config regime poison: cannot set ${z_var}"
+    buc_log_args "config regime poison: set ${z_var} (scope ${z_scope})"
   fi
 }
 
@@ -872,7 +872,7 @@ zbuv_koine_vet() {
   done
 
   if test "${#z_fields[@]}" -gt 0; then
-    buc_reject "${BUBG_ENROLL_DENTIL}" "Regime ${z_scope} is handed to docker compose and carries a \${ reference in: ${z_fields[*]}"
+    buc_reject "${BUBG_ENROLL_DENTIL}" "Config regime ${z_scope} is handed to docker compose and carries a \${ reference in: ${z_fields[*]}"
   fi
 }
 

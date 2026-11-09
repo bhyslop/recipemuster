@@ -29,6 +29,8 @@
 
 use crate::bkcc_record::*;
 use crate::bkg_breviary::bkg_bus_loosebox_base;
+use crate::bkg_breviary::bkg_course_base;
+use crate::bkg_breviary::BKG_COURSE_BASE;
 
 /// A whole green course, as the doors compose one.
 fn zbktc_whole() -> bkcc_Course {
@@ -105,12 +107,14 @@ fn bktc_a_narrowed_course_carries_its_patterns_and_no_time() {
     // number, never a number of its own and never nothing at all.
     assert!(
         said.contains("BKRD_WALL=\"bknre_narrowed\""),
-        "a narrowed course takes no time: {}",
+        "a narrowed {} takes no time: {}",
+        BKG_COURSE_BASE,
         said, //
     );
     assert!(
         !said.contains("BKRD_WALL=\"0\""),
-        "and does not record a zero, which a reader would take for a fast course: {}",
+        "and does not record a zero, which a reader would take for a fast {}: {}",
+        BKG_COURSE_BASE,
         said, //
     );
 }
@@ -155,13 +159,13 @@ fn bktc_a_record_that_disagrees_with_itself_refuses() {
             "BKRD_COLLAR=\"suite-alfa\"\nBKRD_NARROWING=\"bknre_whole\"\nBKRD_DRIVEN=\"1\"\n\
              BKRD_PASSED=\"1\"\nBKRD_HELD=\"1\"\nBKRD_WALL=\"bknre_narrowed\"\n\
              BKRD_POSITION=\"abc\"\n",
-            "a whole course claiming it was narrowed",
+            concat!("a whole ", bkg_course_base!(), " claiming it was narrowed"),
         ),
         (
             "BKRD_COLLAR=\"suite-alfa\"\nBKRD_NARROWING=\"one\"\nBKRD_DRIVEN=\"1\"\n\
              BKRD_PASSED=\"1\"\nBKRD_HELD=\"9\"\nBKRD_WALL=\"400\"\n\
              BKRD_POSITION=\"abc\"\n",
-            "a narrowed course carrying a time",
+            concat!("a narrowed ", bkg_course_base!(), " carrying a time"),
         ),
     ] {
         let err = bkcc_admit(said, "the hurdle's own record").expect_err(&format!(

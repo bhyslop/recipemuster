@@ -71,8 +71,8 @@ if test -f "${z_station_path}"; then
   z_verb="overwritten"
 fi
 if test "${z_verb}" = "overwritten" && test -z "${z_overwrite}"; then
-  echo "Station regime left standing: ${z_station_path} (pass --overwrite to replace it)" \
-    || zbpt_station_die "cannot report the standing station regime"
+  echo "Station Config Regime left standing: ${z_station_path} (pass --overwrite to replace it)" \
+    || zbpt_station_die "cannot report the standing station config regime"
   exit 0
 fi
 
@@ -96,7 +96,7 @@ for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
   fi
   case "${z_value}" in
     *'"'*|*"'"*|*'\'*|*'$'*|*'`'*|*"${z_newline}"*)
-      zbpt_station_die "${z_name} carries a quote, a backslash, a dollar, a backtick or a newline, which no station regime line can carry: ${z_value}"
+      zbpt_station_die "${z_name} carries a quote, a backslash, a dollar, a backtick or a newline, which no station config regime line can carry: ${z_value}"
       ;;
   esac
   z_line="${z_name}=${z_value}"
@@ -110,5 +110,5 @@ done
 
 printf '%s' "${z_station_text}" > "${z_station_path}" || zbpt_station_die "cannot write ${z_station_path}"
 
-echo "Station regime ${z_verb}: ${z_station_path}" \
-  || zbpt_station_die "cannot report the station regime written"
+echo "Station Config Regime ${z_verb}: ${z_station_path}" \
+  || zbpt_station_die "cannot report the station config regime written"

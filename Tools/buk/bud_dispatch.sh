@@ -100,7 +100,7 @@ zbud_setup() {
   # to one question. The launcher refuses the pair on the configuration line,
   # so this check stands behind it for a dispatch entered any other way.
   if test -n "${z_bud_amanuensis}"; then
-    test -z "${BURD_NO_LOG}"      || zbud_die "buuc_ownlog and buuc_nolog are exclusive: no-log composes no log names to hand over"
+    test -z "${BURD_NO_LOG}"      || zbud_die "buuc_ownlog and buuc_nolog are exclusive: buuc_nolog composes no member names to hand over"
     test -z "${BURD_INTERACTIVE}" || zbud_die "buuc_ownlog and buuc_interactive are exclusive: the uncurated tee is what this mode removes"
   fi
 
@@ -108,8 +108,8 @@ zbud_setup() {
   # enforced it from the same file in its own process, and nothing exports it,
   # so this dispatch reads it again rather than inheriting it.
   test -n "${BURD_REGIME_FILE:-}" \
-    || zbud_die "BURD_REGIME_FILE is not set - the launcher names the config regime this dispatch sources"
-  source            "${BURD_REGIME_FILE}" || zbud_die "Failed to source the regime file: ${BURD_REGIME_FILE}"
+    || zbud_die "BURD_REGIME_FILE is not set - bul_launcher.sh names the config regime this dispatch sources"
+  source            "${BURD_REGIME_FILE}" || zbud_die "Failed to source the config regime file: ${BURD_REGIME_FILE}"
 
   # The station file, named by the config regime against the project root,
   # where the trampoline left this process standing.
@@ -332,7 +332,7 @@ zbud_process_args() {
     BURD_LOG_LAST="${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"
     BURD_LOG_SAME="${z_log_dir}/same-${z_tag}.${BURC_LOG_EXT}"
     BURD_LOG_HIST="${z_log_dir}/hist-${z_tag}-${BURD_NOW_STAMP}.${BURC_LOG_EXT}"
-    mkdir -p "${z_log_dir}" || zbud_die "Failed to create log directory: ${z_log_dir}"
+    mkdir -p "${z_log_dir}" || zbud_die "Failed to create the ${BUBG_STATION_LOG_POSSESSIVE} directory: ${z_log_dir}"
     # Under the own-log mode the names are the dispatch's and the writing is the
     # coordinator's, so the three enter the dispatch file under this mode alone,
     # which is how the coordinator reads them, and no file is created: an absent
@@ -368,10 +368,10 @@ zbud_curate_same() {
     local z_frame
     if test "${#z_frames[@]}" -gt 0; then
       for z_frame in "${z_frames[@]}"; do
-        printf '%s\n' "${z_frame}" || zbud_die "Failed to write a curated line of the same log"
+        printf '%s\n' "${z_frame}" || zbud_die "Failed to write a curated line of the same member of the ${BUBG_STATION_LOG_BASE}"
       done
     else
-      printf '\n' || zbud_die "Failed to write a curated line of the same log"
+      printf '\n' || zbud_die "Failed to write a curated line of the same member of the ${BUBG_STATION_LOG_BASE}"
     fi
   done
 }
@@ -409,7 +409,7 @@ zbud_curate_hist() {
     z_stamp_status=0
     z_stamp=$(date +"%Y-%m-%d %H:%M:%S") || z_stamp_status=$?
     test "${z_stamp_status}" -eq 0 || z_stamp="date-unavailable"
-    printf "[%s] %s\n" "${z_stamp}" "${z_line}" >&3 || zbud_die "Failed to write a stamped line to the hist log"
+    printf "[%s] %s\n" "${z_stamp}" "${z_line}" >&3 || zbud_die "Failed to write a stamped line to the historical member of the ${BUBG_STATION_LOG_BASE}"
     printf '%s\n' "${z_line}" || zbud_die "Failed to pass a line through the hist filter"
   done
 }
@@ -561,7 +561,7 @@ zbud_main() {
   # never by export. The configuration is the launcher stub's basename and its
   # buuc_ words, which the launcher has already checked; the own-log word is
   # this dispatch's to hold.
-  test "$#" -ge 5 || zbud_die "The dispatch takes the coordinator, the configuration, the seat, the ${BUBG_MOORINGS_BASE} directory and the ${BUBG_TABTARGET_BASE}, in that order (the shared launcher hands them)"
+  test "$#" -ge 5 || zbud_die "The dispatch takes the coordinator, the configuration, the seat, the ${BUBG_MOORINGS_BASE} directory and the ${BUBG_TABTARGET_BASE}, in that order (bul_launcher.sh hands them)"
   z_bud_coordinator_script="${1:-}"
   local -r z_configuration="${2:-}"
   BURD_SEAT="${3:-}"
@@ -569,7 +569,7 @@ zbud_main() {
   test "$#" -lt 4 || shift 4
   case "${BURD_CONFIG_DIR}" in
     /*) ;;
-    *)  zbud_die "The ${BUBG_MOORINGS_BASE} directory the launcher hands must be absolute, got: '${BURD_CONFIG_DIR}'" ;;
+    *)  zbud_die "The ${BUBG_MOORINGS_BASE} directory bul_launcher.sh hands must be absolute, got: '${BURD_CONFIG_DIR}'" ;;
   esac
   BURD_MOORINGS_DIR="${BURD_CONFIG_DIR##*/}"
   BURD_REGIME_FILE="${BURD_CONFIG_DIR}/burc.env"
@@ -741,7 +741,7 @@ zbud_main() {
       zbud_show "Coordinator status (interactive): ${z_bud_coordinator_status}"
     } | tee -a "${BURD_LOG_HIST}" || z_bud_relay_status=("${PIPESTATUS[@]}")
     test "${z_bud_relay_status[1]}" -eq 0 \
-      || zbud_die "The tee to the hist log failed with status ${z_bud_relay_status[1]}: ${BURD_LOG_HIST}"
+      || zbud_die "The tee to the historical member failed with status ${z_bud_relay_status[1]}: ${BURD_LOG_HIST}"
     test "${z_bud_relay_status[0]}" -eq 0 \
       || zbud_die "The coordinator's group failed with status ${z_bud_relay_status[0]} recording its status: ${z_bud_status_file}"
   else
@@ -768,12 +768,12 @@ zbud_main() {
     test "${z_bud_relay_status[2]}" -eq 0 \
       || zbud_die "The hist filter failed with status ${z_bud_relay_status[2]}: ${BURD_LOG_HIST}"
     test "${z_bud_relay_status[1]}" -eq 0 \
-      || zbud_die "The tee to the last log and the raw capture failed with status ${z_bud_relay_status[1]}: ${BURD_LOG_LAST} ${z_raw_capture}"
+      || zbud_die "The tee to the last member and the raw capture failed with status ${z_bud_relay_status[1]}: ${BURD_LOG_LAST} ${z_raw_capture}"
     test "${z_bud_relay_status[0]}" -eq 0 \
       || zbud_die "The coordinator's group failed with status ${z_bud_relay_status[0]} recording its status: ${z_bud_status_file}"
 
     zbud_curate_same < "${z_raw_capture}" >> "${BURD_LOG_SAME}" \
-      || zbud_die "Failed to curate the same log from ${z_raw_capture}"
+      || zbud_die "Failed to curate the same member from ${z_raw_capture}"
   fi
 
   z_bud_exit_status=$(<"${z_bud_status_file}") || zbud_die "Failed to read the coordinator status: ${z_bud_status_file}"

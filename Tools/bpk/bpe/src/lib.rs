@@ -17,7 +17,7 @@
 //!
 //! A forge collects the kits a target declares into a staging directory and
 //! issues its record; a target lays the parcel that results. Both halves live here, so
-//! any repository carrying this kit can mint a parcel as well as receive one.
+//! any repository carrying this kit can form a parcel as well as receive one.
 //!
 //! The forge's caller supplies what only it can know: the kits its forge may
 //! distribute, and the behest the install will need — the signets the Claude

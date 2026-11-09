@@ -179,7 +179,7 @@ buur_roll_call() {
     z_status=0
     z_kit=$(zbuur_launcher_kit_capture "${z_launcher_dir}/${z_launcher}") || z_status=$?
     if test "${z_status}" != "0"; then
-      z_unread+=("${z_door} (its launcher ${z_launcher} does not stand, or names no workbench under ${BURC_TOOLS_DIR})")
+      z_unread+=("${z_door} (its stub ${z_launcher} does not stand, or names no workbench under ${BURC_TOOLS_DIR})")
       continue
     fi
 
@@ -239,7 +239,7 @@ buur_roll_call() {
 
 zbuur_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env_row "BURD_CONFIG_DIR       " "Moorings directory holding the launcher directory (dispatch-provided)"
+  buc_doc_env_row "BURD_CONFIG_DIR       " "Moorings directory holding the stub directory (dispatch-provided)"
   buc_doc_env_row "BURD_REGIME_FILE      " "The repository's burc.env (dispatch-provided)"
   buc_doc_env_row "BUUR_ALSO_KITS        " "Optional: further kits judged as if declared (comma-separated)"
   buc_doc_env_done || return 0

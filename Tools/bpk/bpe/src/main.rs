@@ -18,7 +18,7 @@
 //! Every parcel carries it at its root, platform-suffixed, beside the two
 //! bootstraps that exec it, so a parcel installs and uninstalls through the
 //! engine it brought and never through a binary standing in its target. It
-//! takes nothing from the forge that cut the parcel but what that forge wrote
+//! takes nothing from the forge that formed the parcel but what that forge wrote
 //! into the parcel: the record, the kits, and the behest.
 //!
 //! Two verbs, each handed the extracted parcel and the target:
@@ -367,10 +367,10 @@ fn zbpe_vacate(rest: &[String]) -> ExitCode {
 }
 
 /// The process's own entry: the verbs beneath the floor's catch
-/// (`bkp::bkprl_lanyard`), so a panic ends the process broke rather than on the
+/// (`brp::brprl_lanyard`), so a panic ends the process broke rather than on the
 /// runtime's own code. Every other end is the body's.
 fn main() -> ExitCode {
-    bkp::bkprl_lanyard::bkprl_run(zbpe_main)
+    brp::brprl_lanyard::brprl_run(zbpe_main)
 }
 
 /// The parcel engine's body: the verb its first argument names.

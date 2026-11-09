@@ -28,12 +28,12 @@ use std::process::Command;
 
 /// The word the child is told to panic with. A made-up word, so nothing the
 /// hurdle plants or asserts spells a word the estate governs.
-const ZBKPTL_PLANTED: &str = "quillometric";
+const ZBRPTL_PLANTED: &str = "quillometric";
 
 /// The child's path: cargo lays examples in the profile directory's `examples`,
 /// beside the `deps` directory the test executable stands in. The child's name
 /// is the manifest's, whose `[[example]]` table is its one home.
-fn zbkptl_child() -> PathBuf {
+fn zbrptl_child() -> PathBuf {
     let exe = std::env::current_exe().expect("the hurdle reads its own executable's path");
     let profile = exe.parent().and_then(Path::parent).unwrap_or_else(|| {
         panic!(
@@ -42,14 +42,14 @@ fn zbkptl_child() -> PathBuf {
         )
     });
     profile.join("examples").join(format!(
-        "bkpxl_lanyard{}",
+        "brpxl_lanyard{}",
         std::env::consts::EXE_SUFFIX, //
     ))
 }
 
 #[test]
-fn bkptl_a_panic_through_the_catch_exits_one_and_the_hook_still_speaks() {
-    let child = zbkptl_child();
+fn brptl_a_panic_through_the_catch_exits_one_and_the_hook_still_speaks() {
+    let child = zbrptl_child();
     assert!(
         child.exists(),
         "no child at {}: cargo builds the example beside the tests",
@@ -57,7 +57,7 @@ fn bkptl_a_panic_through_the_catch_exits_one_and_the_hook_still_speaks() {
     );
 
     let panicked = Command::new(&child)
-        .arg(ZBKPTL_PLANTED)
+        .arg(ZBRPTL_PLANTED)
         .output()
         .unwrap_or_else(|err| {
             panic!(
@@ -74,7 +74,7 @@ fn bkptl_a_panic_through_the_catch_exits_one_and_the_hook_still_speaks() {
         said, //
     );
     assert!(
-        said.contains(ZBKPTL_PLANTED),
+        said.contains(ZBRPTL_PLANTED),
         "the standard hook still prints the planted message: {}",
         said, //
     );

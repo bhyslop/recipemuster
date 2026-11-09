@@ -27,9 +27,9 @@
 //! reader that depended on its own first consumer to prove itself could not be
 //! the crate the other five readers converge onto.
 
-use super::bkprc_catena::{
-    bkprc_admit,
-    bkprc_read, //
+use super::brprc_catena::{
+    brprc_admit,
+    brprc_read, //
 };
 use std::path::{
     Path,
@@ -38,58 +38,58 @@ use std::path::{
 
 /// The dispatch's temp root, read from the file its pointer names. ABSENT IS A
 /// REFUSAL, never a fallback.
-const ZBKPTC_TEMP_ROOT_VAR: &str = "BURD_TEMP_DIR";
+const ZBRPTC_TEMP_ROOT_VAR: &str = "BURD_TEMP_DIR";
 
 /// The pointer naming the dispatch's file.
-const ZBKPTC_POINTER_VAR: &str = "BURD_BURD_FILE";
+const ZBRPTC_POINTER_VAR: &str = "BURD_BURD_FILE";
 
 /// The dispatch's temp root, read from the suite's own dispatch file through
 /// this crate's own reader, refusing where the pointer, the file or the field is
 /// absent.
-fn zbkptc_declared() -> String {
-    let pointer = std::env::var_os(ZBKPTC_POINTER_VAR).unwrap_or_else(|| {
+fn zbrptc_declared() -> String {
+    let pointer = std::env::var_os(ZBRPTC_POINTER_VAR).unwrap_or_else(|| {
         panic!(
             "{} is unset. The reader' hurdles stand under the dispatch's temp root and reach \
              for no ambient temp directory; drive the suite through its own door",
-            ZBKPTC_POINTER_VAR, //
+            ZBRPTC_POINTER_VAR, //
         )
     });
-    crate::bkprc_catena::bkprc_read(Path::new(&pointer))
+    crate::brprc_catena::brprc_read(Path::new(&pointer))
         .unwrap_or_else(|err| {
             panic!(
                 "{} names no readable dispatch file: {}",
-                ZBKPTC_POINTER_VAR,
+                ZBRPTC_POINTER_VAR,
                 err, //
             )
         })
-        .bkprc_scalar(ZBKPTC_TEMP_ROOT_VAR)
+        .brprc_scalar(ZBRPTC_TEMP_ROOT_VAR)
         .map(str::trim)
         .filter(|dir| !dir.is_empty())
         .map(str::to_string)
         .unwrap_or_else(|| {
             panic!(
                 "the suite's dispatch file names no {}",
-                ZBKPTC_TEMP_ROOT_VAR, //
+                ZBRPTC_TEMP_ROOT_VAR, //
             )
         })
 }
 
 /// A composed seat holding one regime file, removed when the hurdle drops it.
-struct zbkptc_Composed {
+struct zbrptc_Composed {
     root: PathBuf,
     file: PathBuf,
 }
 
-impl zbkptc_Composed {
+impl zbrptc_Composed {
     /// Compose a file under the temp root and hand back the seat.
     ///
     /// The name is the hurdle's, so a directory left behind by a panicking test
     /// says which hurdle made it.
-    fn zbkptc_compose(name: &str, text: &str) -> zbkptc_Composed {
-        let declared = zbkptc_declared();
+    fn zbrptc_compose(name: &str, text: &str) -> zbrptc_Composed {
+        let declared = zbrptc_declared();
 
         let root = Path::new(&declared).join(format!(
-            "bkptc-{}",
+            "brptc-{}",
             name, //
         ));
         let _ = std::fs::remove_dir_all(&root);
@@ -110,16 +110,16 @@ impl zbkptc_Composed {
             )
         });
 
-        zbkptc_Composed { root, file }
+        zbrptc_Composed { root, file }
     }
 
     /// Where the composed file stands.
-    fn zbkptc_file(&self) -> &Path {
+    fn zbrptc_file(&self) -> &Path {
         &self.file
     }
 }
 
-impl Drop for zbkptc_Composed {
+impl Drop for zbrptc_Composed {
     fn drop(&mut self) {
         let _ = std::fs::remove_dir_all(&self.root);
     }
@@ -132,13 +132,13 @@ impl Drop for zbkptc_Composed {
 /// the whole point of refusing rather than skipping is that the author can go to
 /// the line and fix it.
 #[test]
-fn zbkptc_single_quote_refuses_naming_the_line() {
-    let seat = zbkptc_Composed::zbkptc_compose(
+fn zbrptc_single_quote_refuses_naming_the_line() {
+    let seat = zbrptc_Composed::zbrptc_compose(
         "single-quote",
         "# a collar\nBKRR_COLLAR=\"suite-example\"\nBKRR_KIND='bknre_suite'\n",
     );
 
-    let refusal = bkprc_read(seat.zbkptc_file())
+    let refusal = brprc_read(seat.zbrptc_file())
         .expect_err("a single-quoted value stands outside the subset and must refuse");
 
     assert!(
@@ -152,7 +152,7 @@ fn zbkptc_single_quote_refuses_naming_the_line() {
         refusal, //
     );
     assert!(
-        refusal.contains(&seat.zbkptc_file().display().to_string()),
+        refusal.contains(&seat.zbrptc_file().display().to_string()),
         "the refusal must name the file, and it reads: {}",
         refusal, //
     );
@@ -166,16 +166,16 @@ fn zbkptc_single_quote_refuses_naming_the_line() {
 /// drop the middle line, hand two elements to everything downstream, and raise
 /// no error at either layer.
 #[test]
-fn zbkptc_continuation_joins_before_comments_are_read() {
-    let seat = zbkptc_Composed::zbkptc_compose(
+fn zbrptc_continuation_joins_before_comments_are_read() {
+    let seat = zbrptc_Composed::zbrptc_compose(
         "hash-inside-continuation",
         "BKRS_FILES=\"one \\\n  #two three \\\n  four\"\n",
     );
 
-    let regime = bkprc_read(seat.zbkptc_file()).expect("the file stands inside the subset");
+    let regime = brprc_read(seat.zbrptc_file()).expect("the file stands inside the subset");
 
     let elements = regime
-        .bkprc_catena("BKRS_FILES")
+        .brprc_catena("BKRS_FILES")
         .expect("the field is assigned");
 
     assert_eq!(
@@ -189,16 +189,16 @@ fn zbkptc_continuation_joins_before_comments_are_read() {
 /// The authored layout of the law's own example reads back as its own elements,
 /// and the space before each backslash keeps them apart.
 #[test]
-fn zbkptc_authored_catena_reads_as_its_elements() {
-    let seat = zbkptc_Composed::zbkptc_compose(
+fn zbrptc_authored_catena_reads_as_its_elements() {
+    let seat = zbrptc_Composed::zbrptc_compose(
         "authored-layout",
         "BURC_MANAGED_KITS=\"buk \\\n  vok \\\n  vvk\"\n",
     );
 
-    let regime = bkprc_read(seat.zbkptc_file()).expect("the file stands inside the subset");
+    let regime = brprc_read(seat.zbrptc_file()).expect("the file stands inside the subset");
 
     assert_eq!(
-        regime.bkprc_catena("BURC_MANAGED_KITS").unwrap(),
+        regime.brprc_catena("BURC_MANAGED_KITS").unwrap(),
         vec!["buk", "vok", "vvk"]
     );
 }
@@ -215,24 +215,24 @@ fn zbkptc_authored_catena_reads_as_its_elements() {
 /// in one hurdle, because a reader is only useful if it is wrong in the same
 /// places bash is wrong, and only the pair shows which character did the work.
 #[test]
-fn zbkptc_the_space_before_the_backslash_is_load_bearing() {
-    let apart = bkprc_admit("K=\"buk \\\nvok\"\n", "composed").expect("inside the subset");
+fn zbrptc_the_space_before_the_backslash_is_load_bearing() {
+    let apart = brprc_admit("K=\"buk \\\nvok\"\n", "composed").expect("inside the subset");
     assert_eq!(
-        apart.bkprc_catena("K").unwrap(),
+        apart.brprc_catena("K").unwrap(),
         vec!["buk", "vok"],
         "the space before the backslash keeps the elements apart", //
     );
 
-    let joined = bkprc_admit("K=\"buk\\\nvok\"\n", "composed").expect("inside the subset");
+    let joined = brprc_admit("K=\"buk\\\nvok\"\n", "composed").expect("inside the subset");
     assert_eq!(
-        joined.bkprc_catena("K").unwrap(),
+        joined.brprc_catena("K").unwrap(),
         vec!["bukvok"],
         "the same layout one character apart joins them, as bash joins them", //
     );
 
-    let indented = bkprc_admit("K=\"buk\\\n  vok\"\n", "composed").expect("inside the subset");
+    let indented = brprc_admit("K=\"buk\\\n  vok\"\n", "composed").expect("inside the subset");
     assert_eq!(
-        indented.bkprc_catena("K").unwrap(),
+        indented.brprc_catena("K").unwrap(),
         vec!["buk", "vok"],
         "a continued line's own indentation survives the join and delimits on its own", //
     );
@@ -241,58 +241,58 @@ fn zbkptc_the_space_before_the_backslash_is_load_bearing() {
 /// Comments and blank lines carry no assignment, and a comment is recognized by
 /// its first NON-whitespace character.
 #[test]
-fn zbkptc_comments_and_blanks_carry_nothing() {
-    let regime = bkprc_admit(
+fn zbrptc_comments_and_blanks_carry_nothing() {
+    let regime = brprc_admit(
         "# a heading\n\n   # an indented comment\nK=\"v\"\n\n",
         "composed",
     )
     .expect("inside the subset");
 
-    assert_eq!(regime.bkprc_keys(), vec!["K"]);
-    assert_eq!(regime.bkprc_scalar("K"), Some("v"));
+    assert_eq!(regime.brprc_keys(), vec!["K"]);
+    assert_eq!(regime.brprc_scalar("K"), Some("v"));
 }
 
 /// An absent field and an empty one are DIFFERENT answers, which is the
 /// distinction every validator downstream is built on.
 #[test]
-fn zbkptc_absent_and_empty_are_different_answers() {
-    let regime = bkprc_admit("K=\"\"\nB=\n", "composed").expect("inside the subset");
+fn zbrptc_absent_and_empty_are_different_answers() {
+    let regime = brprc_admit("K=\"\"\nB=\n", "composed").expect("inside the subset");
 
     assert!(
-        regime.bkprc_holds("K"),
+        regime.brprc_holds("K"),
         "a quoted empty value is a declaration", //
     );
-    assert_eq!(regime.bkprc_scalar("K"), Some(""));
-    assert_eq!(regime.bkprc_catena("K"), Some(Vec::new()));
+    assert_eq!(regime.brprc_scalar("K"), Some(""));
+    assert_eq!(regime.brprc_catena("K"), Some(Vec::new()));
 
     assert!(
-        regime.bkprc_holds("B"),
+        regime.brprc_holds("B"),
         "a bare empty value is a declaration too", //
     );
-    assert_eq!(regime.bkprc_scalar("B"), Some(""));
+    assert_eq!(regime.brprc_scalar("B"), Some(""));
 
-    assert!(!regime.bkprc_holds("ABSENT"));
-    assert_eq!(regime.bkprc_scalar("ABSENT"), None);
-    assert_eq!(regime.bkprc_catena("ABSENT"), None);
+    assert!(!regime.brprc_holds("ABSENT"));
+    assert_eq!(regime.brprc_scalar("ABSENT"), None);
+    assert_eq!(regime.brprc_catena("ABSENT"), None);
 }
 
 /// An unquoted value with no whitespace is admitted, and its trailing
 /// whitespace is dropped rather than refused — bash drops it too.
 #[test]
-fn zbkptc_a_bare_word_is_admitted() {
-    let regime = bkprc_admit("K=value   \n", "composed").expect("inside the subset");
-    assert_eq!(regime.bkprc_scalar("K"), Some("value"));
+fn zbrptc_a_bare_word_is_admitted() {
+    let regime = brprc_admit("K=value   \n", "composed").expect("inside the subset");
+    assert_eq!(regime.brprc_scalar("K"), Some("value"));
 }
 
 /// Last assignment wins, as bash resolves one, and the key stands once in the
 /// listing at its first seat.
 #[test]
-fn zbkptc_the_last_assignment_wins() {
-    let regime = bkprc_admit("K=\"first\"\nJ=\"other\"\nK=\"second\"\n", "composed")
+fn zbrptc_the_last_assignment_wins() {
+    let regime = brprc_admit("K=\"first\"\nJ=\"other\"\nK=\"second\"\n", "composed")
         .expect("inside the subset");
 
-    assert_eq!(regime.bkprc_scalar("K"), Some("second"));
-    assert_eq!(regime.bkprc_keys(), vec!["K", "J"]);
+    assert_eq!(regime.brprc_scalar("K"), Some("second"));
+    assert_eq!(regime.brprc_keys(), vec!["K", "J"]);
 }
 
 /// Every form the law names as outside the subset refuses, and each refusal
@@ -301,7 +301,7 @@ fn zbkptc_the_last_assignment_wins() {
 /// One hurdle over a table rather than one apiece: the law states these as a
 /// list, and a table keeps the reader's roster legible against the law's own.
 #[test]
-fn zbkptc_the_refused_forms_refuse() {
+fn zbrptc_the_refused_forms_refuse() {
     let refused: &[(&str, &str, &str)] = &[
         (
             "an unquoted value carrying whitespace",
@@ -330,7 +330,7 @@ fn zbkptc_the_refused_forms_refuse() {
     ];
 
     for (what, text, at) in refused {
-        let refusal = bkprc_admit(text, "composed").expect_err(&format!(
+        let refusal = brprc_admit(text, "composed").expect_err(&format!(
             "{} must refuse",
             what, //
         ));
@@ -347,11 +347,11 @@ fn zbkptc_the_refused_forms_refuse() {
 /// A file the reader cannot open refuses naming the path, rather than reading as
 /// an empty regime.
 #[test]
-fn zbkptc_an_absent_file_refuses() {
-    let seat = zbkptc_Composed::zbkptc_compose("absent-file", "K=\"v\"\n");
-    let missing = seat.zbkptc_file().with_file_name("bkrp.env");
+fn zbrptc_an_absent_file_refuses() {
+    let seat = zbrptc_Composed::zbrptc_compose("absent-file", "K=\"v\"\n");
+    let missing = seat.zbrptc_file().with_file_name("bkrp.env");
 
-    let refusal = bkprc_read(&missing).expect_err("a file that is not there must refuse");
+    let refusal = brprc_read(&missing).expect_err("a file that is not there must refuse");
 
     assert!(
         refusal.contains("bkrp.env"),
@@ -363,8 +363,8 @@ fn zbkptc_an_absent_file_refuses() {
 /// The kennel's own collar shape reads back whole — the shape this crate was
 /// founded for, driven end to end rather than field by field.
 #[test]
-fn zbkptc_a_collar_reads_back_whole() {
-    let seat = zbkptc_Composed::zbkptc_compose(
+fn zbrptc_a_collar_reads_back_whole() {
+    let seat = zbrptc_Composed::zbrptc_compose(
         "collar-shape",
         "# The kennel's own suite collar.\n\
          \n\
@@ -384,20 +384,20 @@ fn zbkptc_a_collar_reads_back_whole() {
          BKRR_TONGUE=\"bknre_harness\"\n",
     );
 
-    let regime = bkprc_read(seat.zbkptc_file()).expect("a collar stands inside the subset");
+    let regime = brprc_read(seat.zbrptc_file()).expect("a collar stands inside the subset");
 
-    assert_eq!(regime.bkprc_scalar("BKRR_COLLAR"), Some("bki_suite"));
-    assert_eq!(regime.bkprc_scalar("BKRR_MUZZLE"), Some("."));
+    assert_eq!(regime.brprc_scalar("BKRR_COLLAR"), Some("bki_suite"));
+    assert_eq!(regime.brprc_scalar("BKRR_MUZZLE"), Some("."));
     assert_eq!(
-        regime.bkprc_catena("BKRR_EXERGUE").unwrap(),
+        regime.brprc_catena("BKRR_EXERGUE").unwrap(),
         vec![
             "Tools/bkk/bk0/src",
             "Tools/bkk/bk0/tests",
             "Tools/bkk/bk0/Cargo.toml"
         ]
     );
-    assert_eq!(regime.bkprc_catena("BKRR_TAMED_CRATES"), Some(Vec::new()));
-    assert!(!regime.bkprc_holds("BKRR_RESIDENCE"));
+    assert_eq!(regime.brprc_catena("BKRR_TAMED_CRATES"), Some(Vec::new()));
+    assert!(!regime.brprc_holds("BKRR_RESIDENCE"));
 }
 
 // eof

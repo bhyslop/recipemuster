@@ -46,7 +46,7 @@ use std::path::{
     PathBuf, //
 };
 
-use bkp::bkprc_catena;
+use brp::brprc_catena;
 
 use crate::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
 
@@ -268,9 +268,9 @@ impl bkcc_Course {
 /// disposition, and a reader that tolerated an extra field would be admitting a
 /// record whose writer meant something this one does not know.
 pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
-    let regime = bkprc_catena::bkprc_admit(source, whence)?;
+    let regime = brprc_catena::brprc_admit(source, whence)?;
 
-    for key in regime.bkprc_keys() {
+    for key in regime.brprc_keys() {
         if !bkcc_roster().contains(&key) {
             return Err(format!(
                 "{} declares '{}', which no field of the course record's roster names — the \
@@ -434,11 +434,11 @@ pub fn bkcc_roster() -> [&'static str; 7] {
 
 /// A field the roster demands, refused by name where it does not stand.
 fn zbkcc_demand<'a>(
-    regime: &'a bkprc_catena::bkprc_Regime,
+    regime: &'a brprc_catena::brprc_Regime,
     key: &str,
     whence: &str,
 ) -> Result<&'a str, String> {
-    regime.bkprc_scalar(key).ok_or_else(|| {
+    regime.brprc_scalar(key).ok_or_else(|| {
         format!(
             "{} carries no {} — every field of the course record's roster is required and never \
              vacant, a reader deriving a value from an absence being unable to tell a declaration \
@@ -451,7 +451,7 @@ fn zbkcc_demand<'a>(
 
 /// A field the roster types as a count.
 fn zbkcc_counted(
-    regime: &bkprc_catena::bkprc_Regime,
+    regime: &brprc_catena::brprc_Regime,
     key: &str,
     whence: &str,
 ) -> Result<usize, String> {

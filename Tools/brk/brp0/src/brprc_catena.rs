@@ -55,15 +55,15 @@
 use std::path::Path;
 
 /// The character that opens a comment, on a line where none stands open.
-const ZBKPRC_COMMENT: char = '#';
+const ZBRPRC_COMMENT: char = '#';
 
 /// The one quote the subset admits. A single quote refuses wherever it stands:
 /// bash gives it a different meaning from this one, and a reader that treated
 /// the two alike would be guessing at a shell.
-const ZBKPRC_QUOTE: char = '"';
+const ZBRPRC_QUOTE: char = '"';
 
 /// The mark that continues a quoted value onto the next line.
-const ZBKPRC_CONTINUE: char = '\\';
+const ZBRPRC_CONTINUE: char = '\\';
 
 /// A file's assignments, in the order they were authored.
 ///
@@ -73,13 +73,13 @@ const ZBKPRC_CONTINUE: char = '\\';
 /// the law does not authorize. A family that wants a repeated field to be an
 /// error says so in its own validator, where the meaning of the field lives.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct bkprc_Regime {
+pub struct brprc_Regime {
     entries: Vec<(String, String)>,
 }
 
-impl bkprc_Regime {
+impl brprc_Regime {
     /// One field's value as authored, joined across any continuation.
-    pub fn bkprc_scalar(&self, key: &str) -> Option<&str> {
+    pub fn brprc_scalar(&self, key: &str) -> Option<&str> {
         self.entries
             .iter()
             .rev()
@@ -95,19 +95,19 @@ impl bkprc_Regime {
     /// empty catena: a door reading a whole-list meaning out of an ABSENCE
     /// cannot tell a declaration from an omission, and that is the one
     /// distinction a validator exists to draw.
-    pub fn bkprc_catena(&self, key: &str) -> Option<Vec<&str>> {
-        self.bkprc_scalar(key)
+    pub fn brprc_catena(&self, key: &str) -> Option<Vec<&str>> {
+        self.brprc_scalar(key)
             .map(|value| value.split_whitespace().collect())
     }
 
     /// Whether the file assigns this field at all.
-    pub fn bkprc_holds(&self, key: &str) -> bool {
-        self.bkprc_scalar(key).is_some()
+    pub fn brprc_holds(&self, key: &str) -> bool {
+        self.brprc_scalar(key).is_some()
     }
 
     /// Every field the file assigns, in authored order, a repeated key standing
     /// once at its first seat.
-    pub fn bkprc_keys(&self) -> Vec<&str> {
+    pub fn brprc_keys(&self) -> Vec<&str> {
         let mut said: Vec<&str> = Vec::new();
         for (key, _) in &self.entries {
             if !said.iter().any(|seen| *seen == key.as_str()) {
@@ -123,16 +123,16 @@ impl bkprc_Regime {
 /// The path is carried into every refusal, so a finding names the file and the
 /// line together and a reader needs no second search to reach the offending
 /// text.
-pub fn bkprc_read(path: &Path) -> Result<bkprc_Regime, String> {
+pub fn brprc_read(path: &Path) -> Result<brprc_Regime, String> {
     let source = std::fs::read_to_string(path).map_err(|err| {
         format!(
-            "could not read the regime file at {}: {}",
+            "could not read the config regime file at {}: {}",
             path.display(),
             err, //
         )
     })?;
 
-    bkprc_admit(&source, &path.display().to_string())
+    brprc_admit(&source, &path.display().to_string())
 }
 
 /// Read regime text already in hand, `whence` naming where it came from for the
@@ -140,7 +140,7 @@ pub fn bkprc_read(path: &Path) -> Result<bkprc_Regime, String> {
 ///
 /// Split from the disk reading so a consumer holding bytes — and a hurdle
 /// composing text — reaches the same parse rather than a second one.
-pub fn bkprc_admit(source: &str, whence: &str) -> Result<bkprc_Regime, String> {
+pub fn brprc_admit(source: &str, whence: &str) -> Result<brprc_Regime, String> {
     let mut entries: Vec<(String, String)> = Vec::new();
     let mut lines = source.lines().enumerate();
 
@@ -152,21 +152,21 @@ pub fn bkprc_admit(source: &str, whence: &str) -> Result<bkprc_Regime, String> {
             continue;
         }
 
-        if trimmed.starts_with(ZBKPRC_COMMENT) {
+        if trimmed.starts_with(ZBRPRC_COMMENT) {
             continue;
         }
 
-        let (key, rest) = zbkprc_assignment(raw, whence, numbered)?;
+        let (key, rest) = zbrprc_assignment(raw, whence, numbered)?;
 
-        let value = match rest.strip_prefix(ZBKPRC_QUOTE) {
-            Some(opened) => zbkprc_quoted(opened, &mut lines, whence, numbered)?,
-            None => zbkprc_bare(rest, whence, numbered)?,
+        let value = match rest.strip_prefix(ZBRPRC_QUOTE) {
+            Some(opened) => zbrprc_quoted(opened, &mut lines, whence, numbered)?,
+            None => zbrprc_bare(rest, whence, numbered)?,
         };
 
         entries.push((key, value));
     }
 
-    Ok(bkprc_Regime { entries })
+    Ok(brprc_Regime { entries })
 }
 
 /// Part a line into its key and everything after the first `=`.
@@ -179,13 +179,13 @@ pub fn bkprc_admit(source: &str, whence: &str) -> Result<bkprc_Regime, String> {
 /// Leading whitespace before the key is admitted and dropped. Bash reads an
 /// indented assignment exactly as an unindented one, so refusing it would make
 /// this reader narrower than the law without buying a single divergence.
-fn zbkprc_assignment<'a>(
+fn zbrprc_assignment<'a>(
     raw: &'a str,
     whence: &str,
     line: usize,
 ) -> Result<(String, &'a str), String> {
     let split = raw.find('=').ok_or_else(|| {
-        zbkprc_refusal(
+        zbrprc_refusal(
             whence,
             line,
             raw,
@@ -196,7 +196,7 @@ fn zbkprc_assignment<'a>(
     let key = raw[..split].trim_start();
 
     if key.is_empty() {
-        return Err(zbkprc_refusal(
+        return Err(zbrprc_refusal(
             whence,
             line,
             raw,
@@ -204,8 +204,8 @@ fn zbkprc_assignment<'a>(
         ));
     }
 
-    if !zbkprc_named(key) {
-        return Err(zbkprc_refusal(
+    if !zbrprc_named(key) {
+        return Err(zbrprc_refusal(
             whence,
             line,
             raw,
@@ -223,7 +223,7 @@ fn zbkprc_assignment<'a>(
 
 /// Whether a key is a shell name — a letter or underscore, then letters, digits
 /// and underscores.
-fn zbkprc_named(key: &str) -> bool {
+fn zbrprc_named(key: &str) -> bool {
     let mut chars = key.chars();
 
     match chars.next() {
@@ -245,7 +245,7 @@ fn zbkprc_named(key: &str) -> bool {
 /// AN EMPTY VALUE IS ADMITTED. `KEY=` assigns the empty string in bash and says
 /// so unambiguously; the quoted `KEY=""` says the same thing more loudly, and a
 /// family that wants the loud form says so in its own validator.
-fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> {
+fn zbrprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> {
     let value = rest.trim_end();
 
     if value.is_empty() {
@@ -253,7 +253,7 @@ fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> 
     }
 
     if value.chars().any(char::is_whitespace) {
-        return Err(zbkprc_refusal(
+        return Err(zbrprc_refusal(
             whence,
             line,
             rest,
@@ -263,7 +263,7 @@ fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> 
     }
 
     if value.contains('\'') {
-        return Err(zbkprc_refusal(
+        return Err(zbrprc_refusal(
             whence,
             line,
             rest,
@@ -272,8 +272,8 @@ fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> 
         ));
     }
 
-    if value.contains(ZBKPRC_QUOTE) {
-        return Err(zbkprc_refusal(
+    if value.contains(ZBRPRC_QUOTE) {
+        return Err(zbrprc_refusal(
             whence,
             line,
             rest,
@@ -282,7 +282,7 @@ fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> 
         ));
     }
 
-    zbkprc_unexpanded(value, whence, line, rest)?;
+    zbrprc_unexpanded(value, whence, line, rest)?;
 
     Ok(value.to_string())
 }
@@ -292,7 +292,7 @@ fn zbkprc_bare(rest: &str, whence: &str, line: usize) -> Result<String, String> 
 /// The line the value OPENED at is what a refusal names when the value is never
 /// closed, because that is the line whose author has to fix it — the last line
 /// of the file says nothing about where the mistake was made.
-fn zbkprc_quoted<'a>(
+fn zbrprc_quoted<'a>(
     opened: &'a str,
     lines: &mut std::iter::Enumerate<std::str::Lines<'a>>,
     whence: &str,
@@ -303,15 +303,15 @@ fn zbkprc_quoted<'a>(
     let mut line = opening;
 
     loop {
-        match segment.find(ZBKPRC_QUOTE) {
+        match segment.find(ZBRPRC_QUOTE) {
             Some(at) => {
                 let body = &segment[..at];
-                zbkprc_unexpanded(body, whence, line, segment)?;
+                zbrprc_unexpanded(body, whence, line, segment)?;
                 value.push_str(body);
 
                 let tail = segment[at + 1..].trim();
                 if !tail.is_empty() {
-                    return Err(zbkprc_refusal(
+                    return Err(zbrprc_refusal(
                         whence,
                         line,
                         segment,
@@ -323,8 +323,8 @@ fn zbkprc_quoted<'a>(
                 return Ok(value);
             }
             None => {
-                let body = segment.strip_suffix(ZBKPRC_CONTINUE).ok_or_else(|| {
-                    zbkprc_refusal(
+                let body = segment.strip_suffix(ZBRPRC_CONTINUE).ok_or_else(|| {
+                    zbrprc_refusal(
                         whence,
                         line,
                         segment,
@@ -336,7 +336,7 @@ fn zbkprc_quoted<'a>(
                     )
                 })?;
 
-                zbkprc_unexpanded(body, whence, line, segment)?;
+                zbrprc_unexpanded(body, whence, line, segment)?;
 
                 // THE BACKSLASH ALONE IS REMOVED, never the space before it.
                 // Bash removes the backslash-newline pair and nothing else, so a
@@ -345,7 +345,7 @@ fn zbkprc_quoted<'a>(
                 value.push_str(body);
 
                 let (index, raw) = lines.next().ok_or_else(|| {
-                    zbkprc_refusal(
+                    zbrprc_refusal(
                         whence,
                         line,
                         segment,
@@ -371,29 +371,29 @@ fn zbkprc_quoted<'a>(
 /// this crate's promise is that the two answer alike. An escape is refused for
 /// the same reason rather than interpreted — implementing bash's escape rules
 /// here is implementing bash.
-fn zbkprc_unexpanded(body: &str, whence: &str, line: usize, raw: &str) -> Result<(), String> {
+fn zbrprc_unexpanded(body: &str, whence: &str, line: usize, raw: &str) -> Result<(), String> {
     if body.contains('$') {
-        return Err(zbkprc_refusal(
+        return Err(zbrprc_refusal(
             whence,
             line,
             raw,
-            "a variable reference stands in the value — a regime file states its values literally, \
+            "a variable reference stands in the value — a config regime file states its values literally, \
              so that a reader holding no shell reads what bash reads",
         ));
     }
 
     if body.contains('`') {
-        return Err(zbkprc_refusal(
+        return Err(zbrprc_refusal(
             whence,
             line,
             raw,
-            "command substitution stands in the value — a regime file states its values literally, \
+            "command substitution stands in the value — a config regime file states its values literally, \
              so that a reader holding no shell reads what bash reads",
         ));
     }
 
-    if body.contains(ZBKPRC_CONTINUE) {
-        return Err(zbkprc_refusal(
+    if body.contains(ZBRPRC_CONTINUE) {
+        return Err(zbrprc_refusal(
             whence,
             line,
             raw,
@@ -411,7 +411,7 @@ fn zbkprc_unexpanded(body: &str, whence: &str, line: usize, raw: &str) -> Result
 ///
 /// The offending text rides the message because a finding a reader has to go and
 /// look up is a finding that costs a second search.
-fn zbkprc_refusal(whence: &str, line: usize, raw: &str, why: &str) -> String {
+fn zbrprc_refusal(whence: &str, line: usize, raw: &str, why: &str) -> String {
     format!(
         "{}:{}: {} — the line reads: {}",
         whence,

@@ -46,7 +46,7 @@ use std::path::{
 };
 use std::process::Command;
 
-use bkp::bkprs_scrivener::bkprs_program_copy;
+use brp::brprs_scrivener::brprs_program_copy;
 
 use crate::rbtcee_case;
 use crate::rbtcee_engine::{
@@ -811,7 +811,7 @@ fn zrbtdrt_marshal_clone(
                 colophon,
                 frontispiece, //
             ));
-            bkprs_program_copy(&donor, &door)?;
+            brprs_program_copy(&donor, &door)?;
             door
         }
     };

@@ -276,10 +276,10 @@ fn rbvtem_matcher_longest_wins() {
         "the shipped tabtarget family ships", //
     );
 
-    let floor_crate = rbvcem_judge("Tools/bkk/bk0/bkp/src/lib.rs");
+    let floor_crate = rbvcem_judge("Tools/brk/brp0/src/lib.rs");
     assert!(
         matches!(floor_crate, Some((rbvcem_Disposition::Ship, _))),
-        "the floor crate must outrank the withheld kennel", //
+        "the bash Rust kit ships its floor crate while the kennel is withheld", //
     );
 
     let kennel = rbvcem_judge("Tools/bkk/bk0/bkw_workbench.sh");

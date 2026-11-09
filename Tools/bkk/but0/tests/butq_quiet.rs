@@ -40,7 +40,7 @@
 #![deny(warnings)]
 
 use bkk::bktu_lure::bktu_Lure;
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprs_scrivener::brprs_program_write;
 use std::ffi::OsStr;
 
 /// The control planted exported at the top of the chain.
@@ -210,7 +210,7 @@ fn butq_every_level_of_a_nested_chain_holds_its_hand_offs_alone() {
     let lure = bktu_Lure::bktu_compose("substrate-environment-census");
     lure.bktu_substrate_seat(BUTQ_COORDINATOR);
     for door in [BUTQ_OUTER, BUTQ_INNER] {
-        bkprs_program_write(&lure.bktu_root().join(door), BUTQ_STUB).unwrap_or_else(|err| {
+        brprs_program_write(&lure.bktu_root().join(door), BUTQ_STUB).unwrap_or_else(|err| {
             panic!(
                 "{}",
                 err, //
@@ -373,7 +373,7 @@ fn zbutq_refused(said: &str, code: Option<i32>, name: &str, door: &str) {
 /// A LAUNCHER'S ENTRY, behind a plain drive of the same door running green.
 #[test]
 fn butq_a_regime_name_arriving_exported_is_refused_at_a_launchers_entry() {
-    let lure = bktu_Lure::bktu_compose("substrate-refused-launcher");
+    let lure = bktu_Lure::bktu_compose("substrate-refused-fendrel");
     let door = lure.bktu_substrate_seat("#!/bin/bash\necho butq-reached\n");
     let named = door
         .file_name()
