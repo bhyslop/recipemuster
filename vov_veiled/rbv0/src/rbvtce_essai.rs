@@ -34,10 +34,11 @@ use crate::rbvcex_expede::RBVCEX_REGULUS_BRANCH;
 /// The procedure's console sentence names the stand-in by this owner/name.
 const ZRBVTCE_STANDIN_SLUG: &str = "bhyslop/recipebottle-grandstand-practice";
 
-/// The five seed lines, in order, exactly as the procedure renders them.
-const ZRBVTCE_SEED_LINES: [&str; 5] = [
-    "git clone git@github.com:scaleinv/recipebottle.git «fresh clone»",
-    "cd «fresh clone»",
+/// The six seed lines, in order, exactly as the procedure renders them.
+const ZRBVTCE_SEED_LINES: [&str; 6] = [
+    "export FRESH_CLONE=«an absolute path for a new directory»",
+    "git clone git@github.com:scaleinv/recipebottle.git \"${FRESH_CLONE}\"",
+    "cd \"${FRESH_CLONE}\"",
     "git remote remove origin",
     "git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:main",
     "git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:POSTULANT_LOCAL",
@@ -190,7 +191,7 @@ fn zrbvtce_verdict(
     )
 }
 
-/// A refusal carries the console sentence naming the stand-in, the five seed
+/// A refusal carries the console sentence naming the stand-in, the six seed
 /// lines in order, and the closing re-read after them.
 fn zrbvtce_assert_steps(case: &str, refusal: &str) {
     assert!(

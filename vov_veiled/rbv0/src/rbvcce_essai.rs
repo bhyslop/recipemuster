@@ -82,10 +82,6 @@ const RBVCCE_STATION_TINCTURE: &str = "cnd";
 /// beside the regulus branch, both at public main's commit (RBSHE step 1).
 const RBVCCE_MAIN_BRANCH: &str = "main";
 
-/// The placeholder the stand-in's seed steps print for the operator's fresh
-/// clone, exactly as the procedure writes it.
-const RBVCCE_FRESH_CLONE: &str = "«fresh clone»";
-
 /// Conduct one essai lap in the elected world. Fatal (exit 1) on any deficit or
 /// red; ExitCode::SUCCESS only when a walk-ready temenos stands beside a
 /// proven regulus.
@@ -124,12 +120,27 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_warn("KNOWN FIDELITY GAP — this temenos is a LOCAL proxy:");
     rbvcel_log::rbvcel_line("the HTTPS-clone-from-GitHub step and the public landing face are");
-    rbvcel_log::rbvcel_line(
-        "UNPROVEN in this mode. They are covered only by the final instruments",
-    );
-    rbvcel_log::rbvcel_line(
-        "against promoted public main (the harbinger command, a later ceremony).",
-    );
+    match world {
+        rbvcew_world::rbvcew_World::Agora => {
+            rbvcel_log::rbvcel_line(
+                "UNPROVEN in this mode. They are covered only by the final instruments",
+            );
+            rbvcel_log::rbvcel_line(
+                "against promoted public main (the harbinger command, a later ceremony).",
+            );
+        }
+        rbvcew_world::rbvcew_World::Palaestra => {
+            rbvcel_log::rbvcel_line(&format!(
+                "UNPROVEN in this mode, and in the {} no instrument proves them: its {}",
+                rbvcew_world::rbvcew_word(world),
+                rbvgeb_breviary::RBVGEB_HARBINGER_BASE, //
+            ));
+            rbvcel_log::rbvcel_line(&format!(
+                "clones the {} over SSH, the gap the practice accepts.",
+                bundle.base_noun, //
+            ));
+        }
+    }
 
     rbvceg_temenos::rbvceg_emit_handoff(&temenos);
 
@@ -202,8 +213,11 @@ fn zrbvcce_gate(
     let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", base_remote], top);
     if fetch.code != 0 {
         crate::rbvcel_fatal!(
-            "base remote {} is not configured — the regulus is built by addition atop the real public repo, so a remote pointing at it is required:\n{}",
-            base_remote, fetch.stderr.trim(), //
+            "base remote {} is not configured — the {} is built by addition atop the {}, so a remote pointing at it is required:\n{}",
+            base_remote,
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            bundle.base_noun,
+            fetch.stderr.trim(), //
         );
     }
     let push =
@@ -364,29 +378,34 @@ pub(crate) fn zrbvcce_standin_verdict(
 }
 
 /// The stand-in's recreate and seed steps, exactly as the procedure's "Opening
-/// a round" renders them: the console sentence, the five seed lines in order,
+/// a round" renders them: the console sentence, the six seed lines in order,
 /// and the closing re-read. Pure.
 pub(crate) fn zrbvcce_standin_steps(standin_url: &str, seed_url: &str) -> String {
     let main = RBVCCE_MAIN_BRANCH;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
-    let fresh = RBVCCE_FRESH_CLONE;
+    let fresh = rbvcex_expede::RBVCEX_FRESH_CLONE_VAR;
     [
         format!(
             "Recreate the stand-in (RELEASE.md \"Opening a round\"). At the GitHub console, by hand, delete the stand-in {} and create it again, private and empty, with no README, ignore file or license.",
             rbvcep_repo::rbvcep_github_slug(standin_url), //
         ),
         format!(
-            "Then seed it from a fresh clone of real public main by two single-refspec pushes, {} first and then {} at the same commit. Type each line as shown, in order:",
+            "Then seed it from a fresh clone of real public main by two single-refspec pushes, {} first and then {} at the same commit. Type each line in order, editing only the first to give an absolute path for a new directory, and copy every other line as shown:",
             main,
             branch, //
         ),
         format!(
-            "        git clone {} {}",
+            "        export {}={}",
+            fresh,
+            rbvcex_expede::RBVCEX_FRESH_CLONE_PLACE, //
+        ),
+        format!(
+            "        git clone {} \"${{{}}}\"",
             seed_url,
             fresh, //
         ),
         format!(
-            "        cd {}",
+            "        cd \"${{{}}}\"",
             fresh, //
         ),
         "        git remote remove origin".to_string(),
@@ -407,7 +426,10 @@ pub(crate) fn zrbvcce_standin_steps(standin_url: &str, seed_url: &str) -> String
             "        git ls-remote {}",
             standin_url, //
         ),
-        "Discard the fresh clone afterwards; it is never a working directory of the ceremony.".to_string(),
+        format!(
+            "Discard the fresh clone afterwards with `rm -rf \"${{{}}}\"`; it is never a working directory of the ceremony.",
+            fresh, //
+        ),
     ]
     .join("\n")
 }

@@ -5,8 +5,11 @@ The [hierophant](#Hierophant) conducts four commands and stops wherever your han
 The law behind it is the Marshal Operations branch of the spec: where the two disagree the law wins, and the disagreement is a finding to raise.
 The words in capitals are defined in the glossary at the end.
 
-Run every command from the maintainer repository, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
+Run every command from the maintainer repository, or in practice from the practice seat where one stands, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
+
+Some acts need your own hands: every console act, every push, every answer to a prompt, launching the real coldwalks and the walk, the private reading of the [regulus](#Regulus) before the reveal, and ruling each finding.
+An agent working beside you may conduct the rest: the commands that prompt nothing, reading what they print against this procedure, committing findings memos, and in practice the coldwalk and the reading of the [regulus](#Regulus).
 
 Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
 There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [cachet](#Cachet), and every banner the tool prints names the world it is in.
@@ -47,7 +50,8 @@ Once per station, before the first lap.
    ```
    git ls-remote git@github.com:scaleinv/recipebottle.git
    ```
-4. At the cloud console, count the projects linked to the billing account and confirm three free link slots: two for the `gauntlet` and one for the walk.
+4. At the cloud console, open Billing, then the billing account's Account management page, and count the rows of its table of projects linked to this billing account by hand, since the page shows no total.
+   Confirm three free link slots: two for the `gauntlet` and one for the walk.
    Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [hierophant](#Hierophant) never uses them.
 
@@ -61,8 +65,12 @@ Two gaps are accepted: the private stand-in cannot be cloned anonymously as a st
 
 ### <a id="PracticeGround"></a>Practice standing ground
 
-Once per station, beside the real base remote.
-Add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
+Once per station.
+Practice needs only part of the standing ground above: its commands read the practice base remote and never the real one, so step 1 waits for the laps.
+Read step 4's count before each round and after each coldwalk, since a coldwalk can set up projects linked to the billing account; practice runs no `gauntlet`.
+Then give practice a repository to run from, in one of two ways.
+
+In the maintainer repository, after steps 2, 3 and 5, add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
 Type each line as shown:
 
 - `git remote add PALAESTRA_UPSTREAM git@github.com:bhyslop/recipebottle-grandstand-practice.git`
@@ -72,7 +80,8 @@ Or stand up a practice seat, a clone that keeps the practice rounds apart from t
 From the maintainer repository, run `tt/rbvw-p.PracticeSeat.palaestra.sh «practice home»`, naming the home by its absolute path.
 It clones the maintainer repository at its checked-out branch into `«practice home»/seat/rb`, adds the practice base remote there with its push side neutered, writes the seat's station file and an empty secrets directory under `«practice home»/seat/station-files`, the station file naming this station's own tool store, and builds the seat's kennel.
 It contacts no remote, and refuses a home where a seat already stands.
-Run the practice doors from the seat: its [regulus](#Regulus) and [temenos](#Temenos) land inside the practice home.
+A seat needs none of steps 2, 3 and 5: it builds its own kennel, the opening of each round reads the public repository, and no retired instrument ever stood beside it.
+Run the practice doors from the seat and never from the maintainer repository: its [regulus](#Regulus) and [temenos](#Temenos) land inside the practice home.
 
 ### <a id="PracticeOpening"></a>Opening a round
 
@@ -93,17 +102,18 @@ Read both repositories to decide:
 
 To recreate the stand-in, delete it at the console and create it again, private and empty, with no README, ignore file or license.
 Then seed it from a fresh clone of real public main by two single-refspec pushes, main first and then `POSTULANT_LOCAL` at the same commit, so it carries the real repository's branches and the round practices the real-sized delta and the stale-branch delete.
-Type each line as shown, in order:
+Type each line in order, editing only the first to give an absolute path for a new directory, and copy every other line as shown:
 
-- `git clone git@github.com:scaleinv/recipebottle.git «fresh clone»`
-- `cd «fresh clone»`
+- `export FRESH_CLONE=«an absolute path for a new directory»`
+- `git clone git@github.com:scaleinv/recipebottle.git "${FRESH_CLONE}"`
+- `cd "${FRESH_CLONE}"`
 - `git remote remove origin`
 - `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:main`
 - `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:POSTULANT_LOCAL`
 
 Then read the stand-in again with the first line above and confirm both branches stand at real public main's commit.
 
-Discard the fresh clone afterwards; it is never a working directory of the ceremony.
+Discard the fresh clone afterwards with `rm -rf "${FRESH_CLONE}"`; it is never a working directory of the ceremony.
 
 ### <a id="PracticeRound"></a>A practice round
 
@@ -111,6 +121,7 @@ Run the four commands under their practice doors, reading each stop as the real 
 
 1. Run `tt/rbvw-e.Essai.palaestra.sh`.
    It cuts the [regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
+   Run from a practice seat, it also warns that the one-home corpus check stands down for want of a kraal register; a seat never stands beside one, and the warning costs the lap nothing.
    Walk the coldwalk and read the [regulus](#Regulus) as the laps below describe, with those paths.
 2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
 3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
@@ -120,12 +131,21 @@ Run the four commands under their practice doors, reading each stop as the real 
    It stops three times, exactly as the real [ostend](#Ostend) does (the file list, the staging push line, the promotion line), but every push it prints targets the stand-in, never the public repository.
 5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
 
-<a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
-Type each line as shown, in order:
+A practice coldwalk, the lap's and the confirmation's alike, proves the rig and not the product.
+Walk it until the stranger hands you the cloud setup, and stop it there.
+Commit its findings memo where the hand-off directs and carry its findings about the shipped product to the laps; they never stop the round.
+A practice lap whose battery is green and whose walk reached that hand-off has run dry for the round.
+In practice an agent may take the reading of the [regulus](#Regulus): it runs the three lines, reports the summary and anything that should not be public, and the full private reading of `regulus.diff` waits for the real dry lap.
 
-- `git clone git@github.com:bhyslop/recipebottle-grandstand-practice.git «fresh clone»`
-- `cd «fresh clone»`
+<a id="PracticeCloneRecipe"></a>At the practice promotion stop, ostend prints the lines that clone the stand-in and fetch its staging branch into a local branch of the same name, then the promotion line.
+Copy them into the second pane in order, editing only the first to give an absolute path for a new directory; they read:
+
+- `export FRESH_CLONE=«an absolute path for a new directory»`
+- `git clone git@github.com:bhyslop/recipebottle-grandstand-practice.git "${FRESH_CLONE}"`
+- `cd "${FRESH_CLONE}"`
 - `git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL`
+
+Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLONE}"`.
 
 ### <a id="PracticeClosing"></a>Closing a round
 
@@ -146,6 +166,7 @@ Type each line as shown, in order:
 ### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
 Every green lap ends with a [temenos](#Temenos) waiting to be walked.
+The lap prints the clone's `HEAD`; nothing is promoted at a lap, so match it to the [regulus](#Regulus) tip, which `git -C ../rbthdr_regulus/regulus rev-parse HEAD` prints.
 Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
 Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [temenos](#Temenos) aside.
 A finding means a repair and another lap.
@@ -234,15 +255,17 @@ If promotion is refused as a non-fast-forward, public main moved since the cut: 
 Ostend closes by pointing you to [harbinger](#Harbinger).
 
 <a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [regulus](#Regulus) directory.
-At the promotion stop, in the second pane:
+At the promotion stop, ostend prints the lines below; copy them into the second pane in order, editing only the first to give an absolute path for a new directory:
 
 ```
-git clone git@github.com:scaleinv/recipebottle.git «fresh clone»
-cd «fresh clone»
+export FRESH_CLONE=«an absolute path for a new directory»
+git clone git@github.com:scaleinv/recipebottle.git "${FRESH_CLONE}"
+cd "${FRESH_CLONE}"
 git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
 Then type the printed promotion line there.
+Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLONE}"`.
 
 ### <a id="HarbingerAct"></a>Harbinger
 
