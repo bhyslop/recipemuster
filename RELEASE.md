@@ -127,6 +127,11 @@ Run the four commands under their practice doors, reading each stop as the real 
    It stops three times, exactly as the real [ostend](#Ostend) does (the file list, the staging push line, the promotion line), but every push it prints targets the stand-in, never the public repository.
 5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
 
+A practice coldwalk, the lap's and the confirmation's alike, proves the rig and not the product.
+Walk it until the stranger hands you the cloud setup, and stop it there.
+Commit its findings memo where the hand-off directs and carry its findings about the shipped product to the laps; they never stop the round.
+A practice lap whose battery is green and whose walk reached that hand-off has run dry for the round.
+
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
 Type each line as shown, in order:
 
