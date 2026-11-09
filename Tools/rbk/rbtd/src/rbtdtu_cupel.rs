@@ -27,9 +27,9 @@ use super::rbtchb_bash::{
     zrbtchb_keyword_kind, //
 };
 use super::rbtchc_cupel::{
-    zrbtchc_export_names,
     zrbtchc_Domain,
     zrbtchc_Finding,
+    zrbtchc_export_names,
     ZRBTCHC_DECLARED_DEPS,
     ZRBTCHC_EVICTIONS,
     ZRBTCHC_GCB_ALLOWED,

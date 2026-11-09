@@ -592,7 +592,9 @@ fn zrbtchc_run_exports(dir: &Path) -> rbtcee_Verdict {
     };
     let mut files: Vec<PathBuf> = Vec::new();
     zrbtchc_walk_ext(
-        &root.join(ZRBTCHC_TOOLS_SUBDIR).join(ZRBTCHC_EXPORT_KIT_ROOT),
+        &root
+            .join(ZRBTCHC_TOOLS_SUBDIR)
+            .join(ZRBTCHC_EXPORT_KIT_ROOT),
         ZRBTCHC_SH_EXT,
         ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
         &mut files,
