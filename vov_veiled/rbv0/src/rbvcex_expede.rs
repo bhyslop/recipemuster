@@ -37,6 +37,7 @@ use crate::rbvcem_perambulation;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
 use crate::rbvcew_world;
+use crate::rbvgeb_breviary;
 
 // ── The cut's constants ─────────────────────────────────────
 
@@ -55,6 +56,17 @@ const RBVCEX_NARTHEX_PRIVATE_STATUS: &str = "404";
 /// both spell POSTULANT_LOCAL:POSTULANT_LOCAL, and only the far-side
 /// promotion spells POSTULANT_LOCAL:main — by hand, exactly once.
 pub const RBVCEX_REGULUS_BRANCH: &str = "POSTULANT_LOCAL";
+
+/// The shell variable every printed fresh-clone recipe names its clone by:
+/// the operator edits the one line that sets it and copies every other line
+/// verbatim, as the rendered procedure's recipes spell it.
+pub const RBVCEX_FRESH_CLONE_VAR: &str = "FRESH_CLONE";
+
+/// The placeholder the one editable line of every fresh-clone recipe prints.
+/// It asks for an absolute path because the recipe discards the clone with
+/// rm -rf on the variable: a relative path resolved after a change of
+/// directory would aim that delete somewhere else.
+pub const RBVCEX_FRESH_CLONE_PLACE: &str = "«an absolute path for a new directory»";
 
 /// The subject of the single commit the regulus carries. One commit, so one
 /// subject: it names the act, not the contents.
@@ -173,8 +185,13 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", bundle.base_remote], top);
     if fetch.code != 0 {
         crate::rbvcel_fatal!(
-            "{} is not configured — the regulus is built by addition atop the real public repository, so a remote pointing at it is required (git remote add {} {}):\n{}",
-            bundle.base_remote, bundle.base_remote, bundle.base_url, fetch.stderr.trim(), //
+            "{} is not configured — the {} is built by addition atop the {}, so a remote pointing at it is required (git remote add {} {}):\n{}",
+            bundle.base_remote,
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            bundle.base_noun,
+            bundle.base_remote,
+            bundle.base_url,
+            fetch.stderr.trim(), //
         );
     }
     let fetch_url = fetch.stdout.trim().to_string();
@@ -254,9 +271,13 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         RBVCEX_REGULUS_BRANCH, //
     ));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line("The regulus is built by ADDITION in a clone of the real PUBLIC");
-    rbvcel_log::rbvcel_line("repository. No private object enters the object graph, because none");
-    rbvcel_log::rbvcel_line("is ever put there. Nothing is stripped.");
+    rbvcel_log::rbvcel_line(&format!(
+        "The {} is built by ADDITION in a clone of the {}.",
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+        bundle.base_noun, //
+    ));
+    rbvcel_log::rbvcel_line("No private object enters the object graph, because none is ever");
+    rbvcel_log::rbvcel_line("put there. Nothing is stripped.");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!(
         "Every shipped path ({}) is materialized from the committed bytes,",

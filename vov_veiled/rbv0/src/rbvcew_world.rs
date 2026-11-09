@@ -63,6 +63,11 @@ pub struct rbvcew_Bundle {
     /// fact, not a runtime input. The kerygma and the promotion target it too.
     pub base_url: &'static str,
 
+    /// How the banners name the base repository, so no line printed in the
+    /// practice world calls its private stand-in public. Prose only, never an
+    /// address: nothing reads it back.
+    pub base_noun: &'static str,
+
     /// The ephemeral private narthex (RBS0 rbshc_narthex): created empty and
     /// private by the operator's own hand before a cut, reached only by
     /// explicit URL — never a configured remote. Fixed and known, unlike the
@@ -122,6 +127,7 @@ pub const RBVCEW_AGORA: rbvcew_Bundle = rbvcew_Bundle {
     base_remote: "ENGROSSMENT_UPSTREAM",
     base_push_disabled: "DISABLED-ENGROSSMENT_UPSTREAM-IS-READ-ONLY",
     base_url: "git@github.com:scaleinv/recipebottle.git",
+    base_noun: "real PUBLIC repository",
     narthex_url: "git@github.com:scaleinv/recipebottle-staging.git",
     narthex_https: "https://github.com/scaleinv/recipebottle-staging",
     harbinger_url: "https://github.com/scaleinv/recipebottle.git",
@@ -139,6 +145,7 @@ pub const RBVCEW_PALAESTRA: rbvcew_Bundle = rbvcew_Bundle {
     base_remote: "PALAESTRA_UPSTREAM",
     base_push_disabled: "DISABLED-PALAESTRA_UPSTREAM-IS-READ-ONLY",
     base_url: "git@github.com:bhyslop/recipebottle-grandstand-practice.git",
+    base_noun: "private practice stand-in",
     narthex_url: "git@github.com:bhyslop/recipebottle-picadero-practice.git",
     narthex_https: "https://github.com/bhyslop/recipebottle-picadero-practice",
     harbinger_url: "git@github.com:bhyslop/recipebottle-grandstand-practice.git",
