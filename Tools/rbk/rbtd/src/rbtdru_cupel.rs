@@ -44,8 +44,10 @@
 // excludes only ABANDONED* (FUTURE* code is present and sourceable, so its
 // definitions stay visible).
 //
-// Three cases, one per scan surface: kit-bash and GCB-bash (rbtchb_bash) and
-// the python cloud steps (rbtchy_python).
+// Four cases: one per scan surface — kit-bash and GCB-bash (rbtchb_bash) and
+// the python cloud steps (rbtchy_python) — and the export roster, which reads
+// every command-position `export` in shipped rb bash against a roster naming
+// each one rb ships on purpose.
 
 use std::collections::BTreeSet;
 use std::path::{
@@ -62,7 +64,11 @@ use crate::rbtcee_engine::{
     rbtcee_Verdict, //
 };
 use crate::rbtcem_manifest::RBTCEM_FIXTURE_CUPEL;
-use crate::rbtchb_bash::zrbtchb_scan_domain;
+use crate::rbtchb_bash::{
+    zrbtchb_command_words,
+    zrbtchb_read_word,
+    zrbtchb_scan_domain, //
+};
 use crate::rbtchy_python::zrbtchy_scan_python;
 
 // ── Corpus location ─────────────────────────────────────────
@@ -121,6 +127,20 @@ pub(crate) const ZRBTCHC_INVENTORY_SUFFIX: &str = "-inventory.txt";
 pub(crate) const ZRBTCHC_LABEL_KIT: &str = "kit";
 pub(crate) const ZRBTCHC_LABEL_GCB: &str = "gcb";
 pub(crate) const ZRBTCHC_LABEL_PY: &str = "py";
+pub(crate) const ZRBTCHC_LABEL_EXPORT: &str = "export";
+
+/// The kit root under Tools/ whose bash the export roster reads: shipped rb
+/// bash. BUK exports by design (its regime inlets), so it stands outside.
+pub(crate) const ZRBTCHC_EXPORT_KIT_ROOT: &str = "rbk";
+
+/// The export roster — every command-position `export` shipped rb bash makes
+/// on purpose, as (repo-relative file, exported name). rb's regime values reach
+/// compose by env file, never by the bottle door's environment, so the only
+/// entry is a foreign tool's home a cloud step script hands to gpg.
+pub(crate) const ZRBTCHC_EXPORT_ROSTER: &[(&str, &str)] = &[(
+    "Tools/rbk/rbgjs/rbgjs-gpg-verify-sums.sh",
+    "GNUPGHOME", //
+)];
 
 /// POSIX Utility Allowlist — the irreducible external-command floor. No bash
 /// 3.2 builtin replacement; mandated by POSIX wherever bash runs.
@@ -512,6 +532,140 @@ fn zrbtchc_run_python(dir: &Path) -> rbtcee_Verdict {
     )
 }
 
+/// The names one source line's command-position `export` hands on, in order:
+/// each word after the first `export` up to the next separator or comment,
+/// flags skipped and any `=value` dropped. Words are read with the cupel
+/// lexer's own word reader, so a quoted value is one word. A line carrying no
+/// `export` word yields nothing.
+pub(crate) fn zrbtchc_export_names(line: &str) -> Vec<String> {
+    let chars: Vec<char> = line.chars().collect();
+    let mut i = 0usize;
+    let mut row = 1usize;
+    let mut in_export = false;
+    let mut names: Vec<String> = Vec::new();
+    while i < chars.len() {
+        let c = chars[i];
+        if c == '#' {
+            break;
+        }
+        if c.is_whitespace() {
+            i += 1;
+            continue;
+        }
+        if matches!(c, ';' | '|' | '&' | '<' | '>' | '(' | ')' | '`') {
+            if in_export {
+                break;
+            }
+            i += 1;
+            continue;
+        }
+        let start = i;
+        let word = zrbtchb_read_word(&chars, &mut i, &mut row);
+        if i == start {
+            i += 1;
+            continue;
+        }
+        if in_export {
+            if word.starts_with('-') {
+                continue;
+            }
+            names.push(word.split('=').next().unwrap_or("").to_string());
+        } else if word == "export" {
+            in_export = true;
+        }
+    }
+    names
+}
+
+/// Read every command-position `export` in shipped rb bash and fail on any the
+/// roster does not name, and on any roster entry no export answers, so the
+/// roster can never outlive the line it names.
+fn zrbtchc_run_exports(dir: &Path) -> rbtcee_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
+    };
+    let mut files: Vec<PathBuf> = Vec::new();
+    zrbtchc_walk_ext(
+        &root.join(ZRBTCHC_TOOLS_SUBDIR).join(ZRBTCHC_EXPORT_KIT_ROOT),
+        ZRBTCHC_SH_EXT,
+        ZRBTCHC_LINT_EXCLUDED_DIR_PREFIXES,
+        &mut files,
+    );
+    files.sort();
+
+    let mut answered = vec![false; ZRBTCHC_EXPORT_ROSTER.len()];
+    let mut findings: Vec<zrbtchc_Finding> = Vec::new();
+    let mut inventory: BTreeSet<String> = BTreeSet::new();
+    for path in &files {
+        let src = match std::fs::read_to_string(path) {
+            Ok(s) => s,
+            Err(e) => {
+                return rbtcee_Verdict::Fail(format!(
+                    "read {} failed: {}",
+                    path.display(),
+                    e, //
+                ));
+            }
+        };
+        let lines: Vec<&str> = src.lines().collect();
+        let rel = crate::rbtcep_platform::rbtcep_repo_rel(&root, path);
+        for (line, command) in zrbtchb_command_words(&src) {
+            if command != "export" {
+                continue;
+            }
+            let text = lines.get(line.wrapping_sub(1)).copied().unwrap_or("");
+            let names = zrbtchc_export_names(text);
+            for name in &names {
+                inventory.insert(name.clone());
+            }
+            let entry = ZRBTCHC_EXPORT_ROSTER
+                .iter()
+                .position(|(file, name)| *file == rel && names.len() == 1 && names[0] == *name);
+            match entry {
+                Some(k) => answered[k] = true,
+                None => findings.push(zrbtchc_Finding {
+                    file: rel.clone(),
+                    line,
+                    command: format!(
+                        "export {}",
+                        names.join(" "), //
+                    ),
+                    detail: "an export the roster does not name".to_string(),
+                }),
+            }
+        }
+    }
+    for (k, (file, name)) in ZRBTCHC_EXPORT_ROSTER.iter().enumerate() {
+        if !answered[k] {
+            findings.push(zrbtchc_Finding {
+                file: file.to_string(),
+                line: 0,
+                command: format!(
+                    "export {}",
+                    name, //
+                ),
+                detail: "a roster entry no export answers".to_string(),
+            });
+        }
+    }
+    let scan = zrbtchc_ScanResult {
+        findings,
+        inventory,
+    };
+    zrbtchc_report(
+        dir,
+        ZRBTCHC_LABEL_EXPORT,
+        &scan,
+        "export roster violation(s) in shipped rb bash",
+    )
+}
+
 // ── Cases and fixture ───────────────────────────────────────
 
 fn rbtchc_kit_bash(dir: &Path) -> rbtcee_Verdict {
@@ -526,10 +680,15 @@ fn rbtchc_gcb_python(dir: &Path) -> rbtcee_Verdict {
     zrbtchc_run_python(dir)
 }
 
+fn rbtchc_kit_exports(dir: &Path) -> rbtcee_Verdict {
+    zrbtchc_run_exports(dir)
+}
+
 pub static RBTCHC_CASES_CUPEL: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchc_kit_bash),
     rbtcee_case!(rbtchc_gcb_bash),
-    rbtcee_case!(rbtchc_gcb_python), //
+    rbtcee_case!(rbtchc_gcb_python),
+    rbtcee_case!(rbtchc_kit_exports), //
 ];
 
 pub static RBTCHC_FIXTURE_CUPEL: rbtcee_Fixture = rbtcee_Fixture {

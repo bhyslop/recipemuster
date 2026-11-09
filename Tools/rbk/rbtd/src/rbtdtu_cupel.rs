@@ -27,6 +27,7 @@ use super::rbtchb_bash::{
     zrbtchb_keyword_kind, //
 };
 use super::rbtchc_cupel::{
+    zrbtchc_export_names,
     zrbtchc_Domain,
     zrbtchc_Finding,
     ZRBTCHC_DECLARED_DEPS,
@@ -521,6 +522,35 @@ fn rbtthc_py_scan_subprocess_dynamic_argv0_skipped() {
 #[test]
 fn rbtthc_py_scan_string_mention_not_flagged() {
     assert!(zrbtthc_py_findings("msg = \"do not eval(this) or exec(that)\"\n").is_empty());
+}
+
+#[test]
+fn rbtthc_export_names_reads_the_line() {
+    assert_eq!(zrbtchc_export_names("export GNUPGHOME"), vec!["GNUPGHOME"]);
+    assert_eq!(
+        zrbtchc_export_names("  export RBOB_HOST_UID=\"${z_host_uid}\""),
+        vec!["RBOB_HOST_UID"]
+    );
+    assert_eq!(
+        zrbtchc_export_names("export -n A B=\"x y\" # trailing"),
+        vec!["A", "B"]
+    );
+    assert_eq!(zrbtchc_export_names("cd x && export C; echo D"), vec!["C"]);
+    // The reader judges no command position — the lexer does, before a line
+    // reaches it — so an argument word reads like the command.
+    assert_eq!(zrbtchc_export_names("echo export E"), vec!["E"]);
+    assert!(zrbtchc_export_names("buh_code \"export F=1\"").is_empty());
+}
+
+#[test]
+fn rbtthc_export_quoted_mention_not_command_position() {
+    let words = zrbtchb_command_words("buh_code \"   export FORGE=\\$(cat f)\"\nexport G\n");
+    let exports: Vec<usize> = words
+        .iter()
+        .filter(|(_, w)| w == "export")
+        .map(|(l, _)| *l)
+        .collect();
+    assert_eq!(exports, vec![2]);
 }
 
 // eof
