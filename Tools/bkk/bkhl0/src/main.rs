@@ -22,7 +22,7 @@
 #![allow(private_interfaces)]
 
 fn main() -> std::process::ExitCode {
-    bkp::bkprl_lanyard::bkprl_run(bkhl::bkhlrc_cli::bkhlrc_main)
+    brp::brprl_lanyard::brprl_run(bkhl::bkhlrc_cli::bkhlrc_main)
 }
 
 // eof

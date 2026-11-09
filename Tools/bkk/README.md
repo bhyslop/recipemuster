@@ -2,7 +2,7 @@
 
 The launch discipline every door that builds, launches or tests a managed subprogram satisfies: uniform conditions, an honest answer to whether the artifact is current, and bounded reporting that never lies, whatever language produced the artifact and whatever language the door is written in.
 
-The kit stands on the bash substrate: every door is a tabtarget, every declaration a bash-readable regime file, and the bootstrap is bash on the station's tackroom, whatever the kennel's interior is written in.
+The kit stands on the bash substrate: every door is a tabtarget, every declaration a bash-readable config regime file, and the bootstrap is bash on the station's tackroom, whatever the kennel's interior is written in.
 Language backends are tenants inside the discipline rather than the discipline itself; rust is the first, and python stands beside it.
 
 The road from an installed parcel to a whistle that answers is the kit's handbook, `Tools/bkk/HANDBOOK.md`; this file is what you do with the kennel once that road is walked.
@@ -11,7 +11,7 @@ The road from an installed parcel to a whistle that answers is the kit's handboo
 
 <a id="bksk_platform_blind"></a>**Platform-Blind Premise**
 
-The kennel carries no platform-specific aspect: no platform name enters its source, its collars, its regime files, or its hurdles, and no door branches on what the host is.
+The kennel carries no platform-specific aspect: no platform name enters its source, its collars, its config regime files, or its hurdles, and no door branches on what the host is.
 What differs between hosts is met by a tool's presence or by a declared fact: a step only one platform's tooling can perform is guarded on the tool standing or declared on the collar, and any key a residence ever carries is opaque text the kennel joins and never reads.
 
 **Every door refuses an uncommitted repository.** A kennel door reads the repository a collar stands in and refuses while anything is uncommitted, a source file, a test file and an untracked file alike, so every verdict maps to a position.
@@ -86,7 +86,7 @@ It is read off the kennel's own collar reader, which is the authority: where thi
 
 <a id="bkscl_collar"></a>**Collar**
 
-The kennel's declaration regime at launchable grain: one instance per launchable, proclaiming to the system what may be launched and on what terms.
+The kennel's declaration config regime at launchable grain: one instance per launchable, proclaiming to the system what may be launched and on what terms.
 The genus across every language tenant — a rust crate's binary, a python venv's entry point, a typescript package's runner all wear one — so a door reads one shape whatever produced the thing it names.
 
 ### Where it stands

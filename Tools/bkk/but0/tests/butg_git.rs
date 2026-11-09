@@ -59,11 +59,11 @@ fn butg_body(enter: &str) -> String {
     format!(
         "\
 buc_context \"bujg\"
-test -d hippodrome || {{
-  git init --quiet hippodrome
-  git -C hippodrome -c user.name=bujg -c user.email=bujg@example.invalid \\
+test -d scrontle || {{
+  git init --quiet scrontle
+  git -C scrontle -c user.name=bujg -c user.email=bujg@example.invalid \\
     commit --quiet --allow-empty -m \"bujg: the one commit\"
-  git -C hippodrome worktree add --quiet ../billet
+  git -C scrontle worktree add --quiet ../yarbish
 }}
 cd \"{enter}\"
 bug_require_main_worktree_creed \"the rationale the caller supplies\"
@@ -78,14 +78,14 @@ fn butg_a_linked_worktree_refuses_naming_the_main_worktree() {
     let said = buth_Bench::buth_seat(
         "substrate-main-checkout-linked",
         BUTG_MODULES,
-        &butg_body("billet"),
+        &butg_body("yarbish"),
     )
     .buth_drive(&[]);
 
     said.buth_took(BUTG_WORKTREE)
         .buth_carries("linked worktree")
         .buth_carries("main checkout at ")
-        .buth_carries("/hippodrome")
+        .buth_carries("/scrontle")
         .buth_carries("the rationale the caller supplies")
         .buth_lacks("the-creed-passed");
 }
@@ -95,7 +95,7 @@ fn butg_the_main_worktree_passes() {
     buth_Bench::buth_seat(
         "substrate-main-checkout-main",
         BUTG_MODULES,
-        &butg_body("hippodrome"),
+        &butg_body("scrontle"),
     )
     .buth_drive(&[])
     .buth_thrived()

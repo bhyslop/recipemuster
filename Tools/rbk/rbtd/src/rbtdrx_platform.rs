@@ -39,13 +39,13 @@ use std::path::{
 use std::process::Command;
 use std::sync::OnceLock;
 
-use bkp::bkprc_catena::{
-    bkprc_Regime,
-    bkprc_read, //
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_read, //
 };
 
 static RBTCEP_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
-static RBTDRX_DISPATCH: OnceLock<Result<bkprc_Regime, String>> = OnceLock::new();
+static RBTDRX_DISPATCH: OnceLock<Result<brprc_Regime, String>> = OnceLock::new();
 
 /// The pointer a dispatch hands across its exec: the one name theurge reads
 /// from its environment for the dispatch's values, naming the file that holds
@@ -65,7 +65,7 @@ const RBTDRX_DISPATCH_OSTYPE: &str = "BURD_OSTYPE";
 /// verdict lives inside the file it names, so the pointer cannot wait on that
 /// verdict: a Windows-native theurge is launched only from Cygwin bash, so on a
 /// Windows target the pointer converts as a Cygwin path, and elsewhere as itself.
-fn zrbtdrx_dispatch() -> Result<&'static bkprc_Regime, String> {
+fn zrbtdrx_dispatch() -> Result<&'static brprc_Regime, String> {
     RBTDRX_DISPATCH
         .get_or_init(|| {
             let pointer = match std::env::var(RBTDRX_DISPATCH_FILE_VAR) {
@@ -78,7 +78,7 @@ fn zrbtdrx_dispatch() -> Result<&'static bkprc_Regime, String> {
                 }
             };
             let path = rbtcep_posix_to_native_for(&pointer, cfg!(windows))?;
-            bkprc_read(&path)
+            brprc_read(&path)
         })
         .as_ref()
         .map_err(|e| e.clone())
@@ -93,7 +93,7 @@ fn zrbtdrx_dispatch() -> Result<&'static bkprc_Regime, String> {
 pub fn rbtdrx_dispatch_value(name: &str) -> Result<String, String> {
     let regime = zrbtdrx_dispatch()?;
     regime
-        .bkprc_scalar(name)
+        .brprc_scalar(name)
         .map(str::trim)
         .filter(|v| !v.is_empty())
         .map(str::to_string)

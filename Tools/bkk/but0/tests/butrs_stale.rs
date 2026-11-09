@@ -121,7 +121,7 @@ fn butrs_the_refusal_names_the_condition_the_remedy_and_the_canonical_stub() {
     // repair the stub by hand.
     butrs_bootstrap("substrate-stale-message", BUTRS_STALE)
         .buth_took(BUTRS_DESUETUDE)
-        .buth_carries("STALE LAUNCHER STUB")
+        .buth_carries("STALE STUB")
         .buth_carries("buut_launcher")
         .buth_carries("tt/buw-tt-cl.CreateLauncher.sh")
         .buth_carries("exec \"Tools/buk/bul_launcher.sh\"");
@@ -154,7 +154,7 @@ fn butrs_a_stub_sourcing_the_launcher_exits_on_the_band_code_naming_the_exec_stu
     // exec line, since a station dark at its stubs reaches no door to print it.
     butrs_bootstrap("substrate-stale-sourcing", BUTRS_SOURCING)
         .buth_took(BUTRS_DESUETUDE)
-        .buth_carries("STALE LAUNCHER STUB")
+        .buth_carries("STALE STUB")
         .buth_carries("tt/buw-tt-cl.CreateLauncher.sh")
         .buth_carries("exec \"Tools/buk/bul_launcher.sh\"")
         .buth_lacks("command not found");

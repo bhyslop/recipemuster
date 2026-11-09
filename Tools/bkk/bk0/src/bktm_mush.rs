@@ -28,7 +28,7 @@ use super::bkcm_mush::{
     BKCM_RUNNER_NEXTEST, //
 };
 use super::bkcr_resolve::bkcr_Collar;
-use bkp::bkprc_catena::bkprc_admit;
+use brp::brprc_catena::brprc_admit;
 use std::path::{
     Path,
     PathBuf, //
@@ -108,7 +108,7 @@ fn zbktm_collar(text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: "suite-lure".to_string(),
         instance: PathBuf::from("suite-lure"),
-        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(text, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["Tools/lure/src".to_string()]),
     }
 }

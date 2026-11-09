@@ -833,8 +833,8 @@ impl bkcv_Record {
                     }
                 }
                 return Err(format!(
-                    "the log family is half-composed in {}: {} stand(s) absent while the others \
-                     are written. The own-log mode writes all three, so this is a dispatch the \
+                    "the three members are half-composed in {}: {} stand(s) absent while the others \
+                     are written. The `buuc_ownlog` mode writes all three, so this is a dispatch the \
                      kennel does not understand rather than a record it may write part of — all \
                      three members are written or none is",
                     dispatch.bkcr_whence(),
@@ -902,7 +902,7 @@ impl bkcv_Record {
                 .open(path)
                 .map_err(|err| {
                     format!(
-                        "could not open the log member {}: {}",
+                        "could not open one of the three members, {}: {}",
                         path,
                         err, //
                     )
@@ -1074,7 +1074,7 @@ impl bkcv_Record {
 
 fn zbkcv_blame(err: std::io::Error) -> String {
     format!(
-        "could not write the log family: {}",
+        "could not write the three members: {}",
         err, //
     )
 }

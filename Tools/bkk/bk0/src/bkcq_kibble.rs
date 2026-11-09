@@ -35,7 +35,7 @@
 //! is on disk — the failure a version written into a manifest somewhere invites,
 //! and the reason a probe of the station's own PATH is refused outright.
 //!
-//! THE FIELD ROSTER STANDS HERE AND NOT IN THE READER CRATE. `bkp` reads
+//! THE FIELD ROSTER STANDS HERE AND NOT IN THE READER CRATE. `brp` reads
 //! regime files and stops, by its own charter: nothing in it knows what a collar
 //! is, and nothing in it may learn what a kibble is either. What a family's
 //! fields MEAN belongs to the family that declared them, which for this family
@@ -56,9 +56,9 @@ use crate::bkcr_resolve::{
     bkcr_drift,
     bkcr_weaned_family, //
 };
-use bkp::bkprc_catena::{
-    bkprc_Regime,
-    bkprc_read, //
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_read, //
 };
 
 /// The kibble family's file. Its parent directory is the instance and that
@@ -340,14 +340,14 @@ pub struct bkcq_Kibble {
     /// The instance directory, repo-relative.
     pub instance: PathBuf,
     /// Everything the family file declared.
-    pub regime: bkprc_Regime,
+    pub regime: brprc_Regime,
 }
 
 impl bkcq_Kibble {
     /// One field's value, or the empty string where the field is absent. The
     /// absence is a finding of its own, so a reader here is never guessing.
     pub fn bkcq_field(&self, key: &str) -> &str {
-        self.regime.bkprc_scalar(key).unwrap_or("")
+        self.regime.brprc_scalar(key).unwrap_or("")
     }
 
     /// Whether this kibble is built from source rather than fetched prebuilt.
@@ -509,7 +509,7 @@ pub fn bkcq_resolve(repository: &Path, weaned: &Path, name: &str) -> Result<bkcq
 
     bkcr_drift(repository, &repository.join(&instance), BKCQ_FAMILY)?;
 
-    let regime = bkprc_read(&repository.join(&instance).join(BKCQ_FAMILY))?;
+    let regime = brprc_read(&repository.join(&instance).join(BKCQ_FAMILY))?;
 
     let kibble = bkcq_Kibble {
         name: name.to_string(),
@@ -557,7 +557,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
     };
 
     for field in BKCQ_FIELDS_BOTH.iter().chain(owed.iter()) {
-        if !kibble.regime.bkprc_holds(field) {
+        if !kibble.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is not declared — every kibble of this kind declares it, and a door reading a \
                  meaning out of an absence cannot tell a declaration from an omission",
@@ -567,7 +567,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
     }
 
     for field in foreign {
-        if kibble.regime.bkprc_holds(field) {
+        if kibble.regime.brprc_holds(field) {
             findings.push(format!(
                 "{} is declared and belongs to the {} kind — this kibble declares {} = {}, and \
                  the two kinds are fetched by roads that share no fact: a source kibble has a \
@@ -581,7 +581,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
     }
 
     for (field, admitted) in ZBKCQ_ENUMS {
-        let Some(held) = kibble.regime.bkprc_scalar(field) else {
+        let Some(held) = kibble.regime.brprc_scalar(field) else {
             continue;
         };
         if !admitted.contains(&held) {
@@ -595,7 +595,7 @@ fn zbkcq_declared(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
     }
 
     for field in ["BKRK_VERSION", "BKRK_PROGRAM", "BKRK_BYNAME"] {
-        if kibble.regime.bkprc_holds(field) && kibble.bkcq_field(field).trim().is_empty() {
+        if kibble.regime.brprc_holds(field) && kibble.bkcq_field(field).trim().is_empty() {
             findings.push(format!(
                 "{} stands vacant — the residence is composed from these three, so a vacant one \
                  makes the pin a path that answers for nothing",
@@ -630,7 +630,7 @@ fn zbkcq_identity(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
 /// carry is wrong whatever the archive holds, and saying so at validation costs
 /// nothing and saves the download.
 fn zbkcq_seal(kibble: &bkcq_Kibble, findings: &mut Vec<String>) {
-    let Some(seal) = kibble.regime.bkprc_scalar("BKRK_SEAL") else {
+    let Some(seal) = kibble.regime.brprc_scalar("BKRK_SEAL") else {
         return;
     };
 

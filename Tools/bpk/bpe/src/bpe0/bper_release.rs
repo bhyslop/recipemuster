@@ -24,7 +24,7 @@
 //! - `bper_off_trunk`: Whether the forge's main checkout stands off its trunk,
 //!   the one trunk reading the release and the forge's survey both ask
 //! - `bper_issue_tamga`: Allocate the next release number, write the record
-//! - `bper_target_name`: Name the target a parcel is cut for, from its `burc.env`
+//! - `bper_target_name`: Name the target a parcel is formed for, from its `burc.env`
 //! - `bper_git_tracked_files`: List git-tracked files under a root — the
 //!   generalized candidate-gate primitive shared consumers (a name census
 //!   among them) compose with their own allowlist.
@@ -52,7 +52,7 @@ use std::path::{
     PathBuf, //
 };
 
-use bkp::bkprs_scrivener::bkprs_copy;
+use brp::brprs_scrivener::brprs_copy;
 
 use crate::bpee_emplace::{
     bpee_Behest,
@@ -239,7 +239,7 @@ pub fn bper_collect(
     // parcel is the one seat that exists for every consumer, and the vacate
     // reads the behest only a parcel carries.
     let install_dest = staging_dir.join(ZBPER_INSTALL_BOOTSTRAP);
-    bkprs_copy(install_script_path, &install_dest).map_err(|e| {
+    brprs_copy(install_script_path, &install_dest).map_err(|e| {
         format!(
             "Failed to copy install script: {}",
             e, //
@@ -248,7 +248,7 @@ pub fn bper_collect(
     total_files += 1;
 
     let uninstall_dest = staging_dir.join(ZBPER_UNINSTALL_BOOTSTRAP);
-    bkprs_copy(uninstall_script_path, &uninstall_dest).map_err(|e| {
+    brprs_copy(uninstall_script_path, &uninstall_dest).map_err(|e| {
         format!(
             "Failed to copy uninstall script: {}",
             e, //
@@ -291,9 +291,9 @@ pub fn bper_collect(
 /// * `commit_sha` - Current git commit SHA
 /// * `vulgate_sha` - The corpus trunk commit the word table was read at, where
 ///   the parcel carries the table; none where its target declares no `vmk`
-/// * `forge` - The minting repository's own `BURC_ENDONYM`, recorded in the
+/// * `forge` - The forming repository's own `BURC_ENDONYM`, recorded in the
 ///   record and on the registry row alike
-/// * `target` - The target the parcel was cut for (`bper_target_name`)
+/// * `target` - The target the parcel was formed for (`bper_target_name`)
 /// * `managed_kits` - List of kit IDs included (the target's BURC_MANAGED_KITS)
 ///
 /// # Returns
@@ -315,7 +315,7 @@ pub fn bper_issue_tamga(
 ) -> Result<bper_TamgaResult, String> {
     // No row is written for a forge that names itself nowhere.
     if forge.is_empty() {
-        return Err("A release needs the forge that mints it, its own BURC_ENDONYM".to_string());
+        return Err("A release needs the forge that forms it, its own BURC_ENDONYM".to_string());
     }
 
     // Load or create registry
@@ -353,7 +353,7 @@ pub fn bper_issue_tamga(
     Ok(bper_TamgaResult { number })
 }
 
-/// Name the target a parcel is cut for: the directory its `burc.env`'s
+/// Name the target a parcel is formed for: the directory its `burc.env`'s
 /// `BURC_PROJECT_ROOT` resolves to, as the sheaves identify a target
 /// repository.
 ///
@@ -475,7 +475,7 @@ pub fn bper_require_tracked_kits(tools_dir: &Path, managed_kits: &[String]) -> R
         return Ok(());
     }
     Err(format!(
-        "The target declares {} kit(s) the forge holds no tracked folder for under {}: {} - a release carries exactly the kits its target declares, so no parcel is cut",
+        "The target declares {} kit(s) the forge holds no tracked folder for under {}: {} - a release carries exactly the kits its target declares, so no parcel is formed",
         missing.len(),
         tools_dir.display(),
         missing.join(", "), //
@@ -488,8 +488,8 @@ pub fn bper_require_tracked_kits(tools_dir: &Path, managed_kits: &[String]) -> R
 /// on another line. The main checkout is the one `forge` belongs to, so a
 /// linked worktree asks about the checkout it hangs from.
 ///
-/// The one home of the trunk reading: the release asks it before it cuts, and
-/// the forge's survey asks it before the minting half opens. Each judging
+/// The one home of the trunk reading: the release asks it before it forms the
+/// parcel, and the forge's survey asks it before the forge's half opens. Each judging
 /// creed of the release reads whatever branch stands, so this alone asks that
 /// it be the trunk.
 ///
@@ -661,7 +661,7 @@ fn zbper_collect_kit(
         }
 
         // Copy file
-        bkprs_copy(&entry, &dest).map_err(|e| {
+        brprs_copy(&entry, &dest).map_err(|e| {
             format!(
                 "Failed to copy {} to {}: {}",
                 entry.display(),
@@ -752,7 +752,7 @@ fn zbper_copy_matching_files(
 
         if matches {
             let dest_path = dest_dir.join(file_name);
-            bkprs_copy(&path, &dest_path).map_err(|e| {
+            brprs_copy(&path, &dest_path).map_err(|e| {
                 format!(
                     "Failed to copy {} to {}: {}",
                     path.display(),
@@ -989,14 +989,14 @@ pub fn bper_tamga_json(
     // Every forge allocates its numbers alone, so a record names the forge that
     // took it, spelled as that forge declares itself and never derived.
     if forge.is_empty() {
-        return Err("A record needs the forge that minted it".to_string());
+        return Err("A record needs the forge that formed it".to_string());
     }
     root.insert(
         BPER_TAMGA_FORGE.to_string(),
         serde_json::Value::String(forge.to_string()),
     );
 
-    // A parcel carrying the word table is cut from a PAIR of positions, the
+    // A parcel carrying the word table is formed from a PAIR of positions, the
     // forge's commit above and the corpus trunk's here, and a reader asking what
     // a crossing carried needs both. A parcel whose target declares no vmk
     // carries no table, so it names no second position.
@@ -1012,9 +1012,9 @@ pub fn bper_tamga_json(
         );
     }
 
-    // Every parcel is cut for one target, so no record stands without naming it.
+    // Every parcel is formed for one target, so no record stands without naming it.
     if target.is_empty() {
-        return Err("A record needs the target the parcel was cut for".to_string());
+        return Err("A record needs the target the parcel was formed for".to_string());
     }
     root.insert(
         BPER_TAMGA_TARGET.to_string(),
@@ -1307,7 +1307,7 @@ mod tests {
         let _ = fs::remove_dir_all(&temp_dir);
     }
 
-    /// The record carries both positions a parcel is cut from, under their
+    /// The record carries both positions a parcel is formed from, under their
     /// registered field tags, and refuses a record that cannot name the second.
     #[test]
     fn bper_tamga_records_both_positions_test() {
@@ -1347,7 +1347,7 @@ mod tests {
         let _ = fs::remove_dir_all(&temp_dir);
     }
 
-    /// Every record names the target its parcel was cut for, and refuses one that
+    /// Every record names the target its parcel was formed for, and refuses one that
     /// cannot; a parcel carrying no word table names no corpus position at all.
     #[test]
     fn bper_tamga_records_its_target_test() {
@@ -1444,7 +1444,7 @@ mod tests {
         assert_eq!(zbper_allocate_tamga_number(&registry), 1006);
     }
 
-    /// A record names the forge that minted it, spelled as handed in, and a record
+    /// A record names the forge that formed it, spelled as handed in, and a record
     /// that cannot name one refuses rather than writing a forge nobody declared.
     #[test]
     fn bper_tamga_names_its_forge_test() {

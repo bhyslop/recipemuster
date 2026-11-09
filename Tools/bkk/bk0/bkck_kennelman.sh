@@ -52,15 +52,19 @@ zbkck_kindle() {
   readonly ZBKCK_CRATE_DIR="${ZBKCK_KIT_DIR}/bk0"
   readonly ZBKCK_MANIFEST="${ZBKCK_CRATE_DIR}/Cargo.toml"
 
-  # The floor crate, standing beside the kennel and carrying the regime reader.
+  # The floor crate, standing in a kit of its own beside the kennel and
+  # carrying the regime reader.
   # Its hurdles run under this door and not under the kennel's, for the same
   # reason the kennel's own do: a floor whose only proof ran through its first
   # consumer could not be the crate the estate's other crates stand on.
   #
   # IT STATES NO PIN OF ITS OWN, and that is the leash's law rather than an
-  # omission - the nearest pin at or above a crate's directory answers for it, so
-  # the kit's own pin governs both crates and a bump moves them together.
-  readonly ZBKCK_READER_MANIFEST="${ZBKCK_CRATE_DIR}/bkp/Cargo.toml"
+  # omission - the nearest pin at or above a crate's directory answers for it.
+  # Its kit states none either, so the repository's root pin governs the floor
+  # wherever the leash builds it, while this door runs its hurdles under the
+  # kennel's channel beside the kennel's own; a bump of either pin moves the
+  # other only by hand.
+  readonly ZBKCK_READER_MANIFEST="${ZBKCK_REPO_ROOT}/${BURC_TOOLS_DIR}/brk/brp0/Cargo.toml"
 
   # The substrate's own suite, which runs under this door for the same reason the
   # two above do, carried one step further. A broken kennel cannot launch the

@@ -32,7 +32,7 @@ use crate::bkcq_kibble::{
     BKCQ_KIND_PREBUILT,
     BKCQ_KIND_SOURCE, //
 };
-use bkp::bkprc_catena::bkprc_admit;
+use brp::brprc_catena::brprc_admit;
 use std::path::Path;
 
 /// A kibble composed from text, so a hurdle poses a declaration without a tree.
@@ -44,7 +44,7 @@ fn zbktq_posed(name: &str, text: &str) -> bkcq_Kibble {
     bkcq_Kibble {
         name: name.to_string(),
         instance: std::path::PathBuf::from("Tools/bkk").join(name),
-        regime: bkprc_admit(text, "a posed kibble").expect("the posed text admits"),
+        regime: brprc_admit(text, "a posed kibble").expect("the posed text admits"),
     }
 }
 

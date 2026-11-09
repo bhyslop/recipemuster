@@ -35,6 +35,7 @@
 #[allow(dead_code, non_camel_case_types)]
 mod bktu_lure;
 
+use bkk::bkg_breviary::BKG_COURSE_BASE;
 use bktu_lure::bktu_Lure;
 use std::ffi::OsStr;
 use std::path::Path;
@@ -451,7 +452,8 @@ fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
     );
     assert!(
         read.wall.is_none(),
-        "a narrowed course takes no time: {}",
+        "a narrowed {} takes no time: {}",
+        BKG_COURSE_BASE,
         said, //
     );
 }

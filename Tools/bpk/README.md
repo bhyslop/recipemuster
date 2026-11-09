@@ -74,6 +74,16 @@ The salutation roster is the engine's rather than yours: one stem named
 `default`, and one per model tier the engine can elect. An engine that later
 elects a new tier owes you a new file under the new stem.
 
+## Context the kit carries
+
+Two files under `bpai0/` are context for a session rather than templates, and a
+receiver copies neither: they are read where the install lays them.
+`bpai0/bpais_bpk.md` is the kit's standing file, which a repository's `CLAUDE.md`
+includes by the line `bpt_claude.md`'s block carries; it holds the trigger for
+the kit's excursus and the one rule that binds before it is read.
+`bpai0/bpaie_portage.md` is that excursus: how kit code crosses to a repository
+that receives it, and the shape of the receiving pace that carries it.
+
 ## The parcel engine
 
 Beside the templates the kit carries the parcel engine, `bpe/`: the release half
@@ -86,7 +96,7 @@ target. The release writes the forge's behest, `bpee_behest.json`, beside the
 parcel's record; the install and the uninstall read it there, and refuse a
 parcel carrying none.
 
-A repository that cuts parcels weans the engine's two collars from this kit's
+A repository that forms parcels weans the engine's two collars from this kit's
 `bkd_brood/`: `bpen_suite`, the engine's tests, and `bpen_app`, which converges
 the binary its parcels carry.
 
@@ -141,7 +151,7 @@ After the install:
    `tt/buw-tt-cl.CreateLauncher.sh` writes a workbench's launcher stub, and
    `buw-tt-cbl`, `buw-tt-cbn` and `buw-tt-cbo` write tabtargets over it in the
    form each door takes. No test compares what they write with the copies
-   standing in the repository that cut your parcel, so the two can differ, and
+   standing in the repository that formed your parcel, so the two can differ, and
    the door they write is the one your repository runs.
    Stand the roll call first, `buw-tt-rc.RollCall` over the bash utility kit's
    launcher: it lists every door the installed kits enroll that you have not

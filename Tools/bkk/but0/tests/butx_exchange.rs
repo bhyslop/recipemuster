@@ -179,7 +179,7 @@ fn butx_the_fact_file_is_sourceable_and_carries_every_initial_field() {
     said.buth_thrived();
 
     let read = |name: &str| {
-        bkp::bkprc_catena::bkprc_read(&std::path::Path::new(&at.temp).join(name)).unwrap_or_else(
+        brp::brprc_catena::brprc_read(&std::path::Path::new(&at.temp).join(name)).unwrap_or_else(
             |err| {
                 panic!(
                     "{}",
@@ -190,20 +190,20 @@ fn butx_the_fact_file_is_sourceable_and_carries_every_initial_field() {
     };
     let initial = read(BUTX_INITIAL);
     assert_eq!(
-        initial.bkprc_keys(),
+        initial.brprc_keys(),
         vec!["BURX_PID", "BURX_BEGAN_AT"],
         "the exchange file at the coordinator's start", //
     );
     for field in ["BURX_PID", "BURX_BEGAN_AT"] {
         assert!(
-            initial.bkprc_scalar(field).is_some_and(|v| !v.is_empty()),
+            initial.brprc_scalar(field).is_some_and(|v| !v.is_empty()),
             "{} stands in the exchange file with no value",
             field, //
         );
     }
     let completed = read(BUTX_BURX);
     assert_eq!(
-        completed.bkprc_keys(),
+        completed.brprc_keys(),
         vec![
             "BURX_PID",
             "BURX_BEGAN_AT",
@@ -212,14 +212,14 @@ fn butx_the_fact_file_is_sourceable_and_carries_every_initial_field() {
         ],
         "the exchange file once the run has ended", //
     );
-    assert_eq!(completed.bkprc_scalar("BURX_EXIT_STATUS"), Some("0"));
+    assert_eq!(completed.brprc_scalar("BURX_EXIT_STATUS"), Some("0"));
 
     // BURD_LABEL IS DECLARED THOUGH IT IS EMPTY, no label having been handed:
     // a reader matching a run by its label finds the empty it was promised
     // rather than an absence. Missing and empty are different facts.
     let burd = read(BUTX_BURD);
     assert_eq!(
-        burd.bkprc_scalar("BURD_LABEL"),
+        burd.brprc_scalar("BURD_LABEL"),
         Some(""),
         "the dispatch file declares the label", //
     );

@@ -65,7 +65,7 @@ path = "src/main.rs"
 # (BKSCL-Collar.adoc), these three included, and the lock beside this manifest
 # pins the whole closure.
 [dependencies]
-bkp = { path = "bkp" }
+brp = { path = "../../brk/brp0" }
 regex = "1.12.2"
 toml = { version = "0.9.12", default-features = false, features = ["parse"] }
 

@@ -51,12 +51,12 @@ zburd_kindle() {
 
   buv_regime_enroll BURD
 
-  buv_group_enroll "Launcher Configuration"
+  buv_group_enroll "${BUBG_LAUNCHER_BASE_LETTRINE} Configuration"
   buv_string_enroll  BURD_CONFIG_DIR            1  256  "Path to the ${BURD_MOORINGS_DIR}/ configuration directory"
   buv_string_enroll  BURD_MOORINGS_DIR          1  256  "Basename of the config directory (repo-root-relative, for operator-facing display)"
-  buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC regime configuration file"
+  buv_string_enroll  BURD_REGIME_FILE           1  256  "Path to the BURC config regime file"
   buv_string_enroll  BURD_STATION_FILE          1  256  "Path to the developer's BURS station file"
-  buv_string_enroll  BURD_LAUNCHER              1  256  "Launcher basename (e.g. launcher.rbw_workbench.sh), the first word of the ${BUBG_TABTARGET_POSSESSIVE} configuration line"
+  buv_string_enroll  BURD_LAUNCHER              1  256  "${BUBG_LAUNCHER_BASE_LETTRINE} basename (e.g. launcher.rbw_workbench.sh), the first word of the ${BUBG_TABTARGET_POSSESSIVE} configuration line"
   buv_string_enroll  BURD_SEAT                  1  512  "The directory whose tt/ the tabtarget was reached through, absolute and symlink-resolved"
   buv_string_enroll  BURD_BURD_FILE             1  512  "Path to this run's dispatch file, the pointer a coordinator sources it through"
   buv_string_enroll  BURD_TERM_COLS             1    8  "Terminal column width at dispatch time"
@@ -87,13 +87,13 @@ zburd_kindle() {
   buv_string_enroll  BURD_TOKEN_3               0   64  "Third token parsed from tabtarget filename, the zipper's imprint folio (optional)"
 
   buv_group_enroll "Caller Options"
-  buv_string_enroll  BURD_NO_LOG                0   16  "Disable logging when set (the configuration word buuc_nolog)"
+  buv_string_enroll  BURD_NO_LOG                0   16  "Keep no ${BUBG_STATION_LOG_BASE} when set (the configuration word buuc_nolog)"
   buv_string_enroll  BURD_INTERACTIVE           0   16  "Interactive mode flag when set (the configuration word buuc_interactive)"
 
-  buv_group_enroll "Log Paths"
-  buv_string_enroll  BURD_LOG_LAST              0  256  "Path to last-run log file, standing under the own-log mode alone"
-  buv_string_enroll  BURD_LOG_SAME              0  256  "Path to same-command log file, standing under the own-log mode alone"
-  buv_string_enroll  BURD_LOG_HIST              0  256  "Path to historical log file, standing wherever a log exists"
+  buv_group_enroll "${BUBG_STATION_LOG_BASE_LETTRINE} Paths"
+  buv_string_enroll  BURD_LOG_LAST              0  256  "Path to the last member of the ${BUBG_STATION_LOG_BASE}, standing under the buuc_ownlog mode alone"
+  buv_string_enroll  BURD_LOG_SAME              0  256  "Path to the same member of the ${BUBG_STATION_LOG_BASE}, standing under the buuc_ownlog mode alone"
+  buv_string_enroll  BURD_LOG_HIST              0  256  "Path to the historical member of the ${BUBG_STATION_LOG_BASE}, standing wherever one is kept"
 
   # Guard against unexpected BURD_ variables not in enrollment
   buv_scope_sentinel BURD BURD_
@@ -116,8 +116,8 @@ zburd_enforce() {
 
   # Custom enforce: log paths must be set when logging is active
   if test -z "${BURD_NO_LOG:-}" && test -n "${BURD_LOG_LAST:-}"; then
-    test -n "${BURD_LOG_SAME:-}" || buc_reject "${BUBG_REGIME_DENTIL}" "BURD_LOG_SAME required when logging is active"
-    test -n "${BURD_LOG_HIST:-}" || buc_reject "${BUBG_REGIME_DENTIL}" "BURD_LOG_HIST required when logging is active"
+    test -n "${BURD_LOG_SAME:-}" || buc_reject "${BUBG_REGIME_DENTIL}" "BURD_LOG_SAME required while a ${BUBG_STATION_LOG_BASE} is kept"
+    test -n "${BURD_LOG_HIST:-}" || buc_reject "${BUBG_REGIME_DENTIL}" "BURD_LOG_HIST required while a ${BUBG_STATION_LOG_BASE} is kept"
   fi
 }
 

@@ -49,7 +49,7 @@ bkk = { path = "../bk0", features = ["lure"] }
 # THE ESTATE'S ONE REGIME READER, beside the kennel in its floor crate: a hurdle
 # proving the dispatch file reads alike in bash and outside a shell reads it
 # with the reader every Rust consumer of that file uses, never a parse of its own.
-bkp = { path = "../bk0/bkp" }
+brp = { path = "../../brk/brp0" }
 
 # THE SEED-TEMPLATE HURDLE IS A SECOND SUITE, kept out of the substrate's own
 # run. It reads the starter kit's templates by path, and the starter kit is a

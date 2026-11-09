@@ -119,9 +119,9 @@ const RBTDRK_DISPATCH_STATION_FILE: &str = "BURD_STATION_FILE";
 /// letter.
 pub(crate) fn rbtcgf_burs_tincture() -> Result<String, String> {
     let path = rbtdrx_path_from_dispatch(RBTDRK_DISPATCH_STATION_FILE)?;
-    let station = bkp::bkprc_catena::bkprc_read(&path)?;
+    let station = brp::brprc_catena::brprc_read(&path)?;
     station
-        .bkprc_scalar("BURS_TINCTURE")
+        .brprc_scalar("BURS_TINCTURE")
         .map(str::trim)
         .filter(|v| !v.is_empty())
         .map(str::to_string)

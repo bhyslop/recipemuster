@@ -298,7 +298,7 @@ fn zbkm_inherited() {
             continue;
         }
         bkco_error_now!(
-            "{} stands in the kennel's environment at its start, and no value of the substrate crosses an exec by inheritance save the environment regime, {} and {} (the exported-name rule)",
+            "{} stands in the kennel's environment at its start, and no value of the substrate crosses an exec by inheritance save the BURE environment config regime, {} and {} (the exported-name rule)",
             name,
             ZBKM_HANDOFFS[0],
             ZBKM_HANDOFFS[1], //
@@ -354,11 +354,11 @@ fn zbkm_dispatched(repository: &Path) -> bkcr_resolve::bkcr_Dispatch {
 ///
 /// A GENUINE PANIC IS NOT THIS MATCH'S TO ANSWER. Its payload is handed back to
 /// the unwind it came from, its hook having already said where, and the re-raise
-/// lands in the floor's catch around the match (`bkp::bkprl_lanyard`), which ends
+/// lands in the floor's catch around the match (`brp::brprl_lanyard`), which ends
 /// the process broke as well. Both arms now end on the one failure code; the match
 /// stands so broke keeps a road of its own that never passes the hook.
 fn main() -> std::process::ExitCode {
-    bkp::bkprl_lanyard::bkprl_run(|| match std::panic::catch_unwind(zbkm_main) {
+    brp::brprl_lanyard::brprl_run(|| match std::panic::catch_unwind(zbkm_main) {
         Ok(()) => std::process::ExitCode::SUCCESS,
         Err(payload) if payload.is::<bkco_output::bkco_Broke>() => std::process::ExitCode::FAILURE,
         Err(payload) => std::panic::resume_unwind(payload),

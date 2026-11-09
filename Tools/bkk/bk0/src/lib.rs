@@ -23,7 +23,8 @@
 //! posture — one such consumer reads cargo metadata in-process on exactly the
 //! dirty tree its own census is driven against, before every commit.
 //!
-//! The regime reader stands in the floor crate beside this one, `bkp`, and is
+//! The regime reader stands in the floor crate, `brp`, delivered as a kit of
+//! its own beside the kennel, and is
 //! linked rather than reimplemented: every collar this crate reads is read through it, and the
 //! catena law is honored in exactly one place in rust.
 //!

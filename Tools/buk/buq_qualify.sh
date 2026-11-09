@@ -201,7 +201,7 @@ buq_tabtargets() {
     local z_launcher_path="${BURD_MOORINGS_DIR}/${BUBC_launchers_subdir}/${z_words[0]}"
     test -f "${z_project_root}/${z_launcher_path}" || {
       z_fail_files+=("${z_basename}")
-      z_fail_reasons+=("launcher not found: ${z_launcher_path}")
+      z_fail_reasons+=("stub not found: ${z_launcher_path}")
       continue
     }
 
@@ -258,7 +258,7 @@ buq_tabtargets() {
     done
     test -z "${z_source_line}" || {
       z_fail_files+=("${z_stub_name}")
-      z_fail_reasons+=("carries a source line, which no launcher stub carries: '${z_source_line}'")
+      z_fail_reasons+=("carries a source line, which no stub carries: '${z_source_line}'")
       continue
     }
 
@@ -296,7 +296,7 @@ buq_tabtargets() {
   local z_checked=$((z_count - z_exempt_count))
   local z_summary="Checked ${z_checked} tabtargets"
   test "${z_exempt_count}" = "0" || z_summary="${z_summary} (${z_exempt_count} exempt)"
-  z_summary="${z_summary} and ${z_stub_count} launcher stubs"
+  z_summary="${z_summary} and ${z_stub_count} stubs"
   buc_log_args "${z_summary}"
 
   local -r z_held=$((z_checked + z_stub_count))
@@ -305,10 +305,10 @@ buq_tabtargets() {
     for z_j in "${!z_fail_files[@]}"; do
       buc_warn "${z_fail_files[${z_j}]}: ${z_fail_reasons[${z_j}]}" || buc_die_now "Failed to warn"
     done
-    buc_die_now "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_held} tabtargets and launcher stubs"
+    buc_die_now "Tabtarget qualification failed: ${#z_fail_files[@]} of ${z_held} tabtargets and stubs"
   fi
 
-  buc_log_args "All ${z_checked} tabtargets and ${z_stub_count} launcher stubs structurally valid"
+  buc_log_args "All ${z_checked} tabtargets and ${z_stub_count} stubs structurally valid"
 }
 
 ######################################################################

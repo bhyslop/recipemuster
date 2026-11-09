@@ -41,10 +41,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4388bee8683e3d04af747c73422af53102d2bd24d9eadb6cbc100baef4b43f8"
 
 [[package]]
-name = "bkp"
-version = "0.0.1"
-
-[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -52,6 +48,10 @@ checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
 dependencies = [
  "generic-array",
 ]
+
+[[package]]
+name = "brp"
+version = "0.0.1"
 
 [[package]]
 name = "bytemuck"
@@ -516,7 +516,7 @@ name = "rbt"
 version = "0.1.0"
 dependencies = [
  "arboard",
- "bkp",
+ "brp",
  "tungstenite",
 ]
 

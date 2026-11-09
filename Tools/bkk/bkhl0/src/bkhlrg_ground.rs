@@ -30,9 +30,9 @@
 //! may stand inside neither swept folder, neither swept folder inside the other,
 //! and neither swept folder may be or hold the project root.
 
-use bkp::bkprc_catena::{
-    bkprc_Regime,
-    bkprc_read, //
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_read, //
 };
 use std::path::{
     Component,
@@ -123,16 +123,16 @@ pub fn bkhlrg_read(root: &Path) -> Result<bkhlrg_Ground, String> {
     })?;
 
     let config_dir = zbkhlrg_config_dir(&root)?;
-    let project = bkprc_read(&root.join(&config_dir).join(ZBKHLRG_PROJECT_FILE))?;
+    let project = brprc_read(&root.join(&config_dir).join(ZBKHLRG_PROJECT_FILE))?;
     let machine_file = zbkhlrg_required(&project, BKHLRG_STATION_FILE_KEY)?;
-    let machine = bkprc_read(&root.join(&machine_file))?;
+    let machine = brprc_read(&root.join(&machine_file))?;
 
     let temp = bkhlrg_resolve(&root.join(zbkhlrg_required(&project, BKHLRG_TEMP_KEY)?));
     let output = bkhlrg_resolve(&root.join(zbkhlrg_required(&project, BKHLRG_OUTPUT_KEY)?));
     let log = bkhlrg_resolve(&root.join(zbkhlrg_required(&machine, BKHLRG_LOG_KEY)?));
 
     let tincture = machine
-        .bkprc_scalar(BKHLRG_TINCTURE_KEY)
+        .brprc_scalar(BKHLRG_TINCTURE_KEY)
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .ok_or_else(|| {
@@ -145,7 +145,7 @@ pub fn bkhlrg_read(root: &Path) -> Result<bkhlrg_Ground, String> {
         .to_string();
 
     let hayloft = match machine
-        .bkprc_scalar(BKHLRG_HAYLOFT_KEY)
+        .brprc_scalar(BKHLRG_HAYLOFT_KEY)
         .map(str::trim)
         .filter(|value| !value.is_empty())
     {
@@ -247,9 +247,9 @@ fn zbkhlrg_config_dir(root: &Path) -> Result<String, String> {
 }
 
 /// One field's value, refusing where it is absent, empty or absolute.
-fn zbkhlrg_required(regime: &bkprc_Regime, key: &str) -> Result<String, String> {
+fn zbkhlrg_required(regime: &brprc_Regime, key: &str) -> Result<String, String> {
     let value = regime
-        .bkprc_scalar(key)
+        .brprc_scalar(key)
         .map(str::trim)
         .filter(|value| !value.is_empty())
         .ok_or_else(|| {

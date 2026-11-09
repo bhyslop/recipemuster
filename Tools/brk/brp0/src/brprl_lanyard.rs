@@ -19,7 +19,7 @@
 //! runtime, a process whose main thread panics exits 101, and 101 is a code the
 //! estate's own precision band mints for a gate of its own, so a caller reading
 //! an estate binary's status could not tell a panic from a ruling. A main that
-//! runs its body through `bkprl_run` ends on the standard library's failure code
+//! runs its body through `brprl_run` ends on the standard library's failure code
 //! instead: the imprecise death every caller already reads as broke, the tool
 //! having failed before ruling.
 //!
@@ -47,7 +47,7 @@ use std::process::{
 };
 
 /// Run a main's body, answering a panic that reaches it as broke.
-pub fn bkprl_run<T: Termination>(body: impl FnOnce() -> T + UnwindSafe) -> ExitCode {
+pub fn brprl_run<T: Termination>(body: impl FnOnce() -> T + UnwindSafe) -> ExitCode {
     match std::panic::catch_unwind(body) {
         Ok(end) => end.report(),
         Err(_) => ExitCode::FAILURE,

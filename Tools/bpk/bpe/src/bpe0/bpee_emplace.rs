@@ -27,7 +27,7 @@
 //! THE PARCEL CARRIES ITS BEHEST. What an install needs beyond the parcel's
 //! kits and its record — the precinct's rosters and freight, the signets the
 //! Claude assets wear, the canonical binary a taken kit carries, and a seat's
-//! endonym — is known only to the forge that cut the parcel, so the release
+//! endonym — is known only to the forge that formed the parcel, so the release
 //! writes it into the parcel beside the record, never inside it, and the install
 //! and the vacate read it there. A parcel carrying none is refused, naming the
 //! file; nothing stands in for it.
@@ -88,10 +88,10 @@ use std::path::{
 };
 use std::process::Command;
 
-use bkp::bkprs_scrivener::{
-    bkprs_copy,
-    bkprs_program_copy,
-    bkprs_program_write, //
+use brp::brprs_scrivener::{
+    brprs_copy,
+    brprs_program_copy,
+    brprs_program_write, //
 };
 
 // =============================================================================
@@ -447,7 +447,7 @@ fn zbpee_commit_seat(root: &Path, number: &str) -> Result<String, String> {
 // =============================================================================
 
 /// The starter kit's templates a seat's regime is written
-/// from. Compiled in rather than read from the parcel, because the parcel cut
+/// from. Compiled in rather than read from the parcel, because the parcel formed
 /// for the private seat carries no starter kit. Their home is this kit's own
 /// directory, beside this crate.
 const ZBPEE_TEMPLATE_BURC: &str = include_str!("../../../bpt_burc.env");
@@ -701,7 +701,7 @@ fn zbpee_require_seat_tamga_or_empty(root: &Path) -> Result<bool, String> {
         return Ok(false);
     }
     Err(format!(
-        "Target directory holds a {} the seat form did not write, so its regime is its own - name its burc.env: {}",
+        "Target directory holds a {} the seat form did not write, so its config regime is its own - name its burc.env: {}",
         BPEE_TAMGA_RELPATH,
         root.display(), //
     ))
@@ -772,7 +772,7 @@ fn zbpee_clear_target(root: &Path) -> Result<String, String> {
 
 /// Lay one executable file.
 fn zbpee_write_door(path: &Path, body: &str) -> Result<(), String> {
-    bkprs_program_write(path, body).map_err(|e| {
+    brprs_program_write(path, body).map_err(|e| {
         format!(
             "Failed to write {}: {}",
             path.display(),
@@ -821,7 +821,7 @@ fn zbpee_lay_freight(
             let path = entry.path();
             if path.is_file() {
                 let landed = to.join(entry.file_name());
-                bkprs_copy(&path, &landed).map_err(|e| {
+                brprs_copy(&path, &landed).map_err(|e| {
                     format!(
                         "Failed to lay {} at {}: {}",
                         path.display(),
@@ -843,7 +843,7 @@ fn zbpee_lay_freight(
                 )
             })?;
         }
-        bkprs_copy(&from, &to).map_err(|e| {
+        brprs_copy(&from, &to).map_err(|e| {
             format!(
                 "Failed to lay {} at {}: {}",
                 from.display(),
@@ -922,7 +922,7 @@ fn zbpee_write_regime(
     for launcher in &launchers {
         let workbench = launcher.strip_prefix("launcher.").ok_or_else(|| {
             format!(
-                "a door names the launcher '{}', which wears no 'launcher.' head",
+                "a door names the stub '{}', which wears no `launcher.` head",
                 launcher, //
             )
         })?;
@@ -931,13 +931,12 @@ fn zbpee_write_regime(
             .find(|k| tools_dir.join(k).join(workbench).is_file())
             .ok_or_else(|| {
                 format!(
-                    "a door names the launcher '{}', whose workbench no taken kit carries",
+                    "a door names the stub '{}', whose workbench no taken kit carries",
                     launcher, //
                 )
             })?;
         let lines = zbpee_launcher_lines(ZBPEE_TEMPLATE_LAUNCHER).ok_or_else(|| {
-            "the starter kit's launcher template carries no blank line ending its header"
-                .to_string()
+            "the starter kit's stub template carries no blank line ending its header".to_string()
         })?;
         let mut stub = lines.join("\n");
         stub.push('\n');
@@ -977,7 +976,7 @@ fn zbpee_write_regime(
     }
 
     Ok(format!(
-        "regime written: {} launcher stub(s), {} door(s), the station door, the precinct's rosters and {} piece(s) of precinct freight",
+        "written beside the kits: {} stub(s), {} door(s), the station door, the precinct's rosters and {} piece(s) of precinct freight",
         launchers.len(),
         doors,
         freight_laid, //
@@ -1009,8 +1008,8 @@ pub struct bpee_Binary {
     pub suffixed_prefix: String,
 }
 
-/// The forge's behest to the install: what only the binary that cut the parcel
-/// knows, composed for the one target the parcel is cut for, written into the
+/// The forge's behest to the install: what only the binary that formed the parcel
+/// knows, composed for the one target the parcel is formed for, written into the
 /// parcel as `BPEE_BEHEST_FILE` by the release and read back by the install and
 /// the vacate.
 #[derive(Debug, Clone, PartialEq)]
@@ -1185,7 +1184,7 @@ pub fn bpee_behest_json(behest: &bpee_Behest) -> Result<serde_json::Value, Strin
 
 /// Read the behest a parcel carries at its root. A parcel carrying none is
 /// refused naming the file, and so is a behest missing any member: nothing is
-/// defaulted, the forge that cut the parcel being the only one that knew. A
+/// defaulted, the forge that formed the parcel being the only one that knew. A
 /// member the target does not take is read as the forge wrote it, `null` or an
 /// empty list, and a name spelled empty is refused, `null` being the one
 /// spelling of a behest naming no seat.
@@ -1880,15 +1879,15 @@ fn zbpee_compare_editions(kit: &str, prior: &zbpee_Edition, laid: &zbpee_Edition
     for (name, now) in &laid.variables {
         match prior.variables.get(name) {
             None if now.required => lines.push(format!(
-                "{}: {} - the {} regime now enrolls it as {}; set it wherever you declare {} variables ({})",
+                "{}: {} - the {} config regime now enrolls it as {}; set it wherever you declare {} variables ({})",
                 kit, name, now.regime, zbpee_requirement(now), now.regime, now.module, //
             )),
             None => lines.push(format!(
-                "{}: {} - the {} regime now enrolls it as optional; nothing owed ({})",
+                "{}: {} - the {} config regime now enrolls it as optional; nothing owed ({})",
                 kit, name, now.regime, now.module, //
             )),
             Some(was) if now.required && !was.required => lines.push(format!(
-                "{}: {} - the {} regime enrolled it as optional and now as {}; set it wherever you declare {} variables ({})",
+                "{}: {} - the {} config regime enrolled it as optional and now as {}; set it wherever you declare {} variables ({})",
                 kit, name, now.regime, zbpee_requirement(now), now.regime, now.module, //
             )),
             Some(_) => {}
@@ -1898,7 +1897,7 @@ fn zbpee_compare_editions(kit: &str, prior: &zbpee_Edition, laid: &zbpee_Edition
     for (name, was) in &prior.variables {
         if !laid.variables.contains_key(name) {
             lines.push(format!(
-                "{}: remove {} wherever you set it - the {} regime no longer enrolls it, \
+                "{}: remove {} wherever you set it - the {} config regime no longer enrolls it, \
 and refuses a variable of its prefix it does not enroll ({})",
                 kit,
                 name,
@@ -2105,7 +2104,7 @@ fn zbpee_remove_dropped_kits(
             false => 0,
         };
         lines.push(format!(
-            "{}: no longer declared - removed its kit directory, {} command(s) and {} hook(s); your own launchers, doors and context lines over it stay yours to remove",
+            "{}: no longer declared - removed its kit directory, {} command(s) and {} hook(s); your own stubs, doors and context lines over it stay yours to remove",
             kit, commands, hooks, //
         ));
     }
@@ -2413,7 +2412,7 @@ fn zbpee_copy_kit(
         }
 
         // Copy file
-        bkprs_copy(&entry, &dest_path).map_err(|e| {
+        brprs_copy(&entry, &dest_path).map_err(|e| {
             format!(
                 "Failed to copy {} to {}: {}",
                 entry.display(),
@@ -2494,7 +2493,7 @@ fn zbpee_emplace_canonical_binary(
     // Armed rather than carried: the parcel's mode survives a tar round trip
     // only if the archive kept it, and a canonical binary that cannot execute
     // is a working install by every other measure.
-    bkprs_program_copy(&source, &canonical).map_err(|e| {
+    brprs_program_copy(&source, &canonical).map_err(|e| {
         format!(
             "Failed to emplace canonical binary: {}",
             e, //
@@ -2686,7 +2685,7 @@ fn zbpee_copy_files_where(
         }
 
         let dest_path = dest_dir.join(file_name);
-        bkprs_copy(&path, &dest_path).map_err(|e| {
+        brprs_copy(&path, &dest_path).map_err(|e| {
             format!(
                 "Failed to copy {} to {}: {}",
                 path.display(),
@@ -3989,7 +3988,7 @@ mod tests {
     }
 
     /// Hurdle: a narrowing install over a wider edition. The standing record
-    /// names three kits; the target now declares two, and the parcel cut for
+    /// names three kits; the target now declares two, and the parcel formed for
     /// it carries one. The kit the target stopped declaring leaves with its
     /// command and hook, the declared kit the parcel does not carry stands
     /// byte-untouched, and the receiver's own directory under the tools
@@ -4073,7 +4072,7 @@ mod tests {
         assert!(
             result.owed.iter().any(|l| l
                 == "zentk: no longer declared - removed its kit directory, 1 command(s) and 1 hook(s); \
-                    your own launchers, doors and context lines over it stay yours to remove"),
+                    your own stubs, doors and context lines over it stay yours to remove"),
             "the report names the dropped kit: {:?}",
             result.owed, //
         );
