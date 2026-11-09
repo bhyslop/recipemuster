@@ -252,6 +252,33 @@ pub const RBVGEB_CHARGE_NOMINALIZATION_VERSAL: &str = rbvgeb_charge_nominalizati
 macro_rules! rbvgeb_charge_nominalization_lettrine { () => { "Charge" }; }
 pub(crate) use rbvgeb_charge_nominalization_lettrine;
 pub const RBVGEB_CHARGE_NOMINALIZATION_LETTRINE: &str = rbvgeb_charge_nominalization_lettrine!();
+macro_rules! rbvgeb_codicil_base { () => { "codicil" }; }
+pub(crate) use rbvgeb_codicil_base;
+pub const RBVGEB_CODICIL_BASE: &str = rbvgeb_codicil_base!();
+macro_rules! rbvgeb_codicil_base_versal { () => { "CODICIL" }; }
+pub(crate) use rbvgeb_codicil_base_versal;
+pub const RBVGEB_CODICIL_BASE_VERSAL: &str = rbvgeb_codicil_base_versal!();
+macro_rules! rbvgeb_codicil_base_lettrine { () => { "Codicil" }; }
+pub(crate) use rbvgeb_codicil_base_lettrine;
+pub const RBVGEB_CODICIL_BASE_LETTRINE: &str = rbvgeb_codicil_base_lettrine!();
+macro_rules! rbvgeb_codicil_plural { () => { "codicils" }; }
+pub(crate) use rbvgeb_codicil_plural;
+pub const RBVGEB_CODICIL_PLURAL: &str = rbvgeb_codicil_plural!();
+macro_rules! rbvgeb_codicil_plural_versal { () => { "CODICILS" }; }
+pub(crate) use rbvgeb_codicil_plural_versal;
+pub const RBVGEB_CODICIL_PLURAL_VERSAL: &str = rbvgeb_codicil_plural_versal!();
+macro_rules! rbvgeb_codicil_plural_lettrine { () => { "Codicils" }; }
+pub(crate) use rbvgeb_codicil_plural_lettrine;
+pub const RBVGEB_CODICIL_PLURAL_LETTRINE: &str = rbvgeb_codicil_plural_lettrine!();
+macro_rules! rbvgeb_codicil_possessive { () => { "codicil's" }; }
+pub(crate) use rbvgeb_codicil_possessive;
+pub const RBVGEB_CODICIL_POSSESSIVE: &str = rbvgeb_codicil_possessive!();
+macro_rules! rbvgeb_codicil_possessive_versal { () => { "CODICIL'S" }; }
+pub(crate) use rbvgeb_codicil_possessive_versal;
+pub const RBVGEB_CODICIL_POSSESSIVE_VERSAL: &str = rbvgeb_codicil_possessive_versal!();
+macro_rules! rbvgeb_codicil_possessive_lettrine { () => { "Codicil's" }; }
+pub(crate) use rbvgeb_codicil_possessive_lettrine;
+pub const RBVGEB_CODICIL_POSSESSIVE_LETTRINE: &str = rbvgeb_codicil_possessive_lettrine!();
 macro_rules! rbvgeb_enjoin_base { () => { "enjoin" }; }
 pub(crate) use rbvgeb_enjoin_base;
 pub const RBVGEB_ENJOIN_BASE: &str = rbvgeb_enjoin_base!();

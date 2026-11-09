@@ -35,10 +35,11 @@ ZRBOB_SOURCED=1
 ######################################################################
 # Compose-env Validation
 
-# Validate that compose-consumed RBRN fields contain no quotes or ${VAR} references.
-# Compose --env-file does not strip quotes (they become part of the value) and
-# interpolates ${VAR} references (causing unintended expansion). Fields not consumed
-# by compose (e.g., RBRN_DESCRIPTION) are exempt.
+# The nameplate is read by two readers: by bash, as its regime kindles for this
+# door, and by compose, from its --env-file, for interpolation and for the values
+# the containers receive. Refuse the shapes where the two readers would disagree:
+# a quote, and a ${VAR} reference, which compose expands. Fields compose never
+# reads (e.g., RBRN_DESCRIPTION) are exempt.
 zrbob_validate_compose_env() {
   # Explicit list of compose-consumed field names (the nameplate↔compose contract)
   local z_compose_fields=(
@@ -113,8 +114,8 @@ zrbob_kindle() {
   # Provenance: the charging working tree's root path — derived, never
   # declared. The launcher pins the working directory to the repo root, and
   # pwd -P canonicalizes symlinks so equality comparisons are stable. Stamped
-  # onto every container as the RBCC_label_provenance label (via the compose
-  # env bridge below) and read back by the charge/quench provenance gates.
+  # onto every container as the RBCC_label_provenance label (via the codicil
+  # below) and read back by the charge/quench provenance gates.
   local z_provenance=""
   z_provenance=$(pwd -P) || buc_die_now "Cannot resolve working tree root for provenance"
   readonly ZRBOB_PROVENANCE="${z_provenance}"
@@ -146,8 +147,8 @@ zrbob_kindle() {
   readonly ZRBOB_ENV_RBJE="${RBCC_kit_dir}/rbje_compose_probe.env"
   readonly ZRBOB_ENV_RBRN="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${RBRN_MONIKER}/${RBCC_rbrn_file}"
 
-  # Per-vessel image refs (computed once; used by compose via the env-file
-  # bridge below, by charge preflight, and by auto-summon). A kludge hallmark
+  # Per-vessel image refs (computed once; used by compose via the codicil
+  # below, by charge preflight, and by auto-summon). A kludge hallmark
   # lives in the local kludge namespace — no depot identity in its ref —
   # while an ordained hallmark resolves into the depot's GAR repository. The
   # GAR base composes from RBRD-derived strings that may be unenforced here;
@@ -169,51 +170,12 @@ zrbob_kindle() {
   readonly ZRBOB_SENTRY_VOUCH="${z_sentry_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_SENTRY_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_SENTRY_HALLMARK}"
   readonly ZRBOB_BOTTLE_VOUCH="${z_bottle_base}/${RBGL_HALLMARKS_ROOT}/${RBRN_BOTTLE_HALLMARK}/${RBGC_ARK_BASENAME_VOUCH}:${RBRN_BOTTLE_HALLMARK}"
 
-  # Image-ref env file — the refs above are bash-kindle constants invisible
-  # to compose without an env-file bridge. Write the two compose interpolates
-  # into a temp file and feed it via --env-file.
-  local z_images_env="${BURD_TEMP_DIR}/rbob_images_compose.env"
-  printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\nRBOB_CHARGE_PROVENANCE=%s\n' \
-    "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" "${ZRBOB_PROVENANCE}" > "${z_images_env}" \
-    || buc_die_now "Failed to write image-ref compose env file: ${z_images_env}"
-  readonly ZRBOB_ENV_IMAGES="${z_images_env}"
-
-  # Export RBRN/RBRR vars for compose environment: bare name forwarding.
-  # Compose --env-file populates the compose environment for both YAML interpolation
-  # and bare name forwarding; explicit exports provide defense-in-depth.
-  #
-  # A declared standing exception to the exported-name rule: these RBRN_/RBRR_
-  # names and RBRV_USER below are this repository's own regime values exported
-  # for compose, the one rb scope a kindle exports by design. They stand
-  # exported beneath this kindle alone, the last of its CLI's furnish: no rb
-  # regime kindles after it in this process, and nothing it spawns kindles one,
-  # so no scope sentinel meets them. A move that puts a kindle beneath the
-  # charge meets the refusal there.
-  export RBRN_ENCLAVE_BASE_IP
-  export RBRN_ENCLAVE_NETMASK
-  export RBRN_ENCLAVE_SENTRY_IP
-  export RBRN_ENCLAVE_BOTTLE_IP
-  export RBRN_ENTRY_MODE
-  export RBRN_ENTRY_PORT_WORKSTATION
-  export RBRN_ENTRY_PORT_ENCLAVE
-  export RBRN_UPLINK_DNS_MODE
-  export RBRN_UPLINK_PORT_MIN
-  export RBRN_UPLINK_ACCESS_MODE
-  export RBRN_UPLINK_ALLOWED_CIDRS
-  export RBRN_UPLINK_ALLOWED_DOMAINS
-  export RBRR_DNS_SERVER
-  export RBRR_BOTTLE_WORKSPACE
-
   # Host UID/GID for bind-mount ownership alignment.
   # The person running charge IS the host identity — no configuration needed.
   local -r z_host_uid="${EUID}"
   local -r z_host_gid="${GROUPS[0]}"
   test -n "${z_host_uid}" || buc_die_now "Failed to determine host UID"
   test -n "${z_host_gid}" || buc_die_now "Failed to determine host GID"
-  export RBOB_HOST_UID="${z_host_uid}"
-  export RBOB_HOST_GID="${z_host_gid}"
-  readonly RBOB_HOST_UID
-  readonly RBOB_HOST_GID
 
   # Load bottle vessel user for compose and SSH (optional — empty means image default)
   local z_bottle_rbrv="${RBRR_VESSEL_DIR}/${RBRN_BOTTLE_VESSEL}/${RBCC_rbrv_file}"
@@ -232,7 +194,17 @@ zrbob_kindle() {
     z_bottle_user="${z_bottle_user%%=*}"
   fi
   readonly ZRBOB_BOTTLE_USER="${z_bottle_user}"
-  export RBRV_USER="${z_bottle_user}"
+
+  # The codicil (rbscc_codicil): the values only this kindle derives, handed to
+  # compose as an env file beside the regime files. Compose takes every value it
+  # interpolates or forwards bare from those files, and this process exports
+  # none of them. An empty vessel user is written empty: the image's default.
+  local -r z_codicil="${BURD_TEMP_DIR}/rbscc_codicil.env"
+  printf 'RBOB_SENTRY_IMAGE=%s\nRBOB_BOTTLE_IMAGE=%s\nRBOB_CHARGE_PROVENANCE=%s\nRBRV_USER=%s\nRBOB_HOST_UID=%s\nRBOB_HOST_GID=%s\n' \
+    "${ZRBOB_SENTRY_IMAGE}" "${ZRBOB_BOTTLE_IMAGE}" "${ZRBOB_PROVENANCE}" \
+    "${ZRBOB_BOTTLE_USER}" "${z_host_uid}" "${z_host_gid}" > "${z_codicil}" \
+    || buc_die_now "Failed to write compose env file: ${z_codicil}"
+  readonly ZRBOB_ENV_CODICIL="${z_codicil}"
 
   readonly ZRBOB_KINDLED=1
 }
@@ -262,9 +234,9 @@ zrbob_compose() {
   local z_native_rbrr=""
   z_native_rbrr=$(buc_native_path_capture "${ZRBOB_ENV_RBRR}") \
     || buc_die_now "Cannot normalize compose --env-file (RBRR): ${ZRBOB_ENV_RBRR}"
-  local z_native_images=""
-  z_native_images=$(buc_native_path_capture "${ZRBOB_ENV_IMAGES}") \
-    || buc_die_now "Cannot normalize compose --env-file (images): ${ZRBOB_ENV_IMAGES}"
+  local z_native_codicil=""
+  z_native_codicil=$(buc_native_path_capture "${ZRBOB_ENV_CODICIL}") \
+    || buc_die_now "Cannot normalize compose --env-file: ${ZRBOB_ENV_CODICIL}"
   local z_native_rbje=""
   z_native_rbje=$(buc_native_path_capture "${ZRBOB_ENV_RBJE}") \
     || buc_die_now "Cannot normalize compose --env-file (RBJE): ${ZRBOB_ENV_RBJE}"
@@ -285,7 +257,7 @@ zrbob_compose() {
   # --env-file paths resolve against CWD (repo root) and are unaffected.
   z_args+=("--project-directory" "${z_native_projdir}")
   z_args+=("--env-file" "${z_native_rbrr}")
-  z_args+=("--env-file" "${z_native_images}")
+  z_args+=("--env-file" "${z_native_codicil}")
   z_args+=("--env-file" "${z_native_rbje}")
   z_args+=("--env-file" "${z_native_rbrn}")
   z_args+=("-f" "${z_native_base}")
