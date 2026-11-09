@@ -70,7 +70,7 @@ pub fn rbvcco_ostend_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     zrbvcco_reassert_ground(&top, &parent, &regulus_clone, &regulus_tip, world);
     zrbvcco_file_list_review(&top, &regulus_clone);
 
-    zrbvcco_kerygma(&top, &regulus_clone, &regulus_tip, bundle);
+    zrbvcco_kerygma(&top, &regulus_clone, &regulus_tip, world, bundle);
     zrbvcco_promotion(&top, &regulus_tip, bundle);
     zrbvcco_close(world, bundle);
 
@@ -158,6 +158,7 @@ fn zrbvcco_kerygma(
     top: &Path,
     regulus_clone: &Path,
     regulus_tip: &str,
+    world: rbvcew_world::rbvcew_World,
     bundle: &rbvcew_world::rbvcew_Bundle,
 ) {
     rbvcel_log::rbvcel_section("The kerygma (RBSHO step 4) — IRREVERSIBLE");
@@ -176,7 +177,20 @@ fn zrbvcco_kerygma(
 
     let clone = rbvcep_repo::rbvcep_as_str(regulus_clone);
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_warn("POINT OF NO RETURN — a public object store cannot be un-disclosed.");
+    match world {
+        rbvcew_world::rbvcew_World::Agora => {
+            rbvcel_log::rbvcel_warn(
+                "POINT OF NO RETURN — a public object store cannot be un-disclosed.",
+            );
+        }
+        rbvcew_world::rbvcew_World::Palaestra => {
+            rbvcel_log::rbvcel_warn(&format!(
+                "PRACTICE POINT OF NO RETURN — in the {} this push cannot be undone; here it lands on the {}.",
+                rbvgeb_breviary::RBVGEB_AGORA_BASE,
+                bundle.base_noun, //
+            ));
+        }
+    }
     rbvcel_log::rbvcel_line("Staging push line — type this yourself:");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!(
@@ -196,8 +210,11 @@ fn zrbvcco_kerygma(
         .map(|(sha, _)| sha.clone());
     if main_before != main_after {
         crate::rbvcel_fatal!(
-            "public main moved during the kerygma push ({:?} -> {:?}) — the staging push must never touch main",
-            main_before, main_after, //
+            "the {}'s main moved during the {} push ({:?} -> {:?}) — the staging push must never touch main",
+            bundle.base_noun,
+            rbvgeb_breviary::RBVGEB_KERYGMA_BASE,
+            main_before,
+            main_after, //
         );
     }
     let staged = after
@@ -205,11 +222,24 @@ fn zrbvcco_kerygma(
         .any(|(sha, name)| name == &branch_ref && sha == regulus_tip);
     if !staged {
         crate::rbvcel_fatal!(
-            "the public repository does not carry {} at the regulus tip {} after the reported push — resolve and re-run ostend",
-            branch, regulus_tip, //
+            "the {} does not carry {} at the {} tip {} after the reported push — resolve and re-run {}",
+            bundle.base_noun,
+            branch,
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            regulus_tip,
+            rbvgeb_breviary::RBVGEB_OSTEND_BASE, //
         );
     }
-    rbvcel_log::rbvcel_line("disclosed: main untouched, POSTULANT_LOCAL stands at the regulus tip");
+    let staged_word = match world {
+        rbvcew_world::rbvcew_World::Agora => "disclosed",
+        rbvcew_world::rbvcew_World::Palaestra => "staged",
+    };
+    rbvcel_log::rbvcel_line(&format!(
+        "{}: main untouched, {} stands at the {} tip",
+        staged_word,
+        branch,
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
+    ));
 }
 
 // ── Step 5: promotion (discoverability) ─────────────────────
@@ -225,14 +255,22 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
         rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
     ));
     rbvcel_log::rbvcel_line(
-        "In the second pane, make the fresh clone and fetch the staging branch:",
+        "In the second pane, name the fresh clone once in the first line, then copy each line as printed:",
     );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!(
-        "        git clone {} «fresh clone»",
-        public_url, //
+        "        export {}=«a new directory of your choosing»",
+        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR, //
     ));
-    rbvcel_log::rbvcel_raw("        cd «fresh clone»");
+    rbvcel_log::rbvcel_raw(&format!(
+        "        git clone {} \"${{{}}}\"",
+        public_url,
+        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR, //
+    ));
+    rbvcel_log::rbvcel_raw(&format!(
+        "        cd \"${{{}}}\"",
+        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR, //
+    ));
     rbvcel_log::rbvcel_raw(&format!(
         "        git fetch origin {}:{}",
         branch,
@@ -261,13 +299,23 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
         .map(|(sha, _)| sha.clone());
     match main_sha {
         Some(sha) if sha == regulus_tip => {
-            rbvcel_log::rbvcel_line("promoted: public main equals the regulus tip — the byte claim is checked, not assumed");
+            rbvcel_log::rbvcel_line(&format!(
+                "promoted: the {}'s main equals the {} tip — the byte claim is checked, not assumed",
+                bundle.base_noun,
+                rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
+            ));
         }
         Some(sha) => crate::rbvcel_fatal!(
-            "public main is {} after the reported promotion, not the regulus tip {} — a refused fast-forward means main moved since the cut: STOP, never --force, re-cut atop the moved base",
-            sha, regulus_tip, //
+            "the {}'s main is {} after the reported promotion, not the {} tip {} — a refused fast-forward means main moved since the cut: STOP, never --force, re-cut atop the moved base",
+            bundle.base_noun,
+            sha,
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            regulus_tip, //
         ),
-        None => crate::rbvcel_fatal!("public repository carries no main ref after the reported promotion"),
+        None => crate::rbvcel_fatal!(
+            "the {} carries no main ref after the reported promotion",
+            bundle.base_noun, //
+        ),
     }
 }
 
@@ -302,5 +350,9 @@ fn zrbvcco_close(world: rbvcew_world::rbvcew_World, bundle: &rbvcew_world::rbvce
     rbvcel_log::rbvcel_line(&format!(
         "  - discard the {} directory",
         rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "  - discard the fresh clone: rm -rf \"${{{}}}\"",
+        rbvcex_expede::RBVCEX_FRESH_CLONE_VAR, //
     ));
 }

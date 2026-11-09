@@ -57,6 +57,11 @@ const RBVCEX_NARTHEX_PRIVATE_STATUS: &str = "404";
 /// promotion spells POSTULANT_LOCAL:main — by hand, exactly once.
 pub const RBVCEX_REGULUS_BRANCH: &str = "POSTULANT_LOCAL";
 
+/// The shell variable every printed fresh-clone recipe names its clone by:
+/// the operator edits the one line that sets it and copies every other line
+/// verbatim, as the rendered procedure's recipes spell it.
+pub const RBVCEX_FRESH_CLONE_VAR: &str = "FRESH_CLONE";
+
 /// The subject of the single commit the regulus carries. One commit, so one
 /// subject: it names the act, not the contents.
 const RBVCEX_REGULUS_SUBJECT: &str = "Recipe Bottle release candidate";
@@ -174,8 +179,13 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
     let fetch = rbvcer_run::rbvcer_capture("git", &["remote", "get-url", bundle.base_remote], top);
     if fetch.code != 0 {
         crate::rbvcel_fatal!(
-            "{} is not configured — the regulus is built by addition atop the real public repository, so a remote pointing at it is required (git remote add {} {}):\n{}",
-            bundle.base_remote, bundle.base_remote, bundle.base_url, fetch.stderr.trim(), //
+            "{} is not configured — the {} is built by addition atop the {}, so a remote pointing at it is required (git remote add {} {}):\n{}",
+            bundle.base_remote,
+            rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+            bundle.base_noun,
+            bundle.base_remote,
+            bundle.base_url,
+            fetch.stderr.trim(), //
         );
     }
     let fetch_url = fetch.stdout.trim().to_string();
