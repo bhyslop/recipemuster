@@ -1,4 +1,5 @@
 #!/bin/bash
+# Keycloak federation proof driver; moved to Study as a reference artifact, no longer run and repairing no path.
 #
 # Copyright 2026 Scale Invariant, Inc.
 # SPDX-License-Identifier: Apache-2.0

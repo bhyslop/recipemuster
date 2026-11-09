@@ -172,16 +172,17 @@ fn rbvtem_totality() {
 /// withheld tabtarget — against a delivered face that must pass untouched. The
 /// veiled-spec datum carries a SYNTHETIC basename: what it exercises is the
 /// tree row at the root, which is a property of the directory and not of any
-/// document sitting in it. The fdkyclk proof script below is the longest-wins
-/// override in this list — a withheld file inside a shipping directory. The
-/// study datum pairs with the root README below: same basename, opposite
-/// verdict, so the directory grain is what is being read and not the filename.
+/// document sitting in it. The utilities kit's estate-geography text below is
+/// the longest-wins override in this list — a withheld file inside a shipping
+/// directory. The study datum pairs with the root README below: same
+/// basename, opposite verdict, so the directory grain is what is being read
+/// and not the filename.
 const ZRBVTEM_SWEEP_PLANTED: &[&str] = &[
     "vov_veiled/planted-spec.adoc",
     "Study/study-model-prompt-tuning/README.md",
     "Tools/vslk/vslw_workbench.sh",
     "tt/rbw-MZ.MarshalZeroes.sh",
-    "rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh", //
+    "Tools/buk/buai0/buais_oikoumene.md", //
 ];
 const ZRBVTEM_SWEEP_CLEAN: &[&str] = &[
     "README.md",

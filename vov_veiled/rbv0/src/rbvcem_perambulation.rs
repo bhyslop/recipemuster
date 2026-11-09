@@ -141,14 +141,9 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     ("tt/study-", Withhold),
     ("tt/vslk-", Withhold),
     // THE MOORINGS. Every nameplate ships: README documents each as an example
-    // crucible and the onboarding handbooks walk several. The fdkyclk
-    // carve-out is why the table must be file-grain where the tree is not
-    // uniform — its two proof-stage scripts carry the operator's org id, and a
-    // directory-grain "all ship" is exactly what once carried them into every
-    // regulus. Its caged credentials, by contrast, DO ship: committed test
-    // scaffolding the realm expects by value (RBSFK "two-keys").
-    ("rbmm_moorings/rben_fdkyclk/fdkyclk-proof.sh", Withhold),
-    ("rbmm_moorings/rben_fdkyclk/fdkyclk-teardown.sh", Withhold),
+    // crucible and the onboarding handbooks walk several. The caged
+    // credentials ship too: committed test scaffolding the realm expects by
+    // value (RBSFK "two-keys").
     ("rbmm_moorings/rben_fdkyclk/", Ship),
     ("rbmm_moorings/rben_ccyolo/", Ship),
     ("rbmm_moorings/rben_moriah/", Ship),
