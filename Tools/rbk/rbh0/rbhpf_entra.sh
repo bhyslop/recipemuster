@@ -86,15 +86,18 @@ rbhpf_federation_entra() {
   buh_line     "   5. Click ${z_ui_register}"
   buh_e
   buh_section  "3. Allow the Device Flow (public client):"
-  buym_ui_yawp "Manage"; local -r z_ui_manage="${z_buym_yelp}"
-  buym_ui_yawp "Authentication"; local -r z_ui_authentication="${z_buym_yelp}"
-  buh_line     "   1. On the new registration's page, open ${z_ui_manage} then ${z_ui_authentication}"
-  buym_ui_yawp "Advanced settings"; local -r z_ui_advanced="${z_buym_yelp}"
+  buym_ui_yawp "Authentication (Preview)"; local -r z_ui_authentication="${z_buym_yelp}"
+  buh_line     "   1. On the new registration's page, open ${z_ui_authentication}"
+  buym_ui_yawp "Settings"; local -r z_ui_settings_tab="${z_buym_yelp}"
   buym_ui_yawp "Allow public client flows"; local -r z_ui_public_client="${z_buym_yelp}"
-  buym_ui_yawp "Yes"; local -r z_ui_yes="${z_buym_yelp}"
-  buh_line     "   2. Under ${z_ui_advanced}, set ${z_ui_public_client} to ${z_ui_yes} (default is No)"
+  buym_ui_yawp "Enabled"; local -r z_ui_enabled="${z_buym_yelp}"
+  buh_line     "   2. On its ${z_ui_settings_tab} tab, set ${z_ui_public_client} to ${z_ui_enabled} (default is Disabled)"
   buym_ui_yawp "Save"; local -r z_ui_save_auth="${z_buym_yelp}"
   buh_line     "   3. Click ${z_ui_save_auth}"
+  buym_ui_yawp "Manifest"; local -r z_ui_manifest="${z_buym_yelp}"
+  buym_cmd_yawp "\"isFallbackPublicClient\": true"; local -r z_cmd_fallback_public="${z_buym_yelp}"
+  buh_line     "   If the console reads otherwise, the same setting is ${z_cmd_fallback_public}"
+  buh_line     "   in the registration's ${z_ui_manifest}; set it there and save."
   buh_line     "   This is the whole credential story: no client secret, no certificate, nothing"
   buh_line     "   to leak — each sederunt is opened by a live human sign-in and nothing else."
   buh_e
@@ -170,8 +173,9 @@ rbhpf_federation_entra() {
   buh_e
   buh_section  "9. Found the Google Side:"
   buh_line     "   With the foedus values committed, affiance seats the provider under the"
-  buh_line     "   manor's workforce pool (payor work, autonomous from here):"
-  buh_tt       "      " "${RBZ_AFFIANCE_MANOR}" "" ""
+  buh_line     "   manor's workforce pool (payor work, autonomous from here), naming the"
+  buh_line     "   foedus directory from step 6:"
+  buh_tt       "      " "${RBZ_AFFIANCE_MANOR}" "" " rbef_entrada"
 
 }
 

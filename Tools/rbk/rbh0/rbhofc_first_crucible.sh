@@ -79,6 +79,11 @@ rbho_first_crucible() {
     return 0
   fi
 
+  buh_line "Each ${RBYC_KLUDGE} below may print a buildx warning, InvalidDefaultArgInFrom, about"
+  buh_line "an empty base image name. It is expected: the base image arrives as a build"
+  buh_line "argument the warning cannot see, and the build proceeds."
+  buh_e
+
   rbhoct_crucible_trunk "${z_moniker}" "${z_sentry_vessel}" "${z_bottle_vessel}" "${z_nameplate_file}"
 
   buh_step1 "Enter the container and run Claude Code"

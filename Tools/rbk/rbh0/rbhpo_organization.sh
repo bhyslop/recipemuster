@@ -93,7 +93,8 @@ rbhpo_organization() {
   buh_line     "   2. At the top, the ${z_ui_organization} picker shows your domain as the org node"
   buym_ui_yawp "ID"; local -r z_ui_id="${z_buym_yelp}"
   buh_line     "   3. Read its numeric ${z_ui_id} (all digits) beside the organization name"
-  buh_line     "   The equivalent one-liner, if you prefer the CLI:"
+  buh_line     "   Optional, only if you already use Google's gcloud CLI (no step of this"
+  buh_line     "   project needs it), the equivalent one-liner is:"
   buh_code     "   gcloud organizations list"
   buh_e
   buh_section  "5. Record the Organization ID:"

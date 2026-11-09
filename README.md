@@ -52,6 +52,7 @@ Every operation is launched through a [tabtarget](#Tabtarget), a shell script in
 The critical property: tab completion finds the command you want.
 Type `tt/rbw-<TAB>` and the shell narrows to all [Recipe Bottle](#RecipeBottle) operations; type `tt/rbw-f<TAB>` to see just the [foundry](#Foundry) build and [hallmark](#Hallmark) commands.
 Each [tabtarget](#Tabtarget) is named `{colophon}.{frontispiece}[.{imprint}].sh`: the colophon routes to the right module, the frontispiece tells you what it does, and an optional imprint names the target it acts on.
+Run every [tabtarget](#Tabtarget) from the root of your clone, as `tt/...`: each resolves the paths it reads, your [station](#Station) file beside the clone among them, relative to that root.
 
 <a id="Log"></a>A [tabtarget](#Tabtarget) that logs writes three [log](#Log) files to the directory named by `BURS_LOG_DIR` in your [BURS](#BURS) station file: a stable-name file overwritten by every dispatch, a per-command file overwritten by the next run of the same command (tools like SlickEdit sense diffs between executions), and a timestamped historical file that is never overwritten, the one to read.
 Disk space is cheap, so commands log by default and the diagnostic evidence is there when something fails; a command handling secrets, or one that runs before a station file stands, does not.

@@ -116,7 +116,7 @@ zrbyc_kindle() {
 
   # --- Additional anchors used in handbooks ---
 
-  buym_link_yawp "${z_docs}" "" "Recipe Bottle"; local -r z_recipe_bottle="${z_buym_yelp}"; readonly RBYC_RECIPE_BOTTLE="${z_recipe_bottle}"
+  buym_link_yawp "${z_docs}" "RecipeBottle" "Recipe Bottle"; local -r z_recipe_bottle="${z_buym_yelp}"; readonly RBYC_RECIPE_BOTTLE="${z_recipe_bottle}"
 
   buym_link_yawp "${z_docs}" "Rack"; local -r z_rack="${z_buym_yelp}"; readonly RBYC_RACK="${z_rack}"
   buym_link_yawp "${z_docs}" "Manor"; local -r z_manor="${z_buym_yelp}"; readonly RBYC_MANOR="${z_manor}"
