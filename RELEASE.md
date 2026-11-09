@@ -102,17 +102,18 @@ Read both repositories to decide:
 
 To recreate the stand-in, delete it at the console and create it again, private and empty, with no README, ignore file or license.
 Then seed it from a fresh clone of real public main by two single-refspec pushes, main first and then `POSTULANT_LOCAL` at the same commit, so it carries the real repository's branches and the round practices the real-sized delta and the stale-branch delete.
-Type each line as shown, in order:
+Type each line in order, editing only the first to name a new directory, and copy every other line as shown:
 
-- `git clone git@github.com:scaleinv/recipebottle.git «fresh clone»`
-- `cd «fresh clone»`
+- `export FRESH_CLONE=«a new directory of your choosing»`
+- `git clone git@github.com:scaleinv/recipebottle.git "${FRESH_CLONE}"`
+- `cd "${FRESH_CLONE}"`
 - `git remote remove origin`
 - `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:main`
 - `git push git@github.com:bhyslop/recipebottle-grandstand-practice.git main:POSTULANT_LOCAL`
 
 Then read the stand-in again with the first line above and confirm both branches stand at real public main's commit.
 
-Discard the fresh clone afterwards; it is never a working directory of the ceremony.
+Discard the fresh clone afterwards with `rm -rf "${FRESH_CLONE}"`; it is never a working directory of the ceremony.
 
 ### <a id="PracticeRound"></a>A practice round
 
@@ -136,12 +137,15 @@ Commit its findings memo where the hand-off directs and carry its findings about
 A practice lap whose battery is green and whose walk reached that hand-off has run dry for the round.
 In practice an agent may take the reading of the [regulus](#Regulus): it runs the three lines, reports the summary and anything that should not be public, and the full private reading of `regulus.diff` waits for the real dry lap.
 
-<a id="PracticeCloneRecipe"></a>At the practice promotion stop, in the second pane, clone the stand-in and fetch its staging branch into a local branch of the same name, then type the printed promotion line there.
-Type each line as shown, in order:
+<a id="PracticeCloneRecipe"></a>At the practice promotion stop, ostend prints the lines that clone the stand-in and fetch its staging branch into a local branch of the same name, then the promotion line.
+Copy them into the second pane in order, editing only the first to name a new directory; they read:
 
-- `git clone git@github.com:bhyslop/recipebottle-grandstand-practice.git «fresh clone»`
-- `cd «fresh clone»`
+- `export FRESH_CLONE=«a new directory of your choosing»`
+- `git clone git@github.com:bhyslop/recipebottle-grandstand-practice.git "${FRESH_CLONE}"`
+- `cd "${FRESH_CLONE}"`
 - `git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL`
+
+Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLONE}"`.
 
 ### <a id="PracticeClosing"></a>Closing a round
 
@@ -251,15 +255,17 @@ If promotion is refused as a non-fast-forward, public main moved since the cut: 
 Ostend closes by pointing you to [harbinger](#Harbinger).
 
 <a id="FreshCloneRecipe"></a>The printed promotion line names a local `POSTULANT_LOCAL` branch and is never run from the [regulus](#Regulus) directory.
-At the promotion stop, in the second pane:
+At the promotion stop, ostend prints the lines below; copy them into the second pane in order, editing only the first to name a new directory:
 
 ```
-git clone git@github.com:scaleinv/recipebottle.git «fresh clone»
-cd «fresh clone»
+export FRESH_CLONE=«a new directory of your choosing»
+git clone git@github.com:scaleinv/recipebottle.git "${FRESH_CLONE}"
+cd "${FRESH_CLONE}"
 git fetch origin POSTULANT_LOCAL:POSTULANT_LOCAL
 ```
 
 Then type the printed promotion line there.
+Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLONE}"`.
 
 ### <a id="HarbingerAct"></a>Harbinger
 
