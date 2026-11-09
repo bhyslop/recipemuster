@@ -52,6 +52,16 @@ rbho_payor_handbook() {
   buh_line "console time, and the organization guide's DNS verification bakes on its"
   buh_line "own clock. Users who already administer a GCP organization skip Step 1."
   buh_e
+  buh_line "Bring these before you start:"
+  buh_line "  * A DNS domain you control, to found the GCP organization over"
+  buh_line "    (not needed if you already administer an organization)."
+  buh_line "  * An identity-provider tenant you administer. The guide shown is"
+  buh_line "    Microsoft Entra; its free signup asks for a payment card."
+  buh_line "  * A Google Cloud billing account, or a payment method to open one"
+  buh_line "    in Step 3; the ${RBYC_MANOR} and every ${RBYC_DEPOT} are funded under it."
+  buh_e
+  buh_line "Run every ${RBYC_TABTARGET} from the root of your clone."
+  buh_e
 
   buh_step_style "Step " " — "
 
@@ -103,7 +113,16 @@ rbho_payor_handbook() {
   buh_e
   buh_line "Establishing the Manor (Step 3) ended with saving a JSON client secret"
   buh_line "file into its durable home - the client_secrets/ subdirectory of your"
-  buh_line "secrets directory (RBRR_SECRETS_DIR in rbrr.env). Install it:"
+  buh_line "secrets directory (RBRR_SECRETS_DIR in rbrr.env), created if it was"
+  buh_line "absent. It must be the client created inside your own payor project."
+  buh_e
+  buh_line "Install enforces the repository and depot ${RBYC_REGIMES}, so fill"
+  buh_line "${RBYC_RBRD} (rbrd.env) first: RBRD_CLOUD_PREFIX (2 to 11 characters,"
+  buh_line "lowercase, starting with a letter and ending in a hyphen, as acme-) and"
+  buh_line "RBRD_DEPOT_MONIKER; RBRD_GCP_REGION and RBRD_GCB_MACHINE_TYPE ship set."
+  buh_line "Together they name your ${RBYC_DEPOT}'s project, and they freeze at ${RBYC_LEVY}."
+  buh_e
+  buh_line "Install it:"
   buh_e
   buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " «secrets-dir»/client_secrets/client_secret_*.json"
   buh_e
@@ -121,9 +140,10 @@ rbho_payor_handbook() {
   buh_line "substrate: it enables the payor-project APIs, links billing, seats"
   buh_line "the workforce identity pool, and provisions the terrier bucket."
   buh_e
-  buh_line "Set two regimes first:"
-  buh_line "  * ${RBYC_RBRD} — RBRD_DEPOT_MONIKER and RBRD_GCP_REGION (the depot"
-  buh_line "    regime is enforced; the terrier bucket's region rides RBRD_GCP_REGION)."
+  buh_line "Two regimes must stand filled first:"
+  buh_line "  * ${RBYC_RBRD} — RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER and RBRD_GCP_REGION,"
+  buh_line "    filled before Step 4 (the depot regime is enforced; the terrier"
+  buh_line "    bucket's region rides RBRD_GCP_REGION)."
   buh_line "  * the workforce ${RBYC_REGIME} (rbrw.env) — RBRW_WORKFORCE_POOL_ID and"
   buh_line "    RBRW_SESSION_DURATION, alongside the RBRW_ORG_ID from Step 1. This"
   buh_line "    command founds the pool from all three (ensure-exists)."
@@ -200,7 +220,9 @@ rbho_payor_handbook() {
   buh_tt  "  " "${RBZ_COLLATE_DEPOT}"
   buh_e
   buh_line "${RBYC_PAYOR} girds the first ${RBYC_GOVERNOR} of this ${RBYC_DEPOT} —"
-  buh_line "seating the freehold subject as its founding governor:"
+  buh_line "seating a citizen as its founding governor. The <subject> is that"
+  buh_line "user's object id at your identity provider: for Entra, the user's"
+  buh_line "Object ID, read in Step 2's guide (its citizen sign-in step):"
   buh_tt  "  " "${RBZ_GIRD_POLITY}" "" " <subject>"
   buh_e
   buh_line "No key file is created or handed over: the ${RBYC_GOVERNOR} signs in"

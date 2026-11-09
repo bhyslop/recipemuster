@@ -1125,6 +1125,12 @@ rbgp_install() {
   test -n "${zSECRET_client_secret}" || buc_die_now "OAuth JSON file missing client_secret field"
   test -n "${z_project_id}" || buc_die_now "OAuth JSON file missing project_id field"
 
+  # Refused before any authorization flow: a client JSON copied in from another
+  # station's secrets directory belongs to another payor project, and the glob
+  # the guides print would otherwise take it silently.
+  test "${z_project_id}" = "${RBRP_PAYOR_PROJECT_ID}" \
+    || buc_die_now "OAuth JSON ${z_oauth_json_file} is a client of project '${z_project_id}', not of RBRP_PAYOR_PROJECT_ID '${RBRP_PAYOR_PROJECT_ID}': create a new OAuth client inside the payor project (the establish guide's client step) and install that one"
+
   buc_step 'Check existing credentials'
   local -r z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
   if test -f "${z_rbro_file}"; then
@@ -1239,8 +1245,8 @@ rbgp_install() {
     buc_info "RBRP_OAUTH_CLIENT_ID mismatch"
     buc_info "  ${RBCC_rbrp_file} has: ${RBRP_OAUTH_CLIENT_ID}"
     buc_info "  OAuth JSON:   ${z_client_id}"
-    buc_info "Fix with:"
-    buc_code "sed -i '' 's|^RBRP_OAUTH_CLIENT_ID=.*|RBRP_OAUTH_CLIENT_ID=${z_client_id}|' ${RBCC_rbrp_file}"
+    buc_info "Fix by editing ${RBCC_rbrp_file} so the field reads:"
+    buc_code "RBRP_OAUTH_CLIENT_ID=${z_client_id}"
     buc_die_now "RBRP_OAUTH_CLIENT_ID in ${RBCC_rbrp_file} does not match OAuth JSON"
   fi
 
@@ -1276,12 +1282,7 @@ rbgp_install() {
 
   local z_config_ok="true"
 
-  if test "${RBRP_PAYOR_PROJECT_ID:-}" = "${z_project_id}"; then
-    buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
-  else
-    buc_warn "RBRP_PAYOR_PROJECT_ID is '${RBRP_PAYOR_PROJECT_ID:-<unset>}'; expected '${z_project_id}'"
-    z_config_ok="false"
-  fi
+  buc_info "  RBRP_PAYOR_PROJECT_ID=${z_project_id}"
 
   if test "${RBRP_OAUTH_CLIENT_ID:-}" = "${z_client_id}"; then
     buc_info "  RBRP_OAUTH_CLIENT_ID=${z_client_id}"

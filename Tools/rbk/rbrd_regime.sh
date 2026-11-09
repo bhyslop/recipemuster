@@ -65,6 +65,12 @@ zrbrd_sentinel() {
 zrbrd_enforce() {
   zrbrd_sentinel
 
+  # A blank prefix is the case a stranger meets; the kit's own refusal says only
+  # that the field must not be empty, so this names the form. It catches the blank
+  # alone, in the enrollment band — never a format case, which stays in the regime band.
+  test -n "${RBRD_CLOUD_PREFIX:-}" \
+    || buc_reject "${BUBG_ENROLL_DENTIL}" "RBRD_CLOUD_PREFIX must not be empty: set 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as acme-"
+
   buv_vet RBRD
 
   [[ "${RBRD_DEPOT_MONIKER}" =~ ^[a-z][a-z0-9]*$ ]] \

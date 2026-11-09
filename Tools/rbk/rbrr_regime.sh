@@ -90,7 +90,7 @@ zrbrr_enforce() {
   test -d "${RBRR_VESSEL_DIR}" \
     || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_VESSEL_DIR directory not found: ${RBRR_VESSEL_DIR}"
   test -d "${RBRR_SECRETS_DIR}" \
-    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_SECRETS_DIR directory not found: ${RBRR_SECRETS_DIR}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_SECRETS_DIR directory not found: ${RBRR_SECRETS_DIR} (create it, never inside the clone: mkdir -p ${RBRR_SECRETS_DIR}/client_secrets)"
 
   [[ "${RBRR_GCB_TIMEOUT}" =~ ^[0-9]+s$ ]] \
     || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRR_GCB_TIMEOUT format: ${RBRR_GCB_TIMEOUT} (expected NNNs)"

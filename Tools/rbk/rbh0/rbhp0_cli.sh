@@ -19,8 +19,8 @@
 #
 # Recipe Bottle Handbook Payor Ceremonies - Command Line Interface
 #
-# Full furnish: payor-only ceremonies require the complete regime +
-# OAuth + IAM dependency stack.
+# Per-command furnish: every module is sourced and kindled, and each ceremony
+# enforces only the regimes it reads (see the case block below).
 
 set -euo pipefail
 
@@ -32,6 +32,8 @@ zrbhp0_furnish() {
   buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
   buc_doc_env_row "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
+
+  local -r z_command="${1:-}"
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
@@ -62,15 +64,11 @@ zrbhp0_furnish() {
 
   zrbrr_kindle
   zrbrd_kindle
-  zrbrr_enforce
-  zrbrd_enforce
-  zrbdc_kindle
 
   zrbgc_kindle
 
   source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
-  zrbrp_enforce
 
   zrbgo_kindle
   zrbuh_kindle
@@ -78,10 +76,22 @@ zrbhp0_furnish() {
   zrbau_kindle
   zrbgi_kindle
   zrbhp0_kindle
-  zrbhp0_enforce
 
   zbuz_kindle
   zrbz_kindle
+
+  # Per-command regime enforcement. The organization and federation guides read
+  # no repo, depot or payor field, and the establish guide reads the payor
+  # project id alone; each is the payor track's console work ahead of those
+  # regimes being filled, and the establish guide's own first step is where the
+  # payor project id is set, so all three kindle only (the onboarding CLI's
+  # thin-deps concession) and the establish guide shows what it can from blank
+  # or malformed fields. The quota guide reads the depot regime and its derived
+  # project, so it enforces the full stack.
+  case "${z_command}" in
+    rbhpo_organization|rbhpf_federation_entra|rbhpe_establish)  : ;;
+    *)  zrbrr_enforce; zrbrd_enforce; zrbdc_kindle; zrbrp_enforce; zrbhp0_enforce ;;
+  esac
 }
 
 buc_execute rbhp "Payor Ceremonies" zrbhp0_furnish "$@"

@@ -58,6 +58,10 @@ rbho_crash_course() {
   buh_line "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
   buh_line "${RBYC_RECIPE_BOTTLE} command."
   buh_e
+  buh_line "Run every ${RBYC_TABTARGET} from the root of your clone, as"
+  buh_line "\`${BURC_TABTARGET_DIR}/...\`: each resolves the paths it reads, your ${RBYC_BURS}"
+  buh_line "file beside the clone among them, relative to that root."
+  buh_e
 
   buh_step1 "View the project config"
   buh_e
@@ -74,14 +78,7 @@ rbho_crash_course() {
   buh_step1 "View your personal station"
   buh_e
   buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
-  buh_line "holds things that vary per machine. Run the renderer:"
-  buh_e
-  buh_tt   "   " "${BUWZ_RS_RENDER}"
-  buh_e
-  buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
-  buh_e
-
-  buh_step1 "Validate your station"
+  buh_line "holds things that vary per machine."
   buh_e
   buh_line "On a genuinely fresh clone there is no station file yet. Create one"
   buh_line "with the fresh-station bootstrap:"
@@ -90,6 +87,14 @@ rbho_crash_course() {
   buh_e
   buh_line "This writes a complete ${RBYC_BURS} file with every required field"
   buh_line "and a purpose comment for each — safe to re-run any time."
+  buh_line "Then run the renderer:"
+  buh_e
+  buh_tt   "   " "${BUWZ_RS_RENDER}"
+  buh_e
+  buh_line "The repo-vs-personal split is deliberate: ${RBYC_BURC} travels with the code; ${RBYC_BURS} stays on your machine."
+  buh_e
+
+  buh_step1 "Validate your station"
   buh_e
   buh_line "Every ${RBYC_REGIME} has a validate tabtarget that checks the file against"
   buh_line "its schema. This may fail if your station file is missing fields"
@@ -119,6 +124,14 @@ rbho_crash_course() {
   buh_line "runtime container prefix, vessel directory, Cloud Build timeouts."
   buh_line "The depot regime (${RBYC_RBRD}) holds your team's ${RBYC_DEPOT} identity —"
   buh_line "the GCP project where container images are built and stored, frozen at ${RBYC_LEVY}."
+  buh_e
+  buh_line "${RBYC_RBRR} names a secrets directory, RBRR_SECRETS_DIR, kept outside"
+  buh_line "the clone and never committed, and the bootstrap above does not create"
+  buh_line "it. Make it now, with the client_secrets subdirectory the ${RBYC_PAYOR}'s"
+  buh_line "OAuth client will be saved into:"
+  buh_e
+  buh_code "   mkdir -p ${RBRR_SECRETS_DIR}/client_secrets"
+  buh_e
   buh_line "Run the validators:"
   buh_e
   buh_tt   "   " "${RBZ_VALIDATE_REPO}"
