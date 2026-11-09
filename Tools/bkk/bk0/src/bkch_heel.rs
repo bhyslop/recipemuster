@@ -48,7 +48,7 @@
 //! whatever else might be lying around or reporting a converge that did not
 //! happen.
 
-use bkp::bkprs_scrivener::bkprs_program_copy;
+use brp::brprs_scrivener::brprs_program_copy;
 use std::ffi::{
     OsStr,
     OsString, //
@@ -484,7 +484,7 @@ pub fn bkch_install(converge: &bkch_Converge) -> Result<bool, String> {
         })?;
     }
 
-    bkprs_program_copy(&converge.struck, &converge.residence).map_err(|err| {
+    brprs_program_copy(&converge.struck, &converge.residence).map_err(|err| {
         format!(
             "could not install {} at {}: {}",
             converge.struck.display(),

@@ -28,19 +28,19 @@ source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp
 # Command Functions
 
 burc_validate() {
-  buc_doc_brief "Validate BURC configuration regime via enrollment report"
+  buc_doc_brief "Validate the BURC project config regime via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating BURC configuration regime: ${BURD_REGIME_FILE}"
-  buv_report BURC "Configuration Regime"
+  buc_step "Validating the BURC project config regime: ${BURD_REGIME_FILE}"
+  buv_report BURC "Project Config Regime"
   buc_step "BURC configuration valid"
 }
 
 burc_render() {
-  buc_doc_brief "Display diagnostic view of BURC configuration regime"
+  buc_doc_brief "Display diagnostic view of the BURC project config regime"
   buc_doc_shown || return 0
 
-  buv_render BURC "BURC - Bash Utility Configuration Regime" "${BURD_REGIME_FILE}"
+  buv_render BURC "BURC - Bash Utility Project Config Regime" "${BURD_REGIME_FILE}"
 }
 
 ######################################################################
@@ -58,6 +58,6 @@ zburc_furnish() {
   zbupr_kindle
 }
 
-buc_execute burc_ "Bash Utility Configuration Regime" zburc_furnish "$@"
+buc_execute burc_ "Bash Utility Project Config Regime" zburc_furnish "$@"
 
 # eof

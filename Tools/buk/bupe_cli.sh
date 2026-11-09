@@ -118,7 +118,7 @@ bupe_emplace() {
   # argument. BURD_REGIME_FILE is that station's own burc.env, resolved
   # by the dispatch that reached us.
   local -r z_burc="${BURD_REGIME_FILE}"
-  test -f "${z_burc}" || buc_die_now "This station's regime file not found: ${z_burc}"
+  test -f "${z_burc}" || buc_die_now "This station's config regime file not found: ${z_burc}"
 
   buc_step "Emplacing parcel through its own bundled engine"
   buc_log_args "Parcel:   ${z_parcel}"

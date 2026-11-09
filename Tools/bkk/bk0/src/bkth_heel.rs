@@ -48,7 +48,7 @@ use super::bktu_lure::{
     bktu_Lure,
     bktu_Stationed, //
 };
-use bkp::bkprc_catena::bkprc_admit;
+use brp::brprc_catena::brprc_admit;
 use std::ffi::OsStr;
 use std::path::{
     Path,
@@ -122,7 +122,7 @@ fn zbkth_collar(name: &str, text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: name.to_string(),
         instance: PathBuf::from(name),
-        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(text, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["Tools/lure/src".to_string()]),
     }
 }
@@ -654,7 +654,7 @@ fn zbkth_release(
     let kibble = bkcq_Kibble {
         name: name.to_string(),
         instance: PathBuf::from("Tools").join("bkk"),
-        regime: bkprc_admit(&declared, "a posed prebuilt kibble").expect("the posed text admits"),
+        regime: brprc_admit(&declared, "a posed prebuilt kibble").expect("the posed text admits"),
     };
 
     assert!(

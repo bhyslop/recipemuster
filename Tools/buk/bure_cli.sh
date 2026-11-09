@@ -31,19 +31,19 @@ source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp
 # Command Functions
 
 bure_validate() {
-  buc_doc_brief "Validate BURE environment regime via enrollment report"
+  buc_doc_brief "Validate the BURE environment config regime via enrollment report"
   buc_doc_shown || return 0
 
   buc_step "Validating BURE ambient environment"
-  buv_report BURE "Environment Regime"
+  buv_report BURE "Environment Config Regime"
   buc_step "BURE configuration valid"
 }
 
 bure_render() {
-  buc_doc_brief "Display diagnostic view of BURE environment regime"
+  buc_doc_brief "Display diagnostic view of the BURE environment config regime"
   buc_doc_shown || return 0
 
-  buv_render BURE "BURE - Bash Utility Environment Regime (ambient)" ""
+  buv_render BURE "BURE - Bash Utility Environment Config Regime (ambient)" ""
 }
 
 ######################################################################
@@ -64,6 +64,6 @@ zbure_furnish() {
   zbupr_kindle
 }
 
-buc_execute bure_ "Bash Utility Environment Regime" zbure_furnish "$@"
+buc_execute bure_ "Bash Utility Environment Config Regime" zbure_furnish "$@"
 
 # eof

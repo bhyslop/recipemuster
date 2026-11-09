@@ -28,7 +28,7 @@ use std::path::{
 };
 use std::process::ExitCode;
 
-use bkp::bkprs_scrivener::bkprs_program_copy;
+use brp::brprs_scrivener::brprs_program_copy;
 
 use crate::rbvccd_docimasy::{
     zrbvccd_find_tt,
@@ -678,7 +678,7 @@ fn zrbvcce_feign_probe(regulus_clone: &Path, tt: &Path, top: &Path) {
     // byte-generic; the runtime `${0##*/}` resolves the rbw-MF colophon).
     let donor = zrbvccd_find_tt(tt, RBVCCE_COL_QUALIFY_FAST, None);
     let feign_tt = tt.join(RBVCCE_FEIGN_TT);
-    bkprs_program_copy(&donor, &feign_tt).unwrap_or_else(|e| {
+    brprs_program_copy(&donor, &feign_tt).unwrap_or_else(|e| {
         crate::rbvcel_fatal!(
             "failed to install the feign tabtarget {}: {}",
             feign_tt.display(),

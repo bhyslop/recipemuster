@@ -26,28 +26,30 @@
 //!
 //! ONE SAFE SURFACE PER MODULE. Each module states its own law in its own doc,
 //! and this one states only what they share. The regime reader
-//! (`bkprc_catena`) is one such surface, the program writers
-//! (`bkprs_scrivener`) are another, and the catch every estate main runs its
-//! body through (`bkprl_lanyard`) is a third.
+//! (`brprc_catena`) is one such surface, the program writers
+//! (`brprs_scrivener`) are another, and the catch every estate main runs its
+//! body through (`brprl_lanyard`) is a third.
 //!
-//! IT STANDS BESIDE THE KENNEL rather than inside it. The kennel is its first
-//! consumer and not its owner, so nothing here knows what a collar is.
+//! IT STANDS BESIDE THE KENNEL rather than inside it, as a kit of its own,
+//! `brk`. The kennel is its first consumer and not its owner, so nothing here
+//! knows what a collar is, and a delivery that withholds the kennel still ships
+//! the crates that stand on this one.
 //!
-//! Open source and delivered in the kennel's own parcel, which is why the
+//! Open source and delivered in the `brk` kit's own parcel, which is why the
 //! license header stands on every file.
 
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 
-pub mod bkprc_catena;
-pub mod bkprl_lanyard;
-pub mod bkprs_scrivener;
+pub mod brprc_catena;
+pub mod brprl_lanyard;
+pub mod brprs_scrivener;
 
 #[cfg(test)]
-mod bkptc_catena;
+mod brptc_catena;
 #[cfg(test)]
-mod bkptl_lanyard;
+mod brptl_lanyard;
 #[cfg(test)]
-mod bkpts_scrivener;
+mod brpts_scrivener;
 
 // eof

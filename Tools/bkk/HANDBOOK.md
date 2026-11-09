@@ -12,7 +12,7 @@ This is the road from an installed parcel to a whistle that answers.
 It is four acts.
 Walk them in order, from the repository root.
 
-The parcel install writes kit directories and nothing else: it does not touch your moorings layer, so the launcher stub and the doors are yours to mint.
+The parcel install writes kit directories and nothing else: it does not touch your moorings layer, so the moorings launcher stub and the doors are yours to mint.
 That is one act apiece, through the substrate's own emitters.
 
 ## What the kennel asks of the station
@@ -63,14 +63,14 @@ Add the tackroom to your station file — the one your `burc.env` names in `BURC
 BURS_TACKROOM=../tackroom-buk
 ```
 
-It is relative to the project root, as the station log's directory is; the station regime refuses an absolute value, naming the variable.
+It is relative to the project root, as the station log's directory is; the station config regime refuses an absolute value, naming the variable.
 A station file without it is admitted, so the kennel refuses a missing tackroom at the first kennel door, naming the variable and this line.
 It must not be the station user's home directory, nor anything inside that user's `.rustup` or `.cargo` — keeping the kennel's store apart from the station user's own toolchain is the whole point of the redirection, and the kennel refuses a declaration that collapses it.
 
 The pinned channel — the one named in `Tools/bkk/bk0/rust-toolchain.toml` — is laid into that store by the kennel's own door rather than by hand, so nothing is installed here.
 Act 3 mints that door beside the others, and Act 4 runs it once, ahead of the whistle.
 
-## Act 2 — Mint the launcher stub
+## Act 2 — Mint the moorings launcher stub
 
 The stub delegates the kit's doors to the kennel's workbench.
 It goes in your moorings launcher directory, `«moorings»/buml_launchers/` — create that directory first if this is the first kit you have minted for.
@@ -79,11 +79,11 @@ It goes in your moorings launcher directory, `«moorings»/buml_launchers/` — 
 tt/buw-tt-cl.CreateLauncher.sh Tools/bkk/bk0/bkw_workbench.sh bkw_workbench
 ```
 
-That writes `«moorings»/buml_launchers/launcher.bkw_workbench.sh` — two lines, a shebang and one exec of the substrate's launcher handing it the workbench path.
+That writes `«moorings»/buml_launchers/launcher.bkw_workbench.sh` — two lines, a shebang and one exec of the substrate's shared script, `bul_launcher.sh`, handing it the workbench path.
 
 ## Act 3 — Mint the door roster
 
-Seventeen doors, each written by the substrate's creation doors over the launcher stub Act 2 made.
+Seventeen doors, each written by the substrate's creation doors over the moorings launcher stub Act 2 made.
 A kennel door's file carries nothing of the repository it stands in, so the door these write is the door the kennel ships.
 
 Twelve take the plain form:

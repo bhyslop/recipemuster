@@ -111,7 +111,7 @@ fn bute_regime(name: &str, exports: &[(&str, &str)]) -> but::buth_hurdle::buth_S
     // coordinator before the regime is ever read — which reads as a refusal, and
     // a refusal is exactly what four of these hurdles assert. They once passed
     // against a shell that had not reached their subject at all.
-    body.push_str("zbure_kindle\nzbure_enforce\necho \"buje regime enforced\"\n");
+    body.push_str("zbure_kindle\nzbure_enforce\necho \"buje grubbet enforced\"\n");
 
     buth_Bench::buth_seat(name, BUTE_MODULES, &body).buth_drive(&[])
 }
@@ -123,7 +123,7 @@ fn bute_an_empty_tweak_channel_is_admitted() {
     // only here.
     bute_regime("substrate-bure-empty", &[])
         .buth_thrived()
-        .buth_carries("buje regime enforced");
+        .buth_carries("buje grubbet enforced");
 }
 
 #[test]
@@ -224,7 +224,7 @@ fn bute_a_poison_naming_a_secret_segment_variable_is_admitted() {
         ],
     )
     .buth_thrived()
-    .buth_carries("buje regime enforced");
+    .buth_carries("buje grubbet enforced");
 }
 
 #[test]

@@ -47,14 +47,15 @@ zrbte_kindle() {
   # The position's roots are the kennel's own measure for the theurge's app
   # collar, which strikes nothing and so holds no elected set: the local package
   # directories of the crate's compiled closure, the crate itself and the floor
-  # crate it reads its dispatch through. Nothing is carved out and nothing is
-  # added, so the kennel's heel and these doors state one position under one
+  # crate it reads its dispatch through, which the brk kit carries. Nothing is
+  # carved out and nothing is added, so the kennel's heel and these doors state
+  # one position under one
   # definition. The position is the seat's newest
   # first-parent commit touching them: the seat's own line, not a landed walk,
   # so a billet carrying unlanded commits states where it actually stands.
   ZRBTE_ROOTS=(
     "Tools/rbk/rbtd"
-    "Tools/bkk/bk0/bkp"
+    "Tools/brk/brp0"
   )
   readonly ZRBTE_ROOTS
 

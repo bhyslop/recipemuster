@@ -51,4 +51,4 @@ path = "src/main.rs"
 [dependencies]
 tar = { version = "0.4.44", default-features = false }
 flate2 = "1.1.1"
-bkp = { path = "../bk0/bkp" }
+brp = { path = "../../brk/brp0" }

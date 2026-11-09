@@ -114,13 +114,14 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // its Rust through rb's own doors and needs neither. Both are consumed by
     // parcel, so a ruling on them is a ruling on what arrives, never an edit.
     //
-    // The floor crate inside the kennel is the exception, and ships: the
-    // theurge links it for the program writers the root lint list points every
-    // barred file-arming call at, and for the estate's one regime reader. It
-    // stands alone, declaring no dependency and inheriting from no workspace,
-    // so withholding its parent leaves nothing it reaches behind.
+    // The bash Rust kit ships whole: it carries the floor crate alone, which
+    // the theurge links for the program writers the root lint list points
+    // every barred file-arming call at, and for the estate's one regime reader.
+    // The crate stands alone, declaring no dependency and inheriting from no
+    // workspace, and it arrives as a kit of its own rather than inside the
+    // kennel, so the kennel is withheld whole with no row reaching into it.
     ("Tools/bkk/", Withhold),
-    ("Tools/bkk/bk0/bkp/", Ship),
+    ("Tools/brk/", Ship),
     ("Tools/bpk/", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
     // family and the manor raze are the release rig itself; a consumer running

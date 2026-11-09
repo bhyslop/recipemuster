@@ -275,7 +275,7 @@ fn zbkhlty_declared() -> String {
             ZBKHLTY_POINTER_VAR, //
         )
     });
-    bkp::bkprc_catena::bkprc_read(Path::new(&pointer))
+    brp::brprc_catena::brprc_read(Path::new(&pointer))
         .unwrap_or_else(|err| {
             panic!(
                 "{} names no readable dispatch file: {}",
@@ -283,7 +283,7 @@ fn zbkhlty_declared() -> String {
                 err, //
             )
         })
-        .bkprc_scalar(ZBKHLTY_TEMP_DIR_VAR)
+        .brprc_scalar(ZBKHLTY_TEMP_DIR_VAR)
         .map(str::trim)
         .filter(|dir| !dir.is_empty())
         .map(str::to_string)

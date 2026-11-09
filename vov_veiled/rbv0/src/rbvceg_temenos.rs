@@ -30,7 +30,7 @@ use std::path::{
     PathBuf, //
 };
 
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprs_scrivener::brprs_program_write;
 
 use crate::rbvcel_log;
 use crate::rbvcep_repo;
@@ -315,7 +315,7 @@ pub fn rbvceg_stand_up(
 
     rbvcel_log::rbvcel_step("Installing the pre-push refusal hook");
     let hook = clone_dir.join(".git").join("hooks").join("pre-push");
-    bkprs_program_write(&hook, &zrbvceg_hook_body()).unwrap_or_else(|e| {
+    brprs_program_write(&hook, &zrbvceg_hook_body()).unwrap_or_else(|e| {
         crate::rbvcel_fatal!(
             "failed to write the pre-push hook {}: {}",
             hook.display(),

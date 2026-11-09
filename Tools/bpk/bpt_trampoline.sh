@@ -77,7 +77,7 @@ z_launcher="${z_dir}/../${z_moorings_dir}/buml_launchers/${z_launcher_name}"
 
 # Fail loud on a mistyped launcher rather than dispatching silently to nothing.
 test -f "${z_launcher}" \
-  || zbpt_trampoline_die "no launcher stub '${z_launcher_name}' (looked for ${z_launcher}), named by the configuration line: ${z_canonical}"
+  || zbpt_trampoline_die "no stub '${z_launcher_name}' (looked for ${z_launcher}), named by the configuration line: ${z_canonical}"
 
 # Normalize cwd to the repository root for the dispatched workbench; the seat is
 # the directory reached, absolute and symlink-resolved.

@@ -42,13 +42,13 @@ zbuwz_kindle() {
 
   # TabTarget subsystem (buut_cli.sh)
   local z_mod="buut_cli.sh"
-  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered launchers"
-  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      "param1"  "Create batch tabtarget with logging"
-  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        "param1"  "Create batch tabtarget without logging"
+  buz_enroll BUWZ_TT_LIST_LAUNCHERS      "buw-tt-ll"  "${z_mod}" "buut_list_launchers"               ""  "List all registered ${BUBG_LAUNCHER_PLURAL}"
+  buz_enroll BUWZ_TT_BATCH_LOGGING       "buw-tt-cbl" "${z_mod}" "buut_tabtarget_batch_logging"      "param1"  "Create batch tabtarget keeping a ${BUBG_STATION_LOG_BASE}"
+  buz_enroll BUWZ_TT_BATCH_NOLOG         "buw-tt-cbn" "${z_mod}" "buut_tabtarget_batch_nolog"        "param1"  "Create batch tabtarget keeping no ${BUBG_STATION_LOG_BASE}"
   buz_enroll BUWZ_TT_BATCH_AMANUENSIS    "buw-tt-cbo" "${z_mod}" "buut_tabtarget_batch_amanuensis"   "param1"  "Create batch tabtarget whose command writes its own record"
-  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" "param1"  "Create interactive tabtarget with logging"
-  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  "param1"  "Create interactive tabtarget without logging"
-  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     "param1"  "Create launcher script"
+  buz_enroll BUWZ_TT_INTERACTIVE_LOGGING "buw-tt-cil" "${z_mod}" "buut_tabtarget_interactive_logging" "param1"  "Create interactive tabtarget keeping a ${BUBG_STATION_LOG_BASE}"
+  buz_enroll BUWZ_TT_INTERACTIVE_NOLOG   "buw-tt-cin" "${z_mod}" "buut_tabtarget_interactive_nolog"  "param1"  "Create interactive tabtarget keeping no ${BUBG_STATION_LOG_BASE}"
+  buz_enroll BUWZ_TT_LAUNCHER            "buw-tt-cl"  "${z_mod}" "buut_launcher"                     "param1"  "Create ${BUBG_LAUNCHER_BASE} stub"
 
   # The roll call (buur_cli.sh): every installed kit's enrollments against the
   # doors standing in this repository's tabtarget directory
@@ -56,18 +56,18 @@ zbuwz_kindle() {
 
   # Config Regime subsystem (burc_cli.sh)
   z_mod="burc_cli.sh"
-  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"  ""  "Validate BURC regime"
-  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"    ""  "Render BURC regime"
+  buz_enroll BUWZ_RC_VALIDATE "buw-rcv" "${z_mod}" "burc_validate"  ""  "Validate the BURC config regime"
+  buz_enroll BUWZ_RC_RENDER   "buw-rcr" "${z_mod}" "burc_render"    ""  "Render the BURC config regime"
 
   # Station Regime subsystem (burs_cli.sh)
   z_mod="burs_cli.sh"
-  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"  ""  "Validate BURS regime"
-  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"    ""  "Render BURS regime"
+  buz_enroll BUWZ_RS_VALIDATE "buw-rsv" "${z_mod}" "burs_validate"  ""  "Validate the BURS config regime"
+  buz_enroll BUWZ_RS_RENDER   "buw-rsr" "${z_mod}" "burs_render"    ""  "Render the BURS config regime"
 
   # Environment Regime subsystem (bure_cli.sh)
   z_mod="bure_cli.sh"
-  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate BURE regime"
-  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render BURE regime"
+  buz_enroll BUWZ_RE_VALIDATE "buw-rev" "${z_mod}" "bure_validate"  ""  "Validate the BURE config regime"
+  buz_enroll BUWZ_RE_RENDER   "buw-rer" "${z_mod}" "bure_render"    ""  "Render the BURE config regime"
 
   # Parcel emplacement (bupe_cli.sh)
   z_mod="bupe_cli.sh"

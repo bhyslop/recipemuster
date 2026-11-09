@@ -203,7 +203,7 @@ fn bktl_a_crate_outside_the_repository_refuses_rather_than_walking_out() {
 fn bktl_a_channel_the_tackroom_lacks_refuses_rather_than_downloading() {
     let lure = bktu_Lure::bktu_compose("leash-absent-channel");
     lure.bktu_write("rust-toolchain.toml", "[toolchain]\nchannel = \"1.1.1\"\n");
-    lure.bktu_commit("pin a channel no station holds");
+    lure.bktu_commit("pin a channel no wembrot holds");
 
     // Driven for real: the refusal stands AHEAD of the spawn, so no cargo runs
     // and nothing is fetched. A channel this old is the point — rustup would
@@ -299,7 +299,7 @@ fn bktl_a_recalled_run_hands_back_the_childs_own_words() {
 fn bktl_a_recalled_run_stands_on_the_same_discipline_as_a_driven_one() {
     let lure = bktu_Lure::bktu_compose("leash-recall-discipline");
     lure.bktu_write("rust-toolchain.toml", "[toolchain]\nchannel = \"1.1.1\"\n");
-    lure.bktu_commit("pin a channel no station holds");
+    lure.bktu_commit("pin a channel no wembrot holds");
 
     // The refusal the driven face takes, taken here at the same place: ahead of
     // the spawn, so nothing is fetched. A face that skipped a discipline because

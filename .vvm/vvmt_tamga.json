@@ -1,13 +1,14 @@
 {
-  "vvmc_commit": "2f60015c3525f7c51c716a38c6582d1534ab8e7f",
-  "vvmd_date": "261107-0702",
+  "vvmc_commit": "90a07af5d49f787a7d8c96878394e7edc3a8c50e",
+  "vvmd_date": "261109-0456",
   "vvmf_forge": "buon_jj",
   "vvmk_kits": [
     "bkk",
     "bpk",
+    "brk",
     "buk"
   ],
   "vvmm_manner": "repository",
   "vvmr_target": "rbm_alpha_recipemuster",
-  "vvmt_tamga": "1091"
+  "vvmt_tamga": "1094"
 }

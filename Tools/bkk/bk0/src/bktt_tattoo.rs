@@ -30,7 +30,7 @@ use super::bkct_tattoo::{
     bkct_proclamation,
     BKCT_LANGUAGE_RUST, //
 };
-use bkp::bkprc_catena::bkprc_admit;
+use brp::brprc_catena::brprc_admit;
 use std::path::PathBuf;
 
 /// A suite collar in hand.
@@ -73,7 +73,7 @@ fn zbktt_collar(name: &str, text: &str) -> bkcr_Collar {
     bkcr_Collar {
         name: name.to_string(),
         instance: PathBuf::from(name),
-        regime: bkprc_admit(text, "composed").expect("the collar stands inside the subset"),
+        regime: brprc_admit(text, "composed").expect("the collar stands inside the subset"),
         measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec![
             "Tools/lure/src".to_string(),
             "Tools/lure/Cargo.toml".to_string(),
@@ -243,17 +243,17 @@ fn bktt_the_answer_reads_back_through_the_reader() {
         &bkce_Geography::Undispatched,
     );
 
-    let read = bkprc_admit(&said, "the proclamation")
+    let read = brprc_admit(&said, "the proclamation")
         .expect("the proclamation stands inside the catena law it was rendered to");
 
-    assert_eq!(read.bkprc_scalar("BKRC_COLLAR"), Some("suite-lure"));
+    assert_eq!(read.brprc_scalar("BKRC_COLLAR"), Some("suite-lure"));
     assert_eq!(
-        read.bkprc_catena("BKRC_ROOTS").unwrap(),
+        read.brprc_catena("BKRC_ROOTS").unwrap(),
         vec!["Tools/lure/src", "Tools/lure/Cargo.toml"],
         "a multi-element field is rendered one element per line and reads back as its elements", //
     );
-    assert_eq!(read.bkprc_catena("BKRC_FEATURES"), Some(Vec::new()));
-    assert_eq!(read.bkprc_scalar("BKRC_ELECTION"), Some(BKCE_ELECTED_OWN));
+    assert_eq!(read.brprc_catena("BKRC_FEATURES"), Some(Vec::new()));
+    assert_eq!(read.brprc_scalar("BKRC_ELECTION"), Some(BKCE_ELECTED_OWN));
 }
 
 // eof

@@ -38,7 +38,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use bkk::bktu_lure::bktu_Lure;
-use bkp::bkprs_scrivener::bkprs_program_write;
+use brp::brprs_scrivener::brprs_program_write;
 
 /// The trampoline's canonical configuration line, as its refusals name it.
 const BUTJ_CANONICAL: &str = "set -- 'launcher.<id>_workbench.sh[ buuc_…]' \"$@\"";
@@ -108,7 +108,7 @@ impl butj_Seat {
     /// Lay a door of the seat's own, its body the hurdle's.
     fn butj_door(&self, relative: &str, body: &str) -> PathBuf {
         let path = self.lure.bktu_root().join(relative);
-        bkprs_program_write(&path, body).unwrap_or_else(|err| {
+        brprs_program_write(&path, body).unwrap_or_else(|err| {
             panic!(
                 "{}",
                 err, //
@@ -534,13 +534,13 @@ fn butj_a_dispatch_line_carrying_a_space_and_a_parenthesis_reads_alike_in_bash_a
         String::from_utf8_lossy(&out.stderr), //
     );
     let line = lure.bktu_root().join("line.env");
-    let regime = bkp::bkprc_catena::bkprc_read(&line).unwrap_or_else(|err| {
+    let regime = brp::brprc_catena::brprc_read(&line).unwrap_or_else(|err| {
         panic!(
             "{}",
             err, //
         )
     });
-    assert_eq!(regime.bkprc_scalar("BUTJ_SPACED"), Some(value));
+    assert_eq!(regime.brprc_scalar("BUTJ_SPACED"), Some(value));
     let bash =
         std::fs::read_to_string(lure.bktu_root().join("bash.txt")).expect("bash read the line");
     assert_eq!(bash.trim_end(), value);
