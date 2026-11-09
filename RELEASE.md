@@ -117,6 +117,7 @@ Run the four commands under their practice doors, reading each stop as the real 
 
 1. Run `tt/rbvw-e.Essai.palaestra.sh`.
    It cuts the [regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
+   Run from a practice seat, it also warns that the one-home corpus check stands down for want of a kraal register; a seat never stands beside one, and the warning costs the lap nothing.
    Walk the coldwalk and read the [regulus](#Regulus) as the laps below describe, with those paths.
 2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
 3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
@@ -152,6 +153,7 @@ Type each line as shown, in order:
 ### <a id="StrangerColdwalk"></a>The stranger coldwalk
 
 Every green lap ends with a [temenos](#Temenos) waiting to be walked.
+The lap prints the clone's `HEAD`; nothing is promoted at a lap, so match it to the [regulus](#Regulus) tip, which `git -C ../rbthdr_regulus/regulus rev-parse HEAD` prints.
 Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
 Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [temenos](#Temenos) aside.
 A finding means a repair and another lap.
