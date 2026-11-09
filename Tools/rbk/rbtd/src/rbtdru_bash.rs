@@ -114,6 +114,19 @@ pub(crate) fn zrbtchb_read_word(chars: &[char], i: &mut usize, line: &mut usize)
                     *i += 1;
                 }
             }
+            // An unquoted backslash escapes the character after it, so an
+            // escaped quote opens no string; an escaped newline is a line.
+            '\\' => {
+                word.push(c);
+                *i += 1;
+                if *i < n {
+                    if chars[*i] == '\n' {
+                        *line += 1;
+                    }
+                    word.push(chars[*i]);
+                    *i += 1;
+                }
+            }
             '$' if *i + 1 < n && chars[*i + 1] == '(' => break,
             '$' if *i + 1 < n && chars[*i + 1] == '{' => {
                 word.push('$');

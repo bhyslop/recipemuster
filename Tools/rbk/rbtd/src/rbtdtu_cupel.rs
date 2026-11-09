@@ -525,6 +525,27 @@ fn rbtthc_py_scan_string_mention_not_flagged() {
 }
 
 #[test]
+fn rbtthc_unquoted_backslash_escapes_quote() {
+    // An escaped quote in a case pattern opens no string, so the commands
+    // after it stay in view.
+    let src = "case \"${v}\" in\n  *\\\"*|*\\'*)\n    die \"q\"\n    ;;\nesac\nexport A\n";
+    assert_eq!(
+        zrbtchb_command_words(src),
+        vec![
+            (3, "die".to_string()),
+            (6, "export".to_string()), //
+        ]
+    );
+}
+
+#[test]
+fn rbtthc_unquoted_backslash_newline_counts_a_line() {
+    let src = "printf x\\\ny\nexport B\n";
+    let words = zrbtchb_command_words(src);
+    assert_eq!(words.last(), Some(&(3, "export".to_string())));
+}
+
+#[test]
 fn rbtthc_export_names_reads_the_line() {
     assert_eq!(zrbtchc_export_names("export GNUPGHOME"), vec!["GNUPGHOME"]);
     assert_eq!(
