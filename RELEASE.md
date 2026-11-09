@@ -5,7 +5,7 @@ The [hierophant](#Hierophant) conducts four commands and stops wherever your han
 The law behind it is the Marshal Operations branch of the spec: where the two disagree the law wins, and the disagreement is a finding to raise.
 The words in capitals are defined in the glossary at the end.
 
-Run every command from the maintainer repository, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
+Run every command from the maintainer repository, or in practice from the practice seat where one stands, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
 Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
@@ -61,8 +61,12 @@ Two gaps are accepted: the private stand-in cannot be cloned anonymously as a st
 
 ### <a id="PracticeGround"></a>Practice standing ground
 
-Once per station, beside the real base remote.
-Add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
+Once per station.
+Practice needs only part of the standing ground above: its commands read the practice base remote and never the real one, so step 1 waits for the laps.
+Read step 4's count before each round and after each coldwalk, since a coldwalk can set up projects linked to the billing account; practice runs no `gauntlet`.
+Then give practice a repository to run from, in one of two ways.
+
+In the maintainer repository, after steps 2, 3 and 5, add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
 Type each line as shown:
 
 - `git remote add PALAESTRA_UPSTREAM git@github.com:bhyslop/recipebottle-grandstand-practice.git`
@@ -72,7 +76,8 @@ Or stand up a practice seat, a clone that keeps the practice rounds apart from t
 From the maintainer repository, run `tt/rbvw-p.PracticeSeat.palaestra.sh «practice home»`, naming the home by its absolute path.
 It clones the maintainer repository at its checked-out branch into `«practice home»/seat/rb`, adds the practice base remote there with its push side neutered, writes the seat's station file and an empty secrets directory under `«practice home»/seat/station-files`, the station file naming this station's own tool store, and builds the seat's kennel.
 It contacts no remote, and refuses a home where a seat already stands.
-Run the practice doors from the seat: its [regulus](#Regulus) and [temenos](#Temenos) land inside the practice home.
+A seat needs none of steps 2, 3 and 5: it builds its own kennel, the opening of each round reads the public repository, and no retired instrument ever stood beside it.
+Run the practice doors from the seat and never from the maintainer repository: its [regulus](#Regulus) and [temenos](#Temenos) land inside the practice home.
 
 ### <a id="PracticeOpening"></a>Opening a round
 
