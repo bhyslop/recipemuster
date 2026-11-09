@@ -37,6 +37,7 @@ use crate::rbvcem_perambulation;
 use crate::rbvcep_repo;
 use crate::rbvcer_run;
 use crate::rbvcew_world;
+use crate::rbvgeb_breviary;
 
 // ── The cut's constants ─────────────────────────────────────
 
@@ -254,9 +255,13 @@ pub fn rbvcex_cut(top: &Path, target_dir: &Path, world: rbvcew_world::rbvcew_Wor
         RBVCEX_REGULUS_BRANCH, //
     ));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line("The regulus is built by ADDITION in a clone of the real PUBLIC");
-    rbvcel_log::rbvcel_line("repository. No private object enters the object graph, because none");
-    rbvcel_log::rbvcel_line("is ever put there. Nothing is stripped.");
+    rbvcel_log::rbvcel_line(&format!(
+        "The {} is built by ADDITION in a clone of the {}.",
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE,
+        bundle.base_noun, //
+    ));
+    rbvcel_log::rbvcel_line("No private object enters the object graph, because none is ever");
+    rbvcel_log::rbvcel_line("put there. Nothing is stripped.");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!(
         "Every shipped path ({}) is materialized from the committed bytes,",

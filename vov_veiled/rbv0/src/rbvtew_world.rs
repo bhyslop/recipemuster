@@ -202,3 +202,12 @@ fn rbvtew_extra_argument_refuses() {
     )
     .is_err());
 }
+
+/// The banner noun of the practice world never calls its private stand-in
+/// public, and the real world's does: every line the two worlds print about
+/// their base reads true of the repository it names.
+#[test]
+fn rbvtew_base_noun_names_the_world_truly() {
+    assert!(!RBVCEW_PALAESTRA.base_noun.to_lowercase().contains("public"));
+    assert!(RBVCEW_AGORA.base_noun.to_lowercase().contains("public"));
+}

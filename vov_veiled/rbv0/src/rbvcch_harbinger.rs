@@ -33,12 +33,14 @@ use crate::rbvcew_world;
 pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
-    rbvcel_log::rbvcel_section(
-        "Hierophant Harbinger — the stranger walk against promoted public main (RBSHH)",
-    );
-    rbvcel_log::rbvcel_line(
-        "Clone promoted public main, guard it, hand off the walk. Zero remote acts.",
-    );
+    rbvcel_log::rbvcel_section(&format!(
+        "Hierophant Harbinger — the stranger walk against the {}'s promoted main (RBSHH)",
+        bundle.base_noun, //
+    ));
+    rbvcel_log::rbvcel_line(&format!(
+        "Clone the {}'s promoted main, guard it, hand off the walk. Zero remote acts.",
+        bundle.base_noun, //
+    ));
 
     let top = rbvcep_repo::rbvcep_toplevel();
     rbvcel_log::rbvcel_line(&format!(

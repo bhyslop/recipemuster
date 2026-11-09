@@ -72,8 +72,17 @@ pub fn rbvcco_ostend_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
     zrbvcco_kerygma(&top, &regulus_clone, &regulus_tip, bundle);
     zrbvcco_promotion(&top, &regulus_tip, bundle);
-    zrbvcco_close();
+    zrbvcco_close(world, bundle);
 
+    if world == rbvcew_world::rbvcew_World::Palaestra {
+        rbvcel_log::rbvcel_success(&format!(
+            "{} complete in the {} — staged and promoted on the {}, every assert machine-performed, every push human-typed (RBSHO completion).",
+            rbvgeb_breviary::RBVGEB_OSTEND_BASE_LETTRINE,
+            rbvcew_world::rbvcew_word(world),
+            bundle.base_noun, //
+        ));
+        return ExitCode::SUCCESS;
+    }
     rbvcel_log::rbvcel_success("Ostend complete — disclosed and promoted, every assert machine-performed, every push human-typed (RBSHO completion).");
     ExitCode::SUCCESS
 }
@@ -210,10 +219,25 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
     let public_url = bundle.base_url;
     let branch = rbvcex_expede::RBVCEX_REGULUS_BRANCH;
 
-    rbvcel_log::rbvcel_line(
-        "Promotion line — from a fresh clone or fetch of the public repository,",
-    );
-    rbvcel_log::rbvcel_line("never the regulus directory. Type this yourself:");
+    rbvcel_log::rbvcel_line(&format!(
+        "Promotion line — from a fresh clone of the {}, never the {} directory.",
+        bundle.base_noun,
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
+    ));
+    rbvcel_log::rbvcel_line("In the second pane, make the fresh clone and fetch the staging branch:");
+    rbvcel_log::rbvcel_blank();
+    rbvcel_log::rbvcel_raw(&format!(
+        "        git clone {} «fresh clone»",
+        public_url, //
+    ));
+    rbvcel_log::rbvcel_raw("        cd «fresh clone»");
+    rbvcel_log::rbvcel_raw(&format!(
+        "        git fetch origin {}:{}",
+        branch,
+        branch, //
+    ));
+    rbvcel_log::rbvcel_blank();
+    rbvcel_log::rbvcel_line("Then, there, type this yourself:");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&format!(
         "        git push {} {}:main",
@@ -247,16 +271,34 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
 
 // ── Close ────────────────────────────────────────────────────
 
-fn zrbvcco_close() {
+fn zrbvcco_close(world: rbvcew_world::rbvcew_World, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Close the reveal (RBSHO close)");
     rbvcel_log::rbvcel_line(
         "Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.",
     );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
-    rbvcel_log::rbvcel_line(
-        "  - delete the public staging branch (POSTULANT_LOCAL) on the public repository",
-    );
-    rbvcel_log::rbvcel_line("  - delete the private narthex repository");
-    rbvcel_log::rbvcel_line("  - discard the regulus directory");
+    rbvcel_log::rbvcel_line(&format!(
+        "  - delete the staging branch ({}) on the {}",
+        rbvcex_expede::RBVCEX_REGULUS_BRANCH,
+        bundle.base_noun, //
+    ));
+    match world {
+        rbvcew_world::rbvcew_World::Agora => {
+            rbvcel_log::rbvcel_line(&format!(
+                "  - delete the private {} repository",
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE, //
+            ));
+        }
+        rbvcew_world::rbvcew_World::Palaestra => {
+            rbvcel_log::rbvcel_line(&format!(
+                "  - keep the practice {}: the next round recreates it",
+                rbvgeb_breviary::RBVGEB_NARTHEX_BASE, //
+            ));
+        }
+    }
+    rbvcel_log::rbvcel_line(&format!(
+        "  - discard the {} directory",
+        rbvgeb_breviary::RBVGEB_REGULUS_BASE, //
+    ));
 }
