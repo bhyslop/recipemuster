@@ -1078,7 +1078,7 @@ mod tests {
         let tracked = bper_git_tracked_files(&repo_root).expect("git ls-files failed");
         assert!(tracked
             .iter()
-            .any(|p| p == Path::new("Tools/bpk/bpe/Cargo.toml")));
+            .any(|p| p == Path::new("Tools/brk/bpe/Cargo.toml")));
     }
 
     /// A tree with no `.claude/` directory at all — a fresh kit-split clone

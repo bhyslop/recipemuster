@@ -18,9 +18,9 @@
 //! The bytes are taken by `include_str!` from the same files the engine
 //! embeds, so they are the bytes cargo embeds from this checkout.
 
-const BPET_BURC: &str = include_str!("../../bpt_burc.env");
-const BPET_LAUNCHER: &str = include_str!("../../bpt_launcher.sh");
-const BPET_STATION: &str = include_str!("../../bpt_station.sh");
+const BPET_BURC: &str = include_str!("../../../bpk/bpt_burc.env");
+const BPET_LAUNCHER: &str = include_str!("../../../bpk/bpt_launcher.sh");
+const BPET_STATION: &str = include_str!("../../../bpk/bpt_station.sh");
 
 fn bpet_is_lf_text(text: &str) -> bool {
     !text.is_empty() && text.contains('\n') && !text.contains('\r')

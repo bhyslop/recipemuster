@@ -62,12 +62,13 @@
 //!   equivalent and was not.
 //!
 //!   AN EXACT STAMP MATCH BORROWS TOO LITTLE, and it fails the case this estate
-//!   makes constantly. A refit is a merge, and a merge commit stands on no trunk
-//!   line, so a refitted billet could never borrow again however identical its
-//!   tree — a rebuild demanded for a merge that moved nothing it measures.
+//!   makes constantly. Taking the trunk in is a merge, and a merge commit stands
+//!   on no trunk line, so a linked worktree that merged the trunk could never
+//!   borrow again however identical its tree — a rebuild demanded for a merge
+//!   that moved nothing it measures.
 //!
 //! Comparing the trees answers all three cases with one question: it survives a
-//! refit, a merge that moved nothing measured leaving the trees identical;
+//! trunk merge that moved nothing measured, leaving the trees identical;
 //! it refuses a seat forked behind a trunk that moved them; and it refuses a
 //! local edit, whoever made it and whatever line it stands on.
 //!
@@ -90,7 +91,7 @@
 //!
 //! A LINKED WORKTREE HAS TWO, and the election reads them both. The
 //! BORROW CANDIDATE joins onto the delivered root — the worktree's main worktree, which is the
-//! standing clone every work billet is added from, and whose binaries are what
+//! clone every linked worktree is added from, and whose binaries are what
 //! a seat borrows rather than rebuilding. The OWN RESIDENCE joins onto the work
 //! tree by the same join, and is what the seat's own converge writes. The own
 //! residence is asked the same content question, and a CURRENT OWN BUILD RUNS,
@@ -259,8 +260,8 @@ impl bkce_Geography {
 /// common git directory stand. A main worktree or a plain clone answers the same
 /// directory twice, which is self-geography. A linked worktree answers its own
 /// administrative directory and, as the common one, the main worktree's `.git`,
-/// whose parent is the delivered root — the estate stands every work billet up
-/// by a worktree add inside its sire's standing clone, so the tree a billet
+/// whose parent is the delivered root — every linked worktree is stood up
+/// by a worktree add inside its main worktree, so the tree a linked worktree
 /// borrows from and the tree it was added from are one fact by construction.
 ///
 /// NOTHING STATES THIS A SECOND TIME. No file, no variable and no walk of the
@@ -938,8 +939,8 @@ pub fn bkce_elect(
     //
     // A PINNED COLLAR IS PINNED TO THE BLESSED RESIDENCE AND NOT TO THE SEAT'S
     // OWN, which is the whole of what pinning means under dispatch: a wrong
-    // vintage writing shared durable state writes corruption, and a billet-built
-    // engine is exactly the wrong vintage the pin exists to keep away from the
+    // vintage writing shared durable state writes corruption, and an engine built in
+    // a linked worktree is exactly the wrong vintage the pin exists to keep away from the
     // live store.
     if spend == BKCE_SPEND_WRITER {
         return Ok(bkce_Verdict {
@@ -1259,7 +1260,7 @@ fn zbkce_quoted(line: &str) -> Option<String> {
 ///
 /// A SUITE ALWAYS ELECTS ITS OWN BUILD, and that is the true answer rather than
 /// a slot filled to keep the shape. The runner compiles a suite from the source
-/// the seat holds, so a billet's suite tests the billet's code and no suite is
+/// the seat holds, so a linked worktree's suite tests that worktree's code and no suite is
 /// ever borrowed; there is no standing artifact between the source and the
 /// verdict for a vintage question to be asked about. It reaches the same word the
 /// app arm reaches when a seat has outrun its binary, because it is the same
@@ -1314,8 +1315,8 @@ pub fn bkce_residence(root: &Path, collar: &bkcr_Collar) -> PathBuf {
 /// position for every commit anywhere in the repository and call an artifact that
 /// did not change outrun.
 ///
-/// THE SEAT'S OWN LINE, never the trunk counterpart. A commit made at a billet
-/// never enters the landed walk `Tools/buk/bue_exergue.sh` takes, so a seat
+/// THE SEAT'S OWN LINE, never the trunk counterpart. A commit made at a linked
+/// worktree never enters the landed walk `Tools/buk/bue_exergue.sh` takes, so a seat
 /// judging itself by landings would sit still while its own source moved.
 ///
 /// The election's grammar is git's own — a directory reaches everything beneath

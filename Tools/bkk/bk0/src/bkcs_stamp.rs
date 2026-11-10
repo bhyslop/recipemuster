@@ -25,7 +25,7 @@
 //! what stands current with what this seat holds. The trunk-counterpart stamp
 //! `Tools/buk/bue_exergue.sh` strikes cannot answer it, and not by accident: that
 //! module reads LANDINGS and never HEAD, deliberately, so a commit made at a
-//! billet never enters its walk. A whistle comparing landed stamps would sit
+//! linked worktree never enters its walk. A whistle comparing landed stamps would sit
 //! still while the source moved. The landed reading is what a DELIVERED binary
 //! carries, struck at release for a reader that holds a record of landings rather
 //! than the repository; it arrives when such a reader exists, and none does at

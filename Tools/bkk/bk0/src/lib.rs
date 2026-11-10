@@ -49,9 +49,9 @@
 
 // SIX OF THESE MODULES ARE BLANK, one per letter the rollout has pre-allocated
 // for a mechanism still to be built. They stand here rather than arriving with
-// the paces that fill them because those paces run in parallel billets: a
+// the changes that fill them because those changes are built in parallel worktrees: a
 // module line each of them added beside its neighbours' is a merge conflict at
-// every refit, and a line each of them EDITS is not. Every blank carries a doc
+// every merge, and a line each of them EDITS is not. Every blank carries a doc
 // line saying what will fill it and nothing else, and its word is a guess its
 // own pace may change.
 pub mod bkcc_record;

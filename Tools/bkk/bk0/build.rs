@@ -23,7 +23,7 @@
 //!              the seat's own line rather than the trunk counterpart
 //!              `Tools/buk/bue_exergue.sh` walks: that module reads LANDINGS and
 //!              never HEAD so a reader holding a record rather than the
-//!              repository can resolve its answer, and a commit made at a billet
+//!              repository can resolve its answer, and a commit made at a linked worktree
 //!              never enters it. A binary whose only consumer is the whistle that
 //!              built it needs the reading that moves when this tree's source
 //!              moves.
@@ -130,7 +130,7 @@ fn main() {
 
     /// Tell cargo to watch one of git's own files, resolved through git.
     ///
-    /// RESOLVED AND NEVER SPELLED. A billet is a worktree, so its `.git` is a
+    /// RESOLVED AND NEVER SPELLED. In a linked worktree `.git` is a
     /// FILE naming a common directory elsewhere; a literal `.git/HEAD` names
     /// nothing there, and a trigger that names nothing never fires - which
     /// presents as a binary that quietly stops noticing commits rather than as an

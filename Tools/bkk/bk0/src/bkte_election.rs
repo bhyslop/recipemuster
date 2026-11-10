@@ -481,10 +481,10 @@ fn bkte_a_seat_forked_behind_a_moved_trunk_elects_its_own_build() {
 /// THAT TRUNK MERGED INTO THE SEAT BORROWS, and this is the arm an exact stamp
 /// match would get wrong forever.
 ///
-/// A refit is a merge, and a merge commit stands on no trunk line, so a reading
+/// Taking the trunk in is a merge, and a merge commit stands on no trunk line, so a reading
 /// comparing positions could never find these two equal however identical the
 /// trees. The `assert_ne!` below is not decoration: it is what says this hurdle
-/// composed the refit shape rather than a fast-forward that would have made the
+/// composed the merged shape rather than a fast-forward that would have made the
 /// borrow trivially true.
 #[test]
 fn bkte_a_seat_that_merged_the_moved_trunk_borrows() {
@@ -509,7 +509,7 @@ fn bkte_a_seat_that_merged_the_moved_trunk_borrows() {
     assert_ne!(
         zbkte_head(&lure),
         struck,
-        "the refit's own shape: HEAD is a merge commit standing on no trunk line, so a position \
+        "the merged shape: HEAD is a merge commit standing on no trunk line, so a position \
          comparison has nothing to match", //
     );
 
@@ -530,7 +530,7 @@ fn bkte_a_seat_that_merged_the_moved_trunk_borrows() {
 
 /// A LOCAL COMMIT UNDER THE ROOTS ELECTS ITS OWN BUILD, whatever line it stands
 /// on. This is the arm that must survive the widening — a reading loose enough to
-/// forgive a refit must still refuse the seat's own edit.
+/// forgive a trunk merge must still refuse the seat's own edit.
 #[test]
 fn bkte_a_local_commit_under_the_roots_elects_its_own_build() {
     let lure = bktu_Lure::bktu_compose("election-edited");
@@ -836,7 +836,7 @@ fn bkte_a_dispatched_seat_runs_a_current_own_build() {
 /// A LINKED WORKTREE RUNS ITS CURRENT OWN BUILD AHEAD OF AN IDENTICAL BORROW,
 /// and the plaint says why. A delivered binary matching the seat's tree was
 /// borrowed whatever the seat had built, which is the road that ran a binary its
-/// own staleness fence then refused while the billet's own fresh build stood
+/// own staleness fence then refused while the worktree's own fresh build stood
 /// beside it, unasked.
 ///
 /// THE CONTROL IS THE SAME SEAT WITH ITS OWN BUILD OUTRUN, which borrows: without
@@ -1176,8 +1176,8 @@ fn zbkte_real(path: &Path) -> PathBuf {
 /// root being that main worktree.
 ///
 /// GEOGRAPHY IS DERIVED FROM A REAL TREE, NEVER POSED. The worktree is stood by
-/// git's own worktree add, the same act that stands every work billet inside its
-/// sire's standing clone, so the reading here is the reading a dispatched door
+/// git's own worktree add, the same act that stands every linked worktree beside its
+/// main worktree, so the reading here is the reading a dispatched door
 /// takes and not a stand-in for it.
 ///
 /// THE CONTROL IS THE MAIN WORKTREE ITSELF, asked the same question: a reader
@@ -1187,10 +1187,10 @@ fn zbkte_real(path: &Path) -> PathBuf {
 #[test]
 fn bkte_a_linked_worktree_derives_its_main_worktree_as_the_delivered_root() {
     let main = bktu_Lure::bktu_compose("geography-derived");
-    let billet = main.bktu_billet("geography-derived");
+    let worktree = main.bktu_worktree("geography-derived");
 
     assert_eq!(
-        bkce_geography(billet.bktu_root()).expect("a linked worktree derives"),
+        bkce_geography(worktree.bktu_root()).expect("a linked worktree derives"),
         bkce_Geography::Dispatched(zbkte_real(main.bktu_root())),
         "a linked worktree's delivered root is its main worktree", //
     );
@@ -1221,9 +1221,9 @@ fn bkte_a_plain_clone_is_self_geography() {
 #[test]
 fn bkte_a_derived_geography_states_its_word_and_root() {
     let main = bktu_Lure::bktu_compose("geography-stated");
-    let billet = main.bktu_billet("geography-stated");
+    let worktree = main.bktu_worktree("geography-stated");
 
-    let read = bkce_geography(billet.bktu_root()).expect("a linked worktree derives");
+    let read = bkce_geography(worktree.bktu_root()).expect("a linked worktree derives");
 
     assert_eq!(
         read.bkce_stated(),
@@ -1253,9 +1253,9 @@ fn bkte_a_derived_geography_states_its_word_and_root() {
 #[test]
 fn bkte_a_worktree_of_a_bare_repository_refuses() {
     let main = bktu_Lure::bktu_compose("geography-bare");
-    let billet = main.bktu_billet_of_bare("geography-bare");
+    let worktree = main.bktu_worktree_of_bare("geography-bare");
 
-    let said = bkce_geography(billet.bktu_root())
+    let said = bkce_geography(worktree.bktu_root())
         .expect_err("a worktree of a bare repository names no delivered root");
 
     assert!(
@@ -1266,7 +1266,7 @@ fn bkte_a_worktree_of_a_bare_repository_refuses() {
 
     // THE CONTROL IS A WORKTREE OF THE SAME CONTENT ADDED FROM A MAIN WORKTREE,
     // so the refusal above is the bareness and not the worktree.
-    let control = main.bktu_billet("geography-bare-control");
+    let control = main.bktu_worktree("geography-bare-control");
 
     assert!(
         bkce_geography(control.bktu_root()).is_ok(),
@@ -1283,22 +1283,22 @@ fn bkte_a_worktree_of_a_bare_repository_refuses() {
 #[test]
 fn bkte_a_worktree_whose_main_worktree_is_gone_refuses() {
     let main = bktu_Lure::bktu_compose("geography-orphan");
-    let billet = main.bktu_billet("geography-orphan");
+    let worktree = main.bktu_worktree("geography-orphan");
 
     // THE CONTROL COMES FIRST, over the same worktree while its main worktree
     // stands: the refusal below is then the removal and not the worktree.
     assert!(
-        bkce_geography(billet.bktu_root()).is_ok(),
+        bkce_geography(worktree.bktu_root()).is_ok(),
         "the control: the worktree derives while its main worktree stands", //
     );
 
     std::fs::remove_dir_all(main.bktu_root()).expect("the main worktree comes away");
 
-    let said = bkce_geography(billet.bktu_root())
+    let said = bkce_geography(worktree.bktu_root())
         .expect_err("a worktree whose main worktree is gone derives nothing");
 
     assert!(
-        said.contains(&billet.bktu_root().display().to_string()),
+        said.contains(&worktree.bktu_root().display().to_string()),
         "the refusal names the tree whose geography could not be derived: {}",
         said, //
     );
@@ -1430,8 +1430,8 @@ fn zbkte_derived() -> crate::bkcr_resolve::bkcr_Set {
 /// at every home together, and the verdict names what was added so the door can
 /// refuse naming the notch.
 #[test]
-fn bkte_a_billet_record_naming_a_file_the_set_lacks_rewrites_the_set() {
-    let lure = bktu_Lure::bktu_compose("scent-billet");
+fn bkte_a_worktree_record_naming_a_file_the_set_lacks_rewrites_the_set() {
+    let lure = bktu_Lure::bktu_compose("scent-worktree");
     let homes = zbkte_standing_set(&lure);
 
     let scent = crate::bkce_election::bkce_settle(

@@ -203,7 +203,7 @@ bkcp_standing_seat_capture() {
 #
 # THE SEAT'S OWN LINE, never the trunk counterpart. Tools/buk/bue_exergue.sh
 # walks landings so a reader holding a record rather than the repository can
-# resolve its answer - the DELIVERED reading. A commit made at a billet never
+# resolve its answer - the DELIVERED reading. A commit made at a linked worktree never
 # enters that walk, so a seat-built binary carrying it would sit still while
 # its own source moved.
 #

@@ -283,6 +283,18 @@ fn rbvtem_matcher_longest_wins() {
         "the bash Rust kit ships its floor crate while the kennel is withheld", //
     );
 
+    let parcel_engine = rbvcem_judge("Tools/brk/bpe/src/main.rs");
+    assert!(
+        matches!(parcel_engine, Some((rbvcem_Disposition::Withhold, _))),
+        "the bash Rust kit withholds the parcel engine", //
+    );
+
+    let engine_collar = rbvcem_judge("Tools/brk/bkd_brood/bpen_suite/bkrr.env");
+    assert!(
+        matches!(engine_collar, Some((rbvcem_Disposition::Withhold, _))),
+        "the bash Rust kit withholds the parcel engine's collars", //
+    );
+
     let kennel = rbvcem_judge("Tools/bkk/bk0/bkw_workbench.sh");
     assert!(
         matches!(kennel, Some((rbvcem_Disposition::Withhold, _))),

@@ -448,11 +448,12 @@ fn zbpee_commit_seat(root: &Path, number: &str) -> Result<String, String> {
 
 /// The starter kit's templates a seat's regime is written
 /// from. Compiled in rather than read from the parcel, because the parcel formed
-/// for the private seat carries no starter kit. Their home is this kit's own
-/// directory, beside this crate.
-const ZBPEE_TEMPLATE_BURC: &str = include_str!("../../../bpt_burc.env");
-const ZBPEE_TEMPLATE_LAUNCHER: &str = include_str!("../../../bpt_launcher.sh");
-const ZBPEE_TEMPLATE_STATION: &str = include_str!("../../../bpt_station.sh");
+/// for the private seat carries no starter kit. Their home is the starter kit's
+/// own directory, read across the kit line: the crate stands in the Bash Rust
+/// kit, and the templates stay the starter kit's files.
+const ZBPEE_TEMPLATE_BURC: &str = include_str!("../../../../bpk/bpt_burc.env");
+const ZBPEE_TEMPLATE_LAUNCHER: &str = include_str!("../../../../bpk/bpt_launcher.sh");
+const ZBPEE_TEMPLATE_STATION: &str = include_str!("../../../../bpk/bpt_station.sh");
 
 /// The declaration's kit assignment, replaced whole whatever placeholder the
 /// template stands in it, and the other templates' one substitution each,
@@ -4205,9 +4206,10 @@ mod tests {
             declaration, //
         );
 
-        let launcher_template =
-            fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("../bpt_launcher.sh"))
-                .unwrap();
+        let launcher_template = fs::read_to_string(
+            Path::new(env!("CARGO_MANIFEST_DIR")).join("../../bpk/bpt_launcher.sh"),
+        )
+        .unwrap();
         let (template_first, template_rest) = launcher_template
             .split_once('\n')
             .expect("the launcher template has a first line");

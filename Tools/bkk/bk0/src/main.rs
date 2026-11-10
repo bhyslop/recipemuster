@@ -25,8 +25,8 @@
 //! fills it.
 //!
 //! THE BLANKS ARE OPENED HERE RATHER THAN BY THE PACES THAT FILL THEM. The
-//! doors of this rollout are built in parallel billets, and an arm each of them
-//! opened beside its neighbours' is a merge conflict at every refit — so the
+//! doors of this rollout are built in parallel worktrees, and an arm each of them
+//! opened beside its neighbours' is a merge conflict at every merge — so the
 //! seam is opened once, empty, and each pace fills a blank instead of authoring
 //! one. The same reasoning stands the empty modules beside them.
 //!
@@ -1459,8 +1459,8 @@ fn zbkm_mush_app(
     // every launch, so the reading is always in front of whoever is watching.
     //
     // AND IT NAMES THE GEOGRAPHY IT READ, because the same binary in the same
-    // tree is reached by more than one road: a door driven in a work billet
-    // borrows from that billet's main worktree, and the same door driven in the
+    // tree is reached by more than one road: a door driven in a linked worktree
+    // borrows from that worktree's main worktree, and the same door driven in the
     // main worktree itself runs self-geography. Both roads are open on the
     // record, and this line is what makes them legible rather than silent.
     //
