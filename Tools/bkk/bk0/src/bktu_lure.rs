@@ -524,19 +524,19 @@ impl bktu_Lure {
     /// a hurdle that composed some other stand-in would be proving the stand-in.
     ///
     /// IT STANDS OUTSIDE THIS LURE'S TREE, beside it under the temp root, the way
-    /// a work billet stands beside its sire's standing clone: a worktree inside
+    /// a linked worktree commonly stands beside its main worktree: a worktree inside
     /// the main worktree would be untracked ground in the delivered root, and a
-    /// hurdle wanting that misplacement stands it with `bktu_billet_at`.
+    /// hurdle wanting that misplacement stands it with `bktu_worktree_at`.
     ///
     /// DETACHED, because a branch per hurdle would be a name one hurdle could
     /// hold against another's, and nothing a hurdle proves turns on a branch.
     #[allow(dead_code)]
-    pub fn bktu_billet(&self, name: &str) -> bktu_Lure {
+    pub fn bktu_worktree(&self, name: &str) -> bktu_Lure {
         let declared = zbktu_declared_temp();
-        self.bktu_billet_at(
+        self.bktu_worktree_at(
             name,
             &Path::new(&declared).join(format!(
-                "bktu-billet-{}",
+                "bktu-worktree-{}",
                 name, //
             )),
         )
@@ -549,7 +549,7 @@ impl bktu_Lure {
     /// converge must refuse to write through, so a hurdle proving that refusal
     /// needs to stand one exactly there.
     #[allow(dead_code)]
-    pub fn bktu_billet_at(&self, name: &str, root: &Path) -> bktu_Lure {
+    pub fn bktu_worktree_at(&self, name: &str, root: &Path) -> bktu_Lure {
         let declared = zbktu_declared_temp();
         let _ = std::fs::remove_dir_all(root);
         let spelled = root.display().to_string();
@@ -558,7 +558,7 @@ impl bktu_Lure {
         let (output, temp, loosebox) = zbktu_seat(
             &declared,
             &format!(
-                "billet-{}",
+                "worktree-{}",
                 name, //
             ),
         );
@@ -576,22 +576,22 @@ impl bktu_Lure {
     /// geography git answers without naming a main worktree, which the kennel
     /// refuses rather than reading as self.
     ///
-    /// THE BARE CLONE STANDS INSIDE THE BILLET'S OWN SEAT, so the seat's removal
+    /// THE BARE CLONE STANDS INSIDE THE WORKTREE'S OWN SEAT, so the seat's removal
     /// takes it and no second path needs remembering; it is spelled with the
     /// `.git` suffix a bare repository conventionally wears, which is exactly the
     /// spelling that must not be mistaken for a main worktree's own directory.
     #[allow(dead_code)]
-    pub fn bktu_billet_of_bare(&self, name: &str) -> bktu_Lure {
+    pub fn bktu_worktree_of_bare(&self, name: &str) -> bktu_Lure {
         let declared = zbktu_declared_temp();
         let root = Path::new(&declared).join(format!(
-            "bktu-billet-{}",
+            "bktu-worktree-{}",
             name, //
         ));
         let _ = std::fs::remove_dir_all(&root);
         let (output, temp, loosebox) = zbktu_seat(
             &declared,
             &format!(
-                "billet-{}",
+                "worktree-{}",
                 name, //
             ),
         );
@@ -2465,7 +2465,7 @@ impl bktu_Stationed {
 /// beneath one lure-local seat under the dispatch's temp root.
 ///
 /// ONE COMPOSITION FOR BOTH LURE SHAPES, a composed repository and a linked
-/// worktree of one, so a billet is handed exactly the directories a lure is and
+/// worktree of one, so a linked worktree is handed exactly the directories a lure is and
 /// the two cannot come to differ in what a drive over them inherits.
 fn zbktu_seat(declared: &str, name: &str) -> (PathBuf, PathBuf, PathBuf) {
     let seat = Path::new(declared).join(format!(

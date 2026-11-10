@@ -66,8 +66,8 @@
 // against that same merge base (`bkce_merge_base`) and never `HEAD` itself.
 // What stales the file is then exactly what a strike here would cure: a landing
 // the seat has taken beneath its files. Asking the landed reading the seat's
-// question would refuse every billet that had committed under the set, and
-// asking it against the counterpart's head would refuse every billet standing
+// question would refuse every linked worktree that had committed under the set, and
+// asking it against the counterpart's head would refuse every linked worktree standing
 // behind, the strike writing the same stamp each time. The election's borrow
 // fence asks a neighbouring question of a delivered binary's struck file and
 // keeps the counterpart as its far side, since that binary's own fence judges
@@ -458,7 +458,7 @@ fn zbkcd_residence(
             let mut why = verdict.bkce_plaint();
 
             // UNDER DISPATCH THE OWN RESIDENCE MAY SIMPLY NOT BE THERE — the
-            // day's sweep takes it, and a fresh billet never had one — and the
+            // day's sweep takes it, and a fresh linked worktree never had one — and the
             // election's fail-closed collapse reads that as a binary that would
             // not say. The preflight says so in one more clause, because the own
             // residence is the one the supplying act writes, and a reader sent
@@ -490,7 +490,7 @@ fn zbkcd_residence(
 /// trunk, or standing and current.
 ///
 /// ONE READING PER FILE, HOWEVER MANY COLLARS DECLARE IT. Two
-/// collars declare the same struck module and three declare the `equerry's`, so
+/// collars declare the same struck module and three declare the engine's, so
 /// a preflight reporting per declaration would hand its reader one repair three
 /// times over. The first declaring collar in walk order names the supplying
 /// doors; every declarer of one file names the same striker by construction,
@@ -606,7 +606,7 @@ fn zbkcd_exergues(
 ///
 /// THE SET IS A UNION ACROSS STATIONS AND THIS IS EACH STATION'S PROOF OF IT. A
 /// file compiled under one target alone stands in one station's record alone,
-/// so the set a billet derived may lack what this station's build read; a set
+/// so the set a linked worktree derived may lack what this station's build read; a set
 /// outrun by its own artifact's record measures a position that does not move
 /// when that file does. The record is read by the derivation's own filter, and
 /// every path it names that the set does not is said.

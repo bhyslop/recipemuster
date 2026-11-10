@@ -198,8 +198,8 @@ zbud_setup() {
   # products to another. z-launcher normalizes cwd to the repo root, so PWD's
   # own basename IS that dirname.
   #
-  # THE KEY IS THE SAME UNDER A STILE, where the harness composes the root
-  # beneath a scratch container the billet's dirname already keys. The dirname
+  # THE KEY IS THE SAME UNDER A DISPATCHING HARNESS, which composes the root
+  # beneath a scratch container the worktree's dirname already keys. The dirname
   # then appears twice on the path — once as the container's key, once here.
   # That is the ruling and not a defect to repair: this composition holds one
   # rule for both seats, and a composition that dropped the key where it looked

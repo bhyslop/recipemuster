@@ -157,3 +157,16 @@ This excursus, `Tools/bpk/bpai0/bpaie_portage.md`.
 The consumer's tamga names the parcel this pace verified, its kits stand at that
 parcel's edition, the install commit carries the kits and the forced moves alone,
 and the consumer's proof doors are green after the install.
+
+## Acronym Notes
+
+The parcel kit's model is written in a codex that stays with the kit's authors
+and does not travel with this kit. The rows below name it and its branch so
+that a citation met in a refusal or a source comment can be placed. They are
+depth: forming and installing a parcel needs neither, and this file stands
+whole without them.
+
+| Acronym | File | Description |
+|---------|------|-------------|
+| **BPS0** | `specs/bpk/BPS0-BashParcelSpec.adoc` | Bash Parcel Specification — the codex: a shell owning the branch list, holding no detail of its own, and citing the Vox Obscura distribution sheaves for the doors' steps. |
+| **BPSPC** | `specs/bpk/BPSPC-Parcelcraft.adoc` | Parcelcraft — the founding branch: what a kit is, what a parcel carries, who may form one, how a binary rides, whose declaration elects the kits, what a parcel's identity file attests and the forms a target takes, with a register of every place the standing code and sheaves depart from that model. |

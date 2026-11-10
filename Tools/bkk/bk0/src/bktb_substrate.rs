@@ -219,8 +219,8 @@ fn bktb_the_substrate_composes_a_loosebox_keyed_on_the_seat() {
 /// pose — temp, output, loosebox — respelled through a parent segment: the
 /// shape a station's own regime states (`BURC_TEMP_ROOT_DIR=../temp-buk` and
 /// its siblings), a sibling of the checkout rather than a subdirectory
-/// beneath it. A kraal's own regime always states absolute roots, so this is
-/// the one shape no kraal-driven hurdle exercises on its own; the lure poses
+/// beneath it. A dispatched session's own regime always states absolute roots, so
+/// this is the one shape no hurdle driven under dispatch exercises on its own; the lure poses
 /// it explicitly here.
 fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
     let regime_path = lure.bktu_root().join(".buk/burc.env");

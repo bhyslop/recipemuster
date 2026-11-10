@@ -28,15 +28,15 @@
 # HEAD and the trunk counterpart, that touched a file of the elected set. Three
 # words in that sentence are load-bearing:
 #
-#   LANDING, never HEAD. A billet's own unlanded commits carry shas the
+#   LANDING, never HEAD. A linked worktree's own unlanded commits carry shas the
 #   studbook journal cannot resolve, so a stamp read from HEAD names a position
 #   no reader downstream can look up. Nor is it the counterpart's own head: a
-#   billet forked before a landing holds none of that landing, however far the
+#   worktree forked before a landing holds none of that landing, however far the
 #   remote-tracking ref it shares has since advanced, and a stamp naming it
 #   would claim source the tree does not carry. So the walk starts at the MERGE
 #   BASE of HEAD and the counterpart - the newest trunk commit this seat
 #   actually holds. The merge base is reachable from the counterpart, so the
-#   stamp is still a landing and never a billet's own commit. The counterpart is
+#   stamp is still a landing and never a worktree's own commit. The counterpart is
 #   read as this clone last gleaned it and NO FETCH IS PERFORMED here — a build
 #   is not the place for network. A stale counterpart still understates the
 #   position, which errs toward calling a fresh binary old; the opposite error

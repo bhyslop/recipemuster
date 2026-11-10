@@ -187,10 +187,10 @@ zbuym_kindle() {
   z_buym_stand_tt_path=""
 
   # --- The launch stand's fixed dirname beneath a target infield ---
-  # The yard's cadaster member the cosmology composes for the engine's horreum
-  # (`jjdw_horreum`), which the estate's stand-clone step clones a target's
-  # stand into. Bash face of the engine's JJRDS_EQUERRY_HORREUM_DIRNAME, as the
-  # forge's build seats it under ZVOB_SEAT_DIRNAME; this kit sources neither.
+  # The engine's own dirname for its launch stand, which the estate's
+  # stand-clone step clones a target's stand into. It is spelled here as the
+  # literal the engine itself uses, since this kit sources none of the
+  # engine's files.
   readonly ZBUYM_STAND_DIRNAME="jjqy_equerry"
 
   zbuym_palette

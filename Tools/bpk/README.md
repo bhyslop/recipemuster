@@ -86,19 +86,21 @@ that receives it, and the shape of the receiving pace that carries it.
 
 ## The parcel engine
 
-Beside the templates the kit carries the parcel engine, `bpe/`: the release half
-that collects a target's declared kits into a parcel and records it, and the
-install half that lays a parcel into its target. Its binary, `bpx`, rides every
-parcel at the parcel's root beside the two bootstraps that exec it,
+The parcel engine stands in the Bash Rust kit, at `Tools/brk/bpe/` beside the
+floor crate it links: the release half that collects a target's declared kits
+into a parcel and records it, and the install half that lays a parcel into its
+target. This kit holds no source of it; the engine compiles three of the
+templates above in, reading them across the kit line. Its binary, `bpx`, rides
+every parcel at the parcel's root beside the two bootstraps that exec it,
 `bpi_install.sh` and `bpu_uninstall.sh`, so a parcel installs and uninstalls
 through the engine it brought and never through a binary standing in the
 target. The release writes the forge's behest, `bpee_behest.json`, beside the
 parcel's record; the install and the uninstall read it there, and refuse a
 parcel carrying none.
 
-A repository that forms parcels weans the engine's two collars from this kit's
-`bkd_brood/`: `bpen_suite`, the engine's tests, and `bpen_app`, which converges
-the binary its parcels carry.
+A repository that forms parcels weans the engine's two collars from the Bash
+Rust kit's `bkd_brood/`: `bpen_suite`, the engine's tests, and `bpen_app`, which
+converges the binary its parcels carry.
 
 ## Standing a repository up
 

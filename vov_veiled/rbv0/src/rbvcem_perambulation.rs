@@ -109,19 +109,25 @@ pub const RBVCEM_ROWS: &[(&str, rbvcem_Disposition)] = &[
     // The kennel kit and the parcel kit are kept by the full repository for
     // its maintainers, and are not delivered. The kennel builds, tests and
     // lints the trees here for their iteration, and the parcel kit carries the
-    // install engine and the templates this tree's trampoline and launcher
-    // stubs were written from; the delivered rb builds, tests, lints and cleans
-    // its Rust through rb's own doors and needs neither. Both are consumed by
+    // bootstraps and the templates this tree's trampoline and launcher stubs
+    // were written from; the delivered rb builds, tests, lints and cleans its
+    // Rust through rb's own doors and needs neither. Both are consumed by
     // parcel, so a ruling on them is a ruling on what arrives, never an edit.
     //
-    // The bash Rust kit ships whole: it carries the floor crate alone, which
+    // The bash Rust kit ships, save the parcel engine. Its floor crate is what
     // the theurge links for the program writers the root lint list points
-    // every barred file-arming call at, and for the estate's one regime reader.
-    // The crate stands alone, declaring no dependency and inheriting from no
+    // every barred file-arming call at, and for the estate's one regime reader;
+    // it stands alone, declaring no dependency and inheriting from no
     // workspace, and it arrives as a kit of its own rather than inside the
     // kennel, so the kennel is withheld whole with no row reaching into it.
+    // The kit also carries the parcel engine and its two collars, which stood
+    // in the parcel kit until the engine's crate moved; they are withheld as
+    // they were there, the delivered rb neither forming nor installing a
+    // parcel through them. The collar row is a stem prefix covering both.
     ("Tools/bkk/", Withhold),
     ("Tools/brk/", Ship),
+    ("Tools/brk/bpe/", Withhold),
+    ("Tools/brk/bkd_brood/bpen_", Withhold),
     ("Tools/bpk/", Withhold),
     // TABTARGETS ARE FILE-GRAIN, because tt/ is not uniform. The marshal
     // family and the manor raze are the release rig itself; a consumer running

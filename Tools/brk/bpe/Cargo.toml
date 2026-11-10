@@ -46,4 +46,4 @@ path = "src/main.rs"
 # sibling's fork.
 [dependencies]
 serde_json = "1"
-brp = { path = "../../brk/brp0" }
+brp = { path = "../brp0" }

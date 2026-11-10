@@ -2884,7 +2884,7 @@ const ZBKTD_SAYS_OWN: &str = "the seat's own binary answered";
 /// program under two paths, so the two say which they are themselves.
 ///
 /// THE SEAT IS A REAL LINKED WORKTREE of the lure that plays the delivered root,
-/// so what the door derives is what a work billet derives.
+/// so what the door derives is what a linked worktree derives.
 #[test]
 fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
     let delivered = bktu_Lure::bktu_compose("geography-own-runs");
@@ -2893,7 +2893,7 @@ fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
 
     zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &behind);
 
-    let lure = delivered.bktu_billet("geography-own-runs");
+    let lure = delivered.bktu_worktree("geography-own-runs");
 
     lure.bktu_write(
         "Tools/lure/src/main.rs",
@@ -3176,7 +3176,7 @@ fn bktd_a_linked_worktree_derives_and_names_its_delivered_root() {
     // the shape a freshly added linked worktree stands in: nothing has been converged
     // in the work tree yet and the delivered root is what answers.
     let candidate = zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &struck);
-    let lure = delivered.bktu_billet("geography-dispatched");
+    let lure = delivered.bktu_worktree("geography-dispatched");
 
     assert!(
         !lure.bktu_root().join("Tools/bin/lurex").exists(),
@@ -3228,8 +3228,8 @@ fn bktd_a_main_worktree_runs_self_geography() {
 
     // THE ANSWERER STANDS IN THE WORKTREE AND NOT IN THE MAIN WORKTREE, since it
     // is untracked ground and the main worktree is the tree this door law reads.
-    let billet = lure.bktu_billet("geography-self");
-    zbktd_answerer(&billet, ZBKTD_SAYS_DELIVERED, &struck);
+    let worktree = lure.bktu_worktree("geography-self");
+    zbktd_answerer(&worktree, ZBKTD_SAYS_DELIVERED, &struck);
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stdout);
@@ -3249,7 +3249,7 @@ fn bktd_a_main_worktree_runs_self_geography() {
         said, //
     );
     assert!(
-        !said.contains(&billet.bktu_root().display().to_string()),
+        !said.contains(&worktree.bktu_root().display().to_string()),
         "and names no other tree, a main worktree borrowing from none:\n{}",
         said, //
     );
@@ -3276,7 +3276,7 @@ fn bktd_a_geography_that_does_not_derive_refuses_at_its_own_exit() {
 
     zbktd_geography_lure(&delivered);
 
-    let lure = delivered.bktu_billet_of_bare("geography-underived");
+    let lure = delivered.bktu_worktree_of_bare("geography-underived");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
     let said = String::from_utf8_lossy(&out.stderr);
@@ -3299,7 +3299,7 @@ fn bktd_a_geography_that_does_not_derive_refuses_at_its_own_exit() {
 
     // THE CONTROL IS THE SAME CONTENT IN A WORKTREE OF THE MAIN WORKTREE, so the
     // exit above is the bare repository and not the worktree.
-    let control = delivered.bktu_billet("geography-underived-control");
+    let control = delivered.bktu_worktree("geography-underived-control");
 
     let out = control.bktu_drive_door(zbktd_kennel(), &[ZBKTD_DOOR_TATTOO, "app-lure"]);
 
@@ -3324,7 +3324,7 @@ fn bktd_the_bare_self_report_never_reads_a_geography() {
 
     // THE WORST GEOGRAPHY THERE IS: it refuses at every door that derives one. If
     // the bare report derived it, this drive would exit 82.
-    let lure = delivered.bktu_billet_of_bare("geography-bare-report");
+    let lure = delivered.bktu_worktree_of_bare("geography-bare-report");
 
     let out = lure.bktu_drive(zbktd_kennel());
 
@@ -3369,7 +3369,7 @@ fn bktd_a_dispatched_seat_refused_by_both_names_both_and_the_converge() {
     // work has moved and before it has converged.
     zbktd_answerer(&delivered, ZBKTD_SAYS_DELIVERED, &behind);
 
-    let lure = delivered.bktu_billet("geography-refused");
+    let lure = delivered.bktu_worktree("geography-refused");
     lure.bktu_write(
         "Tools/lure/src/main.rs",
         "fn main() { /* the seat moves on */ }\n",
@@ -3412,7 +3412,7 @@ fn bktd_a_dispatched_seat_refused_by_both_names_both_and_the_converge() {
     );
 }
 
-/// HEEL REFUSES A TARGET INSIDE THE DELIVERED ROOT, AT THE DOOR. A billet's build
+/// HEEL REFUSES A TARGET INSIDE THE DELIVERED ROOT, AT THE DOOR. A linked worktree's build
 /// never lands on a delivered tree: the delivered root is the borrow candidate
 /// EVERY linked worktree reads, so a binary written there is written into all of
 /// their elections at once.
@@ -3426,9 +3426,9 @@ fn bktd_heel_refuses_a_residence_inside_the_delivered_root() {
 
     zbktd_geography_lure(&delivered);
 
-    let lure = delivered.bktu_billet_at(
+    let lure = delivered.bktu_worktree_at(
         "geography-heel-refuses",
-        &delivered.bktu_root().join("misplaced-billet"),
+        &delivered.bktu_root().join("misplaced-worktree"),
     );
 
     let residence = zbktd_real(lure.bktu_root()).join("Tools/bin/lurex");
@@ -3461,7 +3461,7 @@ fn bktd_heel_refuses_a_residence_inside_the_delivered_root() {
     // THE CONTROL IS A WORKTREE OF THE SAME CHECKOUT STANDING BESIDE IT, which
     // must converge and install: without it, a heel that had simply stopped
     // working would clear every assertion above.
-    let beside = delivered.bktu_billet("geography-heel-beside");
+    let beside = delivered.bktu_worktree("geography-heel-beside");
 
     let out = beside.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_HEEL, "app-lure"]);
 

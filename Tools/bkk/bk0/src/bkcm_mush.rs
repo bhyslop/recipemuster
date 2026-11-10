@@ -36,7 +36,7 @@
 //!
 //! A SUITE IS NEVER BORROWED, and that is why no election reaches this half of
 //! the door. The runner compiles the suite from the source the seat holds, so a
-//! billet's suite tests the billet's code by construction; there is no artifact
+//! linked worktree's suite tests that worktree's code by construction; there is no artifact
 //! standing between the source and the verdict for a vintage question to be
 //! asked about. The election is over apps alone.
 

@@ -292,7 +292,7 @@ fn bkth_a_suite_collar_refuses_the_converge() {
 }
 
 /// HEEL WRITES THE SEAT'S OWN RESIDENCE AND REFUSES A TARGET INSIDE THE DELIVERED
-/// ROOT. A billet's build never lands on a delivered tree, whatever any position
+/// ROOT. A linked worktree's build never lands on a delivered tree, whatever any position
 /// says: the delivered root is the borrow candidate EVERY linked worktree reads,
 /// so a binary written there is written into all of their elections at once.
 ///
