@@ -1126,10 +1126,11 @@ rbgp_install() {
   test -n "${z_project_id}" || buc_die_now "OAuth JSON file missing project_id field"
 
   # Refused before any authorization flow: a client JSON copied in from another
-  # station's secrets directory belongs to another payor project, and the glob
-  # the guides print would otherwise take it silently.
+  # station's secrets directory belongs to another payor project, as does another
+  # saved file passed where the payor's own client stands, and the glob the
+  # guides print would otherwise take either silently.
   test "${z_project_id}" = "${RBRP_PAYOR_PROJECT_ID}" \
-    || buc_die_now "OAuth JSON ${z_oauth_json_file} is a client of project '${z_project_id}', not of RBRP_PAYOR_PROJECT_ID '${RBRP_PAYOR_PROJECT_ID}': create a new OAuth client inside the payor project (the establish guide's client step) and install that one"
+    || buc_die_now "OAuth JSON ${z_oauth_json_file} is a client of project '${z_project_id}', not of RBRP_PAYOR_PROJECT_ID '${RBRP_PAYOR_PROJECT_ID}': if the payor project's own client stands and another saved file was passed, pass that client's own file instead, downloading it again from the client's page if that page still offers it; otherwise, the client being another payor project's, create a new OAuth client inside the payor project (the establish guide's client step) and install that one"
 
   buc_step 'Check existing credentials'
   local -r z_rbro_file="${RBDC_PAYOR_RBRO_FILE}"
