@@ -404,6 +404,14 @@ fn zbkcd_strike(collar: &bkcr_Collar) -> Vec<String> {
 /// residence is where a seat's converge lands, so an absence names it; an
 /// outrun report names the residence that stands, the own one first, so the
 /// path in the report is a file a reader can go and look at.
+///
+/// A WRITER IN A LINKED WORKTREE IS THE EXCEPTION, and its absence is reported at
+/// the blessed residence whichever arm meets it. The pin answers the main
+/// worktree's binary and nothing else, and heel writes the own residence only,
+/// so no act this seat's converge performs can supply it: a heel or a strike
+/// handed to rebed here would build a binary the pin never runs and leave the
+/// absence standing. Its act is named as performed at the main worktree, and
+/// rebed is handed nothing for it (`zbkcd_app_absence`).
 fn zbkcd_residence(
     repository: &Path,
     geography: &bkce_Geography,
@@ -420,16 +428,21 @@ fn zbkcd_residence(
         "the app collar '{}'",
         collar.name, //
     );
+    let away = match geography.bkce_delivered() {
+        Some(delivered) if bkce_election::bkce_pinned(collar) => Some(delivered),
+        _ => None,
+    };
 
     if !own.is_file() && !blessed.is_file() {
-        absent.push(bkcd_Absence {
+        let at = if away.is_some() { blessed } else { own };
+        absent.push(zbkcd_app_absence(
             subject,
-            at: own,
-            stands: None,
-            supply: zbkcd_supply(collar, tabtargets),
-            heel: zbkcd_heel(collar),
-            strike: zbkcd_strike(collar),
-        });
+            at,
+            None,
+            collar,
+            tabtargets,
+            away,
+        ));
         return Ok(());
     }
 
@@ -442,14 +455,14 @@ fn zbkcd_residence(
         // A PIN OVER A BLESSED RESIDENCE THAT IS NOT THERE. The election never
         // looked, by its own rule, so the path test is taken here for it.
         Some(answers) => {
-            absent.push(bkcd_Absence {
+            absent.push(zbkcd_app_absence(
                 subject,
-                at: answers,
-                stands: None,
-                supply: zbkcd_supply(collar, tabtargets),
-                heel: zbkcd_heel(collar),
-                strike: zbkcd_strike(collar),
-            });
+                answers,
+                None,
+                collar,
+                tabtargets,
+                away,
+            ));
             Ok(())
         }
         // SOMETHING STANDS AND MAY NOT ANSWER — the outrun shape, in the
@@ -473,16 +486,57 @@ fn zbkcd_residence(
 
             let at = if own.is_file() { own } else { blessed };
 
-            absent.push(bkcd_Absence {
+            absent.push(zbkcd_app_absence(
                 subject,
                 at,
-                stands: Some(why),
-                supply: zbkcd_supply(collar, tabtargets),
-                heel: zbkcd_heel(collar),
-                strike: zbkcd_strike(collar),
-            });
+                Some(why),
+                collar,
+                tabtargets,
+                away,
+            ));
             Ok(())
         }
+    }
+}
+
+/// An app collar's absence, with the act that supplies it.
+///
+/// WHERE THE COLLAR IS A WRITER READ FROM A LINKED WORKTREE, `away` names the
+/// main worktree, and the act is the collar's own — its heel, or its strike
+/// doors — said as performed THERE, spelled with that tree's path so a reader
+/// can find it. Rebed is handed no heel and no strike for it, so a drive in the
+/// linked worktree refuses naming the act rather than performing one that
+/// cannot supply what it names. Everywhere else the act is this seat's own.
+fn zbkcd_app_absence(
+    subject: String,
+    at: PathBuf,
+    stands: Option<String>,
+    collar: &bkcr_Collar,
+    tabtargets: Option<&Path>,
+    away: Option<&Path>,
+) -> bkcd_Absence {
+    match away {
+        Some(main) => bkcd_Absence {
+            subject,
+            at,
+            stands,
+            supply: format!(
+                "{}, performed at the main worktree {} — the pin runs that tree's binary alone, \
+                 so nothing performed here supplies it",
+                zbkcd_supply(collar, tabtargets),
+                main.display(), //
+            ),
+            heel: None,
+            strike: Vec::new(),
+        },
+        None => bkcd_Absence {
+            subject,
+            at,
+            stands,
+            supply: zbkcd_supply(collar, tabtargets),
+            heel: zbkcd_heel(collar),
+            strike: zbkcd_strike(collar),
+        },
     }
 }
 

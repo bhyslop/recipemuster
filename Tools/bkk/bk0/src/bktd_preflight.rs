@@ -110,10 +110,12 @@ fn zbktd_collar(declared: &str) -> bkcr_Collar {
     }
 }
 
-/// The geography every reading below is posed under: a main checkout, one
-/// residence. The dispatched arm is the election's own hurdles' to drive; what
-/// is under test here is the preflight's framing of the verdict, and one
-/// geography is enough to reach every shape of it.
+/// The geography most readings below are posed under: a main worktree, one
+/// residence. What is under test is the preflight's framing of the verdict, and
+/// one geography reaches every shape of it save a writer's: a writer read from
+/// a linked worktree is reported at its blessed residence with its act named at
+/// the main worktree, so the hurdles for that shape pose the dispatched
+/// geography beside this one.
 static ZBKTD_SELF: bkce_Geography = bkce_Geography::Undispatched;
 
 /// A suite collar declaring a struck exergue, so the exergue arm is read over a
@@ -509,6 +511,130 @@ fn bktd_an_app_declaring_no_strike_door_is_handed_the_converge() {
     assert!(
         absent[0].strike.is_empty(),
         "a strikeless collar hands rebed no door to run", //
+    );
+}
+
+/// The spend line the composed app collars declare, and the line that makes one
+/// a writer.
+const ZBKTD_READER: &str = "BKRR_SPEND=\"bknre_reader\"";
+const ZBKTD_WRITER: &str = "BKRR_SPEND=\"bknre_writer\"";
+
+/// A WRITER READ FROM A LINKED WORKTREE IS REPORTED AT ITS BLESSED RESIDENCE,
+/// and handed its heel as an act at the main worktree rather than as one rebed
+/// performs. Nothing stands at either residence, which is the arm that once
+/// named the own residence and a heel there.
+///
+/// THE CONTROL IS THE SAME COLLAR UNDER SELF-GEOGRAPHY, where the two
+/// residences are one and the heel is this seat's own.
+#[test]
+fn bktd_a_strikeless_writer_in_a_linked_worktree_is_handed_its_main_worktrees_heel() {
+    let lure = bktu_Lure::bktu_compose("preflight-writer-strikeless");
+    let delivered = bktu_Lure::bktu_compose("preflight-writer-strikeless-delivered");
+    let feedroom = bkth_feedroom(&lure.bktu_haynet());
+    let collar = zbktd_collar(&ZBKTD_APP_UNSTRUCK.replace(ZBKTD_READER, ZBKTD_WRITER));
+    let main = delivered.bktu_root().display().to_string();
+
+    let absent = bkcd_preflight_at(
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &feedroom,
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert_eq!(
+        absent.len(),
+        1,
+        "one writer residence stands nowhere: {:?}",
+        absent, //
+    );
+    assert_eq!(
+        absent[0].at,
+        delivered.bktu_root().join("kennel/bin/manger"),
+        "the absence names the blessed residence under the main worktree", //
+    );
+    assert_eq!(
+        (absent[0].heel.as_deref(), absent[0].strike.is_empty()),
+        (None, true),
+        "rebed is handed nothing: a heel here could only build the linked worktree's own", //
+    );
+    assert!(
+        absent[0].supply.contains(BKCO_VERB_HEEL)
+            && absent[0].supply.contains("app-lure")
+            && absent[0].supply.contains("main worktree")
+            && absent[0].supply.contains(&main),
+        "the act is the collar's heel, performed at the main worktree: {}",
+        absent[0].supply, //
+    );
+
+    let control = bkcd_preflight_at(
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &feedroom,
+        &ZBKTD_SELF,
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert_eq!(
+        (control[0].heel.as_deref(), control[0].at.clone()),
+        (Some("app-lure"), lure.bktu_root().join("kennel/bin/manger")),
+        "the control: at a main worktree the writer's heel is this seat's own", //
+    );
+}
+
+/// THE STRUCK WRITER, AT THE OTHER ARM: its own residence stands and the blessed
+/// one does not, so the pin answers a path nothing stands at. Its act is its
+/// strike door at the main worktree, and rebed is handed no strike to run here.
+#[test]
+fn bktd_a_struck_writer_in_a_linked_worktree_is_handed_its_main_worktrees_strike() {
+    let lure = bktu_Lure::bktu_compose("preflight-writer-struck");
+    let delivered = bktu_Lure::bktu_compose("preflight-writer-struck-delivered");
+    let feedroom = bkth_feedroom(&lure.bktu_haynet());
+    let collar = zbktd_collar(&ZBKTD_APP.replace(ZBKTD_READER, ZBKTD_WRITER));
+    let main = delivered.bktu_root().display().to_string();
+
+    lure.bktu_write("kennel/bin/manger", "the linked worktree's own build\n");
+
+    let absent = bkcd_preflight_at(
+        lure.bktu_root(),
+        &bktr_lured(&lure),
+        &feedroom,
+        &bkce_Geography::Dispatched(delivered.bktu_root().to_path_buf()),
+        std::slice::from_ref(&collar),
+        &[],
+    )
+    .expect("the preflight reads a conforming tree")
+    .absent;
+
+    assert_eq!(
+        absent.len(),
+        1,
+        "the pin answers a blessed residence nothing stands at: {:?}",
+        absent, //
+    );
+    assert_eq!(
+        absent[0].at,
+        delivered.bktu_root().join("kennel/bin/manger"),
+        "the absence names the blessed residence, never the own one that stands", //
+    );
+    assert_eq!(
+        (absent[0].heel.as_deref(), absent[0].strike.is_empty()),
+        (None, true),
+        "rebed is handed no strike: one run here could only build the linked worktree's own", //
+    );
+    assert!(
+        absent[0]
+            .supply
+            .starts_with("vow-b, performed at the main worktree")
+            && absent[0].supply.contains(&main),
+        "the act is the collar's strike door, performed at the main worktree: {}",
+        absent[0].supply, //
     );
 }
 

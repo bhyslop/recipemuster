@@ -63,3 +63,16 @@ brp = { path = "../../brk/brp0" }
 name = "butt-template"
 path = "tests/butt_template.rs"
 test = false
+
+# THE LINT HURDLE IS A SECOND SUITE, kept out of the substrate's own run. It
+# runs a program the tree does not hold, the shellcheck on the path, over every
+# tracked bash file under the tools directory; a hurdle depending on something
+# its suite's tree does not hold is a second suite with a collar of its own
+# (`specs/bkk/BKSCL-Collar.adoc` "The Identity Law"). So the target stands out
+# of the default run under cargo's own `test = false`, and its collar stands
+# outside this kit, in a brood no parcel carries, so that no repository
+# receiving this kit is made to lint its tree or to hold the program.
+[[test]]
+name = "butp-lint"
+path = "tests/butp_lint.rs"
+test = false
