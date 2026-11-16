@@ -1538,4 +1538,190 @@ fn bkte_a_record_the_set_covers_writes_nothing() {
     }
 }
 
+/// A lure whose crate stood at `old` with its manifest tracked and an ignore
+/// rule committed over every `target` directory, then left `old` for `new`
+/// through git, with an ignored file standing in the build directory beneath
+/// `old` — the tree a build at the old path leaves once git moves the crate.
+fn zbkte_manifest_left(lure: &bktu_Lure) {
+    lure.bktu_write(".gitignore", "target/\n");
+    lure.bktu_write(
+        "old/Cargo.toml",
+        "[package]\nname = \"old\"\nversion = \"0.0.1\"\n",
+    );
+    lure.bktu_write("old/src/lib.rs", "// the crate's source\n");
+    lure.bktu_commit("stand the crate");
+
+    lure.bktu_git(&["mv", "old", "new"]);
+    lure.bktu_write("old/target/release/left.d", "// ignored build output\n");
+    lure.bktu_commit("move the crate");
+
+    assert!(
+        lure.bktu_root().join("old").is_dir(),
+        "the old directory still stands, holding ignored build output alone", //
+    );
+}
+
+/// Stand one set at the weaned copy and its brood, committed, and name both
+/// homes.
+fn zbkte_set_at_homes(
+    lure: &bktu_Lure,
+    set: &crate::bkcr_resolve::bkcr_Set,
+) -> Vec<std::path::PathBuf> {
+    let standing = crate::bkcr_resolve::bkcr_set_render(set);
+    let weaned = lure.bktu_weaned_at("app-lure/bkrs.env");
+    let brood = lure.bktu_brood_at("lk", "app-lure/bkrs.env");
+    lure.bktu_write(&weaned, &standing);
+    lure.bktu_write(&brood, &standing);
+    lure.bktu_commit("stand the set");
+
+    vec![lure.bktu_root().join(weaned), lure.bktu_root().join(brood)]
+}
+
+/// The set a build of the crate at `new` derives, before its union.
+fn zbkte_derived_after_the_move() -> crate::bkcr_resolve::bkcr_Set {
+    crate::bkcr_resolve::bkcr_Set {
+        files: vec!["new/Cargo.toml".to_string(), "new/src/lib.rs".to_string()],
+        packages: vec!["new".to_string()],
+    }
+}
+
+/// AT A LINKED WORKTREE, A PACKAGE WHOSE OWN MANIFEST GIT NO LONGER TRACKS
+/// LEAVES THE SETTLED SET, though its directory stands holding ignored build
+/// output: the directory is no package, and the set the settle writes is the
+/// set the next commit carries.
+#[test]
+fn bkte_a_worktree_settle_drops_a_package_whose_manifest_left_though_its_directory_stands() {
+    let lure = bktu_Lure::bktu_compose("scent-manifest-left");
+    zbkte_manifest_left(&lure);
+    let homes = zbkte_set_at_homes(
+        &lure,
+        &crate::bkcr_resolve::bkcr_Set {
+            files: vec!["old/Cargo.toml".to_string(), "old/src/lib.rs".to_string()],
+            packages: vec!["old".to_string()],
+        },
+    );
+
+    let scent = crate::bkce_election::bkce_settle(
+        lure.bktu_root(),
+        &bkce_Geography::Dispatched(lure.bktu_temp().to_path_buf()),
+        &homes,
+        &zbkte_derived_after_the_move(),
+    )
+    .expect("the settle answers");
+
+    assert!(
+        matches!(scent, crate::bkce_election::bkce_Scent::Rewritten { .. }),
+        "a set naming the old files is rewritten there: {:?}",
+        scent, //
+    );
+
+    let settled = crate::bkcr_resolve::bkcr_set_read(&homes[0])
+        .expect("the settled set reads")
+        .expect("the settled set stands");
+    assert_eq!(
+        settled.packages,
+        vec!["new".to_string()],
+        "the package whose manifest left is no longer named, though its directory stands", //
+    );
+    assert_eq!(
+        settled.files,
+        vec!["new/Cargo.toml".to_string(), "new/src/lib.rs".to_string()],
+        "the files git no longer tracks left too", //
+    );
+}
+
+/// A SET ALREADY NAMING A PACKAGE WHOSE OWN MANIFEST GIT NO LONGER TRACKS IS
+/// NEVER CURRENT, at a main checkout where nothing is written, however its
+/// directory stands: the stale entry is shown rather than hidden.
+#[test]
+fn bkte_a_set_naming_a_package_whose_manifest_left_is_never_current() {
+    let lure = bktu_Lure::bktu_compose("scent-manifest-left-main");
+    zbkte_manifest_left(&lure);
+    let homes = zbkte_set_at_homes(
+        &lure,
+        &crate::bkcr_resolve::bkcr_Set {
+            files: vec!["new/Cargo.toml".to_string(), "new/src/lib.rs".to_string()],
+            packages: vec!["new".to_string(), "old".to_string()],
+        },
+    );
+    let before: Vec<String> = homes
+        .iter()
+        .map(|home| std::fs::read_to_string(home).expect("the set reads"))
+        .collect();
+
+    let scent = crate::bkce_election::bkce_settle(
+        lure.bktu_root(),
+        &bkce_Geography::Undispatched,
+        &homes,
+        &zbkte_derived_after_the_move(),
+    )
+    .expect("the settle answers");
+
+    assert!(
+        matches!(scent, crate::bkce_election::bkce_Scent::Unwritten { .. }),
+        "a set naming the package whose manifest left does not read current: {:?}",
+        scent, //
+    );
+
+    let after: Vec<String> = homes
+        .iter()
+        .map(|home| std::fs::read_to_string(home).expect("the set reads"))
+        .collect();
+    assert_eq!(before, after, "neither home was touched"); //
+}
+
+/// A STANDING PACKAGE WHOSE OWN MANIFEST GIT TRACKS STAYS IN THE SETTLED SET,
+/// though this derivation does not name it — the root package's manifest
+/// spelled bare at the repository's root, as the settle asks git for it.
+#[test]
+fn bkte_a_package_whose_manifest_is_tracked_stays_in_the_settled_set() {
+    let lure = bktu_Lure::bktu_compose("scent-manifest-tracked");
+    lure.bktu_write(
+        "Cargo.toml",
+        "[package]\nname = \"top\"\nversion = \"0.0.1\"\n",
+    );
+    lure.bktu_write(
+        "kept/Cargo.toml",
+        "[package]\nname = \"kept\"\nversion = \"0.0.1\"\n",
+    );
+    lure.bktu_write(
+        "used/Cargo.toml",
+        "[package]\nname = \"used\"\nversion = \"0.0.1\"\n",
+    );
+    lure.bktu_write("used/src/lib.rs", "// the crate's source\n");
+    let homes = zbkte_set_at_homes(
+        &lure,
+        &crate::bkcr_resolve::bkcr_Set {
+            files: vec!["used/Cargo.toml".to_string()],
+            packages: vec![".".to_string(), "kept".to_string(), "used".to_string()],
+        },
+    );
+
+    let scent = crate::bkce_election::bkce_settle(
+        lure.bktu_root(),
+        &bkce_Geography::Dispatched(lure.bktu_temp().to_path_buf()),
+        &homes,
+        &crate::bkcr_resolve::bkcr_Set {
+            files: vec!["used/Cargo.toml".to_string(), "used/src/lib.rs".to_string()],
+            packages: vec!["used".to_string()],
+        },
+    )
+    .expect("the settle answers");
+
+    assert!(
+        matches!(scent, crate::bkce_election::bkce_Scent::Rewritten { .. }),
+        "a set standing short is rewritten there: {:?}",
+        scent, //
+    );
+
+    let settled = crate::bkcr_resolve::bkcr_set_read(&homes[0])
+        .expect("the settled set reads")
+        .expect("the settled set stands");
+    assert_eq!(
+        settled.packages,
+        vec![".".to_string(), "kept".to_string(), "used".to_string()],
+        "every package whose own manifest git tracks stays", //
+    );
+}
+
 // eof

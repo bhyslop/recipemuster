@@ -94,15 +94,15 @@ tt/buw-tt-cbl.CreateTabTargetBatchLogging.sh «moorings»/buml_launchers/launche
   bkw-g.Gangline bkw-s.Scoop bkw-B.Bleach bkw-c.Scent bkw-n.Delouse bkw-k.Kennelman bkw-r.Rebed
 ```
 
-Five — Mush, Derby, Futurity, bale and unbale — take the form whose command writes its own record:
+Five — Mush, Derby, Futurity, bale and unbale — take the form whose command writes its own station log:
 
 ```bash
 tt/buw-tt-cbo.CreateTabTargetBatchOwnlog.sh «moorings»/buml_launchers/launcher.bkw_workbench.sh \
   bkw-m.Mush bkw-d.Derby bkw-f.Futurity bkw-A.Bale bkw-u.Unbale
 ```
 
-That form's configuration line says `buuc_ownlog`: each of the five consumes its tenant's streams and renders the record itself, and under that word the dispatch composes the names of the station log's three members and creates no file, leaving the kennel to write all three members or none — without it the dispatch curates the members line by line and destroys the interleaving the record exists to hold.
-A door minted in the plain form, its configuration line saying no word, still runs; it is simply a poorer record than the kennel writes.
+That form's configuration line says `buuc_ownlog`: each of the five consumes its tenant's streams and renders the station log itself, and under that word the dispatch composes the names of the station log's three members and creates no file, leaving the kennel to write all three members or none — without it the dispatch curates the members line by line and destroys the interleaving the station log exists to hold.
+A door minted in the plain form, its configuration line saying no word, still runs; it simply keeps a poorer station log than the kennel writes.
 
 The workbench routes whatever doors stand, so mint the ones you use; the whole seventeen is the ordinary choice — and rebed is not optional, since every refusal that finds the pinned toolchain missing names it.
 The substrate's roll call, `tt/buw-tt-rc.RollCall.sh`, lists any kennel door you have not stood, and names in red any that a later kennel edition no longer enrolls.

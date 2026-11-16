@@ -48,7 +48,10 @@ use std::path::{
 
 use brp::brprc_catena;
 
-use crate::bkg_breviary::BKG_BUS_LOOSEBOX_BASE;
+use crate::bkg_breviary::{
+    BKG_BUS_LOOSEBOX_BASE,
+    BKG_COURSE_RECORD_BASE, //
+};
 
 /// The dispatch's output directory — the latest-command copy, cleared on the
 /// next dispatch, and the one the engine reads the moment a door returns.
@@ -275,9 +278,10 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
             return Err(format!(
                 "{} declares '{}', which no field of the course record's roster names — the \
                  roster is the one definition of what the studbook keeps about a test \
-                 disposition, so a field outside it is a record this reader cannot vouch for",
+                 disposition, so a field outside it is a {} this reader cannot vouch for",
                 whence,
-                key, //
+                key,
+                BKG_COURSE_RECORD_BASE, //
             ));
         }
     }
@@ -474,12 +478,16 @@ fn zbkcc_directory(
 ) -> Result<PathBuf, String> {
     let said = dispatch.bkcr_said(variable).ok_or_else(|| {
         format!(
-            "the course ran green and its record has nowhere to land: {} names no directory. \
+            "the course ran green and its {} has nowhere to land: {} names no directory. \
                  A door reached outside a dispatch has no output seat, and this one writes into no \
-                 ambient directory — a record written where nothing looks is indistinguishable \
-                 from a record never written. Reach the door through its tabtarget, or state the \
-                 directory the record is to land in",
-            variable, //
+                 ambient directory — a {} written where nothing looks is indistinguishable \
+                 from a {} never written. Reach the door through its tabtarget, or state the \
+                 directory the {} is to land in",
+            BKG_COURSE_RECORD_BASE,
+            variable,
+            BKG_COURSE_RECORD_BASE,
+            BKG_COURSE_RECORD_BASE,
+            BKG_COURSE_RECORD_BASE, //
         )
     })?;
 

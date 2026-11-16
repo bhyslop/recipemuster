@@ -38,7 +38,7 @@ The verbosity dial is the substrate's own `BURE_VERBOSE`.
 | `bkw-g.Gangline` | collar | Re-derive one collar's lock, the one act in which the leash lifts the lock flag |
 | `bkw-s.Scoop` | none | Remove every collar's build output, on your word alone |
 | `bkw-B.Bleach` | none | Empty what the kennel keeps on the station for every tree, and this worktree's python environments, on your word alone: nothing calls it, and rebed lays it all again |
-| `bkw-c.Scent` | collar | Derive an app collar's elected set from the record its build left: written beside the collar in a linked worktree for you to commit, refused without writing anywhere else |
+| `bkw-c.Scent` | collar | Derive an app collar's elected set from the dep-info its build left: written beside the collar in a linked worktree for you to commit, refused without writing anywhere else |
 | `bkw-n.Delouse` | none | Take the day's sweep of every collar's build directory where none has landed today; derby and heel take it themselves, and a build door calls it ahead of its build |
 | `bkw-w.Whistle` | none | Report the kennel's own making, building it first where the seat has outrun it |
 | `bkw-r.Rebed` | none | Lay each required channel whose compiler does not answer, leaving every answering one as it stands, then converge the kennel and perform the heels and strikes the derby's preflight names; safe to drive at any time |
@@ -149,8 +149,8 @@ Each field the collar owes must be declared even where its value is empty, since
 | `BKRR_STRIKE` | a collar whose `BKRR_EXERGUE` names a file | the tabtargets that write those files |
 
 **What a launchable is measured over** is never declared.
-An app whose collar names an exergue holds an elected set: its build door runs scent after the build, which derives the set from the record cargo writes beside the artifact — every file the build read — with the manifests, the lockfile, the toolchain pin and the collar's own file beside it, and writes it beside the collar as `bkrs.env`, which you commit as you commit a lockfile.
-A build that finds the record naming a file the set does not rewrites the set and refuses; commit the set and build again.
+An app whose collar names an exergue holds an elected set: its build door runs scent after the build, which derives the set from the dep-info cargo writes beside the artifact — every file the build read — with the manifests, the lockfile, the toolchain pin and the collar's own file beside it, and writes it beside the collar as `bkrs.env`, which you commit as you commit a lockfile.
+A build that finds the dep-info naming a file the set does not rewrites the set and refuses; commit the set and build again.
 Every other collar — every suite, and an app naming no exergue — holds no set, and the kennel measures it over its closure's package directories, read from cargo metadata.
 The kennel measures whether a binary is current by the newest commit touching what the collar is measured over.
 
@@ -246,14 +246,14 @@ Heel names every package the lock carries, save the project's own, as one uv may
 A project with an app declares uv's own backend, `uv_build`, in a range the kennel's uv satisfies, because the project's own build is the one build heel performs and its requirements stand in no lock.
 
 Keep `requires-python` to the pin's minor, such as `>=3.12,<3.13`.
-The lock records every wheel the range admits on every platform, so an open range locks wheels no station of yours will take.
+The lock holds every wheel the range admits on every platform, so an open range locks wheels no station of yours will take.
 
 The kennel runs every suite with warnings as errors.
 A warning a case raises fails that case, and one raised while the suite is collected fails the course; the repair is in the project, never a filter.
 
 **A project may declare the platforms its lock covers**, in uv's own `environments` key of its `[tool.uv]` table, such as `environments = ["sys_platform == 'linux'"]`.
-uv resolves for those platforms alone and records them in the lock.
-On a station outside them, every door reports the project's collars as `unhitched`: the derby and the `bkw-f` door name each such course in their verdict, launch nothing of it, write it no record and stay green; heel and mush refuse, naming the declaration; tattoo says so beside its clean verdict.
+uv resolves for those platforms alone and writes them into the lock.
+On a station outside them, every door reports the project's collars as `unhitched`: the derby and the `bkw-f` door name each such course in their verdict, launch nothing of it, write it no course record and stay green; heel and mush refuse, naming the declaration; tattoo says so beside its clean verdict.
 Nothing on that station is missing, so there is nothing to converge.
 A station that lacks a tool is never so reported: its course stays red, naming the tool.
 Name the platform in the project's manifest and nowhere else, never in a collar.
@@ -340,11 +340,17 @@ Wean it like any collar:
 cp -r Tools/bkk/bkd_brood/bkhln_app «moorings»/bkd_weaned/
 ```
 
-Commit the copy, then heel it before your first bale:
+Commit the copy, then heel it at your main worktree before your first bale:
 
 ```bash
 tt/bkw-h.Heel.sh bkhln_app
 ```
+
+Run that heel at the main worktree and never in a linked worktree.
+A writer is pinned to the binary at the main worktree, so every linked worktree of the repository runs that one, and a heel in a linked worktree builds a binary nothing runs.
+The binary stands inside the collar's build directory, so the day's sweep at the main worktree removes it; heel there again, or run `tt/bkw-r.Rebed.sh` there, which performs the heel.
+In a linked worktree, rebed refuses while the main worktree's binary is absent, naming this heel and the main worktree where it runs.
+Every writer you wean is the same: heel it, or run the strike its collar names, at the main worktree.
 
 Bale takes one argument, the last day included:
 
@@ -381,7 +387,7 @@ Every kennel refusal names what it found and the act that answers it.
 Four are worth knowing before you meet them:
 
 **The repository carries uncommitted changes.** Commit, then drive the door again.
-This is the house rule that no test runs without a commit, so every record maps to a position.
+This is the house rule that no test runs without a commit, so every test run maps to a position.
 
 **`BURS_TACKROOM` is not set.** A station file that omits the tackroom is admitted, so the kennel refuses a missing tackroom in its own voice, naming the variable and the line to add.
 Declare the tackroom in your station file, as the handbook's first act says.

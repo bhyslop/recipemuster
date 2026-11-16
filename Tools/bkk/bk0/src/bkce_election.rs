@@ -942,7 +942,7 @@ pub fn bkce_elect(
     // vintage writing shared durable state writes corruption, and an engine built in
     // a linked worktree is exactly the wrong vintage the pin exists to keep away from the
     // live store.
-    if spend == BKCE_SPEND_WRITER {
+    if bkce_pinned(collar) {
         return Ok(bkce_Verdict {
             elected: BKCE_ELECTED_PINNED,
             answers: Some(residence.clone()),
@@ -1305,6 +1305,17 @@ pub fn bkce_elected(
 pub fn bkce_residence(root: &Path, collar: &bkcr_Collar) -> PathBuf {
     root.join(collar.bkcr_field("BKRR_RESIDENCE"))
         .join(collar.bkcr_field("BKRR_BYNAME"))
+}
+
+/// Whether a collar is pinned to the blessed residence: its spend class names a
+/// writer.
+///
+/// ONE HOME FOR THE PIN'S TEST. The election answers a pinned collar without
+/// asking a position, and the preflight must know which collars are pinned
+/// before any election is held — an absent residence is reported ahead of one —
+/// so the test the two share is stated here once rather than spelled twice.
+pub fn bkce_pinned(collar: &bkcr_Collar) -> bool {
+    collar.bkcr_field("BKRR_SPEND") == BKCE_SPEND_WRITER
 }
 
 /// The seat's own position: its newest first-parent commit touching an elected
@@ -1746,15 +1757,7 @@ pub fn bkce_scent(
 
     let mut files = record.files;
     for package in &packages {
-        files.push(if package.is_empty() {
-            ZBKCE_MANIFEST.to_string()
-        } else {
-            format!(
-                "{}/{}",
-                package,
-                ZBKCE_MANIFEST, //
-            )
-        });
+        files.push(zbkce_own_manifest(package));
     }
 
     let lockfile = crate_dir.join(ZBKCE_LOCKFILE);
@@ -1789,6 +1792,22 @@ pub fn bkce_scent(
 const ZBKCE_MANIFEST: &str = "Cargo.toml";
 const ZBKCE_LOCKFILE: &str = "Cargo.lock";
 
+/// A package's own manifest as git spells it: inside the package's directory,
+/// and bare at the repository's root for the root package, which the closure
+/// answers as the empty directory and a set carries as ".". Git's own listing
+/// never wears a leading "./", so a path asked with one would never match.
+fn zbkce_own_manifest(package: &str) -> String {
+    if package.is_empty() || package == "." {
+        ZBKCE_MANIFEST.to_string()
+    } else {
+        format!(
+            "{}/{}",
+            package,
+            ZBKCE_MANIFEST, //
+        )
+    }
+}
+
 /// Settle a derived set against the set standing at its homes: write nothing
 /// where it already stands current, write every home at a linked worktree, and
 /// write nothing anywhere else.
@@ -1799,8 +1818,10 @@ const ZBKCE_LOCKFILE: &str = "Cargo.lock";
 /// A UNION, AND A UNION PRUNED ONLY OF WHAT THE TREE NO LONGER HOLDS. A file
 /// compiled under one target alone appears in one station's record alone, so
 /// the standing set keeps what another station proved; a file git no longer
-/// tracks is read by no build anywhere, so it leaves, as a package directory
-/// that no longer stands does.
+/// tracks is read by no build anywhere, so it leaves, and a package leaves
+/// where git no longer tracks its own manifest, whatever directory still
+/// stands at its path: a crate moved after a build leaves its ignored build
+/// output standing where it was, and that directory is no package.
 ///
 /// `homes` is every place the set stands, the weaned copy first: the copy and
 /// its brood are written together, so the two never part.
@@ -1823,12 +1844,19 @@ pub fn bkce_settle(
     files.sort();
     files.dedup();
 
+    let manifests: Vec<String> = standing
+        .packages
+        .iter()
+        .map(|held| zbkce_own_manifest(held))
+        .collect();
+    let tracked = bkce_tracked(repository, &manifests)?;
+
     let mut packages: Vec<String> = derived.packages.clone();
     packages.extend(
         standing
             .packages
             .iter()
-            .filter(|held| repository.join(held).is_dir())
+            .filter(|held| tracked.contains(&zbkce_own_manifest(held)))
             .cloned(),
     );
     packages.sort();
