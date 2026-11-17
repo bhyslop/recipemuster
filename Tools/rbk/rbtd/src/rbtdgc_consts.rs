@@ -123,6 +123,8 @@ pub const RBTGEC_THEURGE_NIHIL: &str = "rbw-tn";
 pub const RBTGEC_QUALIFY_FAST: &str = "rbw-tq";
 pub const RBTGEC_QUALIFY_RELEASE: &str = "rbw-tr";
 pub const RBTGEC_QUALIFY_SHELLCHECK: &str = "rbw-tl";
+pub const RBTGEC_VOORLOPER_PREPARE: &str = "rbw-vP";
+pub const RBTGEC_VOORLOPER_LEFTOVERS: &str = "rbw-vl";
 
 pub const BUWGC_TT_LIST_LAUNCHERS: &str = "buw-tt-ll";
 pub const BUWGC_TT_BATCH_LOGGING: &str = "buw-tt-cbl";
@@ -182,6 +184,7 @@ pub const RBTGEC_CONTAINER_SENTRY: &str = "sentry";
 pub const RBTGEC_TWEAK_CREDLESS_GUARD: &str = "buorb_credless_guard";
 pub const RBTGEC_TWEAK_HTTP_FAULT: &str = "buorb_http_fault";
 pub const RBTGEC_TWEAK_REDON_CADENCE: &str = "buorb_redon_cadence";
+pub const RBTGEC_VOORLOPER_TINCTURE: &str = "vw";
 
 // BUBC regime-poison tweak (bubc_constants.sh) — string
 pub const RBTGEC_TWEAK_REGIME_POISON: &str = "buost_regime_poison";
