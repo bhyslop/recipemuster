@@ -500,20 +500,29 @@ zrblm_voorloper_blank_vet() {
   local -r z_manifest="${BURD_TEMP_DIR}/rblm_voorloper_blank_manifest.txt"
   zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
 
+  # The rewrite writes one line for each line it reads, so line N of the zeroed
+  # copy stands against line N of the file as it stands.
   local z_tmp=""
   local z_target=""
+  local z_line=""
   local z_zeroed=""
   local z_standing=""
+  local z_index=0
+  local -a z_standing_lines=()
   while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
-    while IFS= read -r z_zeroed <&3 || test -n "${z_zeroed}"; do
-      z_standing=""
-      IFS= read -r z_standing <&4 || test -n "${z_standing}" \
-        || buc_die_now "Voorloper prepare: ${z_target} ended before its zeroed copy ${z_tmp}"
+    z_standing_lines=()
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_standing_lines+=("${z_line}")
+    done < "${z_target}" || buc_die_now "Failed to read: ${z_target}"
+    z_index=0
+    while IFS= read -r z_zeroed || test -n "${z_zeroed}"; do
+      z_standing="${z_standing_lines[${z_index}]:-}"
+      z_index=$((z_index + 1))
       case "${z_zeroed}" in
         *=) test "${z_standing}" = "${z_zeroed}" \
               || buc_die_now "Voorloper prepare refuses: ${z_zeroed%=} stands filled in ${z_target} — a newcomer's tree carries it blank, as marshal zero leaves it" ;;
       esac
-    done 3< "${z_tmp}" 4< "${z_target}"
+    done < "${z_tmp}" || buc_die_now "Failed to read: ${z_tmp}"
   done < "${z_manifest}"
 }
 
