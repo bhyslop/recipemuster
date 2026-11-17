@@ -94,10 +94,12 @@ const ZRBTDRZ_SECRETS_KEY: &str = "RBRR_SECRETS_DIR=";
 /// The station a leftovers case lays beside its clone, and the log directory it
 /// names one level up from the clone.
 const ZRBTDRZ_STATION_LOGS: &str = "zqlogs";
-const ZRBTDRZ_STATION_BODY: &str = "BURS_USER=zqnewcomer\nBURS_TINCTURE=zqv\nBURS_LOG_DIR=../zqlogs\n";
+const ZRBTDRZ_STATION_BODY: &str =
+    "BURS_USER=zqnewcomer\nBURS_TINCTURE=zqv\nBURS_LOG_DIR=../zqlogs\n";
 
 /// The station body a refusal case lays, which the door must leave as it found.
-const ZRBTDRZ_STANDING_STATION: &str = "BURS_USER=zqstanding\nBURS_TINCTURE=zqs\nBURS_LOG_DIR=../zqlogs\n";
+const ZRBTDRZ_STANDING_STATION: &str =
+    "BURS_USER=zqstanding\nBURS_TINCTURE=zqs\nBURS_LOG_DIR=../zqlogs\n";
 
 /// The station field the prepare door sets.
 const ZRBTDRZ_TINCTURE_FIELD: &str = "BURS_TINCTURE=";
@@ -450,7 +452,8 @@ fn zrbtdrz_zero_clone(clone: &Path) -> Result<(), String> {
     for nameplate in zrbtdrz_regimes_beneath(&moorings, RBTGEC_RBRN_FILE)? {
         zrbtdrz_blank(&nameplate, &|f| ZRBTDRZ_BLANK_RBRN.contains(&f))?;
     }
-    for vessel in zrbtdrz_regimes_beneath(&moorings.join(RBTGEC_VESSELS_SUBDIR), RBTGEC_RBRV_FILE)? {
+    for vessel in zrbtdrz_regimes_beneath(&moorings.join(RBTGEC_VESSELS_SUBDIR), RBTGEC_RBRV_FILE)?
+    {
         zrbtdrz_blank(&vessel, &|f| ZRBTDRZ_BLANK_RBRV.contains(&f))?;
     }
     zrbtdrz_git(
@@ -488,7 +491,8 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
                 station.display(), //
             ));
         }
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-fresh-clone")?;
+        let (code, said) =
+            zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-fresh-clone")?;
         if code != 0 {
             return Err(format!(
                 "prepare-fresh-clone: exited {} — expected 0\n{}",
@@ -515,7 +519,11 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
                 body, //
             ));
         }
-        let status = zrbtdrz_git(&clone, &["status", "--porcelain"], "read the clone's status")?;
+        let status = zrbtdrz_git(
+            &clone,
+            &["status", "--porcelain"],
+            "read the clone's status",
+        )?;
         if !status.trim().is_empty() {
             return Err(format!(
                 "prepare-fresh-clone: the door left the clone's tree dirty:\n{}",
@@ -533,7 +541,12 @@ fn rbtdrz_prepare_station_stands(dir: &Path) -> rbtcee_Verdict {
         let clone = zrbtdrz_clone(dir)?;
         let station = zrbtdrz_station(&clone)?;
         zrbtdrz_write(&station, ZRBTDRZ_STANDING_STATION)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-already-standing")?;
+        let (code, said) = zrbtdrz_drive(
+            dir,
+            &clone,
+            RBTGEC_VOORLOPER_PREPARE,
+            "prepare-already-standing",
+        )?;
         if code == 0 {
             return Err(format!(
                 "prepare-already-standing: exited 0 beside {}\n{}",
@@ -567,7 +580,12 @@ fn rbtdrz_prepare_field_filled(dir: &Path) -> rbtcee_Verdict {
     zrbtdrz_verdict((|| {
         let clone = zrbtdrz_clone(dir)?;
         let station = zrbtdrz_station(&clone)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-field-filled")?;
+        let (code, said) = zrbtdrz_drive(
+            dir,
+            &clone,
+            RBTGEC_VOORLOPER_PREPARE,
+            "prepare-field-filled",
+        )?;
         if code == 0 {
             return Err(format!(
                 "prepare-field-filled: exited 0 over a tree carrying site values\n{}",
@@ -611,7 +629,12 @@ fn rbtdrz_leftovers_no_credential(dir: &Path) -> rbtcee_Verdict {
                 credential.display(), //
             ));
         }
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_LEFTOVERS, "leftovers-no-credential")?;
+        let (code, said) = zrbtdrz_drive(
+            dir,
+            &clone,
+            RBTGEC_VOORLOPER_LEFTOVERS,
+            "leftovers-no-credential",
+        )?;
         zrbtdrz_expect(
             "leftovers-no-credential",
             code,
@@ -631,7 +654,12 @@ fn rbtdrz_leftovers_could_not_ask(dir: &Path) -> rbtcee_Verdict {
         let clone = zrbtdrz_clone(dir)?;
         zrbtdrz_lay_station(dir, &clone)?;
         zrbtdrz_write(&zrbtdrz_credential(&clone)?, ZRBTDRZ_PLANTED_CREDENTIAL)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_LEFTOVERS, "leftovers-could-not-ask")?;
+        let (code, said) = zrbtdrz_drive(
+            dir,
+            &clone,
+            RBTGEC_VOORLOPER_LEFTOVERS,
+            "leftovers-could-not-ask",
+        )?;
         let fragment = format!(
             "{} {}",
             ZRBTDRZ_COULD_NOT_ASK_FRAGMENT,
