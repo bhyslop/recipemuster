@@ -61,6 +61,7 @@ pub static RBTCEA_FIXTURES: &[&'static rbtcee_Fixture] = &[
     &crate::rbtcgp_patrol::RBTCGP_FIXTURE_CHAINING_LIVERY,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+    &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -130,6 +131,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_PODVM_RESOLVE,
@@ -151,6 +153,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -190,6 +193,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -218,6 +222,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
             &crate::rbtchs_poison::RBTCHS_FIXTURE_REGIME_POISON,
             &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
@@ -262,6 +267,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             &crate::rbtcgl_lifecycle::RBTCGL_FIXTURE_DEPOT_LIFECYCLE,
             &crate::rbtcgk_depot::RBTCGK_FIXTURE_FREEHOLD_ESTABLISH,
             // credential-readiness re-verifies the just-seated freehold
@@ -314,6 +320,7 @@ pub static RBTCEA_SUITES: &[rbtcee_Suite] = &[
         fixtures: &[
             &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
             &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+            &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
             // The credential leader precedes the first cloud act: a credential
             // deficit fails in seconds with the renew advisory, never minutes
             // into onboarding-sequence (enrollment-validation stays first —
@@ -444,6 +451,7 @@ pub fn rbtcea_lookup_suite(suite: &str) -> Option<&'static rbtcee_Suite> {
 pub static RBTCEA_REVEILLE_BASE: &[&'static rbtcee_Fixture] = &[
     &crate::rbtchf_fast::RBTCHF_FIXTURE_ENROLLMENT_VALIDATION,
     &crate::rbtdrt_publish::RBTDRT_FIXTURE_PUBLISH_PATH,
+    &crate::rbtdrz_voorloper::RBTDRZ_FIXTURE_VOORLOPER_DOORS,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_VALIDATION,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_REGIME_SMOKE,
     &crate::rbtchf_fast::RBTCHF_FIXTURE_PODVM_RESOLVE,

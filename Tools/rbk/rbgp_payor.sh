@@ -3239,6 +3239,90 @@ rbgp_depot_list() {
   buc_info "Delete-requested: ${z_delete_requested_count}"
 }
 
+# The ask the leftovers door makes of the payor: which depots under this tree's
+# own cloud prefix still stand. The listing it rides searches everything the
+# payor's identity can see and exits 0 at zero, so neither its exit nor its
+# whole result is the answer: the facts it files under this prefix's own
+# subdirectory are read through zrbgp_depot_leftovers_read, and that reading's
+# status is this verb's.
+rbgp_depot_leftovers() {
+  zrbgp_sentinel
+
+  buc_doc_brief "Ask which depots under this tree's own cloud prefix still stand: 0 where none does, ${BUBG_BARRED_PSEPHOS} where one does"
+  buc_doc_shown || return 0
+
+  test -n "${RBRD_CLOUD_PREFIX:-}" \
+    || buc_die_now "The depot regime names no cloud prefix, so the ask cannot be scoped to this tree's own depots"
+
+  buc_step 'Authenticate as Payor'
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
+
+  buc_step 'Probe depot states and emit per-moniker fact files'
+  zrbgp_depot_state_emit "${zSECRET_token}"
+
+  buc_step "Read the depots under cloud prefix ${RBRD_CLOUD_PREFIX}"
+  local z_read_status=0
+  zrbgp_depot_leftovers_read "${BURD_OUTPUT_DIR}" "${RBRD_CLOUD_PREFIX}" || z_read_status=$?
+  return "${z_read_status}"
+}
+
+# zrbgp_depot_leftovers_read FACTS_ROOT CLOUD_PREFIX — the one reading of the
+# leftovers ask's answer: the depot facts zrbgp_depot_state_emit files under the
+# prefix's own subdirectory, the prefix with its structural trailing hyphen
+# removed. A depot in the complete state stands and is named; one in the
+# delete-requested state has been unmade, its deletion pending in Google's
+# retention, and does not stand. Returns BUBG_BARRED_PSEPHOS where any depot
+# stands and 0 where none does; a state it does not know dies, never guessed.
+zrbgp_depot_leftovers_read() {
+  zrbgp_sentinel
+
+  local -r z_root="${1:-}"
+  local -r z_prefix="${2:-}"
+  test -n "${z_root}"   || buc_die_now "zrbgp_depot_leftovers_read: the facts root is required"
+  test -n "${z_prefix}" || buc_die_now "zrbgp_depot_leftovers_read: the cloud prefix is required"
+  test -d "${z_root}"   || buc_die_now "zrbgp_depot_leftovers_read: no facts root at ${z_root}"
+
+  local -r z_dir="${z_root}/${z_prefix%-}"
+  local z_fact_path=""
+  local z_basename=""
+  local z_moniker=""
+  local z_project_fact_path=""
+  local z_project_id=""
+  local z_state=""
+  local z_standing=0
+
+  shopt -s nullglob
+  for z_fact_path in "${z_dir}"/*."${RBCC_fact_ext_depot}"; do
+    z_basename="${z_fact_path##*/}"
+    z_moniker="${z_basename%."${RBCC_fact_ext_depot}"}"
+    z_project_fact_path="${z_dir}/${z_moniker}.${RBCC_fact_ext_depot_project}"
+    z_state=$(<"${z_fact_path}") || buc_die_now "Failed to read: ${z_fact_path}"
+    test -f "${z_project_fact_path}" || buc_die_now "Missing depot-project fact file: ${z_project_fact_path}"
+    z_project_id=$(<"${z_project_fact_path}") || buc_die_now "Failed to read: ${z_project_fact_path}"
+    test -n "${z_project_id}" || buc_die_now "Empty project_id in fact file: ${z_project_fact_path}"
+    case "${z_state}" in
+      "${RBGP_DEPOT_STATE_COMPLETE}")
+        buc_warn "Depot stands: ${z_project_id}"
+        z_standing=$((z_standing + 1))
+        ;;
+      "${RBGP_DEPOT_STATE_DELETE_REQUESTED}")
+        buc_info "Depot unmade, its deletion pending in Google's retention: ${z_project_id}"
+        ;;
+      *)
+        buc_die_now "Unrecognized depot state '${z_state}' in ${z_fact_path}"
+        ;;
+    esac
+  done
+  shopt -u nullglob
+
+  if test "${z_standing}" -ne 0; then
+    buc_warn "${z_standing} depot(s) stand under cloud prefix ${z_prefix}"
+    return "${BUBG_BARRED_PSEPHOS}"
+  fi
+  buc_info "No depot stands under cloud prefix ${z_prefix}"
+}
+
 rbgp_depot_info() {
   zrbgp_sentinel
 

@@ -306,6 +306,15 @@ zrbz_kindle() {
   buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_release"     ""        "Release qualify: + shellcheck, full test suite"
   buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_shellcheck"  ""        "Shellcheck only: static analysis, no test suite"
 
+  # Voorloper — the two doors a fresh clone carries for a newcomer (rbw-v):
+  # prepare (UPPER: writes the station file, run before any station stands, so
+  # its tabtarget carries the no-log word) and leftovers (lower: reads, asking
+  # the payor alone and changing nothing).
+  buz_group RBZ__GROUP_VOORLOPER  "rbw-v"   "Voorloper — Doors that prepare a fresh clone for a newcomer and check what the newcomer left in the cloud"
+  z_mod="rblm_cli.sh"
+  buz_enroll RBZ_VOORLOPER_PREPARE    "rbw-vP"  "${z_mod}" "rblm_voorloper_prepare"    ""  "Voorloper prepare: write a fresh clone's station file, set its fixed tincture, and validate it"
+  buz_enroll RBZ_VOORLOPER_LEFTOVERS  "rbw-vl"  "${z_mod}" "rblm_voorloper_leftovers"  ""  "Voorloper leftovers: say by the exit whether any depot founded under this station's payor credential still stands (0 none, 3 one stands, 1 could not ask)"
+
   readonly ZRBZ_KINDLED=1
 }
 

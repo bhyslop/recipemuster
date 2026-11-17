@@ -92,7 +92,8 @@ zrbgp_furnish() {
   zrbrf_kindle
   zrbrw_kindle
   # Per-command regime enforcement. depot_list scans all depots and needs no one
-  # depot/repo regime; manor_escheat likewise scans every polity slice in the
+  # depot/repo regime, and depot_leftovers rides the same scan, reading only the
+  # cloud prefix the depot regime names, which it requires itself; manor_escheat likewise scans every polity slice in the
   # payor-project terrier (RBRP supplies the bucket, enforced unconditionally
   # below) and probes depot liveness by what it finds, never by a configured
   # depot. manor_affiance and manor_jilt are manor-level founding/
@@ -114,7 +115,7 @@ zrbgp_furnish() {
   # without RBRF — an active foedus need not stand before the founding admission.
   # Every other command works a specific depot.
   case "${z_command}" in
-    rbgp_depot_list|rbgp_manor_escheat)                 : ;;
+    rbgp_depot_list|rbgp_depot_leftovers|rbgp_manor_escheat) : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
     rbgp_manor_raze)                                    zrbrw_enforce ;;
     rbgp_manor_instaurate)                              zrbrw_enforce; zrbrd_enforce ;;
