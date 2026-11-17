@@ -173,10 +173,6 @@ const ZRBTDRZ_PLANT_FN: &str = r#"zq_plant() {
 }
 "#;
 
-/// The two states a planted depot takes, as the child's variables spell them.
-const ZRBTDRZ_STATE_COMPLETE_REF: &str = "${RBGP_DEPOT_STATE_COMPLETE}";
-const ZRBTDRZ_STATE_UNMADE_REF: &str = "${RBGP_DEPOT_STATE_DELETE_REQUESTED}";
-
 fn zrbtdrz_verdict(outcome: Result<(), String>) -> rbtcee_Verdict {
     match outcome {
         Ok(()) => rbtcee_Verdict::Pass,
@@ -674,9 +670,9 @@ fn zrbtdrz_read_planted(
             plant.prefix,
             plant.moniker,
             if plant.complete {
-                ZRBTDRZ_STATE_COMPLETE_REF
+                "${RBGP_DEPOT_STATE_COMPLETE}"
             } else {
-                ZRBTDRZ_STATE_UNMADE_REF
+                "${RBGP_DEPOT_STATE_DELETE_REQUESTED}"
             }, //
         ));
     }
