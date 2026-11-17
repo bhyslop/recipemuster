@@ -436,26 +436,26 @@ rblm_feign() {
 # Command: voorloper prepare - Prepare a fresh clone's station for a newcomer
 
 rblm_voorloper_prepare() {
-  buc_doc_brief "Prepare a fresh clone for a newcomer: write its station file, set the fixed tincture, and validate the station"
+  buc_doc_brief "Prepare a fresh clone for a newcomer: write its ${BUBG_STATION_BASE} file, set the fixed tincture, and validate the ${BUBG_STATION_BASE}"
   buc_doc_shown || return 0
 
   local -r z_station="${BURD_STATION_FILE}"
   test ! -e "${z_station}" \
-    || buc_die_now "Voorloper prepare refuses: a station file already stands at ${z_station} — this door prepares a fresh clone, and never overwrites a station"
+    || buc_die_now "Voorloper prepare refuses: a ${BUBG_STATION_BASE} file already stands at ${z_station} — this door prepares a fresh clone, and never overwrites one"
 
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
 
   buc_step "Checking that every field marshal zero blanks stands blank"
   zrblm_voorloper_blank_vet
 
-  buc_step "Writing the station file through the station init"
+  buc_step "Writing the ${BUBG_STATION_BASE} file through the ${BUBG_STATION_BASE} init"
   buym_tt_path "${BUBG_STATION_INIT_PEDIMENT}"
   test -n "${z_buym_tt_path}" \
-    || buc_die_now "Voorloper prepare found no station init door for colophon ${BUBG_STATION_INIT_PEDIMENT}"
-  "${z_buym_tt_path}" || buc_die_now "The station init failed: ${z_buym_tt_path}"
-  test -f "${z_station}" || buc_die_now "The station init wrote no station file at ${z_station}"
+    || buc_die_now "Voorloper prepare found no door for colophon ${BUBG_STATION_INIT_PEDIMENT}"
+  "${z_buym_tt_path}" || buc_die_now "The ${BUBG_STATION_BASE} init failed: ${z_buym_tt_path}"
+  test -f "${z_station}" || buc_die_now "The ${BUBG_STATION_BASE} init wrote no file at ${z_station}"
 
-  buc_step "Setting the station's tincture to ${RBCC_voorloper_tincture}"
+  buc_step "Setting the ${BUBG_STATION_POSSESSIVE} tincture to ${RBCC_voorloper_tincture}"
   local -r z_rewrite="${BURD_TEMP_DIR}/rblm_voorloper_station.env"
   local z_line=""
   local z_found=0
@@ -466,18 +466,18 @@ rblm_voorloper_prepare() {
     printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_rewrite}"
   done < "${z_station}" > "${z_rewrite}" || buc_die_now "Failed to rewrite the tincture: ${z_station}"
   test "${z_found}" -eq 1 \
-    || buc_die_now "The station init wrote ${z_found} BURS_TINCTURE lines into ${z_station}, where one was expected"
+    || buc_die_now "The ${BUBG_STATION_BASE} init wrote ${z_found} BURS_TINCTURE lines into ${z_station}, where one was expected"
   mv "${z_rewrite}" "${z_station}" || buc_die_now "Failed to replace: ${z_station}"
 
-  buc_step "Validating the station"
+  buc_step "Validating the ${BUBG_STATION_BASE}"
   local z_validate_status=0
   "${BURD_BUK_DIR}/burs_cli.sh" burs_validate || z_validate_status=$?
   if test "${z_validate_status}" -ne 0; then
-    buc_warn "The station file this door wrote does not validate: ${z_station}"
+    buc_warn "The ${BUBG_STATION_BASE} file this door wrote does not validate: ${z_station}"
     return "${z_validate_status}"
   fi
 
-  buc_success "Station prepared for a newcomer: ${z_station}"
+  buc_success "${BUBG_STATION_BASE_LETTRINE} prepared for a newcomer: ${z_station}"
 }
 
 # zrblm_voorloper_blank_vet — die naming the first field marshal zero blanks
@@ -493,7 +493,7 @@ zrblm_voorloper_blank_vet() {
   (
     source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
     printf '%s' "${RBRR_VESSEL_DIR:-}" > "${z_raw_vessel_temp}" || buc_die_now "Failed to write: ${z_raw_vessel_temp}"
-  ) || buc_die_now "Voorloper prepare could not source the repo regime: ${z_rbrr}"
+  ) || buc_die_now "Voorloper prepare could not source ${z_rbrr}"
   local z_vessel_dir
   z_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
 
@@ -528,7 +528,7 @@ zrblm_voorloper_blank_vet() {
 # payor CLI's, called as a sibling, and its status is classified here and never
 # handed to the membrane.
 rblm_voorloper_leftovers() {
-  buc_doc_brief "Answer whether anything a newcomer founded under this station's payor credential still stands: 0 nothing stands, ${BUBG_BARRED_PSEPHOS} something stands, 1 could not ask"
+  buc_doc_brief "Answer whether anything a newcomer founded under this ${BUBG_STATION_POSSESSIVE} payor credential still stands: 0 nothing stands, ${BUBG_BARRED_PSEPHOS} something stands, 1 could not ask"
   buc_doc_shown || return 0
 
   local -r z_rbrr="${RBCC_rbrr_file}"
@@ -540,7 +540,7 @@ rblm_voorloper_leftovers() {
   (
     source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
     printf '%s' "${RBRR_SECRETS_DIR:-}" > "${z_secrets_temp}" || buc_die_now "Failed to write: ${z_secrets_temp}"
-  ) || buc_die_now "Voorloper leftovers could not source the repo regime: ${z_rbrr}"
+  ) || buc_die_now "Voorloper leftovers could not source ${z_rbrr}"
   local z_secrets_dir
   z_secrets_dir=$(<"${z_secrets_temp}") || buc_die_now "Failed to read: ${z_secrets_temp}"
   test -n "${z_secrets_dir}" \
@@ -549,7 +549,7 @@ rblm_voorloper_leftovers() {
   local -r z_credential="${z_secrets_dir}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
   if ! test -e "${z_credential}"; then
     buc_step "No payor credential stands at ${z_credential}"
-    buc_success "Nothing stands: this station holds no credential, so it founded nothing a door could reach"
+    buc_success "Nothing stands: this ${BUBG_STATION_BASE} holds no credential, so it founded nothing a door could reach"
     return 0
   fi
 
@@ -563,7 +563,7 @@ rblm_voorloper_leftovers() {
     return 0
   fi
   if test "${z_ask_status}" -eq "${BUBG_BARRED_PSEPHOS}"; then
-    buc_warn "Something stands: the depots named above stand under this tree's cloud prefix — unmake each, then ask again:"
+    buc_warn "Something stands: the depots named above stand under this tree's cloud prefix — ${RBCG_DEPOT_UNMAKE_BASE} each, then ask again:"
     buc_tabtarget "${RBZ_UNMAKE_DEPOT}" "<depot-project-id>"
     return "${BUBG_BARRED_PSEPHOS}"
   fi

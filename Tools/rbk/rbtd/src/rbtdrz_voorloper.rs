@@ -50,11 +50,6 @@ use crate::rbtcee_engine::{
 };
 use crate::rbtcei_invocation::rbtdri_rooted_tabtarget_command;
 use crate::rbtcep_platform::rbtcep_native_to_posix;
-use crate::rbtcgf_freehold::{
-    RBTCGF_DEPOT_STATE_COMPLETE,
-    RBTCGF_FACT_EXT_DEPOT,
-    RBTCGF_FACT_EXT_DEPOT_PROJECT, //
-};
 use crate::rbtchf_fast::{
     rbtchf_run_bash,
     RBTCHF_BUV_VALIDATION,
@@ -76,7 +71,7 @@ use crate::rbtgec_consts::{
     RBTGEC_VOORLOPER_TINCTURE, //
 };
 
-pub const RBTDRZ_NAME_VOORLOPER_DOORS: &str = "voorloper-doors";
+pub const RBTDRZ_NAME_VOORLOPER_DOORS: &str = "voorloper";
 
 // Repo-root-relative kit modules the direct-kindle child sources, beside the
 // two the fast fixtures already name.
@@ -98,11 +93,11 @@ const ZRBTDRZ_SECRETS_KEY: &str = "RBRR_SECRETS_DIR=";
 
 /// The station a leftovers case lays beside its clone, and the log directory it
 /// names one level up from the clone.
-const ZRBTDRZ_STATION_LOGS: &str = "station-log-buk";
-const ZRBTDRZ_STATION_BODY: &str = "BURS_USER=zqnewcomer\nBURS_TINCTURE=zqv\nBURS_LOG_DIR=../station-log-buk\n";
+const ZRBTDRZ_STATION_LOGS: &str = "zqlogs";
+const ZRBTDRZ_STATION_BODY: &str = "BURS_USER=zqnewcomer\nBURS_TINCTURE=zqv\nBURS_LOG_DIR=../zqlogs\n";
 
 /// The station body a refusal case lays, which the door must leave as it found.
-const ZRBTDRZ_STANDING_STATION: &str = "BURS_USER=zqstanding\nBURS_TINCTURE=zqs\nBURS_LOG_DIR=../station-log-buk\n";
+const ZRBTDRZ_STANDING_STATION: &str = "BURS_USER=zqstanding\nBURS_TINCTURE=zqs\nBURS_LOG_DIR=../zqlogs\n";
 
 /// The station field the prepare door sets.
 const ZRBTDRZ_TINCTURE_FIELD: &str = "BURS_TINCTURE=";
@@ -116,13 +111,16 @@ const ZRBTDRZ_COMMIT_EMAIL: &str = "user.email=zqfixture@invalid";
 
 /// Marshal zero's blank set, the fields it leaves blank. Mirror: rblm_cli.sh
 /// `zrblm_zero_rewrite`, the fields it rewrites to a bare "FIELD=", the vessel
-/// image-anchor family matched apart.
+/// image-anchor family spelled out as rbrv_regime.sh enrolls its slots.
 const ZRBTDRZ_BLANK_RBRR: &[&str] = &["RBRR_RUNTIME_PREFIX", "RBRR_SUBSTRATE_RELIQUARY"];
 const ZRBTDRZ_BLANK_RBRD: &[&str] = &["RBRD_CLOUD_PREFIX", "RBRD_DEPOT_MONIKER"];
 const ZRBTDRZ_BLANK_RBRN: &[&str] = &["RBRN_SENTRY_HALLMARK", "RBRN_BOTTLE_HALLMARK"];
-const ZRBTDRZ_BLANK_RBRV: &[&str] = &["RBRV_RELIQUARY"];
-const ZRBTDRZ_ANCHOR_HEAD: &str = "RBRV_IMAGE_";
-const ZRBTDRZ_ANCHOR_TAIL: &str = "_ANCHOR";
+const ZRBTDRZ_BLANK_RBRV: &[&str] = &[
+    "RBRV_RELIQUARY",
+    "RBRV_IMAGE_1_ANCHOR",
+    "RBRV_IMAGE_2_ANCHOR",
+    "RBRV_IMAGE_3_ANCHOR", //
+];
 
 /// The first blank-set field the committed tree carries filled, in the order
 /// the door reads them. Mirror: rblm_cli.sh `zrblm_voorloper_blank_vet` and
@@ -133,9 +131,9 @@ const ZRBTDRZ_FIRST_FILLED: &str = "RBRR_RUNTIME_PREFIX";
 /// `rblm_voorloper_prepare`, `zrblm_voorloper_blank_vet` and
 /// `rblm_voorloper_leftovers`, and rbgp_payor.sh `zrbgp_depot_leftovers_read` —
 /// same literals.
-const ZRBTDRZ_STATION_STANDS_FRAGMENT: &str = "a station file already stands";
+const ZRBTDRZ_STATION_STANDS_FRAGMENT: &str = "file already stands at";
 const ZRBTDRZ_FILLED_FRAGMENT: &str = "stands filled in";
-const ZRBTDRZ_NO_CREDENTIAL_FRAGMENT: &str = "this station holds no credential";
+const ZRBTDRZ_NO_CREDENTIAL_FRAGMENT: &str = "holds no credential, so it founded nothing";
 const ZRBTDRZ_COULD_NOT_ASK_FRAGMENT: &str = "the payor's ask ended with exit";
 const ZRBTDRZ_STANDS_FRAGMENT: &str = "Depot stands: ";
 const ZRBTDRZ_NONE_FRAGMENT: &str = "No depot stands under cloud prefix";
@@ -156,9 +154,28 @@ const ZRBTDRZ_MONIKER_STANDING: &str = "zqaa";
 const ZRBTDRZ_MONIKER_UNMADE: &str = "zqbb";
 const ZRBTDRZ_MONIKER_FOREIGN: &str = "zqcc";
 
-/// The unmade depot's state word. Mirror: rbgc_constants.sh
-/// `RBGP_DEPOT_STATE_DELETE_REQUESTED` — same literal.
-const ZRBTDRZ_STATE_DELETE_REQUESTED: &str = "DELETE_REQUESTED";
+/// One depot a reading case plants: its prefix, its moniker, and whether it
+/// stands in the complete state or the unmade one. The child writes its two
+/// facts from the payor module's own state words and fact names.
+struct zrbtdrz_Plant {
+    prefix: &'static str,
+    moniker: &'static str,
+    complete: bool,
+}
+
+/// The child's planting function: FACTS_ROOT PREFIX MONIKER STATE, laying the
+/// state fact and the project fact under the prefix's own subdirectory.
+const ZRBTDRZ_PLANT_FN: &str = r#"zq_plant() {
+  local -r z_dir="$1/${2%-}"
+  mkdir -p "${z_dir}"
+  printf '%s' "$4" > "${z_dir}/$3.${RBCC_fact_ext_depot}"
+  printf '%s%s%s' "$2" "${RBGC_depot_project_infix}" "$3" > "${z_dir}/$3.${RBCC_fact_ext_depot_project}"
+}
+"#;
+
+/// The two states a planted depot takes, as the child's variables spell them.
+const ZRBTDRZ_STATE_COMPLETE_REF: &str = "${RBGP_DEPOT_STATE_COMPLETE}";
+const ZRBTDRZ_STATE_UNMADE_REF: &str = "${RBGP_DEPOT_STATE_DELETE_REQUESTED}";
 
 fn zrbtdrz_verdict(outcome: Result<(), String>) -> rbtcee_Verdict {
     match outcome {
@@ -306,7 +323,7 @@ fn zrbtdrz_door(clone: &Path, colophon: &str) -> Result<PathBuf, String> {
     match found.len() {
         1 => Ok(found.remove(0)),
         n => Err(format!(
-            "{} carries {} tabtargets for colophon {}, where one was expected",
+            "{} carries {} files for colophon {}, where one was expected",
             tt.display(),
             n,
             colophon, //
@@ -438,10 +455,7 @@ fn zrbtdrz_zero_clone(clone: &Path) -> Result<(), String> {
         zrbtdrz_blank(&nameplate, &|f| ZRBTDRZ_BLANK_RBRN.contains(&f))?;
     }
     for vessel in zrbtdrz_regimes_beneath(&moorings.join(RBTGEC_VESSELS_SUBDIR), RBTGEC_RBRV_FILE)? {
-        zrbtdrz_blank(&vessel, &|f| {
-            ZRBTDRZ_BLANK_RBRV.contains(&f)
-                || (f.starts_with(ZRBTDRZ_ANCHOR_HEAD) && f.ends_with(ZRBTDRZ_ANCHOR_TAIL))
-        })?;
+        zrbtdrz_blank(&vessel, &|f| ZRBTDRZ_BLANK_RBRV.contains(&f))?;
     }
     zrbtdrz_git(
         clone,
@@ -474,7 +488,7 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
         let station = zrbtdrz_station(&clone)?;
         if station.exists() {
             return Err(format!(
-                "prepare-fresh-clone: a station file stands at {} before the door ran",
+                "prepare-fresh-clone: {} stands before the door ran",
                 station.display(), //
             ));
         }
@@ -498,7 +512,8 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
         );
         if tinctures != [expected.as_str()] {
             return Err(format!(
-                "prepare-fresh-clone: the station's tincture lines read {:?} — expected exactly [{:?}]\n{}",
+                "prepare-fresh-clone: the tincture lines of {} read {:?} — expected exactly [{:?}]\n{}",
+                station.display(),
                 tinctures,
                 expected,
                 body, //
@@ -522,15 +537,16 @@ fn rbtdrz_prepare_station_stands(dir: &Path) -> rbtcee_Verdict {
         let clone = zrbtdrz_clone(dir)?;
         let station = zrbtdrz_station(&clone)?;
         zrbtdrz_write(&station, ZRBTDRZ_STANDING_STATION)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-station-stands")?;
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-already-standing")?;
         if code == 0 {
             return Err(format!(
-                "prepare-station-stands: exited 0 beside a standing station\n{}",
+                "prepare-already-standing: exited 0 beside {}\n{}",
+                station.display(),
                 said, //
             ));
         }
         zrbtdrz_expect(
-            "prepare-station-stands",
+            "prepare-already-standing",
             code,
             &said,
             code,
@@ -539,7 +555,8 @@ fn rbtdrz_prepare_station_stands(dir: &Path) -> rbtcee_Verdict {
         let after = zrbtdrz_read(&station)?;
         if after != ZRBTDRZ_STANDING_STATION {
             return Err(format!(
-                "prepare-station-stands: the standing station changed:\n{}",
+                "prepare-already-standing: {} changed:\n{}",
+                station.display(),
                 after, //
             ));
         }
@@ -569,7 +586,7 @@ fn rbtdrz_prepare_field_filled(dir: &Path) -> rbtcee_Verdict {
         zrbtdrz_expect("prepare-field-filled", code, &said, code, &fragment)?;
         if station.exists() {
             return Err(format!(
-                "prepare-field-filled: the refusal left a station file at {}",
+                "prepare-field-filled: the refusal left {} standing",
                 station.display(), //
             ));
         }
@@ -634,35 +651,13 @@ fn rbtdrz_leftovers_could_not_ask(dir: &Path) -> rbtcee_Verdict {
     })())
 }
 
-/// Plant one depot's two facts under its prefix's own subdirectory.
-fn zrbtdrz_plant_depot(facts: &Path, prefix: &str, moniker: &str, state: &str) -> Result<(), String> {
-    let subdir = facts.join(prefix.trim_end_matches('-'));
-    zrbtdrz_write(
-        &subdir.join(format!(
-            "{}.{}",
-            moniker,
-            RBTCGF_FACT_EXT_DEPOT, //
-        )),
-        state,
-    )?;
-    zrbtdrz_write(
-        &subdir.join(format!(
-            "{}.{}",
-            moniker,
-            RBTCGF_FACT_EXT_DEPOT_PROJECT, //
-        )),
-        &format!(
-            "{}{}{}",
-            prefix,
-            ZRBTDRZ_DEPOT_INFIX,
-            moniker, //
-        ),
-    )
-}
-
 /// Feed the planted facts through the one reading in a direct-kindle child that
 /// kindles no credential module, for this tree's own prefix.
-fn zrbtdrz_read_planted(dir: &Path, label: &str) -> Result<(i32, String), String> {
+fn zrbtdrz_read_planted(
+    dir: &Path,
+    label: &str,
+    plants: &[zrbtdrz_Plant],
+) -> Result<(i32, String), String> {
     let root = zrbtchx_root()?;
     let temp = dir.join(format!(
         "{}-temp",
@@ -670,6 +665,21 @@ fn zrbtdrz_read_planted(dir: &Path, label: &str) -> Result<(i32, String), String
     ));
     zrbtdrz_mkdir(&temp)?;
     let module = |rel: &str| rbtcep_native_to_posix(&root.join(rel));
+    let facts = rbtcep_native_to_posix(&dir.join(ZRBTDRZ_FACTS_ROOT));
+    let mut planting = String::from(ZRBTDRZ_PLANT_FN);
+    for plant in plants {
+        planting.push_str(&format!(
+            "zq_plant '{}' '{}' '{}' \"{}\"\n",
+            facts,
+            plant.prefix,
+            plant.moniker,
+            if plant.complete {
+                ZRBTDRZ_STATE_COMPLETE_REF
+            } else {
+                ZRBTDRZ_STATE_UNMADE_REF
+            }, //
+        ));
+    }
     let script = format!(
         "set -euo pipefail\n\
          BURD_TEMP_DIR='{temp}'\n\
@@ -698,6 +708,7 @@ fn zrbtdrz_read_planted(dir: &Path, label: &str) -> Result<(i32, String), String
          zrbge_kindle\n\
          zrbgi_kindle\n\
          zrbgp_kindle\n\
+         {planting}\
          zrbgp_depot_leftovers_read '{facts}' '{prefix}'\n",
         temp = rbtcep_native_to_posix(&temp),
         moorings = RBTGEC_MOORINGS_DIR,
@@ -707,7 +718,8 @@ fn zrbtdrz_read_planted(dir: &Path, label: &str) -> Result<(i32, String), String
         buv = module(RBTCHF_BUV_VALIDATION),
         burd = module(ZRBTDRZ_BURD_REGIME),
         rbk = module(RBTCHF_RBK_ROOT),
-        facts = rbtcep_native_to_posix(&dir.join(ZRBTDRZ_FACTS_ROOT)),
+        planting = planting,
+        facts = facts,
         prefix = ZRBTDRZ_OWN_PREFIX, //
     );
     let (code, stdout, stderr) = rbtchf_run_bash(&root, &script, dir, label)?;
@@ -727,11 +739,24 @@ fn zrbtdrz_read_planted(dir: &Path, label: &str) -> Result<(i32, String), String
 /// and the foreign one, and answers on its something-stands exit.
 fn rbtdrz_reading_something_stands(dir: &Path) -> rbtcee_Verdict {
     zrbtdrz_verdict((|| {
-        let facts = dir.join(ZRBTDRZ_FACTS_ROOT);
-        zrbtdrz_plant_depot(&facts, ZRBTDRZ_OWN_PREFIX, ZRBTDRZ_MONIKER_STANDING, RBTCGF_DEPOT_STATE_COMPLETE)?;
-        zrbtdrz_plant_depot(&facts, ZRBTDRZ_OWN_PREFIX, ZRBTDRZ_MONIKER_UNMADE, ZRBTDRZ_STATE_DELETE_REQUESTED)?;
-        zrbtdrz_plant_depot(&facts, ZRBTDRZ_FOREIGN_PREFIX, ZRBTDRZ_MONIKER_FOREIGN, RBTCGF_DEPOT_STATE_COMPLETE)?;
-        let (code, said) = zrbtdrz_read_planted(dir, "reading-something-stands")?;
+        let plants = [
+            zrbtdrz_Plant {
+                prefix: ZRBTDRZ_OWN_PREFIX,
+                moniker: ZRBTDRZ_MONIKER_STANDING,
+                complete: true,
+            },
+            zrbtdrz_Plant {
+                prefix: ZRBTDRZ_OWN_PREFIX,
+                moniker: ZRBTDRZ_MONIKER_UNMADE,
+                complete: false,
+            },
+            zrbtdrz_Plant {
+                prefix: ZRBTDRZ_FOREIGN_PREFIX,
+                moniker: ZRBTDRZ_MONIKER_FOREIGN,
+                complete: true,
+            },
+        ];
+        let (code, said) = zrbtdrz_read_planted(dir, "reading-something-stands", &plants)?;
         let standing = format!(
             "{}{}{}{}",
             ZRBTDRZ_STANDS_FRAGMENT,
@@ -777,10 +802,19 @@ fn rbtdrz_reading_something_stands(dir: &Path) -> rbtcee_Verdict {
 /// reading answers that nothing stands.
 fn rbtdrz_reading_nothing_stands(dir: &Path) -> rbtcee_Verdict {
     zrbtdrz_verdict((|| {
-        let facts = dir.join(ZRBTDRZ_FACTS_ROOT);
-        zrbtdrz_plant_depot(&facts, ZRBTDRZ_OWN_PREFIX, ZRBTDRZ_MONIKER_UNMADE, ZRBTDRZ_STATE_DELETE_REQUESTED)?;
-        zrbtdrz_plant_depot(&facts, ZRBTDRZ_FOREIGN_PREFIX, ZRBTDRZ_MONIKER_FOREIGN, RBTCGF_DEPOT_STATE_COMPLETE)?;
-        let (code, said) = zrbtdrz_read_planted(dir, "reading-nothing-stands")?;
+        let plants = [
+            zrbtdrz_Plant {
+                prefix: ZRBTDRZ_OWN_PREFIX,
+                moniker: ZRBTDRZ_MONIKER_UNMADE,
+                complete: false,
+            },
+            zrbtdrz_Plant {
+                prefix: ZRBTDRZ_FOREIGN_PREFIX,
+                moniker: ZRBTDRZ_MONIKER_FOREIGN,
+                complete: true,
+            },
+        ];
+        let (code, said) = zrbtdrz_read_planted(dir, "reading-nothing-stands", &plants)?;
         zrbtdrz_expect(
             "reading-nothing-stands",
             code,

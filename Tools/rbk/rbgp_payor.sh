@@ -3252,7 +3252,7 @@ rbgp_depot_leftovers() {
   buc_doc_shown || return 0
 
   test -n "${RBRD_CLOUD_PREFIX:-}" \
-    || buc_die_now "The depot regime names no cloud prefix, so the ask cannot be scoped to this tree's own depots"
+    || buc_die_now "${RBCC_rbrd_file} names no RBRD_CLOUD_PREFIX, so the ask cannot be scoped to this tree's own depots"
 
   buc_step 'Authenticate as Payor'
   local zSECRET_token
@@ -3307,7 +3307,7 @@ zrbgp_depot_leftovers_read() {
         z_standing=$((z_standing + 1))
         ;;
       "${RBGP_DEPOT_STATE_DELETE_REQUESTED}")
-        buc_info "Depot unmade, its deletion pending in Google's retention: ${z_project_id}"
+        buc_info "Depot ${RBCG_DEPOT_UNMAKE_PAST}, its deletion pending in Google's retention: ${z_project_id}"
         ;;
       *)
         buc_die_now "Unrecognized depot state '${z_state}' in ${z_fact_path}"
