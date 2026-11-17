@@ -17,7 +17,8 @@
 #
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
-# RBLM CLI - Lifecycle Marshal operations (zero, feign, expede, harbinger)
+# RBLM CLI - Lifecycle Marshal operations (zero, feign, expede, harbinger, and
+# the two voorloper doors, prepare and leftovers)
 
 set -euo pipefail
 
@@ -429,6 +430,153 @@ rblm_feign() {
   buh_line "  Next: run the consumer's credless suite against this tree:"
   buc_tabtarget "${RBZ_THEURGE_SUITE}" "reveille"
   buc_success "Station feigned — the candidate can now validate"
+}
+
+######################################################################
+# Command: voorloper prepare - Prepare a fresh clone's station for a newcomer
+
+rblm_voorloper_prepare() {
+  buc_doc_brief "Prepare a fresh clone for a newcomer: write its ${BUBG_STATION_BASE} file, set the fixed tincture, and validate the ${BUBG_STATION_BASE}"
+  buc_doc_shown || return 0
+
+  local -r z_station="${BURD_STATION_FILE}"
+  test ! -e "${z_station}" \
+    || buc_die_now "Voorloper prepare refuses: a ${BUBG_STATION_BASE} file already stands at ${z_station} — this door prepares a fresh clone, and never overwrites one"
+
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
+
+  buc_step "Checking that every field marshal zero blanks stands blank"
+  zrblm_voorloper_blank_vet
+
+  buc_step "Writing the ${BUBG_STATION_BASE} file through the ${BUBG_STATION_BASE} init"
+  buym_tt_path "${BUBG_STATION_INIT_PEDIMENT}"
+  test -n "${z_buym_tt_path}" \
+    || buc_die_now "Voorloper prepare found no door for colophon ${BUBG_STATION_INIT_PEDIMENT}"
+  "${z_buym_tt_path}" || buc_die_now "The ${BUBG_STATION_BASE} init failed: ${z_buym_tt_path}"
+  test -f "${z_station}" || buc_die_now "The ${BUBG_STATION_BASE} init wrote no file at ${z_station}"
+
+  buc_step "Setting the ${BUBG_STATION_POSSESSIVE} tincture to ${RBCC_voorloper_tincture}"
+  local -r z_rewrite="${BURD_TEMP_DIR}/rblm_voorloper_station.env"
+  local z_line=""
+  local z_found=0
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    case "${z_line}" in
+      BURS_TINCTURE=*) z_line="BURS_TINCTURE=${RBCC_voorloper_tincture}"; z_found=$((z_found + 1)) ;;
+    esac
+    printf '%s\n' "${z_line}" || buc_die_now "Failed to write: ${z_rewrite}"
+  done < "${z_station}" > "${z_rewrite}" || buc_die_now "Failed to rewrite the tincture: ${z_station}"
+  test "${z_found}" -eq 1 \
+    || buc_die_now "The ${BUBG_STATION_BASE} init wrote ${z_found} BURS_TINCTURE lines into ${z_station}, where one was expected"
+  mv "${z_rewrite}" "${z_station}" || buc_die_now "Failed to replace: ${z_station}"
+
+  buc_step "Validating the ${BUBG_STATION_BASE}"
+  local z_validate_status=0
+  "${BURD_BUK_DIR}/burs_cli.sh" burs_validate || z_validate_status=$?
+  if test "${z_validate_status}" -ne 0; then
+    buc_warn "The ${BUBG_STATION_BASE} file this door wrote does not validate: ${z_station}"
+    return "${z_validate_status}"
+  fi
+
+  buc_success "${BUBG_STATION_BASE_LETTRINE} prepared for a newcomer: ${z_station}"
+}
+
+# zrblm_voorloper_blank_vet — die naming the first field marshal zero blanks
+# that stands filled in this tree. The blank set is zero's own: a line its
+# rewrite turns into a bare "FIELD=" which this tree carries otherwise. The
+# rewrite reads the vessel directory from the repo regime, read raw in an
+# isolation subshell since a tree in marshal-zero state refuses its kindle.
+zrblm_voorloper_blank_vet() {
+  local -r z_rbrr="${RBCC_rbrr_file}"
+  test -f "${z_rbrr}" || buc_die_now "RBRR file not found: ${z_rbrr}"
+
+  local -r z_raw_vessel_temp="${BURD_TEMP_DIR}/rblm_voorloper_raw_vessel_dir.txt"
+  (
+    source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
+    printf '%s' "${RBRR_VESSEL_DIR:-}" > "${z_raw_vessel_temp}" || buc_die_now "Failed to write: ${z_raw_vessel_temp}"
+  ) || buc_die_now "Voorloper prepare could not source ${z_rbrr}"
+  local z_vessel_dir
+  z_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
+
+  local -r z_manifest="${BURD_TEMP_DIR}/rblm_voorloper_blank_manifest.txt"
+  zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
+
+  # The rewrite writes one line for each line it reads, so line N of the zeroed
+  # copy stands against line N of the file as it stands.
+  local z_tmp=""
+  local z_target=""
+  local z_line=""
+  local z_zeroed=""
+  local z_standing=""
+  local z_index=0
+  local -a z_standing_lines=()
+  while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
+    z_standing_lines=()
+    while IFS= read -r z_line || test -n "${z_line}"; do
+      z_standing_lines+=("${z_line}")
+    done < "${z_target}" || buc_die_now "Failed to read: ${z_target}"
+    z_index=0
+    while IFS= read -r z_zeroed || test -n "${z_zeroed}"; do
+      z_standing="${z_standing_lines[${z_index}]:-}"
+      z_index=$((z_index + 1))
+      case "${z_zeroed}" in
+        *=) test "${z_standing}" = "${z_zeroed}" \
+              || buc_die_now "Voorloper prepare refuses: ${z_zeroed%=} stands filled in ${z_target} — a newcomer's tree carries it blank, as marshal zero leaves it" ;;
+      esac
+    done < "${z_tmp}" || buc_die_now "Failed to read: ${z_tmp}"
+  done < "${z_manifest}"
+}
+
+######################################################################
+# Command: voorloper leftovers - Ask whether anything a newcomer founded stands
+
+# The answer is the door's exit, a verdict for a caller that acts on it without
+# reading the output: 0 where nothing stands, BUBG_BARRED_PSEPHOS where
+# something does, and 1 where the door could not ask. The no-credential test
+# reads the repo regime raw, ahead of anything that kindles, since a tree in
+# marshal-zero state refuses the repo regime's kindle. The ask itself is the
+# payor CLI's, called as a sibling, and its status is classified here and never
+# handed to the membrane.
+rblm_voorloper_leftovers() {
+  buc_doc_brief "Answer whether anything a newcomer founded under this ${BUBG_STATION_POSSESSIVE} payor credential still stands: 0 nothing stands, ${BUBG_BARRED_PSEPHOS} something stands, 1 could not ask"
+  buc_doc_shown || return 0
+
+  local -r z_rbrr="${RBCC_rbrr_file}"
+  test -f "${z_rbrr}" || buc_die_now "RBRR file not found: ${z_rbrr}"
+
+  mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
+
+  local -r z_secrets_temp="${BURD_TEMP_DIR}/rblm_voorloper_secrets_dir.txt"
+  (
+    source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
+    printf '%s' "${RBRR_SECRETS_DIR:-}" > "${z_secrets_temp}" || buc_die_now "Failed to write: ${z_secrets_temp}"
+  ) || buc_die_now "Voorloper leftovers could not source ${z_rbrr}"
+  local z_secrets_dir
+  z_secrets_dir=$(<"${z_secrets_temp}") || buc_die_now "Failed to read: ${z_secrets_temp}"
+  test -n "${z_secrets_dir}" \
+    || buc_die_now "Voorloper leftovers could not ask: RBRR_SECRETS_DIR stands blank in ${z_rbrr}"
+
+  local -r z_credential="${z_secrets_dir}/${RBCC_account_unhewn_payor}/${RBCC_rbro_file}"
+  if ! test -e "${z_credential}"; then
+    buc_step "No payor credential stands at ${z_credential}"
+    buc_success "Nothing stands: this ${BUBG_STATION_BASE} holds no credential, so it founded nothing a door could reach"
+    return 0
+  fi
+
+  buc_step "Asking the payor which depots under this tree's cloud prefix stand"
+  local -r z_rbk_dir="${BASH_SOURCE[0]%/*}"
+  local z_ask_status=0
+  "${z_rbk_dir}/rbgp_cli.sh" rbgp_depot_leftovers || z_ask_status=$?
+
+  if test "${z_ask_status}" -eq 0; then
+    buc_success "Nothing stands: the payor answered that no depot under this tree's cloud prefix stands"
+    return 0
+  fi
+  if test "${z_ask_status}" -eq "${BUBG_BARRED_PSEPHOS}"; then
+    buc_warn "Something stands: the depots named above stand under this tree's cloud prefix — ${RBCG_DEPOT_UNMAKE_BASE} each, then ask again:"
+    buc_tabtarget "${RBZ_UNMAKE_DEPOT}" "<depot-project-id>"
+    return "${BUBG_BARRED_PSEPHOS}"
+  fi
+  buc_die_now "Could not ask: a payor credential stands at ${z_credential}, and the payor's ask ended with exit ${z_ask_status}, so this door does not answer that nothing stands"
 }
 
 

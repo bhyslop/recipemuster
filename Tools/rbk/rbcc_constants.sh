@@ -223,6 +223,12 @@ readonly RBCC_tweak_redon_cadence="buorb_redon_cadence"
 # from the clone it cuts in. Not projected to Rust: no theurge reads it.
 readonly RBCC_probe_branch="probe"
 
+# Voorloper tinder — the one tincture the prepare door writes into a fresh
+# clone's station file, the same in every clone it prepares and distinct from
+# any station a maintainer keeps beside it. Projected to Rust: the theurge's
+# voorloper fixture asserts the station file wears it.
+readonly RBCC_voorloper_tincture="vw"
+
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
 # container name / compose service derives from these. Distinct from the
@@ -343,6 +349,7 @@ rbcc_emit_consts() {
     RBCC_tweak_credless_guard \
     RBCC_tweak_http_fault \
     RBCC_tweak_redon_cadence \
+    RBCC_voorloper_tincture \
   ; do
     zrbcc_emit_const str RBCC_ "${z_name}"
   done

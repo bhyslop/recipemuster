@@ -87,6 +87,8 @@ pub mod rbtcep_platform;
 pub mod rbtdrt_publish;
 #[path = "rbtdry_quiet.rs"]
 pub mod rbtdry_quiet;
+#[path = "rbtdrz_voorloper.rs"]
+pub mod rbtdrz_voorloper;
 
 #[cfg(test)]
 #[path = "rbtdth_helpers.rs"]
