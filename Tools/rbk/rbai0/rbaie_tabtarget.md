@@ -218,10 +218,10 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-tr` | QualifyRelease | — | Release qualify: + shellcheck, full test suite |
 | `rbw-tl` | Shellcheck | — | Shellcheck only: static analysis, no test suite |
 
-### Voorloper — Doors that prepare a fresh clone for a newcomer and check what the newcomer left in the cloud (`rbw-v`)
+### Voorloper — Doors that prepare a fresh clone for a newcomer and ask whether a depot under its cloud prefix still stands (`rbw-v`)
 
 | Colophon | Frontispiece | Folio | Purpose |
 |----------|-------------|-------|---------|
-| `rbw-vP` | VoorloperPrepare | — | Voorloper prepare: write a fresh clone's station file, set its fixed tincture, and validate it |
-| `rbw-vl` | VoorloperLeftovers | — | Voorloper leftovers: say by the exit whether any depot founded under this station's payor credential still stands (0 none, 3 one stands, 1 could not ask) |
+| `rbw-vP` | VoorloperPrepare | — | Prepares a fresh clone for a newcomer: writes its station file, sets the fixed tincture, and validates the station. |
+| `rbw-vl` | VoorloperLeftovers | — | Asks, through this station's payor credential, whether any depot under this tree's cloud prefix still stands, answering by its exit: 0 where none stands, 3 where one does, 1 where it could not ask. |
 

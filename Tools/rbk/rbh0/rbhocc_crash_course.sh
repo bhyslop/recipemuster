@@ -86,7 +86,8 @@ rbho_crash_course() {
   buh_tt   "   " "buw-SI"
   buh_e
   buh_line "This writes a complete ${RBYC_BURS} file with every required field"
-  buh_line "and a purpose comment for each — safe to re-run any time."
+  buh_line "and a purpose comment for each. Where a ${BUBG_STATION_BASE} file already stands,"
+  buh_line "it overwrites it with the defaults, losing every value set in it."
   buh_line "Then run the renderer:"
   buh_e
   buh_tt   "   " "${BUWZ_RS_RENDER}"

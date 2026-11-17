@@ -3141,6 +3141,12 @@ pub const RBVGEB_RBLM_FEIGN_PEDIMENT: &str = rbvgeb_rblm_feign_pediment!();
 macro_rules! rbvgeb_rblm_harbinger_pediment { () => { "rbw-MH" }; }
 pub(crate) use rbvgeb_rblm_harbinger_pediment;
 pub const RBVGEB_RBLM_HARBINGER_PEDIMENT: &str = rbvgeb_rblm_harbinger_pediment!();
+macro_rules! rbvgeb_rblm_voorloper_leftovers_pediment { () => { "rbw-vl" }; }
+pub(crate) use rbvgeb_rblm_voorloper_leftovers_pediment;
+pub const RBVGEB_RBLM_VOORLOPER_LEFTOVERS_PEDIMENT: &str = rbvgeb_rblm_voorloper_leftovers_pediment!();
+macro_rules! rbvgeb_rblm_voorloper_prepare_pediment { () => { "rbw-vP" }; }
+pub(crate) use rbvgeb_rblm_voorloper_prepare_pediment;
+pub const RBVGEB_RBLM_VOORLOPER_PREPARE_PEDIMENT: &str = rbvgeb_rblm_voorloper_prepare_pediment!();
 macro_rules! rbvgeb_rblm_zero_pediment { () => { "rbw-MZ" }; }
 pub(crate) use rbvgeb_rblm_zero_pediment;
 pub const RBVGEB_RBLM_ZERO_PEDIMENT: &str = rbvgeb_rblm_zero_pediment!();

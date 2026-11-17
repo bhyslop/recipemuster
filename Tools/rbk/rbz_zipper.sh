@@ -310,10 +310,10 @@ zrbz_kindle() {
   # prepare (UPPER: writes the station file, run before any station stands, so
   # its tabtarget carries the no-log word) and leftovers (lower: reads, asking
   # the payor alone and changing nothing).
-  buz_group RBZ__GROUP_VOORLOPER  "rbw-v"   "Voorloper — Doors that prepare a fresh clone for a newcomer and check what the newcomer left in the cloud"
+  buz_group RBZ__GROUP_VOORLOPER  "rbw-v"   "Voorloper — Doors that prepare a fresh clone for a newcomer and ask whether a depot under its cloud prefix still stands"
   z_mod="rblm_cli.sh"
-  buz_enroll RBZ_VOORLOPER_PREPARE    "rbw-vP"  "${z_mod}" "rblm_voorloper_prepare"    ""  "Voorloper prepare: write a fresh clone's ${BUBG_STATION_BASE} file, set its fixed tincture, and validate it"
-  buz_enroll RBZ_VOORLOPER_LEFTOVERS  "rbw-vl"  "${z_mod}" "rblm_voorloper_leftovers"  ""  "Voorloper leftovers: say by the exit whether any depot founded under this ${BUBG_STATION_POSSESSIVE} payor credential still stands (0 none, ${BUBG_BARRED_PSEPHOS} one stands, 1 could not ask)"
+  buz_enroll RBZ_VOORLOPER_PREPARE    "rbw-vP"  "${z_mod}" "rblm_voorloper_prepare"    ""  "Prepares a fresh clone for a newcomer: writes its ${BUBG_STATION_BASE} file, sets the fixed tincture, and validates the ${BUBG_STATION_BASE}."
+  buz_enroll RBZ_VOORLOPER_LEFTOVERS  "rbw-vl"  "${z_mod}" "rblm_voorloper_leftovers"  ""  "Asks, through this ${BUBG_STATION_POSSESSIVE} payor credential, whether any depot under this tree's cloud prefix still stands, answering by its exit: 0 where none stands, ${BUBG_BARRED_PSEPHOS} where one does, 1 where it could not ask."
 
   readonly ZRBZ_KINDLED=1
 }
