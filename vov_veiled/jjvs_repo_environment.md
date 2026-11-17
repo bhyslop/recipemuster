@@ -1,6 +1,6 @@
-# <a id="rbsoe_scenario"></a>Configure Your Repository's Environment
+# Configure Your Repository's Environment
 
-## <a id="rbsve_walk"></a>The walk
+## The walk
 
 ### Goal
 

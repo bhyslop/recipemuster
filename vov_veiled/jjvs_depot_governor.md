@@ -1,6 +1,6 @@
-# <a id="rbsod_scenario"></a>Levy a Depot and Gird Its First Governor
+# Levy a Depot and Gird Its First Governor
 
-## <a id="rbsvd_walk"></a>The walk
+## The walk
 
 ### Goal
 

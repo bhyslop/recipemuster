@@ -1,6 +1,6 @@
-# <a id="rbsom_scenario"></a>Set Up a Payor
+# Set Up a Payor
 
-## <a id="rbsvm_walk"></a>The walk
+## The walk
 
 ### Goal
 
