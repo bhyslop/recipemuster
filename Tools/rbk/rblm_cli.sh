@@ -435,8 +435,9 @@ rblm_feign() {
 ######################################################################
 # Command: voorloper prepare - Prepare a fresh clone's station for a newcomer
 
+# Prepares a fresh clone for a newcomer: writes its station file, sets the fixed tincture, and validates the station.
 rblm_voorloper_prepare() {
-  buc_doc_brief "Prepare a fresh clone for a newcomer: write its ${BUBG_STATION_BASE} file, set the fixed tincture, and validate the ${BUBG_STATION_BASE}"
+  buc_doc_brief "Prepares a fresh clone for a newcomer: writes its ${BUBG_STATION_BASE} file, sets the fixed tincture, and validates the ${BUBG_STATION_BASE}."
   buc_doc_shown || return 0
 
   local -r z_station="${BURD_STATION_FILE}"
@@ -527,18 +528,18 @@ zrblm_voorloper_blank_vet() {
 }
 
 ######################################################################
-# Command: voorloper leftovers - Ask whether anything a newcomer founded stands
+# Command: voorloper leftovers - Ask whether a depot under this tree's cloud prefix stands
 
-# The answer is the door's exit, a verdict for a caller that acts on it without
-# reading the output: 0 where nothing stands, BUBG_BARRED_PSEPHOS where
-# something does, and 1 where the door could not ask. The no-credential test
-# reads the repo regime raw, ahead of anything that kindles, since a tree in
-# marshal-zero state refuses the repo regime's kindle. The ask itself is the
-# payor CLI's, called as a sibling, and its status is classified here and never
-# handed to the membrane.
+# Asks, through this station's payor credential, whether any depot under this tree's cloud prefix still stands, answering by its exit: 0 where none stands, 3 where one does, 1 where it could not ask.
 rblm_voorloper_leftovers() {
-  buc_doc_brief "Answer whether anything a newcomer founded under this ${BUBG_STATION_POSSESSIVE} payor credential still stands: 0 nothing stands, ${BUBG_BARRED_PSEPHOS} something stands, 1 could not ask"
+  buc_doc_brief "Asks, through this ${BUBG_STATION_POSSESSIVE} payor credential, whether any depot under this tree's cloud prefix still stands, answering by its exit: 0 where none stands, ${BUBG_BARRED_PSEPHOS} where one does, 1 where it could not ask."
   buc_doc_shown || return 0
+
+  # The answer is the door's exit, a verdict for a caller that acts on it without
+  # reading the output. The no-credential test reads the repo regime raw, ahead
+  # of anything that kindles, since a tree in marshal-zero state refuses the repo
+  # regime's kindle. The ask itself is the payor CLI's, called as a sibling, and
+  # its status is classified here and never handed to the membrane.
 
   local -r z_rbrr="${RBCC_rbrr_file}"
   test -f "${z_rbrr}" || buc_die_now "RBRR file not found: ${z_rbrr}"
