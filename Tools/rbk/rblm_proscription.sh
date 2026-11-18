@@ -725,6 +725,9 @@ rblm_lustrate_apply() {
 rblm_lustrate_vet() {
   zrblm_sentinel
 
+  buc_doc_brief "Judge this tree by the proscription's sterile column: refuse naming the first site field or constant not at the value a delivered tree carries"
+  buc_doc_shown || return 0
+
   local z_i=0
   for z_i in "${!z_rblm_home_file_roll[@]}"; do
     zrblm_vet_regime \
