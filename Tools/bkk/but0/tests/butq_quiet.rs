@@ -888,7 +888,7 @@ fn zbutq_coursed(names: &[(String, String)]) {
 /// it read one, and the decoy pair the proof the homes are the leash's own.
 #[test]
 fn butq_a_rust_course_is_handed_the_pointer_alone_and_the_tackroom_homes() {
-    let lure = bktu_Lure::bktu_compose("quiet-rust-course");
+    let lure = bktu_Lure::bktu_compose("quiet-rust-tremmock");
     lure.bktu_collar_seat();
     let record = lure.bktu_temp().join("rust-course-environment.txt");
     lure.bktu_write(
@@ -1053,7 +1053,7 @@ fn butq_a_python_course_is_handed_the_pointer_alone() {
     let record = bkk::bktu_lure::bktu_temp_root().join("quiet-python-course-environment.txt");
     let _ = std::fs::remove_file(&record);
     let lure = zbutq_pythoned(
-        "quiet-python-course",
+        "quiet-python-tremmock",
         &format!(
             "import os\n\n\ndef bkept_writes():\n    with open({:?}, \"w\") as said:\n        for name, value in os.environ.items():\n            said.write(name + \"=\" + value + \"\\n\")\n",
             record.display().to_string(), //

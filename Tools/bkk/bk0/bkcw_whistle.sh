@@ -531,15 +531,15 @@ bkcw_delouse() {
 # green send their reader here. It makes a cold station and a cold tree ready
 # for the derby in one act: every toolchain the kennel requires answering, the
 # kennel converged, and then the binary's own rebed - every heel and every
-# strike the derby's preflight names, every manifest's registry closure under
-# its lock.
+# strike the derby's preflight names, and every package each manifest's lock
+# names, fetched under that lock.
 #
 # TWO HALVES, AND THE SEAM IS THE WHISTLE'S OWN. The toolchain half stays bash,
 # because a toolchain that cannot answer is exactly when no kennel can be built;
 # everything after it is the binary's, reached through the same converge-and-
 # exec every door takes, so the kennel it execs is current.
 bkcw_rebed() {
-  buc_doc_brief "Make the station and the tree ready for the derby: lay every toolchain the kennel requires that does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every manifest's registry closure"
+  buc_doc_brief "Make the station and the tree ready for the derby: lay every toolchain the kennel requires that does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every package each manifest's lock names"
   buc_doc_shown || return 0
 
   test -z "${BUZ_FOLIO:-}" || buc_die_now \

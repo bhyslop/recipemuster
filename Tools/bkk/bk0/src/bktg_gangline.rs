@@ -95,7 +95,7 @@ version = \"0.0.1\"
 /// collar over it.
 ///
 /// A PATH DEPENDENCY IS THE SHAPE EVERY HURDLE HERE USES, and it is chosen so
-/// the drives reach no network: a path dependency has no registry closure, so
+/// the drives reach no network: a path dependency names no registry package, so
 /// cargo re-derives the lock from the two manifests on disk and asks the world
 /// nothing. That keeps these hurdles honest on a station behind the tackroom
 /// fence, where a registry fetch would refuse rather than answer.
@@ -249,7 +249,7 @@ fn bktg_a_lock_that_already_answers_is_left_alone() {
 ///
 /// It stands beside the two above because the door's own output is the input to
 /// its next drive, and a door that reported `Moved` forever would make the
-/// notch-gangline-notch sequence unterminating.
+/// commit-gangline-commit sequence unterminating.
 #[test]
 fn bktg_a_second_drive_over_its_own_output_finds_nothing() {
     let lure = zbktg_lure("twice");
@@ -259,7 +259,9 @@ fn bktg_a_second_drive_over_its_own_output_finds_nothing() {
     assert_eq!(
         zbktg_gangline(&lure),
         bkcg_Verdict::Unmoved,
-        "the door's own output must satisfy its next drive, or notch-gangline-notch never ends", //
+        "the door's own output must satisfy its next drive, or {}-gangline-{} never ends",
+        crate::bkcf_guard::BKCF_REMEDY,
+        crate::bkcf_guard::BKCF_REMEDY, //
     );
 }
 
@@ -714,7 +716,7 @@ fn bktg_a_lock_written_plain_is_re_proven_fresh_at_the_door() {
 
     assert!(
         String::from_utf8_lossy(&before).contains(ZBKTG_REQUIRED),
-        "the plain lock did not record the declared environment, so nothing below reads what it claims", //
+        "the plain lock did not write the declared environment, so nothing below reads what it claims", //
     );
 
     let said = bkcg_python(seated.lure.bktu_root(), &bktr_lured(&seated.lure), &seated.collar, &seated.seat)

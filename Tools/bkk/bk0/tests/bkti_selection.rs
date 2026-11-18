@@ -396,7 +396,7 @@ fn bkti_lineup_takes_a_collar_and_no_pattern() {
 /// would have lost exactly the fact a narrowing is read against.
 #[test]
 fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
-    let lure = zbkti_lure("selection-record");
+    let lure = zbkti_lure("selection-snibbet");
 
     let out = zbkti_drive(&lure, &["mush", "suite-lure", "^alpha::"]);
     assert!(
@@ -413,7 +413,8 @@ fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
 
     let said = std::fs::read_to_string(&banked).unwrap_or_else(|err| {
         panic!(
-            "the record stands at {}: {}",
+            "the {} stands at {}: {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             banked.display(),
             err, //
         )
@@ -421,7 +422,8 @@ fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
 
     let read = bkk::bkcc_record::bkcc_admit(&said, &leaf).unwrap_or_else(|err| {
         panic!(
-            "the door's own record admits: {}",
+            "the door's own {} admits: {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             err, //
         )
     });
@@ -429,7 +431,8 @@ fn bkti_a_narrowed_green_course_records_its_narrowing_and_no_time() {
     assert_eq!(
         read.narrowing.as_deref(),
         Some(&["alpha::one".to_string(), "alpha::two".to_string()][..]),
-        "the record names the hurdles the patterns chose: {}",
+        "the {} names the hurdles the patterns chose: {}",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         said, //
     );
     assert_eq!(

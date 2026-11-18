@@ -169,7 +169,9 @@ fn butt_the_seed_templates_are_what_the_doors_emit() {
             "{}/tabtarget.sh",
             BUTT_EMITTED, //
         )),
-        "the tabtarget template, stripped, is what the batch-and-logging door writes", //
+        "the {} template, stripped, is what the batch door keeping a {} writes",
+        bkk::bkg_breviary::BKG_BUS_TABTARGET_BASE,
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE, //
     );
 
     // THE POSITIVE CONTROL. The nolog door writes the same stub with one flag
@@ -187,7 +189,8 @@ fn butt_the_seed_templates_are_what_the_doors_emit() {
     assert_ne!(
         zbutt_template("bpt_tabtarget.sh"),
         control,
-        "the tabtarget template differs from the nolog door's output", //
+        "the {} template differs from the nolog door's output",
+        bkk::bkg_breviary::BKG_BUS_TABTARGET_BASE, //
     );
 }
 

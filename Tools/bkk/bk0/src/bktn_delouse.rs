@@ -71,7 +71,7 @@ fn bktn_a_seat_with_no_record_reads_no_day() {
 fn bktn_a_recorded_day_reads_back() {
     let (_lure, seat) = zbktn_seat("delouse-round-trip");
 
-    bkcn_write(&seat, "20260906").expect("the seat should take a record");
+    bkcn_write(&seat, "20260906").expect("the seat should take the day");
 
     assert_eq!(bkcn_read(&seat).as_deref(), Some("20260906"));
 }
@@ -83,8 +83,8 @@ fn bktn_a_recorded_day_reads_back() {
 fn bktn_a_second_record_replaces_the_first() {
     let (_lure, seat) = zbktn_seat("delouse-replace");
 
-    bkcn_write(&seat, "20260906").expect("the seat should take a record");
-    bkcn_write(&seat, "20260907").expect("the seat should take a second record");
+    bkcn_write(&seat, "20260906").expect("the seat should take the day");
+    bkcn_write(&seat, "20260907").expect("the seat should take a second day");
 
     assert_eq!(bkcn_read(&seat).as_deref(), Some("20260907"));
 }
@@ -103,7 +103,7 @@ fn bktn_a_record_spelling_no_day_reads_none() {
         assert_eq!(
             bkcn_read(&seat),
             None,
-            "'{}' spells no day and must read as no record",
+            "'{}' spells no day and must read as none",
             held, //
         );
     }
@@ -129,7 +129,7 @@ fn bktn_the_record_stands_outside_the_repository() {
     let lure = bktu_Lure::bktu_compose("delouse-outside");
     let seat = lure.bktu_temp();
 
-    bkcn_write(seat, "20260906").expect("the seat should take a record");
+    bkcn_write(seat, "20260906").expect("the seat should take the day");
 
     assert!(
         !seat.join(BKCN_DAY_FILE).starts_with(lure.bktu_root()),
@@ -152,7 +152,7 @@ fn bktn_two_seats_keep_two_records() {
         "two lures should compose two seats", //
     );
 
-    bkcn_write(&mine, "20260906").expect("the seat should take a record");
+    bkcn_write(&mine, "20260906").expect("the seat should take the day");
 
     assert_eq!(bkcn_read(&mine).as_deref(), Some("20260906"));
     assert_eq!(bkcn_read(&yours), None);
@@ -168,7 +168,7 @@ fn bktn_a_seat_that_does_not_stand_refuses_the_record() {
 
     assert!(
         bkcn_write(Path::new(&seat), "20260906").is_err(),
-        "a record written where nothing stands should refuse", //
+        "a day written where nothing stands should refuse", //
     );
 }
 
@@ -180,9 +180,9 @@ fn bktn_a_seat_that_does_not_stand_refuses_the_record() {
 /// still climbed would answer the seat, and the record would land there.
 #[test]
 fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
-    let (_lure, seat) = zbktn_seat("delouse-loosebox");
+    let (_lure, seat) = zbktn_seat("delouse-pomfrish");
 
-    let loosebox = seat.join("loosebox-posed");
+    let loosebox = seat.join("pomfrish-posed");
     std::fs::create_dir_all(&loosebox).expect(concat!(
         "the hurdle composes the ",
         bkg_bus_loosebox_base!(),
@@ -205,7 +205,7 @@ fn bktn_the_day_stands_in_the_posed_loosebox_and_never_in_a_parent() {
     bkcn_write(&answered, "20260906").expect(concat!(
         "the ",
         bkg_bus_loosebox_base!(),
-        " should take a record", //
+        " should take the day", //
     ));
 
     assert_eq!(bkcn_read(&answered).as_deref(), Some("20260906"));

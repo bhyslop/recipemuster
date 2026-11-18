@@ -44,7 +44,7 @@ use crate::bktu_lure::{
 
 /// The collar every hurdle below composes, and the project it points at.
 const ZBKTX_COLLAR: &str = "suite-lure";
-const ZBKTX_AT: &str = "project";
+const ZBKTX_AT: &str = "plindox";
 
 /// The uv kibble a lure lays down so that a `required-version` has something to
 /// be weighed against.
@@ -140,7 +140,7 @@ fn bktx_a_conforming_collar_proclaims_with_the_python_language_value() {
     // makes the vocabulary tenant-blind: a consumer asks what declares this
     // launchable's dependencies and is never told which language answered.
     assert!(
-        said.contains("BKRC_MANIFEST=\"project/pyproject.toml\""),
+        said.contains("BKRC_MANIFEST=\"plindox/pyproject.toml\""),
         "the proclamation carried no manifest row: {}",
         said, //
     );
@@ -737,7 +737,11 @@ fn bktx_a_name_in_both_lists_and_a_crude_name_each_refuse_citing_the_rivet() {
 
     assert!(
         zbktx_names(&findings, "names 'alpha'") && zbktx_names(&findings, "BKr_hpt"),
-        "a name in the second list reported no rivet: {:?}",
+        concat!(
+            "a name in the second list reported no ",
+            crate::bkg_breviary::bkg_mcm_rivet_base!(),
+            ": {:?}"
+        ),
         findings, //
     );
 
@@ -1514,8 +1518,7 @@ fn bktx_a_project_awaiting_its_first_lock_still_meets_its_pin_reading() {
 /// reads nothing unhitched, so what the reading answered is the declaration.
 #[test]
 fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
-    let control =
-        crate::bkth_heel::bkth_python_seated("python-unhitched-control", ">=3.12", "", "");
+    let control = crate::bkth_heel::bkth_python_seated("python-glandrop-control", ">=3.12", "", "");
 
     let read = crate::bkcx_python::bkcx_unhitched_at(
         control.lure.bktu_root(),
@@ -1527,11 +1530,14 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
 
     assert_eq!(
         read, None,
-        "the control: an undeclared project read as declared out of this station", //
+        concat!(
+            "the control: an undeclared project read as declared out of this ",
+            crate::bkg_breviary::bkg_bus_station_base!()
+        ), //
     );
 
     let seated = crate::bkth_heel::bkth_python_seated(
-        "python-unhitched",
+        "python-glandrop",
         ">=3.12",
         crate::bkth_heel::BKTH_PYTHON_UNHITCHED,
         "",
@@ -1544,7 +1550,14 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
         &seated.seat,
     )
     .expect("the reading over the declared project is taken")
-    .unwrap_or_else(|| panic!("a project declaring an environment no station satisfies was not read as declared out of this station"));
+    .unwrap_or_else(|| {
+        panic!(concat!(
+            "a project declaring an environment no ",
+            crate::bkg_breviary::bkg_bus_station_base!(),
+            " satisfies was not read as declared out of this ",
+            crate::bkg_breviary::bkg_bus_station_base!()
+        ))
+    });
 
     assert!(
         unhitched.environments.contains("nowhere"),
@@ -1563,7 +1576,10 @@ fn bktx_a_project_declaring_an_environment_no_station_satisfies_is_unhitched() {
         &seated.collar,
         &seated.seat,
     )
-    .expect_err("the verify passed a project declared out of this station");
+    .expect_err(concat!(
+        "the verify passed a project declared out of this ",
+        crate::bkg_breviary::bkg_bus_station_base!()
+    ));
 
     assert!(
         refused.contains(crate::bkg_breviary::BKG_UNHITCHED_BASE) && refused.contains("nowhere"),

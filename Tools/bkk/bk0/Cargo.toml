@@ -26,7 +26,7 @@ build = "build.rs"
 # not the same: the door refuses an uncommitted repository and the library does
 # not, because a library consumer holds its own posture. A consumer stands that
 # reads cargo metadata in-process on exactly the dirty tree its own census is
-# driven against, before every notch, and must keep being able to.
+# driven against, before every commit, and must keep being able to.
 [lib]
 name = "bkk"
 path = "src/lib.rs"

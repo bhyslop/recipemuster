@@ -6,7 +6,7 @@ refusal or a kennel codex acronym is met. It is an **excursus**
 reached from the trigger line in `Tools/buk/buai0/buais_buk.md`.
 
 What binds without this read stays in the standing load: a kennel door refuses a repository
-carrying an uncommitted file, so notch first, and a dispatched session drives a
+carrying an uncommitted file, so commit first, and a dispatched session drives a
 kennel test door through the engine's tabtarget door, never by bash.
 
 ## Bash Kennel (BKK)

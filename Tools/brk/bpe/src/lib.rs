@@ -41,8 +41,9 @@ pub use bper_release::bper_off_trunk;
 pub use bper_release::{
     bper_CollectResult,
     bper_TamgaResult,
+    bper_allocate_tamga,
     bper_collect,
-    bper_issue_tamga,
+    bper_record_tamga,
     bper_tamga_json,
     bper_target_name, //
 };

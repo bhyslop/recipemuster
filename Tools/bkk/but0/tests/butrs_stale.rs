@@ -66,7 +66,7 @@ const BUTRS_STALE: &str = "#!/bin/bash\n\
 /// coordinator hands the bootstrap. The refusal fires at source time, so the
 /// call line is never reached and its function is a made-up word.
 const BUTRS_SOURCING: &str = "#!/bin/bash\n\
-                             # Launcher stub - delegates to quob workbench\n\
+                             # Fendrel stub - delegates to quob workbench\n\
                              source \"${1}/bul_launcher.sh\"\n\
                              quob_launch \"${BURC_TOOLS_DIR}/quobk/quobw_workbench.sh\" \"$@\"\n";
 

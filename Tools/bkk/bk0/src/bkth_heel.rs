@@ -1561,7 +1561,7 @@ fn bkth_a_manifest_the_lock_does_not_answer_refuses_and_authors_nothing() {
 /// between the install and the sync.
 #[test]
 fn bkth_the_converge_refuses_an_unhitched_project_and_builds_no_environment() {
-    let seated = bkth_python_seated("heel-python-unhitched", ">=3.12", BKTH_PYTHON_UNHITCHED, "");
+    let seated = bkth_python_seated("heel-python-glandrop", ">=3.12", BKTH_PYTHON_UNHITCHED, "");
 
     let refused = match bkch_python_at(
         seated.lure.bktu_root(),
@@ -1570,7 +1570,11 @@ fn bkth_the_converge_refuses_an_unhitched_project_and_builds_no_environment() {
         &seated.seat,
     ) {
         Ok(environed) => panic!(
-            "the converge synced a project whose declaration no station satisfies, at {}",
+            concat!(
+                "the converge synced a project whose declaration no ",
+                crate::bkg_breviary::bkg_bus_station_base!(),
+                " satisfies, at {}"
+            ),
             environed.environment.display(), //
         ),
         Err(refused) => refused,

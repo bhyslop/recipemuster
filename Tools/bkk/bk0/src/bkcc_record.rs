@@ -145,8 +145,8 @@ pub fn bkcc_loosebox_root(
     if said.is_empty() {
         return Err(format!(
             "this door has no {} root to hand a child: {} names no directory. The dispatch \
-             records the root it folded beside the {} it keyed beneath it, and a door reached \
-             without that record has no root of its own to compose",
+             names the root it folded beside the {} it keyed beneath it, and a door reached \
+             without that variable has no root of its own to compose",
             BKG_BUS_LOOSEBOX_BASE,
             BKCC_LOOSEBOX_ROOT_DIR_VAR,
             BKG_BUS_LOOSEBOX_BASE, //
@@ -158,7 +158,7 @@ pub fn bkcc_loosebox_root(
     if !root.is_dir() {
         return Err(format!(
             "{} names {}, which is no directory that stands — the dispatch makes its {} \
-             beneath the root it records, so a root naming nothing is a misprovisioned seat",
+             beneath the root it names, so a root naming nothing is a misprovisioned seat",
             BKCC_LOOSEBOX_ROOT_DIR_VAR,
             root.display(),
             BKG_BUS_LOOSEBOX_BASE, //
@@ -320,7 +320,7 @@ pub fn bkcc_admit(source: &str, whence: &str) -> Result<bkcc_Course, String> {
     if narrowing.is_none() != wall.is_some() {
         return Err(format!(
             "{} disagrees with itself: {} and {} carry one fact between them — a whole course \
-             takes a time and a narrowed one takes the token '{}' — and this record spells the \
+             takes a time and a narrowed one takes the token '{}' — and it spells the \
              two halves differently",
             whence,
             BKCC_NARROWING,

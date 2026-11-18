@@ -81,7 +81,8 @@ fn bute_sprued(width: usize) -> String {
     assert_eq!(
         name.len(),
         width,
-        "the sprue alone is wider than {}",
+        "the {} alone is wider than {}",
+        bkk::bkg_breviary::BKG_MCM_SPRUE_BASE,
         width, //
     );
     name

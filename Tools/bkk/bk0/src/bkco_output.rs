@@ -166,8 +166,18 @@ macro_rules! bkco_trace_now {
     }};
 }
 
-/// An operational milestone. Unconditional by nature, so it carries no
-/// conditional variants.
+/// The outcome of a door whose stdout is its caller's data, said where that
+/// data is not. Unconditional by nature, so it carries no conditional variants.
+///
+/// NARROW BY DESIGN. An outcome a reader acts on is the door's voice, and the
+/// voice rides stdout; a narration of the kennel's interior — an invocation
+/// composed, an election computed — is a diagnostic above the verbose flavor.
+/// What is left for this throat is a verdict of a door whose stdout is already
+/// an answer a program reads, such as a proclamation a shell sources or a
+/// listing, where a voice line would corrupt that answer: the verdict rides
+/// stderr instead, wearing the level and the site every line here wears. The
+/// binary's bare self-report — its seat, pin and compiler — stands here too,
+/// on the stream it has always taken.
 #[macro_export]
 macro_rules! bkco_info_now {
     ($($arg:tt)*) => {{

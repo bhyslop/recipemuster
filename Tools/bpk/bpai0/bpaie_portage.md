@@ -78,10 +78,18 @@ crossing: the two-pace shape is the short road already.
 
 ## The registry allocation
 
-The release door commits the parcel's registry allocation on the forge's trunk
-and pushes it before any tarball exists, so the number a parcel carries is
-published before the parcel is applied anywhere. A push that fails refuses the
-release; reconciling the forge's trunk is then the operator's.
+The release door takes the parcel's number, commits its registry allocation on
+the forge's trunk and pushes it directly after it has built the engine and
+found the trunk, ahead of its suites and long before any tarball exists, so the
+number a parcel carries is published before the parcel is applied anywhere. A
+refusal after that point leaves the number published with nothing under it,
+and the next drive takes a fresh one.
+
+A push the remote turns away refuses the release, and its refusal names the
+reconciliation, which is the operator's and never the session's: where no
+commit the remote gained touches the registry, the remote trunk is merged in,
+never rebased, and pushed; where one does, the number is a rival's and the
+local allocation is dropped. Either way the release is driven again.
 
 ## The receiving pace's docket
 

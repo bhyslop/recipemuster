@@ -17,7 +17,7 @@
 // The human-presentation surface forms of the governed words homed in BKK.
 // A string that spells one of these words in its own bytes has left the home.
 // Beside them, the colophons and exit codes attached at definitions, each named for the definition it is attached at.
-// Held in this file, rows of other kits the code beside it prints: bus_loosebox.
+// Held in this file, rows of other kits the code beside it prints: bus_loosebox, bus_station, bus_station_log, bus_tabtarget, mcm_inscription, mcm_rivet, mcm_sprue.
 // Held in this file, values other kits attach that the code beside it cites: busx_barred, busx_fenced.
 // Each constant carries a macro twin of its own spelling lower-cased, for the
 // literal-demanding positions a const item cannot reach.
@@ -247,6 +247,159 @@ pub const BKG_BUS_LOOSEBOX_POSSESSIVE_VERSAL: &str = bkg_bus_loosebox_possessive
 macro_rules! bkg_bus_loosebox_possessive_lettrine { () => { "Loosebox's" }; }
 pub(crate) use bkg_bus_loosebox_possessive_lettrine;
 pub const BKG_BUS_LOOSEBOX_POSSESSIVE_LETTRINE: &str = bkg_bus_loosebox_possessive_lettrine!();
+macro_rules! bkg_bus_station_base { () => { "station" }; }
+pub(crate) use bkg_bus_station_base;
+pub const BKG_BUS_STATION_BASE: &str = bkg_bus_station_base!();
+macro_rules! bkg_bus_station_base_versal { () => { "STATION" }; }
+pub(crate) use bkg_bus_station_base_versal;
+pub const BKG_BUS_STATION_BASE_VERSAL: &str = bkg_bus_station_base_versal!();
+macro_rules! bkg_bus_station_base_lettrine { () => { "Station" }; }
+pub(crate) use bkg_bus_station_base_lettrine;
+pub const BKG_BUS_STATION_BASE_LETTRINE: &str = bkg_bus_station_base_lettrine!();
+macro_rules! bkg_bus_station_plural { () => { "stations" }; }
+pub(crate) use bkg_bus_station_plural;
+pub const BKG_BUS_STATION_PLURAL: &str = bkg_bus_station_plural!();
+macro_rules! bkg_bus_station_plural_versal { () => { "STATIONS" }; }
+pub(crate) use bkg_bus_station_plural_versal;
+pub const BKG_BUS_STATION_PLURAL_VERSAL: &str = bkg_bus_station_plural_versal!();
+macro_rules! bkg_bus_station_plural_lettrine { () => { "Stations" }; }
+pub(crate) use bkg_bus_station_plural_lettrine;
+pub const BKG_BUS_STATION_PLURAL_LETTRINE: &str = bkg_bus_station_plural_lettrine!();
+macro_rules! bkg_bus_station_possessive { () => { "station's" }; }
+pub(crate) use bkg_bus_station_possessive;
+pub const BKG_BUS_STATION_POSSESSIVE: &str = bkg_bus_station_possessive!();
+macro_rules! bkg_bus_station_possessive_versal { () => { "STATION'S" }; }
+pub(crate) use bkg_bus_station_possessive_versal;
+pub const BKG_BUS_STATION_POSSESSIVE_VERSAL: &str = bkg_bus_station_possessive_versal!();
+macro_rules! bkg_bus_station_possessive_lettrine { () => { "Station's" }; }
+pub(crate) use bkg_bus_station_possessive_lettrine;
+pub const BKG_BUS_STATION_POSSESSIVE_LETTRINE: &str = bkg_bus_station_possessive_lettrine!();
+macro_rules! bkg_bus_station_log_base { () => { "station log" }; }
+pub(crate) use bkg_bus_station_log_base;
+pub const BKG_BUS_STATION_LOG_BASE: &str = bkg_bus_station_log_base!();
+macro_rules! bkg_bus_station_log_base_versal { () => { "STATION LOG" }; }
+pub(crate) use bkg_bus_station_log_base_versal;
+pub const BKG_BUS_STATION_LOG_BASE_VERSAL: &str = bkg_bus_station_log_base_versal!();
+macro_rules! bkg_bus_station_log_base_lettrine { () => { "Station log" }; }
+pub(crate) use bkg_bus_station_log_base_lettrine;
+pub const BKG_BUS_STATION_LOG_BASE_LETTRINE: &str = bkg_bus_station_log_base_lettrine!();
+macro_rules! bkg_bus_station_log_plural { () => { "station logs" }; }
+pub(crate) use bkg_bus_station_log_plural;
+pub const BKG_BUS_STATION_LOG_PLURAL: &str = bkg_bus_station_log_plural!();
+macro_rules! bkg_bus_station_log_plural_versal { () => { "STATION LOGS" }; }
+pub(crate) use bkg_bus_station_log_plural_versal;
+pub const BKG_BUS_STATION_LOG_PLURAL_VERSAL: &str = bkg_bus_station_log_plural_versal!();
+macro_rules! bkg_bus_station_log_plural_lettrine { () => { "Station logs" }; }
+pub(crate) use bkg_bus_station_log_plural_lettrine;
+pub const BKG_BUS_STATION_LOG_PLURAL_LETTRINE: &str = bkg_bus_station_log_plural_lettrine!();
+macro_rules! bkg_bus_station_log_possessive { () => { "station log's" }; }
+pub(crate) use bkg_bus_station_log_possessive;
+pub const BKG_BUS_STATION_LOG_POSSESSIVE: &str = bkg_bus_station_log_possessive!();
+macro_rules! bkg_bus_station_log_possessive_versal { () => { "STATION LOG'S" }; }
+pub(crate) use bkg_bus_station_log_possessive_versal;
+pub const BKG_BUS_STATION_LOG_POSSESSIVE_VERSAL: &str = bkg_bus_station_log_possessive_versal!();
+macro_rules! bkg_bus_station_log_possessive_lettrine { () => { "Station log's" }; }
+pub(crate) use bkg_bus_station_log_possessive_lettrine;
+pub const BKG_BUS_STATION_LOG_POSSESSIVE_LETTRINE: &str = bkg_bus_station_log_possessive_lettrine!();
+macro_rules! bkg_bus_tabtarget_base { () => { "tabtarget" }; }
+pub(crate) use bkg_bus_tabtarget_base;
+pub const BKG_BUS_TABTARGET_BASE: &str = bkg_bus_tabtarget_base!();
+macro_rules! bkg_bus_tabtarget_base_versal { () => { "TABTARGET" }; }
+pub(crate) use bkg_bus_tabtarget_base_versal;
+pub const BKG_BUS_TABTARGET_BASE_VERSAL: &str = bkg_bus_tabtarget_base_versal!();
+macro_rules! bkg_bus_tabtarget_base_lettrine { () => { "Tabtarget" }; }
+pub(crate) use bkg_bus_tabtarget_base_lettrine;
+pub const BKG_BUS_TABTARGET_BASE_LETTRINE: &str = bkg_bus_tabtarget_base_lettrine!();
+macro_rules! bkg_bus_tabtarget_plural { () => { "tabtargets" }; }
+pub(crate) use bkg_bus_tabtarget_plural;
+pub const BKG_BUS_TABTARGET_PLURAL: &str = bkg_bus_tabtarget_plural!();
+macro_rules! bkg_bus_tabtarget_plural_versal { () => { "TABTARGETS" }; }
+pub(crate) use bkg_bus_tabtarget_plural_versal;
+pub const BKG_BUS_TABTARGET_PLURAL_VERSAL: &str = bkg_bus_tabtarget_plural_versal!();
+macro_rules! bkg_bus_tabtarget_plural_lettrine { () => { "Tabtargets" }; }
+pub(crate) use bkg_bus_tabtarget_plural_lettrine;
+pub const BKG_BUS_TABTARGET_PLURAL_LETTRINE: &str = bkg_bus_tabtarget_plural_lettrine!();
+macro_rules! bkg_bus_tabtarget_possessive { () => { "tabtarget's" }; }
+pub(crate) use bkg_bus_tabtarget_possessive;
+pub const BKG_BUS_TABTARGET_POSSESSIVE: &str = bkg_bus_tabtarget_possessive!();
+macro_rules! bkg_bus_tabtarget_possessive_versal { () => { "TABTARGET'S" }; }
+pub(crate) use bkg_bus_tabtarget_possessive_versal;
+pub const BKG_BUS_TABTARGET_POSSESSIVE_VERSAL: &str = bkg_bus_tabtarget_possessive_versal!();
+macro_rules! bkg_bus_tabtarget_possessive_lettrine { () => { "Tabtarget's" }; }
+pub(crate) use bkg_bus_tabtarget_possessive_lettrine;
+pub const BKG_BUS_TABTARGET_POSSESSIVE_LETTRINE: &str = bkg_bus_tabtarget_possessive_lettrine!();
+macro_rules! bkg_mcm_inscription_base { () => { "inscription" }; }
+pub(crate) use bkg_mcm_inscription_base;
+pub const BKG_MCM_INSCRIPTION_BASE: &str = bkg_mcm_inscription_base!();
+macro_rules! bkg_mcm_inscription_base_versal { () => { "INSCRIPTION" }; }
+pub(crate) use bkg_mcm_inscription_base_versal;
+pub const BKG_MCM_INSCRIPTION_BASE_VERSAL: &str = bkg_mcm_inscription_base_versal!();
+macro_rules! bkg_mcm_inscription_base_lettrine { () => { "Inscription" }; }
+pub(crate) use bkg_mcm_inscription_base_lettrine;
+pub const BKG_MCM_INSCRIPTION_BASE_LETTRINE: &str = bkg_mcm_inscription_base_lettrine!();
+macro_rules! bkg_mcm_inscription_plural { () => { "inscriptions" }; }
+pub(crate) use bkg_mcm_inscription_plural;
+pub const BKG_MCM_INSCRIPTION_PLURAL: &str = bkg_mcm_inscription_plural!();
+macro_rules! bkg_mcm_inscription_plural_versal { () => { "INSCRIPTIONS" }; }
+pub(crate) use bkg_mcm_inscription_plural_versal;
+pub const BKG_MCM_INSCRIPTION_PLURAL_VERSAL: &str = bkg_mcm_inscription_plural_versal!();
+macro_rules! bkg_mcm_inscription_plural_lettrine { () => { "Inscriptions" }; }
+pub(crate) use bkg_mcm_inscription_plural_lettrine;
+pub const BKG_MCM_INSCRIPTION_PLURAL_LETTRINE: &str = bkg_mcm_inscription_plural_lettrine!();
+macro_rules! bkg_mcm_rivet_base { () => { "rivet" }; }
+pub(crate) use bkg_mcm_rivet_base;
+pub const BKG_MCM_RIVET_BASE: &str = bkg_mcm_rivet_base!();
+macro_rules! bkg_mcm_rivet_base_versal { () => { "RIVET" }; }
+pub(crate) use bkg_mcm_rivet_base_versal;
+pub const BKG_MCM_RIVET_BASE_VERSAL: &str = bkg_mcm_rivet_base_versal!();
+macro_rules! bkg_mcm_rivet_base_lettrine { () => { "Rivet" }; }
+pub(crate) use bkg_mcm_rivet_base_lettrine;
+pub const BKG_MCM_RIVET_BASE_LETTRINE: &str = bkg_mcm_rivet_base_lettrine!();
+macro_rules! bkg_mcm_rivet_plural { () => { "rivets" }; }
+pub(crate) use bkg_mcm_rivet_plural;
+pub const BKG_MCM_RIVET_PLURAL: &str = bkg_mcm_rivet_plural!();
+macro_rules! bkg_mcm_rivet_plural_versal { () => { "RIVETS" }; }
+pub(crate) use bkg_mcm_rivet_plural_versal;
+pub const BKG_MCM_RIVET_PLURAL_VERSAL: &str = bkg_mcm_rivet_plural_versal!();
+macro_rules! bkg_mcm_rivet_plural_lettrine { () => { "Rivets" }; }
+pub(crate) use bkg_mcm_rivet_plural_lettrine;
+pub const BKG_MCM_RIVET_PLURAL_LETTRINE: &str = bkg_mcm_rivet_plural_lettrine!();
+macro_rules! bkg_mcm_rivet_possessive { () => { "rivet's" }; }
+pub(crate) use bkg_mcm_rivet_possessive;
+pub const BKG_MCM_RIVET_POSSESSIVE: &str = bkg_mcm_rivet_possessive!();
+macro_rules! bkg_mcm_rivet_possessive_versal { () => { "RIVET'S" }; }
+pub(crate) use bkg_mcm_rivet_possessive_versal;
+pub const BKG_MCM_RIVET_POSSESSIVE_VERSAL: &str = bkg_mcm_rivet_possessive_versal!();
+macro_rules! bkg_mcm_rivet_possessive_lettrine { () => { "Rivet's" }; }
+pub(crate) use bkg_mcm_rivet_possessive_lettrine;
+pub const BKG_MCM_RIVET_POSSESSIVE_LETTRINE: &str = bkg_mcm_rivet_possessive_lettrine!();
+macro_rules! bkg_mcm_sprue_base { () => { "sprue" }; }
+pub(crate) use bkg_mcm_sprue_base;
+pub const BKG_MCM_SPRUE_BASE: &str = bkg_mcm_sprue_base!();
+macro_rules! bkg_mcm_sprue_base_versal { () => { "SPRUE" }; }
+pub(crate) use bkg_mcm_sprue_base_versal;
+pub const BKG_MCM_SPRUE_BASE_VERSAL: &str = bkg_mcm_sprue_base_versal!();
+macro_rules! bkg_mcm_sprue_base_lettrine { () => { "Sprue" }; }
+pub(crate) use bkg_mcm_sprue_base_lettrine;
+pub const BKG_MCM_SPRUE_BASE_LETTRINE: &str = bkg_mcm_sprue_base_lettrine!();
+macro_rules! bkg_mcm_sprue_plural { () => { "sprues" }; }
+pub(crate) use bkg_mcm_sprue_plural;
+pub const BKG_MCM_SPRUE_PLURAL: &str = bkg_mcm_sprue_plural!();
+macro_rules! bkg_mcm_sprue_plural_versal { () => { "SPRUES" }; }
+pub(crate) use bkg_mcm_sprue_plural_versal;
+pub const BKG_MCM_SPRUE_PLURAL_VERSAL: &str = bkg_mcm_sprue_plural_versal!();
+macro_rules! bkg_mcm_sprue_plural_lettrine { () => { "Sprues" }; }
+pub(crate) use bkg_mcm_sprue_plural_lettrine;
+pub const BKG_MCM_SPRUE_PLURAL_LETTRINE: &str = bkg_mcm_sprue_plural_lettrine!();
+macro_rules! bkg_mcm_sprue_possessive { () => { "sprue's" }; }
+pub(crate) use bkg_mcm_sprue_possessive;
+pub const BKG_MCM_SPRUE_POSSESSIVE: &str = bkg_mcm_sprue_possessive!();
+macro_rules! bkg_mcm_sprue_possessive_versal { () => { "SPRUE'S" }; }
+pub(crate) use bkg_mcm_sprue_possessive_versal;
+pub const BKG_MCM_SPRUE_POSSESSIVE_VERSAL: &str = bkg_mcm_sprue_possessive_versal!();
+macro_rules! bkg_mcm_sprue_possessive_lettrine { () => { "Sprue's" }; }
+pub(crate) use bkg_mcm_sprue_possessive_lettrine;
+pub const BKG_MCM_SPRUE_POSSESSIVE_LETTRINE: &str = bkg_mcm_sprue_possessive_lettrine!();
 macro_rules! bkg_bkck_suite_pediment { () => { "bkw-k" }; }
 pub(crate) use bkg_bkck_suite_pediment;
 pub const BKG_BKCK_SUITE_PEDIMENT: &str = bkg_bkck_suite_pediment!();

@@ -23,7 +23,10 @@
 //!   stands at the forge as no tracked folder, naming every such kit at once
 //! - `bper_off_trunk`: Whether the forge's main checkout stands off its trunk,
 //!   the one trunk reading the release and the forge's survey both ask
-//! - `bper_issue_tamga`: Allocate the next release number, write the record
+//! - `bper_allocate_tamga`: Allocate the next release number, writing its
+//!   registry row
+//! - `bper_record_tamga`: Write the record over a staging directory for a
+//!   release number already allocated
 //! - `bper_target_name`: Name the target a parcel is formed for, from its `burc.env`
 //! - `bper_git_tracked_files`: List git-tracked files under a root — the
 //!   generalized candidate-gate primitive shared consumers (a name census
@@ -122,7 +125,7 @@ pub struct bper_CollectResult {
     pub commands_routed: u32,
 }
 
-/// Result of issuing a record.
+/// Result of an allocation.
 #[derive(Debug)]
 pub struct bper_TamgaResult {
     /// Allocated release number
@@ -283,57 +286,97 @@ pub fn bper_collect(
     })
 }
 
-/// Issue the record over a staging directory: its release number and metadata.
+/// Allocate the next release number, writing its registry row and nothing
+/// else.
 ///
 /// # Arguments
-/// * `staging_dir` - Staging directory with collected assets
 /// * `registry_path` - Path to vofr_registry.json
-/// * `commit_sha` - Current git commit SHA
-/// * `vulgate_sha` - The corpus trunk commit the word table was read at, where
-///   the parcel carries the table; none where its target declares no `vmk`
-/// * `forge` - The forming repository's own `BURC_ENDONYM`, recorded in the
-///   record and on the registry row alike
-/// * `target` - The target the parcel was formed for (`bper_target_name`)
-/// * `managed_kits` - List of kit IDs included (the target's BURC_MANAGED_KITS)
+/// * `forge` - The forming repository's own `BURC_ENDONYM`, written on the
+///   row as the forge that took the number
 ///
 /// # Returns
 /// TamgaResult with the release number, or error message
 ///
 /// Allocation is monotonic and unconditional: every release takes the next
-/// release number, writes a registry row, and leaves the caller to publish it. A release number
-/// names an allocation rather than a content set, so nothing is looked up
-/// before one is handed out. What a parcel was built from is `vvmc_commit`,
-/// which git determines exactly and which the record carries downstream.
-pub fn bper_issue_tamga(
-    staging_dir: &Path,
-    registry_path: &Path,
-    commit_sha: &str,
-    vulgate_sha: Option<&str>,
-    forge: &str,
-    target: &str,
-    managed_kits: &[String],
-) -> Result<bper_TamgaResult, String> {
+/// release number, writes a registry row, and leaves the caller to publish it.
+/// A release number names an allocation rather than a content set, so nothing
+/// is looked up before one is handed out. The allocation stands apart from
+/// the record so a release can take and publish its number before it builds
+/// anything the suites read; the record is written later, over a staging
+/// directory that exists only after the collection.
+pub fn bper_allocate_tamga(registry_path: &Path, forge: &str) -> Result<bper_TamgaResult, String> {
     // No row is written for a forge that names itself nowhere.
     if forge.is_empty() {
         return Err("A release needs the forge that forms it, its own BURC_ENDONYM".to_string());
     }
 
-    // Load or create registry
     let mut registry = zbper_load_registry(registry_path)?;
 
     let number = zbper_allocate_tamga_number(&registry);
 
-    // Generate timestamp
-    let date = zbper_generate_date();
-
     registry.insert(
         number,
         bper_RegistryEntry {
-            date: date.clone(),
+            date: zbper_generate_date(),
             forge: forge.to_string(),
         },
     );
     zbper_save_registry(registry_path, &registry)?;
+
+    Ok(bper_TamgaResult { number })
+}
+
+/// Write the record over a staging directory for a release number already
+/// allocated: its number and metadata.
+///
+/// # Arguments
+/// * `staging_dir` - Staging directory with collected assets
+/// * `registry_path` - Path to vofr_registry.json, which carries the number's row
+/// * `number` - The release number the allocation took
+/// * `commit_sha` - The source commit the parcel builds from, read by the
+///   caller before the allocation was committed
+/// * `vulgate_sha` - The corpus trunk commit the word table was read at, where
+///   the parcel carries the table; none where its target declares no `vmk`
+/// * `forge` - The forming repository's own `BURC_ENDONYM`, which the row
+///   must name
+/// * `target` - The target the parcel was formed for (`bper_target_name`)
+/// * `managed_kits` - List of kit IDs included (the target's BURC_MANAGED_KITS)
+///
+/// The date is read back from the number's row rather than handed in, so the
+/// record carries the date its allocation wrote, and a number the registry
+/// does not carry, or carries for another forge, writes no record.
+#[allow(clippy::too_many_arguments)]
+pub fn bper_record_tamga(
+    staging_dir: &Path,
+    registry_path: &Path,
+    number: u32,
+    commit_sha: &str,
+    vulgate_sha: Option<&str>,
+    forge: &str,
+    target: &str,
+    managed_kits: &[String],
+) -> Result<(), String> {
+    if forge.is_empty() {
+        return Err("A release needs the forge that forms it, its own BURC_ENDONYM".to_string());
+    }
+
+    let registry = zbper_load_registry(registry_path)?;
+    let row = registry.get(&number).ok_or_else(|| {
+        format!(
+            "The registry at {} carries no row for number {}, so this forge never allocated it",
+            registry_path.display(),
+            number, //
+        )
+    })?;
+    if row.forge != forge {
+        return Err(format!(
+            "Row {} of the registry at {} names the forge '{}', not '{}', so this forge never allocated it",
+            number,
+            registry_path.display(),
+            row.forge,
+            forge, //
+        ));
+    }
 
     // Write record with the target's declared kits as the kit list
     let tamga_path = staging_dir.join(crate::bpee_emplace::BPEE_TAMGA_FILE);
@@ -341,16 +384,14 @@ pub fn bper_issue_tamga(
         &tamga_path,
         &bper_tamga_json(
             number,
-            &date,
+            &row.date,
             commit_sha,
             vulgate_sha,
             forge,
             target,
             managed_kits,
         )?,
-    )?;
-
-    Ok(bper_TamgaResult { number })
+    )
 }
 
 /// Name the target a parcel is formed for: the directory its `burc.env`'s
@@ -1495,32 +1536,15 @@ mod tests {
         zbper_save_registry(&registry_path, &seeded).unwrap();
 
         let kits = ["buk".to_string()];
-        assert!(bper_issue_tamga(
-            &staging,
-            &registry_path,
-            "abc123",
-            None,
-            "",
-            "consumer",
-            &kits
-        )
-        .is_err());
+        assert!(bper_allocate_tamga(&registry_path, "").is_err());
         assert_eq!(
             zbper_load_registry(&registry_path).unwrap().len(),
             1,
             "a release naming no forge writes no row", //
         );
 
-        let result = bper_issue_tamga(
-            &staging,
-            &registry_path,
-            "abc123",
-            None,
-            "buon_quorge",
-            "consumer",
-            &kits,
-        )
-        .expect("an allocation naming its forge");
+        let result = bper_allocate_tamga(&registry_path, "buon_quorge")
+            .expect("an allocation naming its forge");
         assert_eq!(result.number, 1051);
         let registry = zbper_load_registry(&registry_path).unwrap();
         assert_eq!(registry[&1051].forge, "buon_quorge");
@@ -1528,6 +1552,21 @@ mod tests {
             registry[&1050].forge, "buon_zentorge",
             "a reservation keeps the estate that claims it", //
         );
+        assert!(
+            !staging.join(crate::bpee_emplace::BPEE_TAMGA_FILE).exists(),
+            "an allocation writes the registry row alone and nothing in staging", //
+        );
+        bper_record_tamga(
+            &staging,
+            &registry_path,
+            result.number,
+            "abc123",
+            None,
+            "buon_quorge",
+            "consumer",
+            &kits,
+        )
+        .expect("the number just allocated is written down");
         let record: serde_json::Value = serde_json::from_str(
             &fs::read_to_string(staging.join(crate::bpee_emplace::BPEE_TAMGA_FILE)).unwrap(),
         )
@@ -1548,8 +1587,78 @@ mod tests {
         let _ = fs::remove_dir_all(&temp_dir);
     }
 
+    /// The record is written only over a number its forge allocated, and
+    /// carries the date that number's row bears: a number the registry does
+    /// not carry, or carries for another forge, writes no record, and an
+    /// absent registry carries no number at all.
+    #[test]
+    fn bper_record_names_only_a_number_its_forge_allocated_test() {
+        let temp_dir = std::env::temp_dir().join("bper_test_tamga_allocated");
+        let _ = fs::remove_dir_all(&temp_dir);
+        let staging = temp_dir.join("staging");
+        fs::create_dir_all(&staging).unwrap();
+        let registry_path = temp_dir.join("registry.json");
+        let tamga_path = staging.join(crate::bpee_emplace::BPEE_TAMGA_FILE);
+        let kits = ["buk".to_string()];
+        let record = |number: u32, forge: &str| {
+            bper_record_tamga(
+                &staging,
+                &registry_path,
+                number,
+                "abc123",
+                None,
+                forge,
+                "consumer",
+                &kits,
+            )
+        };
+
+        assert!(
+            record(1000, "buon_quorge").is_err(),
+            "an absent registry carries no number", //
+        );
+
+        let mut seeded = BTreeMap::new();
+        seeded.insert(
+            1050,
+            bper_RegistryEntry {
+                date: "260803-0855".to_string(),
+                forge: "buon_zentorge".to_string(),
+            },
+        );
+        zbper_save_registry(&registry_path, &seeded).unwrap();
+        let allocated = bper_allocate_tamga(&registry_path, "buon_quorge").unwrap();
+        assert_eq!(allocated.number, 1051);
+
+        assert!(
+            record(1052, "buon_quorge").is_err(),
+            "a number never allocated writes nothing", //
+        );
+        assert!(
+            record(1050, "buon_quorge").is_err(),
+            "a number another forge allocated writes nothing", //
+        );
+        assert!(record(allocated.number, "").is_err());
+        assert!(
+            !tamga_path.exists(),
+            "no refusal leaves a file", //
+        );
+
+        record(allocated.number, "buon_quorge").expect("the allocated number is written down");
+        let written: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&tamga_path).unwrap()).unwrap();
+        let row_date = zbper_load_registry(&registry_path).unwrap()[&allocated.number]
+            .date
+            .clone();
+        assert_eq!(written[BPER_TAMGA_DATE], row_date.as_str());
+        assert_eq!(written[BPER_TAMGA_NUMBER], "1051");
+        assert_eq!(written[BPER_TAMGA_COMMIT], "abc123");
+
+        let _ = fs::remove_dir_all(&temp_dir);
+    }
+
     /// Hurdle: the release writes the behest beside the record and never
-    /// inside it. A collection and an issue over one staging directory leave
+    /// inside it. A collection, an allocation and a record over one staging directory leave
     /// both at its root; the behest reads back as the forge composed it, and
     /// the record carries none of its members.
     #[test]
@@ -1604,16 +1713,20 @@ mod tests {
             &behest,
         )
         .expect("the collection writes the behest");
-        bper_issue_tamga(
+        let registry_path = temp_dir.join("registry.json");
+        let allocated = bper_allocate_tamga(&registry_path, "buon_quorge")
+            .expect("the allocation takes a number");
+        bper_record_tamga(
             &staging,
-            &temp_dir.join("registry.json"),
+            &registry_path,
+            allocated.number,
             "abc123",
             None,
             "buon_quorge",
             "consumer",
             &kits,
         )
-        .expect("the issue writes its file");
+        .expect("the allocated number is written down");
 
         let read = |name: &str| -> serde_json::Value {
             serde_json::from_str(&fs::read_to_string(staging.join(name)).unwrap()).unwrap()

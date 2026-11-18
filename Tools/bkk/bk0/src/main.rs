@@ -171,7 +171,7 @@ const ZBKM_DOOR_DELOUSE: &str = bkco_output::BKCO_VERB_DELOUSE;
 const ZBKM_DOOR_BLEACH: &str = bkco_output::BKCO_VERB_BLEACH;
 
 /// Rebed's binary half: every heel and strike the derby's preflight names, and
-/// every manifest's registry closure, performed.
+/// every package each manifest's lock names fetched, performed.
 ///
 /// A WORD OF THE BINARY AND NO DOOR OF THE REGISTER. Its tabtarget reaches the
 /// whistle's bash first, which lays the toolchains and converges the kennel and
@@ -430,7 +430,7 @@ fn zbkm_main() {
 ///
 /// IT WRITES A TRACKED FILE AND THEN REFUSES, on the lock re-derivation's
 /// precedent: the set it writes is the only thing dirty when the drive ends,
-/// and every door refuses that tree until the notch, which is what makes the
+/// and every door refuses that tree until the commit, which is what makes the
 /// rewrite a change somebody commits rather than one that slips into a later
 /// landing. At a seat that is no linked worktree it refuses and writes nothing,
 /// a set being maintained where the work is and reaching a main checkout only by
@@ -463,7 +463,7 @@ fn zbkm_scent(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
             err, //
         ),
         Ok(bkce_election::bkce_Scent::Current) => {
-            bkco_info_now!(
+            bkco_voice_now!(
                 "the elected set of '{}' stands current: the dep-info its build left names nothing \
                  the set does not",
                 name, //
@@ -486,15 +486,16 @@ fn zbkm_scent(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
                 .collect();
             bkco_error_now!(
                 "the elected set of '{}' did not cover what its build read, so it was rewritten at \
-                 {}: {} file(s) added ({}), {} dropped ({}). Commit what was written — the notch — \
-                 and run the build again: this tree now carries a tracked change, and every door \
-                 refuses it until it is committed",
+                 {}: {} file(s) added ({}), {} dropped ({}). This tree now carries a tracked \
+                 change, and every door refuses it until it is committed: {} what was written and \
+                 run the build again",
                 name,
                 shown.join(" and "),
                 added.len(),
                 added.join(", "),
                 dropped.len(),
-                dropped.join(", "), //
+                dropped.join(", "),
+                bkcf_guard::BKCF_REMEDY, //
             );
             zbkm_barred();
         }
@@ -522,7 +523,7 @@ fn zbkm_scent(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
 /// writes is the only thing that may be dirty when the drive ends, so a tree
 /// that was already dirty would leave the operator unable to tell the door's
 /// own output from whatever else was standing. The refusal is what makes the
-/// diff readable, and the sequence a caller lives is notch, gangline, notch.
+/// diff readable, and the sequence a caller lives is commit, gangline, commit.
 ///
 /// IT TAKES ONE COLLAR AND NOT THE WALK. Re-deriving a lock is a deliberate act
 /// over a manifest whose dependencies the operator just changed; sweeping every
@@ -590,7 +591,7 @@ fn zbkm_gangline(
 
     let roster = zbkm_collars(repository, dispatch, "re-derived");
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "re-deriving the lock of {} — the one act in which the leash lifts the lock flag",
         resolved.collar.name, //
     );
@@ -611,8 +612,9 @@ fn zbkm_gangline(
         }
         Ok(bkcg_gangline::bkcg_Verdict::Moved) => {
             bkco_answer_now!(
-                "the lock was re-derived and stands DIRTY for your notch — read its diff before \
-                 you bank it, because this door writes a lock and never commits one"
+                "the lock was re-derived and stands DIRTY for you to {} — read its diff before \
+                 you do, because this door writes a lock and never commits one",
+                bkcf_guard::BKCF_REMEDY, //
             );
         }
     }
@@ -660,7 +662,7 @@ fn zbkm_gangline_python(
     }
 
     if resolved.lockless {
-        bkco_info_now!(
+        bkco_voice_now!(
             "the project at {} carries no lock yet, so this drive authors its first",
             resolved.collar.bkcx_project().display(), //
         );
@@ -674,7 +676,7 @@ fn zbkm_gangline_python(
         ),
     };
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "re-deriving the lock of the python collar {} — the one act in which the leash lifts the \
          lock flag",
         name, //
@@ -696,13 +698,14 @@ fn zbkm_gangline_python(
         }
         Ok(bkcg_gangline::bkcg_Verdict::Moved) => {
             bkco_answer_now!(
-                "the lock was re-derived and stands DIRTY for your notch — read its diff before \
-                 you bank it, because this door writes a lock and never commits one"
+                "the lock was re-derived and stands DIRTY for you to {} — read its diff before \
+                 you do, because this door writes a lock and never commits one",
+                bkcf_guard::BKCF_REMEDY, //
             );
         }
     }
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "no downstream lock was probed: the arrears reading walks cargo's closure, which a python \
          project stands in nowhere"
     );
@@ -1194,7 +1197,7 @@ fn zbkm_mush_python_app(
 ) -> ! {
     let entry = bkcx_python::bkcx_entry(seat, collar);
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "the python collar '{}' runs {} — the entry point its project declares, in the \
          environment the converge sited",
         name,
@@ -1392,7 +1395,7 @@ fn zbkm_python_narrowed(
             ),
         };
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "the python collar '{}' narrows: {}",
         name,
         narrowing.bkci_verdict(), //
@@ -1482,7 +1485,7 @@ fn zbkm_mush_app(
             ))
             .unwrap_or_default(), //
     );
-    bkco_info_now!(
+    bkco_trace_now!(
         "{}",
         elected, //
     );
@@ -1697,12 +1700,13 @@ fn zbkm_mush_suite(
             // FILE answered rather than leaving it to be inferred from a name
             // that resolves differently on every station.
             //
-            // AT THE INFO DIAL AND NOT THE TRACE, unlike the composed spelling
-            // below it. The spelling is the door's own arrangement of flags,
-            // which a reader wants when debugging the door; this is a fact about
-            // what ran, which a reader wants whenever they are reading a verdict
-            // at all.
-            Ok(Some(residence)) => bkco_info_now!(
+            // ABOVE THE VERBOSE FLAVOR, beside the composed spelling below it.
+            // Which residence answered for the runner is an election the kennel
+            // computed, and the frozen shape puts every such election at the
+            // dial's top position; a green course's quiet console is its verdict
+            // and its heartbeat and nothing else, so a reader whose red names the
+            // runner raises the dial to see which file ran.
+            Ok(Some(residence)) => bkco_trace_now!(
                 "spawning {} from {} — a program this kennel did not build, reached at its \
                  kibble's own residence and never on the path",
                 bkcm_mush::BKCM_VERB_NEXTEST,
@@ -2032,7 +2036,7 @@ fn zbkm_narrowed(
             ),
         };
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "the collar '{}' narrows: {}",
         name,
         narrowing.bkci_verdict(), //
@@ -2052,7 +2056,7 @@ fn zbkm_narrowed(
 ///
 /// IT REPORTS AND NEVER BANKS. Nothing it writes stands anywhere, in the
 /// tracked tree least of all, so this door drives twice in a row with nothing
-/// to notch between — which is the door law being kept by a door rather than
+/// to commit between — which is the door law being kept by a door rather than
 /// excused for one. What carries a muzzle's currency is the
 /// course that ran behind it, and no second record is kept.
 ///
@@ -2109,14 +2113,14 @@ fn zbkm_muzzle(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: 
             .any(|(_, seen_manifest, seen_conf)| *seen_manifest == manifest && *seen_conf == conf);
 
         if already {
-            bkco_info_now!(
+            bkco_trace_now!(
                 "muzzling {} — its crate and lint list are already asked about",
                 collar.name, //
             );
             continue;
         }
 
-        bkco_info_now!(
+        bkco_voice_now!(
             "muzzling {} at {}",
             collar.name,
             collar.bkcr_field("BKRR_MUZZLE"), //
@@ -2160,7 +2164,7 @@ fn zbkm_muzzle(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: 
         zbkm_barred();
     }
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "the muzzle finds nothing across {} collar(s)",
         collars.len(), //
     );
@@ -2299,7 +2303,7 @@ fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[
         ),
     };
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "the collar '{}' converges under geography {}: {} — its artifact lands at {}",
         name,
         geography.bkce_stated(),
@@ -2318,7 +2322,7 @@ fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[
     // crate, and a second one here would be a second thing to keep in step.
     let exergues = resolved.collar.bkcr_exergue();
     if !exergues.is_empty() {
-        bkco_info_now!(
+        bkco_voice_now!(
             "its exergue(s) at {} are struck by {}, which this door does not run — a converge over \
              a stale exergue builds a stale binary, and the fence that catches that stands in the \
              crate rather than here",
@@ -2336,7 +2340,7 @@ fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[
             ),
         };
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "{}",
         run.spelling, //
     );
@@ -2355,15 +2359,22 @@ fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[
         bkco_output::bkco_broke();
     }
 
-    match bkch_heel::bkch_install(&converge) {
-        Ok(true) => bkco_info_now!(
-            "installed at {} — the collar's declared residence, and the only path this door wrote",
-            converge.residence.display(), //
-        ),
-        Ok(false) => bkco_info_now!(
-            "installed at {} — where cargo already leaves it, so nothing was copied",
-            converge.residence.display(), //
-        ),
+    let copied = match bkch_heel::bkch_install(&converge) {
+        Ok(true) => {
+            bkco_trace_now!(
+                "installed at {} — the collar's declared residence, and the only path this door \
+                 wrote",
+                converge.residence.display(), //
+            );
+            true
+        }
+        Ok(false) => {
+            bkco_trace_now!(
+                "installed at {} — where cargo already leaves it, so nothing was copied",
+                converge.residence.display(), //
+            );
+            false
+        }
         Err(err) => {
             bkco_error_now!(
                 "{}",
@@ -2371,13 +2382,23 @@ fn zbkm_heel(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[
             );
             bkco_output::bkco_broke();
         }
-    }
+    };
 
-    bkco_info_now!(
-        "the collar '{}' is converged: built at {} and standing at {}",
+    // THE VERDICT CARRIES WHAT THE INSTALL DID, the install's own line standing
+    // above the verbose flavor: a reader learns whether the residence was
+    // written from the one line the quiet flavor keeps.
+    bkco_voice_now!(
+        "the collar '{}' is converged: built at {} and {}",
         name,
         converge.struck.display(),
-        converge.residence.display(), //
+        if copied {
+            format!(
+                "copied to its residence {}",
+                converge.residence.display(), //
+            )
+        } else {
+            "standing there as its own residence, so nothing was copied".to_string()
+        }, //
     );
 
     std::process::exit(0);
@@ -2394,7 +2415,7 @@ fn zbkm_heel_yard(dispatch: &bkcr_resolve::bkcr_Dispatch) -> Option<bkch_heel::b
     let loosebox = bkcc_record::bkcc_loosebox(dispatch).ok()?;
 
     match bkch_heel::bkch_yard(&loosebox, |at| {
-        bkco_info_now!(
+        bkco_voice_now!(
             "another heel in this checkout holds its yard at {} — waiting for it to finish",
             at.display(), //
         )
@@ -2465,16 +2486,16 @@ fn zbkm_heel_python(
         }
     };
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "{}",
         environed.installed, //
     );
-    bkco_info_now!(
+    bkco_trace_now!(
         "{}",
         environed.synced, //
     );
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "the python collar '{}' is converged: the project at {} stands on CPython {} in the \
          environment at {}, synced from its lock",
         name,
@@ -2533,7 +2554,7 @@ fn zbkm_heel_kibble(
 
     let residence = kibble.bkcq_residence(&feedroom);
 
-    bkco_info_now!(
+    bkco_trace_now!(
         "the kibble '{}' declares {} {}, sealed {} — its residence is {}",
         kibble.name,
         kibble.bkcq_field("BKRK_PROGRAM"),
@@ -2543,12 +2564,12 @@ fn zbkm_heel_kibble(
     );
 
     match bkch_heel::bkch_kibble(repository, dispatch, &kibble, &feedroom) {
-        Ok(bkch_heel::bkch_Kibbled::Current) => bkco_info_now!(
+        Ok(bkch_heel::bkch_Kibbled::Current) => bkco_voice_now!(
             "current at {} — the declared version already stands, so nothing was fetched and \
              nothing was built",
             residence.display(), //
         ),
-        Ok(bkch_heel::bkch_Kibbled::Placed(from)) => bkco_info_now!(
+        Ok(bkch_heel::bkch_Kibbled::Placed(from)) => bkco_voice_now!(
             "fetched {}, digest proven, and placed at {}",
             from,
             residence.display(), //
@@ -2873,7 +2894,7 @@ fn zbkm_derby(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
     // The quiet flavor carries the verdict alone, so this is said to a reader
     // who asked for more and to no other.
     if bkco_output::bkco_verbose() {
-        bkco_info_now!(
+        bkco_voice_now!(
             "the derby runs {} course(s), of the {} collar(s) the walk found",
             courses.len(),
             walked, //
@@ -3202,7 +3223,7 @@ fn zbkm_futurity(
     }
 
     if bkco_output::bkco_verbose() {
-        bkco_info_now!(
+        bkco_voice_now!(
             "the {} narrows: {} across {} course(s), launching {}",
             ZBKM_DOOR_FUTURITY,
             narrowing.bkci_verdict(),
@@ -3413,8 +3434,8 @@ enum zbkm_Supply {
 }
 
 /// *rebed*, the binary's half — every act the derby's preflight names that a
-/// heel or a strike supplies, performed, every manifest's registry closure
-/// fetched under its lock, and the preflight read again.
+/// heel or a strike supplies, performed, every package each manifest's lock
+/// names fetched under that lock, and the preflight read again.
 ///
 /// THE KENNEL'S ONE READINESS CONVERGE. A derby verifies and refuses; where it
 /// refuses, it names this door and nothing else, and the release calls it ahead
@@ -3427,7 +3448,7 @@ enum zbkm_Supply {
 /// to cure. The sweep is the day's, so behind a build door that took it this is
 /// a no-op.
 ///
-/// THE REGISTRY CLOSURE IS FETCHED NEXT, one cargo fetch per manifest the
+/// THE LOCKS' PACKAGES ARE FETCHED NEXT, one cargo fetch per manifest the
 /// weaned set names, through the leash and so under its pin and its lock flag:
 /// the derby compiles what that fetch laid, and a station whose registry was
 /// emptied downloads here rather than inside a course.
@@ -3534,10 +3555,14 @@ fn zbkm_rebed(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
                 .iter()
                 .filter(|act| matches!(act, zbkm_Supply::Heel(_)))
                 .count();
-            bkco_info_now!(
-                "the tree is ready for the derby: {} manifest(s) fetched, {} heel(s) and {} \
-                 strike(s) performed",
-                fetched,
+            // THE VERDICT IS THE VOICE'S, and it says what the converge laid: the
+            // packages the fetches added to the station's cache, every other
+            // package the locks name having stood already, and the acts.
+            bkco_voice_now!(
+                "the tree is ready for the derby: {} manifest(s) fetched, laying {} package(s) \
+                 where every other already stood; {} heel(s) and {} strike(s) performed",
+                fetched.manifests,
+                fetched.laid,
                 heeled,
                 performed.len() - heeled, //
             );
@@ -3545,7 +3570,7 @@ fn zbkm_rebed(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
         };
 
         let ran = zbkm_supply_said(&act);
-        bkco_info_now!(
+        bkco_trace_now!(
             "supplying {}: {}",
             subject,
             ran, //
@@ -3588,7 +3613,17 @@ fn zbkm_rebed(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
         };
 
         match status.code() {
-            Some(0) => performed.push(act),
+            Some(0) => {
+                // THE ACT'S OUTCOME IS VOICE, said once it landed: what it
+                // supplied and by which act, which is what a reader of a drive
+                // that performed nothing finds absent.
+                bkco_voice_now!(
+                    "supplied {}: {}",
+                    subject,
+                    ran, //
+                );
+                performed.push(act);
+            }
             Some(code) => zbkm_relayed(code, &ran),
             None => {
                 bkco_error_now!(
@@ -3613,21 +3648,52 @@ fn zbkm_supply_said(act: &zbkm_Supply) -> String {
     }
 }
 
-/// The cargo verb that lays a manifest's registry closure without building it.
+/// The cargo verb that lays every package a manifest's lock names without
+/// building any of it.
 const ZBKM_FETCH: &str = "fetch";
 
-/// Every manifest the walk's rust collars name, its registry closure fetched
-/// through the leash under its pin and its lock flag — answering how many.
+/// Where a cargo home keeps each package it downloaded, one archive apiece,
+/// beneath one directory per registry.
+const ZBKM_REGISTRY_CACHE: &str = "registry/cache";
+
+/// The extension of the archive cargo keeps for each downloaded package.
+const ZBKM_ARCHIVE_EXTENSION: &str = "crate";
+
+/// What rebed's fetches did: how many manifests they covered, and how many
+/// packages the station's cargo home gained across them.
+struct zbkm_Fetched {
+    manifests: usize,
+    laid: usize,
+}
+
+/// Every manifest the walk's rust collars name, every package its lock names
+/// fetched through the leash under its pin and its lock flag — answering how
+/// many manifests, and how many packages the fetches laid.
 ///
 /// ONE FETCH PER MANIFEST, however many collars stand over it: an app and its
 /// suite name one manifest between them. A fetch that fails ends rebed on its
-/// verdict, relayed, since a closure that cannot be laid is a derby that cannot
+/// verdict, relayed, since a package that cannot be laid is a derby that cannot
 /// compile.
+///
+/// EACH FETCH IS A CAPTURED CHILD UNDER A CARGO VOICE, as every tenant a door
+/// drives is: cargo's download list goes to the record, an error or warning of
+/// cargo's rides the console beneath the plan said here first, and a fetch that
+/// lands is quiet. The plan announces the reach for the network before any is
+/// taken, which is the one place this converge says so.
+///
+/// WHAT THE FETCHES LAID IS READ OFF THE STORE THEY LAID INTO, never off
+/// cargo's prose. `cargo fetch` reports nothing machine-readable, so a reading
+/// of its stream would be a parse of a foreign format behind a membrane; a
+/// package cargo downloads lands instead as one archive in the registry cache
+/// of the cargo home the fence already proves, and the count of those across
+/// the fetches is what they laid. Another process filling the same store at the
+/// same moment is counted too, which no reading of the store can part from this
+/// drive's own.
 fn zbkm_fetched(
     repository: &Path,
     dispatch: &bkcr_resolve::bkcr_Dispatch,
     collars: &[bkcr_resolve::bkcr_Collar],
-) -> usize {
+) -> zbkm_Fetched {
     let mut manifests: Vec<PathBuf> = Vec::new();
 
     for collar in collars {
@@ -3638,41 +3704,99 @@ fn zbkm_fetched(
         manifests.push(manifest);
     }
 
-    for manifest in &manifests {
-        bkco_info_now!(
-            "fetching the registry closure of {}",
-            manifest.display(), //
-        );
+    let cargo_home = match bkcl_leash::bkcl_fenced(dispatch) {
+        Ok(tackroom) => bkcl_leash::bkcl_cargo_home(&tackroom),
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+    let held = zbkm_archives(&cargo_home);
 
-        let run = match bkcl_leash::bkcl_drive(
-            repository,
+    bkco_voice_now!(
+        "cargo is asked for every package the locks of {} manifest(s) name, reaching the network \
+         for any cargo's package cache does not hold",
+        manifests.len(), //
+    );
+
+    for manifest in &manifests {
+        let fetched = bkcv_voice::bkcv_Cargo::bkcv_fetch(
             dispatch,
-            manifest,
-            ZBKM_FETCH,
-            std::iter::empty::<&str>(),
-            &[],
-        ) {
-            Ok(run) => run,
+            &bkcv_voice::bkcv_Record::bkcv_invocation(),
+        )
+        .and_then(|mut voice| {
+            voice.bkcv_launch(&format!(
+                "launching: {} over {}",
+                ZBKM_FETCH,
+                manifest.display(), //
+            ))?;
+            voice.bkcv_ride(|cadence, heed| {
+                bkcl_leash::bkcl_attend(
+                    repository,
+                    dispatch,
+                    manifest,
+                    ZBKM_FETCH,
+                    std::iter::empty::<&str>(),
+                    &[],
+                    cadence,
+                    heed,
+                )
+            })
+        });
+
+        let (run, landed) = match fetched {
+            Ok(fetched) => fetched,
             Err(err) => bkco_fatal_now!(
                 "{}",
                 err, //
             ),
         };
 
+        bkco_trace_now!(
+            "{}",
+            run.spelling, //
+        );
+
+        if landed {
+            continue;
+        }
+
         match run.code {
-            Some(0) => {}
-            Some(code) => zbkm_relayed(code, &run.spelling),
-            None => {
+            Some(0) | None => {
                 bkco_error_now!(
-                    "'{}' ended on a signal and answered no exit",
+                    "'{}' was not heard to a clean exit, so what it laid cannot be told",
                     run.spelling, //
                 );
                 bkco_output::bkco_broke();
             }
+            Some(code) => zbkm_relayed(code, &run.spelling),
         }
     }
 
-    manifests.len()
+    zbkm_Fetched {
+        manifests: manifests.len(),
+        laid: zbkm_archives(&cargo_home).saturating_sub(held),
+    }
+}
+
+/// How many package archives a cargo home's registry cache holds, across every
+/// registry it keeps; a cache that does not stand yet holds none.
+fn zbkm_archives(cargo_home: &Path) -> usize {
+    let Ok(registries) = std::fs::read_dir(cargo_home.join(ZBKM_REGISTRY_CACHE)) else {
+        return 0;
+    };
+
+    registries
+        .flatten()
+        .filter_map(|registry| std::fs::read_dir(registry.path()).ok())
+        .flat_map(|archives| archives.flatten())
+        .filter(|archive| {
+            archive
+                .path()
+                .extension()
+                .is_some_and(|extension| extension == ZBKM_ARCHIVE_EXTENSION)
+        })
+        .count()
 }
 
 /// *bleach* — what the kennel provisions on the station, emptied, on the
@@ -3777,19 +3901,19 @@ fn zbkm_bleach(dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &[OsString]) -> ! {
             ),
             Ok(taken) if taken.stood => {
                 removed += 1;
-                bkco_info_now!(
+                bkco_voice_now!(
                     "removed {}",
                     taken.directory.display(), //
                 );
             }
-            Ok(taken) => bkco_info_now!(
+            Ok(taken) => bkco_voice_now!(
                 "nothing stood at {}",
                 taken.directory.display(), //
             ),
         }
     }
 
-    bkco_info_now!(
+    bkco_voice_now!(
         "the station is {}: {} of {} root(s) removed — {} lays every one of them again",
         bkk::bkg_breviary::BKG_BLEACH_PAST,
         removed,
@@ -3857,7 +3981,7 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
 
     if bkcn_delouse::bkcn_read(&seat).as_deref() == Some(day.as_str()) {
         if bkco_output::bkco_verbose() {
-            bkco_info_now!(
+            bkco_voice_now!(
                 "the yard was swept on {} and nothing is swept again today — the delouse keeps a \
                  day and not a habit",
                 day, //
@@ -3912,6 +4036,24 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
         }
     }
 
+    // THE BUILD DIRECTORIES NO COLLAR OWNS, sighted with the collars' and before
+    // any removal, on scoop's own reading. The scheduled sweep takes them too, or
+    // the disk a moved crate leaves behind is won back only on the operator's word.
+    let owned: Vec<bkcy_sweep::bkcy_Sighting> = sighted
+        .iter()
+        .map(|(_, sighting)| sighting.clone())
+        .collect();
+    let orphans = match bkcy_sweep::bkcy_orphans(repository, &owned) {
+        Ok(orphans) => orphans,
+        Err(err) => {
+            bkco_error_now!(
+                "{}",
+                err, //
+            );
+            bkco_output::bkco_broke();
+        }
+    };
+
     if beyond > 0 {
         bkco_error_now!(
             "{} of {} collar(s) name a build directory this door may not remove, so nothing was \
@@ -3923,7 +4065,7 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
     }
 
     if bkco_output::bkco_verbose() {
-        bkco_info_now!(
+        bkco_voice_now!(
             "the delouse takes the yard for {} — no sweep has landed here today",
             day, //
         );
@@ -3956,7 +4098,7 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
         // collar's name.
         if bkcy_sweep::bkcy_shelters(&directory, &executable) {
             if bkco_output::bkco_verbose() {
-                bkco_info_now!(
+                bkco_voice_now!(
                     "{} — spared {}, which holds the kennel performing this sweep",
                     name,
                     directory.display(), //
@@ -3978,20 +4120,55 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
                 if taken.stood {
                     removed += 1;
                     if bkco_output::bkco_verbose() {
-                        bkco_info_now!(
+                        bkco_voice_now!(
                             "{} — removed {}",
                             taken.collar,
                             taken.directory.display(), //
                         );
                     }
                 } else if bkco_output::bkco_verbose() {
-                    bkco_info_now!(
+                    bkco_voice_now!(
                         "{} — nothing stood at {}",
                         taken.collar,
                         taken.directory.display(), //
                     );
                 }
                 swept.push(directory);
+            }
+        }
+    }
+
+    let mut unowned = 0usize;
+
+    for orphan in &orphans {
+        let bkcy_sweep::bkcy_Sighting::Within(directory) = orphan else {
+            continue;
+        };
+
+        // THE SAME SPARING, on the same ground: no build directory sheltering
+        // the running kennel is removed, whoever owns it.
+        if bkcy_sweep::bkcy_shelters(directory, &executable) {
+            continue;
+        }
+
+        match bkcy_sweep::bkcy_remove(ZBKM_DOOR_DELOUSE, orphan) {
+            Err(err) => {
+                bkco_error_now!(
+                    "{}",
+                    err, //
+                );
+                bkco_output::bkco_broke();
+            }
+            Ok(taken) => {
+                if taken.stood {
+                    unowned += 1;
+                    if bkco_output::bkco_verbose() {
+                        bkco_voice_now!(
+                            "removed {}, a build directory no collar owns",
+                            taken.directory.display(), //
+                        );
+                    }
+                }
             }
         }
     }
@@ -4011,10 +4188,12 @@ fn zbkm_deloused(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch) {
     // rides the voice channel rather than the info dial for the same reason
     // the derby's own set verdict does.
     bkco_voice_now!(
-        "the yard is swept for {}: {} build director(ies) removed across {} collar(s)",
+        "the yard is swept for {}: {} build director(ies) removed across {} collar(s) and {} no \
+         collar owns",
         day,
         removed,
-        collars.len(), //
+        collars.len(),
+        unowned, //
     );
 }
 
@@ -4434,8 +4613,9 @@ fn zbkm_banked(
         }
         Err(err) => {
             bkco_error_now!(
-                "the course '{}' ran green and its record was not banked: {}",
+                "the course '{}' ran green and its {} was not banked: {}",
                 collar,
+                bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
                 err, //
             );
             false
@@ -4585,6 +4765,21 @@ fn zbkm_scoop(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
         }
     }
 
+    // THE BUILD DIRECTORIES NO COLLAR OWNS are sighted with the collars' own and
+    // before any removal, against every directory the collars just named, so a
+    // refusal here lands with the yard untouched as every other does.
+    let owned: Vec<bkcy_sweep::bkcy_Sighting> = sighted
+        .iter()
+        .map(|(_, sighting)| sighting.clone())
+        .collect();
+    let orphans = match bkcy_sweep::bkcy_orphans(repository, &owned) {
+        Ok(orphans) => orphans,
+        Err(err) => bkco_fatal_now!(
+            "{}",
+            err, //
+        ),
+    };
+
     let walked = collars.len() + python.len();
 
     if beyond > 0 {
@@ -4613,7 +4808,7 @@ fn zbkm_scoop(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
         };
 
         if swept.contains(&directory) {
-            bkco_info_now!(
+            bkco_voice_now!(
                 "{} builds into {}, which this drive has already taken",
                 name,
                 directory.display(), //
@@ -4629,13 +4824,13 @@ fn zbkm_scoop(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
             Ok(taken) => {
                 if taken.stood {
                     removed += 1;
-                    bkco_info_now!(
+                    bkco_voice_now!(
                         "{} — removed {}",
                         taken.collar,
                         taken.directory.display(), //
                     );
                 } else {
-                    bkco_info_now!(
+                    bkco_voice_now!(
                         "{} — nothing stood at {}",
                         taken.collar,
                         taken.directory.display(), //
@@ -4646,11 +4841,33 @@ fn zbkm_scoop(repository: &Path, dispatch: &bkcr_resolve::bkcr_Dispatch, rest: &
         }
     }
 
-    bkco_info_now!(
-        "the yard is clean: {} derived director(ies) removed across {} collar(s), and the kennel \
-         binary went with them — the next door rebuilds through the whistle",
+    let mut unowned = 0usize;
+
+    for orphan in &orphans {
+        match bkcy_sweep::bkcy_remove(ZBKM_DOOR_SCOOP, orphan) {
+            Err(err) => bkco_fatal_now!(
+                "{}",
+                err, //
+            ),
+            Ok(taken) => {
+                if taken.stood {
+                    unowned += 1;
+                    bkco_voice_now!(
+                        "removed {}, a build directory no collar owns",
+                        taken.directory.display(), //
+                    );
+                }
+            }
+        }
+    }
+
+    bkco_voice_now!(
+        "the yard is clean: {} derived director(ies) removed across {} collar(s) and {} build \
+         director(ies) no collar owns, and the kennel binary went with them — the next door \
+         rebuilds through the whistle",
         removed,
-        walked, //
+        walked,
+        unowned, //
     );
 
     std::process::exit(0);
@@ -4902,7 +5119,7 @@ fn zbkm_register(
     // caller's reach, and the spelling reaches us only as part of what came back.
     // Said either way, because a reader who needs to know which channel answered
     // needs it most on the run that failed.
-    bkco_info_now!(
+    bkco_trace_now!(
         "{}",
         run.spelling, //
     );

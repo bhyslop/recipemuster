@@ -84,7 +84,7 @@ bkcp_door_law_or_die() {
   # only that the bash may no longer say it the other way - the estate's word is
   # generated vocabulary homed in a kit no parcel carries, and the source line
   # reaching for it killed this bootstrap on every receiving station.
-  buc_die_now "Every kennel door refuses an uncommitted repository, so that each record maps to a position - commit it and drive again"
+  buc_die_now "Every kennel door refuses an uncommitted repository, so that each verdict maps to a position - commit it and drive again"
 }
 
 # Read the channel a repository pins, from its own pin file.

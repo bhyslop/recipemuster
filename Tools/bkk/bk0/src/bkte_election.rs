@@ -1428,7 +1428,7 @@ fn zbkte_derived() -> crate::bkcr_resolve::bkcr_Set {
 
 /// AT A LINKED WORKTREE, A RECORD NAMING A FILE THE SET LACKS REWRITES THE SET,
 /// at every home together, and the verdict names what was added so the door can
-/// refuse naming the notch.
+/// refuse naming the commit it is owed.
 #[test]
 fn bkte_a_worktree_record_naming_a_file_the_set_lacks_rewrites_the_set() {
     let lure = bktu_Lure::bktu_compose("scent-worktree");

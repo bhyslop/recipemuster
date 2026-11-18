@@ -165,6 +165,126 @@ pub fn bkcy_sight_provision(tackroom: &Path, loosebox: &Path, directory: PathBuf
     )
 }
 
+/// The file cargo writes at the root of every build directory it makes, and
+/// nowhere beneath it. Cargo's name, quoted.
+const ZBKCY_MARKER: &str = "CACHEDIR.TAG";
+
+/// Sight every build directory in the worktree the door entered that no collar
+/// owns: the directory a crate leaves behind when git moves the crate away.
+///
+/// A MOVE BY GIT TAKES THE TRACKED FILES AND NEVER THE IGNORED ONES, so a
+/// checkout that built a crate at its old path keeps that path's build directory,
+/// standing beside nothing git tracks, and no collar names it any longer. Every
+/// sweep that asks only the collars walks past it for good.
+///
+/// FOUR READINGS, AND A DIRECTORY MUST MEET ALL OF THEM. Git reports it ignored
+/// inside this worktree; it holds cargo's marker at its root, so it is a build
+/// directory and never merely an ignored one; it is no directory `owned` names
+/// and stands inside none of them, compared settled as every class here is; and
+/// the directory holding it holds nothing git tracks, at any depth — a build
+/// directory beside a tracked file is a crate's, collared or not, and is left
+/// to whoever owns that crate.
+///
+/// THE WORKTREE THE DOOR ENTERED AND NO OTHER. Git is asked from `repository`,
+/// which in a linked worktree answers for that worktree alone, so a sweep there
+/// never reaches the main worktree beside it.
+///
+/// THE CLASS IS `Within` OR NOTHING. A candidate that settles anywhere else — the
+/// root itself, or outside it through a symlinked ancestor — is not admitted, so
+/// no removal can ever be spelled for it.
+pub fn bkcy_orphans(
+    repository: &Path,
+    owned: &[bkcy_Sighting],
+) -> Result<Vec<bkcy_Sighting>, String> {
+    let root = zbkcy_rooted(repository)?;
+
+    let held: Vec<PathBuf> = owned
+        .iter()
+        .filter_map(|sighting| match sighting {
+            bkcy_Sighting::Within(directory) | bkcy_Sighting::Loosebox(directory) => {
+                Some(zbkcy_settled(&root.join(directory)))
+            }
+            bkcy_Sighting::Beyond(_) => None,
+        })
+        .collect();
+
+    let out = std::process::Command::new("git")
+        .arg("-C")
+        .arg(repository)
+        .args([
+            "ls-files",
+            "-z",
+            "--others",
+            "--ignored",
+            "--exclude-standard",
+            "--",
+        ])
+        .arg(format!(
+            ":(glob)**/{}",
+            ZBKCY_MARKER, //
+        ))
+        .output()
+        .map_err(|err| {
+            format!(
+                "could not run git in {}: {}",
+                repository.display(),
+                err, //
+            )
+        })?;
+
+    if !out.status.success() {
+        return Err(format!(
+            "git would not list what it ignores in {}: {}",
+            repository.display(),
+            String::from_utf8_lossy(&out.stderr).trim(), //
+        ));
+    }
+
+    let mut orphans: Vec<bkcy_Sighting> = Vec::new();
+
+    for marker in String::from_utf8_lossy(&out.stdout)
+        .split('\0')
+        .filter(|listed| !listed.is_empty())
+    {
+        let Some(directory) = Path::new(marker).parent() else {
+            continue;
+        };
+        let Some(beside) = directory.parent() else {
+            continue;
+        };
+
+        let absolute = root.join(directory);
+        let settled = zbkcy_settled(&absolute);
+
+        if held
+            .iter()
+            .any(|owned| settled.starts_with(owned) || owned.starts_with(&settled))
+        {
+            continue;
+        }
+
+        let pathspec = if beside.as_os_str().is_empty() {
+            ".".to_string()
+        } else {
+            format!(
+                ":(literal){}",
+                beside.to_string_lossy(), //
+            )
+        };
+        if !crate::bkce_election::bkce_tracked(repository, &[pathspec])?.is_empty() {
+            continue;
+        }
+
+        if let bkcy_Sighting::Within(directory) = bkcy_classed(&root, None, &settled, absolute) {
+            if !orphans.contains(&bkcy_Sighting::Within(directory.clone())) {
+                orphans.push(bkcy_Sighting::Within(directory));
+            }
+        }
+    }
+
+    Ok(orphans)
+}
+
 /// The repository as the filesystem settles it, which is what every class is
 /// judged against.
 fn zbkcy_rooted(repository: &Path) -> Result<PathBuf, String> {

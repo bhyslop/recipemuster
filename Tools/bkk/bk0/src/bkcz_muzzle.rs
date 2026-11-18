@@ -46,7 +46,10 @@
 //! thing went wrong — the crate did not build, which is not a statement about
 //! any call it makes.
 
-use std::ffi::OsStr;
+use std::ffi::{
+    OsStr,
+    OsString, //
+};
 use std::path::{
     Path,
     PathBuf, //
@@ -60,22 +63,31 @@ use crate::bkcr_resolve::bkcr_Collar;
 /// The linter's verb.
 const ZBKCZ_VERB: &str = "clippy";
 
-/// The whole of what the child is asked, in order: every target compiled so the
-/// bar reaches test modules as well as shipped code, colour off so the report
-/// reads the same on a terminal and in a log, then past the separator the cap
-/// and the one lint this door refuses on.
+/// What the child is asked ahead of the profile: every target compiled so the
+/// bar reaches test modules as well as shipped code, and colour off so the
+/// report reads the same on a terminal and in a log.
 ///
 /// The leash spells the manifest and the lock itself, ahead of the separator.
-const ZBKCZ_ASKED: [&str; 8] = [
+const ZBKCZ_ASKED_AHEAD: [&str; 3] = [
     "--all-targets",
     "--color",
-    "never",
+    "never", //
+];
+
+/// What the child is asked from the separator on: the cap and the one lint this
+/// door refuses on, both the compiler's and never cargo's.
+const ZBKCZ_ASKED_PAST: [&str; 5] = [
     "--",
     "--cap-lints",
     "warn",
     "-W",
     "clippy::disallowed_methods", //
 ];
+
+/// Cargo's own build-profile flag, which the linter takes because the linter is
+/// cargo's. A collar's runner never reaches this door: nextest runs a suite and
+/// lints nothing, so the flag is cargo's whatever the collar's runner is.
+const ZBKCZ_PROFILE_FLAG: &str = "--profile";
 
 /// The mark that tells a muzzle finding from every other the linter emits: the
 /// lint's own help URL, which no other lint's output carries.
@@ -128,7 +140,7 @@ pub fn bkcz_lint(
     let manifest = repository.join(collar.bkcr_field("BKRR_MANIFEST"));
     let conf = bkcz_conf_dir(repository, collar)?;
 
-    let asked: Vec<&OsStr> = ZBKCZ_ASKED.iter().map(OsStr::new).collect();
+    let asked = bkcz_asked(collar);
 
     // THE COLLAR'S OWN POSITION — the converge's contract with the crate it
     // builds (`bkch_heel::BKCH_COLLAR_POSITION_VAR`, where the doc comment says
@@ -173,6 +185,31 @@ pub fn bkcz_lint(
     }
 
     Ok(bkcz_Verdict::Clean(report))
+}
+
+/// Everything the linter is asked for one collar, in the order the leash spells
+/// it after the verb.
+///
+/// THE MUZZLE COMPILES THE SHAPE THE COURSE RUNS. The collar's declared profile
+/// rides ahead of the separator in cargo's own flag, so the lint step builds into
+/// the directory the course behind it builds into rather than into a second one
+/// of its own. A field standing empty is spelled nothing, as the launch seam
+/// spells nothing for it.
+///
+/// PURE OVER THE COLLAR, so what this door asks can be read without spawning the
+/// linter at all.
+pub fn bkcz_asked(collar: &bkcr_Collar) -> Vec<OsString> {
+    let mut asked: Vec<OsString> = ZBKCZ_ASKED_AHEAD.iter().map(OsString::from).collect();
+
+    let profile = collar.bkcr_field("BKRR_PROFILE");
+    if !profile.trim().is_empty() {
+        asked.push(OsString::from(ZBKCZ_PROFILE_FLAG));
+        asked.push(OsString::from(profile.trim()));
+    }
+
+    asked.extend(ZBKCZ_ASKED_PAST.iter().map(OsString::from));
+
+    asked
 }
 
 /// The absolute directory a collar's muzzle field names.
