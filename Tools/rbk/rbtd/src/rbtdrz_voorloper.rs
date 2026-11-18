@@ -522,7 +522,7 @@ fn zrbtdrz_deliver_clone(dir: &Path, clone: &Path, label: &str) -> Result<(), St
                 label,
                 code,
                 stderr.trim(), //
-            ))
+            ));
         }
     }
     zrbtdrz_commit(clone, "zq delivered shape")
