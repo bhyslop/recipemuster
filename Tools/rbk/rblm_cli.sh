@@ -446,8 +446,11 @@ rblm_voorloper_prepare() {
 
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
 
-  buc_step "Checking that every field marshal zero blanks stands blank"
-  zrblm_voorloper_blank_vet
+  # A newcomer's tree is the one the release cuts, so the clone is judged by the
+  # proscription the cut lustrates by: every site field and source constant at
+  # its sterile value, the runtime prefix's working default among them.
+  buc_step "Checking that every site field and constant stands as a delivered tree carries it"
+  rblm_lustrate_vet
 
   buc_step "Writing the ${BUBG_STATION_BASE} file through the ${BUBG_STATION_BASE} init"
   buym_tt_path "${BUBG_STATION_INIT_PEDIMENT}"
@@ -479,52 +482,6 @@ rblm_voorloper_prepare() {
   fi
 
   buc_success "${BUBG_STATION_BASE_LETTRINE} prepared for a newcomer: ${z_station}"
-}
-
-# zrblm_voorloper_blank_vet — die naming the first field marshal zero blanks
-# that stands filled in this tree. The blank set is zero's own: a line its
-# rewrite turns into a bare "FIELD=" which this tree carries otherwise. The
-# rewrite reads the vessel directory from the repo regime, read raw in an
-# isolation subshell since a tree in marshal-zero state refuses its kindle.
-zrblm_voorloper_blank_vet() {
-  local -r z_rbrr="${RBCC_rbrr_file}"
-  test -f "${z_rbrr}" || buc_die_now "RBRR file not found: ${z_rbrr}"
-
-  local -r z_raw_vessel_temp="${BURD_TEMP_DIR}/rblm_voorloper_raw_vessel_dir.txt"
-  (
-    source "${z_rbrr}" || buc_die_now "Failed to source RBRR: ${z_rbrr}"
-    printf '%s' "${RBRR_VESSEL_DIR:-}" > "${z_raw_vessel_temp}" || buc_die_now "Failed to write: ${z_raw_vessel_temp}"
-  ) || buc_die_now "Voorloper prepare could not source ${z_rbrr}"
-  local z_vessel_dir
-  z_vessel_dir=$(<"${z_raw_vessel_temp}") || buc_die_now "Failed to read: ${z_raw_vessel_temp}"
-
-  local -r z_manifest="${BURD_TEMP_DIR}/rblm_voorloper_blank_manifest.txt"
-  zrblm_zero_rewrite "${z_vessel_dir}" "${z_manifest}"
-
-  # The rewrite writes one line for each line it reads, so line N of the zeroed
-  # copy stands against line N of the file as it stands.
-  local z_tmp=""
-  local z_target=""
-  local z_line=""
-  local z_zeroed=""
-  local z_standing=""
-  local z_index=0
-  local -a z_standing_lines=()
-  while IFS=$'\t' read -r z_tmp z_target || test -n "${z_tmp}"; do
-    z_standing_lines=()
-    while IFS= read -r z_line || test -n "${z_line}"; do
-      z_standing_lines+=("${z_line}")
-    done < "${z_target}" || buc_die_now "Failed to read: ${z_target}"
-    z_index=0
-    while IFS= read -r z_zeroed || test -n "${z_zeroed}"; do
-      z_standing="${z_standing_lines[${z_index}]:-}"
-      z_index=$((z_index + 1))
-      case "${z_zeroed}" in
-        *=) test "${z_standing}" = "${z_zeroed}" \
-              || buc_die_now "Voorloper prepare refuses: ${z_zeroed%=} stands filled in ${z_target} — a newcomer's tree carries it blank, as marshal zero leaves it" ;;
-      esac
-    done < "${z_tmp}" || buc_die_now "Failed to read: ${z_tmp}"
-  done < "${z_manifest}"
 }
 
 ######################################################################
