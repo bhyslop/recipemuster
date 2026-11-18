@@ -21,13 +21,27 @@
 //! can go wrong is the linter answering differently than the door reads it, and
 //! only a drive asks that.
 
-use super::bkcr_resolve::bkcr_resolve;
+use super::bkcr_resolve::{
+    bkcr_Collar,
+    bkcr_resolve, //
+};
 use super::bkcz_muzzle::{
     bkcz_Verdict,
+    bkcz_asked,
     bkcz_lint, //
 };
 use super::bktr_resolve::bktr_lured;
 use super::bktu_lure::bktu_Lure;
+use brp::brprc_catena::brprc_admit;
+use std::path::PathBuf;
+
+/// Cargo's own build-profile flag and cargo's argument separator, spelled here
+/// INDEPENDENTLY of the module under test rather than imported from it: a hurdle
+/// reading the implementation's own constants would assert that the module agrees
+/// with itself. Both are cargo's names, quoted as the launch seam's hurdles quote
+/// them.
+const ZBKTZ_PROFILE_FLAG: &str = "--profile";
+const ZBKTZ_SEPARATOR: &str = "--";
 
 /// The sentence the lure's lint list teaches, and the surface it names.
 const ZBKTZ_SENTENCE: &str = "reach for the shared seat instead";
@@ -116,6 +130,97 @@ fn zbktz_lint(lure: &bktu_Lure) -> bkcz_Verdict {
 
     bkcz_lint(lure.bktu_root(), &bktr_lured(lure), &resolved.collar)
         .expect("the linter should be reachable")
+}
+
+/// A suite collar in hand, composed without a disk, its profile line handed in
+/// whole.
+fn zbktz_in_hand(profile_line: &str) -> bkcr_Collar {
+    let text = format!(
+        "\
+BKRR_COLLAR=\"suite-lure\"
+BKRR_KIND=\"bknre_suite\"
+BKRR_MANIFEST=\"Cargo.toml\"
+BKRR_TARGET=\"bknre_manifest\"
+BKRR_FEATURES=\"\"
+{}
+BKRR_SPEND=\"bknre_reader\"
+BKRR_TAMED_CRATES=\"\"
+BKRR_FERAL_CRATES=\"bknre_tamed\"
+BKRR_MUZZLE=\".\"
+BKRR_EXERGUE=\"bknre_unstruck\"
+BKRR_RUNNER=\"bknre_nextest\"
+BKRR_TONGUE=\"bknre_nextest\"
+",
+        profile_line, //
+    );
+
+    bkcr_Collar {
+        name: "suite-lure".to_string(),
+        instance: PathBuf::from("suite-lure"),
+        regime: brprc_admit(&text, "composed").expect("the collar stands inside the subset"),
+        measure: crate::bkcr_resolve::bkcr_Measure::Elected(vec!["src".to_string()]),
+    }
+}
+
+/// What the muzzle asks, as words.
+fn zbktz_words(collar: &bkcr_Collar) -> Vec<String> {
+    bkcz_asked(collar)
+        .iter()
+        .map(|word| word.to_string_lossy().into_owned())
+        .collect()
+}
+
+/// THE MUZZLE LINTS THE SHAPE THE COURSE RUNS: the collar's declared profile
+/// rides cargo's own flag AHEAD of the separator, where cargo reads it, and a
+/// field standing empty is spelled nothing.
+///
+/// The collar declares nextest as its runner on purpose: the linter is cargo's
+/// whatever runs the suite, so the flag is cargo's and never the one the launch
+/// seam spells for nextest.
+#[test]
+fn bktz_the_declared_profile_rides_ahead_of_the_separator_and_an_empty_field_is_not_spelled() {
+    let declared = zbktz_in_hand("BKRR_PROFILE=\"release\"");
+    let asked = zbktz_words(&declared);
+
+    let separator = asked
+        .iter()
+        .position(|word| word == ZBKTZ_SEPARATOR)
+        .unwrap_or_else(|| panic!("the separator stands in what is asked: {:?}", asked));
+    let flag = asked
+        .iter()
+        .position(|word| word == ZBKTZ_PROFILE_FLAG)
+        .unwrap_or_else(|| {
+            panic!(
+                "the declared profile is spelled in cargo's own flag: {:?}",
+                asked, //
+            )
+        });
+
+    assert!(
+        flag < separator,
+        "the profile is cargo's and rides ahead of the separator, where cargo reads it: {:?}",
+        asked, //
+    );
+    assert_eq!(
+        asked.get(flag + 1).map(String::as_str),
+        Some(declared.bkcr_field("BKRR_PROFILE")),
+        "the flag carries the collar's own declared profile: {:?}",
+        asked, //
+    );
+
+    let empty = zbktz_words(&zbktz_in_hand("BKRR_PROFILE=\"\""));
+
+    assert!(
+        !empty.iter().any(|word| word == ZBKTZ_PROFILE_FLAG),
+        "an empty field spells no profile: {:?}",
+        empty, //
+    );
+    assert!(
+        empty.iter().any(|word| word == ZBKTZ_SEPARATOR),
+        "the control: the rest of the asking stands, so the silence above is the empty field \
+         and not an asking that went missing: {:?}",
+        empty, //
+    );
 }
 
 /// A crate calling nothing the list bars lints clean.

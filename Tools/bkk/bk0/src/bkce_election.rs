@@ -758,7 +758,7 @@ pub fn bkce_trunk(repository: &Path) -> Result<String, String> {
 
     if !recorded.status.success() {
         return Err(format!(
-            "{} records no head for the remote '{}', so the trunk counterpart cannot be named — \
+            "{} holds no head for the remote '{}', so the trunk counterpart cannot be named — \
              run: git -C {} remote set-head {} -a",
             repository.display(),
             BKCE_REMOTE,
@@ -1453,7 +1453,7 @@ pub enum bkce_Scent {
     /// The standing set already names everything the derivation composed.
     Current,
     /// The set stood short and this seat is a linked worktree, so it was
-    /// rewritten at every home named; the door refuses, naming the notch.
+    /// rewritten at every home named; the door refuses, naming the commit it is owed.
     Rewritten {
         written: Vec<PathBuf>,
         added: Vec<String>,

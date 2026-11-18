@@ -220,10 +220,13 @@ fn bktw_no_kit_bash_sources_a_file_outside_the_kit_and_the_substrate() {
 
     assert!(
         breaches.is_empty(),
-        "every source line in this kit names the kit or the substrate, because a parcel \
-         carries those two and nothing else - a line reaching further kills the bootstrap \
-         at the source line on every receiving station, ahead of every refusal it was \
-         written to give:\n  {}",
+        concat!(
+            "every source line in this kit names the kit or the substrate, because a parcel \
+             carries those two and nothing else - a line reaching further kills the bootstrap \
+             at the source line on every receiving ",
+            crate::bkg_breviary::bkg_bus_station_base!(),
+            ", ahead of every refusal it was written to give:\n  {}",
+        ),
         breaches.join("\n  "), //
     );
 }
@@ -544,7 +547,7 @@ fn zbktw_asked(record: &Path) -> Vec<(PathBuf, String)> {
         .map(|line| {
             let (home, asked) = line.split_once(" toolchain ").unwrap_or_else(|| {
                 panic!(
-                    "the planted rustup records home and arguments: {}",
+                    "the planted rustup writes home and arguments: {}",
                     line, //
                 )
             });

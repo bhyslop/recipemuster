@@ -1444,10 +1444,11 @@ pub fn bkch_python_at(
     if !project.join(crate::bkcx_python::BKCX_LOCK_FILE).is_file() {
         return Err(format!(
             "the interpreter the project pins ({}) stands installed, and the project at {} carries \
-             no {}, so nothing was synced — author its first lock, notch it, and converge again: {}",
+             no {}, so nothing was synced — author its first lock, {} it, and converge again: {}",
             pinned,
             collar.bkcx_project().display(),
             crate::bkcx_python::BKCX_LOCK_FILE,
+            crate::bkcf_guard::BKCF_REMEDY,
             crate::bkco_output::bkco_call(dispatch.bkcr_tabtargets(), crate::bkco_output::BKCO_VERB_GANGLINE, Some(&collar.name)), //
         ));
     }

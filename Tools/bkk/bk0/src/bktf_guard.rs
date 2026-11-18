@@ -108,7 +108,7 @@ fn bktf_the_grievance_names_the_remedy_and_every_entry() {
 
 #[test]
 fn bktf_a_dangling_include_refuses_naming_file_line_and_remedy() {
-    let lure = bktu_Lure::bktu_compose("guard-lyam-dangling");
+    let lure = bktu_Lure::bktu_compose("guard-plemmet-dangling");
     lure.bktu_write("CLAUDE.md", "# context\n\n@Tools/kit/gone.md\n");
     lure.bktu_commit("bank a CLAUDE.md whose include names nothing");
 
@@ -135,7 +135,7 @@ fn bktf_a_dangling_include_refuses_naming_file_line_and_remedy() {
 
 #[test]
 fn bktf_includes_that_all_resolve_read_clean() {
-    let lure = bktu_Lure::bktu_compose("guard-lyam-resolved");
+    let lure = bktu_Lure::bktu_compose("guard-plemmet-resolved");
     lure.bktu_write("Tools/kit/held.md", "held\n");
     lure.bktu_write("CLAUDE.md", "@Tools/kit/held.md\n");
     // A NESTED CLAUDE.md RESOLVES FROM ITS OWN DIRECTORY, so the same file is
@@ -159,7 +159,7 @@ fn bktf_includes_that_all_resolve_read_clean() {
 
 #[test]
 fn bktf_an_include_reaching_outside_the_tree_is_skipped_not_judged() {
-    let lure = bktu_Lure::bktu_compose("guard-lyam-outside");
+    let lure = bktu_Lure::bktu_compose("guard-plemmet-outside");
     lure.bktu_write(
         "CLAUDE.md",
         "@../peer/context/gone.md\n@~/.claude/gone.md\n@/nowhere/gone.md\n",
@@ -183,7 +183,7 @@ fn bktf_an_include_reaching_outside_the_tree_is_skipped_not_judged() {
 
 #[test]
 fn bktf_a_dangling_path_inside_a_fence_is_no_include() {
-    let lure = bktu_Lure::bktu_compose("guard-lyam-fenced");
+    let lure = bktu_Lure::bktu_compose("guard-plemmet-fenced");
     lure.bktu_write(
         "CLAUDE.md",
         "The form:\n\n```\n@Tools/kit/example.md\n```\n\n~~~\n@also/example.md\n~~~\n",
@@ -201,7 +201,7 @@ fn bktf_a_dangling_path_inside_a_fence_is_no_include() {
 
 #[test]
 fn bktf_an_ignored_file_on_disk_still_dangles() {
-    let lure = bktu_Lure::bktu_compose("guard-lyam-ignored");
+    let lure = bktu_Lure::bktu_compose("guard-plemmet-ignored");
     lure.bktu_write(".gitignore", "local.md\n");
     lure.bktu_write("CLAUDE.md", "@local.md\n");
     lure.bktu_commit("bank an include of a file no clone carries");

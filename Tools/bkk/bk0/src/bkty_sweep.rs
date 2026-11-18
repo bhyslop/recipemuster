@@ -47,6 +47,7 @@ use super::bkcx_python::{
 use super::bkcy_sweep::{
     bkcy_Sighting,
     bkcy_classed,
+    bkcy_orphans,
     bkcy_remove,
     bkcy_shelters,
     bkcy_sight,
@@ -76,6 +77,172 @@ fn zbkty_sight(lure: &bktu_Lure, collar: &str) -> bkcy_Sighting {
 
     bkcy_sight(lure.bktu_root(), &bktr_lured(lure), None, &resolved.collar)
         .expect("cargo should be reachable")
+}
+
+/// Cargo's build-directory marker and the ignore rule a crate's tree keeps over
+/// its build directories, spelled here INDEPENDENTLY of the module under test: the
+/// marker is cargo's name, and a hurdle importing the module's own would assert
+/// that the module agrees with itself.
+const ZBKTY_MARKER: &str = "CACHEDIR.TAG";
+const ZBKTY_IGNORED: &str = "target/\n";
+
+/// Pose a build directory at a lure-relative path: cargo's marker at its root and
+/// one built file beneath, as a build leaves it.
+fn zbkty_built(lure: &bktu_Lure, at: &str) -> PathBuf {
+    lure.bktu_write(
+        &format!(
+            "{}/{}",
+            at,
+            ZBKTY_MARKER, //
+        ),
+        "Signature: posed\n",
+    );
+    lure.bktu_write(
+        &format!(
+            "{}/release/built",
+            at, //
+        ),
+        "posed build output\n",
+    );
+    lure.bktu_root().join(at)
+}
+
+/// Warm a sighted directory the way a build would, its marker at its root.
+fn zbkty_warmed(sighting: &bkcy_Sighting) -> PathBuf {
+    let directory = match sighting {
+        bkcy_Sighting::Within(directory) => directory.clone(),
+        other => panic!(
+            "the lure's crate sights within it: {:?}",
+            other, //
+        ),
+    };
+    std::fs::create_dir_all(directory.join("release"))
+        .expect("the hurdle should warm the directory");
+    std::fs::write(directory.join(ZBKTY_MARKER), b"Signature: posed\n")
+        .expect("the hurdle should pose the marker");
+    directory
+}
+
+/// Two paths name one directory, settled as the filesystem settles them.
+fn zbkty_same(left: &Path, right: &Path) -> bool {
+    match (std::fs::canonicalize(left), std::fs::canonicalize(right)) {
+        (Ok(left), Ok(right)) => left == right,
+        _ => false,
+    }
+}
+
+/// A BUILD DIRECTORY A MOVED CRATE LEFT BEHIND IS CLEARED, in the incident's own
+/// shape: a crate stands with its build directory ignored, git moves it away, and
+/// the old path keeps a build directory holding only ignored files beside nothing
+/// git tracks. The collar names the new path alone, so no collar owns the old.
+///
+/// THE LEFTOVER IS POSED AFTER THE MOVE, because a move by git renames the whole
+/// directory and carries its ignored contents along; what a checkout receiving the
+/// move by pull keeps at the old path is exactly what this poses.
+#[test]
+fn bkty_a_build_directory_a_moved_crate_left_behind_is_cleared() {
+    let lure = bktu_Lure::bktu_compose("sweep-orphan-moved");
+    lure.bktu_write(".gitignore", ZBKTY_IGNORED);
+    lure.bktu_crate("old", "suite-lure");
+    lure.bktu_commit("stand a crate up at its old path");
+
+    lure.bktu_git(&["mv", "old", "new"]);
+    lure.bktu_crate("new", "suite-lure");
+    lure.bktu_commit("move the crate by git, its collar following");
+
+    let left = zbkty_built(&lure, "old/target");
+    let owned = zbkty_sight(&lure, "suite-lure");
+    let owned_directory = zbkty_warmed(&owned);
+
+    let orphans = bkcy_orphans(lure.bktu_root(), std::slice::from_ref(&owned))
+        .expect("git should answer for the lure");
+
+    assert_eq!(
+        orphans.len(),
+        1,
+        "the one build directory no collar owns is sighted, and nothing else: {:?}",
+        orphans, //
+    );
+    match &orphans[0] {
+        bkcy_Sighting::Within(found) => assert!(
+            zbkty_same(found, &left),
+            "the orphan sighted is the old path's build directory: {} against {}",
+            found.display(),
+            left.display(), //
+        ),
+        other => panic!(
+            "an orphan is sighted within the worktree and nowhere else: {:?}",
+            other, //
+        ),
+    }
+
+    let taken = bkcy_remove("suite-lure", &orphans[0]).expect("an orphan is removable");
+
+    assert!(
+        taken.stood,
+        "the orphan stood before the clear", //
+    );
+    assert!(
+        !left.exists(),
+        "the old path's build directory is gone: {}",
+        left.display(), //
+    );
+    assert!(
+        owned_directory.is_dir(),
+        "the collar's own build directory stands: {}",
+        owned_directory.display(), //
+    );
+}
+
+/// EVERY OWNED BUILD DIRECTORY STANDS, AND SO DOES ONE BESIDE A TRACKED FILE that
+/// no collar names: a build directory beside tracked ground is a crate's, and the
+/// clear takes only what stands beside nothing at all. A directory nested inside an
+/// owned one, wearing the marker, stands as well. The control is an orphan posed in
+/// the same lure and removed, so the survivals are the clear's judgment and never
+/// its inaction.
+#[test]
+fn bkty_owned_directories_and_one_beside_a_tracked_file_survive_the_clear() {
+    let lure = bktu_Lure::bktu_compose("sweep-orphan-spared");
+    lure.bktu_write(".gitignore", ZBKTY_IGNORED);
+    lure.bktu_crate("", "suite-lure");
+    lure.bktu_write("loose/notes.txt", "a tracked file no collar names\n");
+    lure.bktu_commit("stand a crate and a loose tracked file up");
+
+    let owned = zbkty_sight(&lure, "suite-lure");
+    let owned_directory = zbkty_warmed(&owned);
+    let nested = zbkty_built(&lure, "target/nested/target");
+    let beside = zbkty_built(&lure, "loose/target");
+    let gone = zbkty_built(&lure, "gone/target");
+
+    let orphans = bkcy_orphans(lure.bktu_root(), std::slice::from_ref(&owned))
+        .expect("git should answer for the lure");
+
+    for orphan in &orphans {
+        bkcy_remove("suite-lure", orphan).expect("an orphan is removable");
+    }
+
+    assert!(
+        owned_directory.is_dir(),
+        "the collar's own build directory stands: {}",
+        owned_directory.display(), //
+    );
+    assert!(
+        nested.is_dir(),
+        "a marked directory inside an owned one stands: {}",
+        nested.display(), //
+    );
+    assert!(
+        beside.is_dir(),
+        "a build directory beside a tracked file stands, though no collar names it: {}",
+        beside.display(), //
+    );
+    assert!(
+        !gone.exists(),
+        "the control: the build directory beside nothing tracked is cleared in the same drive: \
+         {} — orphans sighted {:?}",
+        gone.display(),
+        orphans, //
+    );
 }
 
 /// THE DIRECTORY IS CARGO'S OWN ANSWER, and the sighting lands within the lure.
@@ -262,7 +429,7 @@ fn bkty_a_posed_kennel_directory_survives_the_sweep() {
 /// standing where a station's own would, and it must still sight `Beyond`.
 #[test]
 fn bkty_a_posed_loosebox_is_deletable_and_a_posed_tackroom_is_not() {
-    let lure = bktu_Lure::bktu_compose("sweep-loosebox");
+    let lure = bktu_Lure::bktu_compose("sweep-pomfrish");
     let root = lure.bktu_root();
 
     let loosebox = root.join(BKG_BUS_LOOSEBOX_BASE);
@@ -365,7 +532,7 @@ fn zbkty_python(named: &str) -> (bktu_Lure, bkcx_Seat, PathBuf) {
 /// would buy an interpreter download to answer a question about a path.
 #[test]
 fn bkty_a_python_environment_under_the_loosebox_is_sighted_and_removed() {
-    let (lure, seat, _tackroom) = zbkty_python("sweep-python-loosebox");
+    let (lure, seat, _tackroom) = zbkty_python("sweep-python-pomfrish");
 
     std::fs::create_dir_all(seat.environment.join("lib"))
         .expect("the posed environment stands before it is sighted");

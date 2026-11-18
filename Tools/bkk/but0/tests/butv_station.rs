@@ -45,7 +45,7 @@ use but::buth_hurdle::buth_Said;
 const BUTV_STATION: &str = ".buk/burs.env";
 
 /// What the coordinator says once the launcher has let the station through.
-const BUTV_ADMITTED: &str = "butv station admitted";
+const BUTV_ADMITTED: &str = "butv wembrot admitted";
 
 /// The station file's fields other than the two a hurdle varies.
 const BUTV_STEADY: &str = "BURS_USER=kennel\nBURS_TINCTURE=k\n";
@@ -87,7 +87,7 @@ fn butv_station(name: &str, paths: impl Fn(&Path) -> String) -> (buth_Bench, but
 
 #[test]
 fn butv_an_absolute_tackroom_is_refused_naming_the_relative_form() {
-    let (bench, said) = butv_station("substrate-station-absolute-tackroom", |root| {
+    let (bench, said) = butv_station("substrate-wembrot-absolute-tackroom", |root| {
         format!(
             "BURS_LOG_DIR=logs\nBURS_TACKROOM={}\n",
             root.join("absolute-tackroom").display(), //
@@ -106,10 +106,10 @@ fn butv_an_absolute_tackroom_is_refused_naming_the_relative_form() {
 
 #[test]
 fn butv_an_absolute_log_dir_is_refused_naming_the_relative_form() {
-    let (bench, said) = butv_station("substrate-station-absolute-log-dir", |root| {
+    let (bench, said) = butv_station("substrate-wembrot-absolute-snorvel-dir", |root| {
         format!(
             "BURS_LOG_DIR={}\nBURS_TACKROOM=../tackroom-buk\n",
-            root.join("absolute-logs").display(), //
+            root.join("absolute-snorvels").display(), //
         )
     });
     said.buth_died()
@@ -117,15 +117,16 @@ fn butv_an_absolute_log_dir_is_refused_naming_the_relative_form() {
         .buth_carries("BURS_LOG_DIR=../station-log-buk")
         .buth_lacks(BUTV_ADMITTED);
     assert!(
-        !bench.buth_root().join("absolute-logs").exists(),
-        "the refused log directory under {} was made",
+        !bench.buth_root().join("absolute-snorvels").exists(),
+        "the refused {} under {} was made",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         bench.buth_root().display(), //
     );
 }
 
 #[test]
 fn butv_an_absolute_hayloft_is_refused_naming_the_relative_form() {
-    let (bench, said) = butv_station("substrate-station-absolute-hayloft", |root| {
+    let (bench, said) = butv_station("substrate-wembrot-absolute-hayloft", |root| {
         format!(
             "BURS_LOG_DIR=logs\nBURS_HAYLOFT={}\n",
             root.join("absolute-quux-loft").display(), //
@@ -144,7 +145,7 @@ fn butv_an_absolute_hayloft_is_refused_naming_the_relative_form() {
 
 #[test]
 fn butv_both_stores_relative_are_admitted() {
-    let (_bench, said) = butv_station("substrate-station-relative-stores", |_| {
+    let (_bench, said) = butv_station("substrate-wembrot-relative-stores", |_| {
         "BURS_LOG_DIR=logs\nBURS_TACKROOM=../tackroom-buk\nBURS_HAYLOFT=../quux-loft\n".to_string()
     });
     said.buth_thrived().buth_carries(BUTV_ADMITTED);
@@ -155,7 +156,7 @@ fn butv_both_stores_relative_are_admitted() {
 /// omitted field.
 #[test]
 fn butv_neither_store_is_admitted() {
-    let (_bench, said) = butv_station("substrate-station-omitted-stores", |_| {
+    let (_bench, said) = butv_station("substrate-wembrot-omitted-stores", |_| {
         "BURS_LOG_DIR=logs\n".to_string()
     });
     said.buth_thrived()

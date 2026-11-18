@@ -565,7 +565,8 @@ fn buty_a_stand_door_resolves_under_the_target_stand() {
             "{}/",
             tabtargets, //
         )),
-        "the stand's door never lies under the bench's own tabtarget directory: {}",
+        "the stand's door never lies under the bench's own {} directory: {}",
+        bkk::bkg_breviary::BKG_BUS_TABTARGET_BASE,
         found, //
     );
 

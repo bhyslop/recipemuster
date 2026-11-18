@@ -921,7 +921,7 @@ fn bktd_a_struck_exergue_the_merge_base_has_outrun_names_the_strike_doors() {
 }
 
 /// A hand act no converge performs: a moved lock's re-derivation and its
-/// notch, the one shape rebed hands back whole.
+/// commit, the one shape rebed hands back whole.
 const ZBKTD_HAND_ACT: &str = "gangline lure-py, and the lock it writes taken into the tree";
 
 /// THE REPORT NAMES EVERY ABSENCE, THEN REBED AS THE ONE CONVERGE, THEN THE
@@ -1099,7 +1099,11 @@ fn bktd_the_unsupplied_report_names_every_absence_under_its_own_lead() {
 fn bktd_the_door_lookup_carries_the_colophon_through_either_arm() {
     let lure = bktu_Lure::bktu_compose("preflight-lookup");
     let tabtargets = lure.bktu_temp().join("tt");
-    std::fs::create_dir_all(&tabtargets).expect("the tabtarget directory composes");
+    std::fs::create_dir_all(&tabtargets).expect(concat!(
+        "the ",
+        crate::bkg_breviary::bkg_bus_tabtarget_base!(),
+        " directory composes"
+    ));
 
     // THE DEGRADED ARM FIRST, over a directory holding nothing.
     assert_eq!(
@@ -1125,7 +1129,11 @@ fn bktd_the_door_lookup_carries_the_colophon_through_either_arm() {
     );
     assert!(
         resolved.ends_with(".sh"),
-        "the resolved name is no tabtarget: {}",
+        concat!(
+            "the resolved name is no ",
+            crate::bkg_breviary::bkg_bus_tabtarget_base!(),
+            ": {}"
+        ),
         resolved, //
     );
 
@@ -1250,7 +1258,7 @@ fn zbktd_marqued(seat: &bkcx_Seat, version: &str) {
             version, //
         ),
     )
-    .expect("the posed record writes");
+    .expect("the posed `pyvenv.cfg` writes");
 }
 
 /// A python course whose environment stands nowhere is one absence: the
@@ -1271,7 +1279,10 @@ fn bktd_an_absent_python_environment_is_an_absence_naming_the_converge() {
         &[],
         &[(&collar, &seat)],
     )
-    .expect("the preflight reads a tree carrying a python course")
+    .expect(concat!(
+        "the preflight reads a tree carrying a python ",
+        crate::bkg_breviary::bkg_course_base!()
+    ))
     .absent;
 
     assert_eq!(
@@ -1328,7 +1339,10 @@ fn bktd_an_unplaced_uv_leaves_the_python_reading_at_the_environments_record() {
             &[],
             &[(&collar, &seat)],
         )
-        .expect("the preflight reads a tree carrying a python course")
+        .expect(concat!(
+            "the preflight reads a tree carrying a python ",
+            crate::bkg_breviary::bkg_course_base!()
+        ))
         .absent
     };
 
@@ -1354,7 +1368,7 @@ fn bktd_an_unplaced_uv_leaves_the_python_reading_at_the_environments_record() {
                 .stands
                 .as_deref()
                 .is_some_and(|why| why.contains("3.11.9"))),
-        "the control: the environment's record was not read: {:?}",
+        "the control: the environment's `pyvenv.cfg` was not read: {:?}",
         moved, //
     );
 
@@ -1364,7 +1378,7 @@ fn bktd_an_unplaced_uv_leaves_the_python_reading_at_the_environments_record() {
     assert_eq!(
         answering.len(),
         1,
-        "a record answering the pin, with uv unplaced, reported more than uv's absence: {:?}",
+        "a `pyvenv.cfg` answering the pin, with uv unplaced, reported more than uv's absence: {:?}",
         answering, //
     );
     assert!(

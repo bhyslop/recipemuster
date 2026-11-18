@@ -80,7 +80,7 @@ impl bkcf_Standing {
     pub fn bkcf_grievance(&self, repository: &Path) -> String {
         let mut said = format!(
             "the repository at {} carries {} uncommitted change(s), and every kennel door \
-             refuses one so that each record maps to a position — {} it and drive again",
+             refuses one so that each verdict maps to a position — {} it and drive again",
             repository.display(),
             self.entries.len(),
             BKCF_REMEDY, //

@@ -136,8 +136,12 @@ fn bktl_the_station_holds_the_toolchains_the_hurdles_require() {
 
     assert!(
         missing.is_empty() && unanswered.is_empty(),
-        "the station is missing {:?} of the required toolchains {:?}, and {} of them did not \
-         answer:\n  {}\n— the converge is {}",
+        concat!(
+            "the ",
+            crate::bkg_breviary::bkg_bus_station_base!(),
+            " is missing {:?} of the required toolchains {:?}, and {} of them did not \
+             answer:\n  {}\n— the converge is {}",
+        ),
         missing,
         BKTU_REQUIRED_TOOLCHAINS,
         unanswered.len(),
@@ -582,7 +586,11 @@ fn bktl_a_decorated_version_compares_on_the_numbers_it_carries() {
 /// supplies them.
 #[test]
 fn bktl_the_station_holds_the_programs_the_kennel_spawns() {
-    bkcl_leash::bkcl_git_held().expect("the station holds a git at or above the floor");
+    bkcl_leash::bkcl_git_held().expect(concat!(
+        "the ",
+        crate::bkg_breviary::bkg_bus_station_base!(),
+        " holds a git at or above the floor"
+    ));
 }
 
 /// RUSTUP JOINS THE ROSTER, checked through the fence itself: `bkcl_fenced`
@@ -591,8 +599,11 @@ fn bktl_the_station_holds_the_programs_the_kennel_spawns() {
 /// build.
 #[test]
 fn bktl_the_station_holds_a_rustup_the_kennel_trusts() {
-    bkcl_leash::bkcl_rustup_held(&crate::bktu_lure::bktu_suite_tackroom())
-        .expect("the station holds a rustup at or above the floor");
+    bkcl_leash::bkcl_rustup_held(&crate::bktu_lure::bktu_suite_tackroom()).expect(concat!(
+        "the ",
+        crate::bkg_breviary::bkg_bus_station_base!(),
+        " holds a rustup at or above the floor"
+    ));
 }
 
 /// THE FLOOR IS A COMPARISON AND NOT A STRING MATCH, read from both sides

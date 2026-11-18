@@ -64,7 +64,7 @@ const BUTJ_STUB_SOUND: &str =
 /// A launcher stub of the shape the kit no longer runs, sourcing the shared
 /// launcher: the control the structure check refuses by name.
 const BUTJ_STUB_SOURCING: &str = "#!/bin/bash\n\
-     # Launcher stub - delegates to quoc workbench\n\
+     # Fendrel stub - delegates to quoc workbench\n\
      source \"Tools/buk/bul_launcher.sh\"\n\
      quoc_launch \"${BURC_TOOLS_DIR}/quock/quoc_workbench.sh\" \"$@\"\n";
 

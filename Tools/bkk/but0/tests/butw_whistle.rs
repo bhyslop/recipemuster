@@ -158,7 +158,8 @@ fn zbutw_stand_in_kennel(lure: &bktu_Lure, channel: &str) {
     // here exactly as the real one does.
     lure.bktu_write(
         "Tools/bkk/bk0/build.rs",
-        "fn zbkb_git(args: &[&str]) -> String {\n\
+        &[
+            "fn zbkb_git(args: &[&str]) -> String {\n\
          \x20   let out = std::process::Command::new(\"git\")\n\
          \x20       .args(args)\n\
          \x20       .output()\n\
@@ -177,7 +178,9 @@ fn zbutw_stand_in_kennel(lure: &bktu_Lure, channel: &str) {
          \x20   assert!(\n\
          \x20       standing.is_empty(),\n\
          \x20       \"the repository carries uncommitted work, and every build of this crate \
-         refuses one so that each artifact maps to a position - notch it and drive again:\\n{}\",\n\
+         refuses one so that each artifact maps to a position - ",
+            bkk::bkcf_guard::BKCF_REMEDY,
+            " it and drive again:\\n{}\",\n\
          \x20       standing\n\
          \x20   );\n\
          \x20   let elected: Vec<String> = std::fs::read_to_string(\"bkce_roots.txt\")\n\
@@ -207,6 +210,8 @@ fn zbutw_stand_in_kennel(lure: &bktu_Lure, channel: &str) {
          \x20       String::from_utf8_lossy(&out.stdout).trim()\n\
          \x20   );\n\
          }\n",
+        ]
+        .concat(),
     );
 
     lure.bktu_write(
@@ -314,8 +319,9 @@ fn zbutw_toolchains_or_die() {
     let missing = bktu_missing_toolchains();
     assert!(
         missing.is_empty(),
-        "the station lacks {:?}, and proving a bumped pin changes the compiler needs \
+        "the {} lacks {:?}, and proving a bumped pin changes the compiler needs \
          a second toolchain to bump to",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         missing, //
     );
 }
@@ -341,7 +347,7 @@ fn butw_the_whistle_refuses_an_uncommitted_seat_and_names_the_remedy() {
     );
 
     // THE REMEDY, NOT MERELY THE REFUSAL. A door that refused without naming the
-    // notch would have handed its reader a stop and no way past it, which is the
+    // commit would have handed its reader a stop and no way past it, which is the
     // half of the door law that makes it a discipline rather than an obstacle.
     assert!(
         said.contains(BUTW_REMEDY),

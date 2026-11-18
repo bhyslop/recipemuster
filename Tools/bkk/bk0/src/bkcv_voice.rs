@@ -835,7 +835,7 @@ impl bkcv_Record {
                 return Err(format!(
                     "the three members are half-composed in {}: {} stand(s) absent while the others \
                      are written. The `buuc_ownlog` mode writes all three, so this is a dispatch the \
-                     kennel does not understand rather than a record it may write part of — all \
+                     kennel does not understand rather than a family it may write part of — all \
                      three members are written or none is",
                     dispatch.bkcr_whence(),
                     absent.join(", "), //
@@ -1263,7 +1263,7 @@ impl zbkcv_Throat {
     fn zbkcv_beside(&self) -> String {
         match self.hist.as_deref() {
             Some(path) => path.to_string(),
-            None => "(no record: this dispatch composed none)".to_string(),
+            None => "(no hist file: this dispatch composed none)".to_string(),
         }
     }
 
@@ -1284,7 +1284,7 @@ impl zbkcv_Throat {
                 .and_then(|()| record.bkcv_close());
             if let Err(err) = closed {
                 return format!(
-                    "{}; the record could not be closed: {}",
+                    "{}; the three members could not be closed: {}",
                     refusal,
                     err, //
                 );
@@ -1293,10 +1293,12 @@ impl zbkcv_Throat {
         refusal
     }
 
-    /// Close the throat: the verdict onto the console and into the record, and
-    /// the record's digest onto the historical member.
-    fn zbkcv_close(mut self, verdict: &str) -> Result<(), String> {
-        (self.console)(verdict);
+    /// Close the throat: the verdict into the record, onto the console where
+    /// `spoken`, and the record's digest onto the historical member.
+    fn zbkcv_close(mut self, verdict: &str, spoken: bool) -> Result<(), String> {
+        if spoken {
+            (self.console)(verdict);
+        }
 
         if let Some(mut record) = self.record.take() {
             record.bkcv_write(verdict)?;
@@ -1452,7 +1454,7 @@ impl bkcv_Voice {
             self.throat.hist.as_deref(),
         );
 
-        self.throat.zbkcv_close(&verdict)?;
+        self.throat.zbkcv_close(&verdict, true)?;
 
         Ok(self.tally)
     }
@@ -1618,6 +1620,13 @@ enum zbkcv_Act {
     /// prose — the packages locked, added and updated — is what an operator
     /// reads to see what moved, so every line rides the console whole.
     Lock,
+    /// A fetch of what a lock names. Cargo takes no message format for it and
+    /// its prose is a download list, which is the depth and never the voice: the
+    /// stream goes to the record, only an error or a warning of cargo's own
+    /// reaches the console, and a fetch that lands is said in the verbose
+    /// flavor alone. What the fetch laid is the caller's to measure in the store
+    /// it laid into, since no line of this stream is read for it.
+    Fetch,
 }
 
 /// The rendering of one cargo act other than a suite: the record written, the
@@ -1671,6 +1680,20 @@ impl bkcv_Cargo {
         ))
     }
 
+    /// Open the voice over one fetch of what a manifest's lock names.
+    pub fn bkcv_fetch(
+        dispatch: &crate::bkcr_resolve::bkcr_Dispatch,
+        invocation: &str,
+    ) -> Result<bkcv_Cargo, String> {
+        Ok(bkcv_Cargo::zbkcv_cargo(
+            zbkcv_Act::Fetch,
+            bkcv_Record::bkcv_open(dispatch, invocation)?,
+            bkcv_Record::bkcv_hist_path(dispatch),
+            BKCV_CADENCE,
+            zbkcv_stdout(),
+        ))
+    }
+
     /// A build voice over a record, cadence and console the caller holds.
     ///
     /// THE HURDLE'S SEAM, on `bkcv_Voice::zbkcv_with`'s ground: nothing here
@@ -1704,9 +1727,16 @@ impl bkcv_Cargo {
 
     /// The launch mark: what is about to run, onto the console and into the
     /// record alike, so a quiet build still says what it is building.
+    ///
+    /// A FETCH'S MARK REACHES THE CONSOLE IN THE VERBOSE FLAVOR ALONE. A door
+    /// fetching for many manifests says its plan once, before the first, and a
+    /// mark per manifest at the quiet dial would be the narration that plan
+    /// replaces; the record keeps every mark whatever the dial.
     pub fn bkcv_launch(&mut self, line: &str) -> Result<(), String> {
         self.throat.zbkcv_write(line)?;
-        self.throat.zbkcv_say(line);
+        if self.act != zbkcv_Act::Fetch || self.throat.verbose {
+            self.throat.zbkcv_say(line);
+        }
         Ok(())
     }
 
@@ -1724,6 +1754,7 @@ impl bkcv_Cargo {
                         self.throat.zbkcv_say(line);
                     }
                 }
+                zbkcv_Act::Fetch => self.zbkcv_prose(line.trim_start()),
             }
         }
 
@@ -1750,20 +1781,7 @@ impl bkcv_Cargo {
             if trimmed.starts_with(ZBKCV_COULD_NOT_COMPILE) && self.errors > 0 {
                 return Ok(());
             }
-            let error = trimmed.starts_with(ZBKCV_PROSE_ERROR);
-            if error || trimmed.starts_with(ZBKCV_PROSE_WARNING) {
-                if error {
-                    self.errors += 1;
-                } else {
-                    self.warnings += 1;
-                }
-                let said = format!(
-                    "  {}  {}",
-                    trimmed,
-                    self.throat.zbkcv_beside(), //
-                );
-                self.throat.zbkcv_say(&said);
-            }
+            self.zbkcv_prose(trimmed);
             return Ok(());
         };
 
@@ -1804,6 +1822,26 @@ impl bkcv_Cargo {
         }
 
         Ok(())
+    }
+
+    /// One line of cargo's own prose: an error or a warning rides the console,
+    /// indented beneath whatever the door said, with the record's path beside
+    /// it and counted; every other line stays in the record alone.
+    fn zbkcv_prose(&mut self, trimmed: &str) {
+        let error = trimmed.starts_with(ZBKCV_PROSE_ERROR);
+        if error || trimmed.starts_with(ZBKCV_PROSE_WARNING) {
+            if error {
+                self.errors += 1;
+            } else {
+                self.warnings += 1;
+            }
+            let said = format!(
+                "  {}  {}",
+                trimmed,
+                self.throat.zbkcv_beside(), //
+            );
+            self.throat.zbkcv_say(&said);
+        }
     }
 
     /// One compiler diagnostic: one console line naming its level, file,
@@ -1943,7 +1981,10 @@ impl bkcv_Cargo {
         };
 
         let (verdict, landed) = self.zbkcv_verdict(&run);
-        self.throat.zbkcv_close(&verdict)?;
+        // A FETCH THAT LANDED IS QUIET, on the launch mark's own ground: the
+        // door says what the fetches laid once they have all run.
+        let spoken = !(self.act == zbkcv_Act::Fetch && landed) || self.throat.verbose;
+        self.throat.zbkcv_close(&verdict, spoken)?;
 
         if let Some(err) = grievance {
             return Err(err);
@@ -2003,6 +2044,19 @@ impl bkcv_Cargo {
                     "RED: did not build, {} error(s), {} warning(s), cargo exited {}{}",
                     self.errors,
                     self.warnings,
+                    code,
+                    depth, //
+                ),
+                false,
+            ),
+            zbkcv_Act::Fetch if code == 0 => (
+                "green: cargo holds every package the lock names".to_string(),
+                true,
+            ),
+            zbkcv_Act::Fetch => (
+                format!(
+                    "RED: the fetch did not land, {} error(s), cargo exited {}{}",
+                    self.errors,
                     code,
                     depth, //
                 ),

@@ -73,7 +73,11 @@ fn bktc_a_whole_course_renders_every_field_of_the_roster() {
     ] {
         assert!(
             said.contains(owed),
-            "the record carries '{}': {}",
+            concat!(
+                "the ",
+                crate::bkg_breviary::bkg_course_record_base!(),
+                " carries '{}': {}"
+            ),
             owed,
             said, //
         );
@@ -113,7 +117,7 @@ fn bktc_a_narrowed_course_carries_its_patterns_and_no_time() {
     );
     assert!(
         !said.contains("BKRD_WALL=\"0\""),
-        "and does not record a zero, which a reader would take for a fast {}: {}",
+        "and does not write a zero, which a reader would take for a fast {}: {}",
         BKG_COURSE_BASE,
         said, //
     );
@@ -124,7 +128,7 @@ fn bktc_a_record_survives_the_round_trip_whichever_shape_it_took() {
     for owed in [zbktc_whole(), zbktc_narrowed()] {
         let said = owed.bkcc_body();
 
-        let read = bkcc_admit(&said, "the hurdle's own record").unwrap_or_else(|err| {
+        let read = bkcc_admit(&said, "the hurdle's own snibbet").unwrap_or_else(|err| {
             panic!(
                 "the writer's output is readable: {}",
                 err, //
@@ -168,7 +172,7 @@ fn bktc_a_record_that_disagrees_with_itself_refuses() {
             concat!("a narrowed ", bkg_course_base!(), " carrying a time"),
         ),
     ] {
-        let err = bkcc_admit(said, "the hurdle's own record").expect_err(&format!(
+        let err = bkcc_admit(said, "the hurdle's own snibbet").expect_err(&format!(
             "{} refuses",
             what, //
         ));
@@ -190,8 +194,11 @@ fn bktc_a_field_outside_the_roster_refuses_by_name() {
         "BKRD_STATION=\"beast\"\n", //
     );
 
-    let err = bkcc_admit(&said, "the hurdle's own record")
-        .expect_err("a record carrying a field the roster does not name refuses");
+    let err = bkcc_admit(&said, "the hurdle's own snibbet").expect_err(concat!(
+        "a ",
+        crate::bkg_breviary::bkg_course_record_base!(),
+        " carrying a field the roster does not name refuses"
+    ));
 
     // THE RECORD CARRIES NO STATION, and this hurdle is where that cinch is
     // enforced rather than merely stated: the station is the dispatcher's fact
@@ -228,10 +235,14 @@ fn bktc_a_missing_field_refuses_by_name() {
             })
             .collect();
 
-        let err = match bkcc_admit(&without, "the hurdle's own record") {
+        let err = match bkcc_admit(&without, "the hurdle's own snibbet") {
             Err(err) => err,
             Ok(admitted) => panic!(
-                "a record missing {} was admitted rather than refused: {:?}",
+                concat!(
+                    "a ",
+                    crate::bkg_breviary::bkg_course_record_base!(),
+                    " missing {} was admitted rather than refused: {:?}"
+                ),
                 owed,
                 admitted, //
             ),
@@ -239,7 +250,11 @@ fn bktc_a_missing_field_refuses_by_name() {
 
         assert!(
             err.contains(owed),
-            "a record missing {} refuses naming it: {}",
+            concat!(
+                "a ",
+                crate::bkg_breviary::bkg_course_record_base!(),
+                " missing {} refuses naming it: {}"
+            ),
             owed,
             err, //
         );
@@ -252,7 +267,7 @@ fn bktc_a_count_that_is_no_count_refuses() {
         .bkcc_body()
         .replace("BKRD_DRIVEN=\"137\"", "BKRD_DRIVEN=\"many\"");
 
-    let err = bkcc_admit(&said, "the hurdle's own record")
+    let err = bkcc_admit(&said, "the hurdle's own snibbet")
         .expect_err("a count that is not a count refuses");
 
     assert!(

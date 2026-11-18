@@ -187,9 +187,10 @@ fn buta_absolute_under(member: &str, path: &str, at: &buta_Where) {
             "{}/",
             at.logs, //
         )),
-        "{} is recorded as {}, which stands outside the log directory {}",
+        "{} is recorded as {}, which stands outside the {} at {}",
         member,
         path,
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         at.logs, //
     );
 }
@@ -199,7 +200,8 @@ fn buta_members(at: &buta_Where) -> usize {
     std::fs::read_dir(&at.logs)
         .unwrap_or_else(|err| {
             panic!(
-                "no log directory at {}: {}",
+                "no {} at {}: {}",
+                bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
                 at.logs,
                 err, //
             )
@@ -209,7 +211,7 @@ fn buta_members(at: &buta_Where) -> usize {
 
 #[test]
 fn buta_the_coordinator_is_handed_all_three_log_names() {
-    let (_seat, said, at) = buta_drive("substrate-amanuensis-exports", "buuc_ownlog");
+    let (_seat, said, at) = buta_drive("substrate-quodlish-exports", "buuc_ownlog");
     said.buth_thrived();
     let report = buta_report(&at);
 
@@ -226,9 +228,10 @@ fn buta_the_coordinator_is_handed_all_three_log_names() {
         );
         assert!(
             path.starts_with(&at.logs),
-            "{} names {} which stands outside the dispatch's log directory {}",
+            "{} names {} which stands outside the dispatch's {} at {}",
             field,
             path,
+            bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
             at.logs, //
         );
     }
@@ -236,18 +239,20 @@ fn buta_the_coordinator_is_handed_all_three_log_names() {
 
 #[test]
 fn buta_the_dispatch_creates_the_directory_and_none_of_its_members() {
-    let (_seat, said, at) = buta_drive("substrate-amanuensis-none", "buuc_ownlog");
+    let (_seat, said, at) = buta_drive("substrate-quodlish-none", "buuc_ownlog");
     said.buth_thrived();
 
     assert!(
         std::path::Path::new(&at.logs).is_dir(),
-        "the log directory is absent: {}",
+        "the {} is absent: {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         at.logs, //
     );
     assert_eq!(
         buta_members(&at),
         0,
-        "the dispatch wrote log members it owed none of, under {}",
+        "the dispatch wrote {} members it owed none of, under {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         at.logs, //
     );
 }
@@ -257,7 +262,7 @@ fn buta_the_logged_control_writes_the_whole_family() {
     // THE CONTROL FOR THE ABSENCE ABOVE, driven through the same helper with no
     // word. Without it, a probe that had looked at the wrong directory would
     // report the same zero the working mode reports.
-    let (_seat, said, at) = buta_drive("substrate-amanuensis-control", "");
+    let (_seat, said, at) = buta_drive("substrate-quodlish-control", "");
     said.buth_thrived();
 
     // THE DISPATCH FILE OF A LOGGED RUN carries the historical member, which a
@@ -280,19 +285,20 @@ fn buta_the_logged_control_writes_the_whole_family() {
     buta_absolute_under("BURD_LOG_HIST", &buta_field(&body, "BURD_LOG_HIST"), &at);
     assert!(
         !body.lines().any(|l| l.starts_with("BURD_LOG_LAST=")),
-        "no last member outside own-log:\n{}",
+        "no last member outside `buuc_ownlog`:\n{}",
         body, //
     );
     assert!(
         !body.lines().any(|l| l.starts_with("BURD_LOG_SAME=")),
-        "no same member outside own-log:\n{}",
+        "no same member outside `buuc_ownlog`:\n{}",
         body, //
     );
     assert_eq!(
         buta_members(&at),
         BUTA_FAMILY,
-        "a logged dispatch wrote {} member(s) under {}, where {} were owed — and the \
+        "a dispatch keeping a {} wrote {} member(s) under {}, where {} were owed — and the \
          absence the flagged hurdles assert is unproven without this",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         buta_members(&at),
         at.logs,
         BUTA_FAMILY, //
@@ -305,7 +311,7 @@ fn buta_the_fact_file_names_the_same_historical_member_the_coordinator_was_hande
     // environment and a later reader finds it in the fact file; a mode that
     // exported one path and recorded another would leave the two consumers of the
     // same run pointing at different records.
-    let (_seat, said, at) = buta_drive("substrate-amanuensis-burx", "buuc_ownlog");
+    let (_seat, said, at) = buta_drive("substrate-quodlish-burx", "buuc_ownlog");
     said.buth_thrived();
     let report = buta_report(&at);
 
@@ -340,7 +346,7 @@ fn buta_the_mode_refuses_to_stand_beside_no_log() {
     // THE TWO WORDS ASK FOR OPPOSITE THINGS — one says the coordinator will write
     // the record, the other says there is no record — so admitting both would
     // make the outcome depend on which branch happened to run last.
-    let (_seat, said, at) = buta_drive("substrate-amanuensis-nolog", "buuc_ownlog buuc_nolog");
+    let (_seat, said, at) = buta_drive("substrate-quodlish-nolog", "buuc_ownlog buuc_nolog");
     said.buth_died()
         .buth_carries("buuc_ownlog")
         .buth_carries("buuc_nolog");
@@ -357,7 +363,7 @@ fn buta_the_mode_refuses_to_stand_beside_no_log() {
 #[test]
 fn buta_the_mode_refuses_to_stand_beside_interactive() {
     let (_seat, said, at) = buta_drive(
-        "substrate-amanuensis-interactive",
+        "substrate-quodlish-interactive",
         "buuc_ownlog buuc_interactive",
     );
     said.buth_died()

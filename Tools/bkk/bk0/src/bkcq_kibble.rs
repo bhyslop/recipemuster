@@ -210,7 +210,7 @@ pub fn bkcq_feedroom(
     )?;
 
     if posed.is_some() {
-        crate::bkco_info_now!(
+        crate::bkco_trace_now!(
             "the kibble root is posed at {} by {}, so no residence this invocation reads or \
              places stands in the station's store",
             feedroom.root.display(),

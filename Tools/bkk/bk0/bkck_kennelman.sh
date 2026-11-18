@@ -206,6 +206,9 @@ zbkck_toolchain_fence_or_die() {
 # not an error: cargo's harness reports an empty selection as a pass, which is
 # the behavior the kennel's own selection pipeline exists to correct and which
 # this door, standing outside the kennel, deliberately does not correct.
+#
+# BUILT IN RELEASE, the profile the kennel's own suite collar declares, so this
+# door and the suite it stands in for build into one directory and never two.
 zbkck_hurdles_or_die() {
   local -r z_manifest="${1}"
   local -r z_whose="${2}"
@@ -215,11 +218,11 @@ zbkck_hurdles_or_die() {
   local z_cargo_status=0
   if test -n "${z_filter}"; then
     CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
-      cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked -- "${z_filter}" \
+      cargo "+${z_channel}" test --release --manifest-path "${z_manifest}" --locked -- "${z_filter}" \
       || z_cargo_status=$?
   else
     CARGO_HOME="${BKCB_CARGO_HOME}" RUSTUP_HOME="${BKCB_RUSTUP_HOME}" \
-      cargo "+${z_channel}" test --manifest-path "${z_manifest}" --locked \
+      cargo "+${z_channel}" test --release --manifest-path "${z_manifest}" --locked \
       || z_cargo_status=$?
   fi
   test "${z_cargo_status}" -eq 0 \

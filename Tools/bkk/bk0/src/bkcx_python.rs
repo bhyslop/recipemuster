@@ -1218,7 +1218,7 @@ fn zbkcx_backend(
     if !zbkcx_admits(requirement, &pinned) {
         findings.push(format!(
             "[{}] requires '{}' and the kibble '{}' pins {} — a range the pinned uv does not \
-             satisfy would have uv fetch its backend from an index the lock records nothing of, \
+             satisfy would have uv fetch its backend from an index the lock holds nothing of, \
              so the range admits the pin",
             ZBKCX_BUILD_SYSTEM,
             requirement,
@@ -1363,7 +1363,7 @@ fn zbkcx_partition(project: &Path, collar: &bkcx_Collar, findings: &mut Vec<Stri
 
         if !account.wheeled.iter().any(|held| held == named) {
             findings.push(format!(
-                "{} names '{}' and the lock carries no wheel for it — a package the lock records \
+                "{} names '{}' and the lock carries no wheel for it — a package the lock holds \
                  as source alone arrives {} on every platform, which the converge never builds \
                  (BKr_hpt)",
                 "BKRP_BAKED_PACKAGES",
@@ -1795,7 +1795,7 @@ impl bkcx_Unanswered {
     /// above, or `None` where it is not.
     ///
     /// A MOVED LOCK IS NOT A HEEL'S TO SUPPLY. Its first act writes a lock, and
-    /// a written lock stands dirty for the operator's notch — no tool commits —
+    /// a written lock stands dirty for the operator to commit — no tool commits —
     /// so a verb that performed the heels a tree is owed would meet that lock's
     /// door-law refusal on its next act. The reading it is handed is the supply
     /// above, whole, and the operator's.
@@ -1830,7 +1830,7 @@ impl bkcx_Unanswered {
             bkcx_Unanswered::Unmarqued => format!(
                 "{} carries no '{}' line, so what interpreter built this environment cannot be \
                  read. The file is uv's own and its shape is not this kennel's to restate; what is \
-                 missing is a record rather than a version, so the environment is rebuilt rather \
+                 missing is the line itself rather than a version, so the environment is rebuilt rather \
                  than inspected: {}",
                 seat.environment.join(ZBKCX_MARQUE).display(),
                 ZBKCX_MARQUE_VERSION,

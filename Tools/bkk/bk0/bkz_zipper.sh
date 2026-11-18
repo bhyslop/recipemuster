@@ -81,7 +81,7 @@ zbkz_kindle() {
   # They are doors of the collar register like the six above and differ only in
   # when they were elected.
   buz_enroll BKZ_GANGLINE  "bkw-g" "${z_mod}" "bkcw_gangline" "param1" "Re-derive one collar's lock: the single act in which the leash lifts the lock flag, writing the lock and leaving it dirty for whoever commits it"
-  buz_enroll BKZ_SCOOP     "bkw-s" "${z_mod}" "bkcw_scoop"    "param1" "Remove every collar's target directory, on the operator's word alone - no stamp, no cadence and no record left behind"
+  buz_enroll BKZ_SCOOP     "bkw-s" "${z_mod}" "bkcw_scoop"    "param1" "Remove every collar's target directory and every build directory no collar owns, on the operator's word alone - no stamp, no cadence and no memory left behind"
 
   # SCENT, the door the tree's own build doors call after a release build: an
   # app collar striking an exergue has its elected set derived from the dep-info
@@ -112,7 +112,7 @@ zbkz_kindle() {
   # writes into a swept yard takes the day's sweep ahead of its build, so the
   # derby after it finds what the build seated. The letter is n, the delouse
   # module's own (bkcn_delouse.rs).
-  buz_enroll BKZ_DELOUSE   "bkw-n" "${z_mod}" "bkcw_delouse"  "param1" "Take the day's sweep of every collar's build directory ahead of a build, recorded once a day and a no-op after - so a derby that follows the build finds what it seated"
+  buz_enroll BKZ_DELOUSE   "bkw-n" "${z_mod}" "bkcw_delouse"  "param1" "Take the day's sweep of every collar's build directory and every one no collar owns ahead of a build, recorded once a day and a no-op after - so a derby that follows the build finds what it seated"
 
   buz_enroll BKZ_FUTURITY  "bkw-f" "${z_mod}" "bkcw_futurity" "param1" "Run the hurdles the patterns name across every suite collar the walk finds, matching once over every course's listing and launching only the courses holding a match - each course not launched named in the verdict"
 
@@ -147,7 +147,7 @@ zbkz_kindle() {
   # ahead of its builds. It stands in the whistle's module because its toolchain
   # half reads the kennel's pin the same way, before any kennel can be built. The
   # letter is r, its word's own.
-  buz_enroll BKZ_REBED     "bkw-r" "${z_mod}" "bkcw_rebed"    "param1" "Rebed, the readiness converge, safe at any time: lay every toolchain the kennel requires whose compiler does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every manifest's registry closure under its lock - one act from a cold station and a cold tree to a derby that can run"
+  buz_enroll BKZ_REBED     "bkw-r" "${z_mod}" "bkcw_rebed"    "param1" "Rebed, the readiness converge, safe at any time: lay every toolchain the kennel requires whose compiler does not answer, converge the kennel, then perform every heel and strike the derby's preflight names and fetch every package each manifest's lock names, under that lock - one act from a cold station and a cold tree to a derby that can run"
 
   readonly ZBKZ_KINDLED=1
 }

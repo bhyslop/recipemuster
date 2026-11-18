@@ -113,7 +113,11 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
             BKTB_SAID,
             BKTU_COLOPHON, //
         )),
-        "the coordinator names the colophon the inscription spells: {}",
+        concat!(
+            "the coordinator names the colophon the ",
+            crate::bkg_breviary::bkg_mcm_inscription_base!(),
+            " spells: {}"
+        ),
         said, //
     );
 
@@ -123,12 +127,20 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     // empty. Asserting both is what tells a merge from a lost diagnostic.
     assert!(
         said.contains(BKTB_GRUMBLED),
-        "the dispatch merges the coordinator's stderr into the record: {}",
+        concat!(
+            "the dispatch merges the coordinator's stderr into the ",
+            crate::bkg_breviary::bkg_bus_station_log_base!(),
+            ": {}"
+        ),
         said, //
     );
     assert!(
         grumbled.is_empty(),
-        "nothing in the chain wrote past the record: {}",
+        concat!(
+            "nothing in the chain wrote past the ",
+            crate::bkg_breviary::bkg_bus_station_log_base!(),
+            ": {}"
+        ),
         grumbled, //
     );
 
@@ -145,7 +157,11 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     for name in announced.split_whitespace() {
         assert!(
             root.join(name).is_file(),
-            "the seat's own log directory holds {}, under {}",
+            concat!(
+                "the seat's own ",
+                crate::bkg_breviary::bkg_bus_station_log_base!(),
+                " holds {}, under {}"
+            ),
             name,
             root.display(), //
         );
@@ -154,7 +170,11 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
     assert_eq!(
         family,
         3,
-        "a dispatch that logs writes three files, one record read three ways: {}",
+        concat!(
+            "a dispatch keeping a ",
+            crate::bkg_breviary::bkg_bus_station_log_base!(),
+            " writes three files, one stream read three ways: {}"
+        ),
         announced, //
     );
 
@@ -182,7 +202,7 @@ fn bktb_the_substrate_dispatches_in_a_composed_seat() {
 /// recomposed it here would be a second implementation agreeing with itself.
 #[test]
 fn bktb_the_substrate_composes_a_loosebox_keyed_on_the_seat() {
-    let lure = bktu_Lure::bktu_compose("substrate-loosebox");
+    let lure = bktu_Lure::bktu_compose("substrate-pomfrish");
 
     let tabtarget = lure.bktu_substrate_seat("#!/bin/bash\nexit 0\n");
 
@@ -226,7 +246,7 @@ fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
     let regime_path = lure.bktu_root().join(".buk/burc.env");
     let standing = std::fs::read_to_string(&regime_path).unwrap_or_else(|err| {
         panic!(
-            "could not read the seat's own regime at {}: {}",
+            "could not read the seat's own `burc.env` at {}: {}",
             regime_path.display(),
             err, //
         )
@@ -255,7 +275,7 @@ fn zbktb_posed_parent_regime(lure: &bktu_Lure) -> String {
     assert_ne!(
         posed,
         standing,
-        "the seat's default regime spells all three roots plainly, so posing a parent segment on \
+        "the seat's default `burc.env` spells all three roots plainly, so posing a parent segment on \
          each must change the file: {}",
         standing, //
     );
@@ -282,7 +302,7 @@ fn bktb_the_dispatch_settles_a_root_spelled_through_a_parent_segment() {
 
     let posed = zbktb_posed_parent_regime(&lure);
     lure.bktu_write(".buk/burc.env", &posed);
-    lure.bktu_commit("pose every regime root through a parent segment");
+    lure.bktu_commit("pose every grubbet root through a parent segment");
 
     let out = lure.bktu_dispatch(&tabtarget, &[]);
     let said = String::from_utf8_lossy(&out.stdout);
@@ -335,7 +355,7 @@ fn zbktb_posed_endonym_regime(lure: &bktu_Lure, endonym: &str) -> String {
     let regime_path = lure.bktu_root().join(".buk/burc.env");
     let standing = std::fs::read_to_string(&regime_path).unwrap_or_else(|err| {
         panic!(
-            "could not read the seat's own regime at {}: {}",
+            "could not read the seat's own `burc.env` at {}: {}",
             regime_path.display(),
             err, //
         )

@@ -36,10 +36,10 @@ The verbosity dial is the substrate's own `BURE_VERBOSE`.
 | `bkw-h.Heel` | collar | Build a collar's launchable current through the leash and install it at its residence |
 | `bkw-z.Muzzle` | none | Lint every collar the weaned set holds at the muzzle directory it declares |
 | `bkw-g.Gangline` | collar | Re-derive one collar's lock, the one act in which the leash lifts the lock flag |
-| `bkw-s.Scoop` | none | Remove every collar's build output, on your word alone |
+| `bkw-s.Scoop` | none | Remove every collar's build output, and every build directory no collar owns, on your word alone |
 | `bkw-B.Bleach` | none | Empty what the kennel keeps on the station for every tree, and this worktree's python environments, on your word alone: nothing calls it, and rebed lays it all again |
 | `bkw-c.Scent` | collar | Derive an app collar's elected set from the dep-info its build left: written beside the collar in a linked worktree for you to commit, refused without writing anywhere else |
-| `bkw-n.Delouse` | none | Take the day's sweep of every collar's build directory where none has landed today; derby and heel take it themselves, and a build door calls it ahead of its build |
+| `bkw-n.Delouse` | none | Take the day's sweep of every collar's build directory, and every build directory no collar owns, where none has landed today; derby and heel take it themselves, and a build door calls it ahead of its build |
 | `bkw-w.Whistle` | none | Report the kennel's own making, building it first where the seat has outrun it |
 | `bkw-r.Rebed` | none | Lay each required channel whose compiler does not answer, leaving every answering one as it stands, then converge the kennel and perform the heels and strikes the derby's preflight names; safe to drive at any time |
 | `bkw-k.Kennelman` | filter | Run this kit's own hurdles outside the kennel, so a broken kennel can still be told it is broken |
@@ -136,7 +136,7 @@ Each field the collar owes must be declared even where its value is empty, since
 | `BKRR_MANIFEST` | every collar | the crate's `Cargo.toml`, which must stand |
 | `BKRR_TARGET` | every collar | an app: the cargo binary target's name. A suite: `bknre_manifest` for every test of the manifest, or one test target's name |
 | `BKRR_FEATURES` | every collar | cargo feature names separated by whitespace; empty for none |
-| `BKRR_PROFILE` | every collar | a cargo profile name, `dev`, `test`, `release`, `bench` or a custom one. A suite may leave it empty for cargo's default; an app names one, since the built binary is found by it |
+| `BKRR_PROFILE` | every collar | a cargo profile name. `release` is the kennel's profile, which a suite and an app alike declare; cargo's others, `dev`, `test`, `bench` or a custom one, are admitted. A suite may leave it empty for cargo's default; an app names one, since the built binary is found by it |
 | `BKRR_SPEND` | every collar | `bknre_reader` or `bknre_writer`, closed (see below) |
 | `BKRR_TAMED_CRATES` | every collar | the manifest's direct dependencies by name (see below) |
 | `BKRR_FERAL_CRATES` | every collar | `bknre_tamed`, and nothing else |
@@ -186,7 +186,7 @@ BKRR_KIND="bknre_suite"
 BKRR_MANIFEST="Tools/mine/Cargo.toml"
 BKRR_TARGET="bknre_manifest"
 BKRR_FEATURES=""
-BKRR_PROFILE="test"
+BKRR_PROFILE="release"
 BKRR_SPEND="bknre_reader"
 BKRR_TAMED_CRATES="regex"
 BKRR_FERAL_CRATES="bknre_tamed"
@@ -319,6 +319,8 @@ So a fresh worktree heels each python collar once before its first derby, and ag
 `bkw-A.Bale` packs what dispatches have left in their two working folders, dated on or before the day given, into one tar.gz in the folder `BURS_HAYLOFT` names, removing the originals only once the archive reads back equal to them.
 A missing, malformed or too recent day is refused, naming the latest day it takes.
 `bkw-u.Unbale` lists the archives in that folder, each ready to paste as an argument; given an archive and a folder that is empty or absent, it unpacks the archive there.
+
+That folder stands on the station's own disk, so a bale relieves the two working folders but frees space only when an archive leaves the station; where an archive goes is the station owner's, outside the kennel.
 
 The archive folder is a line of your station file, the one your `burc.env` names in `BURC_STATION_FILE`:
 

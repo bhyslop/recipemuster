@@ -22,8 +22,8 @@
 //! lock entries against that wall before this door stood.
 //!
 //! THE DOOR WRITES THE LOCK AND NOTHING ELSE, AND NEVER COMMITS. It leaves the
-//! new lock dirty in the working tree, so the sequence a caller lives is notch,
-//! gangline, notch — the door law refusing the drive that stands ahead of it and
+//! new lock dirty in the working tree, so the sequence a caller lives is commit,
+//! gangline, commit — the door law refusing the drive that stands ahead of it and
 //! the operator reading the lock's diff before it is banked. A door that
 //! committed its own output would put a lock into the record that nobody read.
 //!
@@ -82,7 +82,7 @@ pub enum bkcg_Verdict {
     /// The lock already answered its manifest: the bytes are identical before
     /// and after, and the tree is no dirtier than the door found it.
     Unmoved,
-    /// The lock was re-derived and differs. It stands dirty for the notch.
+    /// The lock was re-derived and differs. It stands dirty for the commit.
     Moved,
 }
 
@@ -385,7 +385,7 @@ const ZBKCG_UV_LOCK_FILE: &str = "uv.lock";
 /// and not only over what the manifest forced uv to re-resolve.
 ///
 /// IT WRITES A LOCK AND NEVER COMMITS ONE, exactly as the rust arm does: the
-/// file is left dirty for the operator's notch, and the diff is read before it
+/// file is left dirty for the operator's commit, and the diff is read before it
 /// is banked.
 pub fn bkcg_python(
     repository: &Path,

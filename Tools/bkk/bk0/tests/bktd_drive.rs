@@ -208,7 +208,7 @@ fn zbktd_warm(lure: &bktu_Lure, collar: &str) -> std::path::PathBuf {
 }
 
 #[test]
-fn bktd_the_door_refuses_a_dirty_lure_and_names_the_notch() {
+fn bktd_the_door_refuses_a_dirty_lure_and_names_the_remedy() {
     let lure = bktu_Lure::bktu_compose("drive-door-dirty");
     lure.bktu_write(BKTD_STRAY, "// planted by the hurdle\n");
 
@@ -685,7 +685,7 @@ BKRR_BYNAME=\"lurex\"
     );
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR_HEEL, "app-lure"]);
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     assert!(
         out.status.success(),
@@ -716,7 +716,7 @@ BKRR_BYNAME=\"lurex\"
 const BKTD_RED: &str = "\
 #[test]
 fn bktd_red() {
-    panic!(\"this course is red by construction\");
+    panic!(\"this tremmock is red by construction\");
 }
 ";
 
@@ -780,7 +780,7 @@ const BKTD_MARKED_RED: &str = "\
 fn bktd_marked_red() {
     std::fs::write(concat!(env!(\"CARGO_MANIFEST_DIR\"), \"/ran.txt\"), \"ran\")
         .expect(\"the mark is writable\");
-    panic!(\"this course is red by construction, after marking\");
+    panic!(\"this tremmock is red by construction, after marking\");
 }
 ";
 
@@ -812,7 +812,7 @@ fn zbktd_red_line(said: &str) -> Option<&str> {
 fn bktd_derby_runs_through_both_red_courses() {
     let lure = bktu_Lure::bktu_compose("derby-through");
     zbktd_two_red_courses(&lure);
-    lure.bktu_commit("compose two courses, both of them red");
+    lure.bktu_commit("compose two tremmocks, both of them red");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -827,7 +827,8 @@ fn bktd_derby_runs_through_both_red_courses() {
     );
     assert!(
         mark.exists(),
-        "the second course ran behind the red one ahead of it, which is what its written mark says: {}\n{}",
+        "the second {} ran behind the red one ahead of it, which is what its written mark says: {}\n{}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(),
         said, //
     );
@@ -839,7 +840,8 @@ fn bktd_derby_runs_through_both_red_courses() {
     });
     assert!(
         red.contains("suite-alfa") && red.contains("suite-bravo"),
-        "the set verdict names both red courses: {}",
+        "the set verdict names both red {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_PLURAL,
         red, //
     );
 }
@@ -867,7 +869,7 @@ fn bktd_derby_steps_past_a_muzzle_refused_course() {
 
     zbktd_crate(&lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED_RED);
     zbktd_suite_collar(&lure, "Tools/bravo", "suite-bravo");
-    lure.bktu_commit("compose a muzzle-refused course ahead of a red one");
+    lure.bktu_commit("compose a muzzle-refused tremmock ahead of a red one");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -882,7 +884,8 @@ fn bktd_derby_steps_past_a_muzzle_refused_course() {
     );
     assert!(
         mark.exists(),
-        "the course behind the refused one ran: {}\n{}",
+        "the {} behind the refused one ran: {}\n{}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(),
         said, //
     );
@@ -891,7 +894,8 @@ fn bktd_derby_steps_past_a_muzzle_refused_course() {
             |line| line.contains("refused by the muzzle before any hurdle ran:")
                 && line.contains("suite-alfa")
         ),
-        "the set verdict names the refused course apart from the red ones: {}",
+        "the set verdict names the refused {} apart from the red ones: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     let red = zbktd_red_line(&said).unwrap_or_else(|| {
@@ -902,7 +906,8 @@ fn bktd_derby_steps_past_a_muzzle_refused_course() {
     });
     assert!(
         red.contains("suite-bravo") && !red.contains("suite-alfa"),
-        "and the red line names the course that ran red alone: {}",
+        "and the red line names the {} that ran red alone: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         red, //
     );
 }
@@ -925,7 +930,7 @@ const ZBKTD_BARRING_LIST: &str = "disallowed-methods = [\"std::vec::Vec::new\"]\
 fn bktd_futurity_runs_through_both_red_courses() {
     let lure = bktu_Lure::bktu_compose("narrowed-through");
     zbktd_two_red_courses(&lure);
-    lure.bktu_commit("compose two courses, both of them red");
+    lure.bktu_commit("compose two tremmocks, both of them red");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -943,7 +948,8 @@ fn bktd_futurity_runs_through_both_red_courses() {
     );
     assert!(
         mark.exists(),
-        "the second launched course ran: {}\n{}",
+        "the second launched {} ran: {}\n{}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(),
         said, //
     );
@@ -955,7 +961,8 @@ fn bktd_futurity_runs_through_both_red_courses() {
     });
     assert!(
         red.contains("suite-alfa") && red.contains("suite-bravo"),
-        "the set verdict names both red courses: {}",
+        "the set verdict names both red {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_PLURAL,
         red, //
     );
 }
@@ -987,7 +994,8 @@ fn bktd_a_red_course_reports_every_red_case() {
 
     assert!(
         !out.status.success(),
-        "the course is red: {}",
+        "the {} is red: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
@@ -1058,7 +1066,8 @@ BKRR_TONGUE=\"bknre_harness\"
     );
     assert!(
         !mark.exists(),
-        "and nothing ran: the sound course's mark stands unwritten at {}",
+        "and nothing ran: the sound {} mark stands unwritten at {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
 }
@@ -1075,7 +1084,7 @@ const BKTD_DOOR_FUTURITY: &str = bkk::bkg_breviary::BKG_FUTURITY_BASE;
 fn bktd_futurity_runs_only_the_course_holding_the_match() {
     let lure = bktu_Lure::bktu_compose("narrowed-one");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the first of them red");
+    lure.bktu_commit("compose two tremmocks, the first of them red");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -1088,18 +1097,21 @@ fn bktd_futurity_runs_only_the_course_holding_the_match() {
 
     assert!(
         out.status.success(),
-        "the matched course is green: {}\n{}",
+        "the matched {} is green: {}\n{}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         out.status,
         said, //
     );
     assert!(
         mark.exists(),
-        "the matched course's runner was spawned: {}",
+        "the matched {} runner was spawned: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
     assert!(
         said.contains("not launched") && said.contains("suite-alfa"),
-        "the verdict names the course the patterns left idle: {}",
+        "the verdict names the {} the patterns left idle: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 }
@@ -1110,7 +1122,7 @@ fn bktd_futurity_runs_only_the_course_holding_the_match() {
 fn bktd_futurity_matching_nothing_refuses_and_spawns_no_runner() {
     let lure = bktu_Lure::bktu_compose("narrowed-none");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses");
+    lure.bktu_commit("compose two tremmocks");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -1225,13 +1237,15 @@ fn bktd_futurity_names_a_runner_that_died_after_passing() {
         .find(|line| line.contains("course suite-dying is red"))
         .unwrap_or_else(|| {
             panic!(
-                "no line names the red course: {}",
+                "no line names the red {}: {}",
+                bkk::bkg_breviary::BKG_COURSE_BASE,
                 said, //
             )
         });
     assert!(
         zbktd_names_an_exit(course),
-        "the course's red line names the exit: {}",
+        "the {} red line names the exit: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         course, //
     );
 
@@ -1246,14 +1260,14 @@ fn bktd_futurity_names_a_runner_that_died_after_passing() {
     let hist = &family[2].1;
     let record = std::fs::read_to_string(hist).unwrap_or_else(|err| {
         panic!(
-            "the record stands at {}: {}",
+            "the hist file stands at {}: {}",
             hist.display(),
             err, //
         )
     });
     assert!(
         record.contains(verdict),
-        "the record carries the verdict: {}\n{}",
+        "the hist file carries the verdict: {}\n{}",
         verdict,
         record, //
     );
@@ -1275,7 +1289,7 @@ fn zbktd_names_an_exit(line: &str) -> bool {
 fn bktd_futurity_bare_refuses_naming_the_derby() {
     let lure = bktu_Lure::bktu_compose("narrowed-bare");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses");
+    lure.bktu_commit("compose two tremmocks");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -1419,10 +1433,16 @@ fn bktd_a_nextest_on_the_path_is_never_spawned_and_the_launch_names_the_residenc
 
     let path = lure.bktu_shimmed("nextest-shimmed", BKTD_STRANGE);
 
+    // THE RESIDENCE IS NAMED AT THE DIAL'S TOP POSITION, where the frozen shape
+    // puts every election the kennel computed, so the dial is armed here; the
+    // quiet console a green course keeps is the verdict alone.
     let out = lure.bktu_drive_stating(
         zbktd_kennel(),
         &[BKTD_DOOR, bktu_Lure::BKTU_COLLAR_NEXTEST],
-        &[("PATH", path.as_os_str())],
+        &[
+            ("PATH", path.as_os_str()),
+            (bkco_output::BKCO_VERBOSE_VAR, OsStr::new("2")),
+        ],
     );
 
     let said =
@@ -1430,7 +1450,8 @@ fn bktd_a_nextest_on_the_path_is_never_spawned_and_the_launch_names_the_residenc
 
     assert!(
         out.status.success(),
-        "a shimmed nextest on the path is ignored, so the course still runs: {} {}",
+        "a shimmed nextest on the path is ignored, so the {} still runs: {} {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         out.status,
         said, //
     );
@@ -1472,7 +1493,12 @@ fn bktd_a_narrowed_path_still_runs_the_nextest_collar_through_the_residence() {
     station.bktu_nextest_seat(&lure);
 
     let path = lure.bktu_nextestless("nextest-absent", BKTD_CARRIED);
-    let stated: &[(&str, &OsStr)] = &[("PATH", path.as_os_str())];
+    // The dial at its top position, where the residence the launch names is
+    // said, on the hurdle above's ground.
+    let stated: &[(&str, &OsStr)] = &[
+        ("PATH", path.as_os_str()),
+        (bkco_output::BKCO_VERBOSE_VAR, OsStr::new("2")),
+    ];
 
     let ran = lure.bktu_drive_stating(
         zbktd_kennel(),
@@ -1485,8 +1511,9 @@ fn bktd_a_narrowed_path_still_runs_the_nextest_collar_through_the_residence() {
 
     assert!(
         ran.status.success(),
-        "a station holding no nextest anywhere on its path still runs a nextest collar, the \
+        "a {} holding no nextest anywhere on its path still runs a nextest collar, the \
          program being reached at its residence: {} {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         ran.status,
         said, //
     );
@@ -1724,7 +1751,7 @@ fn bktd_scoop_takes_every_collar_and_reports_each() {
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[ZBKTD_SCOOP]);
 
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     assert!(
         out.status.success(),
@@ -1854,15 +1881,16 @@ fn bktd_scoop_refuses_a_build_directory_outside_the_tree() {
 /// reader the engine will harvest it with.
 #[test]
 fn bktd_a_green_course_banks_its_record_in_both_seats() {
-    let lure = bktu_Lure::bktu_compose("record-green");
+    let lure = bktu_Lure::bktu_compose("snibbet-green");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the second of them green");
+    lure.bktu_commit("compose two tremmocks, the second of them green");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, ZBKTD_GREEN]);
 
     assert!(
         out.status.success(),
-        "the green course runs: {} {}",
+        "the green {} runs: {} {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         out.status,
         String::from_utf8_lossy(&out.stderr), //
     );
@@ -1878,12 +1906,16 @@ fn bktd_a_green_course_banks_its_record_in_both_seats() {
     for seat in [&banked, &twin] {
         assert!(
             seat.is_file(),
-            "the record stands at {}",
+            "the {} stands at {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             seat.display(), //
         );
     }
 
-    let said = std::fs::read_to_string(&banked).expect("the record is readable");
+    let said = std::fs::read_to_string(&banked).expect(&format!(
+        "the {} is readable",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE
+    ));
 
     assert_eq!(
         said,
@@ -1893,19 +1925,23 @@ fn bktd_a_green_course_banks_its_record_in_both_seats() {
 
     let read = bkcc_record::bkcc_admit(&said, &leaf).unwrap_or_else(|err| {
         panic!(
-            "the door's own record admits: {}",
+            "the door's own {} admits: {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             err, //
         )
     });
 
     assert_eq!(
-        read.collar, ZBKTD_GREEN,
-        "the record names the collar it measured", //
+        read.collar,
+        ZBKTD_GREEN,
+        "the {} names the collar it measured",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE, //
     );
     assert_eq!(
         read.driven,
         1,
-        "the course drove the crate's one hurdle: {}",
+        "the {} drove the crate's one hurdle: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert_eq!(
@@ -1926,18 +1962,22 @@ fn bktd_a_green_course_banks_its_record_in_both_seats() {
     // way or the record disagrees with itself.
     assert!(
         read.narrowing.is_none(),
-        "nothing narrowed the course: {}",
+        "nothing narrowed the {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         read.wall.is_some(),
-        "so the course carries its wall time: {}",
+        "so the {} carries its wall time: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 
     assert!(
         !read.position.trim().is_empty(),
-        "the record carries the position the course ran at: {}",
+        "the {} carries the position the {} ran at: {}",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 }
@@ -1951,15 +1991,16 @@ fn bktd_a_green_course_banks_its_record_in_both_seats() {
 /// being exactly what it looks for.
 #[test]
 fn bktd_a_red_course_banks_nothing() {
-    let lure = bktu_Lure::bktu_compose("record-red");
+    let lure = bktu_Lure::bktu_compose("snibbet-red");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the first of them red");
+    lure.bktu_commit("compose two tremmocks, the first of them red");
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, ZBKTD_RED_COURSE]);
 
     assert!(
         !out.status.success(),
-        "the red course reddens the door: {}",
+        "the red {} reddens the door: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         out.status, //
     );
 
@@ -1972,7 +2013,9 @@ fn bktd_a_red_course_banks_nothing() {
     for seat in [lure.bktu_output(), lure.bktu_temp()] {
         assert!(
             !seat.join(&leaf).exists(),
-            "a red course leaves no record at {}",
+            "a red {} leaves no {} at {}",
+            bkk::bkg_breviary::BKG_COURSE_BASE,
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             seat.join(&leaf).display(), //
         );
     }
@@ -1989,9 +2032,9 @@ fn bktd_a_red_course_banks_nothing() {
 /// from a course whose hurdles failed.
 #[test]
 fn bktd_a_green_course_with_nowhere_to_bank_refuses_naming_the_variable() {
-    let lure = bktu_Lure::bktu_compose("record-nowhere");
+    let lure = bktu_Lure::bktu_compose("snibbet-nowhere");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the second of them green");
+    lure.bktu_commit("compose two tremmocks, the second of them green");
 
     // The seat states the pair on every drive, so a hurdle proving the absence
     // states it back to nothing — the last statement wins.
@@ -2003,14 +2046,20 @@ fn bktd_a_green_course_with_nowhere_to_bank_refuses_naming_the_variable() {
 
     assert!(
         zbktd_broke(out.status.code()),
-        "a green course whose record could not bank ends broke: {:?} {}",
+        "a green {} whose {} could not bank ends broke: {:?} {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         out.status.code(),
         said, //
     );
     assert!(
-        said.contains("ran green and its record was not banked"),
-        "the refusal says the record did not bank, which the exit no longer parts from any \
+        said.contains(&format!(
+            "ran green and its {} was not banked",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE, //
+        )),
+        "the refusal says the {} did not bank, which the exit no longer parts from any \
          other failure: {}",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         said, //
     );
     assert!(
@@ -2041,9 +2090,9 @@ fn bktd_a_green_course_with_nowhere_to_bank_refuses_naming_the_variable() {
 /// identity.
 #[test]
 fn bktd_a_record_that_already_stands_refuses_rather_than_overwriting() {
-    let lure = bktu_Lure::bktu_compose("record-twice");
+    let lure = bktu_Lure::bktu_compose("snibbet-twice");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses, the second of them green");
+    lure.bktu_commit("compose two tremmocks, the second of them green");
 
     let leaf = format!(
         "{}.{}",
@@ -2065,14 +2114,22 @@ fn bktd_a_record_that_already_stands_refuses_rather_than_overwriting() {
         said, //
     );
     assert!(
-        said.contains("ran green and its record was not banked"),
-        "the refusal says the record did not bank: {}",
+        said.contains(&format!(
+            "ran green and its {} was not banked",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE, //
+        )),
+        "the refusal says the {} did not bank: {}",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         said, //
     );
     assert_eq!(
-        std::fs::read_to_string(&standing).expect("the seeded record is readable"),
+        std::fs::read_to_string(&standing).expect(&format!(
+            "the seeded {} is readable",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE
+        )),
         ZBKTD_STANDING,
-        "and the record that stood is untouched", //
+        "and the {} that stood is untouched",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE, //
     );
 }
 
@@ -2237,7 +2294,7 @@ fn zbktd_altered(honest: &str) -> String {
 
 /// What the seeded record carries, so the assertion that it is untouched is
 /// about these bytes and not about a file merely still existing.
-const ZBKTD_STANDING: &str = "# seeded by the hurdle, and not a record\n";
+const ZBKTD_STANDING: &str = "# seeded by the hurdle, and not a snibbet\n";
 
 /// The delouse's own memory, spelled here because the constant is the binary's
 /// and this hurdle stands outside it. A drive states its day, so a hurdle knows
@@ -2285,7 +2342,7 @@ fn bktd_the_converge_delouses_a_yard_with_no_day() {
         &[BKTD_DOOR_HEEL, "app-lure"],
         &[(bkco_output::BKCO_VERBOSE_VAR, OsStr::new("1"))],
     );
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     assert!(
         out.status.success(),
@@ -2373,7 +2430,7 @@ fn bktd_a_build_door_that_delouses_first_leaves_the_derby_its_artifact() {
     zbktd_crate(&lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED);
     zbktd_suite_collar(&lure, "Tools/bravo", "suite-bravo");
     lure.bktu_write(".gitignore", "target/\nTools/bravo/ran.txt\n");
-    lure.bktu_commit("an app collar resident inside its own yard, beside one green course");
+    lure.bktu_commit("an app collar resident inside its own yard, beside one green tremmock");
 
     // THE STAMP STATES THE POSITION THE CRATE WAS COMMITTED AT, and is
     // committed after it so the tree stays clean for the door law.
@@ -2440,7 +2497,8 @@ fn bktd_a_build_door_that_delouses_first_leaves_the_derby_its_artifact() {
     );
     assert!(
         mark.exists(),
-        "and its course ran, leaving the mark at {}",
+        "and its {} ran, leaving the mark at {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(), //
     );
     assert!(
@@ -2451,10 +2509,10 @@ fn bktd_a_build_door_that_delouses_first_leaves_the_derby_its_artifact() {
     );
     assert_eq!(
         std::fs::read_to_string(&day)
-            .expect("the arm should record the day it swept for")
+            .expect("the arm should write the day it swept for")
             .trim(),
         ZBKTD_DAY,
-        "the arm records the day, so the derby after it sweeps nothing", //
+        "the arm writes the day, so the derby after it sweeps nothing", //
     );
 }
 
@@ -2494,7 +2552,7 @@ fn bktd_a_second_converge_the_same_day_sweeps_nothing() {
         &[BKTD_DOOR_HEEL, "app-lure"],
         &[(bkco_output::BKCO_VERBOSE_VAR, OsStr::new("1"))],
     );
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     assert!(
         out.status.success(),
@@ -2639,7 +2697,7 @@ fn bktd_a_converge_on_a_new_day_sweeps_again() {
             .expect("the day should be recorded")
             .trim(),
         &ZBKTD_NEXT_DAY[..8],
-        "the record moves to the day the drive stated", //
+        "the day file moves to the day the drive stated", //
     );
 }
 
@@ -2687,7 +2745,7 @@ fn bktd_the_delouse_refuses_a_planted_invalid_collar_before_deleting() {
     );
     assert!(
         !zbktd_day(&lure).exists(),
-        "a sweep that never happened records no day", //
+        "a sweep that never happened writes no day", //
     );
 }
 
@@ -2698,7 +2756,7 @@ fn bktd_the_delouse_refuses_a_planted_invalid_collar_before_deleting() {
 fn bktd_the_launch_seam_does_not_delouse() {
     let lure = bktu_Lure::bktu_compose("delouse-launch");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses");
+    lure.bktu_commit("compose two tremmocks");
 
     let day = zbktd_day(&lure);
     assert!(
@@ -2710,12 +2768,13 @@ fn bktd_the_launch_seam_does_not_delouse() {
 
     assert!(
         out.status.success(),
-        "the green course should land: {}",
+        "the green {} should land: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         String::from_utf8_lossy(&out.stderr), //
     );
     assert!(
         !day.exists(),
-        "a run records no day, the delouse never having fired from it: {}",
+        "a run writes no day, the delouse never having fired from it: {}",
         day.display(), //
     );
 }
@@ -2728,7 +2787,7 @@ fn bktd_the_launch_seam_does_not_delouse() {
 fn bktd_the_walk_delouses_before_its_courses() {
     let lure = bktu_Lure::bktu_compose("delouse-walk");
     zbktd_two_courses(&lure);
-    lure.bktu_commit("compose two courses");
+    lure.bktu_commit("compose two tremmocks");
 
     let day = zbktd_day(&lure);
     assert!(
@@ -2744,7 +2803,7 @@ fn bktd_the_walk_delouses_before_its_courses() {
         &[BKTD_DOOR_DERBY],
         &[(bkco_output::BKCO_VERBOSE_VAR, OsStr::new("1"))],
     );
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     // The walk carries a red course, which this fixture composes deliberately;
     // what the hurdle asks is whether the sweep happened AHEAD of the courses,
@@ -2759,7 +2818,8 @@ fn bktd_the_walk_delouses_before_its_courses() {
             .expect("the day should be recorded")
             .trim(),
         ZBKTD_DAY,
-        "the walk records the day before it runs a course", //
+        "the walk writes the day before it runs a {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE, //
     );
 }
 
@@ -2909,7 +2969,15 @@ fn bktd_a_dispatched_seat_spawns_its_own_current_build() {
     zbktd_answerer(&lure, ZBKTD_SAYS_OWN, &struck);
     lure.bktu_commit("the seat's own converge");
 
-    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_DOOR, "app-lure"]);
+    // THE ELECTION LINE RIDES THE DIAL'S TOP POSITION, where the frozen shape
+    // puts every election the kennel computed, so the dial is armed here to keep
+    // the election assertion meaningful; what the app itself said is the proof
+    // the quiet flavor carries.
+    let out = lure.bktu_drive_stating(
+        zbktd_kennel(),
+        &[BKTD_DOOR, "app-lure"],
+        &[(bkco_output::BKCO_VERBOSE_VAR, OsStr::new("2"))],
+    );
     let said = String::from_utf8_lossy(&out.stdout);
     let aside = String::from_utf8_lossy(&out.stderr);
 
@@ -3098,7 +3166,7 @@ fn bktd_the_derby_refuses_an_outrun_app_residence_ahead_of_its_walk() {
     // THE MARK IS IGNORED, as a build directory is, so that the control's green
     // run leaves a tree the door law still admits for the drive that follows.
     lure.bktu_write(".gitignore", "target/\nTools/bravo/ran.txt\n");
-    lure.bktu_commit("a current answerer beside one green course");
+    lure.bktu_commit("a current answerer beside one green tremmock");
 
     let mark = lure.bktu_root().join("Tools/bravo/ran.txt");
 
@@ -3113,7 +3181,8 @@ fn bktd_the_derby_refuses_an_outrun_app_residence_ahead_of_its_walk() {
     );
     assert!(
         mark.exists(),
-        "and its course ran, leaving the mark at {}",
+        "and its {} ran, leaving the mark at {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(), //
     );
     std::fs::remove_file(&mark).expect("the mark clears between drives");
@@ -3151,7 +3220,8 @@ fn bktd_the_derby_refuses_an_outrun_app_residence_ahead_of_its_walk() {
     );
     assert!(
         !mark.exists(),
-        "no course ran: the mark stands unwritten at {}",
+        "no {} ran: the mark stands unwritten at {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         mark.display(), //
     );
 }
@@ -3775,7 +3845,8 @@ fn bktd_a_green_course_speaks_a_verdict_and_no_case() {
 
         assert!(
             out.status.success(),
-            "the green course runs under {}: {} {}",
+            "the green {} runs under {}: {} {}",
+            bkk::bkg_breviary::BKG_COURSE_BASE,
             collar,
             out.status,
             String::from_utf8_lossy(&out.stderr), //
@@ -3906,8 +3977,11 @@ const ZBKTD_FAILING_CASE: &str = "lure_the_planted_case_fails";
 /// spelling the variables a second time would keep passing after the kennel had
 /// stopped reading the ones the dispatch exports.
 fn zbktd_log_family(lure: &bktu_Lure) -> Vec<(&'static str, std::path::PathBuf)> {
-    let seat = lure.bktu_temp().join("logs");
-    std::fs::create_dir_all(&seat).expect("the hurdle composes the log seat");
+    let seat = lure.bktu_temp().join("snorvels");
+    std::fs::create_dir_all(&seat).expect(&format!(
+        "the hurdle composes the {} seat",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_POSSESSIVE
+    ));
 
     vec![
         (bkcv_voice::BKCV_LOG_LAST_VAR, seat.join("last.txt")),
@@ -3969,7 +4043,8 @@ fn bktd_a_failing_case_speaks_one_bounded_line_with_the_depth_at_a_path() {
 
         assert!(
             !out.status.success(),
-            "a course carrying a failing case is red under {}: {}",
+            "a {} carrying a failing case is red under {}: {}",
+            bkk::bkg_breviary::BKG_COURSE_BASE,
             collar,
             console, //
         );
@@ -4156,7 +4231,7 @@ fn zbktd_digest(path: &std::path::Path) -> String {
 /// the right order, through a dispatch that really composed the family.
 #[test]
 fn bktd_the_record_stands_in_three_members_and_digests_the_normalized_one() {
-    let lure = zbktd_voice_seat("voice-record");
+    let lure = zbktd_voice_seat("voice-snibbet");
 
     let family = zbktd_log_family(&lure);
     let mut stated: Vec<(&str, &OsStr)> = family
@@ -4176,7 +4251,9 @@ fn bktd_the_record_stands_in_three_members_and_digests_the_normalized_one() {
 
     assert!(
         out.status.success(),
-        "the logged course runs green: {} {}",
+        "the {} keeping a {} runs green: {} {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         out.status,
         String::from_utf8_lossy(&out.stderr), //
     );
@@ -4219,7 +4296,8 @@ fn bktd_the_record_stands_in_three_members_and_digests_the_normalized_one() {
     // the dial moves the console and never the record, and this drive was quiet.
     assert!(
         written.contains(bktu_Lure::BKTU_CASE),
-        "the child's own account stands in the record the quiet console withheld: {}",
+        "the child's own account stands in the {} the quiet console withheld: {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_LOG_BASE,
         written, //
     );
 
@@ -4348,7 +4426,7 @@ fn zbktd_arrears_lure(name: &str) -> bktu_Lure {
 
     // THE ADMITTED CRATE STANDS FROM THE START so the admission below is one line
     // of a manifest rather than a tree, and so it needs no network: a path
-    // dependency has no registry closure, which is what keeps these drives honest
+    // dependency names no registry package, which is what keeps these drives honest
     // behind the tackroom fence.
     lure.bktu_write("Tools/spur/Cargo.toml", &zbktd_manifest("spur"));
     lure.bktu_write(
@@ -4392,8 +4470,8 @@ fn zbktd_admit(lure: &bktu_Lure) {
 ///
 /// THE VERDICT IS RED AND THE LOCK IS STILL WRITTEN, which is why the exit is
 /// asserted as non-zero rather than as the door's own refusal code: a caller must
-/// still notch what stands dirty, and a reading that conflated "wrote nothing"
-/// with "wrote, and left a debt" would make the notch-gangline-notch sequence
+/// still commit what stands dirty, and a reading that conflated "wrote nothing"
+/// with "wrote, and left a debt" would make the commit-gangline-commit sequence
 /// unreadable from the exit.
 #[test]
 fn bktd_the_gangline_names_the_lock_its_write_left_behind() {
@@ -4701,7 +4779,8 @@ fn bktd_mush_over_a_python_suite_runs_the_matching_node_ids_and_names_the_narrow
 
     assert!(
         out.status.success(),
-        "the green python course did not land: {}",
+        "the green python {} did not land: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 
@@ -4959,13 +5038,15 @@ fn bktd_mush_over_a_python_suite_collecting_no_case_refuses_at_the_hollow_gate()
     assert_eq!(
         hollow.status.code(),
         Some(ZBKTD_VERDICT_BARRED),
-        "a course that collected no case did not bar: {}",
+        "a {} that collected no case did not bar: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         hollow_said, //
     );
 
     assert!(
         hollow_said.contains("counted no case at all"),
-        "the refusal does not say what was hollow about the course: {}",
+        "the refusal does not say what was hollow about the {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         hollow_said, //
     );
 }
@@ -5211,7 +5292,7 @@ fn bktd_tattoo_over_a_python_collar_proclaims_it() {
 }
 
 /// A project's first lock taken through the doors, in the order a cold store
-/// imposes and the notch the door law demands between them.
+/// imposes and the commit the door law demands between them.
 ///
 /// TATTOO OPENS IT AS THE CONTROL: a door whose act is not the repair refuses the
 /// absent lock and names the door that is.
@@ -5331,7 +5412,8 @@ fn bktd_mush_over_a_python_suite_fails_the_case_that_warns() {
 
     assert!(
         !out.status.success(),
-        "a course whose case warned landed green: {}",
+        "a {} whose case warned landed green: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 
@@ -5357,7 +5439,7 @@ fn zbktd_rust_beside(lure: &bktu_Lure) {
     zbktd_crate(lure, "Tools/bravo", "bravo", "src/lib.rs", BKTD_MARKED);
     zbktd_suite_collar(lure, "Tools/bravo", "suite-bravo");
 
-    lure.bktu_commit("a rust course beside the python one");
+    lure.bktu_commit("a rust tremmock beside the python one");
 }
 
 /// Both streams of a drive, read as one console.
@@ -5412,17 +5494,20 @@ fn bktd_the_derby_races_a_python_course_beside_a_rust_one() {
     );
     assert!(
         said.contains("the derby is green across 2 course(s)"),
-        "the derby did not count both courses: {}",
+        "the derby did not count both {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_PLURAL,
         said, //
     );
     assert!(
         mark.exists(),
-        "the rust course's runner was never spawned: {}",
+        "the rust {} runner was never spawned: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
     assert!(
         said.contains("green: 3 ran, 3 passed, 0 failed"),
-        "the python course did not run its whole project: {}",
+        "the python {} did not run its whole project: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 
@@ -5434,14 +5519,17 @@ fn bktd_the_derby_races_a_python_course_beside_a_rust_one() {
     let banked = lure.bktu_output().join(&leaf);
     let record = std::fs::read_to_string(&banked).unwrap_or_else(|err| {
         panic!(
-            "no record stands for the python course at {}: {}",
+            "no {} stands for the python {} at {}: {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
+            bkk::bkg_breviary::BKG_COURSE_BASE,
             banked.display(),
             err, //
         )
     });
     let read = bkcc_record::bkcc_admit(&record, &leaf).unwrap_or_else(|err| {
         panic!(
-            "the python course's record admits: {}",
+            "the python {} admits: {}",
+            bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
             err, //
         )
     });
@@ -5449,17 +5537,20 @@ fn bktd_the_derby_races_a_python_course_beside_a_rust_one() {
     assert_eq!(
         read.driven,
         3,
-        "the record does not carry the three cases: {}",
+        "the {} does not carry the three cases: {}",
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         record, //
     );
     assert!(
         read.narrowing.is_none(),
-        "nothing narrowed the course: {}",
+        "nothing narrowed the {}: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         record, //
     );
     assert!(
         read.wall.is_some(),
-        "a whole course carries its wall time: {}",
+        "a whole {} carries its wall time: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         record, //
     );
 }
@@ -5471,7 +5562,7 @@ fn bktd_the_derby_races_a_python_course_beside_a_rust_one() {
 #[test]
 fn bktd_the_futurity_narrows_over_a_python_course() {
     let lure = zbktd_pythoned(
-        "futurity-python",
+        "trazzle-python",
         ZBKTD_PY_SUITE,
         ZBKTD_PY_SUITE_BAKED,
         ZBKTD_PY_CASES,
@@ -5490,17 +5581,20 @@ fn bktd_the_futurity_narrows_over_a_python_course() {
     );
     assert!(
         said.contains("green: 2 ran, 2 passed, 0 failed"),
-        "the python course did not run the two matched cases alone: {}",
+        "the python {} did not run the two matched cases alone: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         said.contains("not launched") && said.contains("suite-bravo"),
-        "the verdict does not name the course the patterns left idle: {}",
+        "the verdict does not name the {} the patterns left idle: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         !mark.exists(),
-        "the idle rust course's runner was spawned: {}",
+        "the idle rust {} runner was spawned: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
 }
@@ -5546,7 +5640,8 @@ fn bktd_the_derby_refuses_an_unconverged_python_collar_naming_the_converge() {
     );
     assert!(
         !said.contains("green:"),
-        "a course ran behind a refused preflight: {}",
+        "a {} ran behind a refused preflight: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 
@@ -5570,7 +5665,8 @@ fn bktd_the_derby_refuses_an_unconverged_python_collar_naming_the_converge() {
     );
     assert!(
         said.contains("green: 3 ran, 3 passed, 0 failed"),
-        "the python course did not run once its environment stood: {}",
+        "the python {} did not run once its environment stood: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 }
@@ -5649,7 +5745,8 @@ fn bktd_the_derby_refuses_a_python_environment_behind_its_lock() {
     );
     assert!(
         !said.contains("green:"),
-        "a course ran behind a refused preflight: {}",
+        "a {} ran behind a refused preflight: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
 }
@@ -5680,7 +5777,7 @@ environments = [\"sys_platform == 'nowhere'\"]
 #[test]
 fn bktd_the_derby_names_an_unhitched_python_course_and_stays_green() {
     let lure = zbktd_python_authored(
-        "derby-python-unhitched",
+        "derby-python-glandrop",
         ZBKTD_PY_UNHITCHED,
         ZBKTD_PY_SUITE_BAKED,
         ZBKTD_PY_CASES,
@@ -5694,24 +5791,29 @@ fn bktd_the_derby_names_an_unhitched_python_course_and_stays_green() {
 
     assert!(
         out.status.success(),
-        "the derby beside a course declared out of this station did not land: {}",
+        "the derby beside a {} declared out of this {} did not land: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         said, //
     );
     assert!(
         said.contains("the derby is green across 1 course(s)"),
-        "the derby did not count the one course it ran: {}",
+        "the derby did not count the one {} it ran: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE)
             && said.contains(ZBKTD_PY_COLLAR)
             && said.contains("nowhere"),
-        "the set verdict does not name the declared-out course in its project's words: {}",
+        "the set verdict does not name the declared-out {} in its project's words: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         mark.exists(),
-        "the rust course's runner was never spawned: {}",
+        "the rust {} runner was never spawned: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
 
@@ -5723,7 +5825,9 @@ fn bktd_the_derby_names_an_unhitched_python_course_and_stays_green() {
     let banked = lure.bktu_output().join(&leaf);
     assert!(
         !banked.exists(),
-        "a declared-out course wrote a record at {}",
+        "a declared-out {} wrote a {} at {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
+        bkk::bkg_breviary::BKG_COURSE_RECORD_BASE,
         banked.display(), //
     );
 }
@@ -5735,7 +5839,7 @@ fn bktd_the_derby_names_an_unhitched_python_course_and_stays_green() {
 #[test]
 fn bktd_the_futurity_names_an_unhitched_python_course() {
     let lure = zbktd_python_authored(
-        "futurity-python-unhitched",
+        "trazzle-python-glandrop",
         ZBKTD_PY_UNHITCHED,
         ZBKTD_PY_SUITE_BAKED,
         ZBKTD_PY_CASES,
@@ -5749,19 +5853,22 @@ fn bktd_the_futurity_names_an_unhitched_python_course() {
 
     assert!(
         out.status.success(),
-        "the narrowed walk beside a declared-out course did not land: {}",
+        "the narrowed walk beside a declared-out {} did not land: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         said.contains(bkk::bkg_breviary::BKG_UNHITCHED_BASE)
             && said.contains(ZBKTD_PY_COLLAR)
             && said.contains("nowhere"),
-        "the verdict does not name the declared-out course in its project's words: {}",
+        "the verdict does not name the declared-out {} in its project's words: {}",
+        bkk::bkg_breviary::BKG_COURSE_BASE,
         said, //
     );
     assert!(
         mark.exists(),
-        "the matched rust course's runner was never spawned: {}",
+        "the matched rust {} runner was never spawned: {}",
+        bkk::bkg_breviary::BKG_COURSE_POSSESSIVE,
         mark.display(), //
     );
 }
@@ -5771,12 +5878,12 @@ fn bktd_the_futurity_names_an_unhitched_python_course() {
 #[test]
 fn bktd_mush_refuses_an_unhitched_python_collar_naming_the_declaration() {
     let lure = zbktd_python_authored(
-        "mush-python-unhitched",
+        "mush-python-glandrop",
         ZBKTD_PY_UNHITCHED,
         ZBKTD_PY_SUITE_BAKED,
         ZBKTD_PY_CASES,
     );
-    lure.bktu_commit("a python project declared for no station");
+    lure.bktu_commit("a python project declared for no wembrot");
 
     let out = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -5786,7 +5893,8 @@ fn bktd_mush_refuses_an_unhitched_python_collar_naming_the_declaration() {
 
     assert!(
         !out.status.success(),
-        "mush launched a collar declared out of this station: {}",
+        "mush launched a collar declared out of this {}: {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         said, //
     );
     assert!(
@@ -5811,12 +5919,12 @@ fn bktd_mush_refuses_an_unhitched_python_collar_naming_the_declaration() {
 #[test]
 fn bktd_tattoo_reads_an_unhitched_python_collar_as_a_verdict_and_no_finding() {
     let lure = zbktd_python_authored(
-        "tattoo-python-unhitched",
+        "tattoo-python-glandrop",
         ZBKTD_PY_UNHITCHED,
         ZBKTD_PY_SUITE_BAKED,
         ZBKTD_PY_CASES,
     );
-    lure.bktu_commit("a python project declared for no station");
+    lure.bktu_commit("a python project declared for no wembrot");
 
     let out = lure.bktu_drive_door(
         zbktd_kennel(),
@@ -5826,7 +5934,8 @@ fn bktd_tattoo_reads_an_unhitched_python_collar_as_a_verdict_and_no_finding() {
 
     assert!(
         out.status.success(),
-        "tattoo refused a collar declared out of this station: {}",
+        "tattoo refused a collar declared out of this {}: {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         said, //
     );
     assert!(
@@ -5994,7 +6103,7 @@ fn bktd_a_warning_speaks_one_line_naming_its_position_and_the_json_is_recorded()
     );
     assert!(
         !console.contains(ZBKTD_RENDERED_ARROW),
-        "with a record standing the rendering stays off the console: {}",
+        "with a hist file standing the rendering stays off the console: {}",
         console, //
     );
 
@@ -6006,7 +6115,7 @@ fn bktd_a_warning_speaks_one_line_naming_its_position_and_the_json_is_recorded()
     let depth = std::fs::read_to_string(&hist).expect("the historical member stands");
     assert!(
         depth.contains("\"reason\":\"compiler-message\"") && depth.contains("quillet"),
-        "the record holds cargo's own JSON for the warning: {}",
+        "the historical member holds cargo's own JSON for the warning: {}",
         hist.display(), //
     );
 }
@@ -6096,8 +6205,8 @@ fn bktd_with_no_record_the_rendering_rides_the_console_whole() {
             console, //
         );
         assert!(
-            named[0].contains(level) && named[0].contains("no record"),
-            "the line names its level and says no record stands, for the {}: {}",
+            named[0].contains(level) && named[0].contains("no hist file"),
+            "the line names its level and says no hist file stands, for the {}: {}",
             shape,
             named[0], //
         );
@@ -6177,7 +6286,7 @@ fn bktd_rebed_heels_what_the_preflight_names_and_then_reads_ready() {
     );
 
     let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_REBED]);
-    let said = String::from_utf8_lossy(&out.stderr);
+    let said = zbktd_heard(&out);
 
     assert!(
         out.status.success(),
@@ -6192,14 +6301,15 @@ fn bktd_rebed_heels_what_the_preflight_names_and_then_reads_ready() {
         said, //
     );
     assert!(
-        said.contains("supplying the app collar 'app-lure'")
-            && said.contains("1 manifest(s) fetched, 1 heel(s) and 0 strike(s) performed"),
+        said.contains("supplied the app collar 'app-lure'")
+            && said.contains("1 manifest(s) fetched")
+            && said.contains("1 heel(s) and 0 strike(s) performed"),
         "the drive names what it supplied and how many acts it ran: {}",
         said, //
     );
 
     let again = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_REBED]);
-    let again_said = String::from_utf8_lossy(&again.stderr);
+    let again_said = zbktd_heard(&again);
 
     assert!(
         again.status.success(),
@@ -6209,7 +6319,7 @@ fn bktd_rebed_heels_what_the_preflight_names_and_then_reads_ready() {
     );
     assert!(
         again_said.contains("0 heel(s) and 0 strike(s) performed")
-            && !again_said.contains("supplying"),
+            && !again_said.contains("supplied"),
         "a tree already standing is left alone: {}",
         again_said, //
     );
@@ -6417,7 +6527,7 @@ fn bktd_rebed_from_a_linked_worktree_hands_a_strikeless_writer_to_its_main_workt
     );
 
     let again = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_REBED]);
-    let again_said = String::from_utf8_lossy(&again.stderr);
+    let again_said = zbktd_heard(&again);
 
     assert!(
         again.status.success()
@@ -6532,7 +6642,7 @@ fn bktd_rebed_from_a_linked_worktree_hands_a_struck_writer_to_its_main_worktree(
     );
 
     let again = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_REBED]);
-    let again_said = String::from_utf8_lossy(&again.stderr);
+    let again_said = zbktd_heard(&again);
 
     assert!(
         again.status.success()
@@ -6878,7 +6988,7 @@ fn bktd_rebed_under_a_harness_hands_each_strike_the_parents_day() {
     );
 }
 
-/// REBED FETCHES EVERY RUST MANIFEST'S CLOSURE AND SYNCS A PYTHON ENVIRONMENT, and the
+/// REBED FETCHES WHAT EVERY RUST MANIFEST'S LOCK NAMES AND SYNCS A PYTHON ENVIRONMENT, and the
 /// derby that follows is green across both courses. The environment's ABSENCE
 /// before the drive is the control, and the derby's refusal before it says the
 /// tree was not ready — naming rebed as the converge and no heel door to type.
@@ -6928,11 +7038,10 @@ fn bktd_rebed_fetches_every_manifest_and_syncs_a_python_environment() {
         said, //
     );
     assert!(
-        said.contains("fetching the registry closure of")
-            && said.contains("Tools/bravo/Cargo.toml")
+        said.contains("the locks of 1 manifest(s) name")
             && said.contains("1 manifest(s) fetched")
             && said.contains(&format!(
-                "supplying the environment of the python collar '{}'",
+                "supplied the environment of the python collar '{}'",
                 ZBKTD_PY_COLLAR, //
             )),
         "the drive fetched both manifests and synced the environment: {}",
@@ -6953,8 +7062,54 @@ fn bktd_rebed_fetches_every_manifest_and_syncs_a_python_environment() {
     );
     assert!(
         raced.contains("the derby is green across 2 course(s)"),
-        "both courses ran: {}",
+        "both {} ran: {}",
+        bkk::bkg_breviary::BKG_COURSE_PLURAL,
         raced, //
+    );
+}
+
+/// A FETCH CARGO REFUSES IS RENDERED BENEATH THE DOOR'S OWN LINE, and rebed
+/// ends nonzero on it. The lure's upstream manifest admits a path dependency its
+/// lock does not carry, so cargo's fetch refuses under the lock flag before any
+/// network is reached — the refusal is cargo's own, and what the hurdle reads is
+/// how the door hands it on.
+///
+/// THE CHILD IS A CAPTURED ONE, as every tenant the door drives is: cargo's line
+/// reaches the console as the voice renders it, indented beneath the plan the
+/// door said first, and never raw. A raw `error:` line at the margin is cargo's
+/// stream handed straight through, which is the face this hurdle refuses.
+#[test]
+fn bktd_rebed_renders_a_refused_fetch_beneath_its_own_line() {
+    let lure = zbktd_arrears_lure("rebed-refused-fetch");
+    zbktd_admit(&lure);
+
+    let out = lure.bktu_drive_door(zbktd_kennel(), &[BKTD_REBED]);
+    let said = zbktd_heard(&out);
+
+    assert!(
+        !out.status.success(),
+        "a fetch cargo refuses ends rebed nonzero: {} {}",
+        out.status,
+        said, //
+    );
+
+    let voiced: Vec<String> = String::from_utf8_lossy(&out.stdout)
+        .lines()
+        .map(str::to_string)
+        .collect();
+    let plan = voiced
+        .iter()
+        .position(|line| line.contains("the locks of 2 manifest(s) name"));
+    let refusal = voiced.iter().position(|line| line.starts_with("  error: "));
+    assert!(
+        matches!((plan, refusal), (Some(plan), Some(refusal)) if plan < refusal),
+        "cargo's refusal is rendered beneath the door's own plan line: {}",
+        said, //
+    );
+    assert!(
+        !said.lines().any(|line| line.starts_with("error:")),
+        "no line of cargo's stream reaches the console raw: {}",
+        said, //
     );
 }
 
@@ -6989,7 +7144,10 @@ fn zbktd_bleach_station(
     let foreign = tackroom.join("another-kits-store");
 
     for made in provisions.iter().chain(std::iter::once(&foreign)) {
-        std::fs::create_dir_all(made).expect("the hurdle composes the station it poses");
+        std::fs::create_dir_all(made).expect(&format!(
+            "the hurdle composes the {} it poses",
+            bkk::bkg_breviary::BKG_BUS_STATION_BASE
+        ));
     }
 
     (tackroom, provisions, foreign)
@@ -7012,8 +7170,8 @@ fn zbktd_bleach_drive(lure: &bktu_Lure, tackroom: &Path, args: &[&str]) -> std::
 /// drive is the control.
 #[test]
 fn bktd_bleach_empties_every_provision_and_nothing_beside_them() {
-    let lure = bktu_Lure::bktu_compose("bleach-empties");
-    let (tackroom, provisions, foreign) = zbktd_bleach_station(&lure, "bleach-empties");
+    let lure = bktu_Lure::bktu_compose("scrumble-empties");
+    let (tackroom, provisions, foreign) = zbktd_bleach_station(&lure, "scrumble-empties");
 
     for made in &provisions {
         assert!(
@@ -7028,7 +7186,8 @@ fn bktd_bleach_empties_every_provision_and_nothing_beside_them() {
 
     assert!(
         out.status.success(),
-        "the door empties the posed station: {} {}",
+        "the door empties the posed {}: {} {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         out.status,
         said, //
     );
@@ -7063,7 +7222,8 @@ fn bktd_bleach_empties_every_provision_and_nothing_beside_them() {
             "the station is {}",
             bkk::bkg_breviary::BKG_BLEACH_PAST, //
         )) && said.contains(bkco_output::BKCO_COLOPHON_REBED),
-        "the drive says the station is emptied and names rebed as what lays it again: {}",
+        "the drive says the {} is emptied and names rebed as what lays it again: {}",
+        bkk::bkg_breviary::BKG_BUS_STATION_BASE,
         said, //
     );
 }
@@ -7072,8 +7232,8 @@ fn bktd_bleach_empties_every_provision_and_nothing_beside_them() {
 /// a word typed at it is no narrowing it could honour.
 #[test]
 fn bktd_bleach_refuses_an_argument_and_removes_nothing() {
-    let lure = bktu_Lure::bktu_compose("bleach-argument");
-    let (tackroom, provisions, _) = zbktd_bleach_station(&lure, "bleach-argument");
+    let lure = bktu_Lure::bktu_compose("scrumble-argument");
+    let (tackroom, provisions, _) = zbktd_bleach_station(&lure, "scrumble-argument");
 
     let out = zbktd_bleach_drive(&lure, &tackroom, &[BKTD_BLEACH, "rustup"]);
     let said = zbktd_heard(&out);

@@ -66,7 +66,7 @@ fn zbutm_door(launcher: &str) -> String {
 fn zbutm_plant() -> Vec<(&'static str, String)> {
     vec![
         (
-            "moorings/burc.env",
+            "vorrick/burc.env",
             "BURC_TABTARGET_DIR=tt\n\
              BURC_TABTARGET_DELIMITER=.\n\
              BURC_TOOLS_DIR=Tools\n\
@@ -74,13 +74,13 @@ fn zbutm_plant() -> Vec<(&'static str, String)> {
                 .to_string(),
         ),
         (
-            "moorings/buml_launchers/launcher.quobw_workbench.sh",
+            "vorrick/buml_launchers/launcher.quobw_workbench.sh",
             "#!/bin/bash\n\
              exec \"Tools/buk/bul_launcher.sh\" \"Tools/quobk/quobw_workbench.sh\" \"$@\"\n"
                 .to_string(),
         ),
         (
-            "moorings/buml_launchers/launcher.marfw_workbench.sh",
+            "vorrick/buml_launchers/launcher.marfw_workbench.sh",
             "#!/bin/bash\n\
              exec \"Tools/buk/bul_launcher.sh\" \"Tools/marfk/marfw_workbench.sh\" \"$@\"\n"
                 .to_string(),
@@ -123,8 +123,8 @@ fn zbutm_drive() -> buth_Bench {
             "cd \"${{BURD_CONFIG_DIR}}/../{plant}\"\n\
              z_burd=\"${{BURD_TEMP_DIR}}/butm-burd.env\"\n\
              grep -v -E '^BURD_(REGIME_FILE|CONFIG_DIR|BURD_FILE)=' \"${{BURD_BURD_FILE}}\" > \"${{z_burd}}\"\n\
-             printf '%s\\n' \"BURD_REGIME_FILE=\\\"${{PWD}}/moorings/burc.env\\\"\" \\\n\
-             \x20 \"BURD_CONFIG_DIR=\\\"${{PWD}}/moorings\\\"\" \"BURD_BURD_FILE=\\\"${{z_burd}}\\\"\" >> \"${{z_burd}}\"\n\
+             printf '%s\\n' \"BURD_REGIME_FILE=\\\"${{PWD}}/vorrick/burc.env\\\"\" \\\n\
+             \x20 \"BURD_CONFIG_DIR=\\\"${{PWD}}/vorrick\\\"\" \"BURD_BURD_FILE=\\\"${{z_burd}}\\\"\" >> \"${{z_burd}}\"\n\
              zbutm_call() {{\n\
              \x20 env BUUR_ALSO_KITS=\"${{z_also:-}}\" BURD_BURD_FILE=\"${{z_burd}}\" \\\n\
              \x20     \"${{BURD_BUK_DIR}}/buur_cli.sh\" buur_roll_call\n\

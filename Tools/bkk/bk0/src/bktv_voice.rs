@@ -371,7 +371,11 @@ fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
         ("cut", Some(0), Some("planted break".to_string())),
     ] {
         let seat = lure.bktu_temp().join(shape);
-        std::fs::create_dir_all(&seat).expect("the hurdle composes the log seat");
+        std::fs::create_dir_all(&seat).expect(concat!(
+            "the hurdle composes the ",
+            crate::bkg_breviary::bkg_bus_station_log_possessive!(),
+            " seat"
+        ));
         let member = |leaf: &str| seat.join(leaf).to_string_lossy().into_owned();
         let hist = member("hist.txt");
 
@@ -396,7 +400,11 @@ fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
                     "test bktv_alive_{:02} ... ok",
                     index, //
                 )))
-                .expect("the record takes the line");
+                .expect(concat!(
+                    "the ",
+                    crate::bkg_breviary::bkg_bus_station_log_base!(),
+                    " takes the line"
+                ));
         }
 
         let run = bkcl_Run {
@@ -418,14 +426,14 @@ fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
             .find(|line| line.contains("RED"))
             .unwrap_or_else(|| {
                 panic!(
-                    "the record carries no red verdict for the {} shape:\n{}",
+                    "the historical member carries no red verdict for the {} shape:\n{}",
                     shape,
                     written, //
                 )
             });
         assert!(
             !zbktv_counts_a_pass(verdict),
-            "the record counts no pass over the {} shape: {}",
+            "the historical member counts no pass over the {} shape: {}",
             shape,
             verdict, //
         );
@@ -433,7 +441,7 @@ fn bktv_the_record_holds_the_verdict_of_a_run_that_did_not_finish() {
             written
                 .lines()
                 .any(|line| line.starts_with("Same log checksum: ")),
-            "the record is closed with its digest for the {} shape:\n{}",
+            "the historical member is closed with its digest for the {} shape:\n{}",
             shape,
             written, //
         );
