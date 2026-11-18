@@ -36,6 +36,11 @@
 # consumer's seat. Lustration erases the station; feigning invents a false one.
 # One table, two columns, two verbs — the site/common judgment is made once.
 #
+# Beside the transforms stands the judgment, rblm_lustrate_vet: the sterile
+# column read as a test rather than a write. The voorloper prepare door holds a
+# newcomer's fresh clone to it, so the shape a delivered tree is cut in and the
+# shape that door admits are one definition.
+#
 # Deliberately NOT marshal zero. Zero mints the onboarding-start baseline the
 # gauntlet's entry contract reads, and it runs against the operator's working
 # station; lustration runs only in the ceremony's clone and touches homes zero
@@ -605,6 +610,93 @@ zrblm_scrub_hardpoint() {
   buh_line "  Lustrated: ${z_file} (${z_var})"
 }
 
+######################################################################
+# The judgment
+#
+# The scrub's walk with a comparison where its write stands: a tree stands in
+# its delivered shape when every line lustration would rewrite already reads
+# what lustration would write. Nothing is written.
+
+# zrblm_vet_regime FILE SCOPE — die naming the first site-scoped field in one
+# regime file whose line is not the field, an equals sign and its sterile
+# value. A field the file does not carry is not judged, as the scrub writes
+# none, and a file that does not stand is passed as the scrub passes it.
+zrblm_vet_regime() {
+  zrblm_sentinel
+
+  local -r z_file="${1:-}"
+  local -r z_scope="${2:-}"
+  test -n "${z_file}"  || buc_die_now "zrblm_vet_regime: file required"
+  test -n "${z_scope}" || buc_die_now "zrblm_vet_regime: scope required"
+  test -f "${z_file}"  || return 0
+
+  local z_line=""
+  local z_var=""
+  local z_value=""
+  local z_site_status=0
+  local z_lines=()
+  local z_i=0
+
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_file}" || buc_die_now "Failed to read: ${z_file}"
+
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
+    case "${z_line}" in
+      [ABCDEFGHIJKLMNOPQRSTUVWXYZ]*=*)
+        z_var="${z_line%%=*}"
+        z_site_status=0
+        z_value=$(zrblm_value_recite "${z_scope}" "${z_var}" "${RBLM_column_sterile}") || z_site_status=$?
+        test "${z_site_status}" -eq 0 || continue
+        test "${z_line}" != "${z_var}=${z_value}" || continue
+        buc_die_now "This tree is not in its delivered shape: ${z_var} in ${z_file} stands otherwise than the line a delivered tree carries, ${z_var}=${z_value}"
+        ;;
+    esac
+  done
+}
+
+# zrblm_vet_hardpoint PATH VARNAME STERILE — die unless every line opening
+# 'readonly VARNAME=' in PATH reads the sealed line the scrub writes, and at
+# least one does: a constant the table names and the file lacks is a tree that
+# moved.
+zrblm_vet_hardpoint() {
+  zrblm_sentinel
+
+  local -r z_file="${1:-}"
+  local -r z_var="${2:-}"
+  local -r z_sterile="${3:-}"
+  test -n "${z_file}" || buc_die_now "zrblm_vet_hardpoint: file required"
+  test -n "${z_var}"  || buc_die_now "zrblm_vet_hardpoint: variable required"
+
+  local -r z_sealed="readonly ${z_var}=\"${z_sterile}\""
+  test -f "${z_file}" \
+    || buc_die_now "This tree is not in its delivered shape: ${z_var} in ${z_file} stands nowhere, where a delivered tree carries the line ${z_sealed}"
+
+  local z_line=""
+  local z_found=0
+  local z_lines=()
+  local z_i=0
+
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${z_file}" || buc_die_now "Failed to read: ${z_file}"
+
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
+    case "${z_line}" in
+      "readonly ${z_var}="*)
+        test "${z_line}" = "${z_sealed}" \
+          || buc_die_now "This tree is not in its delivered shape: ${z_var} in ${z_file} stands otherwise than the line a delivered tree carries, ${z_sealed}"
+        z_found=1
+        ;;
+    esac
+  done
+
+  test "${z_found}" = "1" \
+    || buc_die_now "This tree is not in its delivered shape: ${z_var} in ${z_file} stands nowhere, where a delivered tree carries the line ${z_sealed}"
+}
+
 # rblm_lustrate_apply — write every site-scoped home to its sterile value, across
 # every regime instance the tree carries and every hardpoint constant.
 rblm_lustrate_apply() {
@@ -620,6 +712,28 @@ rblm_lustrate_apply() {
 
   for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
     zrblm_scrub_hardpoint \
+      "${z_rblm_hardpoint_path_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_var_roll[${z_i}]}" \
+      "${z_rblm_hardpoint_sterile_roll[${z_i}]}"
+  done
+}
+
+# rblm_lustrate_vet — die naming the first site-scoped field of any home, or
+# the first hardpoint constant, that does not stand at the sterile value
+# rblm_lustrate_apply would write, so a tree passes only in the shape a
+# delivered tree is cut in. Writes nothing.
+rblm_lustrate_vet() {
+  zrblm_sentinel
+
+  local z_i=0
+  for z_i in "${!z_rblm_home_file_roll[@]}"; do
+    zrblm_vet_regime \
+      "${z_rblm_home_file_roll[${z_i}]}" \
+      "${z_rblm_home_scope_roll[${z_i}]}"
+  done
+
+  for z_i in "${!z_rblm_hardpoint_var_roll[@]}"; do
+    zrblm_vet_hardpoint \
       "${z_rblm_hardpoint_path_roll[${z_i}]}" \
       "${z_rblm_hardpoint_var_roll[${z_i}]}" \
       "${z_rblm_hardpoint_sterile_roll[${z_i}]}"

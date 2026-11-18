@@ -20,10 +20,16 @@
 // scratch of its own and never over the tree it runs in.
 //
 // The prepare door. Each case clones the committed tree into the case, with no
-// station beside the clone unless the case lays one. The committed tree carries
-// site values marshal zero blanks, so the success case blanks them in its clone
-// and commits there first, standing the clone in marshal-zero state; the
-// refusal cases drive the door beside a station that already stands, and on the
+// station beside the clone unless the case lays one. What HEAD carries differs
+// by seat: a maintainer's tree and a billet carry live site values, a release
+// probe branch carries feigned ones. So the success case stands its clone in the
+// delivered shape through the proscription's own lustration, run by the clone's
+// own modules with the clone as its working directory, and commits it there;
+// the door must then admit it. Two controls part a door that judges from one
+// that refuses everything: one site value planted in that same delivered shape,
+// and the blanked state the release's zero verb leaves a maintainer's tree in,
+// whose runtime prefix stands blank where the table gives a working default.
+// The station case drives the door beside a station that already stands, on the
 // clone as cloned.
 //
 // The leftovers door. The no-credential case drives the door in a clone beside
@@ -63,6 +69,7 @@ use crate::rbtgec_consts::{
     RBTGEC_RBRD_FILE,
     RBTGEC_RBRN_FILE,
     RBTGEC_RBRO_FILE,
+    RBTGEC_RBRP_FILE,
     RBTGEC_RBRR_FILE,
     RBTGEC_RBRV_FILE,
     RBTGEC_VESSELS_SUBDIR,
@@ -79,6 +86,7 @@ const ZRBTDRZ_BUC_COMMAND: &str = "Tools/buk/buc_command.sh";
 const ZRBTDRZ_BUYM_YELP: &str = "Tools/buk/buym_yelp.sh";
 const ZRBTDRZ_BUBC_CONSTANTS: &str = "Tools/buk/bubc_constants.sh";
 const ZRBTDRZ_BURD_REGIME: &str = "Tools/buk/burd_regime.sh";
+const ZRBTDRZ_BUH_HANDBOOK: &str = "Tools/buk/buh_handbook.sh";
 
 /// The scratch clone's basename, and the tabtarget directory inside it.
 const ZRBTDRZ_CLONE: &str = "zqtree";
@@ -107,7 +115,7 @@ const ZRBTDRZ_TINCTURE_FIELD: &str = "BURS_TINCTURE=";
 /// The planted payor credential's body: present, never usable.
 const ZRBTDRZ_PLANTED_CREDENTIAL: &str = "# zq planted payor credential, never read\n";
 
-/// The identity the success case commits its zeroed clone under.
+/// The identity a prepare case commits its clone's new shape under.
 const ZRBTDRZ_COMMIT_NAME: &str = "user.name=zqfixture";
 const ZRBTDRZ_COMMIT_EMAIL: &str = "user.email=zqfixture@invalid";
 
@@ -124,17 +132,24 @@ const ZRBTDRZ_BLANK_RBRV: &[&str] = &[
     "RBRV_IMAGE_3_ANCHOR", //
 ];
 
-/// The first blank-set field the committed tree carries filled, in the order
-/// the door reads them. Mirror: rblm_cli.sh `zrblm_voorloper_blank_vet` and
-/// `zrblm_zero_rewrite`, which read the repo regime first.
-const ZRBTDRZ_FIRST_FILLED: &str = "RBRR_RUNTIME_PREFIX";
+/// The site field the filled case plants, in the home that carries it, and the
+/// value it plants there. Mirror: rblm_proscription.sh `zrblm_kindle`, whose row
+/// gives this payor field a blank sterile value.
+const ZRBTDRZ_PLANTED_FIELD: &str = "RBRP_PAYOR_PROJECT_ID";
+const ZRBTDRZ_PLANTED_VALUE: &str = "zqplanted-payor";
+
+/// The field the blanked state is refused on: the repo regime's first site
+/// line, which zero leaves blank where the table gives its working default.
+/// Mirror: rblm_proscription.sh `zrblm_kindle`, the runtime prefix's row and the
+/// homes enrolled repo regime first.
+const ZRBTDRZ_BLANKED_FIELD: &str = "RBRR_RUNTIME_PREFIX";
 
 /// Each door's message, asserted beside its exit. Mirror: rblm_cli.sh
-/// `rblm_voorloper_prepare`, `zrblm_voorloper_blank_vet` and
-/// `rblm_voorloper_leftovers`, and rbgp_payor.sh `zrbgp_depot_leftovers_read` —
-/// same literals.
+/// `rblm_voorloper_prepare` and `rblm_voorloper_leftovers`, rblm_proscription.sh
+/// `zrblm_vet_regime`, and rbgp_payor.sh `zrbgp_depot_leftovers_read` — same
+/// literals.
 const ZRBTDRZ_STATION_STANDS_FRAGMENT: &str = "file already stands at";
-const ZRBTDRZ_FILLED_FRAGMENT: &str = "stands filled in";
+const ZRBTDRZ_SHAPE_FRAGMENT: &str = "This tree is not in its delivered shape: ";
 const ZRBTDRZ_NO_CREDENTIAL_FRAGMENT: &str = "holds no credential, so it founded nothing";
 const ZRBTDRZ_COULD_NOT_ASK_FRAGMENT: &str = "the payor's ask ended with exit";
 const ZRBTDRZ_STANDS_FRAGMENT: &str = "Depot stands: ";
@@ -439,8 +454,145 @@ fn zrbtdrz_regimes_beneath(parent: &Path, file: &str) -> Result<Vec<PathBuf>, St
     Ok(found)
 }
 
-/// Stand the clone in marshal-zero state: blank zero's blank set and commit it
-/// in the clone, so the door meets the tree a newcomer is handed.
+/// Commit whatever the case changed in its clone, under the fixture's identity,
+/// a shape that changed nothing included, so the door meets a clean tree.
+fn zrbtdrz_commit(clone: &Path, message: &str) -> Result<(), String> {
+    zrbtdrz_git(
+        clone,
+        &[
+            "-c",
+            ZRBTDRZ_COMMIT_NAME,
+            "-c",
+            ZRBTDRZ_COMMIT_EMAIL,
+            "commit",
+            "-q",
+            "-a",
+            "--allow-empty",
+            "-m",
+            message,
+        ],
+        "commit the clone's new shape",
+    )?;
+    Ok(())
+}
+
+/// Stand the clone in the delivered shape: the proscription's own lustration,
+/// sourced from the clone's own modules in a child whose working directory is
+/// the clone, where every home and the hardpoint resolve. It must start nowhere
+/// else, since lustration rewrites the homes it finds in place. The shape is
+/// committed in the clone.
+fn zrbtdrz_deliver_clone(dir: &Path, clone: &Path, label: &str) -> Result<(), String> {
+    let temp = dir.join(format!(
+        "{}-lustrate-temp",
+        label, //
+    ));
+    zrbtdrz_mkdir(&temp)?;
+    let module = |rel: &str| rbtcep_native_to_posix(&clone.join(rel));
+    let script = format!(
+        "set -euo pipefail\n\
+         export BURD_TEMP_DIR='{temp}'\n\
+         source '{buc}'\n\
+         source '{buym}'\n\
+         source '{buh}'\n\
+         source '{bubc}'\n\
+         source '{buv}'\n\
+         source '{rbk}/rbcc_constants.sh'\n\
+         source '{rbk}/rblm_proscription.sh'\n\
+         zbuh_kindle\n\
+         zbuv_kindle\n\
+         zrblm_kindle\n\
+         rblm_lustrate_apply\n",
+        temp = rbtcep_native_to_posix(&temp),
+        buc = module(ZRBTDRZ_BUC_COMMAND),
+        buym = module(ZRBTDRZ_BUYM_YELP),
+        buh = module(ZRBTDRZ_BUH_HANDBOOK),
+        bubc = module(ZRBTDRZ_BUBC_CONSTANTS),
+        buv = module(RBTCHF_BUV_VALIDATION),
+        rbk = module(RBTCHF_RBK_ROOT), //
+    );
+    let lustrate_label = format!(
+        "{}-lustrate",
+        label, //
+    );
+    match rbtchf_run_bash(clone, &script, dir, &lustrate_label)? {
+        (0, _, _) => {}
+        (code, _, stderr) => {
+            return Err(format!(
+                "{}: lustration of the clone exited {}: {}",
+                label,
+                code,
+                stderr.trim(), //
+            ))
+        }
+    }
+    zrbtdrz_commit(clone, "zq delivered shape")
+}
+
+/// Plant one value on a regime file's `FIELD=` line, keeping every other line
+/// as it stood; a file carrying no such line is an error.
+fn zrbtdrz_plant(path: &Path, field: &str, value: &str) -> Result<(), String> {
+    let body = zrbtdrz_read(path)?;
+    let mut out = String::new();
+    let mut found = false;
+    for line in body.lines() {
+        match line.split_once('=') {
+            Some((f, _)) if f == field => {
+                out.push_str(&format!(
+                    "{}={}",
+                    field,
+                    value, //
+                ));
+                found = true;
+            }
+            _ => out.push_str(line),
+        }
+        out.push('\n');
+    }
+    if !found {
+        return Err(format!(
+            "{} carries no {} line to plant",
+            path.display(),
+            field, //
+        ));
+    }
+    zrbtdrz_write(path, &out)
+}
+
+/// Require a prepare refusal naming `field` in `file`, with no station written.
+fn zrbtdrz_expect_shape_refusal(
+    label: &str,
+    code: i32,
+    said: &str,
+    station: &Path,
+    field: &str,
+    file: &str,
+) -> Result<(), String> {
+    if code == 0 {
+        return Err(format!(
+            "{}: exited 0 over a tree not in its delivered shape\n{}",
+            label,
+            said, //
+        ));
+    }
+    let fragment = format!(
+        "{}{} in {}",
+        ZRBTDRZ_SHAPE_FRAGMENT,
+        field,
+        file, //
+    );
+    zrbtdrz_expect(label, code, said, code, &fragment)?;
+    if station.exists() {
+        return Err(format!(
+            "{}: the refusal left {} standing",
+            label,
+            station.display(), //
+        ));
+    }
+    Ok(())
+}
+
+/// Stand the clone in the blanked state: blank zero's blank set and commit it
+/// in the clone, as the release's zero verb leaves a maintainer's tree.
 fn zrbtdrz_zero_clone(clone: &Path) -> Result<(), String> {
     zrbtdrz_blank(&clone.join(RBTGEC_RBRR_FILE), &|f| {
         ZRBTDRZ_BLANK_RBRR.contains(&f)
@@ -476,14 +628,14 @@ fn zrbtdrz_zero_clone(clone: &Path) -> Result<(), String> {
 
 // ── The prepare door ─────────────────────────────────────────
 
-/// PREPARE STANDS A FRESH CLONE'S STATION: in a clone in marshal-zero state
-/// beside no station file, the door exits 0, leaves the station file beside the
-/// clone wearing the fixed tincture on its one tincture line, and leaves the
-/// clone's tree clean.
+/// PREPARE STANDS A FRESH CLONE'S STATION: in a clone stood in the delivered
+/// shape and committed, beside no station file, the door exits 0, leaves the
+/// station file beside the clone wearing the fixed tincture on its one tincture
+/// line, and leaves the clone's tree clean.
 fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
     zrbtdrz_verdict((|| {
         let clone = zrbtdrz_clone(dir)?;
-        zrbtdrz_zero_clone(&clone)?;
+        zrbtdrz_deliver_clone(dir, &clone, "prepare-fresh-clone")?;
         let station = zrbtdrz_station(&clone)?;
         if station.exists() {
             return Err(format!(
@@ -573,38 +725,54 @@ fn rbtdrz_prepare_station_stands(dir: &Path) -> rbtcee_Verdict {
     })())
 }
 
-/// PREPARE REFUSES A FIELD ZERO BLANKS STANDING FILLED: in the clone as cloned,
-/// whose regimes carry the committed tree's site values, the door refuses naming
-/// the first such field, and writes no station.
+/// PREPARE REFUSES A SITE VALUE THE TABLE GIVES BLANK: in a clone stood in the
+/// delivered shape, one payor field the table gives blank is planted and
+/// committed, and the door refuses naming that field and its file, and writes no
+/// station.
 fn rbtdrz_prepare_field_filled(dir: &Path) -> rbtcee_Verdict {
     zrbtdrz_verdict((|| {
+        let label = "prepare-field-filled";
         let clone = zrbtdrz_clone(dir)?;
-        let station = zrbtdrz_station(&clone)?;
-        let (code, said) = zrbtdrz_drive(
-            dir,
-            &clone,
-            RBTGEC_VOORLOPER_PREPARE,
-            "prepare-field-filled",
+        zrbtdrz_deliver_clone(dir, &clone, label)?;
+        zrbtdrz_plant(
+            &clone.join(RBTGEC_RBRP_FILE),
+            ZRBTDRZ_PLANTED_FIELD,
+            ZRBTDRZ_PLANTED_VALUE,
         )?;
-        if code == 0 {
-            return Err(format!(
-                "prepare-field-filled: exited 0 over a tree carrying site values\n{}",
-                said, //
-            ));
-        }
-        let fragment = format!(
-            "{} {}",
-            ZRBTDRZ_FIRST_FILLED,
-            ZRBTDRZ_FILLED_FRAGMENT, //
-        );
-        zrbtdrz_expect("prepare-field-filled", code, &said, code, &fragment)?;
-        if station.exists() {
-            return Err(format!(
-                "prepare-field-filled: the refusal left {} standing",
-                station.display(), //
-            ));
-        }
-        Ok(())
+        zrbtdrz_commit(&clone, "zq one site value planted")?;
+        let station = zrbtdrz_station(&clone)?;
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label)?;
+        zrbtdrz_expect_shape_refusal(
+            label,
+            code,
+            &said,
+            &station,
+            ZRBTDRZ_PLANTED_FIELD,
+            RBTGEC_RBRP_FILE,
+        )
+    })())
+}
+
+/// PREPARE REFUSES THE BLANKED STATE: in a clone blanked as the release's zero
+/// verb leaves a maintainer's tree and committed, its runtime prefix blank where
+/// the table gives a working default and its payor's fields as the tree had
+/// them, the door refuses naming the runtime prefix and its file, and writes no
+/// station.
+fn rbtdrz_prepare_blanked_state(dir: &Path) -> rbtcee_Verdict {
+    zrbtdrz_verdict((|| {
+        let label = "prepare-blanked-state";
+        let clone = zrbtdrz_clone(dir)?;
+        zrbtdrz_zero_clone(&clone)?;
+        let station = zrbtdrz_station(&clone)?;
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label)?;
+        zrbtdrz_expect_shape_refusal(
+            label,
+            code,
+            &said,
+            &station,
+            ZRBTDRZ_BLANKED_FIELD,
+            RBTGEC_RBRR_FILE,
+        )
     })())
 }
 
@@ -855,15 +1023,16 @@ pub static RBTDRZ_CASES_VOORLOPER_DOORS: &[rbtcee_Case] = &[
     rbtcee_case!(rbtdrz_prepare_fresh_clone),
     rbtcee_case!(rbtdrz_prepare_station_stands),
     rbtcee_case!(rbtdrz_prepare_field_filled),
+    rbtcee_case!(rbtdrz_prepare_blanked_state),
     rbtcee_case!(rbtdrz_leftovers_no_credential),
     rbtcee_case!(rbtdrz_leftovers_could_not_ask),
     rbtcee_case!(rbtdrz_reading_something_stands),
     rbtcee_case!(rbtdrz_reading_nothing_stands), //
 ];
 
-/// credless: a reveille member. Its five tabtarget launches are the two doors,
-/// each guarded; the reading's planted answers ride a direct-kindle child,
-/// never a launch.
+/// credless: a reveille member. Its six tabtarget launches are the two doors,
+/// each guarded; the lustrations and the reading's planted answers ride
+/// direct-kindle children, never a launch.
 pub static RBTDRZ_FIXTURE_VOORLOPER_DOORS: rbtcee_Fixture = rbtcee_Fixture {
     name: RBTDRZ_NAME_VOORLOPER_DOORS,
     disposition: rbtcee_Disposition::Independent,
@@ -874,6 +1043,6 @@ pub static RBTDRZ_FIXTURE_VOORLOPER_DOORS: rbtcee_Fixture = rbtcee_Fixture {
     tariff: rbtcee_Tariff {
         min_secs: None,
         max_secs: Some(60),
-        invocations: Some(5),
+        invocations: Some(6),
     },
 };
