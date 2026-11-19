@@ -1,7 +1,8 @@
 [package]
-name = "rbtd"
+name = "rbt"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
 description = "Theurge — crucible test orchestrator for Recipe Bottle"
 
 [dependencies]
@@ -10,3 +11,10 @@ tungstenite = "0.24"
 # deliberately test-binary-only: no clipboard-read primitive exists on the
 # shipped bash surface (operator ruling 260704).
 arboard = "3"
+# The floor crate, carried by the brk kit: the estate's one regime reader,
+# through which theurge reads the dispatch file its pointer names; and the
+# program writers, for the test
+# cases that write a script and run it from a threaded runner — a write left to
+# this process races every sibling's fork into ETXTBSY. No shipped path writes
+# a program.
+brp = { path = "../../brk/brp0" }

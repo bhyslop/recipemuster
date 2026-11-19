@@ -1,5 +1,5 @@
 @startuml
-title The Single Code Seam - one accessor, every call site model-blind\nSource: memo-20260527-operator-credential-models.md (heat BZ structural payoff)
+title The Single Code Seam - one accessor, every call site model-blind\nSource: jjqs_studbook/memo-20260527-operator-credential-models.md (heat BZ structural payoff)
 
 participant "Consumer\n(any GCP call site)" as CONS
 participant "Token Accessor\n(the one seam fn)" as ACC
@@ -10,11 +10,11 @@ participant "Depot API\n(GCP)" as GCP
 
 CONS -> ACC : token(mantle = "director")
 
-note over ACC, STS : Compear once per session, then reuse the assize
+note over ACC, STS : Avow once per session, then reuse the sederunt
 ACC -> IDP : Leg 1 - device flow (RFC 8628)
 IDP --> ACC : OIDC ID token
 ACC -> STS : Leg 2 - STS token-exchange (RFC 8693)
-STS --> ACC : federated token (the assize)
+STS --> ACC : federated token (the sederunt)
 
 ACC -> SA : Leg 3 - **don**: generateAccessToken
 SA --> ACC : short-lived mantle token

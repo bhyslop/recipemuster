@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,42 +24,37 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
 
 bure_validate() {
-  buc_doc_brief "Validate BURE environment regime via enrollment report"
+  buc_doc_brief "Validate the BURE environment config regime via enrollment report"
   buc_doc_shown || return 0
 
   buc_step "Validating BURE ambient environment"
-  buv_report BURE "Environment Regime"
+  buv_report BURE "Environment Config Regime"
   buc_step "BURE configuration valid"
 }
 
 bure_render() {
-  buc_doc_brief "Display diagnostic view of BURE environment regime"
+  buc_doc_brief "Display diagnostic view of the BURE environment config regime"
   buc_doc_shown || return 0
 
-  buv_render BURE "BURE - Bash Utility Environment Regime (ambient)" ""
+  buv_render BURE "BURE - Bash Utility Environment Config Regime (ambient)" ""
 }
 
 ######################################################################
 # Furnish and Main
 
 zbure_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bure_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-
-  zbuv_kindle
-  zburd_kindle
+  source "${BURD_BUK_DIR}/bure_regime.sh" || buc_die_now "Failed to source bure_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
   zburd_enforce
 
   # BURE is ambient — no env file to source, variables already in environment
@@ -68,6 +64,6 @@ zbure_furnish() {
   zbupr_kindle
 }
 
-buc_execute bure_ "Bash Utility Environment Regime" zbure_furnish "$@"
+buc_execute bure_ "Bash Utility Environment Config Regime" zbure_furnish "$@"
 
 # eof

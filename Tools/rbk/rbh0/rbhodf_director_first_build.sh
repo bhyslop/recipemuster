@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,23 +30,27 @@ rbho_director_first_build() {
   buc_doc_brief "${RBHO_TRACK_FIRST_BUILD} — conclave, conjure, tour, summon, abjure"
   buc_doc_shown || return 0
 
-  local -r z_vessel="rbev-sentry-deb-tether"
+  local -r z_vessel="rbev_sentry_deb_tether"
 
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
 
   local z_conjure_summoned=0
-  if command -v docker >/dev/null 2>&1; then
+  if command -v docker >/dev/null; then
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
+      local z_project_id_status=0
+      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id_status=$?
+      test "${z_project_id_status}" -eq 0 || z_project_id=""
+      local z_region_status=0
+      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region_status=$?
+      test "${z_region_status}" -eq 0 || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
@@ -56,14 +61,14 @@ rbho_director_first_build() {
         local z_line=""
         while IFS= read -r z_line || test -n "${z_line}"; do
           case "${z_line}" in
-            "${z_gar_prefix}"*"${z_vessel}:c"[0-9]*) z_conjure_summoned=1; break ;;
+            "${z_gar_prefix}"*"${z_vessel}:c"[0123456789]*) z_conjure_summoned=1; break ;;
           esac
         done < "${z_df_out}"
       fi
     fi
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel_name="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel_name="${z_buym_yelp}"
 
   buh_section "${RBHO_TRACK_FIRST_BUILD}"
   buh_e
@@ -101,6 +106,12 @@ rbho_director_first_build() {
   buh_line "This sets the ${RBYC_VESSEL} you will build throughout the track."
   buh_line "The remaining steps reference it by name."
   buh_e
+  buh_line "Sign in before any cloud work by opening a ${RBCC_noun_sederunt} — one browser"
+  buh_line "sign-in opens a window of up to 12 hours. No cloud command signs you in"
+  buh_line "on its own: finding no live ${RBCC_noun_sederunt}, it refuses and names this door."
+  buh_e
+  buh_tt "   " "${RBZ_NOVATE_SEDERUNT}"
+  buh_e
 
   buh_step_style "Step " " — "
 
@@ -131,7 +142,7 @@ rbho_director_first_build() {
   buh_line "GAR namespace (Google Artifact Registry — where the ${RBYC_DEPOT} stores"
   buh_line "all its images). Takes 2-5 minutes depending on network speed."
   buh_e
-  buyy_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
+  buym_cmd_yawp "r260324193326";                   local -r z_ds_example="${z_buym_yelp}"
   buh_line "When conclave completes, it prints a ${RBYC_RELIQUARY} touchmark"
   buh_line "(e.g., ${z_ds_example}). Yoke wildcard-fans that touchmark into every"
   buh_line "${RBYC_VESSEL}'s ${RBYC_REGIME} under \${RBRR_VESSEL_DIR} in one pass —"
@@ -155,7 +166,7 @@ rbho_director_first_build() {
   buh_e
   buh_line "${RBYC_ORDAIN} is the command that triggers the full pipeline —"
   buh_line "it reads the ${RBYC_VESSEL} ${RBYC_RBRV} ${RBYC_REGIME} to determine the mode"
-  buh_line "(${RBYC_CONJURE}, ${RBYC_BIND}, or ${RBYC_GRAFT}) and acts accordingly."
+  buh_line "(${RBYC_CONJURE}, ${RBYC_ANNEX}, or ${RBYC_GRAFT}) and acts accordingly."
   buh_line "To see which mode a ${RBYC_VESSEL} is in, render its ${RBYC_REGIME}:"
   buh_e
   buh_tt "   " "${RBZ_RENDER_VESSEL}" "" " ${RBYC_HANDBOOK_VESSEL_REF}"
@@ -211,12 +222,12 @@ rbho_director_first_build() {
   buh_line "Every ${RBYC_CONJURED} ${RBYC_HALLMARK} produces a set of arks"
   buh_line "in GAR under ${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/. Each basename serves a specific role:"
   buh_e
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_POUCH}:{hallmark}";        local -r z_sfx_pouch="${z_buym_yelp}"
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_IMAGE}:{hallmark}";        local -r z_sfx_image="${z_buym_yelp}"
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_ATTEST}:{hallmark}-{arch}"; local -r z_sfx_attest="${z_buym_yelp}"
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_ABOUT}:{hallmark}";        local -r z_sfx_about="${z_buym_yelp}"
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_VOUCH}:{hallmark}";        local -r z_sfx_vouch="${z_buym_yelp}"
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_DIAGS}:{hallmark}";        local -r z_sfx_diags="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_POUCH}:{hallmark}";        local -r z_sfx_pouch="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_IMAGE}:{hallmark}";        local -r z_sfx_image="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_ATTEST}:{hallmark}-{arch}"; local -r z_sfx_attest="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_ABOUT}:{hallmark}";        local -r z_sfx_about="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_VOUCH}:{hallmark}";        local -r z_sfx_vouch="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_DIAGS}:{hallmark}";        local -r z_sfx_diags="${z_buym_yelp}"
   buh_line "   ${z_sfx_pouch}"
   buh_line "      A FROM SCRATCH OCI image pushed from host to GAR before"
   buh_line "      the build. Contains the Dockerfile, scripts, and"
@@ -293,7 +304,7 @@ rbho_director_first_build() {
   buh_e
   buh_tt "   " "${RBZ_SUMMON_HALLMARK}" "" " ${RBYC_HANDBOOK_VESSEL_REF} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
-  buyy_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_IMAGE}:{hallmark}"; local -r z_sfx_img2="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_GAR_CATEGORY_HALLMARKS}/{hallmark}/${RBGC_ARK_BASENAME_IMAGE}:{hallmark}"; local -r z_sfx_img2="${z_buym_yelp}"
   buh_line "   ${z_sfx_img2}"
   buh_line "   is a multiplatform manifest list."
   buh_line "   Docker resolves it to the image matching your host"
@@ -317,7 +328,7 @@ rbho_director_first_build() {
   buh_tt "   " "${RBZ_REKON_HALLMARK}" "" " ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "You should see all six durable arks for your ${RBYC_HALLMARK}:"
-  buyy_cmd_yawp "${RBGC_ARK_BASENAME_POUCH}, ${RBGC_ARK_BASENAME_IMAGE}, ${RBGC_ARK_BASENAME_ATTEST}, ${RBGC_ARK_BASENAME_ABOUT}, ${RBGC_ARK_BASENAME_VOUCH}, ${RBGC_ARK_BASENAME_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
+  buym_cmd_yawp "${RBGC_ARK_BASENAME_POUCH}, ${RBGC_ARK_BASENAME_IMAGE}, ${RBGC_ARK_BASENAME_ATTEST}, ${RBGC_ARK_BASENAME_ABOUT}, ${RBGC_ARK_BASENAME_VOUCH}, ${RBGC_ARK_BASENAME_DIAGS}"; local -r z_sfx_list="${z_buym_yelp}"
   buh_line "   ${z_sfx_list}"
   buh_e
   buh_line "${RBYC_ABJURE} removes all artifacts for a ${RBYC_HALLMARK}"
@@ -347,8 +358,8 @@ rbho_director_first_build() {
   buh_line "   ${RBGC_ARK_BASENAME_VOUCH}    SLSA ${RBYC_PROVENANCE} verification record"
   buh_line "   ${RBGC_ARK_BASENAME_DIAGS}    diagnostics from the build"
   buh_e
-  buyy_tt_yawp "${RBZ_PLUMB_FULL}";     local -r z_tt_plumb_full="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_PLUMB_COMPACT}";  local -r z_tt_plumb_compact="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_PLUMB_FULL}";     local -r z_tt_plumb_full="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_PLUMB_COMPACT}";  local -r z_tt_plumb_compact="${z_buym_yelp}"
   buh_line "${RBYC_PLUMB} is the pattern-driven inspector — ${z_tt_plumb_full}"
   buh_line "walks every ark, ${z_tt_plumb_compact} names them at a glance."
   buh_e

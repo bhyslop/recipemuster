@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,19 +28,19 @@ set -euo pipefail
 RBW_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
 # Source dependencies
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
-source "${BURD_BUK_DIR}/buv_validation.sh"
-source "${BURD_BUK_DIR}/burd_regime.sh"
-source "${BURD_BUK_DIR}/buz_zipper.sh"
-source "${RBW_SCRIPT_DIR}/rbz_zipper.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
+source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+source "${RBW_SCRIPT_DIR}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
 # Show filename on each displayed line
 buc_context "${0##*/}"
 
-# Kindle dispatch and zipper registry
-zbuv_kindle
-zburd_kindle
+# The workbench's head: a name of the kit standing exported is refused save
+# the hand-offs every level declares.
+buv_export_sentinel "${BURD_TARGET}"
+
+# Kindle the zipper registry; the command module kindled the dispatch regime
 zbuz_kindle
 zrbz_kindle
 
@@ -52,8 +53,8 @@ rbw_show() {
 # Routing
 
 rbw_route() {
-  local z_command="$1"
-  shift
+  local z_command="${1:-}"
+  shift || buc_die_now "rbw_route: command required"
 
   rbw_show "Routing command: ${z_command} with args: $*"
 
@@ -64,7 +65,7 @@ rbw_route() {
   # Qualification gate for commands that need it
   case "${z_command}" in
     "${RBZ_CRUCIBLE_CHARGE}"|"${RBZ_ORDAIN_HALLMARK}")
-      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_qualify_fast || buc_die "Qualification gate failed"
+      "${RBW_SCRIPT_DIR}/rbq_cli.sh" rbq_fast || buc_die_now "Qualification gate failed"
       ;;
   esac
 
@@ -73,9 +74,9 @@ rbw_route() {
 
 rbw_main() {
   local z_command="${1:-}"
-  shift || true
+  test "$#" -eq 0 || shift
 
-  test -n "${z_command}" || buc_die "No command specified"
+  test -n "${z_command}" || buc_die_now "No command specified"
 
   rbw_route "${z_command}" "$@"
 }

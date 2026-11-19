@@ -1,11 +1,25 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJL Step 08: Copy the selected podvm disk leaves into a Lode via gcrane (capture)
-# Builder: gcr.io/go-containerregistry/gcrane:debug (floating bootstrap — podvm is
-#          vessel-less like wsl, so its tool-pinning defers to the bootstrap-builder
-#          digest-pin itch, RBS0 rbsk_pinning_boundary. gcrane reads the PUBLIC quay
-#          source anonymously and auths the GAR push ambiently via google.Keychain
-#          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
-#          :debug variant carries /busybox/sh. Auth canon: RBSCB)
+# Builder: the pinned gcrane member of the repo-elected substrate reliquary (resolved
+#          from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c).
+#          gcrane reads the PUBLIC quay source anonymously and auths the GAR push
+#          ambiently via google.Keychain -> ADC -> the GCE metadata server as the Mason
+#          SA, no explicit login. The :debug variant carries /busybox/sh)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_PODVM_FAMILY
 #
@@ -16,14 +30,14 @@
 # ONE GAR package rbi_ld/<stamp> under its member tag, then confirms the copy is
 # digest-faithful (cheap manifest readback; the blob Content-Length residency guard
 # is rbgjl09). The split exists because parsing the structured upstream index belongs
-# in python (CBG CBp_ rules), which the gcrane:debug busybox shell cannot host —
+# in python, which the gcrane:debug busybox shell cannot host —
 # registry copy is gcrane's job, index parsing is python's.
 #
 # gcrane cp <family>@<leaf-digest> is get-or-error (the loud failure the recorded
-# trust grade wants) and preserves the manifest digest byte-for-byte (memo-20260608
-# §4). Each selected leaf is a single-platform manifest, so the Lode package stays a
+# trust grade wants) and preserves the manifest digest byte-for-byte.
+# Each selected leaf is a single-platform manifest, so the Lode package stays a
 # FLAT package (no parent-index web) — banish stays single-call atomic by
-# construction (RBSLB). Do not capture the family index itself; that would web the
+# construction. Do not capture the family index itself; that would web the
 # package.
 
 set -euo pipefail

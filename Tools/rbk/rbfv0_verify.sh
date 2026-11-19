@@ -1,0 +1,72 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Foundry Verify - kindle entry: the single rbfv
+# inclusion-guard and the whole kindle, sourcing the guard-free body clusters
+# (rbfvg_ vouch gate, rbfva_ about, rbfvm_ graft metadata, rbfvv_ vouch,
+# rbfvb_ batch vouch). The readonly ZRBFV0_* constants the kindle sets are read
+# globally by the clusters. Two entries source this file — rbfv0_cli, and
+# rbfd0_director for the cross-module calls ordain makes into rbfvv_vouch and
+# zrbfvm_graft_metadata_submit — so the guard stands here and nowhere else in
+# the family, and no cluster needs one.
+
+set -euo pipefail
+
+# Multiple inclusion detection
+test -z "${ZRBFV0_SOURCED:-}" || buc_die_now "Module rbfv multiply sourced - check sourcing hierarchy"
+ZRBFV0_SOURCED=1
+
+# Source shared Foundry Core module
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
+
+# Verify body clusters, sourced once here at the single rbfv entry — all
+# guard-free: no cluster is sourced by a second entry.
+source "${BASH_SOURCE[0]%/*}/rbfvg_gate.sh" || buc_die_now "Failed to source rbfvg_gate.sh"
+source "${BASH_SOURCE[0]%/*}/rbfva_about.sh" || buc_die_now "Failed to source rbfva_about.sh"
+source "${BASH_SOURCE[0]%/*}/rbfvm_metadata.sh" || buc_die_now "Failed to source rbfvm_metadata.sh"
+source "${BASH_SOURCE[0]%/*}/rbfvv_vouch.sh" || buc_die_now "Failed to source rbfvv_vouch.sh"
+source "${BASH_SOURCE[0]%/*}/rbfvb_batch.sh" || buc_die_now "Failed to source rbfvb_batch.sh"
+
+######################################################################
+# Internal Functions (zrbfv0_*)
+
+zrbfv0_kindle() {
+  test -z "${ZRBFV0_KINDLED:-}" || buc_die_now "Module rbfv already kindled"
+
+  buc_log_args 'Validate Foundry Core is kindled'
+  zrbfc0_sentinel
+
+  buc_log_args 'Define vouch operation file prefix'
+  readonly ZRBFV0_VOUCH_PREFIX="${BURD_TEMP_DIR}/rbfv_vouch_"
+
+  buc_log_args 'Define about operation file prefix'
+  readonly ZRBFV0_ABOUT_PREFIX="${BURD_TEMP_DIR}/rbfv_about_"
+
+  buc_log_args 'Define graft metadata operation file prefix'
+  readonly ZRBFV0_GRAFT_META_PREFIX="${BURD_TEMP_DIR}/rbfv_graft_meta_"
+
+  readonly ZRBFV0_KINDLED=1
+}
+
+zrbfv0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBFV0_KINDLED:-}" = "1" || buc_die_now "Module rbfv not kindled - call zrbfv0_kindle first"
+}
+
+# eof

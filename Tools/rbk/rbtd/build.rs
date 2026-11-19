@@ -1,0 +1,59 @@
+// Copyright 2026 Scale Invariant, Inc.
+// SPDX-License-Identifier: Apache-2.0
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+
+//! The theurge's build script: it compiles in the position the builder
+//! states to it, so the binary can say what it was struck from when the
+//! election that asks puts `--exergue` to it.
+//!
+//! A BUILD THAT CANNOT STATE THE POSITION DIES HERE. There is no "unknown" to
+//! fall back on: a binary answering that question with text that means
+//! nothing would be believed.
+
+// EVERY DECLARATION STANDS INSIDE `main` AND WEARS THE CRATE'S `b` CELL: a file
+// cargo names carries no prefix of its own.
+fn main() {
+    /// The variable the builder states the position through. It is spelled
+    /// here because a build script links nothing. Cargo is told to
+    /// watch it, so a commit touching the collar's measure rebuilds the binary
+    /// rather than leaving it claiming a position it no longer holds.
+    const ZRBTB_SEAT_VAR: &str = "BKCH_COLLAR_POSITION";
+
+    println!(
+        "cargo:rerun-if-env-changed={}",
+        ZRBTB_SEAT_VAR, //
+    );
+
+    let seat = match std::env::var(ZRBTB_SEAT_VAR) {
+        Ok(value) if !value.trim().is_empty() => value,
+        _ => panic!(
+            "{} is unset, so this build cannot state the position it was taken at. \
+             The theurge's own doors state it: \
+             tt/rbw-tb.Build.sh to build, tt/rbw-tt.Test.sh to test",
+            ZRBTB_SEAT_VAR, //
+        ),
+    };
+
+    // RE-EMITTED UNDER THE NAME IT ARRIVED UNDER, so `env!` reads what cargo set
+    // for this compile and never whatever the ambient environment held.
+    println!(
+        "cargo:rustc-env={}={}",
+        ZRBTB_SEAT_VAR,
+        seat.trim(), //
+    );
+}
+
+// eof

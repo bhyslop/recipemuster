@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,30 +23,28 @@ set -euo pipefail
 
 ZRBQ_SCRIPT_DIR="${BASH_SOURCE[0]%/*}"
 
-source "${BURD_BUK_DIR}/buq_qualify.sh"
-
 # Multiple inclusion detection
-test -z "${ZRBQ_SOURCED:-}" || buc_die "Module rbq multiply sourced - check sourcing hierarchy"
+test -z "${ZRBQ_SOURCED:-}" || buc_die_now "Module rbq multiply sourced - check sourcing hierarchy"
 ZRBQ_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbq_*)
 
 zrbq_kindle() {
-  test -z "${ZRBQ_KINDLED:-}" || buc_die "Module rbq already kindled"
+  test -z "${ZRBQ_KINDLED:-}" || buc_die_now "Module rbq already kindled"
 
   zbuz_sentinel
   zrbz_sentinel
   zrbcc_sentinel
 
-  test -n "${BURC_TABTARGET_DIR:-}" || buc_die "BURC_TABTARGET_DIR not set"
-  test -n "${BURC_TOOLS_DIR:-}"     || buc_die "BURC_TOOLS_DIR not set"
+  test -n "${BURC_TABTARGET_DIR:-}" || buc_die_now "BURC_TABTARGET_DIR not set"
+  test -n "${BURC_TOOLS_DIR:-}"     || buc_die_now "BURC_TOOLS_DIR not set"
 
   readonly ZRBQ_TT_DIR="${BURC_TABTARGET_DIR}"
   readonly ZRBQ_PROJECT_ROOT="${BURC_TOOLS_DIR}/.."
-  readonly ZRBQ_RBW_DIR="${RBCC_KIT_DIR}"
+  readonly ZRBQ_RBW_DIR="${RBCC_kit_dir}"
   # Match the bare BURD_LAUNCHER basename the tabtargets carry since the
-  # path-indirection migration (BCG "Tabtarget Path Indirection"): the line is
+  # path-indirection migration: the line is
   # `export BURD_LAUNCHER=launcher.rbw_workbench.sh`, a basename, not a path. A
   # moorings/launchers full-path predicate matches none of it — the count goes
   # to zero and the colophon net silently lifts.
@@ -55,13 +54,13 @@ zrbq_kindle() {
 }
 
 zrbq_sentinel() {
-  test "${ZRBQ_KINDLED:-}" = "1" || buc_die "Module rbq not kindled - call zrbq_kindle first"
+  test "${ZRBQ_KINDLED:-}" = "1" || buc_die_now "Module rbq not kindled - call zrbq_kindle first"
 }
 
 ######################################################################
 # External Functions (rbq_*)
 
-rbq_qualify_colophons() {
+rbq_colophons() {
   zrbq_sentinel
 
   buc_step "Qualifying RBW colophon registrations"
@@ -101,11 +100,11 @@ rbq_qualify_colophons() {
     local z_found=0
     local z_i=0
     for z_i in "${!z_buz_colophon_roll[@]}"; do
-      test "${z_buz_colophon_roll[$z_i]}" = "${z_colophon}" || continue
+      test "${z_buz_colophon_roll[${z_i}]}" = "${z_colophon}" || continue
       z_found=1
 
       # Verify module file exists
-      local z_module="${z_buz_module_roll[$z_i]}"
+      local z_module="${z_buz_module_roll[${z_i}]}"
       test -f "${ZRBQ_RBW_DIR}/${z_module}" || {
         z_fail_files+=("${z_basename}")
         z_fail_reasons+=("module not found: ${z_module}")
@@ -124,21 +123,21 @@ rbq_qualify_colophons() {
   if (( ${#z_fail_files[@]} )); then
     local z_j=0
     for z_j in "${!z_fail_files[@]}"; do
-      buc_warn "${z_fail_files[$z_j]}: ${z_fail_reasons[$z_j]}"
+      buc_warn "${z_fail_files[${z_j}]}: ${z_fail_reasons[${z_j}]}"
     done
-    buc_die "Colophon qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
+    buc_die_now "Colophon qualification failed: ${#z_fail_files[@]} of ${z_checked} tabtargets"
   fi
 
   buc_log_args "All ${z_checked} RBW colophons registered"
 }
 
-# rbq_qualify_completeness() - The forward completeness sweep: every enrolled
+# rbq_completeness() - The forward completeness sweep: every enrolled
 # colophon (RBW and BUW — zrbq_furnish kindles both zippers into the shared roll)
 # must have a tabtarget on disk. Homed as an rblm_zero (rbw-MZ) precondition,
 # never the per-dispatch path: rbw-MZ is withheld from delivery, so this proves
 # the source repo complete while a stripped consumer never runs it. The forward
-# sibling of rbq_qualify_colophons above (which sweeps tabtarget -> registered).
-rbq_qualify_completeness() {
+# sibling of rbq_colophons above (which sweeps tabtarget -> registered).
+rbq_completeness() {
   zrbq_sentinel
 
   buc_step "Qualifying colophon completeness (every enrolled colophon has a tabtarget)"
@@ -148,7 +147,7 @@ rbq_qualify_completeness() {
   buc_log_args "All enrolled colophons have tabtargets"
 }
 
-rbq_qualify_context() {
+rbq_context() {
   zrbq_sentinel
 
   buc_step "Qualifying generated context freshness"
@@ -156,20 +155,24 @@ rbq_qualify_context() {
   local -r z_committed="${RBCC_tabtarget_context_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_context_check.md"
 
-  buz_emit_context "rbz" "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die "Failed to generate context for comparison"
+  buz_emit_context "rbz" "${ZRBQ_TT_DIR}" > "${z_fresh}" || buc_die_now "Failed to generate context for comparison"
 
   if ! test -f "${z_committed}"; then
-    buc_die "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated context file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
-    buc_die "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
+  local z_fresh_content
+  z_fresh_content=$(<"${z_fresh}") || buc_die_now "Failed to read: ${z_fresh}"
+  local z_committed_content
+  z_committed_content=$(<"${z_committed}") || buc_die_now "Failed to read: ${z_committed}"
+  if test "${z_fresh_content}" != "${z_committed_content}"; then
+    buc_die_now "Generated context file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   buc_log_args "Context file is fresh"
 }
 
-rbq_qualify_rust_consts() {
+rbq_rust_consts() {
   zrbq_sentinel
 
   buc_step "Qualifying generated Rust consts freshness"
@@ -177,20 +180,24 @@ rbq_qualify_rust_consts() {
   local -r z_committed="${RBCC_rbtdgc_consts_file}"
   local -r z_fresh="${BURD_TEMP_DIR}/rbq_rust_consts_check.rs"
 
-  rbz_emit_consts > "${z_fresh}" || buc_die "Failed to generate Rust consts for comparison"
+  rbz_emit_consts > "${z_fresh}" || buc_die_now "Failed to generate Rust consts for comparison"
 
   if ! test -f "${z_committed}"; then
-    buc_die "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
+    buc_die_now "Generated Rust consts file missing: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
-  if [[ "$(<"${z_fresh}")" != "$(<"${z_committed}")" ]]; then
-    buc_die "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
+  local z_fresh_content
+  z_fresh_content=$(<"${z_fresh}") || buc_die_now "Failed to read: ${z_fresh}"
+  local z_committed_content
+  z_committed_content=$(<"${z_committed}") || buc_die_now "Failed to read: ${z_committed}"
+  if test "${z_fresh_content}" != "${z_committed_content}"; then
+    buc_die_now "Generated Rust consts file is stale: ${z_committed} — run tt/rbw-tb.Build.sh"
   fi
 
   buc_log_args "Rust consts file is fresh"
 }
 
-rbq_qualify_fast() {
+rbq_fast() {
   zrbq_sentinel
 
   buc_step "Running fast qualification"
@@ -200,9 +207,9 @@ rbq_qualify_fast() {
     "buw-SI.*.sh" \
     "z-launcher.sh" \
     # End of exempt list
-  rbq_qualify_colophons
-  rbq_qualify_context
-  rbq_qualify_rust_consts
+  rbq_colophons
+  rbq_context
+  rbq_rust_consts
   rbrn_preflight
 
   buc_step "Fast qualification passed"
@@ -213,26 +220,26 @@ rbq_qualify_fast() {
 # (rbw-MZ). It is deliberately absent from fast qualify and the charge/ordain
 # workbench gate: routine development and container operations run already-linted,
 # shipped code and do not require the shellcheck binary.
-rbq_qualify_shellcheck() {
+rbq_shellcheck() {
   zrbq_sentinel
 
   buc_step "Running shellcheck"
 
   # Load-bearing bash lives outside Tools/ too: the vessel security-boundary
   # jailers (sentry + pentacle, shipped in every vessel build context) and the
-  # per-nameplate charge hooks. Enumerate them as explicit extras so the gate
+  # per-nameplate envois. Enumerate them as explicit extras so the gate
   # covers them by construction — a directory-root widening would sweep in the
   # deliberately-excluded launcher shims, Study/ scratch, POC drivers, and
-  # example-vessel scripts that share those parents. The charge hooks are
-  # globbed (per-nameplate, recurring by construction); the jailers are singletons.
+  # example-vessel scripts that share those parents. The envois are globbed
+  # (per-nameplate, recurring by construction); the jailers are singletons.
   local z_extras=(
     "${ZRBQ_PROJECT_ROOT}/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjs_sentry.sh"
     "${ZRBQ_PROJECT_ROOT}/rbmm_moorings/rbmv_vessels/common-sentry-context/rbjp_pentacle.sh"
   )
-  local z_hook=""
-  for z_hook in "${ZRBQ_PROJECT_ROOT}"/rbmm_moorings/*/rbnnh_post_charge.sh; do
-    test -e "${z_hook}" || continue
-    z_extras+=("${z_hook}")
+  local z_envoi=""
+  for z_envoi in "${ZRBQ_PROJECT_ROOT}"/rbmm_moorings/*/rbnnh_envoi.sh; do
+    test -e "${z_envoi}" || continue
+    z_extras+=("${z_envoi}")
   done
 
   buq_shellcheck "${BURC_TOOLS_DIR}" \
@@ -243,16 +250,19 @@ rbq_qualify_shellcheck() {
   buc_step "Shellcheck qualification passed"
 }
 
-rbq_qualify_release() {
+rbq_release() {
   zrbq_sentinel
 
   buc_step "Running release qualification"
 
-  rbq_qualify_fast
-  rbq_qualify_shellcheck
+  rbq_fast
+  rbq_shellcheck
 
   buc_step "Running echelon test suite"
-  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh"
+  local z_echelon_status=0
+  "${ZRBQ_PROJECT_ROOT}/tt/rbw-ts.TestSuite.echelon.sh" || z_echelon_status=$?
+  test "${z_echelon_status}" -eq 0 \
+    || buc_die_now "Echelon test suite failed (status ${z_echelon_status})"
 
   buc_step "Release qualification passed"
 }

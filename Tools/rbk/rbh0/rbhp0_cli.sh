@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,74 +19,81 @@
 #
 # Recipe Bottle Handbook Payor Ceremonies - Command Line Interface
 #
-# Full furnish: payor-only ceremonies require the complete regime +
-# OAuth + IAM dependency stack.
+# Per-command furnish: every module is sourced and kindled, and each ceremony
+# enforces only the regimes it reads (see the case block below).
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
-zrbhp_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
-  buc_doc_env "BURD_OUTPUT_DIR       " "Directory for command outputs"
+zrbhp0_furnish() {
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Temporary directory for intermediate files"
+  buc_doc_env_row "BURD_OUTPUT_DIR       " "Directory for command outputs"
   buc_doc_env_done || return 0
+
+  local -r z_command="${1:-}"
 
   local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}/.."
   local -r z_rbh0_dir="${z_rbk_kit_dir}/rbh0"
 
-  source "${BURD_BUK_DIR}/burd_regime.sh"                  || buc_die "Failed to source burd_regime.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"               || buc_die "Failed to source buv_validation.sh"
-  source "${BURD_BUK_DIR}/buym_yelp.sh"                    || buc_die "Failed to source buym_yelp.sh"
-  source "${BURD_BUK_DIR}/buh_handbook.sh"                 || buc_die "Failed to source buh_handbook.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"              || buc_die "Failed to source rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"              || buc_die "Failed to source rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"                 || buc_die "Failed to source rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"                 || buc_die "Failed to source rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"       || buc_die "Failed to source rbdc_derived.sh"
-  source "${RBCC_rbrr_file}"                               || buc_die "Failed to source ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
-  source "${z_rbk_kit_dir}/rbrp_regime.sh"                 || buc_die "Failed to source rbrp_regime.sh"
-  source "${z_rbk_kit_dir}/rbgo_oauth.sh"                  || buc_die "Failed to source rbgo_oauth.sh"
-  source "${z_rbk_kit_dir}/rbuh_http.sh"                   || buc_die "Failed to source rbuh_http.sh"
-  source "${z_rbk_kit_dir}/rbge_rest.sh"                   || buc_die "Failed to source rbge_rest.sh"
-  source "${z_rbk_kit_dir}/rba_auth.sh"                    || buc_die "Failed to source rba_auth.sh"
-  source "${z_rbk_kit_dir}/rbgi_iam.sh"                    || buc_die "Failed to source rbgi_iam.sh"
-  source "${z_rbh0_dir}/rbhp0_payor.sh"       || buc_die "Failed to source rbhp0_payor.sh"
-  source "${z_rbh0_dir}/rbhpe_establish.sh"   || buc_die "Failed to source rbhpe_establish.sh"
-  source "${z_rbh0_dir}/rbhpq_quota_build.sh" || buc_die "Failed to source rbhpq_quota_build.sh"
-  source "${z_rbh0_dir}/rbhpf_entra.sh"       || buc_die "Failed to source rbhpf_entra.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"                   || buc_die "Failed to source buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"                  || buc_die "Failed to source rbz_zipper.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh"                 || buc_die_now "Failed to source buh_handbook.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh"              || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh"              || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh"                 || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh"                 || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh"       || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${RBCC_rbrr_file}"                               || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
+  source "${z_rbk_kit_dir}/rbrp_regime.sh"                 || buc_die_now "Failed to source rbrp_regime.sh"
+  source "${z_rbk_kit_dir}/rbgo_oauth.sh"                  || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbuh_http.sh"                   || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk_kit_dir}/rbge_rest.sh"                   || buc_die_now "Failed to source rbge_rest.sh"
+  source "${z_rbk_kit_dir}/rbau_auth.sh"                    || buc_die_now "Failed to source rbau_auth.sh"
+  source "${z_rbk_kit_dir}/rbgi_iam.sh"                    || buc_die_now "Failed to source rbgi_iam.sh"
+  source "${z_rbh0_dir}/rbhp0_payor.sh"       || buc_die_now "Failed to source rbhp0_payor.sh"
+  source "${z_rbh0_dir}/rbhpo_organization.sh" || buc_die_now "Failed to source rbhpo_organization.sh"
+  source "${z_rbh0_dir}/rbhpe_establish.sh"   || buc_die_now "Failed to source rbhpe_establish.sh"
+  source "${z_rbh0_dir}/rbhpq_quota_build.sh" || buc_die_now "Failed to source rbhpq_quota_build.sh"
+  source "${z_rbh0_dir}/rbhpf_entra.sh"       || buc_die_now "Failed to source rbhpf_entra.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh"                   || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh"                  || buc_die_now "Failed to source rbz_zipper.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zrbcc_kindle
 
   zrbrr_kindle
   zrbrd_kindle
-  zrbrr_enforce
-  zrbrd_enforce
-  zrbdc_kindle
 
   zrbgc_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
-  zrbrp_enforce
 
   zrbgo_kindle
   zrbuh_kindle
   zrbge_kindle
-  zrba_kindle
+  zrbau_kindle
   zrbgi_kindle
-  zrbhp_kindle
-  zrbhp_enforce
+  zrbhp0_kindle
 
   zbuz_kindle
   zrbz_kindle
+
+  # Per-command regime enforcement. The organization and federation guides read
+  # no repo, depot or payor field, and the establish guide reads the payor
+  # project id alone; each is the payor track's console work ahead of those
+  # regimes being filled, and the establish guide's own first step is where the
+  # payor project id is set, so all three kindle only (the onboarding CLI's
+  # thin-deps concession) and the establish guide shows what it can from blank
+  # or malformed fields. The quota guide reads the depot regime and its derived
+  # project, so it enforces the full stack.
+  case "${z_command}" in
+    rbhpo_organization|rbhpf_federation_entra|rbhpe_establish)  : ;;
+    *)  zrbrr_enforce; zrbrd_enforce; zrbdc_kindle; zrbrp_enforce; zrbhp0_enforce ;;
+  esac
 }
 
-buc_execute rbhp_ "Payor Ceremonies" zrbhp_furnish "$@"
+buc_execute rbhp "Payor Ceremonies" zrbhp0_furnish "$@"
 
 # eof

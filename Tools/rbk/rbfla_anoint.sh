@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,11 +23,16 @@
 
 set -euo pipefail
 
-######################################################################
-# Anoint (rbfl_*)
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
-rbfl_anoint() {
-  zrbfl_sentinel
+######################################################################
+# Anoint (rbfla_*)
+
+rbfla_anoint() {
+  zrbfl0_sentinel
 
   local -r z_vessel="${BUZ_FOLIO:-}"
 
@@ -35,17 +41,18 @@ rbfl_anoint() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
-  test -n "${z_vessel}" || buc_die "Vessel required (param1)"
+  test -n "${z_vessel}" || buc_die_now "Vessel required (param1)"
 
   # Resolve and load the vessel; anoint addresses graft-mode vessels only.
-  zrbfc_resolve_vessel "${z_vessel}"
-  local -r z_vessel_dir=$(<"${ZRBFC_VESSEL_RESOLVED_DIR_FILE}")
-  test -n "${z_vessel_dir}" || buc_die "Empty resolved vessel path"
-  zrbfc_load_vessel "${z_vessel_dir}"
+  zrbfcv_resolve_vessel "${z_vessel}"
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
+  zrbfcv_load_vessel "${z_vessel_dir}"
   test "${RBRV_VESSEL_MODE:-}" = "rbnve_graft" \
-    || buc_die "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+    || buc_die_now "Vessel '${RBRV_SIGIL}' is not a graft vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
 
   # Read the chained build facts through the shared express-or-chain resolver —
   # anoint carries no express path, so an empty express makes each resolve a pure
@@ -53,14 +60,20 @@ rbfl_anoint() {
   # previous dispatch must be a build (kludge or ordain).
   buc_step "Reading chained build facts"
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") \
-    || buc_reject "${BUBC_band_chain}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark fact from the previous dispatch — run a build (kludge or ordain) immediately before anoint"
   local z_gar_root=""
-  z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") \
-    || buc_reject "${BUBC_band_chain}" "No gar_root fact from the previous dispatch"
+  local z_gar_root_status=0
+  z_gar_root=$(buf_elect_fact_capture "" "${RBF_FACT_GAR_ROOT}") || z_gar_root_status=$?
+  test "${z_gar_root_status}" -eq 0 \
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No gar_root fact from the previous dispatch"
   local z_ark_stem=""
-  z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") \
-    || buc_reject "${BUBC_band_chain}" "No ark_stem fact from the previous dispatch"
+  local z_ark_stem_status=0
+  z_ark_stem=$(buf_elect_fact_capture "" "${RBF_FACT_ARK_STEM}") || z_ark_stem_status=$?
+  test "${z_ark_stem_status}" -eq 0 \
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No ark_stem fact from the previous dispatch"
 
   local -r z_image_ref="${z_gar_root}/${z_ark_stem}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
   buc_info "Hallmark: ${z_hallmark}"
@@ -68,13 +81,15 @@ rbfl_anoint() {
 
   # Graft pushes from the local docker cache; a cloud-built hallmark is not
   # local, so flag the gap now rather than letting graft refuse later.
-  docker image inspect "${z_image_ref}" > /dev/null 2>&1 \
-    || buc_warn "Image not in the local docker cache — graft will refuse until it is present locally"
+  local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}anoint_stderr.txt"
+  # Non-fatal by grant: graft is the gate and this inspect only forewarns
+  docker image inspect "${z_image_ref}" > "${ZRBFL0_INSPECT_PREFIX}anoint_stdout.json" 2>"${z_inspect_stderr}" \
+    || buc_warn "Image not in the local docker cache — graft will refuse until it is present locally — see ${z_inspect_stderr}"
 
   buc_step "Anointing ${RBRV_SIGIL}"
 
   local -r z_rbrv_file="${z_vessel_dir%/}/${RBCC_rbrv_file}"
-  test -f "${z_rbrv_file}" || buc_die "Vessel regime file not found: ${z_rbrv_file}"
+  test -f "${z_rbrv_file}" || buc_die_now "Vessel regime file not found: ${z_rbrv_file}"
 
   local z_rbrv_lines=()
   local z_rbrv_line=""
@@ -83,20 +98,20 @@ rbfl_anoint() {
   done < "${z_rbrv_file}"
 
   local -r z_tmp_file="${BURD_TEMP_DIR}/rbfl_anoint_${RBRV_SIGIL}_${RBCC_rbrv_file}.new"
-  : > "${z_tmp_file}" || buc_die "Failed to create ${z_tmp_file}"
+  : > "${z_tmp_file}" || buc_die_now "Failed to create ${z_tmp_file}"
 
   local z_wrote=0
   local z_j=""
   for z_j in "${!z_rbrv_lines[@]}"; do
-    case "${z_rbrv_lines[$z_j]}" in
+    case "${z_rbrv_lines[${z_j}]}" in
       RBRV_GRAFT_IMAGE=*)
         printf 'RBRV_GRAFT_IMAGE=%s\n' "${z_image_ref}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}"
+          || buc_die_now "Failed to write RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}"
         z_wrote=1
         ;;
       *)
-        printf '%s\n' "${z_rbrv_lines[$z_j]}" >> "${z_tmp_file}" \
-          || buc_die "Failed to write line for ${RBRV_SIGIL}"
+        printf '%s\n' "${z_rbrv_lines[${z_j}]}" >> "${z_tmp_file}" \
+          || buc_die_now "Failed to write line for ${RBRV_SIGIL}"
         ;;
     esac
   done
@@ -104,11 +119,11 @@ rbfl_anoint() {
   case "${z_wrote}" in
     1) ;;
     *) printf '\n# Grafting Configuration\nRBRV_GRAFT_IMAGE=%s\n' "${z_image_ref}" >> "${z_tmp_file}" \
-         || buc_die "Failed to append RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}" ;;
+         || buc_die_now "Failed to append RBRV_GRAFT_IMAGE for ${RBRV_SIGIL}" ;;
   esac
 
   mv "${z_tmp_file}" "${z_rbrv_file}" \
-    || buc_die "Failed to finalize ${z_rbrv_file}"
+    || buc_die_now "Failed to finalize ${z_rbrv_file}"
 
   # Loud on success: name the written value and its source so a wrong anoint shows
   # at the moment of action, not only in the eventual git diff. Anoint reads the

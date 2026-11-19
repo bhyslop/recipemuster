@@ -1,4 +1,19 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJB Step 04: Build all platforms and push consumer-facing image to GAR
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGY_DOCKERFILE, _RBGY_PLATFORMS,
@@ -15,7 +30,7 @@
 # Base pinning: rbgjb03 resolved each populated base slot's tag to a digest and
 # wrote the pinned ref "<ref>@sha256:<digest>" to .resolved_base_n, read here
 # per slot as the RBF_IMAGE_n build-arg and the rbi_resolved_base_n image
-# label; rivet RBr_b4e.
+# label; RBr_b4e.
 # The rbi_resolved_base_n label key is a literal here (cloud steps source no
 # constants); its host home is RBGC_IMAGE_LABEL_RESOLVED_BASE. The neighbor
 # labels (hallmark, git.commit, git.branch) stay unsprued by deliberate

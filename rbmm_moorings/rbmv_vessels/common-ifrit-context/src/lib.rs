@@ -1,4 +1,5 @@
 // Copyright 2026 Scale Invariant, Inc.
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,5 +20,7 @@
 #![deny(warnings)]
 #![allow(non_camel_case_types)]
 
-pub mod rbida_attacks;
-pub mod rbida_sorties;
+#[path = "rbida_attacks.rs"]
+pub mod rbtica_attacks;
+#[path = "rbida_sorties.rs"]
+pub mod rbtics_sorties;

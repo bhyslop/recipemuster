@@ -1,0 +1,308 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Foundry Director Build - mirror body (guard-free cluster,
+# sourced by rbfd0_director): rbfdm_mirror — annex vessel image mirrored from
+# upstream into GAR via combined Cloud Build (gcrane cp + about) — and its
+# per-operation submit helper zrbfdm_mirror_submit. Reads the entry's
+# ZRBFD0_MIRROR_PREFIX and ZRBFD0_RBGJM_STEPS_DIR kindle constants; the
+# registry preflight it calls lives in rbfdp_preflight.sh.
+
+set -euo pipefail
+
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
+######################################################################
+# External Functions (rbfdm_*)
+
+rbfdm_mirror() {
+  zrbfd0_sentinel
+
+  local z_vessel_dir="${1:-}"
+
+  # Documentation block
+  buc_doc_brief "Mirror an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel image from upstream to GAR via combined Cloud Build (gcrane cp + about)"
+  buc_doc_param "vessel_dir" "Path to vessel directory containing rbrv.env"
+  buc_doc_shown || return 0
+
+  # No-arg: list available vessels
+  if test -z "${z_vessel_dir}"; then
+    local z_sigils
+    z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
+    local z_sigil_roll=()
+    read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
+    buc_step "Available vessels:"
+    local z_i=0
+    for z_i in "${!z_sigil_roll[@]}"; do
+      buc_bare "        ${RBRR_VESSEL_DIR}/${z_sigil_roll[${z_i}]}"
+    done
+    buc_die_now "Vessel directory required"
+  fi
+
+  # Load and validate vessel
+  zrbfcv_load_vessel "${z_vessel_dir}"
+  test "${RBRV_VESSEL_MODE:-}" = "rbnve_annex" \
+    || buc_die_now "Vessel '${RBRV_SIGIL}' is not an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel (mode: ${RBRV_VESSEL_MODE:-unset})"
+  test -n "${RBRV_ANNEX_IMAGE:-}" \
+    || buc_die_now "RBRV_ANNEX_IMAGE not set for ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel '${RBRV_SIGIL}'"
+
+  # Resolve tool images from reliquary (mirror uses gcrane + about steps from reliquary)
+  zrbfca_resolve_tool_images
+
+  # Dirty-tree guard — mirror stamps HEAD into the about metadata and composes
+  # its cloud step bodies from the working tree; both must match a commit.
+  bug_require_clean_tree_creed "${RBCC_creed_clean_build}"
+
+  # Authenticate as Director
+  buc_step "Authenticating as Director"
+  local zSECRET_token
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get Director OAuth token"
+
+  # Registry preflight -- verify reliquary and base images exist before expensive operations
+  zrbfdp_registry_preflight "${zSECRET_token}" "${z_vessel_dir}"
+
+  # GAR coordinates
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_base="${z_gar_host}/${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+
+  # Generate hallmark timestamps: bYYMMDDHHMMSS-rYYMMDDHHMMSS
+  local -r z_mirror_ts="${RBGC_HALLMARK_PREFIX_ANNEX}${BURD_NOW_STAMP:2:6}${BURD_NOW_STAMP:9:6}"
+  local -r z_build_ts_file="${ZRBFD0_MIRROR_PREFIX}build_ts.txt"
+  date -u +'%y%m%d%H%M%S' > "${z_build_ts_file}" || buc_die_now "Failed to generate build timestamp"
+  local z_build_ts
+  local z_build_ts_raw
+  z_build_ts_raw=$(<"${z_build_ts_file}") || buc_die_now "Failed to read: ${z_build_ts_file}"
+  z_build_ts="r${z_build_ts_raw}"
+  test -n "${z_build_ts}" || buc_die_now "Empty build timestamp from ${z_build_ts_file}"
+  local -r z_hallmark="${z_mirror_ts}-${z_build_ts}"
+
+  buc_info "Hallmark: ${z_hallmark}"
+
+  # Persist to output directory for chaining by rbfdo_ordain
+  echo "${z_vessel_dir}" > "${ZRBFC0_OUTPUT_VESSEL_DIR}" \
+    || buc_die_now "Failed to write vessel dir to output"
+  buf_write_fact_single "${RBF_FACT_HALLMARK}" "${z_hallmark}"
+
+  # Write GAR root fact file
+  buf_write_fact_single "${RBF_FACT_GAR_ROOT}" "${z_gar_base}"
+
+  # Write ark stem fact file (hallmark subtree under HALLMARKS_ROOT)
+  buf_write_fact_single "${RBF_FACT_ARK_STEM}" "${RBGL_HALLMARKS_ROOT}/${z_hallmark}"
+
+  # Write yield fact file (single-platform annex image)
+  buf_write_fact_single "${RBF_FACT_ARK_YIELD}-${RBGC_ARK_BASENAME_IMAGE}" \
+    "${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_hallmark}"
+
+  # Submit combined Cloud Build (gcrane image copy + about steps)
+  zrbfdm_mirror_submit "${z_hallmark}" "${zSECRET_token}"
+
+  # Summary
+  echo "" || buc_die_now "Failed to print mirror summary"
+  buc_success "Mirror complete: ${RBRV_SIGIL}"
+  echo "  Hallmark: ${z_hallmark}" || buc_die_now "Failed to print mirror summary"
+}
+
+######################################################################
+# Internal Functions (zrbfdm_*)
+
+# Internal: submit combined mirror Cloud Build job (gcrane image copy + about steps)
+# Args: hallmark token
+zrbfdm_mirror_submit() {
+  zrbfd0_sentinel
+
+  local -r z_hallmark="${1:-}"
+  local -r zSECRET_token="${2:-}"
+  test -n "${z_hallmark}" || buc_die_now "zrbfdm_mirror_submit: hallmark required"
+  test -n "${zSECRET_token}" || buc_die_now "zrbfdm_mirror_submit: token required"
+
+  buc_step "Constructing combined mirror Cloud Build resource"
+  local -r z_gar_host="${RBGD_GAR_LOCATION}${RBGC_GAR_HOST_SUFFIX}"
+  local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
+  local -r z_mason_sa="projects/${RBDC_DEPOT_PROJECT_ID}/serviceAccounts/${RBGD_MASON_EMAIL}"
+
+  # Step 0: Mirror image via gcrane
+  local -r z_mscript_path="${ZRBFD0_RBGJM_STEPS_DIR}/rbgjm01-mirror-image.sh"
+  test -f "${z_mscript_path}" || buc_die_now "Mirror step script not found: ${z_mscript_path}"
+
+  local -r z_mbody_file="${ZRBFD0_MIRROR_PREFIX}mirror_body.txt"
+  local -r z_mescaped_file="${ZRBFD0_MIRROR_PREFIX}mirror_escaped.txt"
+  local -r z_mirror_step_file="${ZRBFD0_MIRROR_PREFIX}mirror_step.json"
+  local -r z_mirror_step_built="${ZRBFD0_MIRROR_PREFIX}mirror_step_built.json"
+
+  buc_log_args "Reading mirror step script (skip shebang)"
+  zrbfcb_write_script_body "${z_mscript_path}" "${z_mbody_file}" \
+    || buc_die_now "Failed to read mirror step script"
+  local z_mbody
+  z_mbody=$(<"${z_mbody_file}") || buc_die_now "Failed to read: ${z_mbody_file}"
+  test -n "${z_mbody}" || buc_die_now "Empty mirror script body"
+
+  printf '#!/busybox/sh\n%s' "${z_mbody}" > "${z_mescaped_file}" \
+    || buc_die_now "Failed to escape mirror script body"
+
+  echo "[]" > "${z_mirror_step_file}" || buc_die_now "Failed to initialize mirror step JSON"
+  jq \
+    --arg name "${z_rbfc_tool_gcrane}" \
+    --arg id "mirror-image" \
+    --rawfile script "${z_mescaped_file}" \
+    '. + [{name: $name, id: $id, script: $script}]' \
+    "${z_mirror_step_file}" > "${z_mirror_step_built}" \
+    || buc_die_now "Failed to build mirror step JSON"
+  mv "${z_mirror_step_built}" "${z_mirror_step_file}" \
+    || buc_die_now "Failed to finalize mirror step JSON"
+
+  # Steps 1-4: About (shared with standalone about pipeline)
+  local -r z_about_steps_file="${ZRBFD0_MIRROR_PREFIX}about_steps.json"
+  zrbfca_assemble_about_steps "${z_about_steps_file}" "${ZRBFD0_MIRROR_PREFIX}about_"
+
+  # Step 0: in-pool reliquary preflight (defense-in-depth)
+  local -r z_preflight_step_file="${ZRBFD0_MIRROR_PREFIX}preflight_step.json"
+  zrbfca_assemble_preflight_step "${z_preflight_step_file}" "${ZRBFD0_MIRROR_PREFIX}"
+
+  # Combine: preflight step + mirror step + about steps
+  local -r z_combined_steps="${ZRBFD0_MIRROR_PREFIX}combined_steps.json"
+  jq -s '.[0] + .[1] + .[2]' "${z_preflight_step_file}" "${z_mirror_step_file}" "${z_about_steps_file}" \
+    > "${z_combined_steps}" || buc_die_now "Failed to combine preflight, mirror, and about steps"
+
+  # Git metadata (shared temp files, idempotent)
+  zrbfcb_ensure_git_metadata
+  local z_git_commit=""
+  z_git_commit=$(<"${ZRBFC0_GIT_COMMIT_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_COMMIT_FILE}"
+  local z_git_branch=""
+  z_git_branch=$(<"${ZRBFC0_GIT_BRANCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_BRANCH_FILE}"
+  local z_git_repo=""
+  z_git_repo=$(<"${ZRBFC0_GIT_REPO_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_GIT_REPO_FILE}"
+
+  # Mode-specific substitution values for annex
+  local -r z_annex_source="${RBRV_ANNEX_IMAGE:-}"
+  local z_dockerfile_content=""
+  local -r z_dockerfile_max_bytes=4000
+  if test -n "${RBRV_ANNEX_OPTIONAL_DOCKERFILE:-}" && test -f "${RBRV_ANNEX_OPTIONAL_DOCKERFILE}"; then
+    local z_dockerfile_content_status=0
+    z_dockerfile_content=$(<"${RBRV_ANNEX_OPTIONAL_DOCKERFILE}") || z_dockerfile_content_status=$?
+    test "${z_dockerfile_content_status}" -eq 0 || z_dockerfile_content=""
+    if test "${#z_dockerfile_content}" -gt "${z_dockerfile_max_bytes}"; then
+      buc_warn "Dockerfile exceeds 4KB substitution limit (${#z_dockerfile_content} bytes) — recipe.txt omitted"
+      z_dockerfile_content=""
+    fi
+  fi
+
+  # Pool routing: annex uses vessel's egress mode (tether for upstream pulls, airgap if pre-staged)
+  local z_mirror_pool=""
+  case "${RBRV_EGRESS_MODE}" in
+    rbnve_tether) z_mirror_pool="${RBDC_POOL_TETHER}" ;;
+    rbnve_airgap) z_mirror_pool="${RBDC_POOL_AIRGAP}" ;;
+    *) buc_die_now "Unknown RBRV_EGRESS_MODE: ${RBRV_EGRESS_MODE}" ;;
+  esac
+
+  # Compose Build resource JSON
+  buc_log_args "Composing combined mirror Build resource JSON"
+  local -r z_mirror_build_file="${ZRBFD0_MIRROR_PREFIX}build.json"
+
+  jq -n \
+    --slurpfile zjq_steps    "${z_combined_steps}" \
+    --arg zjq_sa             "${z_mason_sa}" \
+    --arg zjq_gar_host       "${z_gar_host}" \
+    --arg zjq_gar_path       "${z_gar_path}" \
+    --arg zjq_hallmarks_root "${RBGL_HALLMARKS_ROOT}" \
+    --arg zjq_hallmark       "${z_hallmark}" \
+    --arg zjq_vessel         "${RBRV_SIGIL}" \
+    --arg zjq_vessel_mode    "rbnve_annex" \
+    --arg zjq_git_commit     "${z_git_commit}" \
+    --arg zjq_git_branch     "${z_git_branch}" \
+    --arg zjq_git_repo       "${z_git_repo}" \
+    --arg zjq_build_id       "" \
+    --arg zjq_inscribe_ts    "" \
+    --arg zjq_annex_source   "${z_annex_source}" \
+    --arg zjq_graft_source   "" \
+    --arg zjq_dockerfile     "${z_dockerfile_content}" \
+    --arg zjq_pool           "${z_mirror_pool}" \
+    --arg zjq_timeout        "${RBRR_GCB_TIMEOUT}" \
+    --arg zjq_basename_image "${RBGC_ARK_BASENAME_IMAGE}" \
+    --arg zjq_basename_about "${RBGC_ARK_BASENAME_ABOUT}" \
+    --arg zjq_basename_diags "${RBGC_ARK_BASENAME_DIAGS}" \
+    --arg zjq_lodes_root     "${RBGL_LODES_ROOT}" \
+    --arg zjq_tag_sprue      "${RBGC_LODE_TAG_SPRUE}" \
+    --arg zjq_reliquary      "${RBRV_RELIQUARY}" \
+    '{
+      steps: $zjq_steps[0],
+      substitutions: {
+        _RBGA_GAR_HOST:              $zjq_gar_host,
+        _RBGA_GAR_PATH:              $zjq_gar_path,
+        _RBGA_HALLMARKS_ROOT:        $zjq_hallmarks_root,
+        _RBGA_HALLMARK:              $zjq_hallmark,
+        _RBGA_VESSEL:                $zjq_vessel,
+        _RBGA_VESSEL_MODE:           $zjq_vessel_mode,
+        _RBGA_GIT_COMMIT:            $zjq_git_commit,
+        _RBGA_GIT_BRANCH:            $zjq_git_branch,
+        _RBGA_GIT_REPO:              $zjq_git_repo,
+        _RBGA_BUILD_ID:              $zjq_build_id,
+        _RBGA_INSCRIBE_TIMESTAMP:    $zjq_inscribe_ts,
+        _RBGA_ANNEX_SOURCE:          $zjq_annex_source,
+        _RBGA_GRAFT_SOURCE:          $zjq_graft_source,
+        _RBGA_DOCKERFILE_CONTENT:    $zjq_dockerfile,
+        _RBGA_ARK_BASENAME_IMAGE:    $zjq_basename_image,
+        _RBGA_ARK_BASENAME_ABOUT:    $zjq_basename_about,
+        _RBGA_ARK_BASENAME_DIAGS:    $zjq_basename_diags,
+        _RBGR_GAR_HOST:              $zjq_gar_host,
+        _RBGR_GAR_PATH:              $zjq_gar_path,
+        _RBGR_LODES_ROOT:            $zjq_lodes_root,
+        _RBGR_TAG_SPRUE:             $zjq_tag_sprue,
+        _RBGR_RELIQUARY:             $zjq_reliquary,
+        _RBGR_BASE_LOCATOR_1:    "",
+        _RBGR_BASE_LOCATOR_2:    "",
+        _RBGR_BASE_LOCATOR_3:    ""
+      },
+      serviceAccount: $zjq_sa,
+      options: {
+        automapSubstitutions: true,
+        logging: "CLOUD_LOGGING_ONLY",
+        pool: { name: $zjq_pool }
+      },
+      timeout: $zjq_timeout
+    }' > "${z_mirror_build_file}" \
+    || buc_die_now "Failed to compose mirror build JSON"
+
+  buc_log_args "Mirror build JSON: ${z_mirror_build_file}"
+
+  rbndb_check "${zSECRET_token}"
+
+  buc_step "Submitting combined mirror Cloud Build"
+  rbuh_json "POST" "${ZRBFC0_GCB_PROJECT_BUILDS_URL}" "${zSECRET_token}" \
+    "mirror_build_create" "${z_mirror_build_file}"
+  rbuh_require_ok "Mirror build submission" "mirror_build_create"
+
+  local z_build_id=""
+  local z_build_id_status=0
+  z_build_id=$(rbuh_json_field_capture "mirror_build_create" '.metadata.build.id') || z_build_id_status=$?
+  test "${z_build_id_status}" -eq 0 || z_build_id=""
+  test -n "${z_build_id}" || buc_die_now "Build ID not found in builds.create response"
+  echo "${z_build_id}" > "${ZRBFC0_BUILD_ID_FILE}" || buc_die_now "Failed to persist build ID"
+
+  local -r z_console_url="${ZRBFC0_CLOUD_QUERY_BASE};region=${RBGD_GCB_REGION}/${z_build_id}?project=${RBGD_GCB_PROJECT_ID}"
+  buc_info "Mirror build submitted: ${z_build_id}"
+  buc_link "Open build in Cloud Console: " "${z_console_url}" "${z_console_url}"
+
+  zrbfcb_wait_build_completion "${ZRBFC0_BUILD_POLL_CEILING_MIRROR}" "Mirror"
+}
+
+# eof

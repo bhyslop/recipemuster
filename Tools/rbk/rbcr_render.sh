@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,16 +24,19 @@
 
 set -euo pipefail
 
+test -z "${ZRBCR_SOURCED:-}" || buc_die_now "Module rbcr multiply sourced - check sourcing hierarchy"
+ZRBCR_SOURCED=1
+
 # Source the actual module from BUK
 ZRBCR_WRAPPER_DIR="${BASH_SOURCE[0]%/*}"
-source "${BURD_BUK_DIR}/bupr_regime.sh"
+source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
 
 # Backward-compatible function aliases
 zrbcr_kindle()       { zbupr_kindle "$@"; }
 zrbcr_sentinel()     { zbupr_sentinel "$@"; }
-rbcr_section_begin() { bupr_section_begin "$@"; }
-rbcr_section_end()   { bupr_section_end "$@"; }
-rbcr_section_item()  { bupr_section_item "$@"; }
-rbcr_item()          { bupr_item "$@"; }
+rbcr_section_begin() { zrbcr_sentinel "$@"; bupr_section_begin "$@"; }
+rbcr_section_end()   { zrbcr_sentinel "$@"; bupr_section_end "$@"; }
+rbcr_section_item()  { zrbcr_sentinel "$@"; bupr_section_item "$@"; }
+rbcr_item()          { zrbcr_sentinel "$@"; bupr_item "$@"; }
 
 # eof

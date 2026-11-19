@@ -6,7 +6,8 @@
 # regime to exist, so this cannot go through dispatch.
 #
 # Reads BURC_STATION_FILE from rbmm_moorings/burc.env, creates the directory,
-# writes a minimal burs.env with BURS_LOG_DIR.
+# writes a complete burs.env from the shared template (Tools/buk/burs_template.sh)
+# — every required BURS field, each preceded by its purpose comment.
 #
 # Idempotent: overwrites any existing station file.
 
@@ -26,8 +27,18 @@ z_station_path="${z_project_root}/${z_station_file}"
 
 mkdir -p "$(dirname "${z_station_path}")"
 
-# Subshell $(whoami) permitted: BUK environment not available in bootstrap tabtarget
-printf '%s\n' "BURS_USER=$(whoami)" > "${z_station_path}"
-printf '%s\n' 'BURS_LOG_DIR=../logs-buk' >> "${z_station_path}"
+# shellcheck source=../Tools/buk/burs_template.sh
+source "${z_script_dir}/../Tools/buk/burs_template.sh"
+
+: > "${z_station_path}"
+for z_i in "${!ZBURS_TEMPLATE_NAMES[@]}"; do
+  z_name="${ZBURS_TEMPLATE_NAMES[${z_i}]}"
+  z_value="${ZBURS_TEMPLATE_VALUES[${z_i}]}"
+  # BURS_USER gets the real local username, not the display placeholder.
+  # Subshell $(whoami) permitted: BUK environment not available in bootstrap tabtarget.
+  test "${z_name}" = "BURS_USER" && z_value="$(whoami)"
+  printf '# %s\n' "${ZBURS_TEMPLATE_COMMENTS[${z_i}]}" >> "${z_station_path}"
+  printf '%s=%s\n' "${z_name}" "${z_value}" >> "${z_station_path}"
+done
 
 echo "Station regime created: ${z_station_path}"

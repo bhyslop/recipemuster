@@ -1,4 +1,5 @@
 // Copyright 2026 Scale Invariant, Inc.
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,54 +18,82 @@
 // RBIDA_SORTIES — ported python sorties (rbtis_*.py) as ifrit attack variants
 //
 // Each sortie was originally a python module in Tools/rbk/rbtid/. This module
-// reproduces the same security checks in Rust, producing a single rbida_Verdict
+// reproduces the same security checks in Rust, producing a single rbtica_Verdict
 // (PASS if all sub-checks pass, FAIL on first failure).
 //
 // Faithful port: same attack surfaces, same verdicts. Env vars read from
 // container environment (injected from nameplate via compose).
 
-use std::io::{Read as IoRead, Write as IoWrite};
+use std::io::{
+    Read as IoRead,
+    Write as IoWrite, //
+};
 use std::mem::MaybeUninit;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4, TcpStream, UdpSocket};
+use std::net::{
+    Ipv4Addr,
+    SocketAddr,
+    SocketAddrV4,
+    TcpStream,
+    UdpSocket, //
+};
 use std::os::unix::io::AsRawFd;
 use std::process::Command;
-use std::time::{Duration, Instant};
+use std::time::{
+    Duration,
+    Instant, //
+};
 
-use crate::rbida_attacks::{rbida_Verdict, RBIDA_CONNECTIVITY_DOMAIN};
+use crate::rbtica_attacks::{
+    rbtica_Verdict,
+    RBTICA_CONNECTIVITY_DOMAIN, //
+};
 
-const RBIDA_HTTP_BODY_MARKER_INTERNIC: &str = "InterNIC";
+const RBTICS_HTTP_BODY_MARKER_INTERNIC: &str = "InterNIC";
 
 // ── Helpers ──────────────────────────────────────────────────
 
-fn env_require(name: &str) -> Result<String, String> {
-    std::env::var(name).map_err(|_| format!("missing env var: {}", name))
+fn rbtics_env_require(name: &str) -> Result<String, String> {
+    std::env::var(name).map_err(|_| {
+        format!(
+            "missing env var: {}",
+            name, //
+        )
+    })
 }
 
-fn fail(detail: String) -> rbida_Verdict {
-    rbida_Verdict {
+fn rbtics_fail(detail: String) -> rbtica_Verdict {
+    rbtica_Verdict {
         passed: false,
         detail,
     }
 }
 
-fn pass(detail: String) -> rbida_Verdict {
-    rbida_Verdict {
+fn rbtics_pass(detail: String) -> rbtica_Verdict {
+    rbtica_Verdict {
         passed: true,
         detail,
     }
 }
 
-fn random_hex(n: usize) -> String {
+fn rbtics_random_hex(n: usize) -> String {
     let mut buf = vec![0u8; (n + 1) / 2];
     if let Ok(mut f) = std::fs::File::open("/dev/urandom") {
         let _ = IoRead::read_exact(&mut f, &mut buf);
     }
-    let hex: String = buf.iter().map(|b| format!("{:02x}", b)).collect();
+    let hex: String = buf
+        .iter()
+        .map(|b| {
+            format!(
+                "{:02x}",
+                b, //
+            )
+        })
+        .collect();
     hex[..n.min(hex.len())].to_string()
 }
 
 /// Resolve a name via dig +short, return first IP or None.
-fn dig_resolve(name: &str) -> Option<String> {
+fn rbtics_dig_resolve(name: &str) -> Option<String> {
     let output = Command::new("dig")
         .args(["+short", "A", name])
         .output()
@@ -72,12 +101,7 @@ fn dig_resolve(name: &str) -> Option<String> {
     let stdout = String::from_utf8_lossy(&output.stdout);
     for line in stdout.lines() {
         let trimmed = line.trim();
-        if !trimmed.is_empty()
-            && trimmed
-                .chars()
-                .next()
-                .map_or(false, |c| c.is_ascii_digit())
-        {
+        if !trimmed.is_empty() && trimmed.chars().next().map_or(false, |c| c.is_ascii_digit()) {
             return Some(trimmed.to_string());
         }
     }
@@ -85,8 +109,14 @@ fn dig_resolve(name: &str) -> Option<String> {
 }
 
 /// TCP connect probe. Returns (connected, refused, error_msg).
-fn tcp_probe(host: &str, port: u16, timeout: Duration) -> (bool, bool, Option<String>) {
-    let addr: SocketAddr = match format!("{}:{}", host, port).parse() {
+fn rbtics_tcp_probe(host: &str, port: u16, timeout: Duration) -> (bool, bool, Option<String>) {
+    let addr: SocketAddr = match format!(
+        "{}:{}",
+        host,
+        port, //
+    )
+    .parse()
+    {
         Ok(a) => a,
         Err(e) => return (false, false, Some(e.to_string())),
     };
@@ -101,14 +131,20 @@ fn tcp_probe(host: &str, port: u16, timeout: Duration) -> (bool, bool, Option<St
 }
 
 /// Minimal HTTP GET via raw TCP. Returns (connected, status_code, error).
-fn http_get_raw(
+fn rbtics_http_get_raw(
     host: &str,
     port: u16,
     path: &str,
     headers: &[(&str, &str)],
     timeout: Duration,
 ) -> (bool, Option<u16>, Option<String>) {
-    let addr: SocketAddr = match format!("{}:{}", host, port).parse() {
+    let addr: SocketAddr = match format!(
+        "{}:{}",
+        host,
+        port, //
+    )
+    .parse()
+    {
         Ok(a) => a,
         Err(e) => return (false, None, Some(e.to_string())),
     };
@@ -116,9 +152,17 @@ fn http_get_raw(
         Ok(mut stream) => {
             let _ = stream.set_read_timeout(Some(timeout));
             let _ = stream.set_write_timeout(Some(timeout));
-            let mut req = format!("GET {} HTTP/1.0\r\nHost: {}\r\n", path, host);
+            let mut req = format!(
+                "GET {} HTTP/1.0\r\nHost: {}\r\n",
+                path,
+                host, //
+            );
             for (k, v) in headers {
-                req.push_str(&format!("{}: {}\r\n", k, v));
+                req.push_str(&format!(
+                    "{}: {}\r\n",
+                    k,
+                    v, //
+                ));
             }
             req.push_str("\r\n");
             if stream.write_all(req.as_bytes()).is_err() {
@@ -141,7 +185,7 @@ fn http_get_raw(
 }
 
 /// IP/ICMP checksum computation.
-fn ip_checksum(data: &[u8]) -> u16 {
+fn rbtics_ip_checksum(data: &[u8]) -> u16 {
     let mut sum = 0u32;
     let mut i = 0;
     while i + 1 < data.len() {
@@ -158,12 +202,12 @@ fn ip_checksum(data: &[u8]) -> u16 {
 }
 
 /// Cast a &mut [u8] to &mut [MaybeUninit<u8>] for socket2 recv.
-fn as_uninit(buf: &mut [u8]) -> &mut [MaybeUninit<u8>] {
+fn rbtics_as_uninit(buf: &mut [u8]) -> &mut [MaybeUninit<u8>] {
     unsafe { std::slice::from_raw_parts_mut(buf.as_mut_ptr() as *mut MaybeUninit<u8>, buf.len()) }
 }
 
 /// Build ICMP echo request packet with payload.
-fn build_icmp_echo(payload: &[u8], seq: u16) -> Vec<u8> {
+fn rbtics_build_icmp_echo(payload: &[u8], seq: u16) -> Vec<u8> {
     let ident = std::process::id() as u16;
     let mut pkt = Vec::with_capacity(8 + payload.len());
     pkt.push(8); // type: echo request
@@ -172,29 +216,50 @@ fn build_icmp_echo(payload: &[u8], seq: u16) -> Vec<u8> {
     pkt.extend_from_slice(&ident.to_be_bytes());
     pkt.extend_from_slice(&seq.to_be_bytes());
     pkt.extend_from_slice(payload);
-    let cksum = ip_checksum(&pkt);
+    let cksum = rbtics_ip_checksum(&pkt);
     pkt[2..4].copy_from_slice(&cksum.to_be_bytes());
     pkt
 }
 
 /// Send ICMP echo request and wait for reply. Returns Ok(replied).
-fn send_icmp(dest: &str, payload: &[u8], seq: u16, timeout: Duration) -> Result<bool, String> {
-    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| format!("bad IP: {}", e))?;
+fn rbtics_send_icmp(
+    dest: &str,
+    payload: &[u8],
+    seq: u16,
+    timeout: Duration,
+) -> Result<bool, String> {
+    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| {
+        format!(
+            "bad IP: {}",
+            e, //
+        )
+    })?;
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dest_addr, 0));
     let socket = socket2::Socket::new(
         socket2::Domain::IPV4,
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_ICMP as i32)),
     )
-    .map_err(|e| format!("ICMP socket: {}", e))?;
-    socket
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("timeout: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "ICMP socket: {}",
+            e, //
+        )
+    })?;
+    socket.set_read_timeout(Some(timeout)).map_err(|e| {
+        format!(
+            "timeout: {}",
+            e, //
+        )
+    })?;
 
-    let pkt = build_icmp_echo(payload, seq);
-    socket
-        .send_to(&pkt, &sock_addr)
-        .map_err(|e| format!("sendto: {}", e))?;
+    let pkt = rbtics_build_icmp_echo(payload, seq);
+    socket.send_to(&pkt, &sock_addr).map_err(|e| {
+        format!(
+            "sendto: {}",
+            e, //
+        )
+    })?;
 
     let ident = std::process::id() as u16;
     let mut buf = [0u8; 4096];
@@ -205,7 +270,7 @@ fn send_icmp(dest: &str, payload: &[u8], seq: u16, timeout: Duration) -> Result<
             return Ok(false);
         }
         let _ = socket.set_read_timeout(Some(remaining));
-        match socket.recv_from(as_uninit(&mut buf)) {
+        match socket.recv_from(rbtics_as_uninit(&mut buf)) {
             Ok((n, _)) if n >= 28 => {
                 if buf[20] == 0 && u16::from_be_bytes([buf[24], buf[25]]) == ident {
                     return Ok(true); // Echo reply with matching ID
@@ -218,24 +283,42 @@ fn send_icmp(dest: &str, payload: &[u8], seq: u16, timeout: Duration) -> Result<
             {
                 return Ok(false);
             }
-            Err(e) => return Err(format!("recv: {}", e)),
+            Err(e) => {
+                return Err(format!(
+                    "recv: {}",
+                    e, //
+                ));
+            }
         }
     }
 }
 
 /// Send ICMP timestamp request (type 13) and check for reply (type 14).
-fn send_icmp_timestamp(dest: &str, timeout: Duration) -> Result<bool, String> {
-    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| format!("bad IP: {}", e))?;
+fn rbtics_send_icmp_timestamp(dest: &str, timeout: Duration) -> Result<bool, String> {
+    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| {
+        format!(
+            "bad IP: {}",
+            e, //
+        )
+    })?;
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dest_addr, 0));
     let socket = socket2::Socket::new(
         socket2::Domain::IPV4,
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_ICMP as i32)),
     )
-    .map_err(|e| format!("ICMP socket: {}", e))?;
-    socket
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("timeout: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "ICMP socket: {}",
+            e, //
+        )
+    })?;
+    socket.set_read_timeout(Some(timeout)).map_err(|e| {
+        format!(
+            "timeout: {}",
+            e, //
+        )
+    })?;
 
     let ident = std::process::id() as u16;
     let ts = std::time::SystemTime::now()
@@ -251,26 +334,44 @@ fn send_icmp_timestamp(dest: &str, timeout: Duration) -> Result<bool, String> {
     pkt.extend_from_slice(&ts.to_be_bytes());
     pkt.extend_from_slice(&0u32.to_be_bytes());
     pkt.extend_from_slice(&0u32.to_be_bytes());
-    let cksum = ip_checksum(&pkt);
+    let cksum = rbtics_ip_checksum(&pkt);
     pkt[2..4].copy_from_slice(&cksum.to_be_bytes());
 
-    socket
-        .send_to(&pkt, &sock_addr)
-        .map_err(|e| format!("sendto: {}", e))?;
+    socket.send_to(&pkt, &sock_addr).map_err(|e| {
+        format!(
+            "sendto: {}",
+            e, //
+        )
+    })?;
 
     let mut buf = [0u8; 4096];
-    match socket.recv_from(as_uninit(&mut buf)) {
+    match socket.recv_from(rbtics_as_uninit(&mut buf)) {
         Ok((n, _)) if n > 20 => Ok(buf[20] == 14),
         _ => Ok(false),
     }
 }
 
 /// Build an IPv4 header for raw IP_HDRINCL packets.
-fn build_ip_header(proto: u8, src: &str, dst: &str, payload_len: usize) -> Result<Vec<u8>, String> {
-    let src_ip: Ipv4Addr = src.parse().map_err(|e| format!("bad src IP: {}", e))?;
-    let dst_ip: Ipv4Addr = dst.parse().map_err(|e| format!("bad dst IP: {}", e))?;
+fn rbtics_build_ip_header(
+    proto: u8,
+    src: &str,
+    dst: &str,
+    payload_len: usize,
+) -> Result<Vec<u8>, String> {
+    let src_ip: Ipv4Addr = src.parse().map_err(|e| {
+        format!(
+            "bad src IP: {}",
+            e, //
+        )
+    })?;
+    let dst_ip: Ipv4Addr = dst.parse().map_err(|e| {
+        format!(
+            "bad dst IP: {}",
+            e, //
+        )
+    })?;
     let total_len = 20u16 + payload_len as u16;
-    let ident_bytes = random_hex(4);
+    let ident_bytes = rbtics_random_hex(4);
     let ident = u16::from_str_radix(&ident_bytes, 16).unwrap_or(0x1234);
 
     let mut hdr = Vec::with_capacity(20);
@@ -284,14 +385,14 @@ fn build_ip_header(proto: u8, src: &str, dst: &str, payload_len: usize) -> Resul
     hdr.extend_from_slice(&[0, 0]); // checksum placeholder
     hdr.extend_from_slice(&src_ip.octets());
     hdr.extend_from_slice(&dst_ip.octets());
-    let cksum = ip_checksum(&hdr);
+    let cksum = rbtics_ip_checksum(&hdr);
     hdr[10..12].copy_from_slice(&cksum.to_be_bytes());
     Ok(hdr)
 }
 
 /// Build TCP SYN segment (20 bytes, no options).
-fn build_tcp_syn(src_port: u16, dst_port: u16) -> Vec<u8> {
-    let seq_bytes = random_hex(8);
+fn rbtics_build_tcp_syn(src_port: u16, dst_port: u16) -> Vec<u8> {
+    let seq_bytes = rbtics_random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
     let data_offset_flags: u16 = (5 << 12) | 0x002; // SYN
     let mut seg = Vec::with_capacity(20);
@@ -307,12 +408,17 @@ fn build_tcp_syn(src_port: u16, dst_port: u16) -> Vec<u8> {
 }
 
 /// Send a raw IP_HDRINCL packet and listen for TCP response.
-fn send_raw_ip_and_listen(
+fn rbtics_send_raw_ip_and_listen(
     packet: &[u8],
     dst: &str,
     timeout: Duration,
 ) -> Result<bool, String> {
-    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| format!("bad IP: {}", e))?;
+    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| {
+        format!(
+            "bad IP: {}",
+            e, //
+        )
+    })?;
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dst_addr, 0));
 
     // Send with IP_HDRINCL
@@ -321,7 +427,12 @@ fn send_raw_ip_and_listen(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_RAW as i32)),
     )
-    .map_err(|e| format!("raw socket: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "raw socket: {}",
+            e, //
+        )
+    })?;
     unsafe {
         let val: libc::c_int = 1;
         libc::setsockopt(
@@ -332,9 +443,12 @@ fn send_raw_ip_and_listen(
             std::mem::size_of::<libc::c_int>() as libc::socklen_t,
         );
     }
-    send_sock
-        .send_to(packet, &sock_addr)
-        .map_err(|e| format!("sendto: {}", e))?;
+    send_sock.send_to(packet, &sock_addr).map_err(|e| {
+        format!(
+            "sendto: {}",
+            e, //
+        )
+    })?;
 
     // Listen for TCP response
     let listen_sock = socket2::Socket::new(
@@ -342,10 +456,18 @@ fn send_raw_ip_and_listen(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_TCP as i32)),
     )
-    .map_err(|e| format!("listen socket: {}", e))?;
-    listen_sock
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("timeout: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "listen socket: {}",
+            e, //
+        )
+    })?;
+    listen_sock.set_read_timeout(Some(timeout)).map_err(|e| {
+        format!(
+            "timeout: {}",
+            e, //
+        )
+    })?;
 
     let mut buf = [0u8; 4096];
     let deadline = Instant::now() + timeout;
@@ -355,7 +477,7 @@ fn send_raw_ip_and_listen(
             return Ok(false);
         }
         let _ = listen_sock.set_read_timeout(Some(remaining));
-        match listen_sock.recv_from(as_uninit(&mut buf)) {
+        match listen_sock.recv_from(rbtics_as_uninit(&mut buf)) {
             Ok((n, addr)) => {
                 let from_ip = addr
                     .as_socket_ipv4()
@@ -377,13 +499,18 @@ fn send_raw_ip_and_listen(
 }
 
 /// Send a raw protocol packet (not IP_HDRINCL) and listen for response.
-fn send_raw_proto(
+fn rbtics_send_raw_proto(
     dest: &str,
     proto: i32,
     payload: &[u8],
     timeout: Duration,
 ) -> Result<bool, String> {
-    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| format!("bad IP: {}", e))?;
+    let dest_addr: Ipv4Addr = dest.parse().map_err(|e| {
+        format!(
+            "bad IP: {}",
+            e, //
+        )
+    })?;
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dest_addr, 0));
 
     let socket = socket2::Socket::new(
@@ -391,17 +518,29 @@ fn send_raw_proto(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(proto)),
     )
-    .map_err(|e| format!("raw socket proto {}: {}", proto, e))?;
-    socket
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("timeout: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "raw socket proto {}: {}",
+            proto,
+            e, //
+        )
+    })?;
+    socket.set_read_timeout(Some(timeout)).map_err(|e| {
+        format!(
+            "timeout: {}",
+            e, //
+        )
+    })?;
 
-    socket
-        .send_to(payload, &sock_addr)
-        .map_err(|e| format!("sendto: {}", e))?;
+    socket.send_to(payload, &sock_addr).map_err(|e| {
+        format!(
+            "sendto: {}",
+            e, //
+        )
+    })?;
 
     let mut buf = [0u8; 4096];
-    match socket.recv_from(as_uninit(&mut buf)) {
+    match socket.recv_from(rbtics_as_uninit(&mut buf)) {
         Ok((_, addr)) => {
             let from_ip = addr
                 .as_socket_ipv4()
@@ -414,7 +553,7 @@ fn send_raw_proto(
 }
 
 /// Build an IP fragment with IP_HDRINCL.
-fn build_ip_fragment(
+fn rbtics_build_ip_fragment(
     src: &str,
     dst: &str,
     proto: u8,
@@ -423,8 +562,18 @@ fn build_ip_fragment(
     frag_offset: u16,
     more_fragments: bool,
 ) -> Result<Vec<u8>, String> {
-    let src_ip: Ipv4Addr = src.parse().map_err(|e| format!("bad src: {}", e))?;
-    let dst_ip: Ipv4Addr = dst.parse().map_err(|e| format!("bad dst: {}", e))?;
+    let src_ip: Ipv4Addr = src.parse().map_err(|e| {
+        format!(
+            "bad src: {}",
+            e, //
+        )
+    })?;
+    let dst_ip: Ipv4Addr = dst.parse().map_err(|e| {
+        format!(
+            "bad dst: {}",
+            e, //
+        )
+    })?;
     let total_len = 20u16 + payload.len() as u16;
     let mut flags_frag = frag_offset & 0x1FFF;
     if more_fragments {
@@ -442,19 +591,24 @@ fn build_ip_fragment(
     hdr.extend_from_slice(&[0, 0]); // checksum placeholder
     hdr.extend_from_slice(&src_ip.octets());
     hdr.extend_from_slice(&dst_ip.octets());
-    let cksum = ip_checksum(&hdr);
+    let cksum = rbtics_ip_checksum(&hdr);
     hdr[10..12].copy_from_slice(&cksum.to_be_bytes());
     hdr.extend_from_slice(payload);
     Ok(hdr)
 }
 
 /// Send a list of IP fragments via raw socket and listen for TCP response.
-fn send_fragments_and_listen(
+fn rbtics_send_fragments_and_listen(
     dst: &str,
     fragments: &[Vec<u8>],
     timeout: Duration,
 ) -> Result<bool, String> {
-    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| format!("bad IP: {}", e))?;
+    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| {
+        format!(
+            "bad IP: {}",
+            e, //
+        )
+    })?;
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dst_addr, 0));
 
     let send_sock = socket2::Socket::new(
@@ -462,7 +616,12 @@ fn send_fragments_and_listen(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_RAW as i32)),
     )
-    .map_err(|e| format!("raw socket: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "raw socket: {}",
+            e, //
+        )
+    })?;
     unsafe {
         let val: libc::c_int = 1;
         libc::setsockopt(
@@ -474,9 +633,12 @@ fn send_fragments_and_listen(
         );
     }
     for frag in fragments {
-        send_sock
-            .send_to(frag, &sock_addr)
-            .map_err(|e| format!("sendto: {}", e))?;
+        send_sock.send_to(frag, &sock_addr).map_err(|e| {
+            format!(
+                "sendto: {}",
+                e, //
+            )
+        })?;
     }
 
     let listen_sock = socket2::Socket::new(
@@ -484,10 +646,18 @@ fn send_fragments_and_listen(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_TCP as i32)),
     )
-    .map_err(|e| format!("listen socket: {}", e))?;
-    listen_sock
-        .set_read_timeout(Some(timeout))
-        .map_err(|e| format!("timeout: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "listen socket: {}",
+            e, //
+        )
+    })?;
+    listen_sock.set_read_timeout(Some(timeout)).map_err(|e| {
+        format!(
+            "timeout: {}",
+            e, //
+        )
+    })?;
 
     let mut buf = [0u8; 4096];
     let deadline = Instant::now() + timeout;
@@ -497,7 +667,7 @@ fn send_fragments_and_listen(
             return Ok(false);
         }
         let _ = listen_sock.set_read_timeout(Some(remaining));
-        match listen_sock.recv_from(as_uninit(&mut buf)) {
+        match listen_sock.recv_from(rbtics_as_uninit(&mut buf)) {
             Ok((_, addr)) => {
                 let from_ip = addr
                     .as_socket_ipv4()
@@ -519,7 +689,7 @@ fn send_fragments_and_listen(
 }
 
 /// Get IPv6 addresses by scope via `ip -6 addr show scope <scope>`.
-fn get_ipv6_addrs(scope: &str) -> Vec<String> {
+fn rbtics_get_ipv6_addrs(scope: &str) -> Vec<String> {
     let mut addrs = Vec::new();
     if let Ok(output) = Command::new("ip")
         .args(["-6", "addr", "show", "scope", scope])
@@ -541,11 +711,8 @@ fn get_ipv6_addrs(scope: &str) -> Vec<String> {
 }
 
 /// Check if ip6tables has DROP default policies.
-fn check_ip6tables_drop() -> bool {
-    if let Ok(output) = Command::new("ip6tables")
-        .args(["-L", "-n"])
-        .output()
-    {
+fn rbtics_check_ip6tables_drop() -> bool {
+    if let Ok(output) = Command::new("ip6tables").args(["-L", "-n"]).output() {
         let stdout = String::from_utf8_lossy(&output.stdout);
         stdout.contains("policy DROP")
     } else {
@@ -554,14 +721,17 @@ fn check_ip6tables_drop() -> bool {
 }
 
 /// Get interface name and MAC from /sys/class/net/.
-fn get_interface_info() -> Option<(String, String)> {
+fn rbtics_get_interface_info() -> Option<(String, String)> {
     let entries = std::fs::read_dir("/sys/class/net").ok()?;
     for entry in entries.flatten() {
         let name = entry.file_name().to_string_lossy().to_string();
         if !name.starts_with("eth") {
             continue;
         }
-        let mac_path = format!("/sys/class/net/{}/address", name);
+        let mac_path = format!(
+            "/sys/class/net/{}/address",
+            name, //
+        );
         if let Ok(mac) = std::fs::read_to_string(&mac_path) {
             let mac = mac.trim().to_string();
             // Valid Ethernet MAC: 6 octets = exactly 5 colons
@@ -574,7 +744,7 @@ fn get_interface_info() -> Option<(String, String)> {
 }
 
 /// Get sentry MAC from /proc/net/arp.
-fn get_sentry_mac(sentry_ip: &str) -> Option<String> {
+fn rbtics_get_sentry_mac(sentry_ip: &str) -> Option<String> {
     // Ping to ensure ARP entry
     let _ = Command::new("ping")
         .args(["-c", "1", "-W", "1", sentry_ip])
@@ -594,124 +764,177 @@ fn get_sentry_mac(sentry_ip: &str) -> Option<String> {
 }
 
 /// Convert "aa:bb:cc:dd:ee:ff" to 6-byte array.
-fn mac_to_bytes(mac: &str) -> Result<[u8; 6], String> {
+fn rbtics_mac_to_bytes(mac: &str) -> Result<[u8; 6], String> {
     let parts: Vec<&str> = mac.split(':').collect();
     if parts.len() != 6 {
-        return Err(format!("invalid MAC: {}", mac));
+        return Err(format!(
+            "invalid MAC: {}",
+            mac, //
+        ));
     }
     let mut bytes = [0u8; 6];
     for (i, part) in parts.iter().enumerate() {
-        bytes[i] = u8::from_str_radix(part, 16).map_err(|_| format!("invalid MAC byte: {}", part))?;
+        bytes[i] = u8::from_str_radix(part, 16).map_err(|_| {
+            format!(
+                "invalid MAC byte: {}",
+                part, //
+            )
+        })?;
     }
     Ok(bytes)
 }
 
 // ── Sortie 1: dns_exfil_subdomain ────────────────────────────
 
-pub fn sortie_dns_exfil_subdomain(_extra_args: &[&str]) -> rbida_Verdict {
-    let domains_str = match env_require("RBRN_UPLINK_ALLOWED_DOMAINS") {
+pub fn rbtics_sortie_dns_exfil_subdomain(_extra_args: &[&str]) -> rbtica_Verdict {
+    let domains_str = match rbtics_env_require("RBRN_UPLINK_ALLOWED_DOMAINS") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let domains: Vec<&str> = domains_str.split_whitespace().collect();
     if domains.is_empty() {
-        return fail("ERROR: RBRN_UPLINK_ALLOWED_DOMAINS is empty".to_string());
+        return rbtics_fail("ERROR: RBRN_UPLINK_ALLOWED_DOMAINS is empty".to_string());
     }
 
     // Resolve parent domains to get baseline frozen IPs
     let mut parent_ips: Vec<(&str, String)> = Vec::new();
     for domain in &domains {
-        match dig_resolve(domain) {
+        match rbtics_dig_resolve(domain) {
             Some(ip) => parent_ips.push((domain, ip)),
             None => {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "ERROR: cannot resolve parent domain {} — DNS may be down",
-                    domain
-                ))
+                    domain, //
+                ));
             }
         }
     }
 
     // Fabricated subdomains — must resolve to parent IP (local config) not NXDOMAIN (forwarded)
     for (domain, parent_ip) in &parent_ips {
-        let nonce = random_hex(12);
-        let fabricated = format!("exfil-{}.{}", nonce, domain);
-        match dig_resolve(&fabricated) {
+        let nonce = rbtics_random_hex(12);
+        let fabricated = format!(
+            "exfil-{}.{}",
+            nonce,
+            domain, //
+        );
+        match rbtics_dig_resolve(&fabricated) {
             Some(ref ip) if ip == parent_ip => {} // Local config answer — SECURE
             Some(ip) => {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: {} -> {} (expected {}) — subdomain forwarded upstream",
-                    fabricated, ip, parent_ip
-                ))
+                    fabricated,
+                    ip,
+                    parent_ip, //
+                ));
             }
             None => {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: {} -> NXDOMAIN — query forwarded upstream, data exfiltrated in subdomain labels",
-                    fabricated
-                ))
+                    fabricated, //
+                ));
             }
         }
     }
 
     // Encoded payload subdomain — simulates actual data exfiltration
-    let payload_label = random_hex(32);
-    let nonce = random_hex(8);
+    let payload_label = rbtics_random_hex(32);
+    let nonce = rbtics_random_hex(8);
     let test_domain = domains[0];
-    let encoded_fqdn = format!("{}.{}.{}", payload_label, nonce, test_domain);
+    let encoded_fqdn = format!(
+        "{}.{}.{}",
+        payload_label,
+        nonce,
+        test_domain, //
+    );
     let parent_ip = &parent_ips[0].1;
-    match dig_resolve(&encoded_fqdn) {
+    match rbtics_dig_resolve(&encoded_fqdn) {
         Some(ref ip) if ip == parent_ip => {}
         _ => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: {} — payload reached upstream (exfiltration channel open)",
-                encoded_fqdn
-            ))
+                encoded_fqdn, //
+            ));
         }
     }
 
     // Control — non-allowed domain should get NXDOMAIN
-    if dig_resolve("evil-c2-server.invalid").is_some() {
-        return fail("BREACH: non-allowed domain resolved — allowlist broken".to_string());
+    if rbtics_dig_resolve("evil-c2-server.invalid").is_some() {
+        return rbtics_fail("BREACH: non-allowed domain resolved — allowlist broken".to_string());
     }
 
-    pass("SECURE: DNS subdomain exfiltration channel closed — all queries answered locally".to_string())
+    rbtics_pass(
+        "SECURE: DNS subdomain exfiltration channel closed — all queries answered locally"
+            .to_string(),
+    )
 }
 
 // ── Sortie 2: meta_cloud_endpoint ────────────────────────────
 
-pub fn sortie_meta_cloud_endpoint(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_meta_cloud_endpoint(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let metadata_ip = "169.254.169.254";
     let timeout = Duration::from_secs(3);
 
     // TCP connect to metadata IP
-    let (connected, _, _) = tcp_probe(metadata_ip, 80, timeout);
+    let (connected, _, _) = rbtics_tcp_probe(metadata_ip, 80, timeout);
     if connected {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: TCP connect to {}:80 succeeded — metadata endpoint reachable",
-            metadata_ip
+            metadata_ip, //
         ));
     }
 
     // Probe cloud provider metadata paths
     let probes: &[(&str, &str, &[(&str, &str)])] = &[
-        ("GCP metadata", "/computeMetadata/v1/", &[("Metadata-Flavor", "Google")]),
-        ("GCP project ID", "/computeMetadata/v1/project/project-id", &[("Metadata-Flavor", "Google")]),
-        ("GCP SA token", "/computeMetadata/v1/instance/service-accounts/default/token", &[("Metadata-Flavor", "Google")]),
+        (
+            "GCP metadata",
+            "/computeMetadata/v1/",
+            &[("Metadata-Flavor", "Google")],
+        ),
+        (
+            "GCP project ID",
+            "/computeMetadata/v1/project/project-id",
+            &[("Metadata-Flavor", "Google")],
+        ),
+        (
+            "GCP SA token",
+            "/computeMetadata/v1/instance/service-accounts/default/token",
+            &[("Metadata-Flavor", "Google")],
+        ),
         ("AWS metadata", "/latest/meta-data/", &[]),
-        ("AWS IAM creds", "/latest/meta-data/iam/security-credentials/", &[]),
-        ("Azure metadata", "/metadata/instance?api-version=2021-02-01", &[("Metadata", "true")]),
+        (
+            "AWS IAM creds",
+            "/latest/meta-data/iam/security-credentials/",
+            &[],
+        ),
+        (
+            "Azure metadata",
+            "/metadata/instance?api-version=2021-02-01",
+            &[("Metadata", "true")],
+        ),
     ];
     for (label, path, headers) in probes {
-        let (_, status, _) = http_get_raw(metadata_ip, 80, path, headers, timeout);
+        let (_, status, _) = rbtics_http_get_raw(metadata_ip, 80, path, headers, timeout);
         if let Some(code) = status {
             if matches!(code, 200 | 301 | 302 | 401 | 403) {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: {} HTTP {} — metadata endpoint responded",
-                    label, code
+                    label,
+                    code, //
                 ));
             }
         }
@@ -719,38 +942,42 @@ pub fn sortie_meta_cloud_endpoint(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Alternate metadata ports
     for port in [8080u16, 8775] {
-        let (connected, _, _) = tcp_probe(metadata_ip, port, Duration::from_secs(2));
+        let (connected, _, _) = rbtics_tcp_probe(metadata_ip, port, Duration::from_secs(2));
         if connected {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: TCP {}:{} connected — alternate metadata port open",
-                metadata_ip, port
+                metadata_ip,
+                port, //
             ));
         }
     }
 
     // HTTP proxy via sentry to metadata
-    let (_, status, _) = http_get_raw(
+    let (_, status, _) = rbtics_http_get_raw(
         &sentry_ip,
         80,
-        &format!("http://{}/", metadata_ip),
+        &format!(
+            "http://{}/",
+            metadata_ip, //
+        ),
         &[],
         Duration::from_secs(2),
     );
     if let Some(code) = status {
         if matches!(code, 200 | 301 | 302) {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: HTTP proxy via sentry to metadata succeeded (status {})",
-                code
+                code, //
             ));
         }
     }
 
-    pass("SECURE: cloud metadata endpoint unreachable from enclave".to_string())
+    rbtics_pass("SECURE: cloud metadata endpoint unreachable from enclave".to_string())
 }
 
 // ── Sortie 3: net_forbidden_cidr ─────────────────────────────
 
-pub fn sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(3);
 
     // TCP to forbidden destinations
@@ -761,14 +988,14 @@ pub fn sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbida_Verdict {
         ("140.82.121.4", 443, "GitHub"),
     ];
     for (host, port, label) in forbidden_tcp {
-        let (connected, refused, _) = tcp_probe(host, *port, timeout);
+        let (connected, refused, _) = rbtics_tcp_probe(host, *port, timeout);
         if connected || refused {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: TCP {}:{} ({}) — {} (packet escaped enclave)",
                 host,
                 port,
                 label,
-                if connected { "CONNECTED" } else { "REFUSED" }
+                if connected { "CONNECTED" } else { "REFUSED" }, //
             ));
         }
     }
@@ -776,16 +1003,25 @@ pub fn sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbida_Verdict {
     // UDP to forbidden destinations
     let dns_probe_payload =
         b"\xAA\xBB\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x07example\x03com\x00\x00\x01\x00\x01";
-    for (host, label) in &[("8.8.8.8", "Google DNS UDP"), ("1.1.1.1", "Cloudflare DNS UDP")] {
-        if let Ok(addr) = format!("{}:53", host).parse::<SocketAddr>() {
+    for (host, label) in &[
+        ("8.8.8.8", "Google DNS UDP"),
+        ("1.1.1.1", "Cloudflare DNS UDP"),
+    ] {
+        if let Ok(addr) = format!(
+            "{}:53",
+            host, //
+        )
+        .parse::<SocketAddr>()
+        {
             if let Ok(sock) = UdpSocket::bind("0.0.0.0:0") {
                 let _ = sock.set_read_timeout(Some(timeout));
                 let _ = sock.send_to(dns_probe_payload, addr);
                 let mut buf = [0u8; 4096];
                 if sock.recv_from(&mut buf).is_ok() {
-                    return fail(format!(
+                    return rbtics_fail(format!(
                         "BREACH: UDP {}:53 ({}) — response received (packet escaped)",
-                        host, label
+                        host,
+                        label, //
                     ));
                 }
             }
@@ -793,91 +1029,143 @@ pub fn sortie_net_forbidden_cidr(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // Additional forbidden cloud IPs on 443
-    for (host, label) in &[("52.20.0.1", "AWS us-east-1"), ("35.190.0.1", "GCP frontend")] {
-        let (connected, refused, _) = tcp_probe(host, 443, timeout);
+    for (host, label) in &[
+        ("52.20.0.1", "AWS us-east-1"),
+        ("35.190.0.1", "GCP frontend"),
+    ] {
+        let (connected, refused, _) = rbtics_tcp_probe(host, 443, timeout);
         if connected || refused {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: TCP {}:443 ({}) — packet escaped enclave",
-                host, label
+                host,
+                label, //
             ));
         }
     }
 
-    pass("SECURE: CIDR allowlist enforced — all forbidden destinations blocked".to_string())
+    rbtics_pass("SECURE: CIDR allowlist enforced — all forbidden destinations blocked".to_string())
 }
 
 // ── Sortie 4: direct_sentry_probe ────────────────────────────
 
-pub fn sortie_direct_sentry_probe(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_direct_sentry_probe(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let entry_port: u16 = match env_require("RBRN_ENTRY_PORT_WORKSTATION") {
+    let entry_port: u16 = match rbtics_env_require("RBRN_ENTRY_PORT_WORKSTATION") {
         Ok(v) => match v.parse() {
             Ok(p) => p,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let timeout = Duration::from_secs(2);
 
     // Port scan — only port 53 should be open
     let scan_ports: &[u16] = &[
-        21, 22, 23, 25, 80, 111, 135, 139, 443, 445, 993, 995, 2222, 3306, 3389, 5432, 5900,
-        6379, 8080, 8443, 8888, 9090, 9200, 27017,
+        21,
+        22,
+        23,
+        25,
+        80,
+        111,
+        135,
+        139,
+        443,
+        445,
+        993,
+        995,
+        2222,
+        3306,
+        3389,
+        5432,
+        5900,
+        6379,
+        8080,
+        8443,
+        8888,
+        9090,
+        9200,
+        27017,
     ];
     let mut unexpected_ports = Vec::new();
     for &port in scan_ports {
-        let (connected, _, _) = tcp_probe(&sentry_ip, port, timeout);
+        let (connected, _, _) = rbtics_tcp_probe(&sentry_ip, port, timeout);
         if connected && port != 53 {
             unexpected_ports.push(port);
         }
     }
     if !unexpected_ports.is_empty() {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: sentry has unexpected open ports: {:?}",
-            unexpected_ports
+            unexpected_ports, //
         ));
     }
 
     // Entry port should not be accessible from enclave
-    let (entry_open, _, _) = tcp_probe(&sentry_ip, entry_port, timeout);
+    let (entry_open, _, _) = rbtics_tcp_probe(&sentry_ip, entry_port, timeout);
     if entry_open {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: entry port {}:{} accessible from enclave — DNAT leaking inward",
-            sentry_ip, entry_port
+            sentry_ip,
+            entry_port, //
         ));
     }
 
     // High ports on sentry
     let mut high_open = Vec::new();
     for &port in &[4096u16, 5353, 8053, 10000, 10053] {
-        let (connected, _, _) = tcp_probe(&sentry_ip, port, timeout);
+        let (connected, _, _) = rbtics_tcp_probe(&sentry_ip, port, timeout);
         if connected {
             high_open.push(port);
         }
     }
     if !high_open.is_empty() {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: sentry has unexpected high ports open: {:?}",
-            high_open
+            high_open, //
         ));
     }
 
-    pass("SECURE: sentry exposes only DNS — minimal attack surface".to_string())
+    rbtics_pass("SECURE: sentry exposes only DNS — minimal attack surface".to_string())
 }
 
 // ── Sortie 5: icmp_exfil_payload ─────────────────────────────
 
-pub fn sortie_icmp_exfil_payload(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_icmp_exfil_payload(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let cidrs_str = match env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
+    let cidrs_str = match rbtics_env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let allowed_cidr_ip = cidrs_str
         .split(',')
@@ -891,22 +1179,29 @@ pub fn sortie_icmp_exfil_payload(_extra_args: &[&str]) -> rbida_Verdict {
     let secret = b"EXFIL:ifrit-escaped-via-icmp-payload-encoding";
 
     // ICMP to sentry should work (enclave ICMP allowed)
-    match send_icmp(&sentry_ip, secret, 1, timeout) {
+    match rbtics_send_icmp(&sentry_ip, secret, 1, timeout) {
         Ok(replied) => {
             if !replied {
-                return fail("ERROR: ICMP echo to sentry got no reply — enclave ICMP broken".to_string());
+                return rbtics_fail(
+                    "ERROR: ICMP echo to sentry got no reply — enclave ICMP broken".to_string(),
+                );
             }
         }
-        Err(e) => return fail(format!("ERROR: ICMP to sentry: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: ICMP to sentry: {}",
+                e, //
+            ));
+        }
     }
 
     // ICMP to external should be blocked
-    match send_icmp(external_ip, secret, 3, timeout) {
+    match rbtics_send_icmp(external_ip, secret, 3, timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: ICMP echo to {} got reply — ICMP escaped enclave boundary",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
@@ -915,12 +1210,12 @@ pub fn sortie_icmp_exfil_payload(_extra_args: &[&str]) -> rbida_Verdict {
 
     // ICMP to allowed CIDR should also be blocked (FORWARD drops ICMP)
     if !allowed_cidr_ip.is_empty() {
-        match send_icmp(allowed_cidr_ip, secret, 4, timeout) {
+        match rbtics_send_icmp(allowed_cidr_ip, secret, 4, timeout) {
             Ok(replied) => {
                 if replied {
-                    return fail(format!(
+                    return rbtics_fail(format!(
                         "BREACH: ICMP echo to allowed CIDR {} got reply — ICMP forwarded to uplink",
-                        allowed_cidr_ip
+                        allowed_cidr_ip, //
                     ));
                 }
             }
@@ -929,31 +1224,33 @@ pub fn sortie_icmp_exfil_payload(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // ICMP timestamp to external should be blocked
-    match send_icmp_timestamp(external_ip, timeout) {
+    match rbtics_send_icmp_timestamp(external_ip, timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: ICMP timestamp to {} got reply — non-echo ICMP type escaped",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
         Err(_) => {}
     }
 
-    pass("SECURE: ICMP covert channel blocked — no ICMP escapes enclave boundary".to_string())
+    rbtics_pass(
+        "SECURE: ICMP covert channel blocked — no ICMP escapes enclave boundary".to_string(),
+    )
 }
 
 // ── Sortie 6: net_ipv6_escape ────────────────────────────────
 
-pub fn sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(3);
 
     // Check for IPv6 global addresses (informational)
-    let global_addrs = get_ipv6_addrs("global");
+    let global_addrs = rbtics_get_ipv6_addrs("global");
     if !global_addrs.is_empty() {
         // Global IPv6 present — need ip6tables hardened
-        if !check_ip6tables_drop() {
+        if !rbtics_check_ip6tables_drop() {
             // ip6tables not hardened — check if IPv6 actually works
         }
     }
@@ -966,21 +1263,29 @@ pub fn sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbida_Verdict {
     ];
     for (host, port, label) in targets {
         // Try IPv6 TCP connect
-        let addr_str = format!("[{}]:{}", host, port);
+        let addr_str = format!(
+            "[{}]:{}",
+            host,
+            port, //
+        );
         if let Ok(addr) = addr_str.parse::<SocketAddr>() {
             match TcpStream::connect_timeout(&addr, timeout) {
                 Ok(_) => {
-                    return fail(format!(
+                    return rbtics_fail(format!(
                         "BREACH: IPv6 TCP [{}]:{} ({}) — CONNECTED — iptables bypassed via IPv6",
-                        host, port, label
+                        host,
+                        port,
+                        label, //
                     ));
                 }
                 Err(e) => {
                     let msg = e.to_string();
                     if msg.contains("refused") || msg.contains("reset") {
-                        return fail(format!(
+                        return rbtics_fail(format!(
                             "BREACH: IPv6 TCP [{}]:{} ({}) — REFUSED (packet reached destination)",
-                            host, port, label
+                            host,
+                            port,
+                            label, //
                         ));
                     }
                 }
@@ -997,7 +1302,7 @@ pub fn sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbida_Verdict {
             let _ = sock.send_to(dns_probe, addr);
             let mut buf = [0u8; 4096];
             if sock.recv_from(&mut buf).is_ok() {
-                return fail(
+                return rbtics_fail(
                     "BREACH: IPv6 UDP DNS to [2001:4860:4860::8888]:53 — response received"
                         .to_string(),
                 );
@@ -1024,10 +1329,10 @@ pub fn sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbida_Verdict {
             let sock_addr = socket2::SockAddr::from(dest);
             let _ = socket.send_to(&pkt, &sock_addr);
             let mut buf = [0u8; 4096];
-            if let Ok((n, _)) = socket.recv_from(as_uninit(&mut buf)) {
+            if let Ok((n, _)) = socket.recv_from(rbtics_as_uninit(&mut buf)) {
                 if n > 0 && buf[0] == 129 {
                     // ICMPv6 echo reply
-                    return fail(
+                    return rbtics_fail(
                         "BREACH: ICMPv6 echo reply from [2001:4860:4860::8888] — IPv6 completely open"
                             .to_string(),
                     );
@@ -1036,19 +1341,29 @@ pub fn sortie_net_ipv6_escape(_extra_args: &[&str]) -> rbida_Verdict {
         }
     }
 
-    pass("SECURE: IPv6 contained — either disabled or ip6tables hardened".to_string())
+    rbtics_pass("SECURE: IPv6 contained — either disabled or ip6tables hardened".to_string())
 }
 
 // ── Sortie 7: net_srcip_spoof ────────────────────────────────
 
-pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let cidrs_str = match env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
+    let cidrs_str = match rbtics_env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let allowed_cidr_ip = cidrs_str
         .split(',')
@@ -1068,7 +1383,12 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
     // Spoof source as sentry IP -> forbidden destination
     let spoof_tests: &[(&str, &str, u16, &str)] = &[
         (&sentry_ip, forbidden_ip, 40010, "spoof-as-sentry"),
-        (allowed_cidr_ip, forbidden_ip, 40011, "spoof-as-allowed-cidr"),
+        (
+            allowed_cidr_ip,
+            forbidden_ip,
+            40011,
+            "spoof-as-allowed-cidr",
+        ),
         ("127.0.0.1", forbidden_ip, 40012, "spoof-as-loopback"),
     ];
 
@@ -1076,17 +1396,19 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
         if src.is_empty() {
             continue;
         }
-        let tcp_syn = build_tcp_syn(*src_port, 53);
-        match build_ip_header(6, src, dst, tcp_syn.len()) {
+        let tcp_syn = rbtics_build_tcp_syn(*src_port, 53);
+        match rbtics_build_ip_header(6, src, dst, tcp_syn.len()) {
             Ok(ip_hdr) => {
                 let mut packet = ip_hdr;
                 packet.extend_from_slice(&tcp_syn);
-                match send_raw_ip_and_listen(&packet, dst, timeout) {
+                match rbtics_send_raw_ip_and_listen(&packet, dst, timeout) {
                     Ok(replied) => {
                         if replied {
-                            return fail(format!(
+                            return rbtics_fail(format!(
                                 "BREACH: {} — response received for spoofed SYN from {} to {}",
-                                label, src, dst
+                                label,
+                                src,
+                                dst, //
                             ));
                         }
                     }
@@ -1097,14 +1419,14 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
         }
     }
 
-    pass(
+    rbtics_pass(
         "SECURE: source IP spoofing blocked — rp_filter active on enclave interface".to_string(),
     )
 }
 
 // ── Sortie 7b: net_srcip_spoof_external ──────────────────────
 //
-// Companion to sortie_net_srcip_spoof. That sortie probes spoof-as-sentry,
+// Companion to rbtics_sortie_net_srcip_spoof. That sortie probes spoof-as-sentry,
 // spoof-as-allowed-cidr, spoof-as-loopback targeting a forbidden external
 // destination. This sortie probes the residual case left open by the
 // per-IP RETURN short-circuit exclusion at sentry's PREROUTING DNAT: an
@@ -1143,24 +1465,49 @@ pub fn sortie_net_srcip_spoof(_extra_args: &[&str]) -> rbida_Verdict {
 // SECURE, surfacing the regression. Cross-platform verification on Linux
 // Docker Engine + alternative container runtimes (Podman) is open work
 // before this PASS can be declared canonical across the matrix.
-pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let ws_port: u16 = match env_require("RBRN_ENTRY_PORT_WORKSTATION") {
+    let ws_port: u16 = match rbtics_env_require("RBRN_ENTRY_PORT_WORKSTATION") {
         Ok(v) => match v.parse() {
             Ok(p) => p,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let enc_port: u16 = match env_require("RBRN_ENTRY_PORT_ENCLAVE") {
+    let enc_port: u16 = match rbtics_env_require("RBRN_ENTRY_PORT_ENCLAVE") {
         Ok(v) => match v.parse() {
             Ok(p) => p,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Spoofed source: external-routable IP, not enclave, not sentry, not
@@ -1183,16 +1530,29 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
         Some(socket2::Protocol::from(libc::IPPROTO_TCP as i32)),
     ) {
         Ok(s) => s,
-        Err(e) => return fail(format!("ERROR: open raw TCP listener: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: open raw TCP listener: {}",
+                e, //
+            ));
+        }
     };
     if let Err(e) = listen_sock.set_read_timeout(Some(timeout)) {
-        return fail(format!("ERROR: set listener timeout: {}", e));
+        return rbtics_fail(format!(
+            "ERROR: set listener timeout: {}",
+            e, //
+        ));
     }
 
-    let tcp_syn = build_tcp_syn(src_port, ws_port);
-    let ip_hdr = match build_ip_header(6, spoofed_src, &sentry_ip, tcp_syn.len()) {
+    let tcp_syn = rbtics_build_tcp_syn(src_port, ws_port);
+    let ip_hdr = match rbtics_build_ip_header(6, spoofed_src, &sentry_ip, tcp_syn.len()) {
         Ok(h) => h,
-        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build IP header: {}",
+                e, //
+            ));
+        }
     };
     let mut packet = ip_hdr;
     packet.extend_from_slice(&tcp_syn);
@@ -1203,7 +1563,12 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
         Some(socket2::Protocol::from(libc::IPPROTO_RAW as i32)),
     ) {
         Ok(s) => s,
-        Err(e) => return fail(format!("ERROR: open raw send socket: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: open raw send socket: {}",
+                e, //
+            ));
+        }
     };
     unsafe {
         let val: libc::c_int = 1;
@@ -1217,11 +1582,19 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
     }
     let sentry_addr: Ipv4Addr = match sentry_ip.parse() {
         Ok(a) => a,
-        Err(e) => return fail(format!("ERROR: bad sentry IP: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: bad sentry IP: {}",
+                e, //
+            ));
+        }
     };
     let send_dst = socket2::SockAddr::from(SocketAddrV4::new(sentry_addr, 0));
     if let Err(e) = send_sock.send_to(&packet, &send_dst) {
-        return fail(format!("ERROR: send spoofed SYN: {}", e));
+        return rbtics_fail(format!(
+            "ERROR: send spoofed SYN: {}",
+            e, //
+        ));
     }
 
     let mut buf = [0u8; 4096];
@@ -1229,13 +1602,13 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
     loop {
         let remaining = deadline.saturating_duration_since(Instant::now());
         if remaining.is_zero() {
-            return pass(format!(
+            return rbtics_pass(format!(
                 "SECURE: spoofed SYN (src={}, dst={}:{}) did not reflect via DNAT to bottle:{} within {:?}",
-                spoofed_src, sentry_ip, ws_port, enc_port, timeout
+                spoofed_src, sentry_ip, ws_port, enc_port, timeout, //
             ));
         }
         let _ = listen_sock.set_read_timeout(Some(remaining));
-        match listen_sock.recv_from(as_uninit(&mut buf)) {
+        match listen_sock.recv_from(rbtics_as_uninit(&mut buf)) {
             Ok((n, addr)) => {
                 if n < 40 {
                     continue;
@@ -1251,9 +1624,9 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
                         .as_socket_ipv4()
                         .map(|a| a.ip().to_string())
                         .unwrap_or_default();
-                    return fail(format!(
+                    return rbtics_fail(format!(
                         "BREACH: spoofed SYN (src={}, dst={}:{}) reflected via DNAT — bottle observed inbound TCP from {} at dst-port {} (src-port {}). Per-IP RETURN exclusion does not block arbitrary external spoofed sources; rp_filter=2 loose does not block at kernel layer.",
-                        spoofed_src, sentry_ip, ws_port, observed_src, pkt_dst_port, pkt_src_port
+                        spoofed_src, sentry_ip, ws_port, observed_src, pkt_dst_port, pkt_src_port, //
                     ));
                 }
             }
@@ -1261,15 +1634,15 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
                 if e.kind() == std::io::ErrorKind::WouldBlock
                     || e.kind() == std::io::ErrorKind::TimedOut =>
             {
-                return pass(format!(
+                return rbtics_pass(format!(
                     "SECURE: spoofed SYN (src={}, dst={}:{}) did not reflect via DNAT to bottle:{} (listener timeout)",
-                    spoofed_src, sentry_ip, ws_port, enc_port
+                    spoofed_src, sentry_ip, ws_port, enc_port, //
                 ));
             }
             Err(_) => {
-                return pass(format!(
+                return rbtics_pass(format!(
                     "SECURE: spoofed SYN (src={}, dst={}:{}) — listener error suggests blocked path",
-                    spoofed_src, sentry_ip, ws_port
+                    spoofed_src, sentry_ip, ws_port, //
                 ));
             }
         }
@@ -1278,10 +1651,15 @@ pub fn sortie_net_srcip_spoof_external(_extra_args: &[&str]) -> rbida_Verdict {
 
 // ── Sortie 8: proto_smuggle_rawsock ──────────────────────────
 
-pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
-    let cidrs_str = match env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
+pub fn rbtics_sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbtica_Verdict {
+    let cidrs_str = match rbtics_env_require("RBRN_UPLINK_ALLOWED_CIDRS") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let allowed_cidr_ip = cidrs_str
         .split(',')
@@ -1300,12 +1678,12 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
         p.extend_from_slice(&0x0800u16.to_be_bytes()); // inner protocol IPv4
         p
     };
-    match send_raw_proto(external_ip, 47, &gre_payload, timeout) {
+    match rbtics_send_raw_proto(external_ip, 47, &gre_payload, timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: GRE (proto 47) to {} — response received",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
@@ -1314,12 +1692,12 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
 
     // GRE to allowed CIDR — even allowed CIDRs should not forward GRE
     if !allowed_cidr_ip.is_empty() {
-        match send_raw_proto(allowed_cidr_ip, 47, &gre_payload, timeout) {
+        match rbtics_send_raw_proto(allowed_cidr_ip, 47, &gre_payload, timeout) {
             Ok(replied) => {
                 if replied {
-                    return fail(format!(
+                    return rbtics_fail(format!(
                         "BREACH: GRE (proto 47) to allowed {} — response received",
-                        allowed_cidr_ip
+                        allowed_cidr_ip, //
                     ));
                 }
             }
@@ -1335,7 +1713,7 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
         p.extend_from_slice(&80u16.to_be_bytes());
         p.extend_from_slice(&0u32.to_be_bytes()); // vtag
         p.extend_from_slice(&0u32.to_be_bytes()); // checksum
-        // INIT chunk: type=1, flags=0, length=20, init_tag, a-rwnd, streams
+                                                  // INIT chunk: type=1, flags=0, length=20, init_tag, a-rwnd, streams
         p.push(1);
         p.push(0);
         p.extend_from_slice(&20u16.to_be_bytes());
@@ -1345,12 +1723,12 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
         p.extend_from_slice(&1u16.to_be_bytes());
         p
     };
-    match send_raw_proto(external_ip, 132, &sctp_init, timeout) {
+    match rbtics_send_raw_proto(external_ip, 132, &sctp_init, timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: SCTP (proto 132) to {} — response received",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
@@ -1358,12 +1736,38 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // IP-in-IP (protocol 4) to external
-    match send_raw_proto(external_ip, 4, &[0x45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], timeout) {
+    match rbtics_send_raw_proto(
+        external_ip,
+        4,
+        &[
+            0x45,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ],
+        timeout,
+    ) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: IP-in-IP (proto 4) to {} — response received",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
@@ -1371,40 +1775,45 @@ pub fn sortie_proto_smuggle_rawsock(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     // Protocol 253 (experimental) to external
-    match send_raw_proto(external_ip, 253, b"EXFIL:ifrit", timeout) {
+    match rbtics_send_raw_proto(external_ip, 253, b"EXFIL:ifrit", timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: proto 253 (experimental) to {} — response received",
-                    external_ip
+                    external_ip, //
                 ));
             }
         }
         Err(_) => {}
     }
 
-    pass("SECURE: all non-standard IP protocols blocked by FORWARD DROP".to_string())
+    rbtics_pass("SECURE: all non-standard IP protocols blocked by FORWARD DROP".to_string())
 }
 
 // ── Sortie 9: net_fragment_evasion ───────────────────────────
 
-pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
-    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+pub fn rbtics_sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbtica_Verdict {
+    let bottle_ip = match rbtics_env_require("RBRN_ENCLAVE_BOTTLE_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let forbidden_ip = "8.8.8.8";
     let forbidden_port: u16 = 53;
     let timeout = Duration::from_secs(3);
 
     let ident_base = {
-        let hex = random_hex(4);
+        let hex = rbtics_random_hex(4);
         u16::from_str_radix(&hex, 16).unwrap_or(0x5678)
     };
 
     // Test 1: Tiny fragment — TCP SYN split across two fragments
-    let tcp_syn = build_tcp_syn(40001, forbidden_port);
-    let frag1 = match build_ip_fragment(
+    let tcp_syn = rbtics_build_tcp_syn(40001, forbidden_port);
+    let frag1 = match rbtics_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1414,9 +1823,14 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         true,
     ) {
         Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build fragment: {}",
+                e, //
+            ));
+        }
     };
-    let frag2 = match build_ip_fragment(
+    let frag2 = match rbtics_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1426,14 +1840,20 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         false,
     ) {
         Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build fragment: {}",
+                e, //
+            ));
+        }
     };
-    match send_fragments_and_listen(forbidden_ip, &[frag1, frag2], timeout) {
+    match rbtics_send_fragments_and_listen(forbidden_ip, &[frag1, frag2], timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: tiny fragment SYN to {}:{} — response received (bypassed inspection)",
-                    forbidden_ip, forbidden_port
+                    forbidden_ip,
+                    forbidden_port, //
                 ));
             }
         }
@@ -1442,8 +1862,8 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 2: Out-of-order fragments — send fragment 2 before fragment 1
     let ident2 = ident_base.wrapping_add(1);
-    let tcp_syn2 = build_tcp_syn(40002, forbidden_port);
-    let frag2_first = match build_ip_fragment(
+    let tcp_syn2 = rbtics_build_tcp_syn(40002, forbidden_port);
+    let frag2_first = match rbtics_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1453,9 +1873,14 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         false,
     ) {
         Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build fragment: {}",
+                e, //
+            ));
+        }
     };
-    let frag1_second = match build_ip_fragment(
+    let frag1_second = match rbtics_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1465,14 +1890,20 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         true,
     ) {
         Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build fragment: {}",
+                e, //
+            ));
+        }
     };
-    match send_fragments_and_listen(forbidden_ip, &[frag2_first, frag1_second], timeout) {
+    match rbtics_send_fragments_and_listen(forbidden_ip, &[frag2_first, frag1_second], timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: out-of-order fragment SYN to {}:{} — response received",
-                    forbidden_ip, forbidden_port
+                    forbidden_ip,
+                    forbidden_port, //
                 ));
             }
         }
@@ -1481,25 +1912,23 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 3: Overlapping fragments
     let ident3 = ident_base.wrapping_add(2);
-    let benign_syn = build_tcp_syn(40003, 443); // benign port
+    let benign_syn = rbtics_build_tcp_syn(40003, 443); // benign port
     let mut evil_ports = Vec::new();
     evil_ports.extend_from_slice(&40003u16.to_be_bytes());
     evil_ports.extend_from_slice(&forbidden_port.to_be_bytes());
     evil_ports.extend_from_slice(&benign_syn[4..]);
 
-    let frag_benign = match build_ip_fragment(
-        &bottle_ip,
-        forbidden_ip,
-        6,
-        &benign_syn,
-        ident3,
-        0,
-        true,
-    ) {
-        Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
-    };
-    let frag_overlap = match build_ip_fragment(
+    let frag_benign =
+        match rbtics_build_ip_fragment(&bottle_ip, forbidden_ip, 6, &benign_syn, ident3, 0, true) {
+            Ok(f) => f,
+            Err(e) => {
+                return rbtics_fail(format!(
+                    "ERROR: build fragment: {}",
+                    e, //
+                ));
+            }
+        };
+    let frag_overlap = match rbtics_build_ip_fragment(
         &bottle_ip,
         forbidden_ip,
         6,
@@ -1509,14 +1938,19 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
         false,
     ) {
         Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build fragment: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build fragment: {}",
+                e, //
+            ));
+        }
     };
-    match send_fragments_and_listen(forbidden_ip, &[frag_benign, frag_overlap], timeout) {
+    match rbtics_send_fragments_and_listen(forbidden_ip, &[frag_benign, frag_overlap], timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: overlapping fragment to {} — response received (port overwrite worked)",
-                    forbidden_ip
+                    forbidden_ip, //
                 ));
             }
         }
@@ -1525,63 +1959,71 @@ pub fn sortie_net_fragment_evasion(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Test 4: Control — unfragmented SYN to forbidden should also be blocked
     let ident4 = ident_base.wrapping_add(3);
-    let tcp_syn4 = build_tcp_syn(40004, forbidden_port);
-    let whole = match build_ip_fragment(
-        &bottle_ip,
-        forbidden_ip,
-        6,
-        &tcp_syn4,
-        ident4,
-        0,
-        false,
-    ) {
-        Ok(f) => f,
-        Err(e) => return fail(format!("ERROR: build packet: {}", e)),
-    };
-    match send_fragments_and_listen(forbidden_ip, &[whole], timeout) {
+    let tcp_syn4 = rbtics_build_tcp_syn(40004, forbidden_port);
+    let whole =
+        match rbtics_build_ip_fragment(&bottle_ip, forbidden_ip, 6, &tcp_syn4, ident4, 0, false) {
+            Ok(f) => f,
+            Err(e) => {
+                return rbtics_fail(format!(
+                    "ERROR: build packet: {}",
+                    e, //
+                ));
+            }
+        };
+    match rbtics_send_fragments_and_listen(forbidden_ip, &[whole], timeout) {
         Ok(replied) => {
             if replied {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: unfragmented SYN to {}:{} — response received (control failed)",
-                    forbidden_ip, forbidden_port
+                    forbidden_ip,
+                    forbidden_port, //
                 ));
             }
         }
         Err(_) => {}
     }
 
-    pass("SECURE: IP fragment evasion blocked — nf_defrag_ipv4 reassembles before filtering".to_string())
+    rbtics_pass(
+        "SECURE: IP fragment evasion blocked — nf_defrag_ipv4 reassembles before filtering"
+            .to_string(),
+    )
 }
 
 // ── Sortie 10: direct_arp_poison ─────────────────────────────
 
-pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_direct_arp_poison(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover interface
-    let (iface, our_mac) = match get_interface_info() {
+    let (iface, our_mac) = match rbtics_get_interface_info() {
         Some((i, m)) => (i, m),
         None => {
-            return fail("ERROR: cannot discover enclave interface — unable to test ARP".to_string())
+            return rbtics_fail(
+                "ERROR: cannot discover enclave interface — unable to test ARP".to_string(),
+            )
         }
     };
 
     // Test: Can we open AF_PACKET sockets?
-    let can_send = arp_test_af_packet(&iface);
+    let can_send = rbtics_arp_test_af_packet(&iface);
 
     match can_send {
         Err(_) => {
             // AF_PACKET unavailable — SECURE
-            return pass(
-                "SECURE: AF_PACKET raw sockets unavailable — L2 ARP attacks impossible"
-                    .to_string(),
+            return rbtics_pass(
+                "SECURE: AF_PACKET raw sockets unavailable — L2 ARP attacks impossible".to_string(),
             );
         }
         Ok(false) => {
-            return pass(
+            return rbtics_pass(
                 "SECURE: AF_PACKET socket creation blocked — L2 attacks prevented".to_string(),
             );
         }
@@ -1590,28 +2032,36 @@ pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
         }
     }
 
-    let our_mac_bytes = match mac_to_bytes(&our_mac) {
+    let our_mac_bytes = match rbtics_mac_to_bytes(&our_mac) {
         Ok(b) => b,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Get sentry MAC for targeted attacks
-    let sentry_mac = get_sentry_mac(&sentry_ip);
+    let sentry_mac = rbtics_get_sentry_mac(&sentry_ip);
 
     // Send gratuitous ARP claiming sentry's IP
-    let grat_frame = build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
-    let grat_sent = send_raw_frame(&iface, &grat_frame);
+    let grat_frame = rbtics_build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
+    let grat_sent = rbtics_send_raw_frame(&iface, &grat_frame);
 
     // Send targeted ARP reply if we know sentry MAC
     if let Some(ref sm) = sentry_mac {
-        if let Ok(sm_bytes) = mac_to_bytes(sm) {
+        if let Ok(sm_bytes) = rbtics_mac_to_bytes(sm) {
             // Claim gateway is at our MAC
             let base = sentry_ip.rsplit('.').skip(1).collect::<Vec<_>>();
             let prefix: String = base.into_iter().rev().collect::<Vec<_>>().join(".");
-            let fake_gw = format!("{}.1", prefix);
+            let fake_gw = format!(
+                "{}.1",
+                prefix, //
+            );
             let poison_frame =
-                build_arp_reply(&our_mac_bytes, &fake_gw, &sm_bytes, &sentry_ip);
-            let _ = send_raw_frame(&iface, &poison_frame);
+                rbtics_build_arp_reply(&our_mac_bytes, &fake_gw, &sm_bytes, &sentry_ip);
+            let _ = rbtics_send_raw_frame(&iface, &poison_frame);
         }
     }
 
@@ -1622,17 +2072,20 @@ pub fn sortie_direct_arp_poison(_extra_args: &[&str]) -> rbida_Verdict {
     // This sortie confirms the bottle CAN attempt L2 attacks (exercising the
     // attack path); the coordinated tests confirm the sentry is resilient.
     if grat_sent {
-        return pass(format!(
+        return rbtics_pass(format!(
             "SECURE: AF_PACKET available, gratuitous ARP sent claiming {} at {} — sentry resilience verified by coordinated tests",
-            sentry_ip, our_mac
+            sentry_ip, our_mac, //
         ));
     }
 
-    pass("SECURE: AF_PACKET socket available but ARP send failed — L2 attack path blocked".to_string())
+    rbtics_pass(
+        "SECURE: AF_PACKET socket available but ARP send failed — L2 attack path blocked"
+            .to_string(),
+    )
 }
 
 /// Build gratuitous ARP: broadcast announcing claimed_ip is at our_mac.
-fn build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
+fn rbtics_build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
     let broadcast = [0xFFu8; 6];
     let ip_bytes = claimed_ip
         .parse::<Ipv4Addr>()
@@ -1644,7 +2097,7 @@ fn build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
     frame.extend_from_slice(&broadcast); // dst
     frame.extend_from_slice(our_mac); // src
     frame.extend_from_slice(&[0x08, 0x06]); // ARP ethertype
-    // ARP
+                                            // ARP
     frame.extend_from_slice(&1u16.to_be_bytes()); // hw type: Ethernet
     frame.extend_from_slice(&0x0800u16.to_be_bytes()); // proto: IPv4
     frame.push(6); // hw size
@@ -1658,7 +2111,7 @@ fn build_gratuitous_arp(our_mac: &[u8; 6], claimed_ip: &str) -> Vec<u8> {
 }
 
 /// Build ARP reply: tell target that sender_ip is at sender_mac.
-fn build_arp_reply(
+fn rbtics_build_arp_reply(
     sender_mac: &[u8; 6],
     sender_ip: &str,
     target_mac: &[u8; 6],
@@ -1690,7 +2143,7 @@ fn build_arp_reply(
 }
 
 /// Test if AF_PACKET socket can be opened. Returns Ok(true) if yes.
-fn arp_test_af_packet(_iface: &str) -> Result<bool, String> {
+fn rbtics_arp_test_af_packet(_iface: &str) -> Result<bool, String> {
     #[cfg(target_os = "linux")]
     {
         unsafe {
@@ -1713,7 +2166,7 @@ fn arp_test_af_packet(_iface: &str) -> Result<bool, String> {
 }
 
 /// Send a raw Ethernet frame via AF_PACKET.
-fn send_raw_frame(_iface: &str, _frame: &[u8]) -> bool {
+fn rbtics_send_raw_frame(_iface: &str, _frame: &[u8]) -> bool {
     #[cfg(target_os = "linux")]
     {
         unsafe {
@@ -1766,7 +2219,7 @@ fn send_raw_frame(_iface: &str, _frame: &[u8]) -> bool {
 
 // ── Sortie 11: ns_capability_escape ──────────────────────────
 
-pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_ns_capability_escape(_extra_args: &[&str]) -> rbtica_Verdict {
     // Test 1: Parse effective capabilities — flag dangerous ones
     if let Ok(status) = std::fs::read_to_string("/proc/self/status") {
         for line in status.lines() {
@@ -1788,9 +2241,9 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
                         }
                     }
                     if !found.is_empty() {
-                        return fail(format!(
+                        return rbtics_fail(format!(
                             "BREACH: dangerous capabilities present: {}",
-                            found.join(", ")
+                            found.join(", "), //
                         ));
                     }
                 }
@@ -1812,9 +2265,9 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
     ];
     for path in &sysctl_paths {
         if std::fs::File::options().write(true).open(path).is_ok() {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: writable sysctl {} — could modify kernel network behavior",
-                path
+                path, //
             ));
         }
     }
@@ -1826,9 +2279,9 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
         "/var/run/containerd/containerd.sock",
     ] {
         if std::path::Path::new(path).exists() {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: container runtime socket {} — FULL CONTAINER ESCAPE POSSIBLE",
-                path
+                path, //
             ));
         }
     }
@@ -1838,9 +2291,9 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
         let pid1 = cmdline.split('\0').next().unwrap_or("");
         for indicator in &["systemd", "init", "launchd"] {
             if pid1.contains(indicator) {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: host PID namespace — PID 1 is {} (not container init)",
-                    pid1
+                    pid1, //
                 ));
             }
         }
@@ -1854,12 +2307,16 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
             if !name_str.chars().all(|c| c.is_ascii_digit()) {
                 continue;
             }
-            if let Ok(cmdline) = std::fs::read_to_string(format!("/proc/{}/cmdline", name_str)) {
+            if let Ok(cmdline) = std::fs::read_to_string(format!(
+                "/proc/{}/cmdline",
+                name_str, //
+            )) {
                 for indicator in &["systemd", "sshd", "dockerd", "containerd", "kubelet"] {
                     if cmdline.contains(indicator) {
-                        return fail(format!(
+                        return rbtics_fail(format!(
                             "BREACH: host process {} visible (PID {}) — host PID namespace shared",
-                            indicator, name_str
+                            indicator,
+                            name_str, //
                         ));
                     }
                 }
@@ -1870,7 +2327,7 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
     // Test 6: iptables accessible from bottle
     if let Ok(result) = Command::new("iptables").args(["-L", "-n"]).output() {
         if result.status.success() {
-            return fail(
+            return rbtics_fail(
                 "BREACH: iptables accessible from bottle — could flush sentry rules".to_string(),
             );
         }
@@ -1906,14 +2363,16 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
             extra.push(name);
         }
         if !extra.is_empty() {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: unexpected network interfaces visible: {:?}",
-                extra
+                extra, //
             ));
         }
     }
 
-    pass("SECURE: container isolation intact — no namespace or capability escape".to_string())
+    rbtics_pass(
+        "SECURE: container isolation intact — no namespace or capability escape".to_string(),
+    )
 }
 
 // ── Coordinated attack primitives ─────────────────────────────
@@ -1927,34 +2386,46 @@ pub fn sortie_ns_capability_escape(_extra_args: &[&str]) -> rbida_Verdict {
 //   passed=true  → "I executed the attack" (frames were sent)
 //   passed=false → "I could not execute" (AF_PACKET blocked, etc.)
 
-pub fn sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
-    let (iface, our_mac) = match get_interface_info() {
+    let (iface, our_mac) = match rbtics_get_interface_info() {
         Some((i, m)) => (i, m),
-        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+        None => return rbtics_fail("ERROR: cannot discover enclave interface".to_string()),
     };
 
-    if arp_test_af_packet(&iface).is_err() {
-        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    if rbtics_arp_test_af_packet(&iface).is_err() {
+        return rbtics_fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
     }
 
-    let our_mac_bytes = match mac_to_bytes(&our_mac) {
+    let our_mac_bytes = match rbtics_mac_to_bytes(&our_mac) {
         Ok(b) => b,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
-    let frame = build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
-    if send_raw_frame(&iface, &frame) {
-        pass(format!(
+    let frame = rbtics_build_gratuitous_arp(&our_mac_bytes, &sentry_ip);
+    if rbtics_send_raw_frame(&iface, &frame) {
+        rbtics_pass(format!(
             "SENT gratuitous ARP claiming {} at {} on {}",
-            sentry_ip, our_mac, iface
+            sentry_ip,
+            our_mac,
+            iface, //
         ))
     } else {
-        fail("AF_PACKET open but frame send failed".to_string())
+        rbtics_fail("AF_PACKET open but frame send failed".to_string())
     }
 }
 
@@ -1962,10 +2433,15 @@ pub fn sortie_arp_send_gratuitous(_extra_args: &[&str]) -> rbida_Verdict {
 
 /// Route table manipulation — attempt ip route replace/add to bypass sentry gateway.
 /// Verifies container lacks CAP_NET_ADMIN to modify routing table.
-pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_net_route_manipulation(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     let mut diagnostics = Vec::new();
@@ -1978,18 +2454,21 @@ pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
         Ok(output) => {
             let stderr = String::from_utf8_lossy(&output.stderr);
             if output.status.success() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: ip route replace default succeeded — routing table writable, sentry bypass possible"
                 ));
             }
             diagnostics.push(format!(
                 "ip route replace default: blocked (exit {}, {})",
                 output.status.code().unwrap_or(-1),
-                stderr.trim()
+                stderr.trim(), //
             ));
         }
         Err(e) => {
-            diagnostics.push(format!("ip route replace default: exec failed ({})", e));
+            diagnostics.push(format!(
+                "ip route replace default: exec failed ({})",
+                e, //
+            ));
         }
     }
 
@@ -2005,18 +2484,21 @@ pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
                 let _ = Command::new("ip")
                     .args(["route", "del", "192.168.99.0/24"])
                     .output();
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: ip route add succeeded — container can inject arbitrary routes"
                 ));
             }
             diagnostics.push(format!(
                 "ip route add 192.168.99.0/24: blocked (exit {}, {})",
                 output.status.code().unwrap_or(-1),
-                stderr.trim()
+                stderr.trim(), //
             ));
         }
         Err(e) => {
-            diagnostics.push(format!("ip route add: exec failed ({})", e));
+            diagnostics.push(format!(
+                "ip route add: exec failed ({})",
+                e, //
+            ));
         }
     }
 
@@ -2027,7 +2509,7 @@ pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
     match &del_result {
         Ok(output) => {
             if output.status.success() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: ip route del default succeeded — container can remove its own routes"
                 ));
             }
@@ -2035,33 +2517,51 @@ pub fn sortie_net_route_manipulation(_extra_args: &[&str]) -> rbida_Verdict {
             diagnostics.push(format!(
                 "ip route del default: blocked (exit {}, {})",
                 output.status.code().unwrap_or(-1),
-                stderr.trim()
+                stderr.trim(), //
             ));
         }
         Err(e) => {
-            diagnostics.push(format!("ip route del default: exec failed ({})", e));
+            diagnostics.push(format!(
+                "ip route del default: exec failed ({})",
+                e, //
+            ));
         }
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: route table immutable — all modification attempts blocked. {}",
-        diagnostics.join("; ")
+        diagnostics.join("; "), //
     ))
 }
 
 /// Enclave subnet escape — probe hosts outside /24 enclave within bridge network range.
 /// Distinct from net_forbidden_cidr which tests internet-routable destinations.
-pub fn sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbida_Verdict {
-    let base_ip = match env_require("RBRN_ENCLAVE_BASE_IP") {
+pub fn rbtics_sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbtica_Verdict {
+    let base_ip = match rbtics_env_require("RBRN_ENCLAVE_BASE_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let netmask: u32 = match env_require("RBRN_ENCLAVE_NETMASK") {
+    let netmask: u32 = match rbtics_env_require("RBRN_ENCLAVE_NETMASK") {
         Ok(v) => match v.parse() {
             Ok(n) => n,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENCLAVE_NETMASK: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENCLAVE_NETMASK: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     let octets: Vec<u8> = match base_ip
@@ -2070,17 +2570,28 @@ pub fn sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbida_Verdict {
         .collect::<Result<Vec<_>, _>>()
     {
         Ok(v) if v.len() == 4 => v,
-        _ => return fail(format!("ERROR: bad RBRN_ENCLAVE_BASE_IP: {}", base_ip)),
+        _ => {
+            return rbtics_fail(format!(
+                "ERROR: bad RBRN_ENCLAVE_BASE_IP: {}",
+                base_ip, //
+            ));
+        }
     };
-    let base_u32 =
-        ((octets[0] as u32) << 24) | ((octets[1] as u32) << 16) | ((octets[2] as u32) << 8) | (octets[3] as u32);
+    let base_u32 = ((octets[0] as u32) << 24)
+        | ((octets[1] as u32) << 16)
+        | ((octets[2] as u32) << 8)
+        | (octets[3] as u32);
 
     let timeout = Duration::from_millis(1500);
     let mut diagnostics = Vec::new();
 
     // Compute probe targets outside the enclave /24 (or whatever netmask) but
     // within plausible bridge network ranges
-    let enclave_mask = if netmask >= 32 { !0u32 } else { !0u32 << (32 - netmask) };
+    let enclave_mask = if netmask >= 32 {
+        !0u32
+    } else {
+        !0u32 << (32 - netmask)
+    };
     let enclave_net = base_u32 & enclave_mask;
 
     // Probe: next subnet up (.1 host in adjacent /24)
@@ -2099,7 +2610,10 @@ pub fn sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbida_Verdict {
     for (ip_u32, label) in &probe_targets {
         // Skip if target falls within enclave subnet
         if (*ip_u32 & enclave_mask) == enclave_net {
-            diagnostics.push(format!("{}: skipped (within enclave)", label));
+            diagnostics.push(format!(
+                "{}: skipped (within enclave)",
+                label, //
+            ));
             continue;
         }
         let ip_str = format!(
@@ -2107,64 +2621,94 @@ pub fn sortie_net_enclave_subnet_escape(_extra_args: &[&str]) -> rbida_Verdict {
             (*ip_u32 >> 24) & 0xFF,
             (*ip_u32 >> 16) & 0xFF,
             (*ip_u32 >> 8) & 0xFF,
-            *ip_u32 & 0xFF
+            *ip_u32 & 0xFF, //
         );
         // TCP probe on common ports
         for &port in &[80u16, 443, 53] {
-            let (connected, refused, _) = tcp_probe(&ip_str, port, timeout);
+            let (connected, refused, _) = rbtics_tcp_probe(&ip_str, port, timeout);
             if connected || refused {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: TCP {}:{} ({}) — {} (packet escaped enclave subnet)",
                     ip_str,
                     port,
                     label,
-                    if connected { "CONNECTED" } else { "REFUSED" }
+                    if connected { "CONNECTED" } else { "REFUSED" }, //
                 ));
             }
         }
-        diagnostics.push(format!("{} ({}): unreachable", label, ip_str));
+        diagnostics.push(format!(
+            "{} ({}): unreachable",
+            label,
+            ip_str, //
+        ));
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: enclave subnet isolation enforced — no response from outside /{}. {}",
         netmask,
-        diagnostics.join("; ")
+        diagnostics.join("; "), //
     ))
 }
 
 /// DNAT entry port reflection — focused test of sentry DNAT asymmetry.
 /// The sentry DNATs the entry port for external (transit) access to the bottle.
 /// From inside the enclave, the entry port should be unreachable on the sentry.
-pub fn sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let ws_port: u16 = match env_require("RBRN_ENTRY_PORT_WORKSTATION") {
+    let ws_port: u16 = match rbtics_env_require("RBRN_ENTRY_PORT_WORKSTATION") {
         Ok(v) => match v.parse() {
             Ok(p) => p,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENTRY_PORT_WORKSTATION: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let enc_port: u16 = match env_require("RBRN_ENTRY_PORT_ENCLAVE") {
+    let enc_port: u16 = match rbtics_env_require("RBRN_ENTRY_PORT_ENCLAVE") {
         Ok(v) => match v.parse() {
             Ok(p) => p,
-            Err(_) => return fail(format!("ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}", v)),
+            Err(_) => {
+                return rbtics_fail(format!(
+                    "ERROR: bad RBRN_ENTRY_PORT_ENCLAVE: {}",
+                    v, //
+                ));
+            }
         },
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     let timeout = Duration::from_secs(2);
     let mut diagnostics = Vec::new();
 
     // Test 1: Workstation-facing entry port on sentry (the DNAT target)
-    let (ws_connected, ws_refused, ws_err) = tcp_probe(&sentry_ip, ws_port, timeout);
+    let (ws_connected, ws_refused, ws_err) = rbtics_tcp_probe(&sentry_ip, ws_port, timeout);
     if ws_connected {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: sentry {}:{} (workstation entry port) — CONNECTED from enclave. \
              DNAT rule is accepting enclave-originated connections",
-            sentry_ip, ws_port
+            sentry_ip,
+            ws_port, //
         ));
     }
     diagnostics.push(format!(
@@ -2172,17 +2716,18 @@ pub fn sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbida_Verdict {
         sentry_ip,
         ws_port,
         if ws_refused { "refused" } else { "timeout" },
-        ws_err.as_deref().unwrap_or("clean timeout")
+        ws_err.as_deref().unwrap_or("clean timeout"), //
     ));
 
     // Test 2: Enclave-side entry port on sentry
     if enc_port != ws_port {
-        let (enc_connected, enc_refused, enc_err) = tcp_probe(&sentry_ip, enc_port, timeout);
+        let (enc_connected, enc_refused, enc_err) = rbtics_tcp_probe(&sentry_ip, enc_port, timeout);
         if enc_connected {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: sentry {}:{} (enclave entry port) — CONNECTED from enclave. \
                  Enclave-side entry port exposed on sentry",
-                sentry_ip, enc_port
+                sentry_ip,
+                enc_port, //
             ));
         }
         diagnostics.push(format!(
@@ -2190,14 +2735,15 @@ pub fn sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbida_Verdict {
             sentry_ip,
             enc_port,
             if enc_refused { "refused" } else { "timeout" },
-            enc_err.as_deref().unwrap_or("clean timeout")
+            enc_err.as_deref().unwrap_or("clean timeout"), //
         ));
     }
 
     // Test 3: Verify the bottle's own enclave IP doesn't expose the entry port
     // (DNAT should not reflect back to the bottle itself)
-    if let Ok(bottle_ip) = env_require("RBRN_ENCLAVE_BOTTLE_IP") {
-        let (bottle_connected, bottle_refused, bottle_err) = tcp_probe(&bottle_ip, enc_port, timeout);
+    if let Ok(bottle_ip) = rbtics_env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+        let (bottle_connected, bottle_refused, bottle_err) =
+            rbtics_tcp_probe(&bottle_ip, enc_port, timeout);
         // Connected is expected if a service is listening — that's the bottle's own port.
         // Refused is normal (no listener). Only flag if the port shows behavior inconsistent
         // with what the bottle itself runs.
@@ -2211,44 +2757,59 @@ pub fn sortie_net_dnat_entry_reflection(_extra_args: &[&str]) -> rbida_Verdict {
                 "refused (no listener)"
             } else {
                 bottle_err.as_deref().unwrap_or("timeout")
-            }
+            }, //
         ));
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: DNAT entry ports unreachable from enclave — asymmetry enforced. {}",
-        diagnostics.join("; ")
+        diagnostics.join("; "), //
     ))
 }
 
-pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
-    let (iface, our_mac) = match get_interface_info() {
+    let (iface, our_mac) = match rbtics_get_interface_info() {
         Some((i, m)) => (i, m),
-        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+        None => return rbtics_fail("ERROR: cannot discover enclave interface".to_string()),
     };
 
-    if arp_test_af_packet(&iface).is_err() {
-        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    if rbtics_arp_test_af_packet(&iface).is_err() {
+        return rbtics_fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
     }
 
-    let our_mac_bytes = match mac_to_bytes(&our_mac) {
+    let our_mac_bytes = match rbtics_mac_to_bytes(&our_mac) {
         Ok(b) => b,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Discover sentry MAC so we can send targeted ARP reply
-    let sentry_mac = match get_sentry_mac(&sentry_ip) {
+    let sentry_mac = match rbtics_get_sentry_mac(&sentry_ip) {
         Some(m) => m,
-        None => return fail("cannot discover sentry MAC from ARP cache".to_string()),
+        None => return rbtics_fail("cannot discover sentry MAC from ARP cache".to_string()),
     };
-    let sentry_mac_bytes = match mac_to_bytes(&sentry_mac) {
+    let sentry_mac_bytes = match rbtics_mac_to_bytes(&sentry_mac) {
         Ok(b) => b,
-        Err(e) => return fail(format!("ERROR: sentry MAC parse: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: sentry MAC parse: {}",
+                e, //
+            ));
+        }
     };
 
     // Compute gateway IP as .1 on the sentry's subnet
@@ -2260,17 +2821,22 @@ pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
         .rev()
         .collect::<Vec<_>>()
         .join(".");
-    let fake_gw = format!("{}.1", prefix);
+    let fake_gw = format!(
+        "{}.1",
+        prefix, //
+    );
 
     // Send targeted ARP reply: tell sentry that gateway is at our MAC
-    let frame = build_arp_reply(&our_mac_bytes, &fake_gw, &sentry_mac_bytes, &sentry_ip);
-    if send_raw_frame(&iface, &frame) {
-        pass(format!(
+    let frame = rbtics_build_arp_reply(&our_mac_bytes, &fake_gw, &sentry_mac_bytes, &sentry_ip);
+    if rbtics_send_raw_frame(&iface, &frame) {
+        rbtics_pass(format!(
             "SENT ARP reply to sentry ({}) claiming {} at {}",
-            sentry_ip, fake_gw, our_mac
+            sentry_ip,
+            fake_gw,
+            our_mac, //
         ))
     } else {
-        fail("AF_PACKET open but targeted ARP frame send failed".to_string())
+        rbtics_fail("AF_PACKET open but targeted ARP frame send failed".to_string())
     }
 }
 
@@ -2278,10 +2844,15 @@ pub fn sortie_arp_send_gateway_poison(_extra_args: &[&str]) -> rbida_Verdict {
 
 /// Send forged DNS UDP responses to sentry's dnsmasq port claiming google.com → 1.2.3.4.
 /// Coordinated primitive: passed=true means "forged responses were sent" (theurge judges DNS state).
-pub fn sortie_dns_forge_response(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_dns_forge_response(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Build a DNS response claiming google.com → 1.2.3.4
@@ -2294,11 +2865,11 @@ pub fn sortie_dns_forge_response(_extra_args: &[&str]) -> rbida_Verdict {
         pkt.extend_from_slice(&1u16.to_be_bytes()); // ANCOUNT
         pkt.extend_from_slice(&0u16.to_be_bytes()); // NSCOUNT
         pkt.extend_from_slice(&0u16.to_be_bytes()); // ARCOUNT
-        // Question: google.com A IN
+                                                    // Question: google.com A IN
         pkt.extend_from_slice(b"\x06google\x03com\x00");
         pkt.extend_from_slice(&1u16.to_be_bytes()); // TYPE A
         pkt.extend_from_slice(&1u16.to_be_bytes()); // CLASS IN
-        // Answer: pointer to name at offset 12, A record 1.2.3.4
+                                                    // Answer: pointer to name at offset 12, A record 1.2.3.4
         pkt.extend_from_slice(&0xC00Cu16.to_be_bytes()); // Name pointer
         pkt.extend_from_slice(&1u16.to_be_bytes()); // TYPE A
         pkt.extend_from_slice(&1u16.to_be_bytes()); // CLASS IN
@@ -2308,10 +2879,18 @@ pub fn sortie_dns_forge_response(_extra_args: &[&str]) -> rbida_Verdict {
         pkt
     };
 
-    let target = format!("{}:53", sentry_ip);
+    let target = format!(
+        "{}:53",
+        sentry_ip, //
+    );
     let sock = match UdpSocket::bind("0.0.0.0:0") {
         Ok(s) => s,
-        Err(e) => return fail(format!("cannot bind UDP socket: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "cannot bind UDP socket: {}",
+                e, //
+            ));
+        }
     };
     let _ = sock.set_write_timeout(Some(Duration::from_secs(2)));
 
@@ -2325,28 +2904,29 @@ pub fn sortie_dns_forge_response(_extra_args: &[&str]) -> rbida_Verdict {
     }
 
     if sent > 0 {
-        pass(format!(
+        rbtics_pass(format!(
             "SENT {} forged DNS responses to {}:53 claiming google.com→1.2.3.4",
-            sent, sentry_ip
+            sent,
+            sentry_ip, //
         ))
     } else {
-        fail(format!(
+        rbtics_fail(format!(
             "failed to send any forged DNS packets to {}",
-            target
+            target, //
         ))
     }
 }
 
 /// Flood the bridge's MAC learning table with frames from random source MACs.
 /// Coordinated primitive: passed=true means "flood was executed" (theurge judges connectivity).
-pub fn sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbida_Verdict {
-    let (iface, _our_mac) = match get_interface_info() {
+pub fn rbtics_sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbtica_Verdict {
+    let (iface, _our_mac) = match rbtics_get_interface_info() {
         Some((i, m)) => (i, m),
-        None => return fail("ERROR: cannot discover enclave interface".to_string()),
+        None => return rbtics_fail("ERROR: cannot discover enclave interface".to_string()),
     };
 
-    if arp_test_af_packet(&iface).is_err() {
-        return fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
+    if rbtics_arp_test_af_packet(&iface).is_err() {
+        return rbtics_fail("AF_PACKET unavailable — cannot send L2 frames".to_string());
     }
 
     let broadcast = [0xFFu8; 6];
@@ -2386,42 +2966,51 @@ pub fn sortie_mac_flood_bridge(_extra_args: &[&str]) -> rbida_Verdict {
         frame.extend_from_slice(&[0x88, 0xB5]); // ethertype: Local Experimental
         frame.resize(60, 0); // pad to minimum Ethernet frame size
 
-        if send_raw_frame(&iface, &frame) {
+        if rbtics_send_raw_frame(&iface, &frame) {
             sent += 1;
         }
     }
 
     if sent > 0 {
-        pass(format!(
+        rbtics_pass(format!(
             "SENT {} frames with random source MACs on {}",
-            sent, iface
+            sent,
+            iface, //
         ))
     } else {
-        fail("AF_PACKET open but no frames could be sent".to_string())
+        rbtics_fail("AF_PACKET open but no frames could be sent".to_string())
     }
 }
 
 // ── Advanced adversarial probe: dns_rebinding ────────────────
 
-pub fn sortie_dns_rebinding(_extra_args: &[&str]) -> rbida_Verdict {
-    let domains_str = match env_require("RBRN_UPLINK_ALLOWED_DOMAINS") {
+pub fn rbtics_sortie_dns_rebinding(_extra_args: &[&str]) -> rbtica_Verdict {
+    let domains_str = match rbtics_env_require("RBRN_UPLINK_ALLOWED_DOMAINS") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let domain = match domains_str.split_whitespace().next() {
         Some(d) => d,
-        None => return fail("ERROR: RBRN_UPLINK_ALLOWED_DOMAINS is empty".to_string()),
+        None => return rbtics_fail("ERROR: RBRN_UPLINK_ALLOWED_DOMAINS is empty".to_string()),
     };
 
     // Resolve domain multiple times with short delays to probe cache consistency
     let mut ips: Vec<String> = Vec::new();
     for i in 0..5 {
-        match dig_resolve(domain) {
+        match rbtics_dig_resolve(domain) {
             Some(ip) => ips.push(ip),
-            None => return fail(format!(
-                "ERROR: cannot resolve {} on iteration {} — DNS down",
-                domain, i
-            )),
+            None => {
+                return rbtics_fail(format!(
+                    "ERROR: cannot resolve {} on iteration {} — DNS down",
+                    domain,
+                    i, //
+                ));
+            }
         }
         if i < 4 {
             std::thread::sleep(Duration::from_millis(200));
@@ -2432,70 +3021,81 @@ pub fn sortie_dns_rebinding(_extra_args: &[&str]) -> rbida_Verdict {
     let first = &ips[0];
     for (i, ip) in ips.iter().enumerate().skip(1) {
         if ip != first {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: {} resolution changed between iterations: {} → {} (iter {}) — cache manipulation possible",
-                domain, first, ip, i
+                domain, first, ip, i, //
             ));
         }
     }
 
     // Probe different record types — AAAA and MX should either resolve consistently or return empty
-    let aaaa_results: Vec<Option<String>> = (0..3).map(|_| {
-        let output = Command::new("dig")
-            .args(["+short", "AAAA", domain])
-            .output()
-            .ok();
-        output.and_then(|o| {
-            let stdout = String::from_utf8_lossy(&o.stdout);
-            stdout.lines()
-                .find(|l| !l.trim().is_empty())
-                .map(|l| l.trim().to_string())
+    let aaaa_results: Vec<Option<String>> = (0..3)
+        .map(|_| {
+            let output = Command::new("dig")
+                .args(["+short", "AAAA", domain])
+                .output()
+                .ok();
+            output.and_then(|o| {
+                let stdout = String::from_utf8_lossy(&o.stdout);
+                stdout
+                    .lines()
+                    .find(|l| !l.trim().is_empty())
+                    .map(|l| l.trim().to_string())
+            })
         })
-    }).collect();
+        .collect();
 
     // Check AAAA consistency (all should be the same — either all Some(same) or all None)
     if aaaa_results.len() >= 2 {
         let first_aaaa = &aaaa_results[0];
         for (i, result) in aaaa_results.iter().enumerate().skip(1) {
             if result != first_aaaa {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: AAAA record for {} inconsistent: {:?} → {:?} (iter {})",
-                    domain, first_aaaa, result, i
+                    domain,
+                    first_aaaa,
+                    result,
+                    i, //
                 ));
             }
         }
     }
 
     // MX record probe
-    let mx_results: Vec<Option<String>> = (0..2).map(|_| {
-        let output = Command::new("dig")
-            .args(["+short", "MX", domain])
-            .output()
-            .ok();
-        output.and_then(|o| {
-            let stdout = String::from_utf8_lossy(&o.stdout);
-            stdout.lines()
-                .find(|l| !l.trim().is_empty())
-                .map(|l| l.trim().to_string())
+    let mx_results: Vec<Option<String>> = (0..2)
+        .map(|_| {
+            let output = Command::new("dig")
+                .args(["+short", "MX", domain])
+                .output()
+                .ok();
+            output.and_then(|o| {
+                let stdout = String::from_utf8_lossy(&o.stdout);
+                stdout
+                    .lines()
+                    .find(|l| !l.trim().is_empty())
+                    .map(|l| l.trim().to_string())
+            })
         })
-    }).collect();
+        .collect();
 
     if mx_results.len() >= 2 && mx_results[0] != mx_results[1] {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: MX record for {} inconsistent: {:?} → {:?}",
-            domain, mx_results[0], mx_results[1]
+            domain,
+            mx_results[0],
+            mx_results[1], //
         ));
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: DNS rebinding check — {} resolved consistently to {} across {} queries, AAAA/MX stable",
-        domain, first, ips.len()
+        domain, first, ips.len(), //
     ))
 }
 
 // ── Advanced adversarial probe: proc_sys_write ───────────────
 
-pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_proc_sys_write(_extra_args: &[&str]) -> rbtica_Verdict {
     let tunables: &[(&str, &str)] = &[
         ("/proc/sys/net/ipv4/ip_forward", "1"),
         ("/proc/sys/net/ipv4/conf/all/rp_filter", "0"),
@@ -2510,9 +3110,10 @@ pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
         // Try writing via direct file write
         if let Ok(mut f) = std::fs::File::options().write(true).open(path) {
             if IoWrite::write_all(&mut f, value.as_bytes()).is_ok() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: successfully wrote '{}' to {} — kernel network tunable modified",
-                    value, path
+                    value,
+                    path, //
                 ));
             }
         }
@@ -2524,13 +3125,21 @@ pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
             .unwrap_or(path)
             .replace('/', ".");
         if let Ok(output) = Command::new("sysctl")
-            .args(["-w", &format!("{}={}", sysctl_key, value)])
+            .args([
+                "-w",
+                &format!(
+                    "{}={}",
+                    sysctl_key,
+                    value, //
+                ),
+            ])
             .output()
         {
             if output.status.success() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: sysctl -w {}={} succeeded — kernel tunable modified via sysctl",
-                    sysctl_key, value
+                    sysctl_key,
+                    value, //
                 ));
             }
         }
@@ -2544,14 +3153,14 @@ pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
             .open(path)
             .is_ok()
         {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: truncate-open succeeded on {} — file is writable",
-                path
+                path, //
             ));
         }
     }
 
-    pass("SECURE: all /proc/sys kernel tunables are read-only from bottle".to_string())
+    rbtics_pass("SECURE: all /proc/sys kernel tunables are read-only from bottle".to_string())
 }
 
 // ── Advanced adversarial probe: tcp_rst_hijack ───────────────
@@ -2561,15 +3170,25 @@ pub fn sortie_proc_sys_write(_extra_args: &[&str]) -> rbida_Verdict {
 //   passed=true  → "I sent the RST packets" (theurge verifies DNS still works)
 //   passed=false → "I could not send" (raw socket blocked, etc.)
 
-pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
-    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+    let bottle_ip = match rbtics_env_require("RBRN_ENCLAVE_BOTTLE_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     let timeout = Duration::from_secs(3);
@@ -2579,10 +3198,10 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
     // This attempts to disrupt the sentry's upstream DNS forwarding
     for src_port in [40000u16, 40001, 40002, 53, 1053, 5353] {
         // Build TCP RST segment
-        let rst_seg = build_tcp_rst(src_port, 53);
+        let rst_seg = rbtics_build_tcp_rst(src_port, 53);
 
         // Build IP header with bottle as source, sentry as destination
-        let ip_hdr = match build_ip_header(6, &bottle_ip, &sentry_ip, rst_seg.len()) {
+        let ip_hdr = match rbtics_build_ip_header(6, &bottle_ip, &sentry_ip, rst_seg.len()) {
             Ok(h) => h,
             Err(_) => continue,
         };
@@ -2590,7 +3209,7 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
         let mut packet = ip_hdr;
         packet.extend_from_slice(&rst_seg);
 
-        match send_raw_ip_and_listen(&packet, &sentry_ip, timeout) {
+        match rbtics_send_raw_ip_and_listen(&packet, &sentry_ip, timeout) {
             Ok(_) => sent += 1,
             Err(_) => {} // Raw socket may be blocked — that's fine
         }
@@ -2598,8 +3217,8 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Also try RST to upstream DNS (8.8.8.8) as if spoofed from sentry
     for src_port in [53u16, 40000] {
-        let rst_seg = build_tcp_rst(src_port, 53);
-        let ip_hdr = match build_ip_header(6, &bottle_ip, "8.8.8.8", rst_seg.len()) {
+        let rst_seg = rbtics_build_tcp_rst(src_port, 53);
+        let ip_hdr = match rbtics_build_ip_header(6, &bottle_ip, "8.8.8.8", rst_seg.len()) {
             Ok(h) => h,
             Err(_) => continue,
         };
@@ -2607,27 +3226,28 @@ pub fn sortie_tcp_rst_hijack(_extra_args: &[&str]) -> rbida_Verdict {
         let mut packet = ip_hdr;
         packet.extend_from_slice(&rst_seg);
 
-        match send_raw_ip_and_listen(&packet, "8.8.8.8", timeout) {
+        match rbtics_send_raw_ip_and_listen(&packet, "8.8.8.8", timeout) {
             Ok(_) => sent += 1,
             Err(_) => {}
         }
     }
 
     if sent > 0 {
-        pass(format!(
+        rbtics_pass(format!(
             "SENT {} TCP RST packets targeting DNS connections (sentry {}, upstream 8.8.8.8)",
-            sent, sentry_ip
+            sent,
+            sentry_ip, //
         ))
     } else {
-        fail("could not send any TCP RST packets — raw sockets fully blocked".to_string())
+        rbtics_fail("could not send any TCP RST packets — raw sockets fully blocked".to_string())
     }
 }
 
 /// Build TCP ACK segment (20 bytes, no options) — no prior SYN.
-fn build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
-    let seq_bytes = random_hex(8);
+fn rbtics_build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
+    let seq_bytes = rbtics_random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
-    let ack_bytes = random_hex(8);
+    let ack_bytes = rbtics_random_hex(8);
     let ack = u32::from_str_radix(&ack_bytes, 16).unwrap_or(0x42424242);
     let data_offset_flags: u16 = (5 << 12) | 0x010; // ACK flag
     let mut seg = Vec::with_capacity(20);
@@ -2643,8 +3263,8 @@ fn build_tcp_ack(src_port: u16, dst_port: u16) -> Vec<u8> {
 }
 
 /// Build TCP RST segment (20 bytes, no options).
-fn build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
-    let seq_bytes = random_hex(8);
+fn rbtics_build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
+    let seq_bytes = rbtics_random_hex(8);
     let seq = u32::from_str_radix(&seq_bytes, 16).unwrap_or(0x41414141);
     let data_offset_flags: u16 = (5 << 12) | 0x004; // RST flag
     let mut seg = Vec::with_capacity(20);
@@ -2661,136 +3281,182 @@ fn build_tcp_rst(src_port: u16, dst_port: u16) -> Vec<u8> {
 
 // ── Egress control verification: udp_non_dns_blocked ─────────
 
-pub fn sortie_udp_non_dns_blocked(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_udp_non_dns_blocked(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(3);
 
     // 8.8.8.8 is outside allowed CIDRs — UDP on non-DNS port should be blocked
-    let targets: &[(&str, u16)] = &[
-        ("8.8.8.8", 1234),
-        ("8.8.8.8", 4321),
-        ("1.1.1.1", 1234),
-    ];
+    let targets: &[(&str, u16)] = &[("8.8.8.8", 1234), ("8.8.8.8", 4321), ("1.1.1.1", 1234)];
 
     for (host, port) in targets {
-        let addr: SocketAddr = match format!("{}:{}", host, port).parse() {
+        let addr: SocketAddr = match format!(
+            "{}:{}",
+            host,
+            port, //
+        )
+        .parse()
+        {
             Ok(a) => a,
-            Err(e) => return fail(format!("ERROR: cannot parse {}:{} — {}", host, port, e)),
+            Err(e) => {
+                return rbtics_fail(format!(
+                    "ERROR: cannot parse {}:{} — {}",
+                    host,
+                    port,
+                    e, //
+                ));
+            }
         };
         if let Ok(sock) = UdpSocket::bind("0.0.0.0:0") {
             let _ = sock.set_read_timeout(Some(timeout));
             let _ = sock.send_to(b"PROBE", addr);
             let mut buf = [0u8; 64];
             if sock.recv_from(&mut buf).is_ok() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: UDP {}:{} — response received (packet escaped enclave)",
-                    host, port
+                    host,
+                    port, //
                 ));
             }
         }
     }
 
-    pass("SECURE: UDP non-DNS to non-allowed IPs blocked — no responses".to_string())
+    rbtics_pass("SECURE: UDP non-DNS to non-allowed IPs blocked — no responses".to_string())
 }
 
 // ── Egress control verification: cidr_all_ports_allowed ──────
 
-pub fn sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_cidr_all_ports_allowed(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(5);
 
     // Resolve connectivity domain — it's on the allowed CIDR list.
     // Use getent (same resolver as other ifrit attacks).
     let resolve_output = match std::process::Command::new("getent")
-        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
+        .args(["hosts", RBTICA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
-        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: getent failed: {}",
+                e, //
+            ));
+        }
     };
     if !resolve_output.status.success() {
-        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
+        return rbtics_fail(format!(
+            "ERROR: cannot resolve {} (DNS blocked?)",
+            RBTICA_CONNECTIVITY_DOMAIN, //
+        ));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let ip = match stdout.split_whitespace().next() {
         Some(ip) => ip.to_string(),
-        None => return fail("ERROR: getent returned empty output".to_string()),
+        None => return rbtics_fail("ERROR: getent returned empty output".to_string()),
     };
 
     // Test multiple ports — CIDR allowlist should permit all of them
     let ports: &[u16] = &[80, 443];
     for port in ports {
-        let (connected, refused, err_msg) = tcp_probe(&ip, *port, timeout);
+        let (connected, refused, err_msg) = rbtics_tcp_probe(&ip, *port, timeout);
         if connected || refused {
             // Both connected and refused mean iptables allowed the packet through.
             // Connected = remote accepted; refused = remote sent RST. Either is fine.
             continue;
         }
         // Timeout = iptables DROP'd the packet
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: TCP {}:{} timed out — iptables blocked (CIDR should allow all ports). Error: {}",
             ip,
             port,
-            err_msg.unwrap_or_default()
+            err_msg.unwrap_or_default(), //
         ));
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: CIDR all-ports allowed — TCP to {} on ports {:?} all reached remote",
-        ip, ports
+        ip,
+        ports, //
     ))
 }
 
 // ── Network path verification: http_end_to_end ──────────────
 
-pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_http_end_to_end(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(10);
 
     // Resolve connectivity domain via getent to get IP (same as other ifrit attacks)
     let resolve_output = match Command::new("getent")
-        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
+        .args(["hosts", RBTICA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
-        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: getent failed: {}",
+                e, //
+            ));
+        }
     };
     if !resolve_output.status.success() {
-        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
+        return rbtics_fail(format!(
+            "ERROR: cannot resolve {} (DNS blocked?)",
+            RBTICA_CONNECTIVITY_DOMAIN, //
+        ));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let ip = match stdout.split_whitespace().next() {
         Some(ip) => ip.to_string(),
-        None => return fail("ERROR: getent returned empty output".to_string()),
+        None => return rbtics_fail("ERROR: getent returned empty output".to_string()),
     };
 
     // TCP connect to resolved IP on port 80
-    let addr: SocketAddr = match format!("{}:80", ip).parse() {
+    let addr: SocketAddr = match format!(
+        "{}:80",
+        ip, //
+    )
+    .parse()
+    {
         Ok(a) => a,
-        Err(e) => return fail(format!("ERROR: cannot parse {}:80 — {}", ip, e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: cannot parse {}:80 — {}",
+                ip,
+                e, //
+            ));
+        }
     };
     let mut stream = match TcpStream::connect_timeout(&addr, timeout) {
         Ok(s) => s,
         Err(e) => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH: TCP connect to {}:80 failed — NAT masquerade not routing: {}",
-                ip, e
-            ))
+                ip,
+                e, //
+            ));
         }
     };
     let _ = stream.set_read_timeout(Some(timeout));
     let _ = stream.set_write_timeout(Some(timeout));
 
     // Send HTTP/1.1 GET (User-Agent required by InterNIC's Apache)
-    let request = format!("GET / HTTP/1.1\r\nHost: {}\r\nUser-Agent: rbid/1.0\r\nConnection: close\r\n\r\n", RBIDA_CONNECTIVITY_DOMAIN);
+    let request = format!(
+        "GET / HTTP/1.1\r\nHost: {}\r\nUser-Agent: rbti/1.0\r\nConnection: close\r\n\r\n",
+        RBTICA_CONNECTIVITY_DOMAIN, //
+    );
     if let Err(e) = IoWrite::write_all(&mut stream, request.as_bytes()) {
-        return fail(format!("ERROR: write failed to {}:80 — {}", ip, e));
+        return rbtics_fail(format!(
+            "ERROR: write failed to {}:80 — {}",
+            ip,
+            e, //
+        ));
     }
 
     // Read full response
     let mut response = Vec::new();
     let _ = IoRead::read_to_end(&mut stream, &mut response);
     if response.is_empty() {
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: empty response from {}:80 — NAT masquerade not returning data",
-            ip
+            ip, //
         ));
     }
 
@@ -2803,50 +3469,72 @@ pub fn sortie_http_end_to_end(_extra_args: &[&str]) -> rbida_Verdict {
         .map_or(false, |line| line.contains("200"));
     if !status_ok {
         let first_line = response_str.lines().next().unwrap_or("<empty>");
-        return fail(format!(
+        return rbtics_fail(format!(
             "BREACH: HTTP response from {}:80 was not 200 — got: {}",
-            ip, first_line
+            ip,
+            first_line, //
         ));
     }
 
     // Verify body contains expected marker from connectivity domain
-    if !response_str.contains(RBIDA_HTTP_BODY_MARKER_INTERNIC) {
-        return fail(format!(
+    if !response_str.contains(RBTICS_HTTP_BODY_MARKER_INTERNIC) {
+        return rbtics_fail(format!(
             "BREACH: HTTP 200 from {}:80 but body missing '{}' — response truncated or wrong host (body length: {} bytes)",
-            ip, RBIDA_HTTP_BODY_MARKER_INTERNIC, response.len()
+            ip, RBTICS_HTTP_BODY_MARKER_INTERNIC, response.len(), //
         ));
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: HTTP GET to {} ({}) returned 200 with '{}' in body ({} bytes)",
-        RBIDA_CONNECTIVITY_DOMAIN, ip, RBIDA_HTTP_BODY_MARKER_INTERNIC, response.len()
+        RBTICA_CONNECTIVITY_DOMAIN,
+        ip,
+        RBTICS_HTTP_BODY_MARKER_INTERNIC,
+        response.len(), //
     ))
 }
 
 // ── Sentry self-protection: sentry_udp_non_dns ───────────────
 
-pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
-    let sentry_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+pub fn rbtics_sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbtica_Verdict {
+    let sentry_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
     let timeout = Duration::from_secs(2);
 
     // Negative tests: UDP to sentry on non-53 ports should be blocked by INPUT DROP
     let probe_ports: &[u16] = &[123, 161, 1234, 5353, 8053, 10000];
     for &port in probe_ports {
-        let addr: SocketAddr = match format!("{}:{}", sentry_ip, port).parse() {
+        let addr: SocketAddr = match format!(
+            "{}:{}",
+            sentry_ip,
+            port, //
+        )
+        .parse()
+        {
             Ok(a) => a,
-            Err(e) => return fail(format!("ERROR: cannot parse {}:{} — {}", sentry_ip, port, e)),
+            Err(e) => {
+                return rbtics_fail(format!(
+                    "ERROR: cannot parse {}:{} — {}",
+                    sentry_ip,
+                    port,
+                    e, //
+                ));
+            }
         };
         if let Ok(sock) = UdpSocket::bind("0.0.0.0:0") {
             let _ = sock.set_read_timeout(Some(timeout));
             let _ = sock.send_to(b"PROBE", addr);
             let mut buf = [0u8; 64];
             if sock.recv_from(&mut buf).is_ok() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "BREACH: sentry UDP {}:{} — response received (INPUT DROP not blocking non-DNS UDP)",
-                    sentry_ip, port
+                    sentry_ip, port, //
                 ));
             }
         }
@@ -2854,35 +3542,45 @@ pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
 
     // Positive control: UDP 53 (DNS) to sentry should work
     let dig_output = Command::new("dig")
-        .args(["+short", &format!("@{}", sentry_ip), RBIDA_CONNECTIVITY_DOMAIN])
+        .args([
+            "+short",
+            &format!(
+                "@{}",
+                sentry_ip, //
+            ),
+            RBTICA_CONNECTIVITY_DOMAIN,
+        ])
         .output();
     match dig_output {
         Ok(o) if o.status.success() => {
             let stdout = String::from_utf8_lossy(&o.stdout);
             if stdout.trim().is_empty() {
-                return fail(format!(
+                return rbtics_fail(format!(
                     "ERROR: dig @{} {} returned empty — DNS not working",
-                    sentry_ip, RBIDA_CONNECTIVITY_DOMAIN
+                    sentry_ip,
+                    RBTICA_CONNECTIVITY_DOMAIN, //
                 ));
             }
         }
         Ok(o) => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "ERROR: dig @{} {} failed (exit {}) — positive control broken",
-                sentry_ip, RBIDA_CONNECTIVITY_DOMAIN, o.status.code().unwrap_or(-1)
+                sentry_ip,
+                RBTICA_CONNECTIVITY_DOMAIN,
+                o.status.code().unwrap_or(-1), //
             ));
         }
         Err(e) => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "ERROR: dig command failed: {} — positive control broken",
-                e
+                e, //
             ));
         }
     }
 
-    pass(format!(
+    rbtics_pass(format!(
         "SECURE: sentry UDP non-DNS ports blocked — {} ports probed, all silent. DNS on :53 works.",
-        probe_ports.len()
+        probe_ports.len(), //
     ))
 }
 
@@ -2900,7 +3598,7 @@ pub fn sortie_sentry_udp_non_dns(_extra_args: &[&str]) -> rbida_Verdict {
 /// failure. We classify by L2 source rather than by L3, because the substrate
 /// spoofs the destination IP either way — only the MAC distinguishes the two.
 #[derive(Debug, PartialEq)]
-enum AckProvenance {
+enum rbtics_AckProvenance {
     /// No reply within the window — sentry return-path state enforcement held.
     NoResponse,
     /// Reply arrived via the gateway (sentry) — a real containment breach.
@@ -2914,11 +3612,11 @@ enum AckProvenance {
 
 /// Outcome of inspecting one captured Ethernet frame against the probe's endpoints.
 #[derive(Debug, PartialEq)]
-enum FrameInspection {
+enum rbtics_FrameInspection {
     /// Our own outbound probe frame — carries the learned next-hop (gateway) MAC.
     Outbound { gateway_mac: String },
     /// The reply we are listening for, classified by L2 provenance.
-    Reply(AckProvenance),
+    Reply(rbtics_AckProvenance),
     /// Anything else — not relevant to this probe.
     Ignore,
 }
@@ -2932,24 +3630,24 @@ enum FrameInspection {
 /// breach as SECURE, which is exactly the rot conntrack_spoofed_ack's verdict is
 /// vulnerable to. Pure over the frame bytes so the pipeline self-check sortie can
 /// exercise it with synthetic frames, no live socket required.
-fn inspect_capture_frame(
+fn rbtics_inspect_capture_frame(
     frame: &[u8],
     dst_addr: Ipv4Addr,
     bottle_addr: Ipv4Addr,
     gateway_mac: Option<&str>,
-) -> FrameInspection {
+) -> rbtics_FrameInspection {
     if frame.len() < 14 + 20 + 20 {
-        return FrameInspection::Ignore; // too short for Ethernet + IPv4 + TCP
+        return rbtics_FrameInspection::Ignore; // too short for Ethernet + IPv4 + TCP
     }
     if frame[12] != 0x08 || frame[13] != 0x00 {
-        return FrameInspection::Ignore; // not IPv4
+        return rbtics_FrameInspection::Ignore; // not IPv4
     }
     let ihl = (frame[14] & 0x0f) as usize * 4;
     if ihl < 20 || 14 + ihl + 20 > frame.len() {
-        return FrameInspection::Ignore;
+        return rbtics_FrameInspection::Ignore;
     }
     if frame[14 + 9] != 6 {
-        return FrameInspection::Ignore; // not TCP
+        return rbtics_FrameInspection::Ignore; // not TCP
     }
     let src_ip = Ipv4Addr::new(frame[26], frame[27], frame[28], frame[29]);
     let dst_ip = Ipv4Addr::new(frame[30], frame[31], frame[32], frame[33]);
@@ -2957,34 +3655,41 @@ fn inspect_capture_frame(
     // Our own outbound ACK: learn the next-hop (gateway) MAC the kernel chose
     // (Ethernet destination of the frame we sent).
     if src_ip == bottle_addr && dst_ip == dst_addr {
-        return FrameInspection::Outbound {
-            gateway_mac: mac_to_string(&frame[0..6]),
+        return rbtics_FrameInspection::Outbound {
+            gateway_mac: rbtics_mac_to_string(&frame[0..6]),
         };
     }
     // The reply: from the probed destination, to the bottle. Classify by Ethernet
     // source against the gateway MAC.
     if src_ip == dst_addr && dst_ip == bottle_addr {
-        let src_mac = mac_to_string(&frame[6..12]);
-        return FrameInspection::Reply(match gateway_mac {
-            Some(gw) if src_mac.eq_ignore_ascii_case(gw) => AckProvenance::SentryMediated { src_mac },
-            Some(_) => AckProvenance::OffPath { src_mac },
-            None => AckProvenance::Indeterminate { src_mac },
+        let src_mac = rbtics_mac_to_string(&frame[6..12]);
+        return rbtics_FrameInspection::Reply(match gateway_mac {
+            Some(gw) if src_mac.eq_ignore_ascii_case(gw) => {
+                rbtics_AckProvenance::SentryMediated { src_mac }
+            }
+            Some(_) => rbtics_AckProvenance::OffPath { src_mac },
+            None => rbtics_AckProvenance::Indeterminate { src_mac },
         });
     }
-    FrameInspection::Ignore
+    rbtics_FrameInspection::Ignore
 }
 
 /// Render a 6-byte MAC as lowercase colon-hex (matching /proc/net/arp form).
-fn mac_to_string(b: &[u8]) -> String {
+fn rbtics_mac_to_string(b: &[u8]) -> String {
     b.iter()
-        .map(|x| format!("{:02x}", x))
+        .map(|x| {
+            format!(
+                "{:02x}",
+                x, //
+            )
+        })
         .collect::<Vec<_>>()
         .join(":")
 }
 
 /// Parse a colon-hex MAC string into 6 bytes. Used only to assemble synthetic
 /// frames for the pipeline self-check; returns zeroes for malformed input.
-fn mac_from_string(s: &str) -> [u8; 6] {
+fn rbtics_mac_from_string(s: &str) -> [u8; 6] {
     let mut out = [0u8; 6];
     for (i, part) in s.split(':').take(6).enumerate() {
         out[i] = u8::from_str_radix(part, 16).unwrap_or(0);
@@ -2994,7 +3699,7 @@ fn mac_from_string(s: &str) -> [u8; 6] {
 
 /// Resolve the MAC for `ip` from the kernel neighbor table (/proc/net/arp).
 /// Returns None if absent or incomplete (all-zero).
-fn arp_lookup_mac(ip: &str) -> Option<String> {
+fn rbtics_arp_lookup_mac(ip: &str) -> Option<String> {
     let text = std::fs::read_to_string("/proc/net/arp").ok()?;
     // Columns: IP address  HW type  Flags  HW address  Mask  Device
     for line in text.lines().skip(1) {
@@ -3014,22 +3719,35 @@ fn arp_lookup_mac(ip: &str) -> Option<String> {
 ///
 /// The gateway MAC is learned from the bottle's own outbound frame (the kernel's
 /// chosen next hop for this exact packet — definitive), with the neighbor-table
-/// entry for `gateway_ip` as a fallback. Requires CAP_NET_RAW (rbid carries it).
-fn send_lone_ack_classify_provenance(
+/// entry for `gateway_ip` as a fallback. Requires CAP_NET_RAW (rbti carries it).
+fn rbtics_send_lone_ack_classify_provenance(
     packet: &[u8],
     dst: &str,
     bottle_ip: &str,
     gateway_ip: &str,
     timeout: Duration,
-) -> Result<AckProvenance, String> {
-    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| format!("bad dst IP: {}", e))?;
-    let bottle_addr: Ipv4Addr = bottle_ip.parse().map_err(|e| format!("bad bottle IP: {}", e))?;
+) -> Result<rbtics_AckProvenance, String> {
+    let dst_addr: Ipv4Addr = dst.parse().map_err(|e| {
+        format!(
+            "bad dst IP: {}",
+            e, //
+        )
+    })?;
+    let bottle_addr: Ipv4Addr = bottle_ip.parse().map_err(|e| {
+        format!(
+            "bad bottle IP: {}",
+            e, //
+        )
+    })?;
 
     // L2 capture socket, opened BEFORE the send so the reply cannot race the listener.
     let proto = (0x0800u16).to_be() as libc::c_int; // htons(ETH_P_IP)
     let cap_fd = unsafe { libc::socket(libc::AF_PACKET, libc::SOCK_RAW, proto) };
     if cap_fd < 0 {
-        return Err(format!("AF_PACKET socket: {}", std::io::Error::last_os_error()));
+        return Err(format!(
+            "AF_PACKET socket: {}",
+            std::io::Error::last_os_error(), //
+        ));
     }
     // RAII guard: always close the capture fd.
     struct Fd(libc::c_int);
@@ -3047,7 +3765,12 @@ fn send_lone_ack_classify_provenance(
         socket2::Type::RAW,
         Some(socket2::Protocol::from(libc::IPPROTO_RAW as i32)),
     )
-    .map_err(|e| format!("raw socket: {}", e))?;
+    .map_err(|e| {
+        format!(
+            "raw socket: {}",
+            e, //
+        )
+    })?;
     unsafe {
         let val: libc::c_int = 1;
         libc::setsockopt(
@@ -3059,13 +3782,16 @@ fn send_lone_ack_classify_provenance(
         );
     }
     let sock_addr = socket2::SockAddr::from(SocketAddrV4::new(dst_addr, 0));
-    send_sock
-        .send_to(packet, &sock_addr)
-        .map_err(|e| format!("sendto: {}", e))?;
+    send_sock.send_to(packet, &sock_addr).map_err(|e| {
+        format!(
+            "sendto: {}",
+            e, //
+        )
+    })?;
 
     // Best-effort gateway MAC from the neighbor table (the send above triggers ARP if
     // it was not already cached; the bottle routes all traffic via the gateway anyway).
-    let mut gateway_mac: Option<String> = arp_lookup_mac(gateway_ip);
+    let mut gateway_mac: Option<String> = rbtics_arp_lookup_mac(gateway_ip);
 
     let mut buf = [0u8; 2048];
     let deadline = Instant::now() + timeout;
@@ -3076,7 +3802,7 @@ fn send_lone_ack_classify_provenance(
             tv_usec: remaining.subsec_micros() as libc::suseconds_t,
         };
         if tv.tv_sec == 0 && tv.tv_usec == 0 {
-            return Ok(AckProvenance::NoResponse);
+            return Ok(rbtics_AckProvenance::NoResponse);
         }
         unsafe {
             libc::setsockopt(
@@ -3087,89 +3813,115 @@ fn send_lone_ack_classify_provenance(
                 std::mem::size_of::<libc::timeval>() as libc::socklen_t,
             );
         }
-        let n = unsafe {
-            libc::recv(cap_fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len(), 0)
-        };
+        let n = unsafe { libc::recv(cap_fd, buf.as_mut_ptr() as *mut libc::c_void, buf.len(), 0) };
         if n < 0 {
-            return Ok(AckProvenance::NoResponse); // timeout / EAGAIN
+            return Ok(rbtics_AckProvenance::NoResponse); // timeout / EAGAIN
         }
-        match inspect_capture_frame(&buf[0..n as usize], dst_addr, bottle_addr, gateway_mac.as_deref()) {
+        match rbtics_inspect_capture_frame(
+            &buf[0..n as usize],
+            dst_addr,
+            bottle_addr,
+            gateway_mac.as_deref(),
+        ) {
             // Our own outbound ACK taught us the gateway MAC — keep listening for the reply.
-            FrameInspection::Outbound { gateway_mac: gw } => gateway_mac = Some(gw),
-            FrameInspection::Reply(provenance) => return Ok(provenance),
-            FrameInspection::Ignore => {}
+            rbtics_FrameInspection::Outbound { gateway_mac: gw } => gateway_mac = Some(gw),
+            rbtics_FrameInspection::Reply(provenance) => return Ok(provenance),
+            rbtics_FrameInspection::Ignore => {}
         }
     }
 }
 
-pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(3);
 
     // Bottle IP (raw packet source) and gateway IP (the sentry — the sole boundary).
-    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+    let bottle_ip = match rbtics_env_require("RBRN_ENCLAVE_BOTTLE_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let gateway_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+    let gateway_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // Resolve connectivity domain via getent to get an allowed-CIDR IP
     let resolve_output = match Command::new("getent")
-        .args(["hosts", RBIDA_CONNECTIVITY_DOMAIN])
+        .args(["hosts", RBTICA_CONNECTIVITY_DOMAIN])
         .output()
     {
         Ok(o) => o,
-        Err(e) => return fail(format!("ERROR: getent failed: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: getent failed: {}",
+                e, //
+            ));
+        }
     };
     if !resolve_output.status.success() {
-        return fail(format!("ERROR: cannot resolve {} (DNS blocked?)", RBIDA_CONNECTIVITY_DOMAIN));
+        return rbtics_fail(format!(
+            "ERROR: cannot resolve {} (DNS blocked?)",
+            RBTICA_CONNECTIVITY_DOMAIN, //
+        ));
     }
     let stdout = String::from_utf8_lossy(&resolve_output.stdout);
     let dst_ip = match stdout.split_whitespace().next() {
         Some(ip) => ip.to_string(),
-        None => return fail("ERROR: getent returned empty output".to_string()),
+        None => return rbtics_fail("ERROR: getent returned empty output".to_string()),
     };
 
     // Build TCP ACK packet without prior SYN — a stateless mid-stream ACK to an
     // allowed host. A *sentry-forwarded* reply would mean the FORWARD
     // RELATED,ESTABLISHED rule admitted a reply to an unestablished flow.
-    let tcp_ack = build_tcp_ack(40080, 80);
-    let ip_hdr = match build_ip_header(6, &bottle_ip, &dst_ip, tcp_ack.len()) {
+    let tcp_ack = rbtics_build_tcp_ack(40080, 80);
+    let ip_hdr = match rbtics_build_ip_header(6, &bottle_ip, &dst_ip, tcp_ack.len()) {
         Ok(h) => h,
-        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build IP header: {}",
+                e, //
+            ));
+        }
     };
     let mut packet = ip_hdr;
     packet.extend_from_slice(&tcp_ack);
 
-    match send_lone_ack_classify_provenance(&packet, &dst_ip, &bottle_ip, &gateway_ip, timeout) {
-        Ok(AckProvenance::NoResponse) => pass(format!(
+    match rbtics_send_lone_ack_classify_provenance(&packet, &dst_ip, &bottle_ip, &gateway_ip, timeout) {
+        Ok(rbtics_AckProvenance::NoResponse) => rbtics_pass(format!(
             "SECURE: spoofed ACK to {}:80 drew no observed reply — no return path reached the bottle. \
              (Honest scope: this reflects observed silence, which a non-answering remote also produces; \
              it is not by itself proof the sentry dropped a reply. Capture/classify liveness — that a \
              real gateway-sourced reply WOULD be caught — is covered by conntrack-pipeline-selfcheck.)",
-            dst_ip
+            dst_ip, //
         )),
-        Ok(AckProvenance::SentryMediated { src_mac }) => fail(format!(
+        Ok(rbtics_AckProvenance::SentryMediated { src_mac }) => rbtics_fail(format!(
             "BREACH: spoofed ACK to {}:80 drew a sentry-forwarded reply (L2 src {} = gateway) — \
              FORWARD RELATED,ESTABLISHED admitted a reply to an unestablished flow",
-            dst_ip, src_mac
+            dst_ip, src_mac, //
         )),
-        Ok(AckProvenance::OffPath { src_mac }) => pass(format!(
+        Ok(rbtics_AckProvenance::OffPath { src_mac }) => rbtics_pass(format!(
             "SECURE: spoofed ACK to {}:80 drew an OFF-PATH reply (L2 src {}, not the sentry gateway) — \
              network-substrate injection that bypassed the sentry, not a containment failure. \
              Known Windows Docker Desktop deviation; the sentry never forwarded a reply.",
-            dst_ip, src_mac
+            dst_ip, src_mac, //
         )),
-        Ok(AckProvenance::Indeterminate { src_mac }) => fail(format!(
+        Ok(rbtics_AckProvenance::Indeterminate { src_mac }) => rbtics_fail(format!(
             "BREACH (provenance indeterminate): spoofed ACK to {}:80 drew a reply (L2 src {}) but the \
              gateway MAC could not be resolved to confirm it bypassed the sentry — reported conservatively",
-            dst_ip, src_mac
+            dst_ip, src_mac, //
         )),
-        Err(e) => pass(format!(
+        Err(e) => rbtics_pass(format!(
             "SECURE: spoofed ACK to {}:80 blocked at socket level: {} (security posture intact)",
-            dst_ip, e
+            dst_ip, e, //
         )),
     }
 }
@@ -3179,9 +3931,9 @@ pub fn sortie_conntrack_spoofed_ack(_extra_args: &[&str]) -> rbida_Verdict {
 /// Forbidden destination for the off-path negative control: outside every
 /// allowed CIDR on every platform (suite-wide convention, matches the forbidden
 /// targets in net_forbidden_cidr / udp_non_dns_blocked / net_srcip_spoof).
-const RBIDA_OFFPATH_BLOCKED_DEST: &str = "8.8.8.8";
+const RBTICS_OFFPATH_BLOCKED_DEST: &str = "8.8.8.8";
 
-/// Empirical backstop for the rbsq_wdd_offpath_reply quirk's keystone clause.
+/// Empirical backstop for the rbsiq_wdd_offpath_reply quirk's keystone clause.
 ///
 /// conntrack_spoofed_ack classifies an off-path lone-ACK reply as a benign
 /// substrate quirk — but only on the untested premise that the substrate ever
@@ -3192,61 +3944,76 @@ const RBIDA_OFFPATH_BLOCKED_DEST: &str = "8.8.8.8";
 /// sentry-mediated — is a BREACH, because the substrate reached the bottle on
 /// behalf of an unapproved destination: a real path-in, not a quirk. Only
 /// silence (the sentry dropped the egress) is SECURE.
-pub fn sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbtica_Verdict {
     let timeout = Duration::from_secs(3);
 
     // Bottle IP (raw packet source) and gateway IP (the sentry — the sole boundary).
-    let bottle_ip = match env_require("RBRN_ENCLAVE_BOTTLE_IP") {
+    let bottle_ip = match rbtics_env_require("RBRN_ENCLAVE_BOTTLE_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
-    let gateway_ip = match env_require("RBRN_ENCLAVE_SENTRY_IP") {
+    let gateway_ip = match rbtics_env_require("RBRN_ENCLAVE_SENTRY_IP") {
         Ok(v) => v,
-        Err(e) => return fail(format!("ERROR: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: {}",
+                e, //
+            ));
+        }
     };
 
     // No DNS resolution: the destination is a literal blocked IP. Resolving a
     // forbidden host would itself be blocked, and the point is to probe egress to
     // a destination the sentry never approved — not to test name resolution.
-    let dst_ip = RBIDA_OFFPATH_BLOCKED_DEST;
+    let dst_ip = RBTICS_OFFPATH_BLOCKED_DEST;
 
     // Same stateless mid-stream ACK as conntrack_spoofed_ack, but aimed at a
     // forbidden destination. A reply of ANY provenance proves the substrate
     // carried traffic for a destination the sentry never allowed.
-    let tcp_ack = build_tcp_ack(40081, 80);
-    let ip_hdr = match build_ip_header(6, &bottle_ip, dst_ip, tcp_ack.len()) {
+    let tcp_ack = rbtics_build_tcp_ack(40081, 80);
+    let ip_hdr = match rbtics_build_ip_header(6, &bottle_ip, dst_ip, tcp_ack.len()) {
         Ok(h) => h,
-        Err(e) => return fail(format!("ERROR: build IP header: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: build IP header: {}",
+                e, //
+            ));
+        }
     };
     let mut packet = ip_hdr;
     packet.extend_from_slice(&tcp_ack);
 
-    match send_lone_ack_classify_provenance(&packet, dst_ip, &bottle_ip, &gateway_ip, timeout) {
-        Ok(AckProvenance::NoResponse) => pass(format!(
+    match rbtics_send_lone_ack_classify_provenance(&packet, dst_ip, &bottle_ip, &gateway_ip, timeout) {
+        Ok(rbtics_AckProvenance::NoResponse) => rbtics_pass(format!(
             "SECURE: lone ACK to blocked {}:80 drew no reply — sentry dropped egress to an \
              unapproved destination before the substrate could answer; off-path premise holds",
-            dst_ip
+            dst_ip, //
         )),
-        Ok(AckProvenance::OffPath { src_mac }) => fail(format!(
+        Ok(rbtics_AckProvenance::OffPath { src_mac }) => rbtics_fail(format!(
             "BREACH: lone ACK to blocked {}:80 drew an OFF-PATH reply (L2 src {}, not the sentry \
              gateway) — the substrate answered for a destination the sentry never approved. This \
-             voids the rbsq_wdd_offpath_reply benign classification: a real path-in, not a quirk.",
-            dst_ip, src_mac
+             voids the rbsiq_wdd_offpath_reply benign classification: a real path-in, not a quirk.",
+            dst_ip, src_mac, //
         )),
-        Ok(AckProvenance::SentryMediated { src_mac }) => fail(format!(
+        Ok(rbtics_AckProvenance::SentryMediated { src_mac }) => rbtics_fail(format!(
             "BREACH: lone ACK to blocked {}:80 drew a sentry-forwarded reply (L2 src {} = gateway) \
              — the egress allowlist admitted traffic to a forbidden destination",
-            dst_ip, src_mac
+            dst_ip, src_mac, //
         )),
-        Ok(AckProvenance::Indeterminate { src_mac }) => fail(format!(
+        Ok(rbtics_AckProvenance::Indeterminate { src_mac }) => rbtics_fail(format!(
             "BREACH (provenance indeterminate): lone ACK to blocked {}:80 drew a reply (L2 src {}) \
              but the gateway MAC could not be resolved — reported conservatively, since any reply \
              to a blocked destination is a breach regardless of path",
-            dst_ip, src_mac
+            dst_ip, src_mac, //
         )),
-        Err(e) => pass(format!(
+        Err(e) => rbtics_pass(format!(
             "SECURE: lone ACK to blocked {}:80 blocked at socket level: {} (security posture intact)",
-            dst_ip, e
+            dst_ip, e, //
         )),
     }
 }
@@ -3261,14 +4028,14 @@ pub fn sortie_offpath_blocked_dest(_extra_args: &[&str]) -> rbida_Verdict {
 /// into a false SECURE. On Linux no real gateway-sourced reply can be produced
 /// (the substrate never injects one; the firewall cannot fabricate one — the
 /// spoofed ACK is conntrack-INVALID, so NAT/REJECT levers do not fire), so we
-/// cannot stage an end-to-end breach here. Instead we feed inspect_capture_frame
+/// cannot stage an end-to-end breach here. Instead we feed rbtics_inspect_capture_frame
 /// — the exact code the live loop runs — synthetic frames with known provenance
 /// and assert it classifies each correctly. If anyone breaks the offsets or the
 /// compare, this goes red.
 ///
 /// Scope, stated honestly: this proves the parse+classify stage is alive. It does
 /// NOT exercise the live AF_PACKET socket read or the kernel egress path.
-pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdict {
+pub fn rbtics_sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbtica_Verdict {
     // Synthetic, network-independent endpoints (TEST-NET-1 / RFC1918).
     let dst: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 1);
     let bottle: Ipv4Addr = Ipv4Addr::new(10, 0, 0, 9);
@@ -3278,14 +4045,14 @@ pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdic
     // Assemble an Ethernet+IPv4+TCP frame for a reply (dst -> bottle) with a chosen
     // L2 source, mirroring what the live socket would hand the parser.
     let make_reply = |l2_src_mac: &str| -> Vec<u8> {
-        let tcp = build_tcp_ack(80, 40080);
-        let ip = match build_ip_header(6, "192.0.2.1", "10.0.0.9", tcp.len()) {
+        let tcp = rbtics_build_tcp_ack(80, 40080);
+        let ip = match rbtics_build_ip_header(6, "192.0.2.1", "10.0.0.9", tcp.len()) {
             Ok(h) => h,
             Err(_) => Vec::new(),
         };
         let mut frame = Vec::with_capacity(14 + ip.len() + tcp.len());
-        frame.extend_from_slice(&mac_from_string("00:11:22:33:44:55")); // Ethernet dst (bottle) — unchecked
-        frame.extend_from_slice(&mac_from_string(l2_src_mac)); // Ethernet src — the provenance under test
+        frame.extend_from_slice(&rbtics_mac_from_string("00:11:22:33:44:55")); // Ethernet dst (bottle) — unchecked
+        frame.extend_from_slice(&rbtics_mac_from_string(l2_src_mac)); // Ethernet src — the provenance under test
         frame.extend_from_slice(&[0x08, 0x00]); // ethertype IPv4
         frame.extend_from_slice(&ip);
         frame.extend_from_slice(&tcp);
@@ -3295,81 +4062,88 @@ pub fn sortie_conntrack_pipeline_selfcheck(_extra_args: &[&str]) -> rbida_Verdic
     // Case 1 — the breach the live sortie must never miss: a reply whose L2 source
     // IS the gateway must classify SentryMediated.
     let f_gateway = make_reply(gateway_mac);
-    match inspect_capture_frame(&f_gateway, dst, bottle, Some(gateway_mac)) {
-        FrameInspection::Reply(AckProvenance::SentryMediated { .. }) => {}
+    match rbtics_inspect_capture_frame(&f_gateway, dst, bottle, Some(gateway_mac)) {
+        rbtics_FrameInspection::Reply(rbtics_AckProvenance::SentryMediated { .. }) => {}
         other => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH (self-check failed): a gateway-sourced reply classified as {:?}, not SentryMediated \
                  — the conntrack capture/classify pipeline is broken and live SECURE verdicts cannot be trusted",
-                other
-            ))
+                other, //
+            ));
         }
     }
 
     // Case 2 — the suppression arm: a reply from a non-gateway L2 source must
     // classify OffPath (this is the arm that turns a would-be breach into SECURE).
     let f_offpath = make_reply(off_path_mac);
-    match inspect_capture_frame(&f_offpath, dst, bottle, Some(gateway_mac)) {
-        FrameInspection::Reply(AckProvenance::OffPath { .. }) => {}
+    match rbtics_inspect_capture_frame(&f_offpath, dst, bottle, Some(gateway_mac)) {
+        rbtics_FrameInspection::Reply(rbtics_AckProvenance::OffPath { .. }) => {}
         other => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH (self-check failed): an off-path reply classified as {:?}, not OffPath \
                  — the provenance suppression logic is wrong",
-                other
-            ))
+                other, //
+            ));
         }
     }
 
     // Case 3 — conservative fallback: a reply with no known gateway MAC must
     // classify Indeterminate (reported as breach, never silently dropped).
     let f_indet = make_reply(gateway_mac);
-    match inspect_capture_frame(&f_indet, dst, bottle, None) {
-        FrameInspection::Reply(AckProvenance::Indeterminate { .. }) => {}
+    match rbtics_inspect_capture_frame(&f_indet, dst, bottle, None) {
+        rbtics_FrameInspection::Reply(rbtics_AckProvenance::Indeterminate { .. }) => {}
         other => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH (self-check failed): an unresolved-gateway reply classified as {:?}, not Indeterminate",
-                other
-            ))
+                other, //
+            ));
         }
     }
 
     // Case 4 — the outbound-learning branch: our own probe frame (bottle -> dst)
     // must be recognized as Outbound and teach the gateway MAC, not be mistaken
     // for a reply.
-    let tcp_out = build_tcp_ack(40080, 80);
-    let ip_out = match build_ip_header(6, "10.0.0.9", "192.0.2.1", tcp_out.len()) {
+    let tcp_out = rbtics_build_tcp_ack(40080, 80);
+    let ip_out = match rbtics_build_ip_header(6, "10.0.0.9", "192.0.2.1", tcp_out.len()) {
         Ok(h) => h,
-        Err(e) => return fail(format!("ERROR: self-check could not build outbound frame: {}", e)),
+        Err(e) => {
+            return rbtics_fail(format!(
+                "ERROR: self-check could not build outbound frame: {}",
+                e, //
+            ));
+        }
     };
     let mut f_out = Vec::with_capacity(14 + ip_out.len() + tcp_out.len());
-    f_out.extend_from_slice(&mac_from_string(gateway_mac)); // Ethernet dst = next hop (gateway)
-    f_out.extend_from_slice(&mac_from_string("00:11:22:33:44:55")); // Ethernet src = bottle
+    f_out.extend_from_slice(&rbtics_mac_from_string(gateway_mac)); // Ethernet dst = next hop (gateway)
+    f_out.extend_from_slice(&rbtics_mac_from_string("00:11:22:33:44:55")); // Ethernet src = bottle
     f_out.extend_from_slice(&[0x08, 0x00]);
     f_out.extend_from_slice(&ip_out);
     f_out.extend_from_slice(&tcp_out);
-    match inspect_capture_frame(&f_out, dst, bottle, None) {
-        FrameInspection::Outbound { gateway_mac: learned } if learned.eq_ignore_ascii_case(gateway_mac) => {}
+    match rbtics_inspect_capture_frame(&f_out, dst, bottle, None) {
+        rbtics_FrameInspection::Outbound {
+            gateway_mac: learned,
+        } if learned.eq_ignore_ascii_case(gateway_mac) => {}
         other => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH (self-check failed): our own outbound probe classified as {:?}, not Outbound{{{}}} \
                  — gateway-MAC learning is broken",
-                other, gateway_mac
-            ))
+                other, gateway_mac, //
+            ));
         }
     }
 
     // Case 5 — noise rejection: a too-short / non-matching frame must be ignored.
-    match inspect_capture_frame(&[0u8; 10], dst, bottle, Some(gateway_mac)) {
-        FrameInspection::Ignore => {}
+    match rbtics_inspect_capture_frame(&[0u8; 10], dst, bottle, Some(gateway_mac)) {
+        rbtics_FrameInspection::Ignore => {}
         other => {
-            return fail(format!(
+            return rbtics_fail(format!(
                 "BREACH (self-check failed): a runt frame classified as {:?}, not Ignore",
-                other
-            ))
+                other, //
+            ));
         }
     }
 
-    pass(
+    rbtics_pass(
         "SECURE: conntrack provenance pipeline self-check passed — parse+classify intact \
          (gateway->SentryMediated, off-path->OffPath, no-gateway->Indeterminate, outbound learned, runt ignored). \
          Scope: proves the classify stage is alive; does not exercise the live socket read."

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,8 +22,8 @@
 set -euo pipefail
 
 # Source dependencies
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
@@ -34,7 +35,7 @@ rbrv_validate() {
 
   if test -z "${BUZ_FOLIO:-}"; then
     rbrv_list
-    buc_die "Vessel sigil required"
+    buc_die_now "Vessel sigil required"
   fi
   buc_step "Validating RBRV vessel regime"
   buv_report RBRV "Vessel Regime"
@@ -48,9 +49,9 @@ rbrv_render() {
 
   if test -z "${BUZ_FOLIO:-}"; then
     rbrv_list
-    buc_die "Vessel sigil required"
+    buc_die_now "Vessel sigil required"
   fi
-  local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
+  local -r z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
   buv_render RBRV "RBRV - Recipe Bottle Regime Vessel" "${z_vessel_file}"
 }
 
@@ -60,11 +61,13 @@ rbrv_list() {
   buc_doc_shown || return 0
 
   local z_sigils
-  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
+  local z_sigil_roll=()
+  read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
-  local z_sigil=""
-  for z_sigil in ${z_sigils}; do
-    buc_bare "        ${z_sigil}"
+  local z_i=0
+  for z_i in "${!z_sigil_roll[@]}"; do
+    buc_bare "        ${z_sigil_roll[${z_i}]}"
   done
 }
 
@@ -72,32 +75,28 @@ rbrv_list() {
 # Furnish and Main
 
 zrbrv_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
   buc_doc_env_done || return 0
 
   # Sources (always)
-  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${z_rbk_kit_dir}/rbrv_regime.sh"
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk_kit_dir}/rbrv_regime.sh" || buc_die_now "Failed to source rbrv_regime.sh"
 
   # Kindles (always)
-  zbuv_kindle
-  zburd_kindle
   zburd_enforce
   zbupr_kindle
   zrbcc_kindle
 
   # Load and kindle repo regime (needed for RBRR_VESSEL_DIR)
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
@@ -106,9 +105,9 @@ zrbrv_furnish() {
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
   if test -n "${BUZ_FOLIO:-}"; then
-    local z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
-    test -f "${z_vessel_file}" || buc_die "Vessel not found: ${z_vessel_file}"
-    source "${z_vessel_file}"  || buc_die "Failed to source vessel: ${z_vessel_file}"
+    local -r z_vessel_file="${RBRR_VESSEL_DIR}/${BUZ_FOLIO}/${RBCC_rbrv_file}"
+    test -f "${z_vessel_file}" || buc_die_now "Vessel not found: ${z_vessel_file}"
+    source "${z_vessel_file}"  || buc_die_now "Failed to source vessel: ${z_vessel_file}"
     zrbrv_kindle
     zrbrv_enforce
   fi

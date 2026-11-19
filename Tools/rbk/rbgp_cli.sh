@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,74 +21,70 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 zrbgp_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
   local -r z_command="${1:-}"
 
-  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bug_git.sh"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/buym_yelp.sh"
-  source "${BURD_BUK_DIR}/buh_handbook.sh"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbpc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbrf_regime.sh"
-  source "${z_rbk_kit_dir}/rbrw_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${z_rbk_kit_dir}/rbgd_depot.sh"
-  source "${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}"
-  # Federation regime file. affiance and jilt are folio-addressed (param1,
-  # RBSMA/RBSMJ): each sources the NAMED foedus's rbrf.env, resolved from the
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
+  source "${BURD_BUK_DIR}/buh_handbook.sh" || buc_die_now "Failed to source buh_handbook.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk_kit_dir}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk_kit_dir}/rbgd_depot.sh" || buc_die_now "Failed to source rbgd_depot.sh"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source: ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source: ${RBCC_rbrd_file}"
+  # Federation regime file. affiance and jilt are folio-addressed (param1):
+  # each sources the NAMED foedus's rbrf.env, resolved from the
   # operator-supplied folio (an rbef_-sprued library subdirectory) exactly as
   # descry addresses its subject — never the active/pinned foedus, whose selector
   # (RBRR_ACTIVE_FOEDUS) is reserved for the credential accessor. Every other payor
   # verb reads the active foedus, resolved from RBRR_ACTIVE_FOEDUS. An unresolvable
-  # folio is an arg-validation precondition (imprecise buc_die, BCG carve-out).
+  # folio is an arg-validation precondition (imprecise buc_die_now).
   case "${z_command}" in
     rbgp_manor_affiance|rbgp_manor_jilt)
-      local z_folio="${BUZ_FOLIO:-}"
+      local -r z_folio="${BUZ_FOLIO:-}"
       [[ "${z_folio}" == rbef_* ]] \
-        || buc_die "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
+        || buc_die_now "Foedus folio required (param1), an rbef_-sprued library name: got '${z_folio}'"
       local z_folio_rbrf=""
-      z_folio_rbrf=$(rbcc_rbrf_file_capture "${z_folio}") \
-        || buc_die "Failed to resolve the foedus regime path for folio '${z_folio}'"
+      z_folio_rbrf=$(rbcc_rbrf_file_flint_capture "${z_folio}") \
+        || buc_die_now "Failed to resolve the foedus regime path for folio '${z_folio}'"
       test -f "${z_folio_rbrf}" \
-        || buc_die "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
-      source "${z_folio_rbrf}"
+        || buc_die_now "No foedus '${z_folio}' in the foedera library: ${z_folio_rbrf}"
+      source "${z_folio_rbrf}" || buc_die_now "Failed to source: ${z_folio_rbrf}"
       ;;
     *)
-      rbcc_source_active_rbrf
+      rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
       ;;
   esac
-  source "${RBCC_rbrw_file}"
-  source "${z_rbk_kit_dir}/rbgl_layout.sh"
-  source "${z_rbk_kit_dir}/rbgo_oauth.sh"
-  source "${z_rbk_kit_dir}/rbuh_http.sh"
-  source "${z_rbk_kit_dir}/rbge_rest.sh"
-  source "${z_rbk_kit_dir}/rba_auth.sh"
-  source "${z_rbk_kit_dir}/rbgi_iam.sh"
-  source "${z_rbk_kit_dir}/rbgb_buckets.sh"
-  source "${z_rbk_kit_dir}/rbgft_terrier.sh"
-  source "${z_rbk_kit_dir}/rbgw_capabilities.sh"
-  source "${z_rbk_kit_dir}/rbrp_regime.sh"
-  source "${z_rbk_kit_dir}/rbgp_payor.sh"
-  source "${z_rbk_kit_dir}/rbndb_base.sh"
-  source "${BURD_BUK_DIR}/buz_zipper.sh"
-  source "${z_rbk_kit_dir}/rbz_zipper.sh"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source: ${RBCC_rbrw_file}"
+  source "${z_rbk_kit_dir}/rbgl_layout.sh" || buc_die_now "Failed to source rbgl_layout.sh"
+  source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk_kit_dir}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
+  source "${z_rbk_kit_dir}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
+  source "${z_rbk_kit_dir}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
+  source "${z_rbk_kit_dir}/rbgb_buckets.sh" || buc_die_now "Failed to source rbgb_buckets.sh"
+  source "${z_rbk_kit_dir}/rbgft_terrier.sh" || buc_die_now "Failed to source rbgft_terrier.sh"
+  source "${z_rbk_kit_dir}/rbgw_capabilities.sh" || buc_die_now "Failed to source rbgw_capabilities.sh"
+  source "${z_rbk_kit_dir}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
+  source "${z_rbk_kit_dir}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
+  source "${z_rbk_kit_dir}/rbndb_base.sh" || buc_die_now "Failed to source rbndb_base.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
   buc_log_args 'Initialize modules'
-  zbuv_kindle
-  zburd_kindle
   zrbcc_kindle
 
   zrbrr_kindle
@@ -95,7 +92,8 @@ zrbgp_furnish() {
   zrbrf_kindle
   zrbrw_kindle
   # Per-command regime enforcement. depot_list scans all depots and needs no one
-  # depot/repo regime; manor_escheat likewise scans every polity slice in the
+  # depot/repo regime, and depot_leftovers rides the same scan, reading only the
+  # cloud prefix the depot regime names, which it requires itself; manor_escheat likewise scans every polity slice in the
   # payor-project terrier (RBRP supplies the bucket, enforced unconditionally
   # below) and probes depot liveness by what it finds, never by a configured
   # depot. manor_affiance and manor_jilt are manor-level founding/
@@ -110,14 +108,14 @@ zrbgp_furnish() {
   # The polity admission verbs
   # (brevet/unseat/attaint/rehearse) work a specific depot AND don the governor
   # mantle, so they enforce the federation regimes (RBRW pool id + RBRF provider +
-  # sitting machinery — the don's STS audience rides the provider) on top of the
+  # sederunt machinery — the don's STS audience rides the provider) on top of the
   # depot/repo regimes. Gird (the payor-wielded founding first-governor admission)
   # drives the shared core with the payor credential, not a don, and the
-  # pool-scoped admission core reads no provider (RBSTN), so gird enforces RBRW
+  # pool-scoped admission core reads no provider, so gird enforces RBRW
   # without RBRF — an active foedus need not stand before the founding admission.
   # Every other command works a specific depot.
   case "${z_command}" in
-    rbgp_depot_list|rbgp_manor_escheat)                 : ;;
+    rbgp_depot_list|rbgp_depot_leftovers|rbgp_manor_escheat) : ;;
     rbgp_manor_affiance|rbgp_manor_jilt)                zrbrw_enforce; zrbrf_enforce ;;
     rbgp_manor_raze)                                    zrbrw_enforce ;;
     rbgp_manor_instaurate)                              zrbrw_enforce; zrbrd_enforce ;;
@@ -131,14 +129,14 @@ zrbgp_furnish() {
   zrbgd_kindle
   zrbgl_kindle
 
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
 
   zrbgo_kindle
   zrbuh_kindle
   zrbge_kindle
-  zrba_kindle
+  zrbau_kindle
   zrbgi_kindle
   zrbgb_kindle
   zrbgft_kindle

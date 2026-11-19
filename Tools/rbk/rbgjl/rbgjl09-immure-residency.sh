@@ -1,13 +1,26 @@
 #!/bin/bash
-# RBGJL Step 09: Blob-residency guard for the captured podvm leaves (anti-hollow-mirror)
-# Builder: gcr.io/cloud-builders/docker (Google-hosted, Debian — carries curl; the
-#          gcrane:debug capture builder has no curl, so the registry-v2 HEAD guard
-#          lives here, after the cp). The Mason SA token comes from the metadata
-#          server (rbgjs token-fetch).
-# Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
-# Note: this script runs inside a Cloud Build container, not under BCG module
-# discipline (CBG governs).
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# RBGJL Step 09: Blob-residency guard for the captured podvm leaves (anti-hollow-mirror)
+# Builder: the pinned docker member of the repo-elected substrate reliquary (resolved
+#          from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c;
+#          Debian — carries curl; the gcrane capture builder has no curl, so the
+#          registry-v2 HEAD guard lives here, after the cp). The Mason SA token comes
+#          from the metadata server (rbgjs token-fetch).
+# Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP
 #
 # Step 08 gcrane-cp'd each selected leaf into rbi_ld/<stamp> and confirmed the
 # MANIFEST digest is faithful. This step confirms the BLOB BYTES actually reside: a
@@ -15,7 +28,7 @@
 # manifest's declared layer size (staged by rbgjl07 in the selection list). This is
 # the anti-hollow-mirror guard the recorded trust grade demands — a registry can
 # hold a manifest whose large layer never fully landed; the digest check alone would
-# not catch it (memo-20260608 §1, proven against 1.13 GB / 245 MB / 200 MB / 194 MB
+# not catch it (proven against 1.13 GB / 245 MB / 200 MB / 194 MB
 # blobs). curl HEAD, no image tool, no blob download.
 
 set -euo pipefail

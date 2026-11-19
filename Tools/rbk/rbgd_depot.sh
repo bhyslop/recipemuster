@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +22,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGD_SOURCED:-}" || buc_die "Module rbgd multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGD_SOURCED:-}" || buc_die_now "Module rbgd multiply sourced - check sourcing hierarchy"
 ZRBGD_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgd_*)
 
 zrbgd_kindle() {
-  test -z "${ZRBGD_KINDLED:-}" || buc_die "Module rbgd already kindled"
+  test -z "${ZRBGD_KINDLED:-}" || buc_die_now "Module rbgd already kindled"
 
   # Depot-specific Constants — derive from RBDC kindle constants.
   # RBDC_DEPOT_PROJECT_ID is itself derived from
@@ -60,7 +61,7 @@ zrbgd_kindle() {
 
   # Cloud Resource Manager (CRM) APIs. The IAM-policy pair rides CRM v3: Google's
   # Data Access audit-log procedure is documented only against v3 getIamPolicy/
-  # setIamPolicy, and CRM v1 is on the deprecation path (see RBSMF audit-log step).
+  # setIamPolicy, and CRM v1 is on the deprecation path (see the audit-log step).
   # The project-lifecycle reads/deletes below stay on the v1 base they were proven against.
   readonly RBGD_API_CRM_GET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_GET_IAM_POLICY_SUFFIX}"
   readonly RBGD_API_CRM_SET_IAM_POLICY="${RBGD_API_BASE_CRM_PROJECT_V3}${RBGC_CRM_SET_IAM_POLICY_SUFFIX}"
@@ -91,7 +92,7 @@ zrbgd_kindle() {
 }
 
 zrbgd_sentinel() {
-  test "${ZRBGD_KINDLED:-}" = "1" || buc_die "Module rbgd not kindled - call zrbgd_kindle first"
+  test "${ZRBGD_KINDLED:-}" = "1" || buc_die_now "Module rbgd not kindled - call zrbgd_kindle first"
 }
 
 # eof

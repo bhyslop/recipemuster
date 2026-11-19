@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,20 +22,20 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-# (Module state remains ZRBGC_* per BCG; external constants use RBGC_*)
-test -z "${ZRBGC_SOURCED:-}" || buc_die "Module rbgc multiply sourced - check sourcing hierarchy"
+# (Module state remains ZRBGC_*; external constants use RBGC_*)
+test -z "${ZRBGC_SOURCED:-}" || buc_die_now "Module rbgc multiply sourced - check sourcing hierarchy"
 ZRBGC_SOURCED=1
 
 # Tinder constants (pure string literals, no variable expansion — available at source time)
 # Depot project ID infix between RBRD_CLOUD_PREFIX and RBRD_DEPOT_MONIKER, consumed
 # by rbdc_derived.sh's RBDC_DEPOT_PROJECT_ID derivation.
-RBGC_depot_project_infix="d-"
+readonly RBGC_depot_project_infix="d-"
 
 ######################################################################
 # Internal Functions (zrbgc_*)
 
 zrbgc_kindle() {
-  test -z "${ZRBGC_KINDLED:-}" || buc_die "Module rbgc already kindled"
+  test -z "${ZRBGC_KINDLED:-}" || buc_die_now "Module rbgc already kindled"
 
   # Global Resource Naming (Google Cloud global namespace)
   # These resources compete in globally-unique namespaces across all of GCP
@@ -67,7 +68,7 @@ zrbgc_kindle() {
   # IAM-grant propagation retry — exponential-backoff budget shared by every
   # get-modify-set IAM grant site in rbgi_iam.sh, the capabilities GAR IAM
   # loops in rbgw_capabilities.sh, and the theurge's post-admission
-  # invocations (projected to Rust via rbgc_emit_consts). RBSCIP locks the
+  # invocations (projected to Rust via rbgc_emit_consts). The spec locks the
   # profile and homes the rationale (the propagation classes; why the 403
   # wait is blind).
   readonly RBGC_PROPAGATION_INITIAL_DELAY_SEC=3
@@ -83,40 +84,13 @@ zrbgc_kindle() {
 
   # serviceusage enable INTERNAL flake — whole-attempt retry budget for
   # rbge_api_enable on the fresh-project enable race. Signature and membrane:
-  # rivets RBr_4e7 / RBr_d21 at RBS0 rbtoe_api_enable.
+  # RBr_4e7 / RBr_d21.
   readonly RBGC_API_ENABLE_RETRY_ATTEMPTS=3
   readonly RBGC_API_ENABLE_RETRY_PAUSE_SEC=15
 
-  # docker daemon->registry premature-timeout transient — the moby/moby#44350
-  # signature. docker's registry-auth client carries a hardcoded,
-  # non-configurable 15s timeout (moby/registry/auth.go); against a
-  # healthy-but-slow GAR auth backend it fires prematurely, emitting this Go
-  # net/http stdlib string. Neither login nor the initial resolve leg of
-  # pull / manifest inspect (token fetch + manifest HEAD) carries an internal
-  # retry — the docker client retries only layer downloads, after resolve —
-  # so callers wrap them (rbgo_docker_login, zrbndb_docker_login,
-  # zrbndb_registry_read) reusing the HTTP retry budget above. The string is
-  # a Go standard-library invariant, stable across docker versions; this is a
-  # surveyed-signature allowlist, NOT a catch-all — real auth failures emit
-  # "unauthorized" and fail fast.
+  # The surveyed moby/moby#44350 premature-timeout signature the docker
+  # transient membrane matches on (RBr_5b8 / RBr_2f8).
   readonly RBGC_DOCKER_LOGIN_TRANSIENT_SIGNATURE='Client.Timeout exceeded while awaiting headers'
-
-  # docker login credential-persist failure under headless Cygwin. Docker
-  # Desktop's docker-credential-wincred backend cannot reach the Windows
-  # Credential Manager from an sshd session that owns no interactive logon
-  # (cmdkey /list is empty over SSH), emitting this Win32 string (rc=1) AFTER
-  # auth has already succeeded — the token mint and the push path are sound;
-  # only the credential STORE fails. Windows docker also ignores an empty
-  # credsStore (the CLI still detects wincred), so config alone cannot divert
-  # the store to the file store. At this Palisade (docker's own credential store,
-  # source we cannot edit) rbgo_docker_login bends ONCE on this exact signature:
-  # since auth already succeeded it writes the credential into the base64 file
-  # store itself (the config.json `auths` map docker push reads directly — the
-  # form WSL uses natively) and treats login as done. A real auth failure emits
-  # "unauthorized" and never matches. Stable Win32 system-error message;
-  # corroborated by docker/cli#4353 and #1263. REMOVE the bend when the
-  # uncontrolled-Cygwin host gains an interactive Windows logon / working vault.
-  readonly RBGC_DOCKER_WINCRED_HEADLESS_SIGNATURE='A specified logon session does not exist'
 
   # URL Roots & Well-known Endpoints
   readonly RBGC_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
@@ -207,7 +181,7 @@ zrbgc_kindle() {
   # Kludge hallmarks are local-only; the other three originate in GAR.
   readonly RBGC_HALLMARK_PREFIX_CONJURE="c"
   readonly RBGC_HALLMARK_PREFIX_KLUDGE="k"
-  readonly RBGC_HALLMARK_PREFIX_BIND="b"
+  readonly RBGC_HALLMARK_PREFIX_ANNEX="b"
   readonly RBGC_HALLMARK_PREFIX_GRAFT="g"
 
   # GAR Categorical Namespaces (₢A_AAK layout)
@@ -295,10 +269,10 @@ zrbgc_kindle() {
   readonly RBGC_RELIQUARY_TOOL_GCRANE="gcrane"
 
   # Fact-file filenames (written to BURD_OUTPUT_DIR by producers)
-  readonly RBF_FACT_HALLMARK="rbf_fact_hallmark"
-  readonly RBF_FACT_GAR_ROOT="rbf_fact_gar_root"
-  readonly RBF_FACT_ARK_STEM="rbf_fact_ark_stem"
-  readonly RBF_FACT_ARK_YIELD="rbf_fact_ark_yield"
+  readonly RBF_FACT_HALLMARK="rbgc_fact_hallmark"
+  readonly RBF_FACT_GAR_ROOT="rbgc_fact_gar_root"
+  readonly RBF_FACT_ARK_STEM="rbgc_fact_ark_stem"
+  readonly RBF_FACT_ARK_YIELD="rbgc_fact_ark_yield"
 
   # Lode capture chaining fact (single-form, fixed filename). A capture is
   # capture-pure and writes no consumer config; it hands the captured touchmark to
@@ -308,7 +282,7 @@ zrbgc_kindle() {
   # Lode stamp (e.g. b260602120000); its kind-letter prefix decodes to the kind, so
   # no separate kind-brand fact rides the chain (RBGC_LODE_BRAND_* are display
   # labels / immure's family vocabulary, not a chaining fact).
-  readonly RBF_FACT_LODE_TOUCHMARK="rbf_fact_lode_touchmark"
+  readonly RBF_FACT_LODE_TOUCHMARK="rbgc_fact_lode_touchmark"
 
   # Payor fact-file filenames (governor identifying values)
   readonly RBGP_FACT_GOVERNOR_SA_EMAIL="rbgp_fact_governor_sa_email"
@@ -345,9 +319,15 @@ zrbgc_kindle() {
   # Artifact Registry (GAR) Composition
   readonly RBGC_GAR_HOST_SUFFIX="-docker.pkg.dev"
 
-  # GAR Cleanup Policy (applied at depot levy — see RBSMF "Create Container Repository").
+  # Kludge registry root — the local-only ref namespace kludge hallmarks tag
+  # under. The .invalid TLD is RFC 2606-reserved: the host can never resolve,
+  # so a kludge ref is structurally unpullable and unpushable — no depot
+  # identity (RBRD) enters a local-only build's image refs.
+  readonly RBGC_KLUDGE_REGISTRY_ROOT="rbkludge.invalid"
+
+  # GAR Cleanup Policy (applied at depot levy — see "Create Container Repository").
   # Reaps untagged manifests on GAR's daily cleanup cadence; underwrites the V2-DELETE-by-tag
-  # contract documented in RBSIJ for multi-platform orphan children.
+  # contract documented in the spec for multi-platform orphan children.
   readonly RBGC_GAR_CLEANUP_POLICY_ID="rb-delete-untagged"
   readonly RBGC_GAR_CLEANUP_OLDER_THAN_SEC="86400s"
 
@@ -386,20 +366,22 @@ zrbgc_kindle() {
 }
 
 zrbgc_sentinel() {
-  test "${ZRBGC_KINDLED:-}" = "1" || buc_die "Module rbgc not kindled - call zrbgc_kindle first"
+  test "${ZRBGC_KINDLED:-}" = "1" || buc_die_now "Module rbgc not kindled - call zrbgc_kindle first"
 }
 
 # rbgc_emit_consts() - Emit the RBGC-owned propagation budget as Rust i32
 # consts to stdout via buz_emit_const_i32 (BUK zipper must be kindled).
 # Same arrangement as rbcc_emit_consts/rbpc_emit_consts: rbz_emit_consts
 # calls this because every emit caller sources and kindles rbgc alongside
-# rbz. RBSCIP locks the profile; the theurge's post-admission invocations
+# rbz. The spec locks the profile; the theurge's post-admission invocations
 # consume it (RBr_3f4).
 rbgc_emit_consts() {
   zrbgc_sentinel
 
-  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked by RBSCIP)"
+  printf '%s\n' "// RBGC propagation budget (rbgc_constants.sh; profile locked)" \
+    || buc_die_now "rbgc_emit_consts: failed to write the header"
 
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
   local z_name=""
   local z_stem=""
   for z_name in \
@@ -407,9 +389,11 @@ rbgc_emit_consts() {
     RBGC_PROPAGATION_MAX_DELAY_SEC     \
     RBGC_PROPAGATION_DEADLINE_SEC      \
   ; do
+    [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "Invalid variable name: ${z_name}"
     z_stem="${z_name#RBGC_}"
-    buz_emit_const_i32 "RBTDGC_${z_stem}" "${!z_name}" \
-      || buc_die "rbgc_emit_consts: emit failed for ${z_name}"
+    buz_emit_const_i32 "RBTGEC_${z_stem}" "${!z_name}" \
+      || buc_die_now "rbgc_emit_consts: emit failed for ${z_name}"
   done
 }
 

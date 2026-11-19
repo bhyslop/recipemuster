@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,45 +21,42 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
 
 burs_validate() {
-  buc_doc_brief "Validate BURS station regime configuration via enrollment report"
+  buc_doc_brief "Validate the BURS station config regime via enrollment report"
   buc_doc_shown || return 0
 
-  buc_step "Validating BURS station regime: ${BURD_STATION_FILE}"
-  buv_report BURS "Station Regime"
-  buc_step "BURS station regime valid"
+  buc_step "Validating the BURS station config regime: ${BURD_STATION_FILE}"
+  buv_report BURS "Station Config Regime"
+  buc_step "BURS station config regime valid"
 }
 
 burs_render() {
-  buc_doc_brief "Display diagnostic view of BURS station regime configuration"
+  buc_doc_brief "Display diagnostic view of the BURS station config regime"
   buc_doc_shown || return 0
 
-  buv_render BURS "BURS - Bash Utility Station Regime" "${BURD_STATION_FILE}"
+  buv_render BURS "BURS - Bash Utility Station Config Regime" "${BURD_STATION_FILE}"
 }
 
 ######################################################################
 # Furnish and Main
 
 zburs_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/burs_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-
-  zbuv_kindle
-  zburd_kindle
+  source "${BURD_BUK_DIR}/burs_regime.sh" || buc_die_now "Failed to source burs_regime.sh"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
   zburd_enforce
 
-  source "${BURD_STATION_FILE}" || buc_die "Failed to source BURS: ${BURD_STATION_FILE}"
+  test -f "${BURD_STATION_FILE}" \
+    || buc_die_now "Station Config Regime file not found: ${BURD_STATION_FILE} — run tt/buw-SI.StationInit.sh to create it"
+  source "${BURD_STATION_FILE}" || buc_die_now "Failed to source BURS: ${BURD_STATION_FILE}"
 
   zburs_kindle
   zburs_enforce
@@ -66,6 +64,6 @@ zburs_furnish() {
   zbupr_kindle
 }
 
-buc_execute burs_ "Bash Utility Station Regime" zburs_furnish "$@"
+buc_execute burs_ "Bash Utility Station Config Regime" zburs_furnish "$@"
 
 # eof

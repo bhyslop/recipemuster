@@ -247,11 +247,11 @@ def _extract_diags(diags_registry_base, token, hallmark):
             f"{diags_registry_base}/manifests/{hallmark}", token, DIAGS_ACCEPT,
         )
     except urllib.error.HTTPError as e:
-        print(f"No diags artifact found (HTTP {e.code}) — expected for bind/graft")
+        print(f"No diags artifact found (HTTP {e.code}) — expected for annex/graft")
         print("=== diags check complete ===")
         return
     except Exception:
-        print("No diags artifact found (HTTP 000) — expected for bind/graft")
+        print("No diags artifact found (HTTP 000) — expected for annex/graft")
         print("=== diags check complete ===")
         return
 

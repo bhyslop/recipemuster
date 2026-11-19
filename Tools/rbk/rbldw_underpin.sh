@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +22,7 @@
 # The wsl kind rides the capture-assembly spine (rblds_): this body owns only the
 # kind-specific data — the underpin recipe (curl+gpg fetch/verify + gcrane-append
 # wrap + vouch-push) and the substitutions blob — and composes them through
-# zrbld_spine_dispatch / zrbld_spine_extract_single. No build-submission or
+# zrblds_spine_dispatch / zrblds_spine_extract_single. No build-submission or
 # step-composition machinery lives here.
 #
 # The structural outlier among the Lode kinds: its upstream is an HTTPS rootfs
@@ -35,6 +36,11 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Underpin is capture-pure: it writes no consumer config. It hands the captured
 # touchmark forward through one bare single-form chaining fact
 # (RBF_FACT_LODE_TOUCHMARK) via the depth-1 cross-tabtarget chain; a consumer
@@ -44,24 +50,26 @@ set -euo pipefail
 # separate, deferred layer that reads these facts — not part of underpin.
 
 ######################################################################
-# Internal Helpers (zrbld_*)
+# Internal Helpers (zrbldw_*)
 
 # Internal: compose the underpin capture recipe (curl+gpg fetch/verify + gcrane-append
 # wrap + vouch-push) and its substitutions blob, then ride the capture spine to submit
 # and poll. The spine owns the capture-domain build knobs (mason SA, TETHER pool,
 # regime timeout); this body chooses only the recipe, the substitutions, and the poll
-# ceiling. Three steps across two builders: the fetch/verify rides the Debian Google
-# builder (curl + apt-installed gnupg), the wrap and vouch-push ride the floating gcrane
-# builder. wsl is evicted but NOT pinned this pace — it is vessel-less with no reliquary
-# source, so its tool-pinning defers to the bootstrap-builder digest-pin itch (RBS0
-# rbsk_pinning_boundary); both gcrane rows ride the floating bootstrap builder, same tier
-# as conclave. The heavy capture poll ceiling gives headroom for the in-step
-# apt-get(gnupg) + keyserver fetch + gcrane append.
+# ceiling. Three steps across two builders: the fetch/verify rides the reliquary docker
+# builder (curl + apt-installed gnupg), the wrap and vouch-push ride the reliquary gcrane
+# builder. wsl is vessel-less — it carries no RBRV_RELIQUARY — but resolves the pinned
+# cohort from the repo-elected RBRR_SUBSTRATE_RELIQUARY, so every builder is a content-
+# pinned reliquary member, zero unpinned aspects (RBr_p7c), same as bole. The caller
+# resolves the tools (zrbfca_resolve_tool_images_from) before this runs. The heavy
+# capture poll ceiling gives headroom for the in-step apt-get(gnupg) + keyserver fetch
+# + gcrane append.
 # Args: token url stamp
-zrbld_underpin_submit() {
-  zrbld_sentinel
+zrbldw_underpin_submit() {
+  zrbld0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_url="${2:?URL required}"
   local -r z_stamp="${3:?Stamp required}"
 
@@ -70,18 +78,18 @@ zrbld_underpin_submit() {
   local -r z_gar_path="${RBGD_GAR_PROJECT_ID}/${RBDC_GAR_REPOSITORY}"
 
   # Recipe rows: script_path|builder_image|id|entrypoint, pre-resolved for the spine.
-  # Fetch/verify on the Debian Google builder (curl + apt-installed gnupg); wrap + vouch
-  # on the floating gcrane builder (busybox). No reliquary bootstrap and no pinning —
-  # wsl is vessel-less, so its tool-pinning defers to the bootstrap-builder digest-pin
-  # itch; both gcrane rows ride the floating bootstrap builder, same tier as conclave.
+  # Fetch/verify on the reliquary docker builder (curl + apt-installed gnupg); wrap +
+  # vouch on the reliquary gcrane builder (busybox). Both resolve from the pinned
+  # substrate-reliquary cohort (z_rbfc_tool_*), never a floating bootstrap — bole's
+  # pattern, extended to the vessel-less substrate captures (RBr_p7c).
   local -r z_recipe=(
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${ZRBLD_GOOGLE_DOCKER_BUILDER}|underpin-fetch|bash"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl05-underpin-wrap.sh|${ZRBLD_GCRANE_BUILDER}|underpin-wrap|busybox"
-    "${ZRBLD_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${ZRBLD_GCRANE_BUILDER}|assemble-push-vouch|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl04-underpin-capture.sh|${z_rbfc_tool_docker}|underpin-fetch|bash"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl05-underpin-wrap.sh|${z_rbfc_tool_gcrane}|underpin-wrap|busybox"
+    "${ZRBLD0_RBGJL_STEPS_DIR}/rbgjl02-assemble-push-vouch.sh|${z_rbfc_tool_gcrane}|assemble-push-vouch|busybox"
   )
 
   buc_log_args "Composing underpin substitutions blob"
-  local -r z_subs_file="${ZRBLD_UNDERPIN_PREFIX}subs.json"
+  local -r z_subs_file="${ZRBLD0_UNDERPIN_PREFIX}subs.json"
   jq -n \
     --arg zjq_gar_host     "${z_gar_host}" \
     --arg zjq_gar_path     "${z_gar_path}" \
@@ -107,19 +115,23 @@ zrbld_underpin_submit() {
       _RBGL_WSL_URL:      $zjq_wsl_url,
       _RBGL_WSL_KEY_FPR:  $zjq_wsl_key_fpr
     }' > "${z_subs_file}" \
-    || buc_die "Failed to compose underpin substitutions blob"
+    || buc_die_now "Failed to compose underpin substitutions blob"
 
-  zrbld_spine_dispatch \
-    "${z_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
-    "${z_subs_file}" "${ZRBLD_UNDERPIN_PREFIX}" \
-    "${z_recipe[@]}"
+  local -r z_recipe_file="${ZRBLD0_UNDERPIN_PREFIX}recipe.txt"
+  printf '%s\n' "${z_recipe[@]}" > "${z_recipe_file}" \
+    || buc_die_now "Failed to write the capture recipe: ${z_recipe_file}"
+
+  zrblds_spine_dispatch \
+    "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "Underpin" "${ZRBFC0_BUILD_POLL_CEILING_CAPTURE_HEAVY}" \
+    "${z_subs_file}" "${ZRBLD0_UNDERPIN_PREFIX}" \
+    "${z_recipe_file}"
 }
 
 ######################################################################
-# External Functions (rbld_*)
+# External Functions (rbldw_*)
 
-rbld_underpin() {
-  zrbld_sentinel
+rbldw_underpin() {
+  zrbld0_sentinel
 
   buc_doc_brief "Underpin a vendor-published WSL rootfs into a Lode (wsl kind, rbi_ld capture)"
   buc_doc_param "release" "Ubuntu release series — the cdimage path segment (e.g. 24.04)"
@@ -130,25 +142,36 @@ rbld_underpin() {
   # tree; the Lode's provenance envelope must be the product of committed code.
   bug_require_clean_tree_creed "${RBCC_creed_clean_capture}"
 
-  # Two declarative version arguments (no FQIN — see RBSLU): the param1 channel
+  # Two declarative version arguments (no FQIN): the param1 channel
   # routes the first to BUZ_FOLIO and forwards the rest, so release is the folio
   # and point the first positional. The host assembles the resolved URL from the
   # path-convention template; the cloud step discovers and verifies the checksum.
   local -r z_release="${BUZ_FOLIO:-}"
   local -r z_point="${1:-}"
-  test -n "${z_release}" || buc_die "release argument required (e.g. 24.04)"
-  test -n "${z_point}"   || buc_die "point argument required (e.g. 4)"
+  test -n "${z_release}" || buc_die_now "release argument required (e.g. 24.04)"
+  test -n "${z_point}"   || buc_die_now "point argument required (e.g. 4)"
 
   local -r z_arch="${RBGC_LODE_WSL_ARCH_DEFAULT}"
   local -r z_fullver="${z_release}.${z_point}"
   local z_url=""
-  printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}"
+  printf -v z_url "${RBGC_LODE_WSL_URL_TEMPLATE}" "${z_release}" "${z_fullver}" "${z_arch}" \
+    || buc_die_now "Failed to render the WSL rootfs URL from RBGC_LODE_WSL_URL_TEMPLATE"
   buc_info "Underpin source: ${z_url}"
 
+  # Resolve build tools from the repo-elected substrate reliquary. underpin is
+  # vessel-less — it carries no RBRV_RELIQUARY — so it resolves the pinned cohort
+  # from RBRR_SUBSTRATE_RELIQUARY instead (RBr_p7c: a capture consuming a sealed
+  # reliquary carries zero unpinned aspects). An unseised election refuses here
+  # rather than silently floating on a mutable tag; seise one with rbfls_seise.
+  local -r z_substrate_reliquary="${RBRR_SUBSTRATE_RELIQUARY:-}"
+  test -n "${z_substrate_reliquary}" \
+    || buc_reject "${RBCG_UNSEISED_DENTIL}" "RBRR_SUBSTRATE_RELIQUARY is unseised — capture a reliquary conclave and seise it (rbw-rrs) before an underpin substrate capture"
+  zrbfca_resolve_tool_images_from "${z_substrate_reliquary}"
+
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get Director OAuth token"
 
   # Mint the Lode stamp on the host: <kind-letter><YYMMDDHHMMSS>. The host owns
   # the stamp so the touchmark is known before the build for the capture-file.
@@ -156,10 +179,10 @@ rbld_underpin() {
 
   buc_info "Lode: ${RBGL_LODES_ROOT}/${z_stamp}"
 
-  zrbld_underpin_submit "${z_token}" "${z_url}" "${z_stamp}"
+  zrbldw_underpin_submit "${zSECRET_token}" "${z_url}" "${z_stamp}"
   # Shared single-slot extract (rblds_): the fetch step (step 0) authors the
   # output; the wrap and vouch-push steps write none.
-  zrbld_spine_extract_single "${ZRBLD_UNDERPIN_PREFIX}" "${RBGC_LODE_BRAND_WSL}" "Underpin"
+  zrblds_spine_extract_single "${ZRBLD0_UNDERPIN_PREFIX}" "${RBGC_LODE_BRAND_WSL}" "Underpin"
 
   buc_success "Underpin complete: ${z_url} -> ${RBGL_LODES_ROOT}/${z_stamp}"
 }

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,17 +37,17 @@ rbho_director_airgap() {
 
   local -r z_moniker="moriah"
   local -r z_tether_moniker="tadmor"
-  local -r z_forge_vessel="rbev-bottle-ifrit-forge"
-  local -r z_airgap_vessel="rbev-bottle-ifrit-airgap"
-  local -r z_tether_vessel="rbev-bottle-ifrit-tether"
+  local -r z_forge_vessel="rbev_bottle_ifrit_forge"
+  local -r z_airgap_vessel="rbev_bottle_ifrit_airgap"
+  local -r z_tether_vessel="rbev_bottle_ifrit_tether"
   local -r z_airgap_rbrv="${RBRR_VESSEL_DIR}/${z_airgap_vessel}/${RBCC_rbrv_file}"
-  local -r z_moriah_rbrn="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
-  local -r z_tether_rbrn="${RBCC_moorings_dir}/${z_tether_moniker}/${RBCC_rbrn_file}"
+  local -r z_moriah_rbrn="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_tether_rbrn="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_tether_moniker}/${RBCC_rbrn_file}"
 
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
@@ -54,14 +55,18 @@ rbho_director_airgap() {
   local z_airgap_base_anchored=0
   if test -f "${z_airgap_rbrv}"; then
     local z_anchor=""
-    z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor=""
-    test -n "${z_anchor}" && z_airgap_base_anchored=1
+    local z_anchor_status=0
+    z_anchor=$(zrbho_po_extract_capture "${z_airgap_rbrv}" "RBRV_IMAGE_1_ANCHOR") || z_anchor_status=$?
+    test "${z_anchor_status}" -eq 0 || z_anchor=""
+    test -z "${z_anchor}" || z_airgap_base_anchored=1
   fi
 
   local z_airgap_ordained=0
   if test -f "${z_moriah_rbrn}"; then
     local z_moriah_hallmark=""
-    z_moriah_hallmark=$(zrbho_po_extract_capture "${z_moriah_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_moriah_hallmark=""
+    local z_moriah_hallmark_status=0
+    z_moriah_hallmark=$(zrbho_po_extract_capture "${z_moriah_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_moriah_hallmark_status=$?
+    test "${z_moriah_hallmark_status}" -eq 0 || z_moriah_hallmark=""
     case "${z_moriah_hallmark}" in
       ""|PENDING-*) ;;
       *) z_airgap_ordained=1 ;;
@@ -71,17 +76,19 @@ rbho_director_airgap() {
   local z_tether_ready=0
   local z_tether_hallmark=""
   if test -f "${z_tether_rbrn}"; then
-    z_tether_hallmark=$(zrbho_po_extract_capture "${z_tether_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_tether_hallmark=""
+    local z_tether_hallmark_status=0
+    z_tether_hallmark=$(zrbho_po_extract_capture "${z_tether_rbrn}" "RBRN_BOTTLE_HALLMARK") || z_tether_hallmark_status=$?
+    test "${z_tether_hallmark_status}" -eq 0 || z_tether_hallmark=""
     case "${z_tether_hallmark}" in
       ""|PENDING-*) z_tether_hallmark="" ;;
       *) z_tether_ready=1 ;;
     esac
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_forge_vessel}";   local -r z_lk_forge="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_airgap_vessel}";  local -r z_lk_airgap="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_forge_vessel}";   local -r z_lk_forge="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel"    "${z_airgap_vessel}";  local -r z_lk_airgap="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_moniker}";        local -r z_lk_moriah="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Nameplate" "${z_tether_moniker}"; local -r z_lk_tadmor="${z_buym_yelp}"
 
   buh_section "${RBHO_TRACK_AIRGAP} — Your Own Supply Chain"
   buh_e
@@ -99,7 +106,7 @@ rbho_director_airgap() {
   buh_line "  2. Build a project-authored toolchain ${RBYC_VESSEL} ${RBYC_TETHERED}"
   buh_line "  3. Build the airgap ${RBYC_BOTTLE} ${RBYC_AIRGAP} from the ${z_lk_forge} ${RBYC_HALLMARK}"
   buh_e
-  buh_line "Then drive the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
+  buh_line "Then mitre the resulting ${RBYC_HALLMARK} into the ${z_lk_moriah}"
   buh_line "${RBYC_NAMEPLATE} and run the same 34 containment attacks against"
   buh_line "it that you ran against ${z_lk_tadmor}."
   buh_e
@@ -189,7 +196,7 @@ rbho_director_airgap() {
   buh_line "Now bridge: the airgap ${RBYC_VESSEL} ${z_lk_airgap} declares"
   buh_line "${z_lk_forge} as its base:"
   buh_e
-  buh_code "   RBRV_IMAGE_1_ORIGIN=rbev-bottle-ifrit-forge"
+  buh_code "   RBRV_IMAGE_1_ORIGIN=rbev_bottle_ifrit_forge"
   buh_code "   RBRV_IMAGE_1_ANCHOR="
   buh_e
   buh_line "ORIGIN names the producer ${RBYC_VESSEL} (lineage); ANCHOR will hold"
@@ -259,10 +266,10 @@ rbho_director_airgap() {
   buh_e
   buh_code "   export ${RBYC_HANDBOOK_HALLMARK_NAME}=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
   buh_e
-  buh_line "Drive it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
-  buh_line "PENDING-ordination placeholder — the drive writes the ${RBYC_RBRN} for you:"
+  buh_line "Mitre it into ${z_lk_moriah}'s ${RBYC_BOTTLE} hallmark, replacing the"
+  buh_line "PENDING-ordination placeholder — mitring writes the ${RBYC_RBRN} for you:"
   buh_e
-  buh_tt "   " "${RBZ_DRIVE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
+  buh_tt "   " "${RBZ_MITRE_HALLMARK}" "" " ${z_moniker} bottle ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   buh_line "Commit the change."
   buh_e
@@ -308,13 +315,13 @@ rbho_director_airgap() {
   buh_tt "   " "${RBZ_PLUMB_FULL}" "" " ${z_airgap_vessel} ${RBYC_HANDBOOK_HALLMARK_REF}"
   buh_e
   if test "${z_tether_ready}" = "1"; then
-    buyy_cmd_yawp "${z_tether_hallmark}"; local -r z_lk_tether_hallmark="${z_buym_yelp}"
+    buym_cmd_yawp "${z_tether_hallmark}"; local -r z_lk_tether_hallmark="${z_buym_yelp}"
     buh_line "Tethered ${RBYC_BOTTLE} — ${z_lk_tadmor}'s current bottle ${RBYC_HALLMARK} is ${z_lk_tether_hallmark}:"
     buh_e
     buh_tt "   " "${RBZ_PLUMB_FULL}" "" " ${z_tether_vessel} ${z_tether_hallmark}"
     buh_e
   else
-    buyy_cmd_yawp "${z_tether_rbrn}"; local -r z_lk_tether_file="${z_buym_yelp}"
+    buym_cmd_yawp "${z_tether_rbrn}"; local -r z_lk_tether_file="${z_buym_yelp}"
     buh_line "Tethered ${RBYC_BOTTLE} — once ${z_lk_tadmor} is ${RBYC_CHARGE}d, read RBRN_BOTTLE_HALLMARK"
     buh_line "from ${z_lk_tether_file} and plumb it:"
     buh_e

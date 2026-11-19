@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,31 +25,36 @@ set -euo pipefail
 test -z "${ZRBZ_SOURCED:-}" || return 0
 ZRBZ_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 ######################################################################
 # Colophon registry initialization
 
 zrbz_kindle() {
-  test -z "${ZRBZ_KINDLED:-}" || buc_die "rbz already kindled"
+  test -z "${ZRBZ_KINDLED:-}" || buc_die_now "rbz already kindled"
 
   # Verify buz zipper is kindled (CLI furnish must kindle buz first)
   zbuz_sentinel
 
-  # Open the RB tome: this zipper's run projects to RBTDGC_ consts (RBZ_ stem)
+  # Open the RB tome: this zipper's run projects to RBTGEC_ consts (RBZ_ stem)
   # and to the "rbz" context scope. Must precede the first enroll so the run
   # begins at the roll's current head.
-  buz_tome "rbz" "RBTDGC_" "RBZ_"
+  buz_tome_seat "rbz" "RBTGEC_" "RBZ_"
 
-  # Access — credential access probes + the sitting lifecycle (rbw-a): payor
-  # OAuth, federated avowal, mantle don, and the sitting-lifecycle operator
-  # verbs (novate — UPPER: mutates the sitting; espy — lower: reads the cache
+  # Access — credential access probes + the sederunt lifecycle (rbw-a): payor
+  # OAuth, federated avowal, mantle don, and the sederunt-lifecycle operator
+  # verbs (novate — UPPER: mutates the sederunt; espy — lower: reads the cache
   # alone, the group's read-only member).
-  buz_group RBZ__GROUP_ACCESS     "rbw-a"   "Access — Credential access probes + sitting lifecycle"
+  buz_group RBZ__GROUP_ACCESS     "rbw-a"   "Access — Credential access probes + sederunt lifecycle"
   local z_mod="rbgv_cli.sh"
   buz_enroll RBZ_CHECK_PAYOR             "rbw-ap"  "${z_mod}" "rbgv_check_payor"           ""        "Check the payor credential reaches Google Cloud (OAuth access probe)"
-  buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     "param1"  "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust (optional arg: required runway seconds)"
+  buz_enroll RBZ_CHECK_AVOWAL       "rbw-aa"  "${z_mod}" "rbgv_check_avowal"     "param1"  "Check federated access — reuse a live sederunt against the RBRF trust, or refuse naming rbw-aN when none is live (optional arg: required runway seconds)"
   buz_enroll RBZ_CHECK_MANTLE            "rbw-am"  "${z_mod}" "rbgv_check_mantle"          "param1"  "Check mantle access as the freehold subject — avow, don the named mantle token (rbpa_governor|rbpa_director|rbpa_retriever), reach Artifact Registry, and write the attributed audit entry; or surface the access deficit"
-  buz_enroll RBZ_NOVATE_SITTING          "rbw-aN"  "rba_cli.sh" "rba_novate_sitting"       ""        "Novate the sitting — open a fresh full-window sitting, extinguishing any standing one (the runway gate's named remedy)"
-  buz_enroll RBZ_ESPY_SITTING            "rbw-as"  "rba_cli.sh" "rba_espy_sitting"         ""        "Espy the sitting — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
+  buz_enroll RBZ_NOVATE_SEDERUNT          "rbw-aN"  "rbau_cli.sh" "rbau_novate_sederunt"       ""        "Novate the sederunt — open a fresh full-window sederunt, extinguishing any standing one (the one way to sign in, and the runway gate's named remedy)"
+  buz_enroll RBZ_ESPY_SEDERUNT            "rbw-as"  "rbau_cli.sh" "rbau_espy_sederunt"         ""        "Espy the sederunt — report whether one is live and how much runway remains, from the cache alone (read-only: never opens, never prompts, no network)"
 
   # Crucible — container runtime (rbw-c)
   buz_group RBZ__GROUP_CRUCIBLE   "rbw-c"   "Crucible — Container runtime"
@@ -63,8 +69,8 @@ zrbz_kindle() {
   buz_enroll RBZ_CRUCIBLE_FIAT    "rbw-cf"  "${z_mod}" "rbob_fiat"         "imprint"  "Non-interactive exec in Pentacle container"
   buz_enroll RBZ_CRUCIBLE_BARK    "rbw-cb"  "${z_mod}" "rbob_bark"         "imprint"  "Non-interactive exec in Bottle container"
   buz_enroll RBZ_CRUCIBLE_ACTIVE  "rbw-cic" "${z_mod}" "rbob_charged"      "param1"   "Check whether the Crucible is charged (compose project has running containers)"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge Bottle vessel and drive hallmark into nameplate"
-  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge Sentry vessel and drive hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_BOTTLE "rbw-cKB" "${z_mod}" "rbob_kludge_bottle" "param1" "Kludge Bottle vessel and mitre hallmark into nameplate"
+  buz_enroll RBZ_CRUCIBLE_KLUDGE_SENTRY "rbw-cKS" "${z_mod}" "rbob_kludge_sentry" "param1" "Kludge Sentry vessel and mitre hallmark into nameplate"
 
   # Depot — GCP project infrastructure (rbw-d, UPPER=mutates, lower=read)
   buz_group RBZ__GROUP_DEPOT      "rbw-d"   "Depot — GCP project infrastructure"
@@ -82,7 +88,7 @@ zrbz_kindle() {
   # (workforce pool + terrier bucket; the depot-grain polity folder is founded at
   # depot levy), raze, its withheld
   # pool-destroyer inverse (internal release-ladder infra, stripped at delivery),
-  # and escheat, the terrier-hygiene sweep (RBSME).
+  # and escheat, the terrier-hygiene sweep.
   # The M5 colophon regroup later gathers levy/establish into it.
   buz_group RBZ__GROUP_MANOR      "rbw-m"   "Manor — IdP federation founding"
   z_mod="rbgp_cli.sh"
@@ -98,7 +104,7 @@ zrbz_kindle() {
   # strips the tabtarget); the verb ships in rbgp_payor.sh. Internal release-ladder
   # infra only — consumers never get a one-keystroke pool-destroyer.
   buz_enroll RBZ_RAZE_MANOR             "rbw-mR"  "${z_mod}" "rbgp_manor_raze"     ""  "Raze the manor — force-delete its workforce pool to start clean (internal release-ladder infra; withheld from delivery)"
-  # escheat is the manor-hygiene sweep of the terrier (RBSME): plan-then-confirm
+  # escheat is the manor-hygiene sweep of the terrier: plan-then-confirm
   # strike of orphaned polity slices and dead-schema strays; the mutating sibling
   # of the pure read rehearse. Ships to consumers (idempotent, confirm-gated).
   buz_enroll RBZ_ESCHEAT_MANOR          "rbw-mE"  "${z_mod}" "rbgp_manor_escheat"  ""  "Escheat the terrier — sweep orphaned polity slices and dead-schema strays from the manor terrier (plan-then-confirm payor hygiene)"
@@ -140,23 +146,24 @@ zrbz_kindle() {
   # Lode — fetched-side universal capture (rbw-l, UPPER=mutates GAR/cost, lower=read-only)
   buz_group RBZ__GROUP_LODE       "rbw-l"   "Lode — Fetched-side universal capture"
   z_mod="rbld0_cli.sh"
-  buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbld_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
-  buz_enroll RBZ_CONCLAVE_RELIQUARY     "rbw-lC"  "${z_mod}" "rbld_conclave"      ""        "Conclave the build-tool cohort into one Lode (capture)"
-  buz_enroll RBZ_UNDERPIN_WSL           "rbw-lU"  "${z_mod}" "rbld_underpin"      "param1"  "Underpin a vendor WSL rootfs into a Lode (capture; args: release point)"
-  buz_enroll RBZ_IMMURE_PODVM           "rbw-lI"  "${z_mod}" "rbld_immure"        "param1"  "Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version)"
-  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbld_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
-  buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbld_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
-  buz_enroll RBZ_PRESAGE_IMMURE         "rbw-lp"  "${z_mod}" "rbld_presage"       "param1"  "Presage an immure — show what it would capture for one quay family (read-only; args: family [version])"
-  buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbld_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
+  buz_enroll RBZ_ENSCONCE_BOLE          "rbw-lE"  "${z_mod}" "rbldb_ensconce"      "param1"  "Ensconce an upstream base image into a Lode (capture)"
+  buz_enroll RBZ_CONCLAVE_RELIQUARY     "rbw-lC"  "${z_mod}" "rbldr_conclave"      ""        "Conclave the build-tool cohort into one Lode (capture)"
+  buz_enroll RBZ_UNDERPIN_WSL           "rbw-lU"  "${z_mod}" "rbldw_underpin"      "param1"  "Underpin a vendor WSL rootfs into a Lode (capture; args: release point)"
+  buz_enroll RBZ_IMMURE_PODVM           "rbw-lI"  "${z_mod}" "rbldv_immure"        "param1"  "Immure podman-machine disk leaves of one quay family into a Lode (capture; args: family version)"
+  buz_enroll RBZ_DIVINE_LODES           "rbw-ld"  "${z_mod}" "rbldl_divine"        ""        "Divine Lodes — enumerate every Lode by touchmark (read-only)"
+  buz_enroll RBZ_AUGUR_LODE             "rbw-la"  "${z_mod}" "rbldl_augur"         "param1"  "Augur a Lode — inspect member tags and decode its rbi_vouch envelope (read-only)"
+  buz_enroll RBZ_PRESAGE_IMMURE         "rbw-lp"  "${z_mod}" "rbldv_presage"       "param1"  "Presage an immure — show what it would capture for one quay family (read-only; args: family [version])"
+  buz_enroll RBZ_BANISH_LODE            "rbw-lB"  "${z_mod}" "rbldl_banish"        "param1"  "Banish a Lode — delete the whole rbi_ld/<touchmark> package"
 
   # Guide — human-directed procedures (rbw-g)
   buz_group RBZ__GROUP_GUIDE      "rbw-g"   "Guide — Human-directed procedures"
   z_mod="rbgp_cli.sh"
-  buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_payor_install"   "param1"  "Ingest payor OAuth credentials from the downloaded client secret JSON"
+  buz_enroll RBZ_PAYOR_INSTALL          "rbw-gPI" "${z_mod}" "rbgp_install"   "param1"  "Ingest payor OAuth credentials from the downloaded client secret JSON"
   z_mod="rbh0/rbhp0_cli.sh"
-  buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhp_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
-  buz_enroll RBZ_QUOTA_BUILD            "rbw-gPQ" "${z_mod}" "rbhp_quota_build"     ""  "Display Cloud Build capacity review procedure"
-  buz_enroll RBZ_FEDERATION_ENTRA       "rbw-gPF" "${z_mod}" "rbhp_federation_entra" ""  "Guided Entra federation setup — IdP-console app registration yielding the foedus core values"
+  buz_enroll RBZ_PAYOR_ORGANIZATION     "rbw-gPO" "${z_mod}" "rbhpo_organization"    ""  "Guided GCP organization founding — Cloud Identity signup + DNS domain verification yielding RBRW_ORG_ID"
+  buz_enroll RBZ_PAYOR_ESTABLISH        "rbw-gPE" "${z_mod}" "rbhpe_establish"       ""  "Guided Manor establishment — GCP project + OAuth consent screen"
+  buz_enroll RBZ_QUOTA_BUILD            "rbw-gPQ" "${z_mod}" "rbhpq_quota_build"     ""  "Display Cloud Build capacity review procedure"
+  buz_enroll RBZ_FEDERATION_ENTRA       "rbw-gPF" "${z_mod}" "rbhpf_federation_entra" ""  "Guided Entra federation setup — IdP-console app registration yielding the foedus core values"
   # Onboarding — handbook tracks (rbw-o terminal + rbw-O* family, see ₣A6 paddock)
   buz_group RBZ__GROUP_ONBOARDING "rbw-o"   "Onboarding — Handbook restart"
   z_mod="rbh0/rbho0_cli.sh"
@@ -166,25 +173,25 @@ zrbz_kindle() {
   buz_enroll RBZ_ONBOARD_TADMOR_SECURITY "rbw-Ots" "${z_mod}" "rbho_tadmor_security"     ""  "Verify Crucible containment under attack — charge tadmor and run the adversarial suite"
   buz_enroll RBZ_ONBOARD_DIR_FIRST_BUILD "rbw-Odf" "${z_mod}" "rbho_director_first_build" "" "Your First Cloud Build — conclave, conjure, tour, summon, abjure"
   buz_enroll RBZ_ONBOARD_DIR_AIRGAP     "rbw-Oda" "${z_mod}" "rbho_director_airgap"      ""  "Airgap Cloud Build — ensconce, conjure base, conjure airgap, charge moriah, compare plumb"
-  buz_enroll RBZ_ONBOARD_DIR_BIND       "rbw-Odb" "${z_mod}" "rbho_director_bind"        ""  "Bind Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
+  buz_enroll RBZ_ONBOARD_DIR_ANNEX      "rbw-Odb" "${z_mod}" "rbho_director_annex"       ""  "${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} Cloud Build — pin upstream image by digest, mode-mixture pluml Crucible"
   buz_enroll RBZ_ONBOARD_DIR_GRAFT      "rbw-Odg" "${z_mod}" "rbho_director_graft"       ""  "Graft Cloud Build — push locally-built image, inspect GRAFTED Vouch verdict"
   buz_enroll RBZ_ONBOARD_PAYOR_HB      "rbw-Op"  "${z_mod}" "rbho_payor_handbook"       ""  "Payor — establish a Manor and provision the Depot"
 
   # Foundry — registry artifact lifecycle (rbw-f, UPPER=mutates GAR, lower=read/local)
   buz_group RBZ__GROUP_FOUNDRY    "rbw-f"   "Foundry — Registry artifact lifecycle"
-  z_mod="rbfd_cli.sh"
-  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfd_ordain"          "param1"  "Ordain hallmark: conjure, bind, or graft based on vessel mode"
+  z_mod="rbfd0_cli.sh"
+  buz_enroll RBZ_ORDAIN_HALLMARK        "rbw-fO"  "${z_mod}" "rbfdo_ordain"          "param1"  "Ordain hallmark: conjure, ${RBCG_VESSEL_MODE_ANNEX_BASE}, or graft based on vessel mode"
   buz_enroll RBZ_KLUDGE_VESSEL          "rbw-fk"  "rbfk_cli.sh" "rbfk_kludge"       "param1"  "Kludge a vessel image locally for development"
   z_mod="rbfl0_cli.sh"
-  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfl_abjure"          "param1"  "Abjure a hallmark (delete artifacts from GAR)"
-  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfl_tally"           ""  "Tally hallmarks by health state"
-  z_mod="rbfv_cli.sh"
-  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfv_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (bind), GRAFTED (graft)"
+  buz_enroll RBZ_ABJURE_HALLMARK        "rbw-fA"  "${z_mod}" "rbfld_abjure"          "param1"  "Abjure a hallmark (delete artifacts from GAR)"
+  buz_enroll RBZ_TALLY_HALLMARKS        "rbw-ft"  "${z_mod}" "rbfln_tally"           ""  "Tally hallmarks by health state"
+  z_mod="rbfv0_cli.sh"
+  buz_enroll RBZ_VOUCH_HALLMARKS        "rbw-fV"  "${z_mod}" "rbfvb_batch_vouch"     ""  "Mode-aware vouch: SLSA (conjure), digest-pin (${RBCG_VESSEL_MODE_ANNEX_BASE}), GRAFTED (graft)"
   z_mod="rbfr_cli.sh"
   buz_enroll RBZ_SUMMON_HALLMARK        "rbw-fs"  "${z_mod}" "rbfr_summon"          "param1"  "Summon vouched hallmark image locally"
   z_mod="rbfc0_cli.sh"
-  buz_enroll RBZ_PLUMB_FULL             "rbw-fpf" "${z_mod}" "rbfc_plumb_full"      "param1"  "Full provenance display (SBOM, build info, Dockerfile)"
-  buz_enroll RBZ_PLUMB_COMPACT          "rbw-fpc" "${z_mod}" "rbfc_plumb_compact"   "param1"  "Compact provenance summary"
+  buz_enroll RBZ_PLUMB_FULL             "rbw-fpf" "${z_mod}" "rbfcp_plumb_full"      "param1"  "Full provenance display (SBOM, build info, Dockerfile)"
+  buz_enroll RBZ_PLUMB_COMPACT          "rbw-fpc" "${z_mod}" "rbfcp_plumb_compact"   "param1"  "Compact provenance summary"
   z_mod="rbfh_cli.sh"
   buz_enroll RBZ_HYGIENE_CHECK_DOCKERFILE "rbw-fhc" "${z_mod}" "rbfh_check"         "param1"  "Check a Dockerfile against the FROM-line hygiene contract"
   buz_enroll RBZ_HYGIENE_CHECK_VESSEL   "rbw-fhv" "${z_mod}" "rbfh_check_vessel"    "param1"  "Check a vessel's conjure Dockerfile against the FROM-line hygiene contract"
@@ -209,20 +216,19 @@ zrbz_kindle() {
   # (catalog-list), wrest (pull), Jettison (delete).
   buz_group RBZ__GROUP_IMAGE      "rbw-i"   "Image — Container image operations"
   z_mod="rbfl0_cli.sh"
-  buz_enroll RBZ_LIST_IMAGES            "rbw-il"  "${z_mod}" "rbfl_list"                  "param1"  "List GAR contents by raw path (type-blind; omit arg for top namespaces)"
-  buz_enroll RBZ_WREST_IMAGE            "rbw-iw"  "${z_mod}" "rbfl_wrest"                 "param1"  "Wrest any image from registry by raw ref (path-polymorphic)"
-  buz_enroll RBZ_JETTISON_IMAGE         "rbw-iJ"  "${z_mod}" "rbfl_jettison"             "param1"  "Jettison any image tag/version from registry by raw ref (path-polymorphic)"
-  buz_enroll RBZ_REKON_HALLMARK         "rbw-irh" "${z_mod}" "rbfl_rekon_hallmark"        "param1"  "List ark basenames present under a hallmark's GAR subtree"
-  buz_enroll RBZ_AUDIT_HALLMARKS        "rbw-iah" "${z_mod}" "rbfl_audit_hallmarks"       ""  "Audit hallmarks — list all hallmark identifiers"
-  buz_enroll RBZ_WREST_HALLMARK_IMAGE   "rbw-iwh" "${z_mod}" "rbfl_wrest"                 "param1"  "Wrest a hallmark image from registry"
-  buz_enroll RBZ_JETTISON_HALLMARK_IMAGE  "rbw-iJh" "${z_mod}" "rbfl_jettison"            "param1"  "Jettison a hallmark image tag from registry"
+  buz_enroll RBZ_LIST_IMAGES            "rbw-il"  "${z_mod}" "rbfln_list"                  "param1"  "List GAR contents by raw path (type-blind; omit arg for top namespaces)"
+  buz_enroll RBZ_WREST_IMAGE            "rbw-iw"  "${z_mod}" "rbflw_wrest"                 "param1"  "Wrest any image from registry by raw ref (path-polymorphic)"
+  buz_enroll RBZ_JETTISON_IMAGE         "rbw-iJ"  "${z_mod}" "rbfld_jettison"             "param1"  "Jettison any image tag/version from registry by raw ref (path-polymorphic)"
+  buz_enroll RBZ_REKON_HALLMARK         "rbw-irh" "${z_mod}" "rbfln_rekon_hallmark"        "param1"  "List ark basenames present under a hallmark's GAR subtree"
+  buz_enroll RBZ_AUDIT_HALLMARKS        "rbw-iah" "${z_mod}" "rbfln_audit_hallmarks"       ""  "Audit hallmarks — list all hallmark identifiers"
+  buz_enroll RBZ_WREST_HALLMARK_IMAGE   "rbw-iwh" "${z_mod}" "rbflw_wrest"                 "param1"  "Wrest a hallmark image from registry"
+  buz_enroll RBZ_JETTISON_HALLMARK_IMAGE  "rbw-iJh" "${z_mod}" "rbfld_jettison"            "param1"  "Jettison a hallmark image tag from registry"
 
   # Marshal — lifecycle (rbw-M)
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"
   buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      "param1"  "Zero regime to blank template (args: the intended tree's basename)"
-  buz_enroll RBZ_MARSHAL_LUSTRATE       "rbw-ML"  "rblm_cli.sh" "rblm_lustrate"  ""  "Lustrate the release clone — erase site identity from every proscribed home"
   buz_enroll RBZ_MARSHAL_FEIGN          "rbw-MF"  "rblm_cli.sh" "rblm_feign"     ""  "Feign a station on the probe branch — write shape-valid stand-ins over the lustrated site fields"
-  buz_enroll RBZ_MARSHAL_EXPEDE         "rbw-ME"  "rblm_cli.sh" "rblm_expede"    "param1"  "Expede the delivery candidate — build it by addition in a clone of the public repository"
+  buz_enroll RBZ_MARSHAL_HARBINGER      "rbw-MH"  "rblm_cli.sh" "rblm_harbinger" ""  "Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and prompt"
 
   # Nameplate — cross-nameplate operations (rbw-n)
   buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Nameplate — Cross-nameplate operations"
@@ -230,7 +236,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LIST_NAMEPLATES        "rbw-rnl" "${z_mod}" "rbrn_list"    ""  "List all nameplates"
   buz_enroll RBZ_SURVEY_NAMEPLATES      "rbw-ni"  "${z_mod}" "rbrn_survey"  ""  "Survey nameplate status"
   buz_enroll RBZ_AUDIT_NAMEPLATES       "rbw-nv"  "${z_mod}" "rbrn_audit"   ""  "Validate all nameplates"
-  buz_enroll RBZ_DRIVE_HALLMARK         "rbw-nd"  "${z_mod}" "rbrn_drive"   "param1"  "Drive a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark])"
+  buz_enroll RBZ_MITRE_HALLMARK         "rbw-nm"  "${z_mod}" "rbrn_mitre"   "param1"  "Mitre a freshly-built hallmark into a nameplate's RBRN_*_HALLMARK (express-or-chain; args: field bottle|sentry [hallmark])"
 
   # Regime — config files (rbw-r)
   buz_group RBZ__GROUP_REGIME     "rbw-r"   "Regime — Config files"
@@ -242,17 +248,23 @@ zrbz_kindle() {
   buz_enroll RBZ_RENDER_VESSEL          "rbw-rvr" "${z_mod}" "rbrv_render"    "param1"  "Render vessel regime"
   buz_enroll RBZ_VALIDATE_VESSEL        "rbw-rvv" "${z_mod}" "rbrv_validate"  "param1"  "Validate vessel regime"
   z_mod="rbfl0_cli.sh"
-  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-rvy" "${z_mod}" "rbfl_yoke"      "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
-  buz_enroll RBZ_ANOINT_GRAFT           "rbw-rva" "${z_mod}" "rbfl_anoint"    "param1"  "Anoint a graft vessel with the previous build's hallmark (rewrites RBRV_GRAFT_IMAGE from chained facts)"
-  buz_enroll RBZ_FEOFF_BOLE             "rbw-rvf" "${z_mod}" "rbfl_feoff"     "param1"  "Feoff a conjure vessel - elect its base anchor from a bole Lode touchmark (express-or-chain)"
+  buz_enroll RBZ_YOKE_RELIQUARY         "rbw-rvy" "${z_mod}" "rbfly_yoke"      "param1"  "Yoke a reliquary touchmark into every vessel's rbrv.env (wildcard fan-out)"
+  buz_enroll RBZ_ANOINT_GRAFT           "rbw-rva" "${z_mod}" "rbfla_anoint"    "param1"  "Anoint a graft vessel with the previous build's hallmark (rewrites RBRV_GRAFT_IMAGE from chained facts)"
+  buz_enroll RBZ_FEOFF_BOLE             "rbw-rvf" "${z_mod}" "rbflf_feoff"     "param1"  "Feoff a conjure vessel - elect its base anchor from a bole Lode touchmark (express-or-chain)"
   z_mod="rbrr_cli.sh"
   buz_enroll RBZ_RENDER_REPO            "rbw-rrr" "${z_mod}" "rbrr_render"    ""  "Render repo regime"
   buz_enroll RBZ_VALIDATE_REPO          "rbw-rrv" "${z_mod}" "rbrr_validate"  ""  "Validate repo regime"
+  z_mod="rbfl0_cli.sh"
+  buz_enroll RBZ_SEISE_SUBSTRATE        "rbw-rrs" "${z_mod}" "rbfls_seise"     "param1"  "Seise the repo substrate reliquary - elect the reliquary the vessel-less substrate captures (underpin, immure) resolve tools from (express-or-chain)"
   z_mod="rbrd_cli.sh"
   buz_enroll RBZ_RENDER_DEPOT           "rbw-rdr" "${z_mod}" "rbrd_render"    ""        "Render depot regime"
   buz_enroll RBZ_VALIDATE_DEPOT         "rbw-rdv" "${z_mod}" "rbrd_validate"  ""        "Validate depot regime"
-  buz_enroll RBZ_INSCRIBE_DEPOT         "rbw-rdi" "${z_mod}" "rbrd_inscribe"  "param1"  "Inscribe RBRD tripwire image to GAR (bearer token via positional)"
-  buz_enroll RBZ_CHECK_DEPOT            "rbw-rdc" "${z_mod}" "rbrd_check"     "param1"  "Check local rbrd.env against inscribed tripwire (bearer token via positional)"
+  # The tripwire pair dispatches into the payor module — the standalone
+  # absent-tripwire recovery self-authenticates as Payor (see rbgp_payor.sh),
+  # so rbrd_cli.sh stays a pure local regime CLI.
+  z_mod="rbgp_cli.sh"
+  buz_enroll RBZ_INCUSE_DEPOT           "rbw-rdi" "${z_mod}" "rbgp_incuse"             ""  "Incuse the RBRD tripwire image into GAR standalone — the absent-tripwire recovery (self-authenticates as Payor)"
+  buz_enroll RBZ_COLLATE_DEPOT          "rbw-rdc" "${z_mod}" "rbgp_collate"            ""  "Collate local rbrd.env against the incused tripwire standalone (self-authenticates as Payor)"
   z_mod="rbrp_cli.sh"
   buz_enroll RBZ_RENDER_PAYOR           "rbw-rpr" "${z_mod}" "rbrp_render"    ""  "Render payor regime"
   buz_enroll RBZ_VALIDATE_PAYOR         "rbw-rpv" "${z_mod}" "rbrp_validate"  ""  "Validate payor regime"
@@ -272,11 +284,15 @@ zrbz_kindle() {
   # tP/tS/tT into rbw-ts imprints (gauntlet/skirmish/siege).
   buz_group RBZ__GROUP_THEURGE    "rbw-t"   "Theurge — Test infrastructure"
   z_mod="rbtd/rbte_cli.sh"
-  # Build/Test carry the imprint channel solely to forward cargo passthrough
+  # Build/Test carry the imprint channel solely to forward the caller's
   # args ("$@"); the 2-segment filename leaves BURD_TOKEN_3 empty, so no folio
   # is consumed. (Empty channel would drop the args; param1 would eat the first.)
   buz_enroll RBZ_THEURGE_BUILD    "rbw-tb"  "${z_mod}" "rbte_build"   "imprint"  "Build the theurge crate"
   buz_enroll RBZ_THEURGE_TEST     "rbw-tt"  "${z_mod}" "rbte_test"    "imprint"  "Run theurge unit tests"
+  buz_enroll RBZ_THEURGE_LINT     "rbw-tm"  "${z_mod}" "rbte_lint"    ""         "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
+  buz_enroll RBZ_THEURGE_CLEAN    "rbw-tx"  "${z_mod}" "rbte_clean"   ""         "Removes the test engine's build output, so the next door that builds starts from nothing."
+  buz_enroll RBZ_THEURGE_FORMAT_CHECK "rbw-tk" "${z_mod}" "rbte_format_check" "" "Checks every crate this repository tracks against rustfmt, changing nothing."
+  buz_enroll RBZ_THEURGE_FORMAT   "rbw-tK"  "${z_mod}" "rbte_format"  ""         "Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree."
   buz_enroll RBZ_THEURGE_SUITE    "rbw-ts"  "${z_mod}" "rbte_suite"   "imprint"  "Run a named test suite"
   buz_enroll RBZ_THEURGE_FIXTURE  "rbw-tf"  "${z_mod}" "rbte_run"     "param1"   "Run a single named test fixture"
   buz_enroll RBZ_THEURGE_CASE     "rbw-tc"  "${z_mod}" "rbte_single"  "param1"   "Run one case against a charged Crucible (omit to list fixtures/cases)"
@@ -286,15 +302,24 @@ zrbz_kindle() {
   # colophon to declare and invoke so the census enforcement has a subject.
   buz_enroll RBZ_THEURGE_NIHIL    "rbw-tn"  "${z_mod}" "rbte_nihil"   ""         "Nihil — synthetic colophon that does nothing, for the calibrant census coverage cases (no side effects)"
   z_mod="rbq_cli.sh"
-  buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_qualify_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
-  buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_qualify_release"     ""        "Release qualify: + shellcheck, full test suite"
-  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_qualify_shellcheck"  ""        "Shellcheck only: BCG-configured static analysis, no test suite"
+  buz_enroll RBZ_QUALIFY_FAST       "rbw-tq"   "${z_mod}" "rbq_fast"        ""        "Fast qualify: tabtargets, colophons, nameplate health"
+  buz_enroll RBZ_QUALIFY_RELEASE    "rbw-tr"   "${z_mod}" "rbq_release"     ""        "Release qualify: + shellcheck, full test suite"
+  buz_enroll RBZ_QUALIFY_SHELLCHECK "rbw-tl"   "${z_mod}" "rbq_shellcheck"  ""        "Shellcheck only: static analysis, no test suite"
+
+  # Voorloper — the two doors a fresh clone carries for a newcomer (rbw-v):
+  # prepare (UPPER: writes the station file, run before any station stands, so
+  # its tabtarget carries the no-log word) and leftovers (lower: reads, asking
+  # the payor alone and changing nothing).
+  buz_group RBZ__GROUP_VOORLOPER  "rbw-v"   "Voorloper — Doors that prepare a fresh clone for a newcomer and ask whether a depot under its cloud prefix still stands"
+  z_mod="rblm_cli.sh"
+  buz_enroll RBZ_VOORLOPER_PREPARE    "rbw-vP"  "${z_mod}" "rblm_voorloper_prepare"    ""  "Prepares a fresh clone for a newcomer: writes its ${BUBG_STATION_BASE} file, sets the fixed tincture, and validates the ${BUBG_STATION_BASE}."
+  buz_enroll RBZ_VOORLOPER_LEFTOVERS  "rbw-vl"  "${z_mod}" "rblm_voorloper_leftovers"  ""  "Asks, through this ${BUBG_STATION_POSSESSIVE} payor credential, whether any depot under this tree's cloud prefix still stands, answering by its exit: 0 where none stands, ${BUBG_BARRED_PSEPHOS} where one does, 1 where it could not ask."
 
   readonly ZRBZ_KINDLED=1
 }
 
 ######################################################################
-# Rust const projection (colophons → RBTDGC_)
+# Rust const projection (colophons → RBTGEC_)
 
 # The tomes rbtdgc_consts.rs is DEFINED OVER. Not a description of what some
 # caller happened to kindle — the artifact's own roster, and the reason it is a
@@ -316,29 +341,31 @@ ZRBZ_CONSTS_TOME_ROLL=("rbz" "buwz")
 # (rbz_generate_consts), rbq's freshness gate, and the release sterilizer, so no
 # two of them can ever diverge. Four sections under one banner: the colophon block
 # (buz_emit_colophon_consts walks each rostered tome under its own add/strip
-# prefixes — RB's RBTDGC_ run and the BUK zipper's BUWGC_ run), the rbcc
+# prefixes — RB's RBTGEC_ run and the BUK zipper's BUWGC_ run), the rbcc
 # single-homed set, the rbpc freehold test-rig set, and the rbgc propagation
 # budget. rbcc_emit_consts is reachable here because every caller sources rbcc
 # alongside rbz; rbpc_emit_consts and rbgc_emit_consts by the same arrangement.
 rbz_emit_consts() {
   zrbz_sentinel
 
+  (( ${#ZRBZ_CONSTS_TOME_ROLL[@]} )) || buc_die_now "rbz_emit_consts: tome roll is empty"
   local z_tome=""
   for z_tome in "${ZRBZ_CONSTS_TOME_ROLL[@]}"; do
     buz_tome_declared_predicate "${z_tome}" \
-      || buc_die "rbz_emit_consts: tome '${z_tome}' is not kindled — the generated consts file is defined over ${ZRBZ_CONSTS_TOME_ROLL[*]}, and emitting without one would silently produce a smaller file. Source and kindle that zipper in this caller's furnish."
+      || buc_die_now "rbz_emit_consts: tome '${z_tome}' is not kindled — the generated consts file is defined over ${ZRBZ_CONSTS_TOME_ROLL[*]}, and emitting without one would silently produce a smaller file. Source and kindle that zipper in this caller's furnish."
   done
 
-  printf '%s\n' "// Generated by the theurge build — rbz + buwz colophons + rbcc + rbpc + rbgc constants. Do not edit."
-  printf '%s\n' "// Regenerate: tt/rbw-tb.Build.sh"
-  printf '%s\n' ""
-  buz_emit_colophon_consts || buc_die "rbz_emit_consts: colophon emit failed"
-  printf '%s\n' ""
-  rbcc_emit_consts || buc_die "rbz_emit_consts: rbcc emit failed"
-  printf '%s\n' ""
-  rbpc_emit_consts || buc_die "rbz_emit_consts: rbpc emit failed"
-  printf '%s\n' ""
-  rbgc_emit_consts || buc_die "rbz_emit_consts: rbgc emit failed"
+  printf '%s\n' "// Generated by the theurge build — rbz + buwz colophons + rbcc + rbpc + rbgc constants. Do not edit." \
+    || buc_die_now "rbz_emit_consts: banner write failed"
+  printf '%s\n' "// Regenerate: tt/rbw-tb.Build.sh" || buc_die_now "rbz_emit_consts: banner write failed"
+  printf '%s\n' "" || buc_die_now "rbz_emit_consts: separator write failed"
+  buz_emit_colophon_consts || buc_die_now "rbz_emit_consts: colophon emit failed"
+  printf '%s\n' "" || buc_die_now "rbz_emit_consts: separator write failed"
+  rbcc_emit_consts || buc_die_now "rbz_emit_consts: rbcc emit failed"
+  printf '%s\n' "" || buc_die_now "rbz_emit_consts: separator write failed"
+  rbpc_emit_consts || buc_die_now "rbz_emit_consts: rbpc emit failed"
+  printf '%s\n' "" || buc_die_now "rbz_emit_consts: separator write failed"
+  rbgc_emit_consts || buc_die_now "rbz_emit_consts: rbgc emit failed"
 }
 
 # rbz_generate_consts() - Write the colophon const file, only on difference.
@@ -350,15 +377,26 @@ rbz_generate_consts() {
   zrbz_sentinel
 
   local -r z_target="${1:-}"
-  test -n "${z_target}" || buc_die "rbz_generate_consts: target path required"
+  test -n "${z_target}" || buc_die_now "rbz_generate_consts: target path required"
 
   local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_consts.rs"
-  rbz_emit_consts > "${z_tmp}" || buc_die "rbz_generate_consts: emit failed"
+  rbz_emit_consts > "${z_tmp}" || buc_die_now "rbz_generate_consts: emit failed"
 
-  if test -f "${z_target}" && [[ "$(<"${z_tmp}")" == "$(<"${z_target}")" ]]; then
+  local z_tmp_content
+  z_tmp_content=$(<"${z_tmp}") || buc_die_now "rbz_generate_consts: failed to read ${z_tmp}"
+  local z_up_to_date=0
+  if test -f "${z_target}"; then
+    local z_target_content
+    z_target_content=$(<"${z_target}") || buc_die_now "rbz_generate_consts: failed to read ${z_target}"
+    if test "${z_tmp_content}" = "${z_target_content}"; then
+      z_up_to_date=1
+    fi
+  fi
+
+  if test "${z_up_to_date}" = "1"; then
     buc_log_args "Colophon consts already up to date: ${z_target}"
   else
-    cp "${z_tmp}" "${z_target}" || buc_die "rbz_generate_consts: failed to write ${z_target}"
+    cp "${z_tmp}" "${z_target}" || buc_die_now "rbz_generate_consts: failed to write ${z_target}"
     buc_log_args "Generated: ${z_target}"
   fi
 }
@@ -373,16 +411,27 @@ rbz_generate_context() {
 
   local -r z_tt_dir="${1:-}"
   local -r z_target="${2:-}"
-  test -n "${z_tt_dir}" || buc_die "rbz_generate_context: tabtarget dir required"
-  test -n "${z_target}" || buc_die "rbz_generate_context: target path required"
+  test -n "${z_tt_dir}" || buc_die_now "rbz_generate_context: tabtarget dir required"
+  test -n "${z_target}" || buc_die_now "rbz_generate_context: target path required"
 
   local -r z_tmp="${BURD_TEMP_DIR}/rbz_generate_context.md"
-  buz_emit_context "rbz" "${z_tt_dir}" > "${z_tmp}" || buc_die "rbz_generate_context: emit failed"
+  buz_emit_context "rbz" "${z_tt_dir}" > "${z_tmp}" || buc_die_now "rbz_generate_context: emit failed"
 
-  if test -f "${z_target}" && [[ "$(<"${z_tmp}")" == "$(<"${z_target}")" ]]; then
+  local z_tmp_content
+  z_tmp_content=$(<"${z_tmp}") || buc_die_now "rbz_generate_context: failed to read ${z_tmp}"
+  local z_up_to_date=0
+  if test -f "${z_target}"; then
+    local z_target_content
+    z_target_content=$(<"${z_target}") || buc_die_now "rbz_generate_context: failed to read ${z_target}"
+    if test "${z_tmp_content}" = "${z_target_content}"; then
+      z_up_to_date=1
+    fi
+  fi
+
+  if test "${z_up_to_date}" = "1"; then
     buc_log_args "Tabtarget context already up to date: ${z_target}"
   else
-    cp "${z_tmp}" "${z_target}" || buc_die "rbz_generate_context: failed to write ${z_target}"
+    cp "${z_tmp}" "${z_target}" || buc_die_now "rbz_generate_context: failed to write ${z_target}"
     buc_log_args "Generated: ${z_target}"
   fi
 }
@@ -391,7 +440,7 @@ rbz_generate_context() {
 # Internal sentinel
 
 zrbz_sentinel() {
-  test "${ZRBZ_KINDLED:-}" = "1" || buc_die "Module rbz not kindled - call zrbz_kindle first"
+  test "${ZRBZ_KINDLED:-}" = "1" || buc_die_now "Module rbz not kindled - call zrbz_kindle first"
 }
 
 # eof

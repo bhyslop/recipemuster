@@ -1,4 +1,5 @@
 // Copyright 2026 Scale Invariant, Inc.
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +23,7 @@
 //   - Intake (POSIX → native): env vars and arguments arrive as
 //     `/cygdrive/c/...` or bare `/home/...` from Cygwin bash; Rust's PathBuf
 //     joins them with backslashes on a Windows target, producing mixed
-//     `/cygdrive/c/...\rbtd` paths Windows resolves unpredictably.
+//     `/cygdrive/c/...\trace` paths Windows resolves unpredictably.
 //   - Outflow (native → POSIX): PathBuf::display() emits native form
 //     (`C:\foo\bar`); embedded in a bash script or env var consumed by
 //     Cygwin bash, the consumer sees an unparseable path.
@@ -31,26 +32,92 @@
 // probe. On Linux and macOS both conversions are identity, so call sites
 // can be unconditional.
 
-use std::path::{Path, PathBuf};
+use std::path::{
+    Path,
+    PathBuf, //
+};
 use std::process::Command;
 use std::sync::OnceLock;
 
-static RBTDRX_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
+use brp::brprc_catena::{
+    brprc_Regime,
+    brprc_read, //
+};
 
-/// Dispatch-synthesized BURD member carrying bash's OSTYPE across the process
-/// boundary. bash's own `$OSTYPE` is a shell variable, not exported, so a
-/// native binary never inherits it; `bud_dispatch.sh` reads the live `$OSTYPE`
-/// in bash and re-exports it under this name.
-const RBTDRX_ENV_OSTYPE: &str = "BURD_OSTYPE";
+static RBTCEP_IS_CYGWIN: OnceLock<bool> = OnceLock::new();
+static RBTDRX_DISPATCH: OnceLock<Result<brprc_Regime, String>> = OnceLock::new();
+
+/// The pointer a dispatch hands across its exec: the one name theurge reads
+/// from its environment for the dispatch's values, naming the file that holds
+/// them all.
+pub const RBTDRX_DISPATCH_FILE_VAR: &str = "BURD_BURD_FILE";
+
+/// Dispatch member carrying bash's OSTYPE across the process boundary. bash's
+/// own `$OSTYPE` is a shell variable, not exported, so a native binary never
+/// inherits it; `bud_dispatch.sh` reads the live `$OSTYPE` in bash and writes it
+/// into the dispatch file under this name.
+const RBTDRX_DISPATCH_OSTYPE: &str = "BURD_OSTYPE";
+
+/// The dispatch this process was launched under, read once from the file its
+/// pointer names through the estate's one regime reader.
+///
+/// The pointer is itself a path in the launching bash's form, and the platform
+/// verdict lives inside the file it names, so the pointer cannot wait on that
+/// verdict: a Windows-native theurge is launched only from Cygwin bash, so on a
+/// Windows target the pointer converts as a Cygwin path, and elsewhere as itself.
+fn zrbtdrx_dispatch() -> Result<&'static brprc_Regime, String> {
+    RBTDRX_DISPATCH
+        .get_or_init(|| {
+            let pointer = match std::env::var(RBTDRX_DISPATCH_FILE_VAR) {
+                Ok(v) if !v.is_empty() => v,
+                _ => {
+                    return Err(format!(
+                        "{} not set in environment — theurge must be launched via BUK dispatch",
+                        RBTDRX_DISPATCH_FILE_VAR, //
+                    ));
+                }
+            };
+            let path = rbtcep_posix_to_native_for(&pointer, cfg!(windows))?;
+            brprc_read(&path)
+        })
+        .as_ref()
+        .map_err(|e| e.clone())
+}
+
+/// One value of the dispatch this process was launched under, as the dispatch
+/// wrote it.
+///
+/// Absent or blank is a refusal, never a fallback: the dispatch writes a field
+/// it composed nothing for as an empty assignment, and a reader that needs the
+/// field is told the file lacks it.
+pub fn rbtdrx_dispatch_value(name: &str) -> Result<String, String> {
+    let regime = zrbtdrx_dispatch()?;
+    regime
+        .brprc_scalar(name)
+        .map(str::trim)
+        .filter(|v| !v.is_empty())
+        .map(str::to_string)
+        .ok_or_else(|| {
+            format!(
+                "the dispatch file {} names carries no {} — theurge must be launched via BUK dispatch",
+                RBTDRX_DISPATCH_FILE_VAR, name, //
+            )
+        })
+}
 
 /// Detect whether we're running on Cygwin.
 ///
-/// Reads the dispatch-provided `BURD_OSTYPE` (see `RBTDRX_ENV_OSTYPE`) rather
-/// than bash's own `$OSTYPE`, which a native binary does not inherit. Result is
-/// cached for binary lifetime.
-pub fn rbtdrx_is_cygwin() -> bool {
-    *RBTDRX_IS_CYGWIN.get_or_init(|| {
-        matches!(std::env::var(RBTDRX_ENV_OSTYPE).as_deref(), Ok("cygwin"))
+/// Reads `BURD_OSTYPE` from the dispatch file (see `RBTDRX_DISPATCH_OSTYPE`)
+/// rather than bash's own `$OSTYPE`, which a native binary does not inherit.
+/// Result is cached for binary lifetime. A dispatch the process cannot read is
+/// fatal here rather than a silent verdict of "not Cygwin".
+pub fn rbtcep_is_cygwin() -> bool {
+    *RBTCEP_IS_CYGWIN.get_or_init(|| match rbtdrx_dispatch_value(RBTDRX_DISPATCH_OSTYPE) {
+        Ok(ostype) => ostype == "cygwin",
+        Err(e) => panic!(
+            "rbtdrx: cannot learn the platform: {}",
+            e, //
+        ),
     })
 }
 
@@ -60,29 +127,23 @@ pub fn rbtdrx_is_cygwin() -> bool {
 /// Returns `Err` only when running on Cygwin AND the path is not a recognised
 /// fast-path shape AND the `cygpath` fallback fails — i.e., the platform
 /// claims Cygwin via OSTYPE but cygpath is unreachable.
-pub fn rbtdrx_posix_to_native(s: &str) -> Result<PathBuf, String> {
-    rbtdrx_posix_to_native_for(s, rbtdrx_is_cygwin())
+pub fn rbtcep_posix_to_native(s: &str) -> Result<PathBuf, String> {
+    rbtcep_posix_to_native_for(s, rbtcep_is_cygwin())
 }
 
-/// Read an env var holding a filesystem path and return it in native form.
+/// Read a dispatch value holding a filesystem path and return it in native form.
 ///
-/// The single intake membrane: the BUK launcher exports paths in Cygwin POSIX
-/// form, and a Windows-native binary must nativize them before any `std::fs`
-/// use (see module header). Routing every env-sourced path through here keeps
-/// the conversion in one place — `std::fs` call sites stay platform-blind, and
+/// The single intake membrane: the dispatch writes paths in Cygwin POSIX form,
+/// and a Windows-native binary must nativize them before any `std::fs` use (see
+/// module header). Routing every dispatch path through here keeps the
+/// conversion in one place — `std::fs` call sites stay platform-blind, and
 /// paths theurge composes from `current_dir()` (already native) need no
 /// handling. On non-Cygwin platforms the nativization is identity.
 ///
-/// Returns `Err` when the var is unset or empty: theurge is always launched via
-/// BUK dispatch, which exports these.
-pub fn rbtdrx_path_from_env(name: &str) -> Result<PathBuf, String> {
-    match std::env::var(name) {
-        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v),
-        _ => Err(format!(
-            "{} not set in environment — theurge must be launched via BUK dispatch",
-            name
-        )),
-    }
+/// Returns `Err` when the dispatch file names no value for the field: theurge
+/// is always launched via BUK dispatch, which writes these.
+pub fn rbtdrx_path_from_dispatch(name: &str) -> Result<PathBuf, String> {
+    rbtcep_posix_to_native(&rbtdrx_dispatch_value(name)?)
 }
 
 /// Convert a Path from native form to POSIX form suitable for embedding in
@@ -93,40 +154,43 @@ pub fn rbtdrx_path_from_env(name: &str) -> Result<PathBuf, String> {
 /// native shapes; if cygpath fails the original display form is returned
 /// rather than failing the caller. Outflow sites (env vars, format!
 /// interpolations) cannot meaningfully propagate errors mid-script.
-pub fn rbtdrx_native_to_posix(p: &Path) -> String {
-    rbtdrx_native_to_posix_for(&p.to_string_lossy(), rbtdrx_is_cygwin())
+pub fn rbtcep_native_to_posix(p: &Path) -> String {
+    rbtcep_native_to_posix_for(&p.to_string_lossy(), rbtcep_is_cygwin())
 }
 
 // ── Pure implementation — explicit is_cygwin parameter for unit tests ──
 
-pub(crate) fn rbtdrx_posix_to_native_for(s: &str, is_cygwin: bool) -> Result<PathBuf, String> {
+pub(crate) fn rbtcep_posix_to_native_for(s: &str, is_cygwin: bool) -> Result<PathBuf, String> {
     if !is_cygwin {
         return Ok(PathBuf::from(s));
     }
 
     // Fast path: /cygdrive/X/foo → X:\foo
-    if let Some(native) = rbtdrx_cygdrive_to_native(s) {
+    if let Some(native) = rbtcep_cygdrive_to_native(s) {
         return Ok(native);
     }
 
     // Already native Windows form (drive-letter prefix)
-    if rbtdrx_looks_native_windows(s) {
+    if rbtcep_looks_native_windows(s) {
         return Ok(PathBuf::from(s));
     }
 
     // Slow path: bare POSIX (/home/..., /tmp/...) needs cygpath
-    rbtdrx_cygpath(s, "-w")
-        .map(PathBuf::from)
-        .ok_or_else(|| format!("rbtdrx: cygpath -w failed for '{}'", s))
+    rbtcep_cygpath(s, "-w").map(PathBuf::from).ok_or_else(|| {
+        format!(
+            "rbtdrx: cygpath -w failed for '{}'",
+            s, //
+        )
+    })
 }
 
-pub(crate) fn rbtdrx_native_to_posix_for(s: &str, is_cygwin: bool) -> String {
+pub(crate) fn rbtcep_native_to_posix_for(s: &str, is_cygwin: bool) -> String {
     if !is_cygwin {
         return s.to_string();
     }
 
     // Fast path: X:\foo or X:/foo → /cygdrive/x/foo
-    if let Some(posix) = rbtdrx_drive_to_cygdrive(s) {
+    if let Some(posix) = rbtcep_drive_to_cygdrive(s) {
         return posix;
     }
 
@@ -136,14 +200,14 @@ pub(crate) fn rbtdrx_native_to_posix_for(s: &str, is_cygwin: bool) -> String {
     }
 
     // Slow path: cygpath -u; fall back to the original form
-    rbtdrx_cygpath(s, "-u").unwrap_or_else(|| s.to_string())
+    rbtcep_cygpath(s, "-u").unwrap_or_else(|| s.to_string())
 }
 
 // ── Fast-path conversions (pure, unit-testable) ────────────────────────
 
 /// Match `/cygdrive/X[/tail]` and produce `X:\tail`. Returns None if the
 /// input does not match this shape.
-pub(crate) fn rbtdrx_cygdrive_to_native(s: &str) -> Option<PathBuf> {
+pub(crate) fn rbtcep_cygdrive_to_native(s: &str) -> Option<PathBuf> {
     let rest = s.strip_prefix("/cygdrive/")?;
     let mut chars = rest.chars();
     let drive = chars.next()?;
@@ -158,12 +222,16 @@ pub(crate) fn rbtdrx_cygdrive_to_native(s: &str) -> Option<PathBuf> {
     }
     let drive_upper = drive.to_ascii_uppercase();
     let win_tail = tail.replace('/', "\\");
-    Some(PathBuf::from(format!("{}:{}", drive_upper, win_tail)))
+    Some(PathBuf::from(format!(
+        "{}:{}",
+        drive_upper,
+        win_tail, //
+    )))
 }
 
 /// Match a drive-letter native path (`X:\foo`, `X:/foo`, or bare `X:`) and
 /// produce the corresponding `/cygdrive/x/foo` form.
-pub(crate) fn rbtdrx_drive_to_cygdrive(s: &str) -> Option<String> {
+pub(crate) fn rbtcep_drive_to_cygdrive(s: &str) -> Option<String> {
     let bytes = s.as_bytes();
     if bytes.len() < 2 {
         return None;
@@ -174,18 +242,28 @@ pub(crate) fn rbtdrx_drive_to_cygdrive(s: &str) -> Option<String> {
     let drive = (bytes[0] as char).to_ascii_lowercase();
     let tail = &s[2..];
     if tail.is_empty() {
-        return Some(format!("/cygdrive/{}", drive));
+        return Some(format!(
+            "/cygdrive/{}",
+            drive, //
+        ));
     }
     let posix_tail = tail.replace('\\', "/");
     let posix_tail = if posix_tail.starts_with('/') {
         posix_tail
     } else {
-        format!("/{}", posix_tail)
+        format!(
+            "/{}",
+            posix_tail, //
+        )
     };
-    Some(format!("/cygdrive/{}{}", drive, posix_tail))
+    Some(format!(
+        "/cygdrive/{}{}",
+        drive,
+        posix_tail, //
+    ))
 }
 
-pub(crate) fn rbtdrx_looks_native_windows(s: &str) -> bool {
+pub(crate) fn rbtcep_looks_native_windows(s: &str) -> bool {
     let bytes = s.as_bytes();
     bytes.len() >= 2 && bytes[0].is_ascii_alphabetic() && bytes[1] == b':'
 }
@@ -195,7 +273,7 @@ pub(crate) fn rbtdrx_looks_native_windows(s: &str) -> bool {
 /// and their finding reports all hold `/` paths, while the native-Windows
 /// walker emits `\` separators — every scanner builds its `rel` through this
 /// one funnel so the compare-and-report form cannot drift by platform.
-pub(crate) fn rbtdrx_repo_rel(root: &Path, path: &Path) -> String {
+pub(crate) fn rbtcep_repo_rel(root: &Path, path: &Path) -> String {
     path.strip_prefix(root)
         .unwrap_or(path)
         .display()
@@ -205,7 +283,7 @@ pub(crate) fn rbtdrx_repo_rel(root: &Path, path: &Path) -> String {
 
 // ── cygpath fallback ───────────────────────────────────────────────────
 
-fn rbtdrx_cygpath(input: &str, flag: &str) -> Option<String> {
+fn rbtcep_cygpath(input: &str, flag: &str) -> Option<String> {
     let output = Command::new("cygpath").arg(flag).arg(input).output().ok()?;
     if !output.status.success() {
         return None;

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,16 +43,63 @@ rbho_payor_handbook() {
   buh_line "and a founding ${RBYC_GOVERNOR} girded to administer it."
   buh_e
 
-  buh_line "This ceremony takes about 30 minutes."
+  buh_line "The steps are ordered so each vendor console is visited as one contiguous"
+  buh_line "stretch: the two founding guides (organization, then the identity-provider"
+  buh_line "registration) come first, then the manor setup, then a scripted block that"
+  buh_line "needs no console. Later guides depend on values the earlier ones yield."
+  buh_e
+  buh_line "The scripted block runs about 30 minutes; the two founding guides add"
+  buh_line "console time, and the organization guide's DNS verification bakes on its"
+  buh_line "own clock. Users who already administer a GCP organization skip Step 1."
+  buh_e
+  buh_line "Bring these before you start:"
+  buh_line "  * A DNS domain you control, to found the GCP organization over"
+  buh_line "    (not needed if you already administer an organization)."
+  buh_line "  * An identity-provider tenant you administer. The guide shown is"
+  buh_line "    Microsoft Entra; its free signup asks for a payment card."
+  buh_line "  * A Google Cloud billing account, or a payment method to open one"
+  buh_line "    in Step 3; the ${RBYC_MANOR} and every ${RBYC_DEPOT} are funded under it."
+  buh_e
+  buh_line "Run every ${RBYC_TABTARGET} from the root of your clone."
   buh_e
 
   buh_step_style "Step " " — "
+
+  buh_step1 "Found your GCP organization"
+  buh_e
+  buh_line "The manor's one workforce identity pool is owned by a GCP organization —"
+  buh_line "a resource node founded by a Cloud Identity signup over a DNS domain you"
+  buh_line "control. The guide yields RBRW_ORG_ID."
+  buh_e
+  buh_line "Run the guided setup:"
+  buh_tt  "  " "${RBZ_PAYOR_ORGANIZATION}"
+  buh_e
+  buh_line "SKIP this step entirely if you already administer a GCP organization —"
+  buh_line "the guide tells you how to read its numeric ID and record it."
+  buh_line "Domain verification propagates on DNS's clock (minutes to hours); you may"
+  buh_line "leave it baking and start Step 2, which touches a different vendor."
+  buh_e
+
+  buh_step1 "Register the federation application"
+  buh_e
+  buh_line "Keyless sign-in rides a standing trust between the ${RBYC_MANOR} and your"
+  buh_line "identity provider — a foedus. Register the application at the IdP's own"
+  buh_line "console now (guided walk, Entra shown); the trust is pledged later, in the"
+  buh_line "scripted block, once the workforce pool exists."
+  buh_e
+  buh_tt  "  " "${RBZ_FEDERATION_ENTRA}"
+  buh_e
+  buh_line "The walk yields the foedus's core trust values, landing in the committed"
+  buh_line "federation ${RBYC_REGIME}. This is Microsoft-side console work — you may run"
+  buh_line "it while Step 1's DNS verification is still baking."
+  buh_e
 
   buh_step1 "Establish the Manor"
   buh_e
   buh_line "The ${RBYC_MANORS} GCP project hosts the OAuth client and billing"
   buh_line "account. It must be created before any infrastructure can be"
-  buh_line "provisioned."
+  buh_line "provisioned — created inside the organization from Step 1, so its"
+  buh_line "OAuth consent screen can be Internal."
   buh_e
   buh_line "Run the guided setup:"
   buh_tt  "  " "${RBZ_PAYOR_ESTABLISH}"
@@ -63,9 +111,18 @@ rbho_payor_handbook() {
 
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_line "Step 1 ended with saving a JSON client secret file into its durable"
-  buh_line "home - the client_secrets/ subdirectory of your secrets directory"
-  buh_line "(RBRR_SECRETS_DIR in rbrr.env). Install it:"
+  buh_line "Establishing the Manor (Step 3) ended with saving a JSON client secret"
+  buh_line "file into its durable home - the client_secrets/ subdirectory of your"
+  buh_line "secrets directory (RBRR_SECRETS_DIR in rbrr.env), created if it was"
+  buh_line "absent. It must be the client created inside your own payor project."
+  buh_e
+  buh_line "Install enforces the repository and depot ${RBYC_REGIMES}, so fill"
+  buh_line "${RBYC_RBRD} (rbrd.env) first: RBRD_CLOUD_PREFIX (2 to 11 characters,"
+  buh_line "lowercase, starting with a letter and ending in a hyphen, as acme-) and"
+  buh_line "RBRD_DEPOT_MONIKER; RBRD_GCP_REGION and RBRD_GCB_MACHINE_TYPE ship set."
+  buh_line "Together they name your ${RBYC_DEPOT}'s project, and they freeze at ${RBYC_LEVY}."
+  buh_e
+  buh_line "Install it:"
   buh_e
   buh_tt  "  " "${RBZ_PAYOR_INSTALL}" "" " «secrets-dir»/client_secrets/client_secret_*.json"
   buh_e
@@ -82,24 +139,26 @@ rbho_payor_handbook() {
   buh_line "One idempotent command readies the ${RBYC_MANORS} scriptable"
   buh_line "substrate: it enables the payor-project APIs, links billing, seats"
   buh_line "the workforce identity pool, and provisions the terrier bucket."
-  buh_line "Set RBRD_DEPOT_MONIKER and RBRD_GCP_REGION in ${RBYC_RBRD} first —"
-  buh_line "the depot regime is enforced and the bucket's region rides"
-  buh_line "RBRD_GCP_REGION. Safe to re-run at any time (ensure-exists):"
+  buh_e
+  buh_line "Two regimes must stand filled first:"
+  buh_line "  * ${RBYC_RBRD} — RBRD_CLOUD_PREFIX, RBRD_DEPOT_MONIKER and RBRD_GCP_REGION,"
+  buh_line "    filled before Step 4 (the depot regime is enforced; the terrier"
+  buh_line "    bucket's region rides RBRD_GCP_REGION)."
+  buh_line "  * the workforce ${RBYC_REGIME} (rbrw.env) — RBRW_WORKFORCE_POOL_ID and"
+  buh_line "    RBRW_SESSION_DURATION, alongside the RBRW_ORG_ID from Step 1. This"
+  buh_line "    command founds the pool from all three (ensure-exists)."
+  buh_e
+  buh_line "Safe to re-run at any time:"
   buh_e
   buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
   buh_e
 
-  buh_step1 "Affiance a foedus"
+  buh_step1 "Affiance the foedus"
   buh_e
-  buh_line "Keyless sign-in rides a standing trust between the ${RBYC_MANOR} and"
-  buh_line "your identity provider — a foedus. First register the application"
-  buh_line "at the IdP's own console (guided walk, Entra shown):"
-  buh_e
-  buh_tt  "  " "${RBZ_FEDERATION_ENTRA}"
-  buh_e
-  buh_line "The walk yields the foedus's core trust values, landing in the"
-  buh_line "committed federation ${RBYC_REGIME}. Then pledge the trust — seat the"
-  buh_line "foedus's provider under the workforce pool:"
+  buh_line "Step 2 registered the application at the IdP and landed the foedus's"
+  buh_line "core trust values in the committed federation ${RBYC_REGIME}. Now that the"
+  buh_line "workforce pool stands, pledge the trust — seat the foedus's provider"
+  buh_line "under the pool:"
   buh_e
   buh_tt  "  " "${RBZ_AFFIANCE_MANOR}" "" " <foedus>"
   buh_e
@@ -147,9 +206,9 @@ rbho_payor_handbook() {
   buh_e
   buh_warn "Missing tripwire — a cloud build dies reporting the image is absent."
   buh_line "  The Depot was levied before the tripwire existed, or the image"
-  buh_line "  was removed. Inscribe it once against the current ${RBYC_RBRD}"
-  buh_line "  (supply a fresh access token):"
-  buh_tt  "    " "${RBZ_INSCRIBE_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_line "  was removed. Incuse it once against the current ${RBYC_RBRD}"
+  buh_line "  (self-authenticates as ${RBYC_PAYOR}):"
+  buh_tt  "    " "${RBZ_INCUSE_DEPOT}"
   buh_e
   buh_warn "Re-inscribe refused — re-running levy on an inscribed Depot dies."
   buh_line "  The tripwire is already present and is never overwritten in"
@@ -158,14 +217,18 @@ rbho_payor_handbook() {
   buh_tt  "    " "${RBZ_LEVY_DEPOT}"
   buh_e
   buh_line "To verify alignment at any time without submitting a build:"
-  buh_tt  "  " "${RBZ_CHECK_DEPOT}" "" " \$(gcloud auth print-access-token)"
+  buh_tt  "  " "${RBZ_COLLATE_DEPOT}"
   buh_e
   buh_line "${RBYC_PAYOR} girds the first ${RBYC_GOVERNOR} of this ${RBYC_DEPOT} —"
-  buh_line "seating the freehold subject as its founding governor:"
+  buh_line "seating a citizen as its founding governor. The <subject> is that"
+  buh_line "user's object id at your identity provider: for Entra, the user's"
+  buh_line "Object ID, read in Step 2's guide (its citizen sign-in step):"
   buh_tt  "  " "${RBZ_GIRD_POLITY}" "" " <subject>"
   buh_e
   buh_line "No key file is created or handed over: the ${RBYC_GOVERNOR} signs in"
-  buh_line "(avows) and dons the governor mantle to administer this ${RBYC_DEPOT},"
+  buh_line "(avows) by opening a ${RBCC_noun_sederunt} at this door, the one way to sign in:"
+  buh_tt  "  " "${RBZ_NOVATE_SEDERUNT}"
+  buh_line "and then dons the governor mantle to administer this ${RBYC_DEPOT},"
   buh_line "admitting ${RBYC_RETRIEVER} and ${RBYC_DIRECTOR} citizens independently."
   buh_e
   buh_line "The ${RBYC_PAYORS} job for this ${RBYC_DEPOT} is done unless billing or"

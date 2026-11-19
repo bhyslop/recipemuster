@@ -50,6 +50,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "brp"
+version = "0.0.1"
+
+[[package]]
 name = "bytemuck"
 version = "1.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -508,10 +512,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "rbtd"
+name = "rbt"
 version = "0.1.0"
 dependencies = [
  "arboard",
+ "brp",
  "tungstenite",
 ]
 

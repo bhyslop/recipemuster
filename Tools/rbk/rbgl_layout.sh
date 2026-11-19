@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,14 +31,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGL_SOURCED:-}" || buc_die "Module rbgl multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGL_SOURCED:-}" || buc_die_now "Module rbgl multiply sourced - check sourcing hierarchy"
 ZRBGL_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgl_*)
 
 zrbgl_kindle() {
-  test -z "${ZRBGL_KINDLED:-}" || buc_die "Module rbgl already kindled"
+  test -z "${ZRBGL_KINDLED:-}" || buc_die_now "Module rbgl already kindled"
 
   # Category constants come from rbgc.
   zrbgc_sentinel
@@ -51,7 +52,7 @@ zrbgl_kindle() {
 }
 
 zrbgl_sentinel() {
-  test "${ZRBGL_KINDLED:-}" = "1" || buc_die "Module rbgl not kindled - call zrbgl_kindle first"
+  test "${ZRBGL_KINDLED:-}" = "1" || buc_die_now "Module rbgl not kindled - call zrbgl_kindle first"
 }
 
 # eof

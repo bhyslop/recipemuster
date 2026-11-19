@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,67 +22,71 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBCC_SOURCED:-}" || buc_die "Module rbcc multiply sourced - check sourcing hierarchy"
+test -z "${ZRBCC_SOURCED:-}" || buc_die_now "Module rbcc multiply sourced - check sourcing hierarchy"
 ZRBCC_SOURCED=1
 
 # Kit directory — source-time self-location. rbcc lives at the RBK kit root,
 # so its own directory IS the kit dir. No launcher environment dependency;
-# available the instant this file is sourced (BCG kit-self-location pattern,
-# canon: rbtd/rbte_cli.sh).
-readonly RBCC_KIT_DIR="${BASH_SOURCE[0]%/*}"
+# available the instant this file is sourced (canon: rbtd/rbte_cli.sh).
+readonly RBCC_kit_dir="${BASH_SOURCE[0]%/*}"
 
 # Generated zipper-derived artifacts — the theurge build materializes both
 # (write-on-change), rbq's gates verify them. Absolute, composed from the
 # readonly kit dir (source-time, no kindle dependency).
-readonly RBCC_rbtdgc_consts_file="${RBCC_KIT_DIR}/rbtd/src/rbtdgc_consts.rs"
-readonly RBCC_tabtarget_context_file="${RBCC_KIT_DIR}/claude-rbk-tabtarget-context.md"
+readonly RBCC_rbtdgc_consts_file="${RBCC_kit_dir}/rbtd/src/rbtdgc_consts.rs"
+readonly RBCC_tabtarget_context_file="${RBCC_kit_dir}/rbai0/rbaie_tabtarget.md"
 
 # ── Moorings inventory constants ──────────────────────────────────────────
-# Moorings-relative path values. Every consumer reads these names directly
-# (the transitional RBBC_* aliases were retired by the literal-sweep pace).
-# Source-time literals, no kindle dependency.
-RBCC_moorings_dir="rbmm_moorings"
-RBCC_launchers_subdir="rbml_launchers"
-RBCC_users_subdir="rbmu_users"
-RBCC_nodes_subdir="rbmn_nodes"
-RBCC_vessels_subdir="rbmv_vessels"
-RBCC_foedera_subdir="rbmf_foedera"
+# Moorings-relative path values. Source-time literals, no kindle dependency.
+readonly RBCC_moorings_dir="rbmm_moorings"
+readonly RBCC_launchers_subdir="buml_launchers"
+readonly RBCC_vessels_subdir="rbmv_vessels"
+readonly RBCC_foedera_subdir="rbmf_foedera"
+# Nameplate inscription sprue — the family head every nameplate directory
+# stands under, carried with its separator so a call site composes
+# "${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${moniker}/". The foedera need no
+# such constant because RBRR_ACTIVE_FOEDUS names the whole sprued inscription,
+# but a nameplate's moniker is also its compose project, its container names and
+# its tabtarget imprint, so the moniker stays bare and the directory wears the
+# sprue. Every dirname-to-moniker derivation therefore strips this prefix, and
+# every moniker-to-path composition adds it.
+readonly RBCC_nameplate_sprue="rben_"
 # Foedera library root — the moorings subdirectory holding one rbef_ subdirectory
-# per standing foedus (RBSRF). The single home for "where the foedera live": the
+# per standing foedus. The single home for "where the foedera live": the
 # library DIRECTORY is a distinct fact from any one foedus's rbrf.env, and the
 # enumeration sites (canvass, the foedus-identity validator) need it as such.
-# rbcc_rbrf_file_capture below composes the per-foedus file off this same root, so
+# rbcc_rbrf_file_flint_capture below composes the per-foedus file off this same root, so
 # the moorings/foedera join lives here once and nowhere else.
-RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
-RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
-RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
-RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
-# Workforce regime file — the manor's ONE workforce pool identity (RBSRW).
+readonly RBCC_foedera_dir="${RBCC_moorings_dir}/${RBCC_foedera_subdir}"
+readonly RBCC_rbrr_file="${RBCC_moorings_dir}/rbrr.env"
+readonly RBCC_rbrp_file="${RBCC_moorings_dir}/rbrp.env"
+readonly RBCC_rbrm_file="${RBCC_moorings_dir}/rbrm.env"
+# Workforce regime file — the manor's ONE workforce pool identity.
 # Manor-level (axrd_singleton, one per manor), so it sits flat at the moorings
 # root, a sibling of the rbmf_foedera library rather than a member of it — where
 # the per-foedus rbrf.env files live. Holds the pool coordinates (org, pool id,
-# session) the one-pool Model relocated out of the per-foedus federation regime.
-RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
+# session), which no per-foedus federation regime carries.
+readonly RBCC_rbrw_file="${RBCC_moorings_dir}/rbrw.env"
 # Federation regime file — resolved from the ACTIVE foedus's selector, NOT a
 # source-time constant. The foedera library (RBCC_foedera_subdir) holds one
-# rbef_ subdirectory per standing foedus (RBSRF); RBRR_ACTIVE_FOEDUS names the
+# rbef_ subdirectory per standing foedus; RBRR_ACTIVE_FOEDUS names the
 # active one. That selector is only populated once rbrr.env is sourced during
 # furnish — AFTER this module — so the path cannot be constant-folded here.
-# rbcc_rbrf_file_capture (below) composes it post-rbrr; every consumer sources
+# rbcc_rbrf_file_flint_capture (below) composes it post-rbrr; every consumer sources
 # rbrf.env only after sourcing rbrr.env, so the selector is live at the call
 # site. No-repo-regime contexts never call the resolver, so nothing breaks
 # where RBRR_ACTIVE_FOEDUS is unset.
-RBCC_rbrd_basename="rbrd.env"
-RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
+readonly RBCC_rbrd_basename="rbrd.env"
+readonly RBCC_rbrd_file="${RBCC_moorings_dir}/${RBCC_rbrd_basename}"
 
 # Literal constants (pure string literals, no variable expansion — available at source time)
-RBCC_rbrn_file="rbrn.env"
-RBCC_rbro_file="rbro.env"
+readonly RBCC_rbrn_file="rbrn.env"
+readonly RBCC_rbro_file="rbro.env"
 # Vessel regime file — a bare basename, not a moorings-rooted path: the regime is
 # manifold (one per vessel), so each call site composes the vessel directory from
-# RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin (RBS0).
+# RBRR_VESSEL_DIR. Placement and contract are homed at the rbrv_regime quoin.
 # Sibling to the basename-style RBCC_rbrn_file / RBCC_rbro_file above.
-RBCC_rbrv_file="rbrv.env"
+readonly RBCC_rbrv_file="rbrv.env"
 
 # Account composition labels — bare fragments that compose GCP SA account-ids/
 # emails AND local secret-directory names. These stay bare: a derived
@@ -90,37 +95,36 @@ RBCC_rbrv_file="rbrv.env"
 # infix records that bareness IN THE NAME — an unhewn stone is used undressed:
 # do not sprue (an underscore is forbidden in an SA-id, RFC1035) and do not
 # consolidate these into the sprued mantle class. rbcc_emit_consts strips the
-# unhewn_ segment on emit, so the projected RBTDGC_ACCOUNT_* names are unchanged.
-RBCC_account_unhewn_governor="governor"
-RBCC_account_unhewn_retriever="retriever"
-RBCC_account_unhewn_director="director"
-RBCC_account_unhewn_payor="payor"
-RBCC_account_unhewn_mason="mason"
+# unhewn_ segment on emit, so the projected RBTGEC_ACCOUNT_* names are unchanged.
+readonly RBCC_account_unhewn_governor="governor"
+readonly RBCC_account_unhewn_retriever="retriever"
+readonly RBCC_account_unhewn_director="director"
+readonly RBCC_account_unhewn_payor="payor"
+readonly RBCC_account_unhewn_mason="mason"
 
 # Mantle service-account names — the three impersonatable federation identities
 # (governor / director / retriever) established at depot levy. Hardcoded literals
 # for grep. The rbma- prefix is hyphenated because a GCP service-account id admits
 # only lowercase letters, digits, and hyphens (RFC1035) — the underscore sprue form
 # cannot appear in this field; grep rbma still finds all three.
-RBCC_account_mantle_governor="rbma-governor"
-RBCC_account_mantle_director="rbma-director"
-RBCC_account_mantle_retriever="rbma-retriever"
+readonly RBCC_account_mantle_governor="rbma-governor"
+readonly RBCC_account_mantle_director="rbma-director"
+readonly RBCC_account_mantle_retriever="rbma-retriever"
 
 # Mantle identity tokens — THE canonical name for "which mantle to don", carried
-# by every credential-mint surface (rba_token_capture / rba_don_capture, the
+# by every credential-mint surface (rbau_token_capture / rbau_don_capture, the
 # rbw-am folio, and the theurge patrol) as one form, never a bare-vs-sprued
 # two-form. The VALUE carries the pallium value-sprue rbpa_ so an identity token
 # is self-typing under grep and can never be mistaken for an SA-id fragment: the
 # underscore the sprue mandates is forbidden in a GCP SA id (RFC1035), so the
-# token resolves to the mantle SA only through the rba_don_capture case and the
+# token resolves to the mantle SA only through the rbau_don_capture case and the
 # raw sprued form never reaches a resource name. Distinct from the bare
 # RBCC_account_mantle_* SA-name fragments above (which compose rbma-<role>@… SA
-# emails); the polity/terrier bare-mantle-name uses are a separate deferred
-# migration and intentionally keep the bare role word.
-RBCC_mantle_governor="rbpa_governor"
-RBCC_mantle_director="rbpa_director"
-RBCC_mantle_retriever="rbpa_retriever"
-RBCC_onboarding_nameplate="tadmor"
+# emails), and from the bare role word the polity and terrier names keep.
+readonly RBCC_mantle_governor="rbpa_governor"
+readonly RBCC_mantle_director="rbpa_director"
+readonly RBCC_mantle_retriever="rbpa_retriever"
+readonly RBCC_onboarding_nameplate="tadmor"
 
 # Operation-verb tinder — the canonical bash home for RBK operation verbs.
 # Members are bare verb tokens; the group carries one author here so it is
@@ -128,84 +132,102 @@ RBCC_onboarding_nameplate="tadmor"
 #
 #   SA-management (defrock/enrobe/roster) — composed into the fact-extension
 #   constants below; consumed by the governor/director account surface.
-RBCC_verb_defrock="defrock"
-RBCC_verb_enrobe="enrobe"
-RBCC_verb_roster="roster"
+readonly RBCC_verb_defrock="defrock"
+readonly RBCC_verb_enrobe="enrobe"
+readonly RBCC_verb_roster="roster"
 #
-#   Image/build lifecycle (anoint/drive/inscribe/kludge/ordain/yoke) — name the
-#   registry and build operations. Previously implicit in command-function
-#   names (rbrd_inscribe, rbfd_ordain, …) and tabtarget descriptions; homed
-#   here so the group has a single owner rather than being reconstructed by
-#   grep across rbfd_/rbfl_/rbfk_/rbob_/rbrn_.
-RBCC_verb_anoint="anoint"
-RBCC_verb_drive="drive"
-RBCC_verb_inscribe="inscribe"
-RBCC_verb_kludge="kludge"
-RBCC_verb_ordain="ordain"
-RBCC_verb_yoke="yoke"
+#   Image/build lifecycle (anoint/inscribe/kludge/`mitre`/ordain/yoke) — name the
+#   registry and build operations, homed here so the group has a single owner
+#   rather than being spelled across rbfd*/rbfl*/rbfk_/rbob_/rbrn_.
+readonly RBCC_verb_anoint="anoint"
+readonly RBCC_verb_inscribe="inscribe"
+readonly RBCC_verb_kludge="kludge"
+readonly RBCC_verb_mitre="mitre"
+readonly RBCC_verb_ordain="ordain"
+readonly RBCC_verb_yoke="yoke"
+
+# Governed-noun tinder — the canonical bash home for RBK governed nouns that
+# printed strings must spell. Members are bare noun tokens carrying one author
+# here, the noun counterpart of the operation-verb group above: a message cites
+# this declaration rather than spelling the word a second time, so a rename
+# moves one line instead of every string that prints it. Sentence-initial
+# positions cite the capitalized twin, RBCC_noun_sederunt_lettrine.
+readonly RBCC_noun_sederunt="sederunt"
+readonly RBCC_noun_sederunt_lettrine="Sederunt"
 
 # Creed tinder — RB convictions supplied as the rationale (creed) parameter to
 # the kit-agnostic BUG clean-tree gate bug_require_clean_tree_creed, keeping the
 # opinion RB-side and out of BUK. Each creed continues the gate's canonical
 # grievance ("… uncommitted changes — <creed>"), so it reads as the site's
 # reason for demanding a clean tree plus a commit-first directive. One creed per
-# rationale family (sites sharing a rationale share a creed); the former per-verb
-# gate labels retired with the malformed gate they announced. Consumed only by
+# rationale family (sites sharing a rationale share a creed). Consumed only by
 # bash gate sites (no theurge assertion), so none is projected to the Rust band —
-# the band itself (BUBC_band_clean_tree) is the theurge stream's assertion target.
+# the band itself (BUBG_CLEAN_DENTIL) is the theurge stream's assertion target.
 #   clean_build   — image builds that stamp HEAD into the image (conjure, mirror, kludge)
 #   clean_capture — Lode captures whose provenance envelope must be committed code (ensconce, conclave, immure, underpin)
 #   clean_inscribe — the tripwire ships committed depot-regime bytes as the drift reference (inscribe)
 #   clean_affiance — the seated provider must answer to a committed name (affiance)
-RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
-RBCC_creed_clean_capture="a Lode's provenance envelope must be the product of committed code; commit before capturing"
-RBCC_creed_clean_inscribe="the tripwire ships the tracked depot-regime bytes as the depot's permanent drift reference, so the inscribed state must be committed; commit before inscribing"
-RBCC_creed_clean_affiance="the seated provider must answer to a committed name — its id, redirect-URI and STS audience are read from committed federation config; commit before affiancing"
+readonly RBCC_creed_clean_build="a container image built from an uncommitted tree cannot be traced to a commit; commit before building"
+readonly RBCC_creed_clean_capture="a Lode's provenance envelope must be the product of committed code; commit before capturing"
+readonly RBCC_creed_clean_inscribe="the tripwire ships the tracked depot-regime bytes as the depot's permanent drift reference, so the inscribed state must be committed; commit before inscribing"
+readonly RBCC_creed_clean_affiance="the seated provider must answer to a committed name — its id, redirect-URI and STS audience are read from committed federation config; commit before affiancing"
 
 # Fact-file extension tinder — multi-fact registry for buf_write_fact_multi.
 # Producers emit "<basename>.<extension>" via filesystem-as-data-bus pattern;
 # consumers walk fact files in BURD_OUTPUT_DIR / BURD_TEMP_DIR keyed on extension.
-# Roster extensions composed from earlier tinder (BCG tinder-on-tinder).
-RBCC_fact_ext_depot="depot"
-RBCC_fact_ext_depot_project="depot-project"
-RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
-RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
-RBCC_fact_ext_audit_hallmark="audit-hallmark"
+# Roster extensions composed from earlier tinder.
+readonly RBCC_fact_ext_depot="depot"
+readonly RBCC_fact_ext_depot_project="depot-project"
+readonly RBCC_fact_ext_roster_retriever="${RBCC_verb_roster}-${RBCC_account_unhewn_retriever}"
+readonly RBCC_fact_ext_roster_director="${RBCC_verb_roster}-${RBCC_account_unhewn_director}"
+readonly RBCC_fact_ext_audit_hallmark="audit-hallmark"
 # Foedus descry health verdict — descry writes <foedus>.foedus-health carrying
-# one of healthy / provider-absent / coordinate-drift (RBSFD provider-grain
+# one of healthy / provider-absent / coordinate-drift (provider-grain
 # verdicts) for the reuse-or-establish fixture to branch on (reuse iff healthy).
-RBCC_fact_ext_foedus_health="foedus-health"
+readonly RBCC_fact_ext_foedus_health="foedus-health"
 # Foedus canvass census — canvass writes one <foedus>.foedus per provider under
 # the manor pool (stem: the matched rbef_ library name, or the bare provider id
 # when the Manor holds a provider the library does not know), carrying
 # provider=/state=/selected= lines; selected marks the RBRR_ACTIVE_FOEDUS foedus.
-RBCC_fact_ext_foedus="foedus"
-# Sitting espy verdict — the read-only probe (rba_espy_sitting) writes
-# <foedus>.sitting carrying verdict= (live / lapsed / absent) and, when the
+readonly RBCC_fact_ext_foedus="foedus"
+# Sederunt espy verdict — the read-only probe (rbau_espy_sederunt) writes
+# <foedus>.sederunt carrying verdict= (live / lapsed / absent) and, when the
 # cache holds an expiry, runway= (whole seconds remaining) — for the theurge
-# gate arc to branch on before the may-prompt baseline avow (RBS0 rbtf_espy).
-RBCC_fact_ext_sitting="sitting"
+# gate arc to branch on before the may-prompt baseline avow.
+readonly RBCC_fact_ext_sederunt="sederunt"
 
-# Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue, BUS0 Tweak
-# Mechanism). The credless guard is the reveille-tier slot reservation: theurge
+# Tweak-name tinder — RB-owned BURE_TWEAK_NAME values (buo sprue). The credless guard is the reveille-tier slot reservation: theurge
 # sets it on every tabtarget a reveille-tier fixture spawns, and the Payor OAuth
-# token-mint membrane (zrbgp_authenticate_capture) rejects under it with
-# BUBC_band_credless — a passing reveille run can never use credentials.
-RBCC_tweak_credless_guard="buorb_credless_guard"
+# token mint (rbgp_authenticate_capture) refuses under it before any credential
+# touch, its callers' guard (rbgp_authenticate_die) rejecting with
+# RBCG_CREDLESS_DENTIL — a passing reveille run can never use credentials.
+readonly RBCC_tweak_credless_guard="buorb_credless_guard"
 
 # HTTP fault-injection seam — the regime-poison analogue for HTTP. Under this
 # tweak name, BURE_TWEAK_VALUE is "INFIX=CODE": rbuh's one membrane
 # (zrbuh_fault_apply in rbuh_json) overwrites the captured HTTP code for the
 # named request infix, so a negative case can drive a caller's error path and
-# assert its band code (the terrier gates BUBC_band_engross/expunge/peruse are
+# assert its band code (the terrier gates RBCG_ENGROSS_DENTIL/expunge/peruse are
 # the founding consumers).
-RBCC_tweak_http_fault="buorb_http_fault"
+readonly RBCC_tweak_http_fault="buorb_http_fault"
 
 # Mid-flight re-don cadence override. Under this tweak name, BURE_TWEAK_VALUE
-# is a positive poll count replacing ZRBFC_BUILD_POLL_REDON_CADENCE at the
-# build-completion poll's one membrane (zrbfc_wait_build_completion), so a
+# is a positive poll count replacing ZRBFC0_BUILD_POLL_REDON_CADENCE at the
+# build-completion poll's one membrane (zrbfcb_wait_build_completion), so a
 # short real build exercises the re-don tick without an hour on the clock.
-RBCC_tweak_redon_cadence="buorb_redon_cadence"
+readonly RBCC_tweak_redon_cadence="buorb_redon_cadence"
+
+# Probe-branch tinder — the one name of the throwaway branch the release
+# ceremony cuts to feign a station on. The feign door refuses every other
+# branch, and the ceremony that cuts the branch reads this same declaration
+# from the clone it cuts in. Not projected to Rust: no theurge reads it.
+readonly RBCC_probe_branch="probe"
+
+# Voorloper tinder — the one tincture the prepare door writes into a fresh
+# clone's station file, the same in every clone it prepares and distinct from
+# any station a maintainer keeps beside it. Projected to Rust: the theurge's
+# voorloper fixture asserts the station file wears it.
+readonly RBCC_voorloper_tincture="vw"
 
 # Container-role tinder — the canonical bash home for the crucible's container
 # roles. Bare role tokens; the crucible is sentry + pentacle + bottle and every
@@ -213,71 +235,80 @@ RBCC_tweak_redon_cadence="buorb_redon_cadence"
 # RBCC_account_unhewn_* composition labels above (bare fragments for SA names +
 # secret dirs). None of these words are reused across families, keeping each token
 # monosemous.
-RBCC_container_bottle="bottle"
-RBCC_container_pentacle="pentacle"
-RBCC_container_sentry="sentry"
+readonly RBCC_container_bottle="bottle"
+readonly RBCC_container_pentacle="pentacle"
+readonly RBCC_container_sentry="sentry"
+
+# Provenance label key — stamped onto every crucible container at charge (the
+# compose file carries the same key as a YAML literal; the two must agree).
+# The value is the charging working tree's root path, derived at kindle and
+# never declared. Read by the charge/quench provenance gates in rbob.
+readonly RBCC_label_provenance="rbob.provenance"
 
 ######################################################################
-# Federation regime resolver (rbcc_rbrf_file_capture)
+# Federation regime resolver (rbcc_rbrf_file_flint_capture)
 
-# rbcc_rbrf_file_capture — echo the path to a foedus's rbrf.env in the moorings
-# foedera library. With no argument it resolves the ACTIVE foedus from the
-# RBRR_ACTIVE_FOEDUS selector (the runtime accessor path); a foedus name may be
-# passed explicitly (the Entra guide names the interactive rbef_entrada it
-# teaches). Returns nonzero without emitting when no foedus resolves — the
-# caller's `source "$(...)" || buc_die` surfaces it. The selector is only live
-# after rbrr.env is sourced, which every runtime consumer does before calling
-# this; a no-repo-regime context simply never calls it. This on-demand
-# resolution replaces the former source-time RBCC_rbrf_file constant — the
-# deferred federation family-of-named-instances rework (RBSRF).
-rbcc_rbrf_file_capture() {
-  local z_foedus="${1:-${RBRR_ACTIVE_FOEDUS:-}}"
+# rbcc_rbrf_file_flint_capture foedus — echo the path to that foedus's rbrf.env
+# in the moorings foedera library. A runtime caller passes the
+# RBRR_ACTIVE_FOEDUS selector, live once rbrr.env is sourced; a caller that
+# names its foedus passes the name (the Entra guide names the interactive
+# rbef_entrada it teaches). Returns nonzero without emitting when the name is
+# empty, for the caller's guard to surface.
+rbcc_rbrf_file_flint_capture() {
+  local -r z_foedus="${1:-}"
   test -n "${z_foedus}" || return 1
   printf '%s\n' "${RBCC_foedera_dir}/${z_foedus}/rbrf.env"
 }
 
-# rbcc_source_active_rbrf — resolve the ACTIVE foedus's rbrf.env from the
-# selector and source it, dying loud on an unset selector or an unreadable
-# file. The single home for what every runtime consumer did as the former
-# `source "${RBCC_rbrf_file}"`: a furnish sources it after sourcing rbrr.env,
-# so RBRR_ACTIVE_FOEDUS is live at the call. Sourcing here lands the RBRF_*
-# fields in the caller's global scope exactly as an inline source would (bare
-# assignments in the sourced file, sourced within a function, remain global).
-rbcc_source_active_rbrf() {
+# rbcc_source_active_rbrf_flint foedus — resolve the active foedus's rbrf.env
+# and source it, dying loud on an empty selector or an unreadable file. The
+# single home for sourcing the active federation regime: a furnish calls it
+# after sourcing rbrr.env, passing RBRR_ACTIVE_FOEDUS. Sourcing here lands the RBRF_* fields in the
+# caller's global scope exactly as an inline source would (bare assignments in
+# the sourced file, sourced within a function, remain global).
+rbcc_source_active_rbrf_flint() {
+  local -r z_foedus="${1:-}"
+
+  buc_doc_brief "Source the active foedus's federation regime file"
+  buc_doc_param "foedus" "The active foedus, as RBRR_ACTIVE_FOEDUS names it"
+  buc_doc_shown || return 0
+
   local z_rbrf
-  z_rbrf=$(rbcc_rbrf_file_capture) || buc_die "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
-  source "${z_rbrf}"               || buc_die "Failed to source the active foedus RBRF: ${z_rbrf}"
+  z_rbrf=$(rbcc_rbrf_file_flint_capture "${z_foedus}") || buc_die_now "No active foedus resolved — RBRR_ACTIVE_FOEDUS unset or blank"
+  source "${z_rbrf}" || buc_die_now "Failed to source the active foedus RBRF: ${z_rbrf}"
 }
 
 ######################################################################
-# Rust const projection (rbcc single-homed set → RBTDGC_)
+# Rust const projection (rbcc single-homed set → RBTGEC_)
 
 # rbcc_emit_consts() - Emit the RBCC-owned co-maintained constants as Rust
 # string consts to stdout, one `pub const` line per name/value pair via the
-# shared buz_emit_const primitive (BUK must be kindled). The single-homed set:
+# shared buz_emit_const_str primitive (BUK must be kindled). The single-homed set:
 # moorings/vessels dirs, account labels, mantle identity tokens, .env filenames,
 # operation verbs, and container roles. Each Rust const is
-# RBTDGC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
+# RBTGEC_ + the RBCC stem (RBCC_ prefix stripped) uppercased; the value is
 # carried verbatim. Bash stays mixed-case (RBCC_moorings_dir); the generated
-# Rust is SCREAMING (RBTDGC_MOORINGS_DIR) per Rust convention. Two mechanical
+# Rust is SCREAMING (RBTGEC_MOORINGS_DIR) per Rust convention. Two mechanical
 # name transforms — no per-entry mapping, no drift: the RBCC_ prefix strip +
 # uppercase (universal), and a strip of the unhewn_ bare-marker infix so the
-# RBCC_account_unhewn_* family projects to RBTDGC_ACCOUNT_* (the marker records
+# RBCC_account_unhewn_* family projects to RBTGEC_ACCOUNT_* (the marker records
 # "stay bare" in the bash name without leaking into the Rust mirror). rbtd's
 # lib.rs paths, the manifest account-label mirror, and the
 # rbtdrk/rbtdrp .env consts all source these instead of hand-copying.
-# A second section projects the BUBC precision exit-code band as i32 consts
-# (same mechanical transform, BUBC_ prefix stripped) — theurge asserts exit
-# codes as integers. bubc is sourced by the launcher on every dispatch, so the
-# band values are present at emission time with no cross-module tinder trick.
-# A third section projects BUBC string tinder (the regime-poison tweak name)
-# through the same transform via the string primitive.
+# A second section projects BUBC string tinder (the regime-poison tweak name)
+# through the same transform via the string primitive. The exit codes theurge
+# asserts are not projected here: it cites the gate codes from its own
+# breviary.
 rbcc_emit_consts() {
-  printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)"
+  zrbcc_sentinel
+
+  buc_doc_brief "Emit the RBCC co-maintained constants and the BUBC regime-poison name as Rust consts on stdout"
+  buc_doc_shown || return 0
+
+  printf '%s\n' "// RBCC constants (rbcc_constants.sh single-homed set)" \
+    || buc_die_now "rbcc_emit_consts: failed to write the RBCC section header"
 
   local z_name=""
-  local z_stem=""
-  local z_upper=""
   for z_name in \
     RBCC_moorings_dir    \
     RBCC_vessels_subdir  \
@@ -298,83 +329,106 @@ rbcc_emit_consts() {
     RBCC_rbro_file       \
     RBCC_rbrv_file       \
     RBCC_foedera_subdir  \
+    RBCC_nameplate_sprue \
     RBCC_fact_ext_foedus_health \
     RBCC_fact_ext_foedus \
-    RBCC_fact_ext_sitting \
+    RBCC_fact_ext_sederunt \
     RBCC_verb_defrock     \
     RBCC_verb_enrobe     \
     RBCC_verb_roster     \
     RBCC_verb_anoint     \
-    RBCC_verb_drive      \
+    RBCC_verb_mitre      \
     RBCC_verb_inscribe   \
     RBCC_verb_kludge     \
     RBCC_verb_ordain     \
     RBCC_verb_yoke       \
+    RBCC_noun_sederunt   \
     RBCC_container_bottle    \
     RBCC_container_pentacle  \
     RBCC_container_sentry    \
     RBCC_tweak_credless_guard \
     RBCC_tweak_http_fault \
     RBCC_tweak_redon_cadence \
+    RBCC_voorloper_tincture \
   ; do
-    z_stem="${z_name#RBCC_}"
-    z_stem="${z_stem/unhewn_/}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
-    buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+    zrbcc_emit_const str RBCC_ "${z_name}"
   done
 
-  printf '%s\n' ""
-  printf '%s\n' "// BUBC precision exit-code band (bubc_constants.sh) — numeric"
-  for z_name in \
-    BUBC_band_base      \
-    BUBC_band_width     \
-    BUBC_band_regime    \
-    BUBC_band_enroll    \
-    BUBC_band_recipe    \
-    BUBC_band_hygiene   \
-    BUBC_band_credless  \
-    BUBC_band_chain     \
-    BUBC_band_descry    \
-    BUBC_band_instate   \
-    BUBC_band_admission \
-    BUBC_band_vacant    \
-    BUBC_band_engross   \
-    BUBC_band_expunge   \
-    BUBC_band_peruse    \
-    BUBC_band_runway    \
-    BUBC_band_selftest  \
-  ; do
-    z_stem="${z_name#BUBC_}"
-    z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
-    buz_emit_const_i32 "RBTDGC_${z_upper}" "${!z_name}" \
-      || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
-  done
-
-  printf '%s\n' ""
-  printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string"
-  z_name="BUBC_tweak_regime_poison"
-  z_stem="${z_name#BUBC_}"
-  z_upper="$(printf '%s' "${z_stem}" | tr '[:lower:]' '[:upper:]')"
-  buz_emit_const "RBTDGC_${z_upper}" "${!z_name}" \
-    || buc_die "rbcc_emit_consts: emit failed for ${z_name}"
+  printf '%s\n' "" \
+    || buc_die_now "rbcc_emit_consts: failed to write the section break"
+  printf '%s\n' "// BUBC regime-poison tweak (bubc_constants.sh) — string" \
+    || buc_die_now "rbcc_emit_consts: failed to write the BUBC tweak header"
+  zrbcc_emit_const str BUBC_ BUBC_tweak_regime_poison
 }
 
 ######################################################################
 # Internal Functions (zrbcc_*)
 
 zrbcc_kindle() {
-  test -z "${ZRBCC_KINDLED:-}" || buc_die "Module rbcc already kindled"
+  test -z "${ZRBCC_KINDLED:-}" || buc_die_now "Module rbcc already kindled"
 
   # Curl timeout bounds — all actionable curl sites use these
   readonly RBCC_CURL_CONNECT_TIMEOUT_SEC=10
   readonly RBCC_CURL_MAX_TIME_SEC=60
 
+  # Yawp group return slot (zrbcc_upper_yawp)
+  z_rbcc_upper=""
+
   readonly ZRBCC_KINDLED=1
 }
 
 zrbcc_sentinel() {
-  test "${ZRBCC_KINDLED:-}" = "1" || buc_die "Module rbcc not kindled - call zrbcc_kindle first"
+  test "${ZRBCC_KINDLED:-}" = "1" || buc_die_now "Module rbcc not kindled - call zrbcc_kindle first"
+}
+
+# zrbcc_emit_const kind prefix name — one RBTGEC_ const line for one
+# co-maintained name: the prefix and the unhewn_ bare-marker infix stripped, the
+# stem uppercased, the named variable's value carried verbatim through the str or
+# i32 primitive.
+zrbcc_emit_const() {
+  zrbcc_sentinel
+
+  local -r z_kind="${1:-}"
+  local -r z_prefix="${2:-}"
+  local -r z_name="${3:-}"
+  test -n "${z_prefix}" || buc_die_now "rbcc_emit_consts: a name prefix is required"
+
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+  [[ "${z_name}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+    || buc_die_now "rbcc_emit_consts: invalid variable name: ${z_name}"
+
+  local z_stem="${z_name#"${z_prefix}"}"
+  z_stem="${z_stem/unhewn_/}"
+  zrbcc_upper_yawp "${z_stem}"; local -r z_upper="${z_rbcc_upper}"
+  case "${z_kind}" in
+    str) buz_emit_const_str "RBTGEC_${z_upper}" "${!z_name}" \
+           || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
+    i32) buz_emit_const_i32 "RBTGEC_${z_upper}" "${!z_name}" \
+           || buc_die_now "rbcc_emit_consts: emit failed for ${z_name}" ;;
+    *)   buc_die_now "rbcc_emit_consts: unknown const kind '${z_kind}' for ${z_name}" ;;
+  esac
+}
+
+# zrbcc_upper_yawp text — the text with a–z mapped to A–Z, by position against
+# the two alphabets (bash 3.2 has no case mapping and the external mappers are evicted)
+# → local -r z_upper="${z_rbcc_upper}"
+zrbcc_upper_yawp() {
+  zrbcc_sentinel
+  local -r z_in="${1:-}"
+  local -r z_from="abcdefghijklmnopqrstuvwxyz"
+  local -r z_onto="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  local z_out=""
+  local z_c=""
+  local z_head=""
+  local z_i=0
+  while test "${z_i}" -lt "${#z_in}"; do
+    z_c="${z_in:${z_i}:1}"
+    z_head="${z_from%%"${z_c}"*}"
+    test "${#z_head}" -eq "${#z_from}" || z_c="${z_onto:${#z_head}:1}"
+    z_out="${z_out}${z_c}"
+    z_i=$((z_i + 1))
+  done
+  z_rbcc_upper="${z_out}"
 }
 
 # eof
