@@ -4,12 +4,12 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBVCEG — the coldwalk temenos: the one truly absorbed module (RBSHC "Worker,
+// RBVCEG — the temenos: the one truly absorbed module (RBSHC "Worker,
 // never authority"). It clones a tree, guards it so nothing the walk does can
 // reach any remote (RBSHH "Guard the clone": severed origin read back to zero
 // remotes, a hooks path pinned to the clone's own, every public-host push
 // redirected to a refused destination, and a pre-push refusal hook), cuts a
-// throwaway walk branch, and hands off the launch line and stranger prompt.
+// throwaway walk branch, and hands off the launch line and prompt.
 //
 // ONE implementation, TWO callers, differing only in the clone source string:
 //   essai      — clones the LOCAL regulus (a fidelity-reduced local proxy).
@@ -45,7 +45,7 @@ use crate::rbvcew_world;
 /// The directory every temenos stands in, beside the maintainer's infield
 /// rather than inside it, so a cold session launched in the clone loads no
 /// context file of the infield (operator, 261028).
-const RBVCEG_INTROIT_INFIELD: &str = "infield-coldwalk";
+const RBVCEG_INTROIT_INFIELD: &str = "infield-introit";
 
 /// The hooks path the clone is pinned to, relative so git resolves it against
 /// the clone's own root wherever the temenos is moved by a seposition.
@@ -69,24 +69,24 @@ const RBVCEG_TEMENOS_CLONE_SUBDIR: &str = "recipebottle";
 
 /// The pristine reference the walk diffs against is the clone's own default
 /// branch; the walker commits kludges on this throwaway branch.
-const RBVCEG_TEMENOS_WALK_BRANCH: &str = "coldwalk";
+const RBVCEG_TEMENOS_WALK_BRANCH: &str = "introit";
 
 /// The findings-memo basename slug; the full basename is dated at run time.
-const RBVCEG_TEMENOS_MEMO_SLUG: &str = "coldwalk-shakedown";
+const RBVCEG_TEMENOS_MEMO_SLUG: &str = "introit-shakedown";
 
-/// The public face and the stranger's first read — its absence means the clone
+/// The public face and a first-time reader's first read — its absence means the clone
 /// is not what the walk expects.
 const RBVCEG_TEMENOS_FACE: &str = "README.md";
 
 /// The pre-push refusal hook's reason, loud and legible: even if the walk
 /// re-adds a remote, every push dies at the hook with this line.
 pub const RBVCEG_TEMENOS_HOOK_REFUSAL: &str =
-    "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push";
+    "walk clone: pushing is disabled — this is a throwaway shakedown rig and must never push";
 
 /// Where every push to a public host is redirected: a path beneath /dev/null,
 /// which can never stand as a repository, spelled so git's own error states
 /// the refusal.
-pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/coldwalk-clone-pushes-are-refused/";
+pub const RBVCEG_TEMENOS_REFUSED_DESTINATION: &str = "/dev/null/walk-clone-pushes-are-refused/";
 
 /// The pre-push refusal hook body, belt to the sever's suspenders.
 fn zrbvceg_hook_body() -> String {
@@ -96,7 +96,7 @@ fn zrbvceg_hook_body() -> String {
     )
 }
 
-/// The stranger prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
+/// The prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
 /// substituted with the temenos's dated findings-memo path at emit. This is the
 /// absorbed authority the cinch names — one copy, here.
 const RBVCEG_INTROIT_PROMPT: &str = r#"----------------------------------------------------------------------
@@ -155,7 +155,7 @@ pub struct rbvceg_Temenos {
     pub head: String,
 }
 
-/// The elected parent both callers stand their temenos in: the coldwalk
+/// The elected parent both callers stand their temenos in: the introit
 /// infield beside the infield holding the maintainer tree, derived from the
 /// repository root, never hand-typed.
 pub fn rbvceg_introit_parent(top: &Path) -> PathBuf {
@@ -169,10 +169,10 @@ pub fn rbvceg_introit_parent(top: &Path) -> PathBuf {
     estate.join(RBVCEG_INTROIT_INFIELD)
 }
 
-/// Stand up the guarded coldwalk temenos from `clone_source` (a local regulus path
+/// Stand up the guarded temenos from `clone_source` (a local regulus path
 /// or a public URL), in `parent` under the elected world's dated temenos name.
 /// Narrates each act. Returns the standing artifacts; the
-/// launch line and stranger prompt are emitted separately by `emit_handoff`, so
+/// launch line and prompt are emitted separately by `emit_handoff`, so
 /// a caller may interpose its own advisories (essai shows its fidelity gap first).
 pub fn rbvceg_stand_up(
     parent: &Path,
@@ -346,7 +346,7 @@ pub fn rbvceg_stand_up(
     }
 }
 
-/// Emit the launch line and the stranger prompt — the shared handoff both essai
+/// Emit the launch line and the prompt — the shared handoff both essai
 /// and harbinger end on. The walk is the operator's own, launched by hand from
 /// the printed line; the temenos launches nothing and pushes nothing.
 pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
@@ -367,7 +367,7 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
         "        (cd {launch_dir} && claude --model sonnet --permission-mode auto)"
     ));
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_line("2. Paste the stranger prompt below:");
+    rbvcel_log::rbvcel_line("2. Paste the prompt below:");
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_raw(&RBVCEG_INTROIT_PROMPT.replace("__MEMO_PATH__", &memo));
     rbvcel_log::rbvcel_blank();

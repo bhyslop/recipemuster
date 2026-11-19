@@ -4,10 +4,10 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBVCCH — harbinger: the standalone stranger walk against promoted public main
-// (RBSHH). Stands up the guarded coldwalk temenos from the anonymous HTTPS clone of
-// the promoted public repository — the exact face a real stranger lands on —
-// and hands off the launch line and stranger prompt. No gate: unlike essai,
+// RBVCCH — harbinger: the standalone introit against promoted public main
+// (RBSHH). Stands up the guarded temenos from the anonymous HTTPS clone of
+// the promoted public repository — the exact face a first-time reader lands on —
+// and hands off the launch line and prompt. No gate: unlike essai,
 // harbinger touches no maintainer-tree state and gives nothing to prove first.
 //
 // Temenos construction is the one implementation shared with essai's temenos stage
@@ -16,7 +16,7 @@
 //
 // The clone source is the elected world's (RBSHC "The election"): in the real
 // world the promoted public repository, cloned anonymously over HTTPS — the
-// face a real stranger lands on; in the practice world the private stand-in,
+// face a first-time reader lands on; in the practice world the private stand-in,
 // which cannot be read anonymously and is cloned over SSH, the fidelity gap
 // the cosmology accepts.
 
@@ -34,7 +34,7 @@ pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
     rbvcel_log::rbvcel_section(&format!(
-        "Hierophant Harbinger — the stranger walk against the {}'s promoted main (RBSHH)",
+        "Hierophant Harbinger — the introit against the {}'s promoted main (RBSHH)",
         bundle.base_noun, //
     ));
     rbvcel_log::rbvcel_line(&format!(

@@ -34,7 +34,7 @@ use crate::rbvcew_world::{
 };
 
 /// The walk branch the temenos cuts and every push below names.
-const ZRBVTEG_WALK_BRANCH: &str = "coldwalk";
+const ZRBVTEG_WALK_BRANCH: &str = "introit";
 
 /// git -C <dir> <args> under the scratch global, no system config, and the
 /// file protocol alone.

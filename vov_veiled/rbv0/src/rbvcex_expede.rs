@@ -770,7 +770,7 @@ pub fn rbvcex_assert_narthex_private(top: &Path, world: rbvcew_world::rbvcew_Wor
 /// Assert that a scratch re-cut of the maintainer tree's shipped bytes, right
 /// now, is tree-equal to the standing regulus — the ONE freshness matcher
 /// shared by the docimasy and the ostend (RBSHD step 2, RBSHO step 2, RBSHC
-/// "The cut, and the single matcher": laps and the reveal are decoupled in
+/// "The cut, and the single matcher": cohobations and the reveal are decoupled in
 /// time, so freshness is asserted, never presumed).
 ///
 /// Reuses `cut` itself as the matcher — a second, independent freshness check

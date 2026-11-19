@@ -65,7 +65,7 @@ zrbrd_sentinel() {
 zrbrd_enforce() {
   zrbrd_sentinel
 
-  # A blank prefix is the case a stranger meets; the kit's own refusal says only
+  # A blank prefix is the case a fresh clone meets; the kit's own refusal says only
   # that the field must not be empty, so this names the form. It catches the blank
   # alone, in the enrollment band — never a format case, which stays in the regime band.
   test -n "${RBRD_CLOUD_PREFIX:-}" \

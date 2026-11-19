@@ -6,7 +6,7 @@
 //
 // RBVTEM — the perambulation's self-proofs, ported from the retired theurge
 // fixture when the cut was absorbed (the 260718 re-ruling). They, not a green
-// lap, are what prove the sweep — the 292-MiB catch: clean tip, leaking
+// cohobation, are what prove the sweep — the 292-MiB catch: clean tip, leaking
 // history.
 //
 //   TOTALITY  every tracked path is ruled ship or withhold, and every row

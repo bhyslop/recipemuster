@@ -9,10 +9,10 @@
 // Subcommands, one per ceremony (RBSHC "The command seam"), each taking the
 // world it conducts in as its one argument, with no default (RBSHC "The
 // election" — the agora or the palaestra):
-//   rbv essai     <world> — the reversible repair lap (RBSHE).
+//   rbv essai     <world> — the reversible repair cohobation (RBSHE).
 //   rbv docimasy  <world> — the reveal's reversible proving act (RBSHD).
 //   rbv ostend    <world> — the reveal's irreversible showing (RBSHO).
-//   rbv harbinger <world> — the stranger walk against promoted public main (RBSHH).
+//   rbv harbinger <world> — the introit against promoted public main (RBSHH).
 //
 // Beside them one station chore, never a ceremony act (RBSHC "The election"):
 //   rbv encamp <world> <home> — stand up a practice seat beneath an absolute

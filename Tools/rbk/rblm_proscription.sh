@@ -98,7 +98,7 @@ readonly RBLM_public_docs_url="https://github.com/scaleinv/recipebottle/blob/mai
 readonly RBLM_unset_subject="unset-freehold-subject"
 
 # The runtime prefix's sterile value. NOT a blank: the field's minimum length is
-# two, so a blank refuses a stranger's first local command. A working default
+# two, so a blank refuses a fresh clone's first local command. A working default
 # inside the field's form (lowercase, hyphen-terminated) lets the first kludge run
 # with no setup.
 readonly RBLM_runtime_prefix_default="rb-"
@@ -119,7 +119,7 @@ readonly RBLM_runtime_prefix_default="rb-"
 # NON-EMPTY sterile value is used only where a blank would break the delivered
 # tree — never for cosmetics. Today those are RBRR_PUBLIC_DOCS_URL, whose whole
 # purpose is to be a live URL in the consumer's hands, and RBRR_RUNTIME_PREFIX,
-# whose blank refuses a stranger's first local command.
+# whose blank refuses a fresh clone's first local command.
 #
 # The FEIGNED value is what feigning writes. A lustrated tree cannot VALIDATE:
 # twelve of the site fields carry format checks a blank cannot satisfy and a

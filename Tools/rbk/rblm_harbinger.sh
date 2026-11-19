@@ -18,7 +18,7 @@
 # Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 #
 # RBLM Harbinger - the cold-agent onboarding shakedown rig: stand up a disposable,
-# guarded clone of the promoted public repository and hand off a stranger prompt for
+# guarded clone of the promoted public repository and hand off a prompt for
 # a zero-context agent to walk the shipped onboarding literally.
 #
 # A harbinger rides ahead of the host to test the road. This verb rides ahead of the
@@ -26,7 +26,7 @@
 # nothing the walk does can escape, and prints the launch line and prompt the operator
 # uses to send a cold Claude session down the onboarding path. The agent has no
 # maintainer intuition to paper over a doc gap with, so its stumbles are the map of
-# where the shipped docs assume knowledge a stranger does not have.
+# where the shipped docs assume knowledge a first-time reader does not have.
 #
 # THIS FILE STAYS BEHIND, and its tabtarget (tt/rbw-MH) with it. Harbinger is a
 # release-rig verb — it exists to shake down a delivery before real users arrive, and
@@ -56,12 +56,12 @@ ZRBLM_HARBINGER_SOURCED=1
 # The rig directory's stem; the walk date completes its basename, so each day's walk
 # stands its own rig and a second run on the same day seposes that day's — a rename to
 # a timestamped sibling, never a delete, so even a wrong guard could not destroy data.
-readonly RBLM_harbinger_dirname="rbthdr_coldwalk"
+readonly RBLM_harbinger_dirname="rbthdr_temenos"
 
 # The directory every rig stands in, beside the infield holding the maintainer tree
 # rather than inside it, so a cold session launched in the clone loads no context file
 # of that infield. Derived from git (the repo root's grandparent), never hand-typed.
-readonly RBLM_harbinger_infield="infield-coldwalk"
+readonly RBLM_harbinger_infield="infield-introit"
 
 # The hooks path the clone is pinned to, relative so git resolves it against the
 # clone's own root wherever a seposition moves the rig.
@@ -69,7 +69,7 @@ readonly RBLM_harbinger_hooks_path=".git/hooks"
 
 # Where every push to a public host is redirected: a path beneath /dev/null, which can
 # never stand as a repository, spelled so git's own error states the refusal.
-readonly RBLM_harbinger_refused_destination="/dev/null/coldwalk-clone-pushes-are-refused/"
+readonly RBLM_harbinger_refused_destination="/dev/null/walk-clone-pushes-are-refused/"
 
 # Every public-host prefix a push is redirected from. The org prefixes are longer than
 # any host-wide rewrite a station's global config may carry for its own pushes, so the
@@ -89,7 +89,7 @@ readonly RBLM_harbinger_public_prefixes=(
 readonly RBLM_harbinger_clone_subdir="recipebottle"
 
 # The promoted public repository — HTTPS, anonymous read. This is the exact face a
-# real stranger clones: the default branch of the public repo after promotion. Named
+# first-time reader clones: the default branch of the public repo after promotion. Named
 # in full here because harbinger stays behind (withheld) and the walk must land on the
 # genuine public tree, not a maintainer remote alias.
 readonly RBLM_harbinger_public_url="https://github.com/scaleinv/recipebottle.git"
@@ -97,22 +97,22 @@ readonly RBLM_harbinger_public_url="https://github.com/scaleinv/recipebottle.git
 # The pristine reference the walk diffs against. The clone's own default branch is left
 # untouched as the reference; the walker commits its kludges on a throwaway branch, so
 # a diff at the end shows exactly what the walk changed.
-readonly RBLM_harbinger_walk_branch="coldwalk"
+readonly RBLM_harbinger_walk_branch="introit"
 
 # The findings-memo basename slug. The full basename is dated at run time:
-# memo-<YYYYMMDD>-coldwalk-shakedown.md — the maintainer reviews it and commits it into
+# memo-<YYYYMMDD>-introit-shakedown.md — the maintainer reviews it and commits it into
 # the studbook (jjqs_studbook/), affiliated to the pace.
-readonly RBLM_harbinger_memo_slug="coldwalk-shakedown"
+readonly RBLM_harbinger_memo_slug="introit-shakedown"
 
 ######################################################################
-# Command: harbinger - stand up the guarded cold-walk clone and hand off
+# Command: harbinger - stand up the guarded walk clone and hand off
 #
 # The verb is a pure local constructor. It disposes of any prior rig by RENAME —
 # seposing it to a timestamped sibling, never deleting — and reaches the public
 # repository only for an anonymous read. It ends by printing the operator's launch
-# line and the stranger prompt; the walk itself is the operator's, not harbinger's.
+# line and the prompt; the walk itself is the operator's, not harbinger's.
 rblm_harbinger() {
-  buc_doc_brief "Harbinger the cold-agent onboarding shakedown - stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt"
+  buc_doc_brief "Harbinger the cold-agent onboarding shakedown - stand up a guarded disposable clone of promoted public main and print the launch line and prompt"
   buc_doc_shown || return 0
 
   mkdir -p "${BURD_TEMP_DIR}" || buc_die_now "Failed to create temp directory"
@@ -174,7 +174,7 @@ rblm_harbinger() {
 
   buh_section "Marshal Harbinger — cold-agent onboarding shakedown"
   buh_line "  Maintainer tree:   ${z_toplevel}"
-  buh_line "  Cold-walk rig:     ${z_target_dir}  (prior seposed, fresh clone)"
+  buh_line "  Walk rig:          ${z_target_dir}  (prior seposed, fresh clone)"
   buh_line "  Public clone:      ${z_clone_dir}"
   buh_line "  Public source:     ${RBLM_harbinger_public_url}"
   buh_line "  Walk branch:       ${RBLM_harbinger_walk_branch}  (default branch left pristine)"
@@ -192,7 +192,7 @@ rblm_harbinger() {
   buh_line "  A same-day prior rig is SEPOSED: renamed to a timestamped sibling, never deleted;"
   buh_line "  sweep old ${RBLM_harbinger_dirname}_* rigs and their .seposed-* siblings whenever you like."
   buh_e
-  buc_require "Sepose any existing rig and stand up a fresh cold-walk clone at ${z_target_dir}?" "harbinger"
+  buc_require "Sepose any existing rig and stand up a fresh walk clone at ${z_target_dir}?" "harbinger"
 
   buc_step "Seposing any existing rig"
   if test -e "${z_target_dir}"; then
@@ -208,7 +208,7 @@ rblm_harbinger() {
   git clone "${RBLM_harbinger_public_url}" "${z_clone_dir}" || buc_die_now "Failed to clone the public repository — is ${RBLM_harbinger_public_url} reachable and public?"
 
   # The clone must carry the promoted content, not an empty or wrong tree. The README
-  # is the public face and the stranger's first read; its absence means the clone is
+  # is the public face and a first-time reader's first read; its absence means the clone is
   # not what the walk expects, and the walk would start on nothing.
   test -f "${z_clone_dir}/README.md" \
     || buc_die_now "The clone carries no README.md — the promoted public tree is empty or wrong; refusing to hand the walker a tree with no onboarding face"
@@ -256,7 +256,7 @@ rblm_harbinger() {
   rm -f -- "${z_hook}" || buc_die_now "Failed to clear the pre-push hook path: ${z_hook}"
   printf '%s\n' \
     '#!/bin/sh' \
-    'echo "coldwalk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2' \
+    'echo "walk clone: pushing is disabled — this is a throwaway shakedown rig and must never push" >&2' \
     'exit 1' \
     > "${z_hook}" \
     || buc_die_now "Failed to write the pre-push hook: ${z_hook}"
@@ -302,10 +302,10 @@ rblm_harbinger() {
   buh_e
   buc_bare "        (cd ${z_launch_dir} && claude --model sonnet --permission-mode auto)"
   buh_e
-  buh_line "  2. Paste the stranger prompt below:"
+  buh_line "  2. Paste the prompt below:"
   buh_e
 
-  # Emit the stranger prompt verbatim — printf (a builtin) straight to stderr, no yelp
+  # Emit the prompt verbatim — printf (a builtin) straight to stderr, no yelp
   # formatter (so nothing in the body is reinterpreted as a display marker) and no file
   # left in the rig. Lines are literal single-quoted args; only the memo-path line is
   # double-quoted so it expands, so the walker knows where to log its findings. BCG bars
@@ -356,13 +356,13 @@ rblm_harbinger() {
     'Begin by reading the README, then find the onboarding entry point and take the first' \
     'beat.' \
     '----------------------------------------------------------------------' \
-    >&2 || buc_die_now "Failed to emit the stranger prompt"
+    >&2 || buc_die_now "Failed to emit the prompt"
 
   buh_e
   buh_line "  When the walk is done, review ${z_memo_path##*/} in the rig, commit it into"
   buh_line "  the studbook (jjqs_studbook/) as memo-${z_walkdate}-${RBLM_harbinger_memo_slug}.md, then discard the rig."
   buh_e
-  buc_success "Harbinger ready — guarded cold-walk clone stood up, launch line and stranger prompt printed"
+  buc_success "Harbinger ready — guarded walk clone stood up, launch line and prompt printed"
 }
 
 # eof

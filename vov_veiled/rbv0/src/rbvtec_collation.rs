@@ -6,7 +6,7 @@
 //
 // RBVTEC — the one-home corpus check's self-proofs, ported from the theurge
 // conformance fixture when the corpus-bound cases were absorbed into the
-// hierophant. They, not a green lap, are what prove the checkers and the
+// hierophant. They, not a green cohobation, are what prove the checkers and the
 // locator.
 //
 //   CHECKERS  citation integrity and rivet-hoist placement each catch their
@@ -20,7 +20,7 @@
 //   LOCATOR   the locator's verdicts, each driven on a synthetic kraal composed
 //             on disk: no register, a register claiming another tree, a
 //             claiming register naming no corpus road, and a standing road.
-//             This is why the lap may trust an absence: the absence arm is the
+//             This is why the cohobation may trust an absence: the absence arm is the
 //             one most able to hide a locator that never finds anything.
 //
 //   ASSAY     the in-process assay's four arms, driven end to end over a
@@ -476,7 +476,7 @@ fn rbvtec_locator_tells_each_kraal_apart() {
 // ── The assay, end to end ───────────────────────────────────
 
 /// No register claims the tree: the assay stands down and says what it looked
-/// for, so the lap can log the absence and proceed.
+/// for, so the cohobation can log the absence and proceed.
 #[test]
 fn rbvtec_assay_stands_down_without_a_register() {
     let base = zrbvtec_scratch_root("absent");
@@ -501,7 +501,7 @@ fn rbvtec_assay_stands_down_without_a_register() {
 
 /// A register that claims the tree and cannot be followed is unfollowable, both
 /// where it names no corpus road and where its road stands with no judged
-/// sheaf in it — never an absence the lap would wave past.
+/// sheaf in it — never an absence the cohobation would wave past.
 #[test]
 fn rbvtec_assay_refuses_an_unfollowable_register() {
     let base = zrbvtec_scratch_root("unfollowable");
