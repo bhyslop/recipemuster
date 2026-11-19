@@ -160,7 +160,7 @@ The Folio column shows how each tabtarget receives it:
 |----------|-------------|-------|---------|
 | `rbw-MZ` | MarshalZeroes | param1 | Zero regime to blank template (args: the intended tree's basename) |
 | `rbw-MF` | MarshalFeigns | — | Feign a station on the probe branch — write shape-valid stand-ins over the lustrated site fields |
-| `rbw-MH` | MarshalHarbingers | — | Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt |
+| `rbw-MH` | MarshalHarbingers | — | Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and prompt |
 
 ### Nameplate — Cross-nameplate operations (`rbw-n`)
 
