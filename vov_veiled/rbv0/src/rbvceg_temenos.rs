@@ -45,7 +45,7 @@ use crate::rbvcew_world;
 /// The directory every temenos stands in, beside the maintainer's infield
 /// rather than inside it, so a cold session launched in the clone loads no
 /// context file of the infield (operator, 261028).
-const RBVCEG_COLDWALK_INFIELD: &str = "infield-coldwalk";
+const RBVCEG_INTROIT_INFIELD: &str = "infield-coldwalk";
 
 /// The hooks path the clone is pinned to, relative so git resolves it against
 /// the clone's own root wherever the temenos is moved by a seposition.
@@ -99,7 +99,7 @@ fn zrbvceg_hook_body() -> String {
 /// The stranger prompt handed to the cold agent, verbatim. `__MEMO_PATH__` is
 /// substituted with the temenos's dated findings-memo path at emit. This is the
 /// absorbed authority the cinch names — one copy, here.
-const RBVCEG_STRANGER_PROMPT: &str = r#"----------------------------------------------------------------------
+const RBVCEG_INTROIT_PROMPT: &str = r#"----------------------------------------------------------------------
 You are trying Recipe Bottle for the first time. You cloned it because you want to
 use it to build and run hardened, provenance-checked container images, and you are
 starting completely cold: everything you know about this project must come from the
@@ -158,7 +158,7 @@ pub struct rbvceg_Temenos {
 /// The elected parent both callers stand their temenos in: the coldwalk
 /// infield beside the infield holding the maintainer tree, derived from the
 /// repository root, never hand-typed.
-pub fn rbvceg_coldwalk_parent(top: &Path) -> PathBuf {
+pub fn rbvceg_introit_parent(top: &Path) -> PathBuf {
     let infield = rbvcep_repo::rbvcep_parent(top);
     let estate = infield.parent().unwrap_or_else(|| {
         crate::rbvcel_fatal!(
@@ -166,7 +166,7 @@ pub fn rbvceg_coldwalk_parent(top: &Path) -> PathBuf {
             infield.display(), //
         )
     });
-    estate.join(RBVCEG_COLDWALK_INFIELD)
+    estate.join(RBVCEG_INTROIT_INFIELD)
 }
 
 /// Stand up the guarded coldwalk temenos from `clone_source` (a local regulus path
@@ -369,7 +369,7 @@ pub fn rbvceg_emit_handoff(temenos: &rbvceg_Temenos) {
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("2. Paste the stranger prompt below:");
     rbvcel_log::rbvcel_blank();
-    rbvcel_log::rbvcel_raw(&RBVCEG_STRANGER_PROMPT.replace("__MEMO_PATH__", &memo));
+    rbvcel_log::rbvcel_raw(&RBVCEG_INTROIT_PROMPT.replace("__MEMO_PATH__", &memo));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line(&format!(
         "When the walk is done, review {} in the temenos where it stands, hand its path",

@@ -49,7 +49,7 @@ pub fn rbvcch_harbinger_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     ));
 
     let temenos = rbvceg_temenos::rbvceg_stand_up(
-        &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
+        &rbvceg_temenos::rbvceg_introit_parent(&top),
         &top,
         bundle.harbinger_url,
         &top,

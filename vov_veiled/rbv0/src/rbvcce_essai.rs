@@ -110,7 +110,7 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_section("Stand up the coldwalk temenos (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
     let temenos = rbvceg_temenos::rbvceg_stand_up(
-        &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
+        &rbvceg_temenos::rbvceg_introit_parent(&top),
         &top,
         &clone_source,
         &top,
