@@ -6,7 +6,7 @@
 //
 // RBVTEU — the veil assay's self-proofs, ported from the retired theurge loupe
 // fixture when the content-grain leak detection was absorbed into the hierophant.
-// They, not a green lap, are what prove the matcher.
+// They, not a green cohobation, are what prove the matcher.
 //
 //   SCAN     the content matcher catches a planted veiled-tree mention and a
 //            planted withheld-document basename, and stays silent on benign

@@ -228,7 +228,7 @@ zrbz_kindle() {
   buz_group RBZ__GROUP_MARSHAL    "rbw-M"   "Marshal — Lifecycle"
   buz_enroll RBZ_MARSHAL_ZERO           "rbw-MZ"  "rblm_cli.sh" "rblm_zero"      "param1"  "Zero regime to blank template (args: the intended tree's basename)"
   buz_enroll RBZ_MARSHAL_FEIGN          "rbw-MF"  "rblm_cli.sh" "rblm_feign"     ""  "Feign a station on the probe branch — write shape-valid stand-ins over the lustrated site fields"
-  buz_enroll RBZ_MARSHAL_HARBINGER      "rbw-MH"  "rblm_cli.sh" "rblm_harbinger" ""  "Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and stranger prompt"
+  buz_enroll RBZ_MARSHAL_HARBINGER      "rbw-MH"  "rblm_cli.sh" "rblm_harbinger" ""  "Harbinger the cold-agent onboarding shakedown — stand up a guarded disposable clone of promoted public main and print the launch line and prompt"
 
   # Nameplate — cross-nameplate operations (rbw-n)
   buz_group RBZ__GROUP_NAMEPLATE  "rbw-n"   "Nameplate — Cross-nameplate operations"

@@ -8,9 +8,9 @@
 //
 // The hierophant conducts the delivery ceremony as the theurge conducts the
 // tests (RBSHC). It owns four commands split on the one load-bearing seam,
-// reversible vs irreversible: essai (the repair lap), docimasy (the reveal's
+// reversible vs irreversible: essai (the repair cohobation), docimasy (the reveal's
 // reversible proving act), ostend (the reveal's irreversible showing), and
-// harbinger (the stranger walk), each conducting in the world its one argument
+// harbinger (the introit), each conducting in the world its one argument
 // elects (rbvcew_world); beside them one station chore, the practice seat
 // (rbvces_seat), stands up the seat a practice round runs from. This crate is withheld from delivery by
 // directory construction; it may therefore cite the closed spec

@@ -8,33 +8,33 @@ The words in capitals are defined in the glossary at the end.
 Run every command from the maintainer repository, or in practice from the practice seat where one stands, with its tree committed and pushed: each [hierophant](#Hierophant) command refuses an uncommitted tree, [essai](#Essai) also refuses an unpushed one, and each builds itself before it runs.
 Run the long commands inside a terminal multiplexer session, and keep a second pane open beside it for the lines you type.
 
-Some acts need your own hands: every console act, every push, every answer to a prompt, launching the real coldwalks and the walk, the private reading of the [regulus](#Regulus) before the reveal, and ruling each finding.
-An agent working beside you may conduct the rest: the commands that prompt nothing, reading what they print against this procedure, committing findings memos, and in practice the coldwalk and the reading of the [regulus](#Regulus).
+Some acts need your own hands: every console act, every push, every answer to a prompt, launching the real introits and the yomp, the private reading of the [regulus](#Regulus) before the reveal, and ruling each finding.
+An agent working beside you may conduct the rest: the commands that prompt nothing, reading what they print against this procedure, committing findings memos, and in practice the introit and the reading of the [regulus](#Regulus).
 
 Every command conducts in the world its tabtarget names last: a door ending `.agora.sh` conducts the real ceremony in the [agora](#Agora), and one ending `.palaestra.sh` the practice ceremony in the [palaestra](#Palaestra), against a private stand-in for the public repository.
 There is no default world, and the two never mix: each world has its own repositories, its own working directories and its own [cachet](#Cachet), and every banner the tool prints names the world it is in.
 
 1. [Standing ground](#StandingGround): once per station.
 2. [Practice](#ThePractice): rounds in the [palaestra](#Palaestra) until one surfaces nothing.
-3. [The laps](#TheLaps): [essai](#Essai), repeated until a [lap](#Lap) runs dry.
+3. [The cohobations](#TheCohobations): [essai](#Essai), repeated until a [cohobation](#Cohobation) runs dry.
 4. [The reveal](#TheReveal): [docimasy](#Docimasy), then [ostend](#Ostend), then [harbinger](#Harbinger).
-5. [The walk](#GreenfieldWalk): the greenfield manor walk against promoted public main.
+5. [The yomp](#TheYomp): your own greenfield proving of the manor against promoted public main.
 6. [Closeout](#Closeout): liveness, the spot-check, the deletes and the record.
 
 ## <a id="Rules"></a>Rules
 
-- Only the staging push inside [ostend](#Ostend) cannot be undone. [Essai](#Essai), [docimasy](#Docimasy) and [harbinger](#Harbinger) never touch the public face, but once a [cachet](#Cachet) stands, run [essai](#Essai) again only when a finding forces a re-cut: a new [lap](#Lap) discards the [cachet](#Cachet) and the preview.
+- Only the staging push inside [ostend](#Ostend) cannot be undone. [Essai](#Essai), [docimasy](#Docimasy) and [harbinger](#Harbinger) never touch the public face, but once a [cachet](#Cachet) stands, run [essai](#Essai) again only when a finding forces a re-cut: a new [cohobation](#Cohobation) discards the [cachet](#Cachet) and the preview.
 - The tool never pushes. When it prints a push line, leave its prompt waiting, type the line exactly in the second pane, and answer `y` only after the push has returned.
-- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [lap](#Lap).
-- The [regulus](#Regulus) the reveal shows is the one the dry [lap](#Lap) proved, never a fresh cut.
+- A finding means re-cut, never patch forward: repair on the maintainer tree, commit and push, and run a new [cohobation](#Cohobation).
+- The [regulus](#Regulus) the reveal shows is the one the dry [cohobation](#Cohobation) proved, never a fresh cut.
 - A [cachet](#Cachet) granted in the [palaestra](#Palaestra) never admits a showing in the [agora](#Agora), nor one granted in the [agora](#Agora) a showing in the [palaestra](#Palaestra); [ostend](#Ostend) refuses it and names both worlds.
 
-<a id="RuledOrder"></a>The standing doctrine is that the walk gates promotion.
-This release runs under the operator's ruled exception to it: [ostend](#Ostend) stages and promotes in one run, and the walk follows against promoted public main.
+<a id="RuledOrder"></a>The standing doctrine is that the yomp gates promotion.
+This release runs under the operator's ruled exception to it: [ostend](#Ostend) stages and promotes in one run, and the yomp follows against promoted public main.
 
 ## <a id="StandingGround"></a>Standing ground
 
-Once per station, before the first lap.
+Once per station, before the first cohobation.
 
 1. Add the read-only base remote and neuter its push side.
    A push-capable remote to the public repository is the one forbidden catastrophe, and [essai](#Essai) refuses to cut unless the push side reads exactly this sentinel:
@@ -51,23 +51,23 @@ Once per station, before the first lap.
    git ls-remote git@github.com:scaleinv/recipebottle.git
    ```
 4. At the cloud console, open Billing, then the billing account's Account management page, and count the rows of its table of projects linked to this billing account by hand, since the page shows no total.
-   Confirm three free link slots: two for the `gauntlet` and one for the walk.
+   Confirm three free link slots: two for the `gauntlet` and one for the yomp.
    Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [hierophant](#Hierophant) never uses them.
 
 ## <a id="ThePractice"></a>Practice
 
-The whole ceremony is practiced end to end in the [palaestra](#Palaestra) before the real cycle, from the first [lap](#Lap) through the promotion, the confirmation coldwalk and the hygiene deletes, round after round until a round surfaces nothing.
+The whole ceremony is practiced end to end in the [palaestra](#Palaestra) before the real cycle, from the first [cohobation](#Cohobation) through the promotion, the confirmation introit and the hygiene deletes, round after round until a round surfaces nothing.
 Practice protects against a fumble (a wrong push, a misread prompt, a hygiene step that bites) and nothing against a secret riding the candidate's own bytes, which a practice round and a real round publish alike; reading the [regulus](#Regulus) and the private [narthex](#Narthex) guard that.
 
 Practice differs from the real ceremony in these ways alone: [essai](#Essai) reads the stand-in before it cuts and refuses one that has drifted, printing the steps to recreate it; [docimasy](#Docimasy) skips the sign-in and the `gauntlet`, and prints the steps to recreate the practice [narthex](#Narthex) when it refuses one that is not fresh; the [cachet](#Cachet) it grants admits a showing in the [palaestra](#Palaestra) alone; and the practice [regulus](#Regulus) stands in its own directory, `../palaestra_regulus/regulus`.
-Two gaps are accepted: the private stand-in cannot be cloned anonymously as a stranger would, so the practice [harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
+Two gaps are accepted: the private stand-in cannot be cloned anonymously, so the practice [harbinger](#Harbinger) clones it over SSH; and the stand-in carries no copy of the real repository's branch ruleset, so the refused staging-branch delete is never met in practice.
 
 ### <a id="PracticeGround"></a>Practice standing ground
 
 Once per station.
-Practice needs only part of the standing ground above: its commands read the practice base remote and never the real one, so step 1 waits for the laps.
-Read step 4's count before each round and after each coldwalk, since a coldwalk can set up projects linked to the billing account; practice runs no `gauntlet`.
+Practice needs only part of the standing ground above: its commands read the practice base remote and never the real one, so step 1 waits for the cohobations.
+Read step 4's count before each round and after each introit, since an introit can set up projects linked to the billing account; practice runs no `gauntlet`.
 Then give practice a repository to run from, in one of two ways.
 
 In the maintainer repository, after steps 2, 3 and 5, add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
@@ -120,22 +120,22 @@ Discard the fresh clone afterwards with `rm -rf "${FRESH_CLONE}"`; it is never a
 Run the four commands under their practice doors, reading each stop as the real section of the same name describes it:
 
 1. Run `tt/rbvw-e.Essai.palaestra.sh`.
-   It cuts the [regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [temenos](#Temenos) in `../../infield-coldwalk/palaestra_coldwalk_«date»`.
-   Run from a practice seat, it also warns that the one-home corpus check stands down for want of a kraal register; a seat never stands beside one, and the warning costs the lap nothing.
-   Walk the coldwalk and read the [regulus](#Regulus) as the laps below describe, with those paths.
+   It cuts the [regulus](#Regulus) into `../palaestra_regulus/regulus` atop the stand-in and stands its [temenos](#Temenos) in `../../infield-introit/palaestra_temenos_«date»`.
+   Run from a practice seat, it also warns that the one-home corpus check stands down for want of a kraal register; a seat never stands beside one, and the warning costs the cohobation nothing.
+   Walk the introit and read the [regulus](#Regulus) as the cohobations below describe, with those paths.
 2. At the console, delete the stand-in's `POSTULANT_LOCAL` branch, as the reveal's preparation deletes the real one.
 3. Run `tt/rbvw-d.Docimasy.palaestra.sh`.
    It gates the practice [narthex](#Narthex), confirms the [regulus](#Regulus) still matches the maintainer tree, and stops once, for the preview push line into the practice [narthex](#Narthex): type it in the second pane, then answer `y`.
    It asks for no sign-in and runs no `gauntlet`, and grants a practice [cachet](#Cachet).
 4. Run `tt/rbvw-o.Ostend.palaestra.sh`.
    It stops three times, exactly as the real [ostend](#Ostend) does (the file list, the staging push line, the promotion line), but every push it prints targets the stand-in, never the public repository.
-5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation coldwalk it stands up.
+5. Run `tt/rbvw-h.Harbinger.palaestra.sh`, and walk the confirmation introit it stands up.
 
-A practice coldwalk, the lap's and the confirmation's alike, proves the rig and not the product.
-Walk it until the stranger hands you the cloud setup, and stop it there.
-Commit its findings memo where the hand-off directs and carry its findings about the shipped product to the laps; they never stop the round.
-A practice lap whose battery is green and whose walk reached that hand-off has run dry for the round.
-In practice an agent may take the reading of the [regulus](#Regulus): it runs the three lines, reports the summary and anything that should not be public, and the full private reading of `regulus.diff` waits for the real dry lap.
+A practice introit, the cohobation's and the confirmation's alike, proves the rig and not the product.
+Walk it until the walking session hands you the cloud setup, and stop it there.
+Commit its findings memo where the hand-off directs and carry its findings about the shipped product to the cohobations; they never stop the round.
+A practice cohobation whose battery is green and whose walk reached that hand-off has run dry for the round.
+In practice an agent may take the reading of the [regulus](#Regulus): it runs the three lines, reports the summary and anything that should not be public, and the full private reading of `regulus.diff` waits for the real dry cohobation.
 
 <a id="PracticeCloneRecipe"></a>At the practice promotion stop, ostend prints the lines that clone the stand-in and fetch its staging branch into a local branch of the same name, then the promotion line.
 Copy them into the second pane in order, editing only the first to give an absolute path for a new directory; they read:
@@ -150,32 +150,32 @@ Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLON
 ### <a id="PracticeClosing"></a>Closing a round
 
 1. Delete the stand-in's `POSTULANT_LOCAL` branch, as the real closeout deletes the public one.
-2. Check that every coldwalk findings memo is committed, including any inside a dated `palaestra_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `palaestra_*` directory beside the maintainer repository.
+2. Check that every introit findings memo is committed, including any inside a dated `palaestra_temenos_«date»` directory or a moved-aside sibling of one in `../../infield-introit`; then delete those directories, and every `palaestra_*` directory beside the maintainer repository.
 3. Record what the round surfaced.
    A finding in the procedure is an edit to this ordinatio and a re-render; a finding in the instrument is a repair and another round.
    The next round opens by recreating the practice [narthex](#Narthex), and the stand-in too where it no longer carries the real repository's two branches, so neither is deleted here.
 
-## <a id="TheLaps"></a>The laps
+## <a id="TheCohobations"></a>The cohobations
 
 1. Run `tt/rbvw-e.Essai.agora.sh`.
-   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a coldwalk [temenos](#Temenos).
+   It asks nothing of you while it runs and makes no remote act: it gates the tree and the base, cuts the [regulus](#Regulus) into `../rbthdr_regulus/regulus`, proves it, and stands up a [temenos](#Temenos).
    A [regulus](#Regulus) already standing there is first moved aside by [sepose](#Sepose).
 2. Read its verdict and the base inventory it prints.
    On any red, repair on the maintainer tree, commit and push, and run it again.
 
-### <a id="StrangerColdwalk"></a>The stranger coldwalk
+### <a id="TheIntroit"></a>The introit
 
-Every green lap ends with a [temenos](#Temenos) waiting to be walked.
-The lap prints the clone's `HEAD`; nothing is promoted at a lap, so match it to the [regulus](#Regulus) tip, which `git -C ../rbthdr_regulus/regulus rev-parse HEAD` prints.
-Launch the walk by hand from the launch line and stranger prompt the lap printed: a fresh agent session with no context walks the shipped onboarding literally, with you at the keyboard.
-Its findings go to the dated memo path the lap named; when the walk ends, commit the memo where the hand-off directs, since a later lap moves the [temenos](#Temenos) aside.
-A finding means a repair and another lap.
-A lap whose battery is green and whose coldwalk finds nothing has run dry, and only then do the three steps below follow.
+Every green cohobation ends with a [temenos](#Temenos) waiting to be walked.
+The cohobation prints the clone's `HEAD`; nothing is promoted at a cohobation, so match it to the [regulus](#Regulus) tip, which `git -C ../rbthdr_regulus/regulus rev-parse HEAD` prints.
+Launch the introit by hand from the launch line and prompt the cohobation printed: a fresh agent session wearing the `mcmp_theoros` walks the shipped onboarding literally, with you at the keyboard.
+Its findings go to the dated memo path the cohobation named; when the walk ends, commit the memo where the hand-off directs, since a later cohobation moves the [temenos](#Temenos) aside.
+A finding means a repair and another cohobation.
+A cohobation whose battery is green and whose introit finds nothing has run dry, and only then do the three steps below follow.
 
 ### <a id="CensusInquest"></a>The census inquest
 
-From the outspan of a chat dispatched after the dry lap's commit is pushed, so that its tree is the one the lap cut, run `tt/vom-i.Inquest.sh` and read its statistics table: the row `VOr_ew7`, the Bash guide's one-form substitution read, must stand at zero.
-If it does not, repair and run another lap.
+From the outspan of a chat dispatched after the dry cohobation's commit is pushed, so that its tree is the one the cohobation cut, run `tt/vom-i.Inquest.sh` and read its statistics table: the row `VOr_ew7`, the Bash guide's one-form substitution read, must stand at zero.
+If it does not, repair and run another cohobation.
 
 ### <a id="RegulusReading"></a>Reading the regulus
 
@@ -189,12 +189,12 @@ git -C ../rbthdr_regulus/regulus ls-files
 ```
 
 Read `regulus.diff` through.
-Anything that should not be public means a repair and another lap.
+Anything that should not be public means a repair and another cohobation.
 
 ### <a id="QuietTrunk"></a>Hold the trunk quiet
 
-From the dry lap until promotion, land nothing on the trunk that changes delivered bytes, a kit parcel install above all.
-The reveal re-checks that the [regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to laps.
+From the dry cohobation until promotion, land nothing on the trunk that changes delivered bytes, a kit parcel install above all.
+The reveal re-checks that the [regulus](#Regulus) still matches the maintainer tree, and drift sends the cycle back to cohobations.
 The commits [docimasy](#Docimasy) itself makes are expected and are not drift.
 
 ## <a id="TheReveal"></a>The reveal
@@ -234,7 +234,7 @@ On red:
 - If the payor credential check fails, reinstall it with `tt/rbw-gPI.PayorInstall.sh «client secret JSON»`, the JSON saved when the payor was established, then run [docimasy](#Docimasy) again.
 - If the sign-in fails or times out, run [docimasy](#Docimasy) again; if it fails twice, read the identity trust's health with `tt/rbw-jd.FoedusDescry.sh`.
 - If the `gauntlet` failed for a reason outside the candidate, such as a quota wall or a transient cloud fault, release the depot it stranded with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»` and run [docimasy](#Docimasy) again; a preview already pushed is recognized and not asked for again.
-- If the `gauntlet` found a real defect, release the stranded depot the same way, repair on the maintainer tree, and return to the laps.
+- If the `gauntlet` found a real defect, release the stranded depot the same way, repair on the maintainer tree, and return to the cohobations.
 
 ### <a id="OstendAct"></a>Ostend
 
@@ -270,22 +270,22 @@ Once ostend confirms the promotion, discard the clone with `rm -rf "${FRESH_CLON
 ### <a id="HarbingerAct"></a>Harbinger
 
 Run `tt/rbvw-h.Harbinger.agora.sh`.
-It clones promoted public main over HTTPS, exactly as a stranger would, guards the clone so it can never push, and prints the clone's `HEAD` to match against the promoted commit, a launch line, a stranger prompt and a dated findings-memo path.
-Launch the confirmation coldwalk by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
+It clones promoted public main anonymously over HTTPS, guards the clone so it can never push, and prints the clone's `HEAD` to match against the promoted commit, a launch line, a prompt and a dated findings-memo path.
+Launch the confirmation introit by hand, with you at the keyboard, and commit its findings memo where the hand-off directs.
 
-## <a id="GreenfieldWalk"></a>The walk
+## <a id="TheYomp"></a>The yomp
 
-Walk the whole manor yourself against promoted public main, as a stranger: clone public main over HTTPS as the README directs, into a directory you keep for the walk, and go from the onboarding entry to a green `gauntlet` on a fresh payor substrate.
+Prove the whole manor yourself against promoted public main: clone public main over HTTPS as the README directs, into a directory you keep for the yomp, and go from the onboarding entry to a green `gauntlet` on a fresh payor substrate.
 It takes hours; start it fresh, not tired.
 Record every divergence between the shipped documents and what actually happens.
 
 Dispose of each finding:
 
-- A documents-only divergence is fixed as a fast follow, or by re-walking only the steps it touched.
-- A repair that changes delivered bytes reopens the whole cycle: laps to dry, the reveal, and a fresh walk.
+- A documents-only divergence is fixed as a fast follow, or by repeating only the steps it touched.
+- A repair that changes delivered bytes reopens the whole cycle: cohobations to dry, the reveal, and a fresh yomp.
   Until it lands, the defect stands on the promoted face, which is the accepted cost of promoting first.
-- A repair that touches only withheld paths needs only a new lap, never a new walk or `gauntlet`.
-- A re-walk reuses that clone and the payor project it set up, and never levies a second payor project.
+- A repair that touches only withheld paths needs only a new cohobation, never a new yomp or `gauntlet`.
+- A repeated yomp reuses that clone and the payor project it set up, and never levies a second payor project.
 
 ## <a id="Closeout"></a>Closeout
 
@@ -293,7 +293,7 @@ Dispose of each finding:
    Links into main go live only at promotion; before the push only their structure was checked, by the `pyx` sweep.
 2. Spot-check the repository front page and the github.io render.
 3. Delete the public `POSTULANT_LOCAL` branch, relaxing and restoring the ruleset if it refuses, and then the [narthex](#Narthex) repository.
-4. Check that every coldwalk findings memo is committed, including any inside a dated `rbthdr_coldwalk_«date»` directory or a moved-aside sibling of one in `../../infield-coldwalk`; then delete those directories, and every `rbthdr_*` directory beside the maintainer repository.
+4. Check that every introit findings memo is committed, including any inside a dated `rbthdr_temenos_«date»` directory or a moved-aside sibling of one in `../../infield-introit`; then delete those directories, and every `rbthdr_*` directory beside the maintainer repository.
 5. Record the release in `RBSPH-ProjectHistory.adoc`, the project's history; this procedure carries no dated record.
 
 ## Glossary
@@ -301,7 +301,7 @@ Dispose of each finding:
 <a id="Regulus"></a>**Regulus**
 
 The cut deliverable: exactly one commit atop the live public base, built by addition from the paths the perambulation ships, on the sole branch `POSTULANT_LOCAL`, holding zero remotes.
-The dry [regulus](#Regulus) the reveal discloses is bit-for-bit the [regulus](#Regulus) the [laps](#Lap) proved; a terminal re-cut would break exactly that identity.
+The dry [regulus](#Regulus) the reveal discloses is bit-for-bit the [regulus](#Regulus) the [cohobations](#Cohobation) proved; a terminal re-cut would break exactly that identity.
 Named for the pure metal that settles out of a crucible.
 
 <a id="Kerygma"></a>**Kerygma**
@@ -317,11 +317,11 @@ The veiled application that conducts the release ceremony through four commands;
 
 <a id="Essai"></a>**Essai**
 
-The repair command: gates, cuts the [regulus](#Regulus), proves it and stands up a coldwalk [temenos](#Temenos), with no remote act.
+The repair command: gates, cuts the [regulus](#Regulus), proves it and stands up a [temenos](#Temenos), with no remote act.
 
-<a id="Lap"></a>**Lap**
+<a id="Cohobation"></a>**Cohobation**
 
-One run of [essai](#Essai), repeated until one runs dry: green, with a coldwalk that finds nothing.
+One run of [essai](#Essai), repeated until one runs dry: green, with an introit that finds nothing.
 
 <a id="Docimasy"></a>**Docimasy**
 
@@ -341,11 +341,11 @@ The showing command: the file-list review, the [kerygma](#Kerygma) and promotion
 
 <a id="Harbinger"></a>**Harbinger**
 
-The command that stands up a stranger [temenos](#Temenos) against promoted public main.
+The command that stands up a [temenos](#Temenos) against promoted public main.
 
 <a id="Temenos"></a>**Temenos**
 
-A guarded, disposable clone a stranger walk runs in; it cannot push.
+A guarded, disposable clone an introit is walked in; it cannot push.
 
 <a id="Sepose"></a>**Sepose**
 

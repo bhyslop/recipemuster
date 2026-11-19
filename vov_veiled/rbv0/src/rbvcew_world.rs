@@ -84,14 +84,14 @@ pub struct rbvcew_Bundle {
     pub narthex_https: &'static str,
 
     /// The URL the harbinger clones (RBSHH). In the real world the anonymous
-    /// HTTPS face a stranger lands on — distinct from base_url, which is the
+    /// HTTPS face a first-time reader lands on — distinct from base_url, which is the
     /// cut's read-only base remote, not a clone target. The practice world's
     /// stand-in is private and cannot be cloned anonymously, so its harbinger
     /// reads it over SSH: the fidelity gap the cosmology accepts.
     pub harbinger_url: &'static str,
 
     /// The fixed regulus parent directory, a sibling of the maintainer repo.
-    /// Not dated: essai runs the lap repeatedly at one conventional location
+    /// Not dated: essai runs the cohobation repeatedly at one conventional location
     /// and seposes any prior, so the location is memorable and the disposal
     /// is safe. Expede builds the clone one level down, at
     /// {parent}/{RBVCEP_REGULUS_SUBDIR}. A conserved spelling, declared in the
@@ -107,7 +107,7 @@ pub struct rbvcew_Bundle {
     pub freshness_dirname: &'static str,
 
     /// The temenos's dirname stem, dated by the walk at stand-up and placed
-    /// in the coldwalk infield beside the maintainer's infield (rbvceg_temenos).
+    /// in the introit infield beside the maintainer's infield (rbvceg_temenos).
     /// Shared by essai and harbinger — they never stand simultaneously, so one
     /// location per world per day, any same-day prior seposed. A conserved
     /// spelling, declared in the cadaster; the real world's is the same stem
@@ -119,7 +119,7 @@ pub struct rbvcew_Bundle {
 /// each its own declaration so the spelling the cosmology cites stands seated.
 const RBVCEW_AGORA_REGULUS_DIRNAME: &str = "rbthdr_regulus";
 const RBVCEW_AGORA_FRESHNESS_DIRNAME: &str = "rbthdr_regulus_freshness";
-const RBVCEW_AGORA_TEMENOS_DIRNAME: &str = "rbthdr_coldwalk";
+const RBVCEW_AGORA_TEMENOS_DIRNAME: &str = "rbthdr_temenos";
 
 /// The real world: the live public repository, the standing narthex, and the
 /// conserved rbthdr_ working directories.
@@ -151,7 +151,7 @@ pub const RBVCEW_PALAESTRA: rbvcew_Bundle = rbvcew_Bundle {
     harbinger_url: "git@github.com:bhyslop/recipebottle-grandstand-practice.git",
     regulus_dirname: "palaestra_regulus",
     freshness_dirname: "palaestra_regulus_freshness",
-    temenos_dirname: "palaestra_coldwalk",
+    temenos_dirname: "palaestra_temenos",
 };
 
 /// The stand-in's seed source: real public main's repository, which the

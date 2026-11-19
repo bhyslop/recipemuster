@@ -37,7 +37,7 @@
 // cautious. The register is READ, never inferred from a directory-name
 // convention: a convention resolves to a plausible WRONG tree as silently as a
 // dead path resolves to no tree. And the three outcomes stay apart: no register
-// claiming the tree is an absence the lap logs and proceeds past, the locator's
+// claiming the tree is an absence the cohobation logs and proceeds past, the locator's
 // own self-proof carrying the trust that absence is honest; a register that
 // claims the tree and cannot be followed is a broken kraal, fatal; and a check
 // that ran and found anything is fatal.
@@ -676,7 +676,7 @@ pub(crate) fn zrbvcec_locate_corpus_road(root: &Path) -> Result<zrbvcec_CorpusRo
     }
 
     let mut reason = format!(
-        "no kraal register ({}) beside {} claims this tree, so the lap holds no corpus road",
+        "no kraal register ({}) beside {} claims this tree, so the cohobation holds no corpus road",
         ZRBVCEC_FEODARY_BASENAME,
         me.display(), //
     );
@@ -766,10 +766,10 @@ fn zrbvcec_refs(owned: &[(String, String)]) -> Vec<(&str, &str)> {
 // ── The pre-cut rbvcec_assay (maintainer tree) ──────────────
 
 /// What the one-home corpus check read. Three outcomes, kept apart because the
-/// lap treats each differently.
+/// cohobation treats each differently.
 pub enum rbvcec_Reading {
     /// No kraal register beside the tree claims it, so there is no corpus to
-    /// read; the reason names what was looked for. The lap logs it and proceeds.
+    /// read; the reason names what was looked for. The cohobation logs it and proceeds.
     Absent(String),
     /// A register claims the tree and cannot be followed, or its corpus road
     /// yields no judged sheaf — a broken kraal, never a legitimate absence.

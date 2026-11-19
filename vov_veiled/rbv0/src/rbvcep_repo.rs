@@ -7,8 +7,8 @@
 // RBVCEP — repository anchoring, the fixed conventional sibling locations, and
 // the dispose-by-rename discipline (RBSHE step 3, seposition).
 //
-// Every path the lap touches is derived from the maintainer repository root,
-// never hand-typed, so the artifacts always land beside the tree the lap was
+// Every path the cohobation touches is derived from the maintainer repository root,
+// never hand-typed, so the artifacts always land beside the tree the cohobation was
 // launched from.
 
 use std::path::{
@@ -23,7 +23,7 @@ use crate::rbvcer_run;
 // spellings declared in the cosmology's cadaster; none is spelled here.
 
 /// The clone subdir the cut creates beneath its target dir (rbvcex_expede
-/// builds there; the lap and the temenos stage find what it built through this
+/// builds there; the cohobation and the temenos stage find what it built through this
 /// one name).
 pub const RBVCEP_REGULUS_SUBDIR: &str = "regulus";
 
@@ -66,7 +66,7 @@ pub fn rbvcep_toplevel() -> PathBuf {
     top
 }
 
-/// A path as an owned &str, fatal on non-UTF-8. Every path the lap handles is
+/// A path as an owned &str, fatal on non-UTF-8. Every path the cohobation handles is
 /// derived from git output or a repo-relative join, so non-UTF-8 is a real fault
 /// worth stopping on, not something to lossily paper over into a subprocess arg.
 pub fn rbvcep_as_str(p: &Path) -> String {

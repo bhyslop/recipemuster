@@ -4,7 +4,7 @@
 //
 // Author: Brad Hyslop <bhyslop@scaleinvariant.org>
 //
-// RBVCCE — essai: the reversible repair lap (RBSHE). The whole cycle end to end
+// RBVCCE — essai: the reversible repair cohobation (RBSHE). The whole cycle end to end
 // — gate, assay, cut, prove, temenos — run as many times as it takes, with ZERO
 // remote acts. Its product is a walk-ready temenos standing beside a pristine
 // regulus that is bit-for-bit what a subsequent ostend would push.
@@ -16,7 +16,7 @@
 // which essai automates. A finding at any red means RE-CUT, never patch
 // forward — the accumulated-state bug class the ceremony exists to catch.
 //
-// The lap conducts in the world its one argument elects (RBSHC "The
+// The cohobation conducts in the world its one argument elects (RBSHC "The
 // election"): the base it gates and cuts atop, the regulus directory, and the
 // temenos directory are the elected bundle's. In the palaestra alone, step 1
 // also reads the stand-in and real public main, and refuses to cut atop a
@@ -82,13 +82,13 @@ const RBVCCE_STATION_TINCTURE: &str = "cnd";
 /// beside the regulus branch, both at public main's commit (RBSHE step 1).
 const RBVCCE_MAIN_BRANCH: &str = "main";
 
-/// Conduct one essai lap in the elected world. Fatal (exit 1) on any deficit or
+/// Conduct one essai cohobation in the elected world. Fatal (exit 1) on any deficit or
 /// red; ExitCode::SUCCESS only when a walk-ready temenos stands beside a
 /// proven regulus.
 pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     rbvcel_log::rbvcel_elect(world);
     let bundle = rbvcew_world::rbvcew_bundle(world);
-    rbvcel_log::rbvcel_section("Hierophant Essai — the reversible repair lap (RBSHE)");
+    rbvcel_log::rbvcel_section("Hierophant Essai — the reversible repair cohobation (RBSHE)");
     rbvcel_log::rbvcel_line(
         "Gate, cut, prove, temenos — zero remote acts. A finding means re-cut.",
     );
@@ -107,10 +107,10 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
 
     // Steps 5 & 6 — stand up the temenos from the LOCAL regulus, show the fidelity
     // gap loud, hand off the walk, and state the two standing artifacts.
-    rbvcel_log::rbvcel_section("Stand up the coldwalk temenos (RBSHE step 5)");
+    rbvcel_log::rbvcel_section("Stand up the temenos (RBSHE step 5)");
     let clone_source = rbvcep_repo::rbvcep_as_str(&regulus_clone);
     let temenos = rbvceg_temenos::rbvceg_stand_up(
-        &rbvceg_temenos::rbvceg_coldwalk_parent(&top),
+        &rbvceg_temenos::rbvceg_introit_parent(&top),
         &top,
         &clone_source,
         &top,
@@ -155,7 +155,7 @@ pub fn rbvcce_essai_conduct(world: rbvcew_world::rbvcew_World) -> ExitCode {
     ));
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_success(
-        "Essai lap complete — a walk-ready temenos stands beside a proven regulus.",
+        "Essai cohobation complete — a walk-ready temenos stands beside a proven regulus.",
     );
     rbvcel_log::rbvcel_line("Dispose and re-cut, or hand the standing regulus to docimasy — the reveal's proving act (RBSHE completion).");
 
@@ -247,7 +247,7 @@ fn zrbvcce_gate(
 
 /// The practice stand-in's fitness to cut atop (RBSHE step 1, the palaestra
 /// arm): the stand-in carries exactly real public main's `main` and the regulus
-/// branch, both at public main's commit, or the lap refuses and prints the
+/// branch, both at public main's commit, or the cohobation refuses and prints the
 /// procedure's recreate and seed steps. Here and never in the cut: the cut is
 /// also the freshness matcher docimasy and ostend re-run, after a practice
 /// round has already deleted the stand-in's regulus branch.

@@ -11,7 +11,7 @@
 //
 //   Narration — clean operator-facing ceremony text (section, step, line,
 //   warn, success, raw). This IS the ceremony's execution-time home (ACG): the
-//   maintainer reads it as the lap runs. No file:line noise.
+//   maintainer reads it as the cohobation runs. No file:line noise.
 //
 //   Fatal — a diagnostic hard stop carrying [FATAL] [file:line], because a
 //   fatal is a failure the maintainer debugs at the code.
@@ -104,7 +104,7 @@ pub fn rbvcel_success(msg: &str) {
     ));
 }
 
-/// A verbatim block — no per-line decoration. For the stranger prompt and other
+/// A verbatim block — no per-line decoration. For the prompt and other
 /// content whose exact bytes are handed onward.
 pub fn rbvcel_raw(block: &str) {
     let mut stderr = std::io::stderr().lock();

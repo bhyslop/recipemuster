@@ -325,7 +325,7 @@ fn zrbvcco_promotion(top: &Path, regulus_tip: &str, bundle: &rbvcew_world::rbvce
 fn zrbvcco_close(world: rbvcew_world::rbvcew_World, bundle: &rbvcew_world::rbvcew_Bundle) {
     rbvcel_log::rbvcel_section("Close the reveal (RBSHO close)");
     rbvcel_log::rbvcel_line(
-        "Hand-off: run the harbinger command for the confirmation coldwalk against promoted main.",
+        "Hand-off: run the harbinger command for the confirmation introit against promoted main.",
     );
     rbvcel_log::rbvcel_blank();
     rbvcel_log::rbvcel_line("Ceremony-hygiene reminders — your own hands, once dispositioned:");
