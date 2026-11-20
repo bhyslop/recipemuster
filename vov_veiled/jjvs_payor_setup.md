@@ -13,12 +13,16 @@ Other documents stand in the clone — the other tracks, the guides other comman
 The ground this walk stands on: the attendant already administers a Google Cloud organization and a Microsoft Entra tenant, and holds an open Google Cloud billing account, and this walk founds none of the three.
 Where a guide offers to skip founding an organization or a tenant to one who already holds it, take that road.
 The user the attendant signs in as at the tenant is the citizen a later walk seats as the depot's first governor, and it stands already.
-Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save two the attendant names: the cloud prefix and the depot moniker, since the depots this clone founds are asked after later by that prefix alone.
+Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save two that are the attendant's: the cloud prefix and the depot moniker, since the depots this clone founds are asked after later by that prefix alone.
+The attendant gives you both at the walk's start; show each to them for a yes before you write it.
+Where they did not give you one of them, ask for it once, giving its rule and an example: the cloud prefix is 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as `acme-`; the depot moniker is lowercase letters and digits, starting with a letter, with no hyphen, as `builds1`; and the two together come to at most 28 characters.
+The workforce pool's ID is not this walk's to fill: the attendant gives it at "Instaurate the Manor", a later walk's step, so leave it blank.
 
 ### The browser window
 
-A browser window on a profile of its own, signed in to Google Cloud as the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center as the tenant's administrator, and to no other account.
+A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
 You work the consoles in it yourself, save the acts below.
+Name a project, to the attendant and in what you report, by its Project ID and never by its name alone: more than one project may wear one name.
 
 ### Acts reserved to the attendant
 
@@ -29,7 +33,7 @@ Reserved to the attendant at the window, granting access — admitting the appli
 
 Reserved to the attendant at the window, granting access — allowing public client flows: on the new registration's authentication page, the attendant sets public client flows to enabled and saves, or sets the manifest value the federation guide names where the page reads otherwise.
 
-Reserved to the attendant at the window, founding a project: on the project creation page, once you have set the project name, the project ID and the organization as the establish guide directs, the attendant clicks the button that creates the project.
+Reserved to the attendant at the window, founding a project: on the project creation page, once you have set the project name, the Project ID and the organization as the establish guide directs, and have read the Project ID back to the attendant beside the one the payor settings carry, the attendant clicks the button that creates the project.
 
 Reserved to the attendant at the window by name, as an act none of the kinds above fits — accepting a service's terms on the account's behalf: at the last step of the OAuth consent screen's configuration, the attendant reads the linked terms, checks the box agreeing to them if they accept, and then clicks the buttons that continue and create the configuration.
 
@@ -46,9 +50,9 @@ Once every act above is done, confirm each of these, and report what each showed
 
 - `tt/rbw-rpv.ValidatePayorRegime.sh` passes.
 - `tt/rbw-rov.ValidateOauthRegime.sh` passes.
-- `tt/rbw-rdv.ValidateDepotRegime.sh` passes, its cloud prefix and depot moniker the ones the attendant named.
+- `tt/rbw-rdv.ValidateDepotRegime.sh` passes, its cloud prefix and depot moniker the ones the attendant gave and said yes to.
 - `tt/rbw-rfv.ValidateFederationRegime.sh` passes.
-- `tt/rbw-rwv.ValidateWorkforceRegime.sh` accepts the organization ID, its pool and session-duration checks failing as the organization guide says they will until a later step sets them.
-- At the window, the payor project stands under the attendant's organization, its OAuth consent screen's audience reads Internal, and it holds exactly one OAuth client.
+- `tt/rbw-rwv.ValidateWorkforceRegime.sh` fails naming `RBRW_WORKFORCE_POOL_ID`, the blank pool ID a later walk's step fills, as the organization guide says it will, and names no fault in the organization ID.
+- At the window, the payor project, the one whose Project ID the payor settings carry as `RBRP_PAYOR_PROJECT_ID` in `rbmm_moorings/rbrp.env`, stands under the attendant's organization, its OAuth consent screen's audience reads Internal, and it holds exactly one OAuth client.
 - At the window, the Entra application registration shows public client flows enabled.
-- Name to the attendant what this walk founded outside the clone, since no check of the clone asks after any of it and each is theirs to account for by hand: the payor project with its consent screen and OAuth client, and the Entra application registration.
+- Name to the attendant what this walk founded outside the clone, since no check of the clone asks after any of it and each is theirs to account for by hand: the payor project, by its Project ID, with its consent screen and OAuth client, and the Entra application registration.
