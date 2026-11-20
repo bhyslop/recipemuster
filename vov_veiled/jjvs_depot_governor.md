@@ -15,6 +15,8 @@ Its workforce settings, in `rbmm_moorings/rbrw.env`, hold the organization ID th
 Every step before the Novate runs under that payor credential, so no sign-in is owed until the Novate.
 The citizen the Gird seats is the attendant's own user at the Microsoft Entra tenant.
 Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save the workforce pool's ID, which is the attendant's.
+An organization holds one Recipe Bottle manor, standing on one workforce pool: the run at "Instaurate the Manor" takes up a pool standing at the ID the clone names as the manor's own, and refuses where a Recipe Bottle pool already stands in the organization under any other ID, rather than found a second.
+So where the attendant's organization already holds a manor, the ID they give is the ID of the pool it stands on.
 The attendant gives it to you at the walk's start; show it to them for a yes before you write it.
 Where they did not give you one, ask for it once, giving its rule and an example: 4 to 32 characters of lowercase letters, digits and hyphens, starting with a letter, not ending in a hyphen and never starting with `gcp-`, as `acme-manor`.
 Leave the session duration as the clone carries it.
