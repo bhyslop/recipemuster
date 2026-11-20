@@ -105,15 +105,17 @@ rbhpo_organization() {
   buh_line     "   Set the organization field from the numeric ID above:"
   buym_cmd_yawp "RBRW_ORG_ID=«organization-numeric-id»"; local -r z_cmd_field_org="${z_buym_yelp}"
   buh_line     "   ${z_cmd_field_org}"
-  buh_line     "   The pool ID and session duration in the same file are set later, at Instaurate,"
-  buh_line     "   where the manor-setup finisher founds the pool from all three."
+  buh_line     "   The session duration in the same file ships set. The pool ID is left blank"
+  buh_line     "   here and filled later, at Instaurate, where the manor-setup finisher founds"
+  buh_line     "   the pool from all three."
   buh_e
   buh_section  "6. Validate:"
-  buh_line     "   Confirm the field is well-formed (numeric organization ID):"
+  buh_line     "   Run the validator:"
   buh_tt       "      " "${RBZ_VALIDATE_WORKFORCE}" "" ""
-  buh_line     "   The pool-id and session-duration checks also run; they pass once those are"
-  buh_line     "   set at Instaurate. Every value is a public identifier, so the file ships"
-  buh_line     "   committed — commit it with your usual workflow."
+  buh_line     "   Until Instaurate it fails naming RBRW_WORKFORCE_POOL_ID, the blank pool ID:"
+  buh_line     "   that failure is expected here. A failure naming RBRW_ORG_ID instead means the"
+  buh_line     "   organization field needs fixing. Every value is a public identifier, so the"
+  buh_line     "   file ships committed — commit it with your usual workflow."
   buh_e
 
 }

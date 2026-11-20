@@ -11,13 +11,17 @@ Take up the payor track at the step "Instaurate the Manor" and walk it to its en
 Other documents stand in the clone — the other tracks, the guides other commands print, and the project's code and configuration files beyond those a direction names — and are left unopened, as a newcomer might not think to open them.
 
 The ground this walk stands on: an earlier walk on this same clone left a payor standing, its OAuth credential installed and its payor, federation and depot settings filled, as the payor track's steps before "Instaurate the Manor" leave them.
+Its workforce settings, in `rbmm_moorings/rbrw.env`, hold the organization ID that walk filled and the session duration the clone shipped with; the workforce pool's ID stands blank, and this walk fills it at "Instaurate the Manor".
 Every step before the Novate runs under that payor credential, so no sign-in is owed until the Novate.
 The citizen the Gird seats is the attendant's own user at the Microsoft Entra tenant.
-Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save the workforce pool's ID, which the attendant names.
+Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save the workforce pool's ID, which is the attendant's.
+The attendant gives it to you at the walk's start; show it to them for a yes before you write it.
+Where they did not give you one, ask for it once, giving its rule and an example: 4 to 32 characters of lowercase letters, digits and hyphens, starting with a letter, not ending in a hyphen and never starting with `gcp-`, as `acme-manor`.
+Leave the session duration as the clone carries it.
 
 ### The browser window
 
-A browser window on a profile of its own, signed in to the Microsoft Entra admin center as the tenant's administrator, and to no other account.
+A browser window on a profile of its own, signed in to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
 You read the console in it yourself, save the acts below.
 
 ### Acts reserved to the attendant
@@ -50,5 +54,5 @@ Once every act above is done, confirm each of these, and report what each showed
 - `tt/rbw-rdc.CollateDepotRegime.sh` reports the clone's depot settings level with what the depot was levied with.
 - `tt/rbw-jd.FoedusDescry.sh`, naming the federation directory the Affiance named, reports the foedus healthy under the manor's workforce pool.
 - `tt/rbw-pr.GovernorRehearsesTerrier.sh` shows the attendant's user holding the governor mantle in this depot.
-- Name to the attendant what this walk and the payor walk before it founded outside the clone beyond the depot, since no check of the clone asks after any of it and each is theirs to account for by hand: the workforce pool and the federation's provider seated under it, the terrier bucket and the governor's entry in it, the payor project with its consent screen and OAuth client, and the Entra application registration.
+- Name to the attendant what this walk and the payor walk before it founded outside the clone beyond the depot, since no check of the clone asks after any of it and each is theirs to account for by hand: the workforce pool and the federation's provider seated under it, the terrier bucket and the governor's entry in it, the payor project, by the Project ID the payor settings carry, with its consent screen and OAuth client, and the Entra application registration.
   The depot is the one thing a check of the clone asks after, by the cloud prefix its settings name.
