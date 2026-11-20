@@ -51,12 +51,12 @@ rbho_start_here() {
   buh_line "  documents that explain concepts and show you live probe status."
   buh_e
   buh_line "  New to ${RBYC_RECIPE_BOTTLE}? Begin with Configure your Repo's Environment,"
-  buh_line "  under Foundation below. It sets up your station file and the secrets"
+  buh_line "  under Foundation below. It sets up your ${BUBG_STATION_BASE} file and the secrets"
   buh_line "  directory that every other track relies on, the ${RBYC_PAYOR} track among"
   buh_line "  them. Not sure it was done on this clone? Show it again: showing a"
   buh_line "  track changes nothing, and its live probes report what already stands."
-  buh_line "  Then pick Kludged ${RBYC_CRUCIBLES}"
-  buh_line "  (local, no cloud) or Director subtracks (requires ${RBYC_PAYOR} + ${RBYC_DEPOT})."
+  buh_line "  Then pick Kludged ${RBYC_CRUCIBLES} (local, no cloud) or Director subtracks"
+  buh_line "  (requires ${RBYC_PAYOR} + ${RBYC_DEPOT})."
   buh_e
 
   buh_section "Foundation"

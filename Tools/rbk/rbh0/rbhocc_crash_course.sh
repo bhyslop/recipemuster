@@ -176,7 +176,7 @@ rbho_crash_course() {
   buh_line "capturing key decision points and state transitions. When a"
   buh_line "command fails, the transcript is the first thing to read."
   buh_e
-  buh_line "A command that handles a secret, or one that can run before a station"
+  buh_line "A command that handles a secret, or one that can run before a ${BUBG_STATION_BASE}"
   buh_line "file stands, writes no ${RBYC_LOGS} and prints no paths. The ${RBYC_BURC} and"
   buh_line "${RBYC_BURS} commands you ran in Steps 2 to 4 are of that kind, so the"
   buh_line "validators of Step 5 were the first to print them."
@@ -213,10 +213,10 @@ rbho_crash_course() {
   buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
   buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e
-  buh_line "On a clone no ${RBYC_PAYOR} has set up, the d, p and o tabtargets refuse,"
-  buh_line "each naming the first blank field it meets: the ${RBYC_PAYOR} track fills"
-  buh_line "them. The o tabtargets read ${RBYC_RBRD} before their own file, so they"
-  buh_line "name a depot field first."
+  buh_line "On a clone no ${RBYC_PAYOR} has set up, the d, p and o"
+  buh_line "${RBYC_TABTARGETS} refuse, each naming the first blank field it meets:"
+  buh_line "the ${RBYC_PAYOR} track fills them. The o ${RBYC_TABTARGETS} read"
+  buh_line "${RBYC_RBRD} before their own file, so they name a depot field first."
   buh_e
   buh_line "These take a target name after the command, a vessel or a nameplate:"
   buh_e
@@ -228,8 +228,8 @@ rbho_crash_course() {
   buh_tt   "   " "${RBZ_LIST_VESSELS}"
   buh_tt   "   " "${RBZ_LIST_NAMEPLATES}"
   buh_e
-  buh_line "Then hand one to the tabtarget, as here for the vessel and ${RBYC_NAMEPLATE}"
-  buh_line "of ${RBYC_CCYOLO}, the ${RBYC_CRUCIBLE} the next track uses:"
+  buh_line "Then hand one to the ${RBYC_TABTARGET}, as here for the vessel and"
+  buh_line "${RBYC_NAMEPLATE} of ${RBYC_CCYOLO}, the ${RBYC_CRUCIBLE} the next track uses:"
   buh_e
   buh_tt   "   " "${RBZ_VALIDATE_VESSEL}" "" " rbev_bottle_ccyolo"
   buh_tt   "   " "${RBZ_VALIDATE_NAMEPLATE}" "" " ccyolo"
