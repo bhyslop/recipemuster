@@ -58,9 +58,11 @@ rbho_crash_course() {
   buh_line "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
   buh_line "${RBYC_RECIPE_BOTTLE} command."
   buh_e
-  buh_line "Run every ${RBYC_TABTARGET} from the root of your clone, as"
-  buh_line "\`${BURC_TABTARGET_DIR}/...\`: each resolves the paths it reads, your ${RBYC_BURS}"
-  buh_line "file beside the clone among them, relative to that root."
+  buh_line "Each ${RBYC_TABTARGET} finds the root of your clone by itself, so it runs"
+  buh_line "from any directory. The plain commands these tracks give, like the"
+  buh_line "\`mkdir -p\` in Step 5, and any file path you hand a ${RBYC_TABTARGET}, are"
+  buh_line "written from the root of your clone, so they must be run from there."
+  buh_line "Run everything from the root, as \`${BURC_TABTARGET_DIR}/...\`, and both hold."
   buh_e
 
   buh_step1 "View the project config"
@@ -157,8 +159,8 @@ rbho_crash_course() {
 
   buh_step1 "Check your logs"
   buh_e
-  buh_line "When you ran the validator, it printed file paths at the top"
-  buh_line "of its output. Read-only or state-changing, every command writes"
+  buh_line "When you ran the validators in Step 5, each printed file paths at the"
+  buh_line "top of its output. Read-only or state-changing, most commands write"
   buh_line "three ${RBYC_LOG} files to ${RBYC_BURS}_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
@@ -173,6 +175,11 @@ rbho_crash_course() {
   buh_line "Some commands also write a ${RBYC_TRANSCRIPT} — a single file"
   buh_line "capturing key decision points and state transitions. When a"
   buh_line "command fails, the transcript is the first thing to read."
+  buh_e
+  buh_line "A command that handles a secret, or one that can run before a station"
+  buh_line "file stands, writes no ${RBYC_LOGS} and prints no paths. The ${RBYC_BURC} and"
+  buh_line "${RBYC_BURS} commands you ran in Steps 2 to 4 are of that kind, so the"
+  buh_line "validators of Step 5 were the first to print them."
   buh_e
   buh_line "Handbook display commands (like this one) do not log — teaching"
   buh_line "output is ephemeral by design."
@@ -206,10 +213,26 @@ rbho_crash_course() {
   buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
   buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e
-  buh_line "These take a target name (vessel or nameplate):"
+  buh_line "On a clone no ${RBYC_PAYOR} has set up, the d, p and o tabtargets refuse,"
+  buh_line "each naming the first blank field it meets: the ${RBYC_PAYOR} track fills"
+  buh_line "them. The o tabtargets read ${RBYC_RBRD} before their own file, so they"
+  buh_line "name a depot field first."
+  buh_e
+  buh_line "These take a target name after the command, a vessel or a nameplate:"
   buh_e
   buh_line "   v  ${RBYC_RBRV}  ${z_rv_r}     ${z_rv_v}"
   buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
+  buh_e
+  buh_line "List the names they take:"
+  buh_e
+  buh_tt   "   " "${RBZ_LIST_VESSELS}"
+  buh_tt   "   " "${RBZ_LIST_NAMEPLATES}"
+  buh_e
+  buh_line "Then hand one to the tabtarget, as here for the vessel and ${RBYC_NAMEPLATE}"
+  buh_line "of ${RBYC_CCYOLO}, the ${RBYC_CRUCIBLE} the next track uses:"
+  buh_e
+  buh_tt   "   " "${RBZ_VALIDATE_VESSEL}" "" " rbev_bottle_ccyolo"
+  buh_tt   "   " "${RBZ_VALIDATE_NAMEPLATE}" "" " ccyolo"
   buh_e
   buh_line "Learn the letter — you can find any regime's tools from it."
   buh_line "One wrinkle: ${RBYC_BURC}/${RBYC_BURS} tools carry the buw- prefix, the Recipe"
