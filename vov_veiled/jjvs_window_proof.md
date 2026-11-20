@@ -1,0 +1,52 @@
+# Prove the Browser Window
+
+## The walk
+
+### Goal
+
+The browser window stands proven by reads of your own, and nothing stands, at either console or in the clone, that did not stand before you began: a Wikipedia article stands open in a tab of yours, reached by a search you typed, and you have read back the line saying when it was last edited; Google Cloud stands open in a second tab, and you have read the account signed in there and the organization and the project it is working in; and the Microsoft Entra admin center stands open in a third, and you have read the account signed in there and its directory.
+
+The documents to take up: this text alone, whose three directions stand below.
+The project's clone stands beside the folder you start in, and every document in it is left unopened: this walk asks nothing of the project's own documents, and runs no command in the clone.
+
+### The directions
+
+1. Open a tab of your own at `https://en.wikipedia.org/`, the English Wikipedia.
+   Type `Coordinated Universal Time` into the page's search box exactly as it stands here, press search, and open the article of exactly that title; where a list of results answers in place of the article, open it from that list.
+   Pressing search submits a form: where you would ask before submitting one, ask the attendant for one yes, and press it on that yes.
+   At the foot of the article a line says when the page was last edited.
+   Read that line back whole, and quote nothing else from the article.
+2. Open Google Cloud, at `https://console.cloud.google.com/`, in a tab of your own; a tab you already hold open there serves.
+   Hover over the account picture at the top right of the page: its tooltip names the account signed in, by its name and its address.
+   Then read the line that begins `You're working in`, which names the organization and the project, and the Project ID the page shows.
+   Where a dialog welcoming the account by name stands over the page instead, it carries the account's name and address: read them there, and tick nothing and accept nothing in it.
+3. Open the Microsoft Entra admin center, at `https://entra.microsoft.com/`, in a tab of your own; a tab you already hold open there serves.
+   Read the page's account button without hovering over it: it says which address is currently signed in, and names the account's directory.
+
+At both consoles, reading is the whole of this walk's work: open no menu, change no setting, create nothing and accept nothing.
+
+### The browser window
+
+A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
+Wikipedia, at `https://en.wikipedia.org/`, needs no account.
+You work in the window yourself, save the acts below.
+Name a project, to the attendant and in what you report, by its Project ID and never by its name alone: more than one project may wear one name.
+
+### Acts reserved to the attendant
+
+Each act below is the attendant's to perform, never yours.
+Before you hand one over, read what the directions say for it, look at the page, and say whether the two agree; then tell the attendant exactly what to do, and wait until they say it is done.
+
+Reserved to the attendant at the window, proving identity — signing in to Google Cloud: where Google Cloud asks for a sign-in, lands on a page listing remembered accounts each marked signed out, or names an account other than the one named for it above, the attendant signs in there, in the tab you opened, as that account.
+Where Google asks that account for its password again, on a page saying the organization wants to make sure it is really them, the attendant types it there, in the same tab: that is the organization's own rule, and it returns on its own timer.
+
+Reserved to the attendant at the window, proving identity — signing in to the Microsoft Entra admin center: where the admin center asks for a sign-in, or names an account other than the tenant's administrator, the attendant signs in there, in the tab you opened, as that administrator.
+
+### Confirmations
+
+Once you have walked the three directions, confirm each of these at the window, changing nothing, and report what each showed:
+
+- Your Wikipedia tab shows the article titled exactly `Coordinated Universal Time`, and the line at its foot saying when the page was last edited reads as you read it back.
+- Your Google Cloud tab, read as the second direction says, names the account the attendant said yes to when you took the window over, and the organization and the Project ID you showed them then.
+- Your Microsoft Entra admin center tab, read as the third direction says, names the address the attendant said yes to when you took the window over, and the directory you read there.
+- Say to the attendant that this walk founded nothing, granted nothing and changed nothing, at either console or in the clone; where anything came about otherwise, name it instead.
