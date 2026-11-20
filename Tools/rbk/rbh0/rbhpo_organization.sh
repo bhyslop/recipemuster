@@ -107,7 +107,9 @@ rbhpo_organization() {
   buh_line     "   ${z_cmd_field_org}"
   buh_line     "   The session duration in the same file ships set. The pool ID is left blank"
   buh_line     "   here and filled later, at Instaurate, where the manor-setup finisher founds"
-  buh_line     "   the pool from all three."
+  buh_line     "   the pool from all three. An organization holds one manor, so an organization"
+  buh_line     "   that already holds one names there the ID of the pool that manor stands on,"
+  buh_line     "   and never a new one."
   buh_e
   buh_section  "6. Validate:"
   buh_line     "   Run the validator:"

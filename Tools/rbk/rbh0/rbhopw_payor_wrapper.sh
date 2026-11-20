@@ -153,6 +153,10 @@ rbho_payor_handbook() {
   buh_line "    RBRW_ORG_ID from Step 1. This command founds the pool from all three"
   buh_line "    (ensure-exists)."
   buh_e
+  buh_line "An organization holds one ${RBYC_MANOR}. If yours already holds one, set"
+  buh_line "RBRW_WORKFORCE_POOL_ID to the ID of the pool it stands on: this command"
+  buh_line "adopts that pool, and refuses to found a second under any other ID."
+  buh_e
   buh_line "Safe to re-run at any time:"
   buh_e
   buh_tt  "  " "${RBZ_INSTAURATE_MANOR}"
