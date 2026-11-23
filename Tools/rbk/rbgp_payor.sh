@@ -3239,18 +3239,12 @@ rbgp_depot_list() {
   buc_info "Delete-requested: ${z_delete_requested_count}"
 }
 
-# The projects linked to the billing account the payor regime names, read
-# through the Cloud Billing list of that account's project links, one row per
-# project and then their count. Reads only: no project is linked or unlinked.
-# The account's ceiling on links is read nowhere; a short ceiling is met as a
-# refused link at levy. A project unlinked by unmake but not yet purged may
-# still be listed here while its link is released.
-#
-# Paginated via nextPageToken; per-page infixes keep response files distinct.
+# Lists the projects linked to the GCP Billing Account of the Payor Role and
+# counts them, linking and unlinking none.
 rbgp_billing_links() {
   zrbgp_sentinel
 
-  buc_doc_brief "List the projects linked to the payor's billing account, and their count"
+  buc_doc_brief "Lists the projects linked to the GCP Billing Account of the Payor Role and counts them, linking and unlinking none."
   buc_doc_shown || return 0
 
   test -n "${RBRP_BILLING_ACCOUNT_ID:-}" \
@@ -3260,6 +3254,12 @@ rbgp_billing_links() {
   local zSECRET_token
   zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
 
+  # The Cloud Billing list of the account's project links, one row per project
+  # and then their count, paginated via nextPageToken with per-page infixes
+  # keeping response files distinct. The account's ceiling on links is read
+  # nowhere; a short ceiling is met as a refused link at levy. A project whose
+  # unlink failed at unmake holds its link until the project is purged, so it
+  # may still be listed here.
   buc_step "List the projects linked to billingAccounts/${RBRP_BILLING_ACCOUNT_ID}"
   local -r z_links_url_base="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects"
 
