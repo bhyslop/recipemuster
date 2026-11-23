@@ -33,6 +33,14 @@ zrbvz_kindle() {
   buz_enroll RBVZ_HARBINGER "rbvw-h" "rbve_cli.sh" "rbve_harbinger" "imprint" "Harbinger — the introit against promoted public main (zero remote acts; the world is the imprint)"
   buz_enroll RBVZ_ENCAMP "rbvw-p" "rbve_cli.sh" "rbve_encamp" "imprint" "Practice seat — encamp a practice seat beneath an absolute practice home (a chore beside the ceremony; the world is the imprint)"
 
+  # The Qualification Regime's doors: each takes the values file as its one
+  # optional argument, rbrq.env beside the station file when given none.
+  buz_enroll RBVZ_RBRQ_RENDER   "rbvw-qr" "rbrq_cli.sh" "rbrq_render"   "param1" "Render the Qualification Regime — every field as held, before any check"
+  buz_enroll RBVZ_RBRQ_VALIDATE "rbvw-qv" "rbrq_cli.sh" "rbrq_validate" "param1" "Validate the Qualification Regime — shapes, and each filled field by its own regime"
+  buz_enroll RBVZ_RBRQ_BLOCK    "rbvw-qb" "rbrq_cli.sh" "rbrq_block"    "param1" "Print the Qualification block a paredros pastes to a walking session, after validating"
+  buz_enroll RBVZ_RBRQ_ADVANCE  "rbvw-qa" "rbrq_cli.sh" "rbrq_advance"  "param1" "Advance the Qualification Regime's try index by one, refusing at 9999"
+  buz_enroll RBVZ_RBRQ_LAY      "rbvw-ql" "rbrq_cli.sh" "rbrq_lay"      "param1" "Lay a first Qualification Regime file, never over one standing"
+
   readonly ZRBVZ_KINDLED=1
 }
 
