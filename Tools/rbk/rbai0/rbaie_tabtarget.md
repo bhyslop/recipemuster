@@ -45,7 +45,7 @@ The Folio column shows how each tabtarget receives it:
 | `rbw-dL` | PayorLeviesDepot | — | Provision GCP depot project |
 | `rbw-dU` | PayorUnmakesDepot | param1 | Permanently remove a depot (operator supplies depot project ID) |
 | `rbw-dl` | PayorListsDepots | — | List all active depots |
-| `rbw-db` | PayorListsBillingLinks | — | List the projects linked to the payor's billing account, and their count |
+| `rbw-db` | PayorListsBillingLinks | — | Lists the projects linked to the GCP Billing Account of the Payor Role and counts them, linking and unlinking none. |
 | `rbw-di` | DepotInfo | — | Run egress posture checks against the live depot's worker pools |
 | `rbw-dr` | DepotRecognosce | — | Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP |
 | `rbw-da` | DepotAttribution | — | Print the depot's AR Data-Access attribution trail — recent audit entries naming the acting mantle SA and the human federate subject |
