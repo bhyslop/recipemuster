@@ -92,7 +92,7 @@ zrbvq_load() {
 ######################################################################
 # Command Functions
 
-# Command: render - every field as the file holds it, before any check
+# Displays every Qualification field as the file holds it, before any check, so a broken value stands visible beside the rest.
 rbvq_render() {
   buc_doc_brief "Displays every Qualification field as the file holds it, before any check, so a broken value stands visible beside the rest."
   buc_doc_param "file" "Optional: the values file; rbrq.env beside the BURS file when omitted"
@@ -103,7 +103,7 @@ rbvq_render() {
   buv_render RBRQ "RBRQ - Qualification" "${z_rbvq_file}"
 }
 
-# Command: validate - shapes, then each filled field by its own regime
+# Checks every Qualification field's shape, and each field that fills a clone's field where that field is defined, and fails naming the field that does not hold.
 rbvq_validate() {
   buc_doc_brief "Checks every Qualification field's shape, and each field that fills a clone's field where that field is defined, and fails naming the field that does not hold."
   buc_doc_param "file" "Optional: the values file; rbrq.env beside the BURS file when omitted"
@@ -119,7 +119,7 @@ rbvq_validate() {
   buc_step "Qualification valid"
 }
 
-# Command: block - validate, then each value beside its plain name
+# Checks the Qualification fields, then prints the block pasted to a walking session: each value beside its plain name, the try's joined values among them; or nothing but the refusal.
 rbvq_block() {
   buc_doc_brief "Checks the Qualification fields, then prints the block pasted to a walking session: each value beside its plain name, the try's joined values among them; or nothing but the refusal."
   buc_doc_param "file" "Optional: the values file; rbrq.env beside the BURS file when omitted"
@@ -146,7 +146,7 @@ rbvq_block() {
   done
 }
 
-# Command: advance - the index plus one, rewriting its line alone
+# Adds one to the try index and writes the file, refusing at 9999.
 rbvq_advance() {
   buc_doc_brief "Adds one to the try index and writes the file, refusing at 9999."
   buc_doc_param "file" "Optional: the values file; rbrq.env beside the BURS file when omitted"
@@ -188,7 +188,7 @@ rbvq_advance() {
   buc_step "Try index advanced: ${RBRQ_INDEX} -> ${z_next} in ${z_rbvq_file}"
 }
 
-# Command: lay - a first file, never over one standing
+# Writes a first Qualification file, its index reading 1000 and its other fields blank, and never writes over a file standing.
 rbvq_lay() {
   buc_doc_brief "Writes a first Qualification file, its index reading 1000 and its other fields blank, and never writes over a file standing."
   buc_doc_param "file" "Optional: the values file; rbrq.env beside the BURS file when omitted"
