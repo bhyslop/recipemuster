@@ -12,8 +12,9 @@ The project's clone stands beside the folder you start in, and every document in
 ### The directions
 
 1. Open a tab of your own at `https://en.wikipedia.org/`, the English Wikipedia.
-   Type `Coordinated Universal Time` into the page's search box exactly as it stands here, press search, and open the article of exactly that title; where a list of results answers in place of the article, open it from that list.
-   Pressing search submits a form: where you would ask before submitting one, ask the attendant for one yes, and press it on that yes.
+   Type `Coordinated Universal Time` into the page's search box exactly as it stands here, then press the search button beside the box; a list of suggestions opens while you type, and you choose none of its rows.
+   Pressing search sends only the phrase you typed, so it takes no yes from the attendant.
+   Open the article of exactly that title; where a list of results answers in place of the article, open it from that list.
    At the foot of the article a line says when the page was last edited.
    Read that line back whole, and quote nothing else from the article.
 2. Open Google Cloud, at `https://console.cloud.google.com/`, in a tab of your own; a tab you already hold open there serves.
@@ -21,7 +22,8 @@ The project's clone stands beside the folder you start in, and every document in
    Then read the line that begins `You're working in`, which names the organization and the project, and the Project ID the page shows.
    Where a dialog welcoming the account by name stands over the page instead, it carries the account's name and address: read them there, and tick nothing and accept nothing in it.
 3. Open the Microsoft Entra admin center, at `https://entra.microsoft.com/`, in a tab of your own; a tab you already hold open there serves.
-   Read the page's account button without hovering over it: it says which address is currently signed in, and names the account's directory.
+   Read the page's account button without hovering over it.
+   Its visible text is cut short, so read the whole address signed in, and the account's directory, from the button's label, the name the page gives the button for screen readers, rather than from the text it shows.
 
 At both consoles, reading is the whole of this walk's work: open no menu, change no setting, create nothing and accept nothing.
 
@@ -35,7 +37,6 @@ Name a project, to the attendant and in what you report, by its Project ID and n
 ### Acts reserved to the attendant
 
 Each act below is the attendant's to perform, never yours.
-Before you hand one over, read what the directions say for it, look at the page, and say whether the two agree; then tell the attendant exactly what to do, and wait until they say it is done.
 
 Reserved to the attendant at the window, proving identity — signing in to Google Cloud: where Google Cloud asks for a sign-in, lands on a page listing remembered accounts each marked signed out, or names an account other than the one named for it above, the attendant signs in there, in the tab you opened, as that account.
 Where Google asks that account for its password again, on a page saying the organization wants to make sure it is really them, the attendant types it there, in the same tab: that is the organization's own rule, and it returns on its own timer.

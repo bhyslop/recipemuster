@@ -14,8 +14,8 @@ The ground this walk stands on: the attendant already administers a Google Cloud
 Where a guide offers to skip founding an organization or a tenant to one who already holds it, take that road.
 The user the attendant signs in as at the tenant is the citizen a later walk seats as the depot's first governor, and it stands already.
 Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save two that are the attendant's: the cloud prefix and the depot moniker, since the depots this clone founds are asked after later by that prefix alone.
-The attendant gives you both at the walk's start; show each to them for a yes before you write it.
-Where they did not give you one of them, ask for it once, giving its rule and an example: the cloud prefix is 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as `acme-`; the depot moniker is lowercase letters and digits, starting with a letter, with no hyphen, as `builds1`; and the two together come to at most 28 characters.
+Ask the attendant for both as their ready card carries them, and never for either from memory.
+Each keeps its rule: the cloud prefix is 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as `acme-`; the depot moniker is lowercase letters and digits, starting with a letter, with no hyphen, as `builds1`; and the two together come to at most 28 characters.
 The workforce pool's ID is not this walk's to fill: the attendant gives it at "Instaurate the Manor", a later walk's step, so leave it blank.
 
 ### The browser window
@@ -27,13 +27,15 @@ Name a project, to the attendant and in what you report, by its Project ID and n
 ### Acts reserved to the attendant
 
 Each act below is the attendant's to perform, never yours.
-Before you hand one over, read what the directions say for it, look at the page, and say whether the two agree; then tell the attendant exactly what to do, and wait until they say it is done.
 
 Reserved to the attendant at the window, granting access — admitting the application to the tenant: in the Microsoft Entra admin center, once you have filled the new application registration as the federation guide directs, the attendant clicks the button that registers it.
 
 Reserved to the attendant at the window, granting access — allowing public client flows: on the new registration's authentication page, the attendant sets public client flows to enabled and saves, or sets the manifest value the federation guide names where the page reads otherwise.
 
 Reserved to the attendant at the window, founding a project: on the project creation page, once you have set the project name, the Project ID and the organization as the establish guide directs, and have read the Project ID back to the attendant beside the one the payor settings carry, the attendant clicks the button that creates the project.
+
+Reserved to the attendant at the window, committing money — choosing the billing account that funds the manor: on the billing accounts page the establish guide sends you to, read each open account listed there to the attendant by its name and its Account ID; the attendant says which one funds the manor and every depot this clone founds, and you write that one's Account ID into the payor settings as the guide directs.
+Where one account alone stands open, the attendant's yes to it is this act all the same.
 
 Reserved to the attendant at the window by name, as an act none of the kinds above fits — accepting a service's terms on the account's behalf: at the last step of the OAuth consent screen's configuration, the attendant reads the linked terms, checks the box agreeing to them if they accept, and then clicks the buttons that continue and create the configuration.
 
@@ -49,6 +51,7 @@ Reserved to the attendant at the window, granting access — consenting to the p
 Once every act above is done, confirm each of these, and report what each showed:
 
 - `tt/rbw-rpv.ValidatePayorRegime.sh` passes.
+- `tt/rbw-rpr.RenderPayorRegime.sh` shows `RBRP_OAUTH_CLIENT_ID` holding the client ID of the OAuth client the attendant created, and `RBRP_OPERATOR_EMAIL` holding the address of the account that administers the organization; this fails where either stands blank, since the validate door above passes them blank.
 - `tt/rbw-rov.ValidateOauthRegime.sh` passes.
 - `tt/rbw-rdv.ValidateDepotRegime.sh` passes, its cloud prefix and depot moniker the ones the attendant gave and said yes to.
 - `tt/rbw-rfv.ValidateFederationRegime.sh` passes.
