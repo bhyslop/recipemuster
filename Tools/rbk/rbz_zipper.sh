@@ -78,6 +78,7 @@ zrbz_kindle() {
   buz_enroll RBZ_LEVY_DEPOT             "rbw-dL"  "${z_mod}" "rbgp_depot_levy"   ""  "Provision GCP depot project"
   buz_enroll RBZ_UNMAKE_DEPOT           "rbw-dU"  "${z_mod}" "rbgp_depot_unmake"  "param1"  "Permanently remove a depot (operator supplies depot project ID)"
   buz_enroll RBZ_LIST_DEPOT             "rbw-dl"  "${z_mod}" "rbgp_depot_list"    ""  "List all active depots"
+  buz_enroll RBZ_LIST_BILLING_LINKS     "rbw-db"  "${z_mod}" "rbgp_billing_links" ""  "List the projects linked to the payor's billing account, and their count"
   buz_enroll RBZ_INFO_DEPOT             "rbw-di"  "${z_mod}" "rbgp_depot_info"    ""  "Run egress posture checks against the live depot's worker pools"
   buz_enroll RBZ_RECOGNOSCE_DEPOT       "rbw-dr"  "${z_mod}" "rbgp_depot_recognosce"  ""  "Recognosce a depot's founding — confirm mantle SAs, capability-sets, and AR audit config against live GCP"
   buz_enroll RBZ_ATTRIBUTION_DEPOT      "rbw-da"  "${z_mod}" "rbgp_attribution_trail" ""  "Print the depot's AR Data-Access attribution trail — recent audit entries naming the acting mantle SA and the human federate subject"

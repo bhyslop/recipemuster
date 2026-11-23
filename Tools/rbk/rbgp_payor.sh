@@ -3239,6 +3239,86 @@ rbgp_depot_list() {
   buc_info "Delete-requested: ${z_delete_requested_count}"
 }
 
+# The projects linked to the billing account the payor regime names, read
+# through the Cloud Billing list of that account's project links, one row per
+# project and then their count. Reads only: no project is linked or unlinked.
+# The account's ceiling on links is read nowhere; a short ceiling is met as a
+# refused link at levy. A project unlinked by unmake but not yet purged may
+# still be listed here while its link is released.
+#
+# Paginated via nextPageToken; per-page infixes keep response files distinct.
+rbgp_billing_links() {
+  zrbgp_sentinel
+
+  buc_doc_brief "List the projects linked to the payor's billing account, and their count"
+  buc_doc_shown || return 0
+
+  test -n "${RBRP_BILLING_ACCOUNT_ID:-}" \
+    || buc_die_now "RBRP_BILLING_ACCOUNT_ID is unset; obtain it from the Cloud Console Billing page and set it in ${RBCC_rbrp_file}"
+
+  buc_step 'Authenticate as Payor'
+  local zSECRET_token
+  zSECRET_token=$(rbgp_authenticate_capture) || rbgp_authenticate_die "${zSECRET_token}"
+
+  buc_step "List the projects linked to billingAccounts/${RBRP_BILLING_ACCOUNT_ID}"
+  local -r z_links_url_base="${RBGC_API_ROOT_CLOUDBILLING}${RBGC_CLOUDBILLING_V1}/billingAccounts/${RBRP_BILLING_ACCOUNT_ID}/projects"
+
+  # Per-iteration synthesized locals (declare outside, assign inside)
+  local z_links_page=1
+  local z_links_page_token=""
+  local z_links_url=""
+  local z_tok_enc=""
+  local z_links_infix=""
+  local z_page_count=0
+  local z_index=0
+  local z_project_id=""
+  local z_enabled=""
+  local z_total_count=0
+
+  buc_info ""
+  printf "%-40s %s\n" "PROJECT_ID" "BILLING_ENABLED" || buc_die_now "Failed to print the billing link header"
+
+  while :; do
+    z_links_url="${z_links_url_base}"
+    if test -n "${z_links_page_token}"; then
+      z_tok_enc=$(rbuh_urlencode_capture "${z_links_page_token}") \
+        || buc_die_now "Failed to URL-encode Cloud Billing pageToken"
+      z_links_url="${z_links_url}?pageToken=${z_tok_enc}"
+    fi
+
+    z_links_infix="billing_links_${z_links_page}"
+    rbuh_json "GET" "${z_links_url}" "${zSECRET_token}" "${z_links_infix}" || buc_die_now "HTTP GET request failed (${z_links_infix})"
+    rbuh_require_ok "Cloud Billing billingAccounts.projects.list" "${z_links_infix}" || buc_die_now "Response check failed: Cloud Billing billingAccounts.projects.list"
+
+    z_page_count=$(rbuh_json_field_capture "${z_links_infix}" '.projectBillingInfo // [] | length') \
+      || buc_die_now "Failed to read the project count from ${z_links_infix}"
+
+    z_index=0
+    while test "${z_index}" -lt "${z_page_count}"; do
+      z_project_id=$(rbuh_json_field_capture "${z_links_infix}" ".projectBillingInfo[${z_index}].projectId") \
+        || buc_die_now "Failed to read projectId of link ${z_index} from ${z_links_infix}"
+      z_enabled=$(rbuh_json_field_capture "${z_links_infix}" ".projectBillingInfo[${z_index}].billingEnabled // false") \
+        || buc_die_now "Failed to read billingEnabled of ${z_project_id} from ${z_links_infix}"
+      printf "%-40s %s\n" "${z_project_id}" "${z_enabled}" || buc_die_now "Failed to print billing link row for ${z_project_id}"
+      z_total_count=$((z_total_count + 1))
+      z_index=$((z_index + 1))
+    done
+
+    local z_links_page_token_status=0
+    z_links_page_token=$(rbuh_json_field_capture "${z_links_infix}" '.nextPageToken') || z_links_page_token_status=$?
+    if test "${z_links_page_token_status}" -ne 0; then
+      test "${z_links_page_token}" = "${RBUH_refusal_absent}" \
+        || buc_die_now "Failed to read the next page token from ${z_links_infix}"
+      z_links_page_token=""
+    fi
+    test -n "${z_links_page_token}" || break
+    z_links_page=$((z_links_page + 1))
+  done
+
+  buc_info ""
+  buc_info "Projects linked to billingAccounts/${RBRP_BILLING_ACCOUNT_ID}: ${z_total_count}"
+}
+
 # The ask the leftovers door makes of the payor: which depots under this tree's
 # own cloud prefix still stand. The listing it rides searches everything the
 # payor's identity can see and exits 0 at zero, so neither its exit nor its
