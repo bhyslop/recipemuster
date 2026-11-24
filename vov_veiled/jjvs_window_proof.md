@@ -29,7 +29,7 @@ At both consoles, reading is the whole of this walk's work: open no menu, change
 
 ### The browser window
 
-A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
+A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the block's "Google account", the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the block's "Microsoft Entra administrator", the tenant's administrator, and to no other account.
 The profile is the browser profile named `rbvp_mystagogue`, so the window's profile badge should read that name.
 Wikipedia, at `https://en.wikipedia.org/`, needs no account.
 You work in the window yourself, save the acts below.
@@ -39,16 +39,16 @@ Name a project, to the attendant and in what you report, by its Project ID and n
 
 Each act below is the attendant's to perform, never yours.
 
-Reserved to the attendant at the window, proving identity — signing in to Google Cloud: where Google Cloud asks for a sign-in, lands on a page listing remembered accounts each marked signed out, or names an account other than the one named for it above, the attendant signs in there, in the tab you opened, as that account.
+Reserved to the attendant at the window, proving identity — signing in to Google Cloud: where Google Cloud asks for a sign-in, lands on a page listing remembered accounts each marked signed out, or names an account other than the block's "Google account", the attendant signs in there, in the tab you opened, as that account.
 Where Google asks that account for its password again, on a page saying the organization wants to make sure it is really them, the attendant types it there, in the same tab: that is the organization's own rule, and it returns on its own timer.
 
-Reserved to the attendant at the window, proving identity — signing in to the Microsoft Entra admin center: where the admin center asks for a sign-in, or names an account other than the tenant's administrator, the attendant signs in there, in the tab you opened, as that administrator.
+Reserved to the attendant at the window, proving identity — signing in to the Microsoft Entra admin center: where the admin center asks for a sign-in, or names an account other than the block's "Microsoft Entra administrator", the attendant signs in there, in the tab you opened, as that account.
 
 ### Confirmations
 
 Once you have walked the three directions, confirm each of these at the window, changing nothing, and report what each showed:
 
 - Your Wikipedia tab shows the article titled exactly `Coordinated Universal Time`, and the line at its foot saying when the page was last edited reads as you read it back.
-- Your Google Cloud tab, read as the second direction says, names the account the attendant said yes to when you took the window over, and the organization and the Project ID you showed them then.
-- Your Microsoft Entra admin center tab, read as the third direction says, names the address the attendant said yes to when you took the window over, and the directory you read there.
+- Your Google Cloud tab, read as the second direction says, names the block's "Google account" and its "Google Cloud organization, as the console shows it", and the Project ID you showed the attendant when you took the window over.
+- Your Microsoft Entra admin center tab, read as the third direction says, names the block's "Microsoft Entra administrator" and its "Microsoft Entra directory, as the account button shows it".
 - Say to the attendant that this walk founded nothing, granted nothing and changed nothing, at either console or in the clone; where anything came about otherwise, name it instead.
