@@ -21,6 +21,7 @@ pub const RBTGEC_CRUCIBLE_KLUDGE_SENTRY: &str = "rbw-cKS";
 pub const RBTGEC_LEVY_DEPOT: &str = "rbw-dL";
 pub const RBTGEC_UNMAKE_DEPOT: &str = "rbw-dU";
 pub const RBTGEC_LIST_DEPOT: &str = "rbw-dl";
+pub const RBTGEC_LIST_BILLING_LINKS: &str = "rbw-db";
 pub const RBTGEC_INFO_DEPOT: &str = "rbw-di";
 pub const RBTGEC_RECOGNOSCE_DEPOT: &str = "rbw-dr";
 pub const RBTGEC_ATTRIBUTION_DEPOT: &str = "rbw-da";

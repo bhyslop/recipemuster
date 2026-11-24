@@ -12,13 +12,14 @@ Other documents stand in the clone — the other tracks, the guides other comman
 
 The ground this walk stands on: an earlier walk on this same clone left a payor standing, its OAuth credential installed and its payor, federation and depot settings filled, as the payor track's steps before "Instaurate the Manor" leave them.
 Its workforce settings, in `rbmm_moorings/rbrw.env`, hold the organization ID that walk filled and the session duration the clone shipped with; the workforce pool's ID stands blank, and this walk fills it at "Instaurate the Manor".
-Every step before the Novate runs under that payor credential, so no sign-in is owed until the Novate.
+Every step before the Novate runs under that payor credential.
+The attendant's organization may lapse that credential under its own sign-in rule in the time between the two walks: where a door the track gives refuses saying the payor's sign-in has lapsed, the install's re-run below is owed before you go on, and otherwise no sign-in is owed until the Novate.
 The citizen the Gird seats is the attendant's own user at the Microsoft Entra tenant.
 Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save the workforce pool's ID, which is the attendant's.
 An organization holds one Recipe Bottle manor, standing on one workforce pool: the run at "Instaurate the Manor" takes up a pool standing at the ID the clone names as the manor's own, and refuses where a Recipe Bottle pool already stands in the organization under any other ID, rather than found a second.
 So where the attendant's organization already holds a manor, the ID they give is the ID of the pool it stands on.
-The attendant gives it to you at the walk's start; show it to them for a yes before you write it.
-Where they did not give you one, ask for it once, giving its rule and an example: 4 to 32 characters of lowercase letters, digits and hyphens, starting with a letter, not ending in a hyphen and never starting with `gcp-`, as `acme-manor`.
+Ask the attendant for it as their ready card carries it, and never for it from memory.
+It keeps its rule: 4 to 32 characters of lowercase letters, digits and hyphens, starting with a letter, not ending in a hyphen and never starting with `gcp-`, as `acme-manor`.
 Leave the session duration as the clone carries it.
 
 ### The browser window
@@ -29,11 +30,17 @@ You read the console in it yourself, save the acts below.
 ### Acts reserved to the attendant
 
 Each act below is the attendant's to perform, never yours.
-Before you hand one over, read what the directions say for it, look at the page or the command it names, and say whether the two agree; then tell the attendant exactly what to do, and wait until they say it is done.
-Where an act is a command the track gives, the attendant runs it at their own terminal, from the clone's root, exactly as the track gives it, and reads back to you what it prints.
+
+Reserved to the attendant, at the terminal and then at the window, proving identity — renewing the payor's credential, owed only where a door refuses saying the payor's sign-in has lapsed: the install door waits for a paste at a hidden prompt your own terminal cannot answer, so the attendant runs it at their own terminal, from the clone's root, exactly as the payor track's step "Install OAuth credentials" gives it with the path of the JSON file, and reads back to you what it prints before going on.
+At the window they open the address it printed, and where the page asks them to choose an account, they choose the account that administers the organization.
+
+Reserved to the attendant at the window, granting access — consenting to the payor's permissions at that re-run: on the screens that follow, the attendant reviews the permissions the payor's application asks for, checks each one to grant it, and continues; when the window lands on a page saying the localhost site cannot be reached, they copy that page's whole address and paste it at the install door's waiting prompt.
 
 Reserved to the attendant at the terminal, committing money: the Instaurate door the track gives links the attendant's billing account to the payor project.
-The same run founds the manor's workforce pool in the attendant's organization and its terrier bucket, which stand after the walk; they are reserved with it, by name.
+
+Reserved to the attendant at the terminal, granting access — seating the payor's account as administrator of the organization's workforce pools: that same Instaurate run grants the account the payor signed in as the role that administers workforce pools across the attendant's organization, so the attendant's running it is this act too.
+
+Reserved to the attendant at the terminal, founding the manor's workforce pool: that same Instaurate run founds the manor's workforce pool in the attendant's organization, and its terrier bucket with it, both standing after the walk, so the attendant's running it is this act too, and nothing further is asked of them.
 
 Reserved to the attendant at the terminal, granting access — seating the federation's provider under the workforce pool: the Affiance door the track gives, naming the federation directory the federation guide wrote the trust values into.
 
