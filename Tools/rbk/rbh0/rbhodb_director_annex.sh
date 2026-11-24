@@ -239,6 +239,26 @@ rbho_director_annex() {
   buh_line "digest-addressed copy."
   buh_e
 
+  buh_step1 "${RBCG_NAMEPLATE_MITRE_BASE_LETTRINE} the ${RBYC_HALLMARK} into ${z_lk_pluml}"
+  buh_e
+  buh_line "${RBYC_ORDAIN} writes no ${RBYC_NAMEPLATE}: the ${z_lk_pluml} ${RBYC_BOTTLE} ${RBYC_HALLMARK}"
+  buh_line "stays unset until you ${RBCG_NAMEPLATE_MITRE_BASE} it in. Straight after the ${RBYC_ORDAIN},"
+  buh_line "before you run anything else from tt/, read the ${RBYC_HALLMARK} from the"
+  buh_line "fact file ${RBYC_ORDAIN} wrote:"
+  buh_e
+  buh_code "   export ${RBYC_HANDBOOK_HALLMARK_NAME}=\$(cat ${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK})"
+  buh_e
+  buh_line "${RBCG_NAMEPLATE_MITRE_BASE_LETTRINE} it into ${z_lk_pluml}'s ${RBYC_BOTTLE} hallmark — ${RBCG_NAMEPLATE_MITRE_NOMINALIZATION} writes the ${RBYC_RBRN} for you:"
+  buh_e
+  buh_tt "   " "${RBZ_MITRE_HALLMARK}" "" " ${z_moniker} ${RBCG_BOTTLE_BASE} ${RBYC_HANDBOOK_HALLMARK_REF}"
+  buh_e
+  buh_line "Success is a line opening ${RBCG_NAMEPLATE_MITRE_PAST_LETTRINE} ${z_moniker}: RBRN_BOTTLE_HALLMARK= and"
+  buh_line "your ${RBYC_HALLMARK}. Anything else: stop. Both lines are safe to run twice."
+  buh_e
+  buh_line "Commit the change — ${RBYC_CHARGE} below refuses a ${RBYC_NAMEPLATE} with"
+  buh_line "uncommitted changes."
+  buh_e
+
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"
   buh_e
   buh_line "${RBYC_VOUCH} is mode-aware. For ${RBYC_CONJURED} ${RBYC_HALLMARKS} it verifies"
@@ -268,8 +288,9 @@ rbho_director_annex() {
 
   buh_step1 "${RBYC_CHARGE} the ${z_lk_pluml} ${RBYC_CRUCIBLE}"
   buh_e
-  buh_line "Now both ${RBYC_HALLMARKS} are in your ${RBYC_DEPOT} — a ${RBYC_KLUDGE_D} (or"
-  buh_line "${RBYC_CONJURED}) ${RBYC_SENTRY} and an ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE}."
+  buh_line "Now both ${RBYC_HALLMARKS} stand ready — a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} in this"
+  buh_line "machine's local image store (or a ${RBYC_CONJURED} one in your ${RBYC_DEPOT}),"
+  buh_line "and an ${RBYC_ANNEX}-pinned PlantUML ${RBYC_BOTTLE} in your ${RBYC_DEPOT}."
   buh_line "${RBYC_CHARGE} the ${RBYC_CRUCIBLE} to assemble them at runtime:"
   buh_e
   buh_tt "   " "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}"
