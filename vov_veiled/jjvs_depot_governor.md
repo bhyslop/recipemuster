@@ -25,6 +25,7 @@ Leave the session duration as the clone carries it.
 ### The browser window
 
 A browser window on a profile of its own, signed in to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
+The profile is the browser profile named `rbvp_mystagogue`, so the window's profile badge should read that name.
 You read the console in it yourself, save the acts below.
 
 ### Acts reserved to the attendant
