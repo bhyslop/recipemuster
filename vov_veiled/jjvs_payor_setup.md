@@ -12,15 +12,14 @@ Other documents stand in the clone — the other tracks, the guides other comman
 
 The ground this walk stands on: the attendant already administers a Google Cloud organization and a Microsoft Entra tenant, and holds an open Google Cloud billing account, and this walk founds none of the three.
 Where a guide offers to skip founding an organization or a tenant to one who already holds it, take that road.
-The user the attendant signs in as at the tenant is the citizen a later walk seats as the depot's first governor, and it stands already.
-Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save two that are the attendant's: the cloud prefix and the depot moniker, since the depots this clone founds are asked after later by that prefix alone.
-Ask the attendant for both as their ready card carries them, and never for either from memory.
-Each keeps its rule: the cloud prefix is 2 to 11 characters, lowercase, starting with a letter and ending in a hyphen, as `acme-`; the depot moniker is lowercase letters and digits, starting with a letter, with no hyphen, as `builds1`; and the two together come to at most 28 characters.
-The workforce pool's ID is not this walk's to fill: the attendant gives it at "Instaurate the Manor", a later walk's step, so leave it blank.
+The user the attendant signs in as at the tenant, the block's "Microsoft Entra administrator", is the citizen a later walk seats as the depot's first governor, and it stands already.
+Where the track asks for a value of your own choosing, choose it yourself and say what you chose, save three the block carries: the cloud prefix is the block's "Cloud prefix" and the depot moniker its "Depot moniker", since the depots this clone founds are asked after later by that prefix alone; and the provider ID the federation guide has you fill in `RBRF_PROVIDER_ID` is the block's "Federation provider ID", fresh for this try.
+Where the track has you fill `RBRP_OPERATOR_EMAIL`, fill it with the block's "Google account": the install checks it against the account that authorizes it.
+The workforce pool's ID is not this walk's to fill: a later walk writes it ahead of "Instaurate the Manor", so leave it blank.
 
 ### The browser window
 
-A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the tenant's administrator, and to no other account.
+A browser window on a profile of its own, signed in to Google Cloud, at `https://console.cloud.google.com/`, as the block's "Google account", the account that administers the attendant's organization and holds the billing account, and to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the block's "Microsoft Entra administrator", the tenant's administrator, and to no other account.
 The profile is the browser profile named `rbvp_mystagogue`, so the window's profile badge should read that name.
 You work the consoles in it yourself, save the acts below.
 Name a project, to the attendant and in what you report, by its Project ID and never by its name alone: more than one project may wear one name.
@@ -33,17 +32,16 @@ Reserved to the attendant at the window, granting access — admitting the appli
 
 Reserved to the attendant at the window, granting access — allowing public client flows: on the new registration's authentication page, the attendant sets public client flows to enabled and saves, or sets the manifest value the federation guide names where the page reads otherwise.
 
-Reserved to the attendant at the window, founding a project: on the project creation page, once you have set the project name, the Project ID and the organization as the establish guide directs, and have read the Project ID back to the attendant beside the one the payor settings carry, the attendant clicks the button that creates the project.
+Reserved to the attendant at the window, founding a project: on the project creation page, once you have set the project name, the Project ID and the organization, the block's "Google Cloud organization, as the console shows it", as the establish guide directs, and have read the Project ID back to the attendant beside the one the payor settings carry, the attendant clicks the button that creates the project.
 
-Reserved to the attendant at the window, committing money — choosing the billing account that funds the manor: on the billing accounts page the establish guide sends you to, read each open account listed there to the attendant by its name and its Account ID; the attendant says which one funds the manor and every depot this clone founds, and you write that one's Account ID into the payor settings as the guide directs.
-Where one account alone stands open, the attendant's yes to it is this act all the same.
+Reserved to the attendant at the window, committing money — choosing the billing account that funds the manor: on the billing accounts page the establish guide sends you to, read each open account listed there to the attendant by its name and its Account ID, and name the one whose Account ID the block gives as "Billing account ID"; the attendant's yes to that one, as the account that funds the manor and every depot this clone founds, is this act, and on it you write that Account ID into the payor settings as the guide directs.
 
 Reserved to the attendant at the window by name, as an act none of the kinds above fits — accepting a service's terms on the account's behalf: at the last step of the OAuth consent screen's configuration, the attendant reads the linked terms, checks the box agreeing to them if they accept, and then clicks the buttons that continue and create the configuration.
 
 Reserved to the attendant at the window, bringing a secret into being: on the payor project's OAuth clients page, once you have set the application type and name as the establish guide directs, the attendant clicks the button that creates the client, downloads its JSON file, and moves that file from wherever their browser saved it into the `client_secrets` subdirectory of the secrets directory, whose path you tell them.
 
 Reserved to the attendant, at the terminal and then at the window, proving identity: the install door waits for a paste at a hidden prompt your own terminal cannot answer, so the attendant runs it at their own terminal, from the clone's root, exactly as the track gives it with the path of the JSON file, and reads back to you what it prints before going on.
-At the window they open the address it printed, and where the page asks them to choose an account, they choose the account that administers the organization.
+At the window they open the address it printed, and where the page asks them to choose an account, they choose the block's "Google account".
 
 Reserved to the attendant at the window, granting access — consenting to the payor's permissions: on the screens that follow, the attendant reviews the permissions the payor's application asks for, checks each one to grant it, and continues; when the window lands on a page saying the localhost site cannot be reached, they copy that page's whole address and paste it at the install door's waiting prompt.
 
@@ -52,11 +50,11 @@ Reserved to the attendant at the window, granting access — consenting to the p
 Once every act above is done, confirm each of these, and report what each showed:
 
 - `tt/rbw-rpv.ValidatePayorRegime.sh` passes.
-- `tt/rbw-rpr.RenderPayorRegime.sh` shows `RBRP_OAUTH_CLIENT_ID` holding the client ID of the OAuth client the attendant created, and `RBRP_OPERATOR_EMAIL` holding the address of the account that administers the organization; this fails where either stands blank, since the validate door above passes them blank.
+- `tt/rbw-rpr.RenderPayorRegime.sh` shows `RBRP_OAUTH_CLIENT_ID` holding the client ID of the OAuth client the attendant created, and `RBRP_OPERATOR_EMAIL` holding the block's "Google account"; this fails where either stands blank, since the validate door above passes them blank.
 - `tt/rbw-rov.ValidateOauthRegime.sh` passes.
-- `tt/rbw-rdv.ValidateDepotRegime.sh` passes, its cloud prefix and depot moniker the ones the attendant gave and said yes to.
-- `tt/rbw-rfv.ValidateFederationRegime.sh` passes.
+- `tt/rbw-rdv.ValidateDepotRegime.sh` passes, its cloud prefix and depot moniker the block's "Cloud prefix" and "Depot moniker".
+- `tt/rbw-rfv.ValidateFederationRegime.sh` passes, its provider ID the block's "Federation provider ID".
 - `tt/rbw-rwv.ValidateWorkforceRegime.sh` fails naming `RBRW_WORKFORCE_POOL_ID`, the blank pool ID a later walk's step fills, as the organization guide says it will, and names no fault in the organization ID.
-- At the window, the payor project, the one whose Project ID the payor settings carry as `RBRP_PAYOR_PROJECT_ID` in `rbmm_moorings/rbrp.env`, stands under the attendant's organization, its OAuth consent screen's audience reads Internal, and it holds exactly one OAuth client.
+- At the window, the payor project, the one whose Project ID the payor settings carry as `RBRP_PAYOR_PROJECT_ID` in `rbmm_moorings/rbrp.env`, stands under the block's "Google Cloud organization, as the console shows it", its OAuth consent screen's audience reads Internal, and it holds exactly one OAuth client.
 - At the window, the Entra application registration shows public client flows enabled.
 - Name to the attendant what this walk founded outside the clone, since no check of the clone asks after any of it and each is theirs to account for by hand: the payor project, by its Project ID, with its consent screen and OAuth client, and the Entra application registration.
