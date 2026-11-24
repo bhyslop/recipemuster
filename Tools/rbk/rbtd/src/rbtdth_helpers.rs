@@ -1,4 +1,5 @@
 // Copyright 2026 Scale Invariant, Inc.
+// SPDX-License-Identifier: Apache-2.0
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,41 +17,45 @@
 //
 // RBTDTH — shared test helpers
 //
-// Tests run via `tt/rbw-tt.Test.sh`, which routes through BUK dispatch and
-// exports BURD_TEMP_DIR pointing under ../temp-buk/. Direct `cargo test`
+// Tests run via `tt/rbw-tt.Test.sh`, which routes through BUK dispatch, whose
+// dispatch file names BURD_TEMP_DIR under ../temp-buk/. Direct `cargo test`
 // invocations from outside BUK dispatch are not a supported workflow and
 // fail loudly here rather than silently leaking scratch under /tmp.
 
 use std::path::PathBuf;
 
-use crate::rbtdri_invocation::RBTDRI_BURD_TEMP_DIR_KEY;
-use crate::rbtdrx_platform::rbtdrx_posix_to_native;
+use crate::rbtcei_invocation::RBTCEI_BURD_TEMP_DIR_KEY;
+use crate::rbtcep_platform::rbtdrx_path_from_dispatch;
 
-/// Return the scratch root for test tempdirs. Panics if BURD_TEMP_DIR is
-/// unset — tests must be launched via the BUK tabtarget so artifacts land
-/// under temp-buk and survive reboot.
-pub(crate) fn rbtdth_scratch_root() -> PathBuf {
-    match std::env::var(RBTDRI_BURD_TEMP_DIR_KEY) {
-        Ok(v) if !v.is_empty() => rbtdrx_posix_to_native(&v)
-            .unwrap_or_else(|e| panic!("rbtdth: cannot nativize {}: {}", RBTDRI_BURD_TEMP_DIR_KEY, e)),
-        _ => panic!(
-            "rbtdth: {} is not set — run tests via `tt/rbw-tt.Test.sh`",
-            RBTDRI_BURD_TEMP_DIR_KEY
-        ),
-    }
+/// Return the scratch root for test tempdirs, read from the dispatch file the
+/// pointer names. Panics where the dispatch names none — tests must be
+/// launched via the BUK tabtarget so artifacts land under temp-buk and survive
+/// reboot.
+pub(crate) fn rbtteh_scratch_root() -> PathBuf {
+    rbtdrx_path_from_dispatch(RBTCEI_BURD_TEMP_DIR_KEY).unwrap_or_else(|e| {
+        panic!(
+            "rbtdth: {} — run tests via `tt/rbw-tt.Test.sh`",
+            e, //
+        )
+    })
 }
 
 /// Make a fresh, uniquely-named scratch dir under the test scratch root. The
 /// name carries the label plus pid and nanos so concurrent and repeat runs
 /// never collide; any stale dir of the same name is precleaned first. Panics
 /// on a create failure — a test that cannot stage scratch must fail loud.
-pub(crate) fn rbtdth_make_scratch(label: &str) -> PathBuf {
+pub(crate) fn rbtteh_make_scratch(label: &str) -> PathBuf {
     let pid = std::process::id();
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos())
         .unwrap_or(0);
-    let dir = rbtdth_scratch_root().join(format!("rbtd-test-{}-{}-{}", label, pid, nanos));
+    let dir = rbtteh_scratch_root().join(format!(
+        "scratch-{}-{}-{}",
+        label,
+        pid,
+        nanos, //
+    ));
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("rbtdth: create scratch dir");
     dir

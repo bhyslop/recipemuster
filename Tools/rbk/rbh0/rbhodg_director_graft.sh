@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
 #
 # Recipe Bottle Handbook Onboarding - Director Graft Mode
 #
-# Teaches graft mode using rbev-graft-demo: push a locally-built
+# Teaches graft mode using rbev_graft_demo: push a locally-built
 # image to the Depot. The Director owns the entire build; SLSA
 # cannot vouch for this image. The Vouch verdict reads GRAFTED —
 # an explicit signal that provenance stops at the local machine.
@@ -38,7 +39,7 @@ rbho_director_graft() {
   buc_doc_brief "${RBHO_TRACK_GRAFT} — push locally-built image, inspect GRAFTED Vouch verdict"
   buc_doc_shown || return 0
 
-  local -r z_vessel="rbev-graft-demo"
+  local -r z_vessel="rbev_graft_demo"
   local -r z_vessel_rbrv="${RBRR_VESSEL_DIR}/${z_vessel}/${RBCC_rbrv_file}"
   local -r z_local_tag="graft-busybox:local"
 
@@ -46,7 +47,7 @@ rbho_director_graft() {
   local z_has_depot=0
   if test -f "${RBCC_rbrd_file}"; then
     local z_line=""
-    while IFS= read -r z_line; do
+    while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in RBRD_DEPOT_MONIKER=?*) z_has_depot=1; break ;; esac
     done < "${RBCC_rbrd_file}"
   fi
@@ -54,24 +55,32 @@ rbho_director_graft() {
   local z_vessel_ready=0
   if test -f "${z_vessel_rbrv}"; then
     local z_mode=""
-    z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode=""
-    test "${z_mode}" = "rbnve_graft" && z_vessel_ready=1
+    local z_mode_status=0
+    z_mode=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_VESSEL_MODE") || z_mode_status=$?
+    test "${z_mode_status}" -eq 0 || z_mode=""
+    test "${z_mode}" != "rbnve_graft" || z_vessel_ready=1
   fi
 
   local z_vessel_yoked=0
   if test -f "${z_vessel_rbrv}"; then
     local z_vessel_stamp=""
-    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp=""
-    test -n "${z_vessel_stamp}" && z_vessel_yoked=1
+    local z_vessel_stamp_status=0
+    z_vessel_stamp=$(zrbho_po_extract_capture "${z_vessel_rbrv}" "RBRV_RELIQUARY") || z_vessel_stamp_status=$?
+    test "${z_vessel_stamp_status}" -eq 0 || z_vessel_stamp=""
+    test -z "${z_vessel_stamp}" || z_vessel_yoked=1
   fi
 
   local z_grafted_installed=0
-  if command -v docker >/dev/null 2>&1; then
+  if command -v docker >/dev/null; then
     local z_project_id=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
-      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id=""
-      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region=""
+      local z_project_id_status=0
+      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id_status=$?
+      test "${z_project_id_status}" -eq 0 || z_project_id=""
+      local z_region_status=0
+      z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region_status=$?
+      test "${z_region_status}" -eq 0 || z_region=""
     fi
     if test -n "${z_region}" && test -n "${z_project_id}"; then
       local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
@@ -82,18 +91,18 @@ rbho_director_graft() {
         local z_line=""
         while IFS= read -r z_line || test -n "${z_line}"; do
           case "${z_line}" in
-            "${z_gar_prefix}"*"${z_vessel}:g"[0-9]*) z_grafted_installed=1; break ;;
+            "${z_gar_prefix}"*"${z_vessel}:g"[0123456789]*) z_grafted_installed=1; break ;;
           esac
         done < "${z_df_out}"
       fi
     fi
   fi
 
-  buyy_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel="${z_buym_yelp}"
+  buym_link_yawp "${RBRR_PUBLIC_DOCS_URL}" "Vessel" "${z_vessel}"; local -r z_lk_vessel="${z_buym_yelp}"
 
   buh_section "Graft — Push a Local Image to the Depot"
   buh_e
-  buh_line "${RBYC_CONJURE} and ${RBYC_BIND} teach images whose ${RBYC_PROVENANCE} the"
+  buh_line "${RBYC_CONJURE} and ${RBYC_ANNEX} teach images whose ${RBYC_PROVENANCE} the"
   buh_line "project can attest. ${RBYC_GRAFT} teaches the opposite case: the"
   buh_line "${RBYC_DIRECTOR} builds an image on their own machine and pushes it to"
   buh_line "the ${RBYC_DEPOT} as-is. No project Dockerfile, no ${RBYC_POUCH}, no SLSA"
@@ -119,7 +128,7 @@ rbho_director_graft() {
   if test "${z_vessel_ready}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${z_lk_vessel} ${RBYC_REGIME} present (RBRV_VESSEL_MODE=rbnve_graft)"
   else
-    buyy_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv_missing="${z_buym_yelp}"
+    buym_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv_missing="${z_buym_yelp}"
     buh_line "${RBYC_PROBE_NO}${z_lk_vessel} ${RBYC_REGIME} missing or not a graft vessel: ${z_lk_rbrv_missing}"
   fi
   buh_e
@@ -144,7 +153,7 @@ rbho_director_graft() {
   buh_e
   buh_line "  ${RBYC_CONJURE}  Cloud Build constructs the image from the project's"
   buh_line "            Dockerfile. Trust the build chain (SLSA ${RBYC_PROVENANCE})."
-  buh_line "  ${RBYC_BIND}     Mirror an upstream image by digest. Trust the"
+  buh_line "  ${RBYC_ANNEX}    Mirror an upstream image by digest. Trust the"
   buh_line "            upstream publisher; the digest pins what you got."
   buh_line "  ${RBYC_GRAFT}    Push a locally-built image. Trust the local machine"
   buh_line "            and the ${RBYC_DIRECTOR} who operated it."
@@ -171,8 +180,8 @@ rbho_director_graft() {
   buh_code "   docker pull busybox:latest"
   buh_code "   docker tag busybox:latest ${z_local_tag}"
   buh_e
-  buyy_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRV_GRAFT_IMAGE"; local -r z_lk_rbrv_field="${z_buym_yelp}"
+  buym_cmd_yawp "${z_vessel_rbrv}"; local -r z_lk_rbrv="${z_buym_yelp}"
+  buym_cmd_yawp "RBRV_GRAFT_IMAGE"; local -r z_lk_rbrv_field="${z_buym_yelp}"
   buh_line "Then open ${z_lk_rbrv} and set ${z_lk_rbrv_field} to the tag you chose:"
   buh_e
   buh_code "   RBRV_GRAFT_IMAGE=${z_local_tag}"
@@ -184,7 +193,7 @@ rbho_director_graft() {
 
   buh_step1 "Yoke every ${RBYC_VESSEL} to a ${RBYC_RELIQUARY}"
   buh_e
-  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_BIND}, and"
+  buh_line "Every ${RBYC_ORDAIN}-path ${RBYC_VESSEL} — ${RBYC_CONJURE}, ${RBYC_ANNEX}, and"
   buh_line "${RBYC_GRAFT} — needs a ${RBYC_RELIQUARY} touchmark in its ${RBYC_RBRV}. ${RBYC_GRAFT}"
   buh_line "skips Cloud Build for the image push, but the about+vouch metadata"
   buh_line "that follows runs on ${RBYC_RELIQUARY} tool images (gcloud, docker,"
@@ -196,7 +205,7 @@ rbho_director_graft() {
   buh_e
   buh_tt "   " "${RBZ_CONCLAVE_RELIQUARY}"
   buh_e
-  buyy_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
+  buym_cmd_yawp "r260324193326"; local -r z_ds_example="${z_buym_yelp}"
   buh_line "Conclave prints a stamp (e.g., ${z_ds_example}). Yoke wildcard-fans the"
   buh_line "stamp into every ${RBYC_VESSEL}'s ${RBYC_RBRV} under \${RBRR_VESSEL_DIR}"
   buh_line "in one pass — there is no per-vessel argument:"
@@ -242,7 +251,7 @@ rbho_director_graft() {
   buh_step1 "Inspect the ${RBYC_VOUCH} verdict"
   buh_e
   buh_line "${RBYC_VOUCH} is mode-aware. For ${RBYC_CONJURED} ${RBYC_HALLMARKS} it verifies"
-  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_BIND} it attests the"
+  buh_line "the SLSA ${RBYC_PROVENANCE} chain. For ${RBYC_ANNEX} it attests the"
   buh_line "digest-pin relationship to the upstream image. For ${RBYC_GRAFT}"
   buh_line "there is nothing to verify — no build record, no upstream digest,"
   buh_line "just an image the ${RBYC_DIRECTOR} asserted is theirs. The verdict"
@@ -278,7 +287,7 @@ rbho_director_graft() {
   buh_e
   buh_line "The three ${RBYC_ORDAIN} modes now form a trust hierarchy you can"
   buh_line "read at a glance from the ${RBYC_VOUCH} verdict: ${RBYC_CONJURE} (SLSA),"
-  buh_line "${RBYC_BIND} (digest-pin), ${RBYC_GRAFT} (GRAFTED). A ${RBYC_NAMEPLATE} can"
+  buh_line "${RBYC_ANNEX} (digest-pin), ${RBYC_GRAFT} (GRAFTED). A ${RBYC_NAMEPLATE} can"
   buh_line "mix modes freely because runtime containment is enforced by the"
   buh_line "${RBYC_SENTRY}, not by the build chain."
   buh_e

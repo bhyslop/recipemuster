@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,14 +28,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBGW_SOURCED:-}" || buc_die "Module rbgw multiply sourced - check sourcing hierarchy"
+test -z "${ZRBGW_SOURCED:-}" || buc_die_now "Module rbgw multiply sourced - check sourcing hierarchy"
 ZRBGW_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbgw_*)
 
 zrbgw_kindle() {
-  test -z "${ZRBGW_KINDLED:-}" || buc_die "Module rbgw already kindled"
+  test -z "${ZRBGW_KINDLED:-}" || buc_die_now "Module rbgw already kindled"
 
   buv_dir_exists "${BURD_TEMP_DIR}"
 
@@ -49,7 +50,7 @@ zrbgw_kindle() {
 }
 
 zrbgw_sentinel() {
-  test "${ZRBGW_KINDLED:-}" = "1" || buc_die "Module rbgw not kindled - call zrbgw_kindle first"
+  test "${ZRBGW_KINDLED:-}" = "1" || buc_die_now "Module rbgw not kindled - call zrbgw_kindle first"
 }
 
 ######################################################################
@@ -61,15 +62,15 @@ zrbgw_sentinel() {
 rbgw_grant_retriever_capabilities() {
   zrbgw_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_member_email="${2:-}"
 
-  test -n "${z_token}"        || buc_die "rbgw_grant_retriever_capabilities: token required"
-  test -n "${z_member_email}" || buc_die "rbgw_grant_retriever_capabilities: member email required"
+  test -n "${zSECRET_token}"        || buc_die_now "rbgw_grant_retriever_capabilities: token required"
+  test -n "${z_member_email}" || buc_die_now "rbgw_grant_retriever_capabilities: member email required"
 
   buc_step 'Adding Artifact Registry Reader role'
   rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
+    "${zSECRET_token}"                            \
     "Grant Artifact Registry Reader"        \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_ARTIFACTREGISTRY_READER}"  \
@@ -78,7 +79,7 @@ rbgw_grant_retriever_capabilities() {
 
   buc_step 'Adding Container Analysis Occurrences Viewer role'
   rbgi_add_project_iam_role                              \
-    "${z_token}"                                         \
+    "${zSECRET_token}"                                         \
     "Grant Container Analysis Occurrences Viewer"        \
     "${RBGD_PROJECT_RESOURCE}"                           \
     "${RBGC_ROLE_CONTAINERANALYSIS_OCCURRENCES_VIEWER}"  \
@@ -94,15 +95,15 @@ rbgw_grant_retriever_capabilities() {
 rbgw_grant_director_capabilities() {
   zrbgw_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_member_email="${2:-}"
 
-  test -n "${z_token}"        || buc_die "rbgw_grant_director_capabilities: token required"
-  test -n "${z_member_email}" || buc_die "rbgw_grant_director_capabilities: member email required"
+  test -n "${zSECRET_token}"        || buc_die_now "rbgw_grant_director_capabilities: token required"
+  test -n "${z_member_email}" || buc_die_now "rbgw_grant_director_capabilities: member email required"
 
   buc_step 'Adding Cloud Build Editor role (project scope)'
   rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
+    "${zSECRET_token}"                            \
     "Grant Cloud Build Editor"              \
     "${RBGD_PROJECT_RESOURCE}"              \
     "${RBGC_ROLE_CLOUDBUILD_BUILDS_EDITOR}" \
@@ -110,7 +111,7 @@ rbgw_grant_director_capabilities() {
     "director-cb"
 
   rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
+    "${zSECRET_token}"                            \
     "Grant Project Viewer"                  \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/viewer"                          \
@@ -118,7 +119,7 @@ rbgw_grant_director_capabilities() {
     "director-viewer"
 
   rbgi_add_project_iam_role                 \
-    "${z_token}"                            \
+    "${zSECRET_token}"                            \
     "Grant Worker Pool User"               \
     "${RBGD_PROJECT_RESOURCE}"              \
     "roles/cloudbuild.workerPoolUser"       \
@@ -126,7 +127,7 @@ rbgw_grant_director_capabilities() {
     "director-pool"
 
   buc_step 'Grant serviceAccountUser on Mason'
-  rbgi_add_sa_iam_role "${z_token}" "${RBGD_MASON_EMAIL}" "${z_member_email}" "roles/iam.serviceAccountUser"
+  rbgi_add_sa_iam_role "${zSECRET_token}" "${RBGD_MASON_EMAIL}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant serviceAccountUser on self (Director runs cloud-dispatched delete builds as itself)'
   # The cloud-dispatched banish/abjure delete build runs AS the Director SA — the
@@ -135,14 +136,14 @@ rbgw_grant_director_capabilities() {
   # self-actAs binding that lets a SA run a build as itself. workerPoolUser and
   # builds.create (Cloud Build Editor) are already granted above; no new GAR grant
   # is needed because Director already holds repoAdmin.
-  rbgi_add_sa_iam_role "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
+  rbgi_add_sa_iam_role "${zSECRET_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Read-back: confirm self-actAs binding visible before declaring enrobe complete'
   # The first post-enrobe builds.create exercises this binding (the spine
   # dispatch has no tolerance for a PERMISSION_DENIED actAs flap), so the
   # Class-C propagation wait is confined here, enrobe-side, rather than
   # spread to every spine rider's submit path.
-  rbgi_poll_sa_iam_binding "${z_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
+  rbgi_poll_sa_iam_binding "${zSECRET_token}" "${z_member_email}" "${z_member_email}" "roles/iam.serviceAccountUser"
 
   buc_step 'Grant Artifact Registry roles (complete expected policy)'
   # Complete policy: Director repoAdmin + Mason writer in one setIamPolicy.
@@ -155,8 +156,8 @@ rbgw_grant_director_capabilities() {
   # caller-recently-empowered 403 from the resource-scope IAM cache (the
   # governor's roles/owner grant may not yet have reached the AR cache).
   local -ra z_gar_tolerance=(
-    "400" "*does not exist*"
-    "400" "*is not deleted*"
+    "400" "does not exist"
+    "400" "is not deleted"
     "403" ""
   )
   local z_gar_prop_delay=${RBGC_PROPAGATION_INITIAL_DELAY_SEC}
@@ -172,16 +173,18 @@ rbgw_grant_director_capabilities() {
     z_gar_get_infix="director_gar_get_iam-${z_gar_prop_elapsed}s"
     z_gar_set_infix="director_gar_set_iam-${z_gar_prop_elapsed}s"
 
-    rbuh_json "GET" "${z_gar_get_url}" "${z_token}" "${z_gar_get_infix}"
-    z_gar_get_code=$(rbuh_code_capture "${z_gar_get_infix}") || z_gar_get_code=""
+    rbuh_json "GET" "${z_gar_get_url}" "${zSECRET_token}" "${z_gar_get_infix}"
+    local z_gar_get_code_status=0
+    z_gar_get_code=$(rbuh_code_capture "${z_gar_get_infix}") || z_gar_get_code_status=$?
+    test "${z_gar_get_code_status}" -eq 0 || z_gar_get_code=""
 
     # Propagation retry on GET — covers newly-empowered governor (403) and
     # newly-created Director SA member-visibility lag (400 patterns).
     if zrbgi_propagation_error_predicate "${z_gar_get_infix}" "${z_gar_get_code}" "${z_gar_tolerance[@]}"; then
       test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
-        || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+        || buc_die_now "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
       buc_log_args "GAR getIamPolicy returned ${z_gar_get_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-      sleep "${z_gar_prop_delay}"
+      sleep "${z_gar_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
       z_gar_prop_delay=$((z_gar_prop_delay * 2))
       test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -192,33 +195,31 @@ rbgw_grant_director_capabilities() {
 
     # Build complete expected policy: Director repoAdmin + Mason writer
     local z_gar_partial
-    z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" \
-      "roles/artifactregistry.repoAdmin" "serviceAccount:${z_member_email}" "") \
-      || buc_die "Failed to add Director repoAdmin to GAR IAM policy"
+    z_gar_partial=$(rbgi_jq_add_member_to_role_capture "${z_gar_get_infix}" "roles/artifactregistry.repoAdmin" "serviceAccount:${z_member_email}" "") \
+      || buc_die_now "Failed to add Director repoAdmin to GAR IAM policy"
 
     local z_gar_intermediate="${BURD_TEMP_DIR}/rbuh_director_gar_complete_iam_u_resp.json"
     printf '%s\n' "${z_gar_partial}" > "${z_gar_intermediate}" \
-      || buc_die "Failed to write intermediate GAR IAM policy"
+      || buc_die_now "Failed to write intermediate GAR IAM policy"
 
     local z_gar_complete
-    z_gar_complete=$(rbgi_jq_add_member_to_role_capture "director_gar_complete_iam" \
-      "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
-      || buc_die "Failed to add Mason writer to GAR IAM policy"
+    z_gar_complete=$(rbgi_jq_add_member_to_role_capture "director_gar_complete_iam" "roles/artifactregistry.writer" "serviceAccount:${RBGD_MASON_EMAIL}" "") \
+      || buc_die_now "Failed to add Mason writer to GAR IAM policy"
 
     local z_gar_set_body="${BURD_TEMP_DIR}/rbgg_gar_complete_policy_body.json"
     printf '{"policy":%s}\n' "${z_gar_complete}" > "${z_gar_set_body}" \
-      || buc_die "Failed to write GAR setIamPolicy body"
-    rbuh_json "POST" "${z_gar_set_url}" "${z_token}" "${z_gar_set_infix}" "${z_gar_set_body}"
+      || buc_die_now "Failed to write GAR setIamPolicy body"
+    rbuh_json "POST" "${z_gar_set_url}" "${zSECRET_token}" "${z_gar_set_infix}" "${z_gar_set_body}"
 
     local z_gar_set_code
-    z_gar_set_code=$(rbuh_code_capture "${z_gar_set_infix}") || buc_die "No HTTP code from GAR setIamPolicy"
+    z_gar_set_code=$(rbuh_code_capture "${z_gar_set_infix}") || buc_die_now "No HTTP code from GAR setIamPolicy"
 
     # Propagation retry on SET — same tolerance list as GET.
     if zrbgi_propagation_error_predicate "${z_gar_set_infix}" "${z_gar_set_code}" "${z_gar_tolerance[@]}"; then
       test "${z_gar_prop_elapsed}" -lt "${z_gar_prop_deadline}" \
-        || buc_die "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
+        || buc_die_now "GAR IAM: propagation timeout after ${z_gar_prop_elapsed}s"
       buc_log_args "GAR setIamPolicy returned ${z_gar_set_code} (propagation delay; attempt ${z_gar_prop_attempt}, ${z_gar_prop_elapsed}s)"
-      sleep "${z_gar_prop_delay}"
+      sleep "${z_gar_prop_delay}" || buc_die_now "Sleep failed during propagation backoff"
       z_gar_prop_elapsed=$((z_gar_prop_elapsed + z_gar_prop_delay))
       z_gar_prop_delay=$((z_gar_prop_delay * 2))
       test "${z_gar_prop_delay}" -le "${RBGC_PROPAGATION_MAX_DELAY_SEC}" || z_gar_prop_delay=${RBGC_PROPAGATION_MAX_DELAY_SEC}
@@ -237,15 +238,15 @@ rbgw_grant_director_capabilities() {
 rbgw_grant_governor_capabilities() {
   zrbgw_sentinel
 
-  local -r z_token="${1:-}"
+  local -r zSECRET_token="${1:-}"
   local -r z_member_email="${2:-}"
 
-  test -n "${z_token}"        || buc_die "rbgw_grant_governor_capabilities: token required"
-  test -n "${z_member_email}" || buc_die "rbgw_grant_governor_capabilities: member email required"
+  test -n "${zSECRET_token}"        || buc_die_now "rbgw_grant_governor_capabilities: token required"
+  test -n "${z_member_email}" || buc_die_now "rbgw_grant_governor_capabilities: member email required"
 
   buc_step 'Grant roles/owner on depot project'
   rbgi_add_project_iam_role \
-    "${z_token}" \
+    "${zSECRET_token}" \
     "Grant Governor Owner" \
     "projects/${RBDC_DEPOT_PROJECT_ID}" \
     "roles/owner" \

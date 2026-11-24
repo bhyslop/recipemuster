@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,21 +22,23 @@
 
 set -euo pipefail
 
-# Multiple inclusion detection
-test -z "${ZRBFR_SOURCED:-}" || buc_die "Module rbfr multiply sourced - check sourcing hierarchy"
-ZRBFR_SOURCED=1
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
-# Source shared Foundry Core module
-source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh"
+# Multiple inclusion detection
+test -z "${ZRBFR_SOURCED:-}" || buc_die_now "Module rbfr multiply sourced - check sourcing hierarchy"
+ZRBFR_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbfr_*)
 
 zrbfr_kindle() {
-  test -z "${ZRBFR_KINDLED:-}" || buc_die "Module rbfr already kindled"
+  test -z "${ZRBFR_KINDLED:-}" || buc_die_now "Module rbfr already kindled"
 
   buc_log_args 'Validate Foundry Core is kindled'
-  zrbfc_sentinel
+  zrbfc0_sentinel
 
   buc_log_args 'Define retriever temp file prefix'
   readonly ZRBFR_TEMP_PREFIX="${BURD_TEMP_DIR}/rbfr_"
@@ -44,8 +47,8 @@ zrbfr_kindle() {
 }
 
 zrbfr_sentinel() {
-  zrbfc_sentinel
-  test "${ZRBFR_KINDLED:-}" = "1" || buc_die "Module rbfr not kindled - call zrbfr_kindle first"
+  zrbfc0_sentinel
+  test "${ZRBFR_KINDLED:-}" = "1" || buc_die_now "Module rbfr not kindled - call zrbfr_kindle first"
 }
 
 ######################################################################
@@ -62,19 +65,21 @@ rbfr_summon() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
   # the depth-1 chain — so a no-arg summon immediately after a build pulls the
   # just-built hallmark.
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one (use rbw-ft to tally vouched hallmarks) or run a build immediately before summon"
 
   buc_step "Authenticating for retrieval"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") || buc_die "Failed to get OAuth token"
+  local zSECRET_token
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") || buc_die_now "Failed to get OAuth token"
 
   # Ark package paths — all basename siblings under the hallmark subtree
   local -r z_image_pkg="${RBGL_HALLMARKS_ROOT}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE}"
@@ -86,85 +91,70 @@ rbfr_summon() {
   # Check if image ark exists (tag = hallmark)
   local z_image_status_file="${ZRBFR_TEMP_PREFIX}summon_image_status.txt"
   local z_image_response_file="${ZRBFR_TEMP_PREFIX}summon_image_response.json"
+  local -r z_image_stderr_file="${ZRBFR_TEMP_PREFIX}summon_image_stderr.txt"
 
   local z_curl_status=0
-  curl --head -s                                     \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
-    -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
-    -w "%{http_code}"                               \
-    -o "${z_image_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" \
-    > "${z_image_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for image ark (curl exit ${z_curl_status})"
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_image_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_image_response_file}" "${z_image_status_file}" "${z_image_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for image ark (curl exit ${z_curl_status}) — see ${z_image_stderr_file}"
 
   local z_image_http_code
-  z_image_http_code=$(<"${z_image_status_file}")
-  test -n "${z_image_http_code}" || buc_die "HTTP status code is empty for image ark"
+  z_image_http_code=$(<"${z_image_status_file}") || buc_die_now "Failed to read: ${z_image_status_file}"
+  test -n "${z_image_http_code}" || buc_die_now "HTTP status code is empty for image ark"
 
   local z_image_exists=false
   if test "${z_image_http_code}" = "200"; then
     z_image_exists=true
   elif test "${z_image_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_image_http_code} when checking image ark"
+    buc_die_now "Unexpected HTTP status ${z_image_http_code} when checking image ark"
   fi
 
   # Check if about ark exists
   local z_about_status_file="${ZRBFR_TEMP_PREFIX}summon_about_status.txt"
   local z_about_response_file="${ZRBFR_TEMP_PREFIX}summon_about_response.json"
+  local -r z_about_stderr_file="${ZRBFR_TEMP_PREFIX}summon_about_stderr.txt"
 
-  curl --head -s                                     \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
-    -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
-    -w "%{http_code}"                               \
-    -o "${z_about_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" \
-    > "${z_about_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for about ark (curl exit ${z_curl_status})"
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_about_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_about_response_file}" "${z_about_status_file}" "${z_about_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for about ark (curl exit ${z_curl_status}) — see ${z_about_stderr_file}"
 
   local z_about_http_code
-  z_about_http_code=$(<"${z_about_status_file}")
-  test -n "${z_about_http_code}" || buc_die "HTTP status code is empty for about ark"
+  z_about_http_code=$(<"${z_about_status_file}") || buc_die_now "Failed to read: ${z_about_status_file}"
+  test -n "${z_about_http_code}" || buc_die_now "HTTP status code is empty for about ark"
 
   local z_about_exists=false
   if test "${z_about_http_code}" = "200"; then
     z_about_exists=true
   elif test "${z_about_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_about_http_code} when checking about ark"
+    buc_die_now "Unexpected HTTP status ${z_about_http_code} when checking about ark"
   fi
 
   # Check if vouch ark exists
   local z_vouch_status_file="${ZRBFR_TEMP_PREFIX}summon_vouch_status.txt"
   local z_vouch_response_file="${ZRBFR_TEMP_PREFIX}summon_vouch_response.json"
+  local -r z_vouch_stderr_file="${ZRBFR_TEMP_PREFIX}summon_vouch_stderr.txt"
 
-  curl --head -s                                     \
-    --connect-timeout "${RBCC_CURL_CONNECT_TIMEOUT_SEC}" \
-    --max-time "${RBCC_CURL_MAX_TIME_SEC}"           \
-    -H "Authorization: Bearer ${z_token}"           \
-    -H "Accept: ${ZRBFC_ACCEPT_MANIFEST_MTYPES}"     \
-    -w "%{http_code}"                               \
-    -o "${z_vouch_response_file}"                   \
-    "${ZRBFC_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" \
-    > "${z_vouch_status_file}" || z_curl_status=$?
-  test "${z_curl_status}" -eq 0 || buc_die "HEAD request failed for vouch ark (curl exit ${z_curl_status})"
+  rbuh_request "HEAD" "${ZRBFC0_REGISTRY_API_BASE}/${z_vouch_pkg}/manifests/${z_hallmark}" "${zSECRET_token}" \
+      "${z_vouch_response_file}" "${z_vouch_status_file}" "${z_vouch_stderr_file}" "" "Accept: ${ZRBFC0_ACCEPT_MANIFEST_MTYPES}" "" \
+    || z_curl_status=$?
+  test "${z_curl_status}" -eq 0 || buc_die_now "HEAD request failed for vouch ark (curl exit ${z_curl_status}) — see ${z_vouch_stderr_file}"
 
   local z_vouch_http_code
-  z_vouch_http_code=$(<"${z_vouch_status_file}")
-  test -n "${z_vouch_http_code}" || buc_die "HTTP status code is empty for vouch ark"
+  z_vouch_http_code=$(<"${z_vouch_status_file}") || buc_die_now "Failed to read: ${z_vouch_status_file}"
+  test -n "${z_vouch_http_code}" || buc_die_now "HTTP status code is empty for vouch ark"
 
   local z_vouch_exists=false
   if test "${z_vouch_http_code}" = "200"; then
     z_vouch_exists=true
   elif test "${z_vouch_http_code}" != "404"; then
-    buc_die "Unexpected HTTP status ${z_vouch_http_code} when checking vouch ark"
+    buc_die_now "Unexpected HTTP status ${z_vouch_http_code} when checking vouch ark"
   fi
 
   # Evaluate ark state
   if test "${z_image_exists}" = "false" && test "${z_about_exists}" = "false"; then
-    buc_reject "${BUBC_band_vacant}" "Hallmark not found: neither image nor about ark exists"
+    buc_reject "${RBCG_VACANT_DENTIL}" "Hallmark not found: neither image nor about ark exists"
   fi
 
   if test "${z_image_exists}" = "true" && test "${z_about_exists}" = "false"; then
@@ -176,46 +166,59 @@ rbfr_summon() {
   buc_step "Logging into container registry"
 
   # Docker login to GAR
-  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
+  rbgo_docker_login "${zSECRET_token}" "${ZRBFC0_REGISTRY_HOST}"
+
+  # Pull each ark that exists, capturing every status so the logout stands
+  # ahead of the first die
+  local z_pull_image_status=0
+  local z_pull_about_status=0
+  local z_pull_vouch_status=0
 
   # Pull image ark if exists
   if test "${z_image_exists}" = "true"; then
     buc_step "Pulling image ark"
 
-    local z_image_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
-    docker pull "${z_image_ref}" || buc_die "Failed to pull image ark"
-    buc_info "Retrieved: ${z_image_ref}"
+    local z_image_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_image_pkg}:${z_hallmark}"
+    docker pull "${z_image_ref}" || z_pull_image_status=$?
+    test "${z_pull_image_status}" -ne 0 || buc_info "Retrieved: ${z_image_ref}"
   fi
 
   # Pull about ark if exists
   if test "${z_about_exists}" = "true"; then
     buc_step "Pulling about ark"
 
-    local z_about_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
-    docker pull "${z_about_ref}" || buc_die "Failed to pull about ark"
-    buc_info "Retrieved: ${z_about_ref}"
+    local z_about_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_about_pkg}:${z_hallmark}"
+    docker pull "${z_about_ref}" || z_pull_about_status=$?
+    test "${z_pull_about_status}" -ne 0 || buc_info "Retrieved: ${z_about_ref}"
   fi
 
   # Pull vouch ark if exists
   if test "${z_vouch_exists}" = "true"; then
     buc_step "Pulling vouch ark"
 
-    local z_vouch_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
-    docker pull "${z_vouch_ref}" || buc_die "Failed to pull vouch ark"
-    buc_info "Retrieved: ${z_vouch_ref}"
+    local z_vouch_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_vouch_pkg}:${z_hallmark}"
+    docker pull "${z_vouch_ref}" || z_pull_vouch_status=$?
+    test "${z_pull_vouch_status}" -ne 0 || buc_info "Retrieved: ${z_vouch_ref}"
   fi
 
+  local z_logout_status=0
+  rbgo_docker_logout_predicate "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
+  test "${z_pull_image_status}" -eq 0 || buc_die_now "Failed to pull image ark (status ${z_pull_image_status})"
+  test "${z_pull_about_status}" -eq 0 || buc_die_now "Failed to pull about ark (status ${z_pull_about_status})"
+  test "${z_pull_vouch_status}" -eq 0 || buc_die_now "Failed to pull vouch ark (status ${z_pull_vouch_status})"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
+
   # Display results
-  echo ""
+  echo "" || buc_die_now
   buc_success "Hallmark summoned: ${z_hallmark}"
   if test "${z_image_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_IMAGE} retrieved" || buc_die_now
   fi
   if test "${z_about_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_ABOUT} retrieved" || buc_die_now
   fi
   if test "${z_vouch_exists}" = "true"; then
-    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH} retrieved"
+    echo "  - ${RBGC_GAR_CATEGORY_HALLMARKS}/${z_hallmark}/${RBGC_ARK_BASENAME_VOUCH} retrieved" || buc_die_now
   fi
 }
 

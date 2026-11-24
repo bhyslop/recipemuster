@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # RBGJL Step 07: Select podvm disk leaves from a quay family index (the immure select)
-# Builder: gcr.io/cloud-builders/gcloud:latest (floating bootstrap; python3 + urllib +
-#   json — the reliquary-less capture rides this, not a pinned tool). Python, not bash:
+# Builder: the pinned gcloud member of the repo-elected substrate reliquary (resolved
+#   from RBRR_SUBSTRATE_RELIQUARY by the host — zero unpinned aspects, RBr_p7c; python3
+#   + urllib + json). Python, not bash:
 #   this step PARSES a structured upstream OCI index (correlate platform.architecture +
 #   annotations.disktype within a child descriptor, extract a third field), which the
 #   "no jq, author-by-hand with grep+cut" bash GCB discipline does not cover. python's
 #   stdlib json/urllib are the native tools — the rbgjl06-package-delete.py precedent,
-#   and the .py file is outside the bash command-allowlist (CBG polyglot, CBp_ rules).
+#   and the .py file is outside the bash command-allowlist (polyglot bash/python step discipline).
 # Substitutions (automapSubstitutions provides as env vars):
 #   _RBGL_GAR_HOST _RBGL_GAR_PATH _RBGL_LODES_ROOT _RBGL_LODE_STAMP _RBGL_TAG_SPRUE
 #   _RBGL_TAG_VOUCH _RBGL_TRUST_GRADE _RBGL_VOUCH_SCHEMA _RBGL_ACQUIRED_BY
@@ -135,7 +136,7 @@ def main():
     token = get_pull_token(registry, repo)
 
     # The top reference must be a multi-arch index — podvm families publish one index
-    # per version since 5.4 (memo-20260608 §3.2). A single image here means the
+    # per version since 5.4. A single image here means the
     # version/family pairing is wrong; fail loud rather than capture a non-leaf.
     index = fetch_manifest(registry, repo, version, token, ACCEPT_INDEX)
     media = index.get("mediaType", "")
@@ -151,7 +152,7 @@ def main():
 
     # SELECTION is space-separated disktype:arch. Match on the index child DESCRIPTOR
     # (platform.architecture in the alt spelling x86_64/aarch64 + annotations.disktype),
-    # never the layer filename — unreliable per memo-20260608 §3.4. Match the curated
+    # never the layer filename — unreliable. Match the curated
     # set LITERALLY; never normalize arch spellings.
     for entry in selection.split():
         if ":" not in entry:
@@ -214,7 +215,7 @@ def main():
         # refreshes, so only podvm accumulates members across multiple authoring events;
         # in a refreshed Lode the preserved members' times sit EARLIER than the
         # envelope-level rblv_acquired_at, so the artifact self-discloses the
-        # authored-vs-captured split (see RBSLI). A uniformity sweep must not graft
+        # authored-vs-captured split. A uniformity sweep must not graft
         # these onto the single-capture kinds.
         members.append({
             "rblv_name": member_tag,
@@ -252,7 +253,7 @@ def main():
         f.write(stamp + "\n")
 
     # Host-facing result (the capture-file carries the same envelope). One slot —
-    # immure produces exactly one Lode (the cohort is one package). The spine
+    # immure produces exactly one Lode (RBGC_LODE_TAG_SPRUE). The spine
     # extracts buildStepOutputs from THIS step (index 0); pin the extract slot to 0.
     result = {"rbls_slot_1": {"rbls_stamp": stamp, "rbls_vouch": envelope}}
     os.makedirs("/builder/outputs", exist_ok=True)

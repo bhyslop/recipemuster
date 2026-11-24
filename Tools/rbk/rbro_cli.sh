@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,8 +21,8 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || buc_die_now "Failed to source buym_yelp.sh"
 
 ######################################################################
 # Command Functions
@@ -33,8 +34,8 @@ rbro_validate() {
   buc_doc_shown || return 0
 
   buc_step "Validating RBRO OAuth credential file: ${RBDC_PAYOR_RBRO_FILE}"
-  buc_step "  PASS  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
-  buc_step "  PASS  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
+  buc_step "  PASS  RBRO_zSECRET_CLIENT_SECRET=[REDACTED - ${#RBRO_zSECRET_CLIENT_SECRET} chars] [string]"
+  buc_step "  PASS  RBRO_zSECRET_REFRESH_TOKEN=[REDACTED - ${#RBRO_zSECRET_REFRESH_TOKEN} chars] [string]"
   buc_step "RBRO OAuth credential file valid"
 }
 
@@ -44,45 +45,43 @@ rbro_render() {
   buc_doc_brief "Display diagnostic view of RBRO OAuth regime configuration"
   buc_doc_shown || return 0
 
-  echo ""
-  zbuc_tint BUYC_BRIGHT_WHITE "RBRO - Recipe Bottle OAuth Regime"; echo "${z_buym_format}"
-  echo ""
-  buc_step "  RBRO_CLIENT_SECRET=[REDACTED - ${#RBRO_CLIENT_SECRET} chars] [string]"
-  buc_step "  RBRO_REFRESH_TOKEN=[REDACTED - ${#RBRO_REFRESH_TOKEN} chars] [string]"
+  buym_format_yawp "${BUYC_BRIGHT_WHITE}" "RBRO - Recipe Bottle OAuth Regime"; local -r z_title="${z_buym_format}"
+  echo "" || buc_die_now "Failed to echo render lead line"
+  echo "${z_title}" || buc_die_now "Failed to echo render title"
+  echo "" || buc_die_now "Failed to echo render title break"
+  buc_step "  RBRO_zSECRET_CLIENT_SECRET=[REDACTED - ${#RBRO_zSECRET_CLIENT_SECRET} chars] [string]"
+  buc_step "  RBRO_zSECRET_REFRESH_TOKEN=[REDACTED - ${#RBRO_zSECRET_REFRESH_TOKEN} chars] [string]"
 }
 
 ######################################################################
 # Furnish and Main
 
 zrbro_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
   buc_doc_env_done || return 0
 
-  local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bupr_regime.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbgc_constants.sh"
-  source "${z_rbk_kit_dir}/rbrr_regime.sh"
-  source "${z_rbk_kit_dir}/rbrd_regime.sh"
-  source "${z_rbk_kit_dir}/rbdc_derived.sh"
-  source "${z_rbk_kit_dir}/rbro_regime.sh"
+  local -r z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/bupr_regime.sh" || buc_die_now "Failed to source bupr_regime.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk_kit_dir}/rbro_regime.sh" || buc_die_now "Failed to source rbro_regime.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zburd_enforce
   zrbcc_kindle
 
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
   zrbrd_enforce
   zrbdc_kindle
 
-  rbro_load
+  zrbro_kindle
+  zrbro_enforce
 
   zbupr_kindle
 }

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +22,19 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRV_SOURCED:-}" || buc_die "Module rbrv multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRV_SOURCED:-}" || buc_die_now "Module rbrv multiply sourced - check sourcing hierarchy"
 ZRBRV_SOURCED=1
+
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
 ######################################################################
 # Internal Functions (zrbrv_*)
 
 zrbrv_kindle() {
-  test -z "${ZRBRV_KINDLED:-}" || buc_die "Module rbrv already kindled"
+  test -z "${ZRBRV_KINDLED:-}" || buc_die_now "Module rbrv already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -41,8 +47,8 @@ zrbrv_kindle() {
   buv_xname_enroll  RBRV_SIGIL             1   64  "Unique identifier (must match directory name)"
   buv_string_enroll RBRV_DESCRIPTION       0  512  "Human-readable description"
   buv_string_enroll RBRV_USER              0   64  "Container runtime user (unset means image default)"
-  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: bind, conjure, or graft" \
-                    rbnve_bind rbnve_conjure rbnve_graft
+  buv_enum_enroll   RBRV_VESSEL_MODE               "Operation mode: ${RBCG_VESSEL_MODE_ANNEX_BASE}, conjure, or graft" \
+                    rbnve_annex rbnve_conjure rbnve_graft
 
   buv_group_enroll "Tool Image Reliquary"
   buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary Lode touchmark (e.g., r260324193326) — identifies the conclave tool-image Lode in GAR"
@@ -51,10 +57,10 @@ zrbrv_kindle() {
   buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
                     rbnve_tether rbnve_airgap
 
-  buv_group_enroll "Binding Configuration"
-  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_bind
-  buv_fqin_enroll   RBRV_BIND_IMAGE                1  512  "Source image to copy from registry"
-  buv_string_enroll RBRV_BIND_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
+  buv_group_enroll "${RBCG_VESSEL_MODE_ANNEX_PROGRESSIVE_LETTRINE} Configuration"
+  buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_annex
+  buv_fqin_enroll   RBRV_ANNEX_IMAGE               1  512  "Source image to copy from registry"
+  buv_string_enroll RBRV_ANNEX_OPTIONAL_DOCKERFILE 0  512  "Optional Dockerfile for about recipe.txt"
 
   buv_group_enroll "Conjuring Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_conjure
@@ -86,7 +92,7 @@ zrbrv_kindle() {
 }
 
 zrbrv_sentinel() {
-  test "${ZRBRV_KINDLED:-}" = "1" || buc_die "Module rbrv not kindled - call zrbrv_kindle first"
+  test "${ZRBRV_KINDLED:-}" = "1" || buc_die_now "Module rbrv not kindled - call zrbrv_kindle first"
 }
 
 # Enforce all RBRV enrollment validations and custom format checks
@@ -95,33 +101,36 @@ zrbrv_enforce() {
 
   buv_vet RBRV
 
-  # Bind vessels must be digest-pinned: the vouch's verify-provenance pins the
-  # mirrored image against the @sha256: digest in RBRV_BIND_IMAGE, so a tag-only
+  # Annex vessels must be digest-pinned: the vouch's verify-provenance pins the
+  # mirrored image against the @sha256: digest in RBRV_ANNEX_IMAGE, so a tag-only
   # source passes the mirror but fails the vouch deep in the cloud build. Reject
-  # it here at config time. Invariant homed in RBSRV.
-  if test "${RBRV_VESSEL_MODE}" = "rbnve_bind"; then
-    local z_bind_digest_re='@sha256:[0-9a-f]{64}$'
-    [[ "${RBRV_BIND_IMAGE}" =~ ${z_bind_digest_re} ]] \
-      || buc_reject "${BUBC_band_regime}" "RBRV_BIND_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for a bind vessel; got '${RBRV_BIND_IMAGE}'"
+  # it here at config time.
+  if test "${RBRV_VESSEL_MODE}" = "rbnve_annex"; then
+    local -r z_annex_digest_re='@sha256:[0-9a-f]{64}$'
+    [[ "${RBRV_ANNEX_IMAGE}" =~ ${z_annex_digest_re} ]] \
+      || buc_reject "${BUBG_REGIME_DENTIL}" "RBRV_ANNEX_IMAGE must be digest-pinned (name@sha256:<64-hex>), not a bare tag, for an ${RBCG_VESSEL_MODE_ANNEX_BASE} vessel; got '${RBRV_ANNEX_IMAGE}'"
   fi
 }
 
 ######################################################################
 # Public Functions (rbrv_*)
 
-# List available vessel sigils as space-separated tokens
-# Prerequisite: RBRR kindled (needs RBRR_VESSEL_DIR)
-rbrv_list_capture() {
-  zrbrr_sentinel
+# rbrv_list_flint_capture vessel_dir — the vessel sigils standing in the
+# vessel directory (a caller passes RBRR_VESSEL_DIR), as space-separated tokens
+rbrv_list_flint_capture() {
+  local -r z_vessel_dir="${1:-}"
+  test -n "${z_vessel_dir}" || return 1
 
   local z_result=""
-  local z_dirs=("${RBRR_VESSEL_DIR}"/*)
+  local -r z_dirs=("${z_vessel_dir}"/*)
   local z_i=""
+  local z_d=""
+  local z_s=""
   for z_i in "${!z_dirs[@]}"; do
-    local z_d="${z_dirs[$z_i]}"
+    z_d="${z_dirs[${z_i}]}"
     test -d "${z_d}" || continue
     test -f "${z_d}/${RBCC_rbrv_file}" || continue
-    local z_s="${z_d%/}"
+    z_s="${z_d%/}"
     z_result="${z_result}${z_result:+ }${z_s##*/}"
   done
   test -n "${z_result}" || return 1

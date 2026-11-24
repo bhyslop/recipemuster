@@ -1,4 +1,19 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJAM Step 02: Syft SBOM scan for each platform of image
 # Builder: gcr.io/cloud-builders/docker
 # Substitutions: _RBGA_GAR_HOST, _RBGA_GAR_PATH, _RBGA_HALLMARKS_ROOT,
@@ -36,8 +51,9 @@ echo "Fetching OAuth2 token from metadata server"
 TOKEN_JSON=$(curl -sf -H "Metadata-Flavor: Google" \
   "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token") \
   || { echo "Failed to fetch OAuth2 token from metadata server" >&2; exit 1; }
-TOKEN=$(printf '%s' "${TOKEN_JSON}" | sed 's/.*"access_token":"\([^"]*\)".*/\1/') \
+[[ "${TOKEN_JSON}" =~ \"access_token\":\"([^\"]*)\" ]] \
   || { echo "Failed to parse access_token" >&2; exit 1; }
+TOKEN="${BASH_REMATCH[1]}"
 test -n "${TOKEN}" || { echo "OAuth2 token empty" >&2; exit 1; }
 
 # Split platforms and suffixes

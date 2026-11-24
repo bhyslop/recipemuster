@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,14 +22,25 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBRF_SOURCED:-}" || buc_die "Module rbrf multiply sourced - check sourcing hierarchy"
+test -z "${ZRBRF_SOURCED:-}" || buc_die_now "Module rbrf multiply sourced - check sourcing hierarchy"
 ZRBRF_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbrf_*)
 
 zrbrf_kindle() {
-  test -z "${ZRBRF_KINDLED:-}" || buc_die "Module rbrf already kindled"
+  test -z "${ZRBRF_KINDLED:-}" || buc_die_now "Module rbrf already kindled"
+
+  buv_dir_exists "${BURD_TEMP_DIR}"
+
+  # The enforce's checks that call a tool leave that tool's stderr here
+  readonly ZRBRF_ENFORCE_PREFIX="${BURD_TEMP_DIR}/rbrf_enforce_"
+
+  # The caged Keycloak facility's committed fixtures, no secret, named exactly as
+  # its foedus template names them: the only secret-path values the enforce admits
+  # outside RBRR_SECRETS_DIR.
+  readonly ZRBRF_CAGED_ASSERTER_KEY_FILE="rbmm_moorings/rben_fdkyclk/fdkyclk-asserter-key.pem"
+  readonly ZRBRF_CAGED_CLIENT_SECRET_FILE="rbmm_moorings/rben_fdkyclk/fdkyclk-client-secret.txt"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
@@ -38,7 +50,7 @@ zrbrf_kindle() {
   buv_regime_enroll RBRF
 
   # The manor pool's org / pool id / session duration are manor-level and live in
-  # the sibling RBRW regime (RBSRW) — the one-pool Model relocated them out of the
+  # the sibling RBRW regime — the one-pool Model relocated them out of the
   # per-foedus federation regime. RBRF now carries only the per-foedus provider-side
   # trust: this foedus IS a provider under the manor's one pool.
   buv_group_enroll "Provider Identity"
@@ -51,7 +63,7 @@ zrbrf_kindle() {
   buv_enum_enroll    RBRF_MECHANISM                   "Token-acquisition mechanism: rbnfe_interactive (device flow) or rbnfe_programmatic (self-supplied JWT)" \
                      rbnfe_interactive rbnfe_programmatic
 
-  # Vendor-agnostic trust core — present under both mechanisms (RBSRF).
+  # Vendor-agnostic trust core — present under both mechanisms.
   buv_group_enroll "IdP Trust (core)"
   buv_string_enroll  RBRF_IDP_ISSUER           8  512  "OIDC issuer URI of the external IdP (resolvable under interactive; self-declared https identifier matched against the JWT iss under programmatic)"
   buv_string_enroll  RBRF_IDP_CLIENT_ID        1  256  "Public client (application) ID registered at the IdP (device-flow client under interactive; must equal the JWT aud under programmatic)"
@@ -66,7 +78,7 @@ zrbrf_kindle() {
   buv_group_enroll "Programmatic Mechanism"
   buv_gate_enroll    RBRF_MECHANISM  rbnfe_programmatic
   buv_string_enroll  RBRF_IDP_JWKS_JSON        1 8192  "Uploaded public JWKS GCP validates self-supplied JWTs against (REST oidc.jwksJson); ephemeral key re-synced per charge by the orchestrator, committed nowhere"
-  # The caller's self-supply set (RBSRF): the reachable grant POST target, the two
+  # The caller's self-supply set: the reachable grant POST target, the two
   # secret-path references (never the material — sourced regime vars land in process
   # env, so secret VALUES may not ride them), and the three committed assertion facts.
   buv_string_enroll  RBRF_GRANT_ENDPOINT       8  512  "Reachable RFC 7523 grant token-endpoint URL the signed assertion is POSTed to — orchestrator-rendered per charge; https:// or a loopback http:// (cleartext tolerated on loopback only)"
@@ -86,7 +98,7 @@ zrbrf_kindle() {
 }
 
 zrbrf_sentinel() {
-  test "${ZRBRF_KINDLED:-}" = "1" || buc_die "Module rbrf not kindled - call zrbrf_kindle first"
+  test "${ZRBRF_KINDLED:-}" = "1" || buc_die_now "Module rbrf not kindled - call zrbrf_kindle first"
 }
 
 # Enforce all RBRF enrollment validations and custom format checks
@@ -96,18 +108,18 @@ zrbrf_enforce() {
   buv_vet RBRF
 
   # The manor pool's org, pool id, and session duration validate in the sibling
-  # RBRW regime (RBSRW), not here — RBRF validates only the per-foedus provider trust.
+  # RBRW regime, not here — RBRF validates only the per-foedus provider trust.
   [[ "${RBRF_PROVIDER_ID}" =~ ^[a-z][a-z0-9-]{2,30}[a-z0-9]$ ]] \
-    || buc_reject "${BUBC_band_regime}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "Invalid RBRF_PROVIDER_ID: ${RBRF_PROVIDER_ID} (GCP provider id: lowercase letter-led, [a-z0-9-], no trailing hyphen, 4-32 chars)"
 
   [[ "${RBRF_IDP_ISSUER}" =~ ^https:// ]] \
-    || buc_reject "${BUBC_band_regime}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
+    || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_ISSUER must be an https:// URI: ${RBRF_IDP_ISSUER}"
 
-  # https required under both mechanisms (RBSRF: under programmatic GCP still
+  # https required under both mechanisms (under programmatic GCP still
   # demands the https scheme even though it never resolves the issuer).
   case "${RBRF_ATTRIBUTE_MAPPING}" in
     *google.subject*) ;;
-    *) buc_reject "${BUBC_band_regime}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
+    *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ATTRIBUTE_MAPPING must map google.subject: ${RBRF_ATTRIBUTE_MAPPING}" ;;
   esac
 
   # Mechanism-gated checks — only the active group's fields are set (buv gating
@@ -117,54 +129,80 @@ zrbrf_enforce() {
   case "${RBRF_MECHANISM}" in
     rbnfe_interactive)
       [[ "${RBRF_IDP_DEVICE_ENDPOINT}" =~ ^https:// ]] \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_DEVICE_ENDPOINT must be an https:// URI: ${RBRF_IDP_DEVICE_ENDPOINT}"
       [[ "${RBRF_IDP_TOKEN_ENDPOINT}" =~ ^https:// ]] \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_TOKEN_ENDPOINT must be an https:// URI: ${RBRF_IDP_TOKEN_ENDPOINT}"
       # OIDC requires openid; the human-present premise forbids offline_access — a
-      # refresh token would let a run begin outside a live sitting.
+      # refresh token would let a run begin outside a live sederunt.
       case " ${RBRF_IDP_SCOPE} " in
         *" openid "*) ;;
-        *) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_SCOPE must request the openid scope: ${RBRF_IDP_SCOPE}" ;;
       esac
       case " ${RBRF_IDP_SCOPE} " in
-        *offline_access*) buc_reject "${BUBC_band_regime}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
+        *offline_access*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_SCOPE must not request offline_access — the no-refresh-token premise (a live human avows at each run)" ;;
       esac
       ;;
     rbnfe_programmatic)
       # The uploaded snapshot must parse as a JWKS with at least one key; the
       # strict RSA-member strip (kty/kid/use/alg/n/e) is the orchestrator's job
       # before it writes this value, so affiance uploads it verbatim.
-      printf '%s' "${RBRF_IDP_JWKS_JSON}" | jq -e '(.keys | type) == "array" and (.keys | length) > 0' >/dev/null 2>&1 \
-        || buc_reject "${BUBC_band_regime}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON}"
+      local -r z_jwks_stderr="${ZRBRF_ENFORCE_PREFIX}jwks_stderr.txt"
+      jq -e '(.keys | type) == "array" and (.keys | length) > 0' <<<"${RBRF_IDP_JWKS_JSON}" >/dev/null 2>"${z_jwks_stderr}" \
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_IDP_JWKS_JSON must be a JWKS object with a non-empty keys array: ${RBRF_IDP_JWKS_JSON} — see ${z_jwks_stderr}"
 
       # The reachable grant endpoint: https, or a loopback http:// (the
       # loopback-http escape from the https gate) — cleartext tolerated ONLY for
       # localhost / 127.0.0.1, the local test crucible; a non-loopback http:// is
       # rejected. This field's charge-time render admits loopback cleartext,
       # deliberately unlike the interactive RBRF_IDP_TOKEN_ENDPOINT's https-only
-      # committed fact (RBSRF rbrf_grant_endpoint).
+      # committed fact (rbrf_grant_endpoint).
       case "${RBRF_GRANT_ENDPOINT}" in
         https://*) ;;
         http://localhost|http://localhost:*|http://localhost/*) ;;
         http://127.0.0.1|http://127.0.0.1:*|http://127.0.0.1/*) ;;
-        *) buc_reject "${BUBC_band_regime}" "RBRF_GRANT_ENDPOINT must be an https:// URI or a loopback http:// URI (localhost / 127.0.0.1 only): ${RBRF_GRANT_ENDPOINT}" ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_GRANT_ENDPOINT must be an https:// URI or a loopback http:// URI (localhost / 127.0.0.1 only): ${RBRF_GRANT_ENDPOINT}" ;;
       esac
 
       # The two secret-path references are repo-root-relative, never absolute —
       # the material lives in a file the accessor reads by path, never inline in
-      # this regime (RBSRF / RBSFK two-keys custody). Presence and non-emptiness
+      # this regime (two-keys custody). Presence and non-emptiness
       # are the enrollment floor; this bars an absolute path (a production foedus's
       # ../station-fenced form stays relative and is admitted).
       case "${RBRF_ASSERTER_KEY_FILE}" in
-        /*) buc_reject "${BUBC_band_regime}" "RBRF_ASSERTER_KEY_FILE must be a repo-root-relative path, not absolute: ${RBRF_ASSERTER_KEY_FILE}" ;;
+        /*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must be a repo-root-relative path, not absolute: ${RBRF_ASSERTER_KEY_FILE}" ;;
       esac
       case "${RBRF_CLIENT_SECRET_FILE}" in
-        /*) buc_reject "${BUBC_band_regime}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
+        /*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must be a repo-root-relative path, not absolute: ${RBRF_CLIENT_SECRET_FILE}" ;;
+      esac
+
+      # A secret is read from a file of the secrets directory: each path names a
+      # file under RBRR_SECRETS_DIR, climbing no '..' out of it, save the caged
+      # facility's committed fixtures, admitted by their exact names.
+      test -n "${RBRR_SECRETS_DIR:-}" \
+        || buc_reject "${BUBG_REGIME_DENTIL}" "RBRR_SECRETS_DIR is not set — the programmatic secret paths are judged against it"
+      local -r z_secrets_prefix="${RBRR_SECRETS_DIR}/"
+      case "${RBRF_ASSERTER_KEY_FILE}" in
+        "${ZRBRF_CAGED_ASSERTER_KEY_FILE}") ;;
+        "${z_secrets_prefix}"?*)
+          case "/${RBRF_ASSERTER_KEY_FILE#"${z_secrets_prefix}"}/" in
+            */../*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must not climb out of RBRR_SECRETS_DIR: ${RBRF_ASSERTER_KEY_FILE}" ;;
+          esac
+          ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_ASSERTER_KEY_FILE must name a file under RBRR_SECRETS_DIR (${RBRR_SECRETS_DIR}) or the caged facility's fixture ${ZRBRF_CAGED_ASSERTER_KEY_FILE}: ${RBRF_ASSERTER_KEY_FILE}" ;;
+      esac
+      case "${RBRF_CLIENT_SECRET_FILE}" in
+        "${ZRBRF_CAGED_CLIENT_SECRET_FILE}") ;;
+        "${z_secrets_prefix}"?*)
+          case "/${RBRF_CLIENT_SECRET_FILE#"${z_secrets_prefix}"}/" in
+            */../*) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must not climb out of RBRR_SECRETS_DIR: ${RBRF_CLIENT_SECRET_FILE}" ;;
+          esac
+          ;;
+        *) buc_reject "${BUBG_REGIME_DENTIL}" "RBRF_CLIENT_SECRET_FILE must name a file under RBRR_SECRETS_DIR (${RBRR_SECRETS_DIR}) or the caged facility's fixture ${ZRBRF_CAGED_CLIENT_SECRET_FILE}: ${RBRF_CLIENT_SECRET_FILE}" ;;
       esac
 
       # The three assertion facts (kid, issuer, subject) need only be present and
       # non-empty — the enrollment min-length floor already enforces that, so no
-      # custom check here (RBSRF: "present non-empty strings").
+      # custom check here ("present non-empty strings").
       ;;
   esac
 }

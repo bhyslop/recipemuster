@@ -1,0 +1,160 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# RBAU CLI - Recipe Bottle Auth command-line interface
+#
+# Surfaces the sederunt-lifecycle operator verbs as tabtargets — where avow
+# itself never is: novate, the one mutating surface, and
+# espy, the read-only probe. Thin arm over the rbau library:
+# the furnish carries only the avowal-path stack (trust + manor pool + OAuth
+# transport), none of the depot/don machinery the probe CLI (rbgv_cli.sh) pulls.
+
+set -euo pipefail
+
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
+
+######################################################################
+# CLI Commands
+
+# Novate the sederunt — force-fresh renewal: bypass the sederunt-reuse branch
+# and atomically overwrite any standing sederunt with a freshly-opened,
+# full-window one. The remedy the avow runway gate names when it turns a
+# short sederunt away. Mechanism-gated exactly as avowal is: device-flow
+# interactive or RFC 7523 programmatic per the trust's RBRF_MECHANISM.
+# Depot-agnostic like the avowal probe: needs only the RBRF trust + manor pool.
+rbau_novate_sederunt() {
+  zrbau_sentinel
+  buc_doc_brief "Novate the ${RBCC_noun_sederunt} — open a fresh full-window ${RBCC_noun_sederunt}, extinguishing any standing one (the runway gate's named remedy)"
+  buc_doc_shown || return 0
+
+  buc_step "Novation — force-fresh ${RBCC_noun_sederunt} against the RBRF trust"
+  zrbrf_kindle
+  zrbrw_kindle
+  zrbrf_enforce
+  zrbrw_enforce
+
+  rbau_novate
+
+  local zSECRET_token
+  zSECRET_token=$(zrbau_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after novation"
+  test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "${RBCC_noun_sederunt_lettrine} novated — fresh full-window federated token obtained (${#zSECRET_token} chars)"
+}
+
+# Espy the sederunt — the read-only probe: report whether a
+# sederunt is live and how much runway remains, from the cache alone — never
+# opening one, never prompting, no network. An absent or lapsed sederunt is a
+# reported verdict, exit 0 (the descry precedent); only a broken read
+# dies. Liveness and sufficiency judgments belong to the callers: the verdict
+# rides a fact file keyed by the active foedus, the branch point for the
+# theurge gate arc's fail-fast before its may-prompt baseline avow.
+rbau_espy_sederunt() {
+  zrbau_sentinel
+  buc_doc_brief "Espy the ${RBCC_noun_sederunt} — report liveness and remaining runway from the cache alone (read-only: never opens, never prompts, no network)"
+  buc_doc_shown || return 0
+
+  buc_step "Espy — ${RBCC_noun_sederunt} state against the RBRF trust"
+  zrbrf_kindle
+  zrbrw_kindle
+  zrbrf_enforce
+  zrbrw_enforce
+
+  local z_path
+  z_path=$(zrbau_sederunt_path_capture) || buc_die_now "Failed to resolve the ${RBCC_noun_sederunt} cache path"
+
+  # Verdict: absent (no cache), else live/lapsed by the skew-gated predicate.
+  # Runway is reported raw (a lapsed sederunt inside the skew window may still
+  # show a few seconds) — the probe reports, it never judges sufficiency.
+  local z_verdict=""
+  local z_runway=""
+  if test ! -f "${z_path}"; then
+    z_verdict="absent"
+  else
+    z_runway=$(zrbau_sederunt_runway_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} cache present but unreadable: ${z_path}"
+    case "${z_runway}" in ''|*[!0123456789]*) buc_die_now "Not a decimal number: ${z_runway}" ;; esac
+    if zrbau_sederunt_live_predicate; then
+      z_verdict="live"
+    else
+      z_verdict="lapsed"
+    fi
+  fi
+
+  local z_value="verdict=${z_verdict}"
+  test -z "${z_runway}" || z_value="${z_value}
+runway=${z_runway}"
+  buf_write_fact_multi "${RBRR_ACTIVE_FOEDUS}" "${RBCC_fact_ext_sederunt}" "${z_value}" \
+    || buc_die_now "Failed to write the ${RBCC_noun_sederunt} fact"
+
+  if test "${z_verdict}" = "live"; then
+    buc_success "${RBCC_noun_sederunt_lettrine} LIVE — runway ${z_runway}s (~$(( 10#${z_runway} / 3600 ))h$(( (10#${z_runway} % 3600) / 60 ))m remaining)"
+  else
+    if test "${RBRF_MECHANISM}" = "rbnfe_interactive"; then
+      buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; ${RBCG_SEDERUNT_NOVATE_BASE} is the one road to a ${RBCC_noun_sederunt} (fresh full window), and no command signs in on its own:"
+    else
+      buc_warn "No live ${RBCC_noun_sederunt} — verdict '${z_verdict}'; a programmatic foedus opens one on demand at the next federated command, or ${RBCG_SEDERUNT_NOVATE_BASE} opens a fresh full window now:"
+    fi
+    buc_tabtarget "${RBCG_SEDERUNT_NOVATE_PEDIMENT}"
+  fi
+}
+
+######################################################################
+# Furnish and Main
+
+zrbau_furnish() {
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_done || return 0
+
+  local z_rbk="${BASH_SOURCE[0]%/*}"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
+
+
+  # RBRR is sourced for the RBRR_ACTIVE_FOEDUS selector alone (the trust
+  # resolve in rbcc_source_active_rbrf_flint); depot-agnostic, so no RBRR
+  # enforcement — mirroring the avowal probe's furnish posture. RBRD is
+  # kindled for the sederunt cache directory's derivation and stays as
+  # enrolled, locked, inert strings, as in rbfk_cli.sh.
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source ${RBCC_rbrd_file}"
+  rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
+  source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
+  zrbrr_kindle
+  zrbcc_kindle
+  zrbgc_kindle
+  zrbrd_kindle
+  zrbdc_kindle
+  zrbgo_kindle
+  zrbuh_kindle
+  zrbau_kindle
+}
+
+buc_execute rbau_ "Recipe Bottle Auth" zrbau_furnish "$@"
+
+# eof

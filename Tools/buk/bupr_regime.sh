@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,14 +28,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZBUPR_SOURCED:-}" || buc_die "Module bupr multiply sourced - check sourcing hierarchy"
+test -z "${ZBUPR_SOURCED:-}" || buc_die_now "Module bupr multiply sourced - check sourcing hierarchy"
 ZBUPR_SOURCED=1
 
 ######################################################################
 # Internal Functions (zbupr_*)
 
 zbupr_kindle() {
-  test -z "${ZBUPR_KINDLED:-}" || buc_die "Module bupr already kindled"
+  test -z "${ZBUPR_KINDLED:-}" || buc_die_now "Module bupr already kindled"
 
   # Terminal layout from BURD dispatch (set in bul_launcher before pipe)
   readonly ZBUPR_TERM_COLS=${BURD_TERM_COLS:-80}
@@ -54,7 +55,7 @@ zbupr_kindle() {
 }
 
 zbupr_sentinel() {
-  test "${ZBUPR_KINDLED:-}" = "1" || buc_die "Module bupr not kindled - call zbupr_kindle first"
+  test "${ZBUPR_KINDLED:-}" = "1" || buc_die_now "Module bupr not kindled - call zbupr_kindle first"
 }
 
 ######################################################################
@@ -69,7 +70,7 @@ zbupr_sentinel() {
 bupr_section_begin() {
   zbupr_sentinel
   zbuym_sentinel
-  local z_title="$1"
+  local z_title="${1}"
   local z_gate_var=${2:-}
   local z_gate_value=${3:-}
 
@@ -77,6 +78,9 @@ bupr_section_begin() {
   z_bupr_section_gate_desc=""
 
   if test -n "${z_gate_var}"; then
+    local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+    [[ "${z_gate_var}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+      || buc_die_now "bupr_section_begin: invalid gate variable name: '${z_gate_var}'"
     local z_actual=${!z_gate_var:-}
     if test "${z_actual}" = "${z_gate_value}"; then
       z_bupr_section_active=1
@@ -91,12 +95,12 @@ bupr_section_begin() {
   if test "${z_bupr_section_active}" = 1; then
     if test -n "${z_gate_var}"; then
       printf "${BUYC_BRIGHT_YELLOW}%-34s${BUYC_RESET} ${BUYC_GREEN}(since %s=%s)${BUYC_RESET}\n" \
-        "${z_title}" "${z_gate_var}" "${z_gate_value}"
+        "${z_title}" "${z_gate_var}" "${z_gate_value}" || buc_die_now
     else
-      printf "${BUYC_BRIGHT_YELLOW}%s${BUYC_RESET}\n" "${z_title}"
+      printf "${BUYC_BRIGHT_YELLOW}%s${BUYC_RESET}\n" "${z_title}" || buc_die_now
     fi
   else
-    printf "${BUYC_BRIGHT_YELLOW}%-34s${BUYC_RESET} ${BUYC_GREEN}(%s)${BUYC_RESET}\n" "${z_title}" "${z_bupr_section_gate_desc}"
+    printf "${BUYC_BRIGHT_YELLOW}%-34s${BUYC_RESET} ${BUYC_GREEN}(%s)${BUYC_RESET}\n" "${z_title}" "${z_bupr_section_gate_desc}" || buc_die_now
   fi
 }
 
@@ -134,7 +138,7 @@ bupr_section_item() {
 
   # Collapsed section — track and skip
   if test "${z_bupr_section_active}" = 0; then
-    z_bupr_section_suppressed+=("$1")
+    z_bupr_section_suppressed+=("${1}")
     return 0
   fi
 
@@ -146,11 +150,15 @@ bupr_section_item() {
 # Shared rendering logic for bupr_item and bupr_section_item.
 # Reads ZBUPR_LAYOUT to choose single-line or double-line format.
 zbupr_render_field() {
+  zbupr_sentinel
   zbuym_sentinel
-  local z_varname=$1
-  local z_type=$2
-  local z_req=$3
-  local z_desc="$4"
+  local z_varname="${1}"
+  local z_type="${2}"
+  local z_req="${3}"
+  local z_desc="${4}"
+  local -r z_name_lead="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+  [[ "${z_varname}" =~ ^[${z_name_lead}][${z_name_lead}0123456789]*$ ]] \
+    || buc_die_now "zbupr_render_field: invalid variable name: '${z_varname}'"
   local z_value=${!z_varname:-}
 
   # Secret redaction — replace value before any rendering
@@ -170,16 +178,16 @@ zbupr_render_field() {
   if test "${ZBUPR_LAYOUT}" = single; then
     # Wide terminal: name value req type description — one line
     printf "  ${z_nc}%-30s${BUYC_RESET}  %-24s  ${BUYC_MAGENTA}%-4s %-11s${BUYC_RESET}  ${BUYC_CYAN}%s${BUYC_RESET}\n" \
-      "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}"
+      "${z_varname}" "${z_value}" "${z_req}" "${z_type}" "${z_desc}" || buc_die_now
   else
     # Narrow terminal: 3-line short display
     # Line 1: name + req + type
     printf "  ${z_nc}%-30s${BUYC_RESET}  ${BUYC_MAGENTA}%-4s %-11s${BUYC_RESET}\n" \
-      "${z_varname}" "${z_req}" "${z_type}"
+      "${z_varname}" "${z_req}" "${z_type}" || buc_die_now
     # Line 2: current value
-    printf "      ${BUYC_BRIGHT_WHITE}%s${BUYC_RESET}\n" "${z_value}"
+    printf "      ${BUYC_BRIGHT_WHITE}%s${BUYC_RESET}\n" "${z_value}" || buc_die_now
     # Line 3: meaning
-    printf "      ${BUYC_GRAY}meaning => %s${BUYC_RESET}\n" "${z_desc}"
+    printf "      ${BUYC_GRAY}meaning => %s${BUYC_RESET}\n" "${z_desc}" || buc_die_now
   fi
 }
 

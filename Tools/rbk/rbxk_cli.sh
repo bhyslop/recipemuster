@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,25 +25,21 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 zrbxk_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided) — the facility composes charge/quench/affiance/jilt through their tabtargets"
-  buc_doc_env "BURD_TEMP_DIR         " "Dispatch-provided temp directory (JWKS bridge scratch)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TABTARGET_DIR    " "Tabtarget directory (dispatch-provided) — the facility composes charge/quench/affiance/jilt through their tabtargets"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Dispatch-provided temp directory (JWKS bridge scratch)"
   buc_doc_env_done || return 0
 
   local z_rbk_kit_dir="${BASH_SOURCE[0]%/*}"
 
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/bubc_constants.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/bug_git.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbxk_keycloak.sh"
+  source "${BURD_BUK_DIR}/bug_git.sh" || buc_die_now "Failed to source bug_git.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbxk_keycloak.sh" || buc_die_now "Failed to source rbxk_keycloak.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zrbcc_kindle
   zrbxk_kindle
 }

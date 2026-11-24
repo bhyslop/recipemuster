@@ -1,17 +1,29 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJL Step 02: Push each Lode's provenance envelope as its :rbi_vouch artifact
-# Builder: gcrane (pinned reliquary gcrane for bole; floating bootstrap gcrane for
-#          conclave/wsl — the recipe row in each per-kind body sets which)
+# Builder: gcrane (pinned reliquary gcrane for bole/wsl/podvm; floating bootstrap
+#          gcrane for conclave — the recipe row in each per-kind body sets which)
 # Entrypoint: busybox (gcrane:debug's only shell)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_TAG_VOUCH,
 #                _RBGL_GIT_COMMIT (spine-injected, never in a body's blob)
 #
-# Note: this script runs inside a Cloud Build container, not under BCG module
-# discipline (CBG governs).
-#
-# The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin) staged one
-# envelope per captured Lode at /workspace/lode_<stamp>_vouch.json and listed the
-# stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as
+# The capture step (rbgjl01 ensconce / rbgjl03 conclave / rbgjl04 underpin / rbgjl07
+# immure) staged one envelope per captured Lode at /workspace/lode_<stamp>_vouch.json
+# and listed the stamps in /workspace/lode_stamps.txt. Each envelope rides into the SAME package as
 # the captured manifest, under the :rbi_vouch tag — a distinct manifest, one per Lode.
 # Vouch content is architecture-independent; the single appended layer is sufficient.
 

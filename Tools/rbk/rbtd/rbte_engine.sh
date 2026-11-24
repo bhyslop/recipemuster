@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +19,7 @@
 #
 # RBTE Engine - Theurge test engine implementation module
 #
-# BCG module providing kindle/sentinel/public functions for theurge
+# Module providing kindle/sentinel/public functions for theurge
 # Rust build, test, and orchestration commands.
 
 set -euo pipefail
@@ -31,39 +32,54 @@ ZRBTE_SOURCED=1
 # Kindle
 
 zrbte_kindle() {
-  test -z "${ZRBTE_KINDLED:-}" || buc_die "rbte already kindled"
+  test -z "${ZRBTE_KINDLED:-}" || buc_die_now "rbte already kindled"
 
   local z_dir="${BASH_SOURCE[0]%/*}"
 
-  readonly RBTE_MANIFEST="${z_dir}/Cargo.toml"
+  # EVERY CARGO INVOCATION IS SPELLED HERE, by the crate's manifest, locked,
+  # under the channel the repository's root pin states. These doors carry no
+  # stale-binary gate and refuse no uncommitted tree: cargo's own fingerprint
+  # answers currency, and every run door builds first.
+  readonly ZRBTE_REPO_ROOT="${PWD}"
+  readonly ZRBTE_MANIFEST="${z_dir}/Cargo.toml"
+  readonly ZRBTE_PIN_FILE="${ZRBTE_REPO_ROOT}/rust-toolchain.toml"
 
-  # Windows-native cargo (the x86_64-pc-windows-gnu toolchain) cannot open a
-  # Cygwin /cygdrive-style path argument — it reads it as a literal Windows path
-  # and reports "does not exist". Under Cygwin, hand cargo a Windows-form path
-  # (drive-letter root, forward slashes — which Windows accepts). Pure parameter
-  # expansion, no subshell and no external cygpath, mirroring RBTDRX's /cygdrive
-  # fast path on the Rust side. Same path-argument boundary as the
-  # Windows shellcheck.exe, distinct from the .sh process-launch boundary
-  # RBTDRX/rbtdri handle Rust-side. Identity off Cygwin; fails fast on an
-  # unsurveyed shape.
-  # Retire when theurge builds as a true Cygwin binary.
-  if test "${OSTYPE:-}" = "cygwin"; then
-    case "${RBTE_MANIFEST}" in
-      /cygdrive/?/*)
-        local -r z_drive_rest="${RBTE_MANIFEST#/cygdrive/}"
-        local -r z_drive="${z_drive_rest%%/*}"
-        local -r z_drive_tail="${z_drive_rest#"${z_drive}/"}"
-        readonly RBTE_MANIFEST_ARG="${z_drive}:/${z_drive_tail}"
-        ;;
-      *)
-        buc_die "rbte: cannot translate manifest path for Windows cargo (expected /cygdrive/X/...): ${RBTE_MANIFEST}"
-        ;;
-    esac
-  else
-    readonly RBTE_MANIFEST_ARG="${RBTE_MANIFEST}"
-  fi
+  # The position's roots are the kennel's own measure for the theurge's app
+  # collar, which strikes nothing and so holds no elected set: the local package
+  # directories of the crate's compiled closure, the crate itself and the floor
+  # crate it reads its dispatch through, which the brk kit carries. Nothing is
+  # carved out and nothing is added, so the kennel's heel and these doors state
+  # one position under one
+  # definition. The position is the seat's newest
+  # first-parent commit touching them: the seat's own line, not a landed walk,
+  # so a billet carrying unlanded commits states where it actually stands.
+  ZRBTE_ROOTS=(
+    "Tools/rbk/rbtd"
+    "Tools/brk/brp0"
+  )
+  readonly ZRBTE_ROOTS
 
-  readonly ZRBTE_BINARY="${z_dir}/target/debug/rbtd"
+  # The lint's whole ask, every lint capped at warning and the one barred-call
+  # lint raised to be read. The verdict is read from that lint's help-URL mark
+  # in the output, never the exit code, which the cap silences.
+  ZRBTE_CLIPPY_ASKED=(
+    --all-targets
+    --color never
+    --
+    --cap-lints warn
+    -W clippy::disallowed_methods
+  )
+  readonly ZRBTE_CLIPPY_ASKED
+  readonly ZRBTE_CLIPPY_MARK="index.html#disallowed_methods"
+  readonly ZRBTE_LINT_REPORT="${BURD_TEMP_DIR}/rbte_lint_report.txt"
+  readonly ZRBTE_CHANNEL_PATTERN='^channel *= *"([^"]+)"'
+
+  # The formatter's temp files: the tracked manifests it walks, listed once per
+  # run, and the tracked Rust beside each, listed per manifest.
+  readonly ZRBTE_FORMAT_PREFIX="${BURD_TEMP_DIR}/rbte_format_"
+
+  # Where cargo's dev profile lands the binary, on either road.
+  readonly ZRBTE_BINARY="${z_dir}/target/debug/rbt"
 
   # Suite→fixture composition is owned by theurge (RBTDRC_SUITES in
   # rbtdrc_crucible.rs), not bash. Suite names survive here only as tabtarget
@@ -76,7 +92,7 @@ zrbte_kindle() {
 # Sentinel
 
 zrbte_sentinel() {
-  test "${ZRBTE_KINDLED:-}" = "1" || buc_die "Module rbte not kindled - call zrbte_kindle first"
+  test "${ZRBTE_KINDLED:-}" = "1" || buc_die_now "Module rbte not kindled - call zrbte_kindle first"
 }
 
 ######################################################################
@@ -89,62 +105,299 @@ zrbte_codegen() {
   zrbte_sentinel
 
   rbz_generate_context "${BURD_TABTARGET_DIR}" "${RBCC_tabtarget_context_file}" \
-    || buc_die "Failed to generate tabtarget context"
+    || buc_die_now "Failed to generate tabtarget context"
   rbz_generate_consts "${RBCC_rbtdgc_consts_file}" \
-    || buc_die "Failed to generate colophon consts"
+    || buc_die_now "Failed to generate colophon consts"
 }
 
+# The channel a pin states, stated on every invocation.
+#
+# Args: <pin: path of a rust-toolchain.toml>
+zrbte_channel_capture() {
+  zrbte_sentinel
+
+  local -r z_pin="${1:-}"
+  test -n "${z_pin}" || return 1
+
+  local z_channel=""
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    if [[ "${z_line}" =~ ${ZRBTE_CHANNEL_PATTERN} ]]; then
+      z_channel="${BASH_REMATCH[1]}"
+      break
+    fi
+  done < "${z_pin}" || return 1
+  test -n "${z_channel}" || return 1
+  echo "${z_channel}" || return 1
+}
+
+# The seat's position over the roots, the one line the binary will answer.
+zrbte_position_capture() {
+  zrbte_sentinel
+
+  local z_position=""
+  z_position=$(git -C "${ZRBTE_REPO_ROOT}" log -n 1 --first-parent --format=%H HEAD -- "${ZRBTE_ROOTS[@]}") || return 1
+  test -n "${z_position}" || return 1
+  echo "${z_position}" || return 1
+}
+
+# Run cargo for the theurge: the pinned channel, the lock flag ahead of the
+# verb, the position stated, the manifest named after the verb.
+#
+# THE POSITION'S NAME IS THE BUILD SCRIPT'S CONTRACT, not a choice made here,
+# and it is the binary's answer to --exergue. Cargo reruns the script when the
+# value changes, so every road building into this target directory must state
+# the same position under the same definition, or each rebuilds what the other
+# left.
+zrbte_cargo() {
+  zrbte_sentinel
+
+  local -r z_verb="${1:-}"
+  test -n "${z_verb}" || buc_die_now "zrbte_cargo needs a cargo verb"
+  shift || buc_die_now "zrbte_cargo could not shift its verb"
+
+  local z_channel=""
+  z_channel=$(zrbte_channel_capture "${ZRBTE_PIN_FILE}") || buc_die_now "The root pin at ${ZRBTE_PIN_FILE} names no channel"
+
+  local z_position=""
+  z_position=$(zrbte_position_capture) || buc_die_now "Could not read the seat's position over the theurge's roots in ${ZRBTE_REPO_ROOT}"
+
+  local z_cargo_status=0
+  BKCH_COLLAR_POSITION="${z_position}" \
+    cargo "+${z_channel}" --locked "${z_verb}" --manifest-path "${ZRBTE_MANIFEST}" "$@" \
+    || z_cargo_status=$?
+  return "${z_cargo_status}"
+}
+
+# The codegen, then cargo's build. Cargo decides whether anything recompiles.
 zrbte_build_binary() {
   zrbte_sentinel
 
   zrbte_codegen
   buc_step "Building theurge"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" || buc_die "cargo build failed"
-  test -x "${ZRBTE_BINARY}" || buc_die "Theurge binary not found: ${ZRBTE_BINARY}"
+  # Build, test and clean run quiet; lint stays whole, its verdict being read from its report.
+  zrbte_cargo build --quiet || buc_die_now "The theurge did not build"
+  test -x "${ZRBTE_BINARY}" || buc_die_now "Theurge binary not found: ${ZRBTE_BINARY}"
+}
+
+# The formatter over every crate this repository tracks, each under the rustfmt
+# of its nearest pin, the root rustfmt.toml answering for all of them.
+#
+# THE CRATES ARE WALKED, NEVER LISTED: every tracked manifest is a candidate,
+# and the formatter passes over, naming each, a manifest inside a managed kit,
+# which arrives formatted from its own home and is never formatted here, and a
+# manifest beside no tracked Rust, whose sources stand elsewhere. Cargo is
+# spelled as zrbte_cargo spells it: the crate named by its manifest, the channel
+# read from the nearest pin and stated, the lock flag ahead of the verb.
+#
+# Args: <mode: "apply" or "check">
+zrbte_format() {
+  zrbte_sentinel
+
+  local -r z_mode="${1:-}"
+  case "${z_mode}" in
+    apply|check) ;;
+    *) buc_die_now "The formatter's mode is apply or check, not '${z_mode}'" ;;
+  esac
+
+  test -n "${BURC_TOOLS_DIR:-}" || buc_die_now "BURC_TOOLS_DIR not set"
+  test -n "${BURC_MANAGED_KITS:-}" || buc_die_now "BURC_MANAGED_KITS not set"
+
+  local z_kits=()
+  IFS=',' read -r -a z_kits <<< "${BURC_MANAGED_KITS}" \
+    || buc_die_now "Could not read the managed kits from '${BURC_MANAGED_KITS}'"
+  (( ${#z_kits[@]} )) || buc_die_now "BURC_MANAGED_KITS names no kit"
+
+  local -r z_list="${ZRBTE_FORMAT_PREFIX}manifests.txt"
+  git -C "${ZRBTE_REPO_ROOT}" ls-files -- 'Cargo.toml' '*/Cargo.toml' > "${z_list}" \
+    || buc_die_now "Could not list the manifests this repository tracks"
+
+  local z_manifests=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_manifests+=("${z_line}")
+  done < "${z_list}" || buc_die_now "Could not read the manifest list at ${z_list}"
+  (( ${#z_manifests[@]} )) || buc_die_now "This repository tracks no Cargo.toml"
+
+  local z_formatted=()
+  local z_red=()
+  local z_index=0
+  local z_manifest=""
+  local z_dir=""
+  local z_kit=""
+  local z_held_by=""
+  local z_rust=""
+  local z_pin_dir=""
+  local z_channel=""
+  local z_status=0
+  for z_manifest in "${z_manifests[@]}"; do
+    z_index=$(( z_index + 1 ))
+    z_dir="${z_manifest%/*}"
+    test "${z_dir}" != "${z_manifest}" || z_dir="."
+
+    z_held_by=""
+    for z_kit in "${z_kits[@]}"; do
+      case "${z_manifest}" in
+        "${BURC_TOOLS_DIR}/${z_kit}/"*) z_held_by="${z_kit}" ;;
+      esac
+    done
+    if test -n "${z_held_by}"; then
+      buc_step "Passing over ${z_manifest}: the managed kit ${z_held_by} arrives formatted from its own home"
+      continue
+    fi
+
+    z_rust="${ZRBTE_FORMAT_PREFIX}rust_${z_index}.txt"
+    git -C "${ZRBTE_REPO_ROOT}" ls-files -- "${z_dir}/*.rs" > "${z_rust}" \
+      || buc_die_now "Could not list the Rust tracked beside ${z_manifest}"
+    if ! test -s "${z_rust}"; then
+      buc_step "Passing over ${z_manifest}: no tracked Rust stands beside it"
+      continue
+    fi
+
+    z_pin_dir="${z_dir}"
+    while test ! -f "${ZRBTE_REPO_ROOT}/${z_pin_dir}/rust-toolchain.toml"; do
+      test "${z_pin_dir}" != "." || buc_die_now "No rust-toolchain.toml stands at or above ${z_manifest}"
+      case "${z_pin_dir}" in
+        */*) z_pin_dir="${z_pin_dir%/*}" ;;
+        *)   z_pin_dir="." ;;
+      esac
+    done
+    z_channel=$(zrbte_channel_capture "${ZRBTE_REPO_ROOT}/${z_pin_dir}/rust-toolchain.toml") \
+      || buc_die_now "The pin at ${z_pin_dir}/rust-toolchain.toml names no channel"
+
+    buc_step "${z_manifest} under ${z_channel}"
+    z_status=0
+    if test "${z_mode}" = "check"; then
+      cargo "+${z_channel}" --locked fmt --check --manifest-path "${ZRBTE_REPO_ROOT}/${z_manifest}" \
+        || z_status=$?
+    else
+      cargo "+${z_channel}" --locked fmt --manifest-path "${ZRBTE_REPO_ROOT}/${z_manifest}" \
+        || z_status=$?
+    fi
+    z_formatted+=("${z_manifest}")
+    test "${z_status}" -eq 0 || z_red+=("${z_manifest}")
+  done
+
+  (( ${#z_formatted[@]} )) || buc_die_now "No tracked manifest stands beside tracked Rust outside the managed kits"
+  (( ${#z_red[@]} == 0 )) \
+    || buc_die_now "rustfmt did not answer clean over ${#z_red[@]} of ${#z_formatted[@]} crate(s): ${z_red[*]}"
+  buc_success "rustfmt answered clean over ${#z_formatted[@]} crate(s): ${z_formatted[*]}"
 }
 
 ######################################################################
 # Public functions
 
+# Checks every crate this repository tracks against rustfmt, changing nothing.
+rbte_format_check() {
+  zrbte_sentinel
+
+  buc_doc_brief "Checks every crate this repository tracks against rustfmt, changing nothing."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The format check takes no argument"
+
+  zrbte_format "check"
+}
+
+# Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree.
+rbte_format() {
+  zrbte_sentinel
+
+  buc_doc_brief "Formats every crate this repository tracks in place under rustfmt, refusing an uncommitted tree."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The format takes no argument"
+
+  # Refused on an uncommitted tree, so the formatter's delta stands alone for
+  # the caller to seal.
+  bug_require_clean_tree_creed "the formatter rewrites tracked sources; a dirty tree would mix its delta with the work standing there - commit before formatting"
+
+  zrbte_format "apply"
+}
+
 rbte_build() {
   zrbte_sentinel
 
-  zrbte_codegen
-  buc_step "Building theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo build --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo build failed"
+  test "$#" -eq 0 || buc_die_now "The theurge build takes no argument"
+
+  zrbte_build_binary
   buc_success "Theurge built"
 }
 
+# The codegen, then cargo's test; the one optional argument is cargo's own
+# test-name filter.
 rbte_test() {
   zrbte_sentinel
 
+  test "$#" -le 1 || buc_die_now "The theurge test takes at most one argument, a test-name filter"
+  local -r z_filter="${1:-}"
+
   zrbte_codegen
   buc_step "Testing theurge"
-  buc_log_args "Manifest: ${RBTE_MANIFEST}"
-  cargo test --manifest-path "${RBTE_MANIFEST_ARG}" "$@" || buc_die "cargo test failed"
+  zrbte_cargo test --quiet ${z_filter:+"${z_filter}"} || buc_die_now "Theurge tests failed"
   buc_success "All theurge tests passed"
+}
+
+# Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars.
+rbte_lint() {
+  zrbte_sentinel
+
+  buc_doc_brief "Lints the test engine's crate with every lint held to a warning, refusing only on a call the repository's lint list bars."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The theurge lint takes no argument"
+
+  zrbte_codegen
+  buc_step "Linting theurge"
+  local z_lint_status=0
+  CLIPPY_CONF_DIR="${ZRBTE_REPO_ROOT}" zrbte_cargo clippy "${ZRBTE_CLIPPY_ASKED[@]}" \
+    > "${ZRBTE_LINT_REPORT}" 2>&1 || z_lint_status=$?
+
+  local z_report=""
+  z_report=$(<"${ZRBTE_LINT_REPORT}") || buc_die_now "Could not read the lint report at ${ZRBTE_LINT_REPORT}"
+  printf '%s\n' "${z_report}" || buc_die_now "Could not print the lint report"
+
+  [[ "${z_report}" != *"${ZRBTE_CLIPPY_MARK}"* ]] \
+    || buc_die_now "The theurge calls what the root clippy.toml bars; each finding above names the surface to adopt"
+  test "${z_lint_status}" -eq 0 || buc_die_now "The theurge did not compile under clippy (status ${z_lint_status})"
+  buc_success "Theurge lint found no barred call"
+}
+
+# Removes the test engine's build output, so the next door that builds starts from nothing.
+rbte_clean() {
+  zrbte_sentinel
+
+  buc_doc_brief "Removes the test engine's build output, so the next door that builds starts from nothing."
+  buc_doc_shown || return 0
+
+  test "$#" -eq 0 || buc_die_now "The theurge clean takes no argument"
+
+  buc_step "Cleaning theurge"
+  zrbte_cargo clean --quiet || buc_die_now "The theurge clean failed"
+  buc_success "Theurge build output removed"
 }
 
 rbte_run() {
   zrbte_sentinel
 
   local z_fixture="${BUZ_FOLIO:-}"
-  test -n "${z_fixture}" || buc_die "No fixture — pass one as the folio (e.g. rbw-tf.FixtureRun.sh tadmor)"
+  test -n "${z_fixture}" || buc_die_now "No fixture — pass one as the folio (e.g. rbw-tf.FixtureRun.sh tadmor)"
 
   zrbte_build_binary
 
   # Extra CLI args (e.g. --keep-going) pass straight through to the binary,
   # which owns flag parsing and the disposition policy gate.
   buc_step "Running theurge fixture '${z_fixture}'"
-  "${ZRBTE_BINARY}" "${z_fixture}" "$@"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" "${z_fixture}" "$@" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_suite() {
   zrbte_sentinel
 
   local z_suite="${BUZ_FOLIO:-}"
-  test -n "${z_suite}" || buc_die "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.reveille.sh)"
+  test -n "${z_suite}" || buc_die_now "No suite imprint — use tabtarget with imprint (e.g. rbw-ts.TestSuite.reveille.sh)"
 
   zrbte_build_binary
 
@@ -152,7 +405,9 @@ rbte_suite() {
   # the binary's `suite` mode, which resolves and runs its fixtures. Extra CLI
   # args (e.g. --keep-going) pass through with it.
   buc_step "Running theurge suite '${z_suite}'"
-  "${ZRBTE_BINARY}" suite "${z_suite}" "$@"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" suite "${z_suite}" "$@" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_single() {
@@ -162,7 +417,9 @@ rbte_single() {
 
   local z_fixture="${BUZ_FOLIO:-}"
   local z_case="${1:-}"
-  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"}
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" single ${z_fixture:+"${z_fixture}"} ${z_case:+"${z_case}"} || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_dowse() {
@@ -171,15 +428,14 @@ rbte_dowse() {
   zrbte_build_binary
 
   # Read-only census over the station's self-logs. The log dir is a station
-  # regime value (BURS_LOG_DIR); dispatch does not export it to children, so
-  # reach it by sourcing the launcher-exported station file — the burs_cli
-  # pattern.
-  test -n "${BURD_STATION_FILE:-}" || buc_die "BURD_STATION_FILE not set - launch via tabtarget"
-  source "${BURD_STATION_FILE}" || buc_die "Failed to source station file: ${BURD_STATION_FILE}"
-  test -n "${BURS_LOG_DIR:-}" || buc_die "BURS_LOG_DIR not set in ${BURD_STATION_FILE}"
+  # regime value (BURS_LOG_DIR), sourced from the launcher-exported station file
+  # by the furnish for this command — the burs_cli pattern.
+  test -n "${BURS_LOG_DIR:-}" || buc_die_now "BURS_LOG_DIR not set in ${BURD_STATION_FILE:-}"
 
   buc_step "Dowsing observed tariff history"
-  "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}"
+  local z_theurge_status=0
+  "${ZRBTE_BINARY}" dowse "${BURS_LOG_DIR}" || z_theurge_status=$?
+  return "${z_theurge_status}"
 }
 
 rbte_nihil() {

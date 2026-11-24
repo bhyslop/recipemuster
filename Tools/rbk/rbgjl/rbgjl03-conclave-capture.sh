@@ -1,10 +1,25 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJL Step 03: Conclave the build-tool cohort into a Lode (capture) via gcrane
 # Builder: gcr.io/go-containerregistry/gcrane:debug (Google-hosted, always pullable —
 #          conclave captures the reliquary tools themselves, so it cannot bootstrap
 #          from a reliquary; gcrane authenticates GAR ambiently via its google.Keychain
 #          -> ADC -> the GCE metadata server as the Mason SA, no explicit login. The
-#          :debug variant carries /busybox/sh for the orchestration. Auth canon: RBSCB)
+#          :debug variant carries /busybox/sh for the orchestration)
 # Substitutions: _RBGL_GAR_HOST, _RBGL_GAR_PATH, _RBGL_LODES_ROOT, _RBGL_LODE_STAMP,
 #                _RBGL_TAG_SPRUE, _RBGL_TRUST_GRADE, _RBGL_VOUCH_SCHEMA,
 #                _RBGL_ACQUIRED_BY
@@ -44,13 +59,60 @@ echo "Lode package: ${PKG}"
 # Acquisition moment, attested once for the whole cohort.
 ACQUIRED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
+# Bounded retry around each member's registry calls. GAR's upload endpoint has been
+# seen answering every blob PATCH 503 for ~90s, outlasting gcrane's own internal
+# retry, then recovering: the same fresh large-layer upload succeeded in seconds on
+# the next build. Both wrapped calls are idempotent under retry (CBi_103) — a re-run
+# cp skips blobs already standing and re-tags the same digest, and digest only reads.
+# Three attempts with linear backoff keep a member's worst case near five minutes,
+# inside the host's capture-heavy poll ceiling. gcrane's --jobs is not lowered: it
+# bounds only a --recursive copy, never a single image's layer uploads.
+RETRY_ATTEMPTS=3
+RETRY_BACKOFF_SEC=20
+
+# zrbgjl_retry LABEL CMD [ARG...] — run CMD, re-running a failure until
+# RETRY_ATTEMPTS have been spent; returns CMD's last exit status. CMD's stdout
+# passes through from every attempt, failed ones included, so a value CMD yields
+# is read from a file each attempt truncates (zrbgjl_digest_to), never captured
+# around zrbgjl_retry.
+zrbgjl_retry() {
+  test "$#" -ge 2 || { echo "FATAL: zrbgjl_retry needs a label and a command" >&2; exit 1; }
+  z_label="$1"
+  shift
+  z_attempt=1
+  while :; do
+    z_rc=0
+    "$@" || z_rc=$?
+    test "${z_rc}" -ne 0 || return 0
+    test "${z_attempt}" -lt "${RETRY_ATTEMPTS}" || return "${z_rc}"
+    z_wait=$((RETRY_BACKOFF_SEC * z_attempt))
+    echo "${z_label}: attempt ${z_attempt}/${RETRY_ATTEMPTS} failed (exit ${z_rc}); retrying in ${z_wait}s" >&2
+    sleep "${z_wait}" || { echo "FATAL: ${z_label}: backoff sleep failed" >&2; exit 1; }
+    z_attempt=$((z_attempt + 1))
+  done
+}
+
+# zrbgjl_digest_to REF FILE — one gcrane digest attempt, its stdout truncating FILE.
+zrbgjl_digest_to() {
+  gcrane digest "$1" > "$2"
+}
+
 # Accumulate the envelope members[] as we capture (one element per tool). No jq
 # dependency — values are controlled (tool name, upstream ref, hex digest, SA
 # email, build id, ISO timestamp); none can carry a literal quote.
 MEMBERS=''
 MFIRST=true
 
-while IFS='|' read -r NAME UPSTREAM; do
+for SPEC in \
+  'gcloud|gcr.io/cloud-builders/gcloud:latest' \
+  'docker|gcr.io/cloud-builders/docker:latest' \
+  'alpine|docker.io/library/alpine:latest' \
+  'syft|docker.io/anchore/syft:latest' \
+  'binfmt|docker.io/tonistiigi/binfmt:latest' \
+  'gcrane|gcr.io/go-containerregistry/gcrane:debug' \
+; do
+  NAME="${SPEC%%|*}"
+  UPSTREAM="${SPEC#*|}"
   test -n "${NAME}" || continue
   MEMBER_TAG="${_RBGL_TAG_SPRUE}${NAME}"
   DEST="${PKG}:${MEMBER_TAG}"
@@ -65,16 +127,19 @@ while IFS='|' read -r NAME UPSTREAM; do
   # makes the Lode package a parent-index/child-manifest web, where GAR refuses to
   # delete a child while its parent index exists (FAILED_PRECONDITION, "referenced by
   # parent manifests") and a single packages.delete removes nothing — banish then
-  # needs multiple convergence rounds instead of one. References: RBSLC, RBSLB, RBSCB.
-  gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
-    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST}" >&2; exit 1; }
+  # needs multiple convergence rounds instead of one.
+  zrbgjl_retry "gcrane cp ${NAME}" gcrane --platform linux/amd64 cp "${UPSTREAM}" "${DEST}" \
+    || { echo "FATAL: gcrane cp failed for ${UPSTREAM} -> ${DEST} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
 
   # Record the upstream manifest-list digest for the envelope. gcrane digest (no
   # --platform) streams the tag's stored index digest (sha256:...) — the same canonical
   # value docker's RepoDigests reported, unchanged by the single-platform copy above, so
   # recorded digests stay identical to the pre-eviction docker path. CBb_101 applies.
-  DIGEST=$(gcrane digest "${UPSTREAM}") \
-    || { echo "FATAL: gcrane digest failed for ${UPSTREAM}" >&2; exit 1; }
+  DIGEST_FILE="/workspace/conclave_digest_${NAME}.txt"
+  zrbgjl_retry "gcrane digest ${NAME}" zrbgjl_digest_to "${UPSTREAM}" "${DIGEST_FILE}" \
+    || { echo "FATAL: gcrane digest failed for ${UPSTREAM} after ${RETRY_ATTEMPTS} attempts" >&2; exit 1; }
+  DIGEST=$(cat "${DIGEST_FILE}") \
+    || { echo "FATAL: cannot read ${DIGEST_FILE}" >&2; exit 1; }
   test -n "${DIGEST}" || { echo "FATAL: empty digest for ${UPSTREAM}" >&2; exit 1; }
 
   echo "${NAME} captured: ${DEST} (${DIGEST})"
@@ -87,14 +152,7 @@ while IFS='|' read -r NAME UPSTREAM; do
   MEMBERS="${MEMBERS}\"rblv_verification\":\"oci-digest\","
   MEMBERS="${MEMBERS}\"rblv_tags\":[\"${MEMBER_TAG}\"]"
   MEMBERS="${MEMBERS}}"
-done <<'MANIFEST'
-gcloud|gcr.io/cloud-builders/gcloud:latest
-docker|gcr.io/cloud-builders/docker:latest
-alpine|docker.io/library/alpine:latest
-syft|docker.io/anchore/syft:latest
-binfmt|docker.io/tonistiigi/binfmt:latest
-gcrane|gcr.io/go-containerregistry/gcrane:debug
-MANIFEST
+done
 
 # Author the batch provenance envelope (identical content lands in :rbi_vouch and
 # the host capture-file). rblv_members[] is the cardinality axis — N for the reliquary
@@ -117,7 +175,7 @@ printf '%s' "${ENVELOPE}" > "/workspace/lode_${STAMP}_vouch.json"
 echo "${STAMP}" >> /workspace/lode_stamps.txt
 
 # Host-facing result (the capture-file carries the same envelope). One slot —
-# conclave produces exactly one Lode (the cohort is one package).
+# conclave produces exactly one Lode (RBGC_RELIQUARY_TOOL_* / RBGC_LODE_TAG_SPRUE).
 RESULT="{\"rbls_slot_1\":{\"rbls_stamp\":\"${STAMP}\",\"rbls_vouch\":${ENVELOPE}}}"
 
 echo "=== Writing capture results ==="

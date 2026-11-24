@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,20 +21,25 @@
 
 set -euo pipefail
 
-test -z "${ZRBHO_SOURCED:-}" || buc_die "Module rbho multiply sourced - check sourcing hierarchy"
+test -z "${ZRBHO_SOURCED:-}" || buc_die_now "Module rbho multiply sourced - check sourcing hierarchy"
 ZRBHO_SOURCED=1
+
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/../rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
 # rbho walkthroughs do not require rbho-local state (they probe the
 # filesystem directly and render via buh_*). The kindle exists to assert
 # the dependency ordering is correct at furnish time.
 
 zrbho_kindle() {
-  test -z "${ZRBHO_KINDLED:-}" || buc_die "Module rbho already kindled"
+  test -z "${ZRBHO_KINDLED:-}" || buc_die_now "Module rbho already kindled"
   zrbgc_sentinel
   zbuz_sentinel
   zrbz_sentinel
 
-  # BCG stderr-capture prefixes for docker probes — discriminator appended at use site.
+  # stderr-capture prefixes for docker probes — discriminator appended at use site.
   # BURD_TEMP_DIR is dispatcher-provided (rbho is thin furnish — does not kindle burd).
   readonly ZRBHO_DOCKER_IMAGES_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_images_"
   readonly ZRBHO_DOCKER_PS_PREFIX="${BURD_TEMP_DIR}/zrbho_docker_ps_"
@@ -46,20 +52,22 @@ zrbho_kindle() {
   readonly RBHO_TRACK_TADMOR="Tadmor Security"
   readonly RBHO_TRACK_FIRST_BUILD="Your First Cloud Build"
   readonly RBHO_TRACK_AIRGAP="Airgap Cloud Build"
-  readonly RBHO_TRACK_BIND="Bind Cloud Build"
+  readonly RBHO_TRACK_ANNEX="${RBCG_VESSEL_MODE_ANNEX_BASE_LETTRINE} Cloud Build"
   readonly RBHO_TRACK_GRAFT="Graft Cloud Build"
 
   readonly ZRBHO_KINDLED=1
 }
 
 zrbho_sentinel() {
-  test "${ZRBHO_KINDLED:-}" = "1" || buc_die "Module rbho not kindled - call zrbho_kindle first"
+  test "${ZRBHO_KINDLED:-}" = "1" || buc_die_now "Module rbho not kindled - call zrbho_kindle first"
 }
 
 # Probe utilities — no sentinels, all work pre-kindle. Filesystem probes
 # for onboarding status; callers declare caller-scope variables locally.
 
 zrbho_po_status() {
+  zrbho_sentinel
+
   local -r z_flag="${1:-}"
   local -r z_text="${2:-}"
   if test "${z_flag}" = "1"; then
@@ -71,15 +79,20 @@ zrbho_po_status() {
 
 # Extract a KEY=VALUE from a file; stdout empty if missing.  No sourcing.
 zrbho_po_extract_capture() {
+  zrbho_sentinel
+
   local -r z_file="${1:-}"
   local -r z_key="${2:-}"
   test -n "${z_key}"  || return 1
   test -f "${z_file}" || return 1
   local z_line=""
-  while IFS= read -r z_line; do
-    case "${z_line}" in "${z_key}="*) echo "${z_line#"${z_key}="}"; return 0 ;; esac
-  done < "${z_file}"
-  return 1
+  local z_value=""
+  local z_found=0
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    case "${z_line}" in "${z_key}="*) z_value="${z_line#"${z_key}="}"; z_found=1; break ;; esac
+  done < "${z_file}" || return 1
+  test "${z_found}" = "1" || return 1
+  echo "${z_value}" || return 1
 }
 
 # eof

@@ -4,7 +4,7 @@
 # Recipe Bottle base compose file — static infrastructure
 #
 # Invoked via:
-#   docker compose --env-file rbmm_moorings/rbrr.env --env-file rbmm_moorings/rbrd.env \
+#   docker compose --env-file rbmm_moorings/rbrr.env --env-file {temp}/rbscc_codicil.env \
 #     --env-file rbmm_moorings/{moniker}/rbrn.env \
 #     -f Tools/rbk/rbob_compose.yml [-f rbmm_moorings/{moniker}/rbnnh_compose.yml] -p {moniker} up -d
 #
@@ -12,14 +12,14 @@
 #   1. YAML interpolation (${VAR} in this file — image refs, subnet, container names)
 #   2. Container environment forwarding (bare names in environment: sections)
 #
+# Image refs arrive whole via the rbscc_codicil.env codicil (written at
+# zrbob_kindle): per-vessel, kludge-namespace or GAR-namespace by hallmark kind.
+#
 # Network topology:
 #   sentry: transit (uplink to internet via bridge) + enclave (down to bottle)
 #     Interface naming and default-route assignment are NOT controlled by compose:
 #       - eth0/eth1 ordering is Docker-engine-defined (sentry IP-discovers via RBRN_ENCLAVE_SENTRY_IP)
-#       - default route is assigned to the alphabetically-first attached network's gateway
-#         (compose 'priority:' keys empirically do NOT influence this on linux Docker
-#         engine 28.x or mac Docker Desktop 28.x — sentry replaces the default route
-#         with one via uplink at RBJp1, see rbjs_sentry.sh)
+#       - default-route selection is Docker-engine-defined (RBr_2c9)
 #   pentacle: enclave only (static IP, routes through sentry)
 #   bottle: shares pentacle network namespace (network_mode: service:pentacle)
 #
@@ -27,8 +27,11 @@
 
 services:
   sentry:
-    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    image: ${RBOB_SENTRY_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
+    labels:
+      # Key literal must match RBCC_label_provenance; value rides the env bridge
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     privileged: true
     networks:
       transit: {}
@@ -59,8 +62,10 @@ services:
       start_period: 5s
 
   pentacle:
-    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    image: ${RBOB_SENTRY_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle
+    labels:
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     privileged: true
     networks:
       enclave:
@@ -79,8 +84,10 @@ services:
       start_period: 5s
 
   bottle:
-    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_BOTTLE_HALLMARK}/image:${RBRN_BOTTLE_HALLMARK}
+    image: ${RBOB_BOTTLE_IMAGE}
     container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle
+    labels:
+      rbob.provenance: ${RBOB_CHARGE_PROVENANCE}
     network_mode: "service:pentacle"
     security_opt:
       - label:disable
@@ -91,6 +98,7 @@ services:
       - RBOB_HOST_UID
       - RBOB_HOST_GID
       - RBRV_USER
+      - RBJE_PROBE
     depends_on:
       pentacle:
         condition: service_healthy

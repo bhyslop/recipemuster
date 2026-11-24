@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,49 +24,64 @@
 # return variable (z_buym_yelp).  No subshells, no stdout, no stderr,
 # cannot fail.
 #
-# All terminal capability decisions are deferred to buyf_format_yawp,
+# All terminal capability decisions are deferred to buym_format_yawp,
 # which resolves diastema markers into ANSI color sequences and OSC-8
 # hyperlinks at display time.
 #
 # Namespace:
-#   buyy_  — yelp yawp functions (set z_buym_yelp)
-#   buyc_  — configurators (set ZBUYM_CONFIG_MODE before kindle)
-#   buyf_  — format yawp (set z_buym_format)
-#   buym_  — module infrastructure (kindle, sentinel)
+#   buym_   — every public declaration here.  The module is one file, so one
+#             prefix homes all of it and the groups below are section
+#             boundaries rather than sibling prefixes.
+#   zbuym_  — internal (kindle, palette, sentinel, the tabtarget globs).
+#   BUYC_   — the color palette, named for color and not for the
+#             configurators that select it.
+#
+# Groups, by section:
+#   configurators (set ZBUYM_CONFIG_MODE, then re-resolve the palette)
+#   yelp yawps    (set z_buym_yelp)
+#   format yawps  (set z_buym_format)
+#   tabtarget paths (set z_buym_tt_path, z_buym_stand_tt_path)
 #
 # Usage pattern — yawp+capture on one line via semicolon:
-#   buyy_cmd_yawp "git status";            local -r z_cmd="${z_buym_yelp}"
-#   buyy_link_yawp "${z_docs}" "Depot";    local -r z_depot="${z_buym_yelp}"
+#   buym_cmd_yawp "git status";            local -r z_cmd="${z_buym_yelp}"
+#   buym_link_yawp "${z_docs}" "Depot";    local -r z_depot="${z_buym_yelp}"
 #   buh_line "Run ${z_cmd} to see your ${z_depot} status."
 #
 # Never use z_buym_yelp directly in buh_line — the semicolon form
 # captures immediately, but the slot is still overwritten by the
-# next yawp.  See buyy_* section for details.
+# next yawp.  See the yelp yawp section for details.
 
 set -euo pipefail
 
 # Multiple inclusion guard
-test -z "${ZBUYM_SOURCED:-}" || return 0
+test -z "${ZBUYM_SOURCED:-}" || buc_die_now "Module buym multiply sourced - check sourcing hierarchy"
 ZBUYM_SOURCED=1
 
 ######################################################################
-# Configurators (buyc_*)
+# Configurators
 #
-# Called before kindle.  Each sets ZBUYM_CONFIG_MODE flag.
-# Kindle reads the mode and defines readonly BUYC_* palette.
+# Each sets ZBUYM_CONFIG_MODE and re-resolves the palette, so the caller's
+# mode wins whenever it is set — before kindle or after it.  Kindle splits
+# for exactly this: zbuym_kindle defines what the mode cannot reach (the ESC
+# byte, the diastema markers, the yawp slots), and zbuym_palette defines what
+# it can (BUYC_* and z_buym_use_hyperlinks).  The palette is therefore
+# assigned rather than sealed; the mode-independent constants stay readonly.
 
 ZBUYM_CONFIG_MODE="dispatch"
 
-buyc_dispatch()      { ZBUYM_CONFIG_MODE="dispatch"; }
-buyc_unconditional() { ZBUYM_CONFIG_MODE="unconditional"; }
-buyc_plain()         { ZBUYM_CONFIG_MODE="plain"; }
+buym_dispatch()      { zbuym_sentinel; ZBUYM_CONFIG_MODE="dispatch";      zbuym_palette; }
+buym_unconditional() { zbuym_sentinel; ZBUYM_CONFIG_MODE="unconditional"; zbuym_palette; }
+buym_plain()         { zbuym_sentinel; ZBUYM_CONFIG_MODE="plain";         zbuym_palette; }
 
 ######################################################################
-# Module kindle — defines all constants and initializes mutable state
+# Palette resolve — the mode-dependent half, re-resolvable
+#
+# Reads ZBUYM_CONFIG_MODE and defines BUYC_* and z_buym_use_hyperlinks.
+# Assigned rather than sealed: a configurator calls this again to move the
+# palette onto a mode set after kindle.  Requires ZBUYM_ESC, which kindle
+# defines ahead of the first call.
 
-zbuym_kindle() {
-  test -z "${ZBUYM_KINDLED:-}" || return 0
-
+zbuym_palette() {
   local z_use_color=0
 
   case "${ZBUYM_CONFIG_MODE}" in
@@ -76,11 +92,69 @@ zbuym_kindle() {
       z_use_color=0
       ;;
     dispatch|*)
-      if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb"; then
-        z_use_color=1
-      fi
+      # The dispatch verdict wins when present: under dispatch this module's
+      # streams are always pipes (the log relay), so a local tty probe here
+      # carries no signal — the pre-pipe tty truth lives only in BURD_COLOR,
+      # computed once by zbud_resolve_color (BUr_q2m).  Local detection is
+      # the undispatched fallback alone, and probes stderr because every
+      # buym-rendered line lands there.
+      case "${BURD_COLOR:-}" in
+        0|1)
+          z_use_color="${BURD_COLOR}"
+          ;;
+        *)
+          if test -z "${NO_COLOR:-}" && test -n "${TERM:-}" && test "${TERM}" != "dumb" && test -t 2; then
+            z_use_color=1
+          fi
+          ;;
+      esac
       ;;
   esac
+
+  # --- Public color constants (BUYC_*) ---
+  if test "${z_use_color}" = "1"; then
+    BUYC_RESET="${ZBUYM_ESC}[0m"
+    BUYC_CYAN="${ZBUYM_ESC}[36m"
+    BUYC_MAGENTA="${ZBUYM_ESC}[35m"
+    BUYC_BRIGHT_YELLOW="${ZBUYM_ESC}[1;33m"
+    BUYC_BRIGHT_RED="${ZBUYM_ESC}[1;31m"
+    BUYC_BRIGHT_WHITE="${ZBUYM_ESC}[1;37m"
+    BUYC_LINK="${ZBUYM_ESC}[97;4m"
+    BUYC_HREF="${ZBUYM_ESC}[34;4m"
+    BUYC_GREEN="${ZBUYM_ESC}[32m"
+    BUYC_ORANGE="${ZBUYM_ESC}[33m"
+    BUYC_GRAY="${ZBUYM_ESC}[90m"
+  else
+    BUYC_RESET=""
+    BUYC_CYAN=""
+    BUYC_MAGENTA=""
+    BUYC_BRIGHT_YELLOW=""
+    BUYC_BRIGHT_RED=""
+    BUYC_BRIGHT_WHITE=""
+    BUYC_LINK=""
+    BUYC_HREF=""
+    BUYC_GREEN=""
+    BUYC_ORANGE=""
+    BUYC_GRAY=""
+  fi
+
+  # --- Hyperlink mode ---
+  # Mutable module state, not a kindle constant: the palette re-resolves, so
+  # this moves with the mode like the BUYC_* it stands beside.
+  local z_hyperlinks=0
+  if test "${z_use_color}" = "1" && test "${BURD_HYPERLINKS:-1}" != "0"; then
+    z_hyperlinks=1
+  fi
+  z_buym_use_hyperlinks="${z_hyperlinks}"
+}
+
+
+######################################################################
+# Module kindle — the mode-independent constants, the mutable state, and
+# the first palette resolve
+
+zbuym_kindle() {
+  test -z "${ZBUYM_KINDLED:-}" || return 0
 
   # --- ESC byte constant (ANSI-C quoting) ---
   # Real ESC byte (0x1B) via $'\033'.  Avoids "\033" literal strings that
@@ -89,43 +163,9 @@ zbuym_kindle() {
   # sequences that follow OSC-8 String Terminators.
   readonly ZBUYM_ESC=$'\033'
 
-  # --- Public color constants (BUYC_*) ---
-  if test "${z_use_color}" = "1"; then
-    readonly BUYC_RESET="${ZBUYM_ESC}[0m"
-    readonly BUYC_CYAN="${ZBUYM_ESC}[36m"
-    readonly BUYC_MAGENTA="${ZBUYM_ESC}[35m"
-    readonly BUYC_BRIGHT_YELLOW="${ZBUYM_ESC}[1;33m"
-    readonly BUYC_BRIGHT_RED="${ZBUYM_ESC}[1;31m"
-    readonly BUYC_BRIGHT_WHITE="${ZBUYM_ESC}[1;37m"
-    readonly BUYC_LINK="${ZBUYM_ESC}[97;4m"
-    readonly BUYC_HREF="${ZBUYM_ESC}[34;4m"
-    readonly BUYC_GREEN="${ZBUYM_ESC}[32m"
-    readonly BUYC_ORANGE="${ZBUYM_ESC}[33m"
-    readonly BUYC_GRAY="${ZBUYM_ESC}[90m"
-  else
-    readonly BUYC_RESET=""
-    readonly BUYC_CYAN=""
-    readonly BUYC_MAGENTA=""
-    readonly BUYC_BRIGHT_YELLOW=""
-    readonly BUYC_BRIGHT_RED=""
-    readonly BUYC_BRIGHT_WHITE=""
-    readonly BUYC_LINK=""
-    readonly BUYC_HREF=""
-    readonly BUYC_GREEN=""
-    readonly BUYC_ORANGE=""
-    readonly BUYC_GRAY=""
-  fi
-
-  # --- Hyperlink mode ---
-  local z_hyperlinks=0
-  if test "${z_use_color}" = "1" && test -z "${BURD_NO_HYPERLINKS:-}"; then
-    z_hyperlinks=1
-  fi
-  readonly ZBUYM_USE_HYPERLINKS="${z_hyperlinks}"
-
   # --- Diastema markers (non-printing byte sequences) ---
   # Each marker is a unique non-printing sequence that yelp yawp functions
-  # stamp into strings.  buyf_format_yawp resolves them at display time.
+  # stamp into strings.  buym_format_yawp resolves them at display time.
   # Prefix byte is \x02 (STX) — \x01 (SOH) is reserved by bash internally
   # for BASH_REMATCH group delimiting and gets silently dropped from matches.
   readonly ZBUYM_DIASTEMA_CMD=$'\x02\x11'
@@ -144,6 +184,16 @@ zbuym_kindle() {
   z_buym_yelp=""
   z_buym_format=""
   z_buym_tt_path=""
+  z_buym_stand_tt_path=""
+
+  # --- The launch stand's fixed dirname beneath a target infield ---
+  # The engine's own dirname for its launch stand, which the estate's
+  # stand-clone step clones a target's stand into. It is spelled here as the
+  # literal the engine itself uses, since this kit sources none of the
+  # engine's files.
+  readonly ZBUYM_STAND_DIRNAME="jjqy_equerry"
+
+  zbuym_palette
 
   readonly ZBUYM_KINDLED=1
 }
@@ -154,42 +204,42 @@ zbuym_sentinel() {
 
 
 ######################################################################
-# Yelp yawp functions (buyy_*)
+# Yelp yawp functions
 #
 # Pure assignment to z_buym_yelp.  No stdout, no stderr, cannot fail.
 # Caller MUST capture on the same line via semicolon — next yawp
 # overwrites the slot.  See module header for usage pattern.
 
-# buyy_cmd_yawp text;  local -r z_cmd="${z_buym_yelp}"
-buyy_cmd_yawp() {
+# buym_cmd_yawp text;  local -r z_cmd="${z_buym_yelp}"
+buym_cmd_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_CMD}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_ui_yawp text;  local -r z_ui="${z_buym_yelp}"
-buyy_ui_yawp() {
+# buym_ui_yawp text;  local -r z_ui="${z_buym_yelp}"
+buym_ui_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_UI}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_href_yawp url display;  local -r z_href="${z_buym_yelp}"
-buyy_href_yawp() {
+# buym_href_yawp url display;  local -r z_href="${z_buym_yelp}"
+buym_href_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_HREF_URL}${1:-}${ZBUYM_DIASTEMA_HREF_TEXT}${2:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_link_yawp base_url anchor [display];  local -r z_link="${z_buym_yelp}"
-buyy_link_yawp() {
+# buym_link_yawp base_url anchor [display];  local -r z_link="${z_buym_yelp}"
+buym_link_yawp() {
   zbuym_sentinel
   local -r z_url="${1:-}#${2:-}"
   local -r z_display="${3:-${2:-}}"
   z_buym_yelp="${ZBUYM_DIASTEMA_LINK_URL}${z_url}${ZBUYM_DIASTEMA_LINK_TEXT}${z_display}${ZBUYM_DIASTEMA_END}"
 }
 
-# zbuym_tt_path colophon [imprint];  matched path -> z_buym_tt_path (empty on no match)
+# buym_tt_path colophon [imprint];  matched path -> z_buym_tt_path (empty on no match)
 # The single colophon->tabtarget-filename glob for the kit.  Callers own the
 # no-match policy (placeholder vs die) by inspecting the empty result.
-zbuym_tt_path() {
+buym_tt_path() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
   local z_matches
@@ -198,43 +248,80 @@ zbuym_tt_path() {
   else
     z_matches=("${BURD_TABTARGET_DIR}/${z_colophon}."*)
   fi
-  test -e "${z_matches[0]}" && z_buym_tt_path="${z_matches[0]}" || z_buym_tt_path=""
+  z_buym_tt_path=""
+  if test -e "${z_matches[0]}"; then
+    z_buym_tt_path="${z_matches[0]}"
+  fi
 }
 
-# buyy_tt_yawp colophon [imprint] [args];  local -r z_tt="${z_buym_yelp}"
-buyy_tt_yawp() {
+# buym_stand_tt_path infield colophon [imprint];  matched path -> z_buym_stand_tt_path (empty on no match)
+# The same glob as buym_tt_path, run in the launch stand standing in the named
+# target infield rather than in this tree: the stand's doors lie beneath it
+# under this tree's own tabtarget directory, which is where the forge's build
+# lays them.  Callers own the no-match policy by inspecting the empty result.
+buym_stand_tt_path() {
+  zbuym_sentinel
+  buc_doc_brief "Compose the path of a door in the launch stand of a target infield"
+  buc_doc_param "infield" "The target infield the stand stands in"
+  buc_doc_param "colophon" "The door's colophon"
+  buc_doc_oparm "imprint" "The door's imprint"
+  buc_doc_shown || return 0
+
+  local -r z_infield="${1:-}"
+  local -r z_colophon="${2:-}"
+  local -r z_imprint="${3:-}"
+  test -n "${z_infield}" || buc_die_now "buym_stand_tt_path: a target infield is required"
+  local -r z_dir="${z_infield}/${ZBUYM_STAND_DIRNAME}/${BURD_TABTARGET_DIR}"
+  local z_matches=()
+  if test -n "${z_imprint}"; then
+    z_matches=("${z_dir}/${z_colophon}."*".${z_imprint}.sh")
+  else
+    z_matches=("${z_dir}/${z_colophon}."*)
+  fi
+  z_buym_stand_tt_path=""
+  if test -e "${z_matches[0]}"; then
+    z_buym_stand_tt_path="${z_matches[0]}"
+  fi
+}
+
+# buym_tt_yawp colophon [imprint] [args];  local -r z_tt="${z_buym_yelp}"
+buym_tt_yawp() {
   zbuym_sentinel
   local -r z_colophon="${1:-}"
-  zbuym_tt_path "${z_colophon}" "${2:-}"
+  buym_tt_path "${z_colophon}" "${2:-}"
   local z_path="${z_buym_tt_path}"
   if test -z "${z_path}"; then
-    test -n "${2:-}" && z_path="??${z_colophon}.${2}??" || z_path="??${z_colophon}??"
+    if test -n "${2:-}"; then
+      z_path="??${z_colophon}.${2}??"
+    else
+      z_path="??${z_colophon}??"
+    fi
   fi
   z_buym_yelp="${ZBUYM_DIASTEMA_TT}${z_path}${3:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_pass_yawp text;  local -r z_pass="${z_buym_yelp}"
-buyy_pass_yawp() {
+# buym_pass_yawp text;  local -r z_pass="${z_buym_yelp}"
+buym_pass_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_PASS}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_warn_yawp text;  local -r z_warn="${z_buym_yelp}"
-buyy_warn_yawp() {
+# buym_warn_yawp text;  local -r z_warn="${z_buym_yelp}"
+buym_warn_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_WARN}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
-# buyy_fail_yawp text;  local -r z_fail="${z_buym_yelp}"
-buyy_fail_yawp() {
+# buym_fail_yawp text;  local -r z_fail="${z_buym_yelp}"
+buym_fail_yawp() {
   zbuym_sentinel
   z_buym_yelp="${ZBUYM_DIASTEMA_FAIL}${1:-}${ZBUYM_DIASTEMA_END}"
 }
 
 ######################################################################
-# Format yawp (buyf_*)
+# Format yawp
 #
-# buyf_format_yawp color string
+# buym_format_yawp color string
 #   The single intelligence point.  Takes a BUYC_* color constant
 #   (the line's ambient color) and a diastema-marked string.
 #   Sets z_buym_format with the resolved string.
@@ -245,7 +332,7 @@ buyy_fail_yawp() {
 #   3. All DIASTEMA_END → ambient color
 #   4. Prepend ambient, append BUYC_RESET
 
-buyf_format_yawp() {
+buym_format_yawp() {
   zbuym_sentinel
   local z_ambient="${1:-}"
   local z_str="${2:-}"
@@ -270,14 +357,16 @@ buyf_format_yawp() {
     local z_href_text="${BASH_REMATCH[2]}"
     local z_href_full="${BASH_REMATCH[0]}"
     local z_href_replacement=""
-    if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
+    if test "${z_buym_use_hyperlinks}" = "1"; then
       z_href_replacement="${BUYC_HREF}${ZBUYM_ESC}]8;;${z_href_url}${ZBUYM_ESC}\\${z_href_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
-    elif test -n "${BUYC_HREF}"; then
-      z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient} <${z_href_url}>"
     else
-      z_href_replacement="${z_href_text}"
+      # No escape rendered: the URL stays on screen beside the text, unless the
+      # text is the URL already.
+      local z_href_tail=""
+      test "${z_href_text}" = "${z_href_url}" || z_href_tail=" <${z_href_url}>"
+      z_href_replacement="${BUYC_HREF}${z_href_text}${BUYC_RESET}${z_ambient}${z_href_tail}"
     fi
-    z_str="${z_str/${z_href_full}/${z_href_replacement}}"
+    z_str="${z_str%%"${z_href_full}"*}${z_href_replacement}${z_str#*"${z_href_full}"}"
   done
 
   # Process LINK markers
@@ -287,37 +376,56 @@ buyf_format_yawp() {
     local z_link_text="${BASH_REMATCH[2]}"
     local z_link_full="${BASH_REMATCH[0]}"
     local z_link_replacement=""
-    if test "${ZBUYM_USE_HYPERLINKS}" = "1"; then
+    if test "${z_buym_use_hyperlinks}" = "1"; then
       z_link_replacement="${BUYC_LINK}${ZBUYM_ESC}]8;;${z_link_url}${ZBUYM_ESC}\\${z_link_text}${ZBUYM_ESC}]8;;${ZBUYM_ESC}\\${BUYC_RESET}${z_ambient}"
-    elif test -n "${BUYC_LINK}"; then
-      z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient} <${z_link_url}>"
     else
-      z_link_replacement="${z_link_text}"
+      # No escape rendered: the URL stays on screen beside the text, unless the
+      # text is the URL already.
+      local z_link_tail=""
+      test "${z_link_text}" = "${z_link_url}" || z_link_tail=" <${z_link_url}>"
+      z_link_replacement="${BUYC_LINK}${z_link_text}${BUYC_RESET}${z_ambient}${z_link_tail}"
     fi
-    z_str="${z_str/${z_link_full}/${z_link_replacement}}"
+    z_str="${z_str%%"${z_link_full}"*}${z_link_replacement}${z_str#*"${z_link_full}"}"
   done
 
   # --- Resolve simple markers ---
-  z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/${BUYC_CYAN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_UI}/${BUYC_MAGENTA}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_TT}/${BUYC_CYAN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_PASS}/${BUYC_GREEN}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_WARN}/${BUYC_ORANGE}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_FAIL}/${BUYC_BRIGHT_RED}}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_END}/${z_ambient}}"
+  # Each marker is swapped by splitting the string on it, never by a
+  # substitution operator, whose replacement half reads & and \ on bash 5.2
+  # and keeps written quotes on bash 3.2.
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_CMD}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_CMD}"*}${BUYC_CYAN}${z_str#*"${ZBUYM_DIASTEMA_CMD}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_UI}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_UI}"*}${BUYC_MAGENTA}${z_str#*"${ZBUYM_DIASTEMA_UI}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_TT}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_TT}"*}${BUYC_CYAN}${z_str#*"${ZBUYM_DIASTEMA_TT}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_PASS}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_PASS}"*}${BUYC_GREEN}${z_str#*"${ZBUYM_DIASTEMA_PASS}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_WARN}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_WARN}"*}${BUYC_ORANGE}${z_str#*"${ZBUYM_DIASTEMA_WARN}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_FAIL}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_FAIL}"*}${BUYC_BRIGHT_RED}${z_str#*"${ZBUYM_DIASTEMA_FAIL}"}"
+  done
+  while test "${z_str}" != "${z_str#*"${ZBUYM_DIASTEMA_END}"}"; do
+    z_str="${z_str%%"${ZBUYM_DIASTEMA_END}"*}${z_ambient}${z_str#*"${ZBUYM_DIASTEMA_END}"}"
+  done
 
   z_buym_format="${z_ambient}${z_str}${BUYC_RESET}"
 }
 
-# buyf_strip_yawp string
-#   Plain-text sibling of buyf_format_yawp.  Takes a diastema-marked
+# buym_strip_yawp string
+#   Plain-text sibling of buym_format_yawp.  Takes a diastema-marked
 #   string and resolves it to bare text — no ANSI color, no OSC-8
 #   hyperlinks.  HREF and LINK degrade to "text <url>"; all other
 #   markers vanish.  Independent of terminal mode (the kindle's color
 #   decision does not gate this path), so a transcript carries neither
 #   ANSI nor diastema bytes regardless of TERM.  Sets z_buym_format.
 
-buyf_strip_yawp() {
+buym_strip_yawp() {
   zbuym_sentinel
   local z_str="${1:-}"
 
@@ -339,7 +447,7 @@ buyf_strip_yawp() {
     local z_href_url="${BASH_REMATCH[1]}"
     local z_href_text="${BASH_REMATCH[2]}"
     local z_href_full="${BASH_REMATCH[0]}"
-    z_str="${z_str/${z_href_full}/${z_href_text} <${z_href_url}>}"
+    z_str="${z_str%%"${z_href_full}"*}${z_href_text} <${z_href_url}>${z_str#*"${z_href_full}"}"
   done
 
   local z_link_pattern="${ZBUYM_DIASTEMA_LINK_URL}([^${ZBUYM_DIASTEMA_LINK_TEXT}]*)${ZBUYM_DIASTEMA_LINK_TEXT}([^${ZBUYM_DIASTEMA_END}]*)${ZBUYM_DIASTEMA_END}"
@@ -347,17 +455,17 @@ buyf_strip_yawp() {
     local z_link_url="${BASH_REMATCH[1]}"
     local z_link_text="${BASH_REMATCH[2]}"
     local z_link_full="${BASH_REMATCH[0]}"
-    z_str="${z_str/${z_link_full}/${z_link_text} <${z_link_url}>}"
+    z_str="${z_str%%"${z_link_full}"*}${z_link_text} <${z_link_url}>${z_str#*"${z_link_full}"}"
   done
 
   # --- Strip simple markers and ambient-restore markers to nothing ---
-  z_str="${z_str//${ZBUYM_DIASTEMA_CMD}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_UI}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_TT}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_PASS}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_WARN}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_FAIL}/}"
-  z_str="${z_str//${ZBUYM_DIASTEMA_END}/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_CMD}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_UI}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_TT}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_PASS}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_WARN}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_FAIL}"/}"
+  z_str="${z_str//"${ZBUYM_DIASTEMA_END}"/}"
 
   z_buym_format="${z_str}"
 }

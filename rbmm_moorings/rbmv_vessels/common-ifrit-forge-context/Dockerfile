@@ -5,7 +5,7 @@
 # By pre-staging all apt packages and compiled Rust dependencies, the
 # airgap build needs zero network access — only project source compiles.
 #
-# Build context: rbev-vessels/common-ifrit-forge-context/
+# Build context: rbmv_vessels/common-ifrit-forge-context/
 # Cargo.toml + Cargo.lock must stay in sync with common-ifrit-context/.
 
 ARG RBF_IMAGE_1
@@ -30,4 +30,4 @@ WORKDIR /build
 COPY Cargo.toml Cargo.lock ./
 RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
     cargo build --release && \
-    rm -rf src target/release/deps/rbid-* target/release/.fingerprint/rbid-*
+    rm -rf src target/release/deps/rbti-* target/release/.fingerprint/rbti-*

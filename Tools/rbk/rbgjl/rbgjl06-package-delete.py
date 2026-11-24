@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # RBGJL Step 06: Cloud-dispatched GAR package delete by convergence. Shared by
 #   banish (Lode) and abjure (hallmark).
-# Builder: gcr.io/cloud-builders/gcloud, digest-pinned (ZRBFC_DELETE_BUILDER —
+# Builder: gcr.io/cloud-builders/gcloud, digest-pinned (ZRBFC0_DELETE_BUILDER —
 #   the reliquary-less delete build runs as Director, so its bootstrap never
 #   floats; python3 + urllib + json are the frozen needs).
 # Runs as Director (the build's serviceAccount — the only identity holding

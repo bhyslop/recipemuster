@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,22 +24,30 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from the substrate's generated
+# constants, sourced above the inclusion guard so the tinder block stays the run
+# behind it. The sourced file carries its own inclusion guard, so a sibling
+# sourcing it costs nothing.
+source "${BASH_SOURCE[0]%/*}/bubg_breviary.sh" || buc_die_now "Failed to source bubg_breviary.sh"
+
 # Multiple inclusion detection
-test -z "${ZBURE_SOURCED:-}" || buc_die "Module bure multiply sourced - check sourcing hierarchy"
+test -z "${ZBURE_SOURCED:-}" || buc_die_now "Module bure multiply sourced - check sourcing hierarchy"
 ZBURE_SOURCED=1
 
 ######################################################################
 # Internal Functions (zbure_*)
 
 zbure_kindle() {
-  test -z "${ZBURE_KINDLED:-}" || buc_die "Module bure already kindled"
+  test -z "${ZBURE_KINDLED:-}" || buc_die_now "Module bure already kindled"
 
   # No defaults set — buv uses ${!varname:-} for safe indirect expansion under set -u.
   # Unset variables are detected distinctly from empty by zbuv_check_capture.
   # Exception: ambient regime defaults for optional behavioral overrides.
   BURE_VERBOSE="${BURE_VERBOSE:-0}"
   BURE_COLOR="${BURE_COLOR:-auto}"
+  BURE_HYPERLINKS="${BURE_HYPERLINKS:-1}"
   BURE_COUNTDOWN="${BURE_COUNTDOWN:-}"
+  BURE_CONFIRM="${BURE_CONFIRM:-}"
   BURE_TWEAK_NAME="${BURE_TWEAK_NAME:-}"
   BURE_TWEAK_VALUE="${BURE_TWEAK_VALUE:-}"
   BURE_LABEL="${BURE_LABEL:-}"
@@ -49,8 +58,10 @@ zbure_kindle() {
 
   buv_group_enroll "Behavioral Overrides"
   buv_string_enroll  BURE_COUNTDOWN   0  4  "Countdown override (skip to disable)"
+  buv_string_enroll  BURE_CONFIRM     0  4  "Confirmation override (skip passes a confirmation gate unprompted)"
   buv_enum_enroll    BURE_VERBOSE     "Verbosity level" 0 1 2 3
   buv_enum_enroll    BURE_COLOR       "Color mode" auto 0 1
+  buv_enum_enroll    BURE_HYPERLINKS  "Hyperlink mode (0 shows each link's URL beside its text in place of the OSC 8 escape)" 0 1
 
   buv_group_enroll "Tweak Mechanism"
   buv_string_enroll  BURE_TWEAK_NAME  0  64   "Tweak name (buo-sprued; consumer-interpreted)"
@@ -69,7 +80,7 @@ zbure_kindle() {
 }
 
 zbure_sentinel() {
-  test "${ZBURE_KINDLED:-}" = "1" || buc_die "Module bure not kindled - call zbure_kindle first"
+  test "${ZBURE_KINDLED:-}" = "1" || buc_die_now "Module bure not kindled - call zbure_kindle first"
 }
 
 # Enforce all BURE enrollment validations
@@ -81,7 +92,13 @@ zbure_enforce() {
   # Custom enforce: BURE_COUNTDOWN must be empty or "skip"
   if test -n "${BURE_COUNTDOWN}"; then
     test "${BURE_COUNTDOWN}" = "skip" \
-      || buc_die "BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'"
+      || buc_reject "${BUBG_REGIME_DENTIL}" "BURE_COUNTDOWN must be 'skip' or empty, got '${BURE_COUNTDOWN}'"
+  fi
+
+  # Custom enforce: BURE_CONFIRM must be empty or "skip"
+  if test -n "${BURE_CONFIRM}"; then
+    test "${BURE_CONFIRM}" = "skip" \
+      || buc_reject "${BUBG_REGIME_DENTIL}" "BURE_CONFIRM must be 'skip' or empty, got '${BURE_CONFIRM}'"
   fi
 
   # Custom enforce: BURE_TWEAK_NAME, when set, must carry the buo tweak sprue —
@@ -89,13 +106,13 @@ zbure_enforce() {
   # of tweaks is `grep buo`); it never enumerates consumer names, so this stays
   # generic. An unregistered or mistyped tweak name fails loud here rather than
   # silently no-op'ing at the consumer.
-  # Doctrine (BUS0 "Tweak Mechanism"): a tweak forces one hard-to-produce
+  # Doctrine: a tweak forces one hard-to-produce
   # condition for a test to observe handled correctly; one tweak at a time per
   # test/fixture/suite, by design; a suite may reserve the slot for a standing guard.
   if test -n "${BURE_TWEAK_NAME}"; then
     case "${BURE_TWEAK_NAME}" in
-      buo[a-z]*_*) : ;;
-      *) buc_die "BURE_TWEAK_NAME must carry the buo sprue (buo<segment>_<name>), got '${BURE_TWEAK_NAME}'" ;;
+      buo[abcdefghijklmnopqrstuvwxyz]*_*) : ;;
+      *) buc_reject "${BUBG_REGIME_DENTIL}" "BURE_TWEAK_NAME must carry the buo sprue (buo<segment>_<name>), got '${BURE_TWEAK_NAME}'" ;;
     esac
   fi
 }

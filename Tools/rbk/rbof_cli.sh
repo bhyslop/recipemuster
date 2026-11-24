@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +21,13 @@
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 zrbof_furnish() {
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
-  buc_doc_env "BURD_OUTPUT_DIR       " "Bash Dispatch Utility provided output directory (fact files)"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_row "BURD_OUTPUT_DIR       " "Bash Dispatch Utility provided output directory (fact files)"
   buc_doc_env_done || return 0
 
   local -r z_command="${1:-}"
@@ -34,14 +36,10 @@ zrbof_furnish() {
 
   # Light core — sufficient for instate (a pure rbrr.env single-field rewrite)
   # and the foedus-resolution shared by both verbs.
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${BURD_BUK_DIR}/buf_fact.sh"
-  source "${z_rbk_kit_dir}/rbcc_constants.sh"
-  source "${z_rbk_kit_dir}/rbof_foedus.sh"
+  source "${BURD_BUK_DIR}/buf_fact.sh" || buc_die_now "Failed to source buf_fact.sh"
+  source "${z_rbk_kit_dir}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk_kit_dir}/rbof_foedus.sh" || buc_die_now "Failed to source rbof_foedus.sh"
 
-  zbuv_kindle
-  zburd_kindle
   zrbcc_kindle
   zrbof_kindle
 
@@ -50,20 +48,20 @@ zrbof_furnish() {
       # descry and canvass read the org-level workforce-pool surface from the
       # Manor — the same payor-OAuth credential and IAM-REST stack affiance/jilt
       # use. instate needs none of this, so it is sourced/kindled only here.
-      source "${z_rbk_kit_dir}/rbgc_constants.sh"
-      source "${z_rbk_kit_dir}/rbrr_regime.sh"
-      source "${z_rbk_kit_dir}/rbrd_regime.sh"
-      source "${z_rbk_kit_dir}/rbdc_derived.sh"
-      source "${z_rbk_kit_dir}/rbrp_regime.sh"
-      source "${z_rbk_kit_dir}/rbgo_oauth.sh"
-      source "${z_rbk_kit_dir}/rbuh_http.sh"
-      source "${z_rbk_kit_dir}/rbge_rest.sh"
-      source "${z_rbk_kit_dir}/rbgi_iam.sh"
-      source "${z_rbk_kit_dir}/rba_auth.sh"
-      source "${z_rbk_kit_dir}/rbgp_payor.sh"
-      source "${RBCC_rbrr_file}" || buc_die "Failed to source RBRR: ${RBCC_rbrr_file}"
-      source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
-      source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+      source "${z_rbk_kit_dir}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+      source "${z_rbk_kit_dir}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+      source "${z_rbk_kit_dir}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+      source "${z_rbk_kit_dir}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+      source "${z_rbk_kit_dir}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
+      source "${z_rbk_kit_dir}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+      source "${z_rbk_kit_dir}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+      source "${z_rbk_kit_dir}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
+      source "${z_rbk_kit_dir}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
+      source "${z_rbk_kit_dir}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
+      source "${z_rbk_kit_dir}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
+      source "${RBCC_rbrr_file}" || buc_die_now "Failed to source RBRR: ${RBCC_rbrr_file}"
+      source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
+      source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
 
       # RBDC derives the RBRO/RBRA credential paths from BOTH the repo regime
       # (secrets dir) and the depot regime (cloud prefix), so RBRD must be
@@ -80,14 +78,14 @@ zrbof_furnish() {
       zrbuh_kindle
       zrbge_kindle
       zrbgi_kindle
-      zrba_kindle
+      zrbau_kindle
       zrbgp_kindle
       ;;
     rbof_instate)
       : # the light core (rbcc + burd + rbof) is all instate needs
       ;;
     *)
-      buc_die "rbof: unknown command '${z_command}'"
+      buc_die_now "rbof: unknown command '${z_command}'"
       ;;
   esac
 }

@@ -1,0 +1,315 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# BUE Exergue - stamp a build with the source position it was struck from
+#
+# An exergue is the ground below a coin's design carrying the mint mark and the
+# date: the part of the striking that says WHERE AND WHEN, not what. A binary
+# has the same need and no such ground, which is the whole of this module's job
+# — it writes one, as a generated source file the build compiles in.
+#
+# The stamp is the newest FIRST-PARENT LANDING, at or behind the merge base of
+# HEAD and the trunk counterpart, that touched a file of the elected set. Three
+# words in that sentence are load-bearing:
+#
+#   LANDING, never HEAD. A linked worktree's own unlanded commits carry shas the
+#   studbook journal cannot resolve, so a stamp read from HEAD names a position
+#   no reader downstream can look up. Nor is it the counterpart's own head: a
+#   worktree forked before a landing holds none of that landing, however far the
+#   remote-tracking ref it shares has since advanced, and a stamp naming it
+#   would claim source the tree does not carry. So the walk starts at the MERGE
+#   BASE of HEAD and the counterpart - the newest trunk commit this seat
+#   actually holds. The merge base is reachable from the counterpart, so the
+#   stamp is still a landing and never a worktree's own commit. The counterpart is
+#   read as this clone last gleaned it and NO FETCH IS PERFORMED here — a build
+#   is not the place for network. A stale counterpart still understates the
+#   position, which errs toward calling a fresh binary old; the opposite error
+#   would be the dangerous one.
+#
+#   FIRST-PARENT, so the position walks the trunk's own line rather than
+#   descending into the merged branches whose commits never stood on it.
+#
+#   ELECTED, because "source" is a question the caller answers: it hands over
+#   the elected set's files, read from the set it keeps, and that is the single
+#   authoritative statement of what counts. This module never guesses the set
+#   and never carries a default for it.
+#
+# The elected files ride into the generated file BESIDE the sha, as a second
+# constant. That is not decoration: a consumer that means to ask "is this binary
+# older than its source" must ask it over the same set the stamp was computed
+# over, and compiling the set in beside the answer is what makes the two agree
+# by construction rather than by two copies staying in step.
+#
+# THE STAMP'S ANCESTRY rides as a third constant, for the same by-construction
+# reason and against a sharper failure. A consumer that resolves the stamp
+# against a RECORD of landings holds that record and not the repository, so it
+# has no route back to the trunk history the stamp was read from - and a stamp
+# the record happens not to name is, to that consumer, a position of no
+# determinable age. The walk backward along the same first-parent, same-election
+# line is what answers it, and here is the only place that walk can be taken:
+# the repository is in hand at build time and gone by the time the question is
+# asked. The stamp is the walk's own first element, so the two come off ONE
+# traversal and cannot disagree.
+#
+# The walk is BOUNDED, and the bound is the fail-closed direction. A consumer
+# that finds nothing it recognizes within the window learns that it cannot
+# establish this binary's age, which is the true answer; a longer window would
+# only postpone that same answer while carrying every landing since the
+# repository began into the generated file.
+#
+# WRITE-IF-CHANGED. The generated file is a cargo input, so an unconditional
+# write dirties the fingerprint and forces a rebuild on every invocation. The
+# content is composed first and compared before anything is touched.
+#
+# A build that cannot stamp DIES, here, by buc_die_now — there is no sentinel
+# value, no "unknown", and no unstamped binary from a decorated build. Every
+# fault path below is that rule.
+
+set -euo pipefail
+
+# Multiple inclusion guard
+test -z "${ZBUE_SOURCED:-}" || buc_die_now "Module bue multiply sourced - check sourcing hierarchy"
+ZBUE_SOURCED=1
+
+# The generated file's own opening lines, carried as a constant so the warning a
+# reader meets is stated once. It names the writer rather than the caller: a
+# reader who finds this file dirty needs the door, and the door is here.
+readonly BUE_exergue_banner="// GENERATED by Tools/buk/bue_exergue.sh - DO NOT EDIT, DO NOT COMMIT."
+
+# How far back the ancestry walk reaches, counted in elected-file landings and
+# not in commits. Sixteen is chosen against what the window is FOR: nearly every
+# such landing arrives through a ceremony that records it, so the walk exists for
+# the rare one that did not, and the distance from an unrecorded landing to the
+# nearest recorded one is one in the case this bound was measured against. A
+# window of sixteen therefore absorbs a run of fifteen consecutive unrecorded
+# landings - an estate already in a condition no stamp reading would rescue -
+# while costing sixteen lines in a generated file and one bounded walk per build.
+readonly ZBUE_ANCESTRY_DEPTH=16
+
+# Strike the exergue: compose the generated Rust module and write it only if its
+# content differs from what already stands.
+#
+# The three constants take their name from the CALLER, which states the base
+# name beside the out file it belongs to:
+#
+#   <CONST>           the sha, a &str
+#   <CONST>_ROOTS     the elected set's files, a &[&str]
+#   <CONST>_ANCESTRY  the sha and the landings behind it, newest-first, a &[&str]
+#
+# A parameter rather than a case-raising of the out file's own stem, and the
+# choice costs a real property: the path and the constant no longer agree by
+# construction. What it buys is that nothing here has to raise case. Class-case
+# conversion has no parameter-expansion form; the ${var^^} spelling stands above
+# the bash 3.2 floor this kit builds to; and no case-raising idiom exists
+# anywhere in kit bash to draw on. So the derivation is reachable only through
+# an external this kit has evicted, or through a case-map helper minted for one
+# caller and nothing else, and both cost more than the property is worth here.
+# What buys most of it back is where the callers stand - all of them in the
+# repository this module ships from, each stating the constant beside the out
+# file it names - and the guard below, which refuses a name carrying lowercase.
+# That is the mistake the parameter actually invites: a caller handing over the
+# stem it already has.
+#
+# The trunk counterpart is RESOLVED HERE from the remote's recorded head rather
+# than taken as a branch name, so no caller carries a copy of which branch this
+# repository calls its trunk. Both consumers pass the remote and agree by having
+# nothing to disagree about. The walk then starts at the merge base of HEAD and
+# that counterpart, never at the counterpart itself, so the stamp names only a
+# landing the repository being built holds; where git names no shared base the
+# strike dies, as every other unreadable position does here.
+#
+# Args: <repo_dir> <remote> <election> <out_file> <const> <file>...
+#   repo_dir    the repository being built - the ONLY repository read
+#   remote      the remote whose recorded head names the trunk, e.g. origin;
+#               the walk starts at the merge base of HEAD and its counterpart
+#               ref, which is read as this clone last gleaned it and is never
+#               fetched here
+#   election    the file the caller read the elected set from, named in the
+#               generated module so a reader can find it; never read here
+#   out_file    the generated Rust module to write (gitignored by its own repo)
+#   const       the base name of the constants declared above; stated by the
+#               caller, all-caps, and refused if it carries lowercase
+#   file...     the elected set's files, repo-relative, one argument apiece -
+#               each a pathspec git walks, and at least one
+bue_strike() {
+  local -r z_repo="${1:-}"
+  local -r z_remote="${2:-}"
+  local -r z_election="${3:-}"
+  local -r z_out="${4:-}"
+  local -r z_const="${5:-}"
+  shift 5 || buc_die_now "bue_strike: repo_dir, remote, election, out_file and const required"
+
+  test -n "${z_repo}"     || buc_die_now "bue_strike: repo_dir required"
+  test -n "${z_remote}"   || buc_die_now "bue_strike: remote required"
+  test -n "${z_election}" || buc_die_now "bue_strike: election required"
+  test -n "${z_out}"      || buc_die_now "bue_strike: out_file required"
+  test -n "${z_const}"    || buc_die_now "bue_strike: const required"
+
+  case "${z_const}" in
+    *[[:lower:]]*)
+      buc_die_now "bue_strike: const carries lowercase: ${z_const} - the caller states the constant's own name, all-caps, not the out file's stem"
+      ;;
+  esac
+
+  test -d "${z_repo}" || buc_die_now "bue_strike: no such directory: ${z_repo}"
+
+  # The git check is separate from the directory check above and states its own
+  # grievance: a path that exists but carries no repository is the fault this
+  # module is likeliest to meet in the field (a build run from a copied tree, an
+  # extracted tarball), and "no such directory" would send its reader hunting a
+  # typo that is not there.
+  local -r z_gitdir_stderr="${BURD_TEMP_DIR}/bue_gitdir_stderr.txt"
+  git -C "${z_repo}" rev-parse --git-dir > /dev/null 2> "${z_gitdir_stderr}" \
+    || buc_die_now "bue_strike: ${z_repo} is no git repository, so no source position can be read - a decorated build never ships an unstamped binary (see ${z_gitdir_stderr})"
+
+  local -a z_file_list=()
+  local z_file=""
+  for z_file in "$@"; do
+    test -n "${z_file}" || continue
+    z_file_list+=("${z_file}")
+  done
+
+  test "${#z_file_list[@]}" -gt 0 \
+    || buc_die_now "bue_strike: the election ${z_election} names no file - an empty election would stamp the whole repository's position over a set nothing was measured against"
+
+  local z_head_ref=""
+  z_head_ref=$(git -C "${z_repo}" symbolic-ref --quiet "refs/remotes/${z_remote}/HEAD") \
+    || buc_die_now "bue_strike: ${z_repo} records no head for remote '${z_remote}', so the trunk counterpart cannot be named - run: git -C ${z_repo} remote set-head ${z_remote} -a"
+  local -r z_trunk="${z_head_ref#refs/remotes/}"
+
+  git -C "${z_repo}" rev-parse --verify --quiet "${z_trunk}^{commit}" > /dev/null \
+    || buc_die_now "bue_strike: ${z_repo} knows no commit at ${z_trunk} - the trunk counterpart must be a ref this clone already holds; fetch it and rebuild"
+
+  local z_fork=""
+  z_fork=$(git -C "${z_repo}" merge-base HEAD "${z_trunk}") \
+    || buc_die_now "bue_strike: ${z_repo} shares no base with ${z_trunk}, so no landing this tree holds can be named - a decorated build never ships an unstamped binary"
+
+  # ONE WALK, both answers. The stamp is this list's head rather than a second
+  # git invocation's, so the sha and the ancestry it opens can never name
+  # different positions - the property the files constant has by riding beside
+  # the sha, held here the same way.
+  local z_walk=""
+  z_walk=$(git -C "${z_repo}" log -n "${ZBUE_ANCESTRY_DEPTH}" --first-parent --format=%H "${z_fork}" -- "${z_file_list[@]}") \
+    || buc_die_now "bue_strike: could not read the landed source touches behind ${z_fork}, the merge base of HEAD and ${z_trunk}, in ${z_repo}"
+
+  local -a z_ancestry=()
+  local z_walked=""
+  while IFS= read -r z_walked || test -n "${z_walked}"; do
+    test -n "${z_walked}" || continue
+    z_ancestry+=("${z_walked}")
+  done <<< "${z_walk}"
+
+  test "${#z_ancestry[@]}" -gt 0 \
+    || buc_die_now "bue_strike: no landed commit behind ${z_fork}, the merge base of HEAD and ${z_trunk}, touches any elected file - the election ${z_election} names nothing this tree's trunk line has ever changed"
+
+  local -r z_sha="${z_ancestry[0]}"
+
+  local z_body=""
+  z_body="${BUE_exergue_banner}
+//
+// The source position this binary was struck from: the newest first-parent
+// landing, at or behind the merge base of HEAD and ${z_trunk}, that touched a
+// file of the elected set - a landing the built tree holds. The files ride
+// beside the sha deliberately - a reader asking whether this binary is older
+// than its source must ask over the same set the sha was measured over. The
+// walk behind the sha rides for the reader that cannot place the sha itself.
+//
+// Election: ${z_election##*/}
+
+/// The newest landed source touch this build was struck from.
+pub const ${z_const}: &str = \"${z_sha}\";
+
+/// The elected set's files the sha above was measured over.
+pub const ${z_const}_ROOTS: &[&str] = &[
+"
+  local z_elected=""
+  for z_elected in "${z_file_list[@]}"; do
+    z_body="${z_body}    \"${z_elected}\",
+"
+  done
+  z_body="${z_body}];
+
+/// The sha above and the landings behind it along the same first-parent,
+/// same-election line, newest-first and at most ${ZBUE_ANCESTRY_DEPTH} deep.
+/// The first element IS the sha - one walk produced both - so a reader that
+/// cannot place the stamp itself can ask the same question of what it descends
+/// from, which is a reading no consumer holding the repository could take.
+pub const ${z_const}_ANCESTRY: &[&str] = &[
+"
+  local z_forebear=""
+  for z_forebear in "${z_ancestry[@]}"; do
+    z_body="${z_body}    \"${z_forebear}\",
+"
+  done
+  z_body="${z_body}];
+
+// eof
+"
+
+  # Write-if-changed. The comparison is on the composed content rather than on
+  # the landed sha alone: an edit to the election moves the files constant
+  # without moving the sha, and a sha-only comparison would leave the file
+  # lying. Both sides are digested here rather than compared byte for byte, and
+  # the digest is taken over the WHOLE composed body, so it carries exactly the
+  # reach a content comparison had. Both readings come off standard input, so
+  # both name the same source in the digest line and the trailing name cannot
+  # make two identical bodies read as different. The composed body is written
+  # to a temp file rather than fed through a here-string, whose trailing newline
+  # would digest bytes the written exergue does not carry.
+  local -r z_body_file="${BURD_TEMP_DIR}/bue_body_${z_const}.txt"
+  printf '%s' "${z_body}" > "${z_body_file}" \
+    || buc_die_now "bue_strike: could not write the composed exergue body to ${z_body_file}"
+  local z_want=""
+  z_want=$(openssl dgst -sha256 -r < "${z_body_file}") \
+    || buc_die_now "bue_strike: could not digest the composed exergue body"
+  z_want="${z_want%% *}"
+
+  local z_have=""
+  if test -f "${z_out}"; then
+    z_have=$(openssl dgst -sha256 -r < "${z_out}") \
+      || buc_die_now "bue_strike: could not digest the standing exergue at ${z_out}"
+    z_have="${z_have%% *}"
+
+    if test "${z_have}" = "${z_want}"; then
+      buc_log_args "Exergue: ${z_sha} (unchanged)"
+      return 0
+    fi
+  fi
+
+  local z_dir="${z_out%/*}"
+  test -d "${z_dir}" || buc_die_now "bue_strike: no directory to write the exergue into: ${z_dir}"
+
+  # The scratch path is composed from the out file's own, not minted by an
+  # external. It has to stand BESIDE the out file for the move below to be a
+  # rename rather than a copy across filesystems, which is what makes the
+  # install atomic; and a fixed suffix is deliberate over a unique one, so a run
+  # that dies mid-write leaves at most one predictable file that the next run
+  # truncates, rather than a litter nobody sweeps. The fault paths remove it
+  # themselves, because the out file's own repository ignores the out file by
+  # exact path and would show a leftover as untracked.
+  local -r z_tmp="${z_out}.striking"
+  printf '%s' "${z_body}" > "${z_tmp}" \
+    || { rm -f "${z_tmp}" || buc_die_now "bue_strike: could not write ${z_tmp}, nor remove it"; buc_die_now "bue_strike: could not write ${z_tmp}"; }
+  mv -f "${z_tmp}" "${z_out}" \
+    || { rm -f "${z_tmp}" || buc_die_now "bue_strike: could not install ${z_out}, nor remove ${z_tmp}"; buc_die_now "bue_strike: could not install ${z_out}"; }
+
+  buc_log_args "Exergue: ${z_sha} (struck)"
+}
+
+# eof

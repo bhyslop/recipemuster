@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +24,11 @@ set -euo pipefail
 test -z "${ZRBHO0_SOURCED:-}" || return 0
 ZRBHO0_SOURCED=1
 
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/../rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # rbho_start_here — menu into the handbook family. The menu itself is
 # static prose; each track opens with its own filesystem probes, so
 # state-awareness lives in the tracks, not here.
@@ -33,8 +39,8 @@ rbho_start_here() {
   buc_doc_shown || return 0
 
   local -r z_docs="${RBRR_PUBLIC_DOCS_URL}"
-  buyy_link_yawp "${z_docs}" "ccyolo"; local -r z_ccyolo="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "tadmor"; local -r z_tadmor="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "ccyolo"; local -r z_ccyolo="${z_buym_yelp}"
+  buym_link_yawp "${z_docs}" "tadmor"; local -r z_tadmor="${z_buym_yelp}"
 
   buh_section "Recipe Bottle — Onboarding Start"
   buh_e
@@ -44,8 +50,13 @@ rbho_start_here() {
   buh_line "  This menu points you at handbook tracks — self-describing teaching"
   buh_line "  documents that explain concepts and show you live probe status."
   buh_e
-  buh_line "  New to ${RBYC_RECIPE_BOTTLE}? Run Occ first, then pick Kludged ${RBYC_CRUCIBLES}"
-  buh_line "  (local, no cloud) or Director subtracks (requires ${RBYC_PAYOR} + ${RBYC_DEPOT})."
+  buh_line "  New to ${RBYC_RECIPE_BOTTLE}? Begin with Configure your Repo's Environment,"
+  buh_line "  under Foundation below. It sets up your ${BUBG_STATION_BASE} file and the secrets"
+  buh_line "  directory that every other track relies on, the ${RBYC_PAYOR} track among"
+  buh_line "  them. Not sure it was done on this clone? Show it again: showing a"
+  buh_line "  track changes nothing, and its live probes report what already stands."
+  buh_line "  Then pick Kludged ${RBYC_CRUCIBLES} (local, no cloud) or Director subtracks"
+  buh_line "  (requires ${RBYC_PAYOR} + ${RBYC_DEPOT})."
   buh_e
 
   buh_section "Foundation"
@@ -127,21 +138,20 @@ rbho_start_here() {
   buh_line "        * Compare provenance side by side          (airgap vs ${RBYC_TETHERED} ${RBYC_PLUMB})"
   buh_tt   "        " "${RBZ_ONBOARD_DIR_AIRGAP}"
   buh_e
-  buh_line "    ${RBYC_BIND} — Safe PlantUML Container (~10 min)"
-  buyy_link_yawp "${z_docs}" "Bind" "PlantUML"; local -r z_plantuml="${z_buym_yelp}"
-  buyy_link_yawp "${z_docs}" "Nameplate" "pluml"; local -r z_pluml="${z_buym_yelp}"
+  buh_line "    ${RBYC_ANNEX} — Safe PlantUML Container (~10 min)"
+  buym_link_yawp "${z_docs}" "pluml" "pluml"; local -r z_pluml="${z_buym_yelp}"
   buh_line "      Mirror an upstream image by digest — no Dockerfile, no build."
-  buh_line "      ${z_plantuml} renders diagrams but its Docker Hub image could"
-  buh_line "      phone home. ${RBYC_BIND} pins it; the ${RBYC_SENTRY} blocks all egress."
+  buh_line "      PlantUML renders diagrams but its Docker Hub image could"
+  buh_line "      phone home. ${RBYC_ANNEX} pins it; the ${RBYC_SENTRY} blocks all egress."
   buh_line "      The ${z_pluml} ${RBYC_CRUCIBLE} deliberately mixes a ${RBYC_KLUDGE_D} ${RBYC_SENTRY} with"
-  buh_line "      a bound ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
+  buh_line "      an ${RBCG_VESSEL_MODE_ANNEX_PAST} ${RBYC_BOTTLE} — two ${RBYC_ORDAIN} modes in one ${RBYC_CRUCIBLE} is the"
   buh_line "      expected shape, not a defect."
   buh_line "      Steps:"
   buh_line "        * Prepare the guard image                  (${RBYC_KLUDGE} ${RBYC_SENTRY} or reuse ${RBYC_CONJURED})"
-  buh_line "        * Pin the upstream image by digest         (${RBYC_BIND} ${z_plantuml})"
+  buh_line "        * Pin the upstream image by digest         (${RBYC_ANNEX} PlantUML)"
   buh_line "        * Check the provenance verdict             (${RBYC_VOUCH} reads digest-pin — image not built here)"
   buh_line "        * Render a diagram, observe blocked egress (${RBYC_CHARGE} the ${z_pluml} ${RBYC_CRUCIBLE})"
-  buh_tt   "        " "${RBZ_ONBOARD_DIR_BIND}"
+  buh_tt   "        " "${RBZ_ONBOARD_DIR_ANNEX}"
   buh_e
   buh_line "    ${RBYC_GRAFT} — Local Image Publishing (~10 min)"
   buh_line "      Push a locally-built image to the Depot. The ${RBYC_DIRECTOR} owns"

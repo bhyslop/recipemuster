@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,20 +21,25 @@
 
 set -euo pipefail
 
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
 # Multiple inclusion detection
-test -z "${ZRBFH_SOURCED:-}" || buc_die "Module rbfh multiply sourced - check sourcing hierarchy"
+test -z "${ZRBFH_SOURCED:-}" || buc_die_now "Module rbfh multiply sourced - check sourcing hierarchy"
 ZRBFH_SOURCED=1
 
 ######################################################################
 # Internal Functions (zrbfh_*)
 
 zrbfh_kindle() {
-  test -z "${ZRBFH_KINDLED:-}" || buc_die "Module rbfh already kindled"
+  test -z "${ZRBFH_KINDLED:-}" || buc_die_now "Module rbfh already kindled"
   readonly ZRBFH_KINDLED=1
 }
 
 zrbfh_sentinel() {
-  test "${ZRBFH_KINDLED:-}" = "1" || buc_die "Module rbfh not kindled - call zrbfh_kindle first"
+  test "${ZRBFH_KINDLED:-}" = "1" || buc_die_now "Module rbfh not kindled - call zrbfh_kindle first"
 }
 
 ######################################################################
@@ -48,15 +54,15 @@ zrbfh_sentinel() {
 #
 # Rules apply to every line at column 0 starting with FROM followed by
 # whitespace, after column-0 `#` comments are filtered out. Violation
-# emits {path}:{lineno}: {rule} — {offending line} precision via buc_die.
+# emits {path}:{lineno}: {rule} — {offending line} precision via buc_die_now.
 # Multi-stage `AS <name>` codas after token 2 are admissible. Empty
 # Dockerfile or one with no column-0 FROM line passes silently.
 rbfh_dockerfile_check() {
   zrbfh_sentinel
 
   local -r z_path="${1:-}"
-  test -n "${z_path}" || buc_die "rbfh_dockerfile_check: Dockerfile path required"
-  test -f "${z_path}" || buc_die "rbfh_dockerfile_check: Dockerfile not found: ${z_path}"
+  test -n "${z_path}" || buc_die_now "rbfh_dockerfile_check: Dockerfile path required"
+  test -f "${z_path}" || buc_die_now "rbfh_dockerfile_check: Dockerfile not found: ${z_path}"
 
   local z_line=""
   local z_lineno=0
@@ -77,19 +83,20 @@ rbfh_dockerfile_check() {
 
     # Rule 1: no tab character anywhere on the FROM line
     case "${z_line}" in
-      *$'\t'*) buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM line contains tab character — ${z_line}" ;;
+      *$'\t'*) buc_reject "${RBCG_DOCKERFILE_HYGIENE_DENTIL}" "${z_path}:${z_lineno}: FROM line contains tab character — ${z_line}" ;;
     esac
 
     # Rule 3: line does not end with `\`
     case "${z_line}" in
-      *'\') buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM line ends with backslash continuation — ${z_line}" ;;
+      *'\') buc_reject "${RBCG_DOCKERFILE_HYGIENE_DENTIL}" "${z_path}:${z_lineno}: FROM line ends with backslash continuation — ${z_line}" ;;
     esac
 
     # Rule 2: second whitespace-delimited token must be approved
-    read -r z_pre z_token2 z_post <<<"${z_line}"
+    read -r z_pre z_token2 z_post <<<"${z_line}" \
+      || buc_die_now "${z_path}:${z_lineno}: Failed to split FROM line — ${z_line}"
     case "${z_token2}" in
       '${RBF_IMAGE_1}'|'${RBF_IMAGE_2}'|'${RBF_IMAGE_3}'|'scratch') : ;;
-      *) buc_reject "${BUBC_band_hygiene}" "${z_path}:${z_lineno}: FROM image token must be \${RBF_IMAGE_1..3} or scratch — ${z_line}" ;;
+      *) buc_reject "${RBCG_DOCKERFILE_HYGIENE_DENTIL}" "${z_path}:${z_lineno}: FROM image token must be \${RBF_IMAGE_1..3} or scratch — ${z_line}" ;;
     esac
   done < "${z_path}"
 }

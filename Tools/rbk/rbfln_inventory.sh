@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,24 +23,31 @@
 
 set -euo pipefail
 
-######################################################################
-# Inventory (rbfl_*)
+# The gate codes this module rejects with, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
 
-rbfl_tally() {
-  zrbfl_sentinel
+######################################################################
+# Inventory (rbfln_*)
+
+rbfln_tally() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Tally hallmarks with health status (vouched / pending / incomplete)"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Retriever"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_retriever}") \
-    || buc_die "Failed to get Retriever OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_retriever}") \
+    || buc_die_now "Failed to get Retriever OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Tally complete — 0 hallmarks"
     return 0
@@ -52,12 +60,12 @@ rbfl_tally() {
   local z_line=""
   while IFS= read -r z_line || test -n "${z_line}"; do
     z_lines+=("${z_line}")
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
   z_lines+=("__SENTINEL__ __SENTINEL__")
 
-  echo ""
-  printf "  %-30s  %-11s  %s\n" "HALLMARK" "HEALTH" "BASENAMES"
-  printf "  %-30s  %-11s  %s\n" "------------------------------" "-----------" "---------"
+  echo "" || buc_die_now
+  printf "  %-30s  %-11s  %s\n" "HALLMARK" "HEALTH" "BASENAMES" || buc_die_now
+  printf "  %-30s  %-11s  %s\n" "------------------------------" "-----------" "---------" || buc_die_now
 
   # State machine over <hallmark> <basename> pairs (file was sorted by the
   # capture helper). Vessel is no longer encoded in the GAR path —
@@ -68,7 +76,7 @@ rbfl_tally() {
   local z_i="" z_h="" z_b="" z_health=""
 
   for z_i in "${!z_lines[@]}"; do
-    z_line="${z_lines[$z_i]}"
+    z_line="${z_lines[${z_i}]}"
     test -n "${z_line}" || continue
 
     z_h="${z_line%% *}"
@@ -91,7 +99,7 @@ rbfl_tally() {
           z_health="incomplete"
           z_incomplete_n=$(( z_incomplete_n + 1 ))
         fi
-        printf "  %-30s  %-11s  %s\n" "${z_prev_h}" "${z_health}" "${z_prev_bns}"
+        printf "  %-30s  %-11s  %s\n" "${z_prev_h}" "${z_health}" "${z_prev_bns}" || buc_die_now
         z_count=$(( z_count + 1 ))
       fi
 
@@ -114,7 +122,7 @@ rbfl_tally() {
     esac
   done
 
-  echo ""
+  echo "" || buc_die_now
   buc_info "Total hallmarks: ${z_count}  (vouched: ${z_vouched_n}, pending: ${z_pending_n}, incomplete: ${z_incomplete_n})"
 
   case "${z_pending_n}" in
@@ -134,8 +142,8 @@ rbfl_tally() {
   buc_success "Tally complete"
 }
 
-rbfl_rekon_hallmark() {
-  zrbfl_sentinel
+rbfln_rekon_hallmark() {
+  zrbfl0_sentinel
 
   local -r z_express="${BUZ_FOLIO:-}"
 
@@ -144,23 +152,27 @@ rbfl_rekon_hallmark() {
   buc_doc_shown || return 0
 
   # Relay-then-read (RBr_3e7): forward the chain baton before any read or failure point.
-  buf_relay || buc_die "Failed to relay chained facts"
+  buf_relay || buc_die_now "Failed to relay chained facts"
 
   # Resolve the hallmark express-or-chain: an express argument wins; absent, fall
   # back to the hallmark a prior build (ordain or kludge) handed forward through
   # the depth-1 chain — so a no-arg rekon immediately after a build inspects the
   # just-built hallmark.
   local z_hallmark=""
-  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") \
-    || buc_reject "${BUBC_band_chain}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
+  local z_hallmark_status=0
+  z_hallmark=$(buf_elect_fact_capture "${z_express}" "${RBF_FACT_HALLMARK}") || z_hallmark_status=$?
+  test "${z_hallmark_status}" -eq 0 \
+    || buc_reject "${RBCG_CHAIN_DENTIL}" "No hallmark — pass one (rbw-irh <hallmark>) or run a build immediately before rekon"
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating arks under ${RBGL_HALLMARKS_ROOT}/${z_hallmark}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
   # Filter the full hallmark enumeration to rows for this hallmark.
   local z_found=""
@@ -174,13 +186,13 @@ rbfl_rekon_hallmark() {
     if test "${z_h}" = "${z_hallmark}"; then
       z_found="${z_found}${z_found:+ }${z_b}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
-  test -n "${z_found}" || buc_die "Hallmark not found: ${z_hallmark}"
+  test -n "${z_found}" || buc_die_now "Hallmark not found: ${z_hallmark}"
 
-  echo ""
-  printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH"
-  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------"
+  echo "" || buc_die_now
+  printf "  %-10s  %-6s  %s\n" "BASENAME" "EXISTS" "PACKAGE-PATH" || buc_die_now
+  printf "  %-10s  %-6s  %s\n" "----------" "------" "------------" || buc_die_now
 
   local z_canon=""
   local z_mark=""
@@ -201,68 +213,77 @@ rbfl_rekon_hallmark() {
     else
       z_path="(absent)"
     fi
-    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}"
+    printf "  %-10s  %-6s  %s\n" "${z_canon}" "${z_mark}" "${z_path}" || buc_die_now
   done
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "Rekon complete for ${z_hallmark}"
 }
 
-rbfl_audit_hallmarks() {
-  zrbfl_sentinel
+rbfln_audit_hallmarks() {
+  zrbfl0_sentinel
 
   buc_doc_brief "Audit hallmarks — list all hallmark identifiers in registry"
   buc_doc_shown || return 0
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get Director OAuth token"
 
   buc_step "Enumerating hallmarks under ${RBGL_HALLMARKS_ROOT}/"
-  zrbfc_list_packages_capture "${z_token}" "${RBGL_HALLMARKS_ROOT}"
+  local z_list_out
+  z_list_out=$(zrbfcg_list_packages_capture "${zSECRET_token}" "${RBGL_HALLMARKS_ROOT}") \
+    || buc_die_now "Failed to enumerate hallmarks under ${RBGL_HALLMARKS_ROOT}/"
 
-  if ! test -s "${ZRBFC_PACKAGE_LIST_FILE}"; then
+  if ! test -s "${ZRBFC0_PACKAGE_LIST_FILE}"; then
     buc_info "No hallmarks found under ${RBGL_HALLMARKS_ROOT}/"
     buc_success "Audit complete — 0 hallmarks"
     return 0
   fi
 
-  echo ""
-  printf "  %s\n" "HALLMARK"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  %s\n" "HALLMARK" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
+
+  local z_lines=()
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    z_lines+=("${z_line}")
+  done < "${ZRBFC0_PACKAGE_LIST_FILE}"
 
   local z_count=0
   local z_prev=""
-  local z_line=""
   local z_h=""
-  while IFS= read -r z_line || test -n "${z_line}"; do
+  local z_i=0
+  for z_i in "${!z_lines[@]}"; do
+    z_line="${z_lines[${z_i}]}"
     test -n "${z_line}" || continue
     z_h="${z_line%% *}"
     test -n "${z_h}" || continue
     if test "${z_h}" != "${z_prev}"; then
-      printf "  %s\n" "${z_h}"
+      printf "  %s\n" "${z_h}" || buc_die_now
       buf_write_fact_multi "${z_h}" "${RBCC_fact_ext_audit_hallmark}" "${z_h}"
       z_count=$(( z_count + 1 ))
       z_prev="${z_h}"
     fi
-  done < "${ZRBFC_PACKAGE_LIST_FILE}"
+  done
 
-  echo ""
+  echo "" || buc_die_now
   buc_info "Total hallmarks: ${z_count}"
   buc_success "Audit complete"
 }
 
 ######################################################################
-# Raw-path list (rbfl_*) — the type-blind maintenance backdoor (rbw-il)
+# Raw-path list (rbfln_*) — the type-blind maintenance backdoor (rbw-il)
 
 # Generic, envelope-independent enumeration of GAR by raw path, narrowing
 # iteratively: no path -> top namespaces; a prefix -> its children; a full
 # package -> its tags and versions. Makes no subtree or kind assumption — it
 # reads the whole registry and narrows in-process — so it tolerates half-
 # deleted debris, legacy artifacts, and any future namespace with no new verb.
-rbfl_list() {
-  zrbfl_sentinel
+rbfln_list() {
+  zrbfl0_sentinel
 
   local -r z_path="${BUZ_FOLIO:-}"
 
@@ -274,19 +295,19 @@ rbfl_list() {
   # versions): a ref carrying :tag or @sha256: is an image, not a path. list
   # walks paths only; acting on an image is wrest (rbw-iw) / jettison (rbw-iJ).
   case "${z_path}" in
-    *@*|*:*) buc_die "'${z_path}' is an image ref, not a path — use rbw-iw (wrest) or rbw-iJ (jettison)" ;;
+    *@*|*:*) buc_die_now "'${z_path}' is an image ref, not a path — use rbw-iw (wrest) or rbw-iJ (jettison)" ;;
   esac
 
   buc_step "Authenticating as Director"
-  local z_token=""
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get Director OAuth token"
+  local zSECRET_token=""
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get Director OAuth token"
 
   # One enumeration of every package (decoded names, slashes restored, sorted).
   buc_step "Enumerating GAR packages"
   local -r z_list_infix="rbfl_list_pkgs"
-  local -r z_list_url="${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages?pageSize=1000"
-  rbuh_json "GET" "${z_list_url}" "${z_token}" "${z_list_infix}"
+  local -r z_list_url="${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages?pageSize=1000"
+  rbuh_json "GET" "${z_list_url}" "${zSECRET_token}" "${z_list_infix}"
   rbuh_require_ok "List GAR packages" "${z_list_infix}"
   local -r z_resp_file="${ZRBUH_PREFIX}${z_list_infix}${ZRBUH_POSTFIX_JSON}"
 
@@ -296,17 +317,22 @@ rbfl_list() {
     | sub("^.*/packages/"; "")
     | gsub("%2F"; "/")
   ' "${z_resp_file}" | sort > "${z_pkgs_file}" \
-    || buc_die "Failed to extract GAR package list"
+    || buc_die_now "Failed to extract GAR package list"
 
   # Leaf grain: the path names a package exactly -> list its tags and versions.
   if test -n "${z_path}"; then
+    local z_pls=()
     local z_pl=""
     while IFS= read -r z_pl || test -n "${z_pl}"; do
-      if test "${z_pl}" = "${z_path}"; then
-        zrbfl_list_leaf "${z_token}" "${z_path}"
+      z_pls+=("${z_pl}")
+    done < "${z_pkgs_file}"
+    local z_pi=0
+    for z_pi in "${!z_pls[@]}"; do
+      if test "${z_pls[${z_pi}]}" = "${z_path}"; then
+        zrbfln_list_leaf "${zSECRET_token}" "${z_path}"
         return 0
       fi
-    done < "${z_pkgs_file}"
+    done
   fi
 
   # Branch grain: emit the distinct next path-segment beneath the prefix
@@ -324,40 +350,41 @@ rbfl_list() {
     | split("/")[0]
     | select(length > 0)
   ' "${z_resp_file}" | sort -u > "${z_kids_file}" \
-    || buc_die "Failed to derive child path segments"
+    || buc_die_now "Failed to derive child path segments"
 
   if ! test -s "${z_kids_file}"; then
-    test -n "${z_path}" || buc_die "No packages found in registry"
-    buc_die "No path or package matches: ${z_path}"
+    test -n "${z_path}" || buc_die_now "No packages found in registry"
+    buc_die_now "No path or package matches: ${z_path}"
   fi
 
-  echo ""
+  echo "" || buc_die_now
   if test -z "${z_path}"; then
-    printf "  %s\n" "TOP NAMESPACES"
+    printf "  %s\n" "TOP NAMESPACES" || buc_die_now
   else
-    printf "  CHILDREN OF  %s\n" "${z_path}"
+    printf "  CHILDREN OF  %s\n" "${z_path}" || buc_die_now
   fi
-  printf "  %s\n" "------------------------------"
+  printf "  %s\n" "------------------------------" || buc_die_now
   local z_seg=""
   while IFS= read -r z_seg || test -n "${z_seg}"; do
     test -n "${z_seg}" || continue
     if test -z "${z_path}"; then
-      printf "  %s\n" "${z_seg}"
+      printf "  %s\n" "${z_seg}" || buc_die_now
     else
-      printf "  %s/%s\n" "${z_path}" "${z_seg}"
+      printf "  %s/%s\n" "${z_path}" "${z_seg}" || buc_die_now
     fi
   done < "${z_kids_file}"
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "List complete"
 }
 
-# Leaf display for rbfl_list: a full package's tags and versions, each annotated
+# Leaf display for rbfln_list: a full package's tags and versions, each annotated
 # with the ref form that wrest/jettison consume (tag -> :tag, version -> @digest).
-zrbfl_list_leaf() {
-  zrbfl_sentinel
+zrbfln_list_leaf() {
+  zrbfl0_sentinel
 
-  local -r z_token="${1:?Token required}"
+  local -r zSECRET_token="${1:-}"
+  test -n "${zSECRET_token}" || buc_die_now "Token required"
   local -r z_pkg="${2:?Package path required}"
   local -r z_encoded="${z_pkg//\//%2F}"
 
@@ -365,53 +392,53 @@ zrbfl_list_leaf() {
 
   local -r z_tags_infix="rbfl_list_tags"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
-    "${z_token}" "${z_tags_infix}"
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/tags?pageSize=1000" \
+    "${zSECRET_token}" "${z_tags_infix}"
   rbuh_require_ok "List tags for ${z_pkg}" "${z_tags_infix}"
   local -r z_tags_file="${BURD_TEMP_DIR}/rbfl_leaf_tags.txt"
   jq -r '.tags[]?.name | sub("^.*/tags/"; "")' \
     "${ZRBUH_PREFIX}${z_tags_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_tags_file}" \
-    || buc_die "Failed to extract tags for ${z_pkg}"
+    || buc_die_now "Failed to extract tags for ${z_pkg}"
 
   local -r z_vers_infix="rbfl_list_vers"
   rbuh_json "GET" \
-    "${ZRBFC_GAR_API_BASE}/${ZRBFC_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
-    "${z_token}" "${z_vers_infix}"
+    "${ZRBFC0_GAR_API_BASE}/${ZRBFC0_GAR_PACKAGE_BASE}/packages/${z_encoded}/versions?pageSize=1000" \
+    "${zSECRET_token}" "${z_vers_infix}"
   rbuh_require_ok "List versions for ${z_pkg}" "${z_vers_infix}"
   local -r z_vers_file="${BURD_TEMP_DIR}/rbfl_leaf_vers.txt"
   jq -r '.versions[]?.name | sub("^.*/versions/"; "")' \
     "${ZRBUH_PREFIX}${z_vers_infix}${ZRBUH_POSTFIX_JSON}" | sort > "${z_vers_file}" \
-    || buc_die "Failed to extract versions for ${z_pkg}"
+    || buc_die_now "Failed to extract versions for ${z_pkg}"
 
-  echo ""
-  printf "  PACKAGE  %s\n" "${z_pkg}"
-  echo ""
-  printf "  %s\n" "TAGS  (act:  rbw-iw ${z_pkg}:<tag>   rbw-iJ ${z_pkg}:<tag>)"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  PACKAGE  %s\n" "${z_pkg}" || buc_die_now
+  echo "" || buc_die_now
+  printf "  %s\n" "TAGS  (act:  rbw-iw ${z_pkg}:<tag>   rbw-iJ ${z_pkg}:<tag>)" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
   if test -s "${z_tags_file}"; then
     local z_tag=""
     while IFS= read -r z_tag || test -n "${z_tag}"; do
       test -n "${z_tag}" || continue
-      printf "    %s\n" "${z_tag}"
+      printf "    %s\n" "${z_tag}" || buc_die_now
     done < "${z_tags_file}"
   else
-    printf "    (none)\n"
+    printf "    (none)\n" || buc_die_now
   fi
 
-  echo ""
-  printf "  %s\n" "VERSIONS  (act:  rbw-iJ ${z_pkg}@<version>)"
-  printf "  %s\n" "------------------------------"
+  echo "" || buc_die_now
+  printf "  %s\n" "VERSIONS  (act:  rbw-iJ ${z_pkg}@<version>)" || buc_die_now
+  printf "  %s\n" "------------------------------" || buc_die_now
   if test -s "${z_vers_file}"; then
     local z_ver=""
     while IFS= read -r z_ver || test -n "${z_ver}"; do
       test -n "${z_ver}" || continue
-      printf "    %s\n" "${z_ver}"
+      printf "    %s\n" "${z_ver}" || buc_die_now
     done < "${z_vers_file}"
   else
-    printf "    (none)\n"
+    printf "    (none)\n" || buc_die_now
   fi
 
-  echo ""
+  echo "" || buc_die_now
   buc_success "List complete — ${z_pkg}"
 }
 

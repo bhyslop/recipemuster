@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # RBGJV Step 02: Mode-aware verification and vouch summary composition
 # conjure: DSSE envelope signature verification (Python json + openssl)
-# bind: digest-pin comparison | graft: GRAFTED stamp
+# annex: digest-pin comparison | graft: GRAFTED stamp
 # Writes /workspace/vouch_platforms.txt for step 03.
 # Substitutions (GCB anchors — automapSubstitutions provides as env vars):
 #   ${_RBGV_GAR_HOST} ${_RBGV_GAR_PATH} ${_RBGV_HALLMARKS_ROOT}
@@ -10,7 +10,7 @@
 #   ${_RBGV_ARK_BASENAME_IMAGE} ${_RBGV_ARK_BASENAME_ATTEST}
 #   ${_RBGV_IMAGE_1} ${_RBGV_IMAGE_2} ${_RBGV_IMAGE_3}
 #   ${_RBGV_IMAGE_1_PROVENANCE} ${_RBGV_IMAGE_2_PROVENANCE} ${_RBGV_IMAGE_3_PROVENANCE}
-#   ${_RBGV_BIND_SOURCE} ${_RBGV_GRAFT_SOURCE}
+#   ${_RBGV_ANNEX_SOURCE} ${_RBGV_GRAFT_SOURCE}
 
 import base64
 import json
@@ -139,8 +139,8 @@ def main():
     if vessel_mode == "rbnve_conjure":
         _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
                         hallmarks_root, hallmark, vessel)
-    elif vessel_mode == "rbnve_bind":
-        _verify_bind(token, image_registry_base, hallmark, vessel)
+    elif vessel_mode == "rbnve_annex":
+        _verify_annex(token, image_registry_base, hallmark, vessel)
     elif vessel_mode == "rbnve_graft":
         _verify_graft(hallmark, vessel)
     else:
@@ -313,7 +313,7 @@ def _verify_conjure(manifest, is_index, config, token, gar_host, gar_path,
     print("Vouch summary composed")
 
 
-def _verify_bind(token, image_registry_base, hallmark, vessel):
+def _verify_annex(token, image_registry_base, hallmark, vessel):
     try:
         resp = gar_fetch(f"{image_registry_base}/manifests/{hallmark}", token, ACCEPT_ALL, method="HEAD")
         actual_digest = resp.headers.get("Docker-Content-Digest", "")
@@ -322,12 +322,12 @@ def _verify_bind(token, image_registry_base, hallmark, vessel):
     if not actual_digest:
         die("No Docker-Content-Digest")
 
-    bind_source = os.environ.get("_RBGV_BIND_SOURCE", "")
-    if "@" not in bind_source:
-        die("no @ in BIND_SOURCE")
-    pinned_digest = bind_source.split("@", 1)[1]
+    annex_source = os.environ.get("_RBGV_ANNEX_SOURCE", "")
+    if "@" not in annex_source:
+        die("no @ in ANNEX_SOURCE")
+    pinned_digest = annex_source.split("@", 1)[1]
     if not pinned_digest:
-        die("no digest in BIND_SOURCE")
+        die("no digest in ANNEX_SOURCE")
     if actual_digest != pinned_digest:
         die(f"Digest mismatch — GAR: {actual_digest}  Pin: {pinned_digest}")
     print(f"Digest pin verified: {actual_digest}")
@@ -335,10 +335,10 @@ def _verify_bind(token, image_registry_base, hallmark, vessel):
     vouch_summary = {
         "hallmark": hallmark,
         "vessel": vessel,
-        "vessel_mode": "rbnve_bind",
+        "vessel_mode": "rbnve_annex",
         "verification": {
             "method": "digest-pin",
-            "bind_source": bind_source,
+            "annex_source": annex_source,
             "actual_digest": actual_digest,
             "pinned_digest": pinned_digest,
             "verdict": "DIGEST_PIN_VERIFIED",

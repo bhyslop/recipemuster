@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,13 +25,13 @@
 #
 # Commands:
 #   check_payor        OAuth access probe for the payor credential
-#   check_avowal  Federated access probe — open or reuse a sitting (Legs 1+2)
+#   check_avowal  Federated access probe — reuse a live sederunt or refuse naming novate
 #   check_mantle       Don a mantle as the freehold subject (Leg 3)
 
 set -euo pipefail
 
-source "${BURD_BUK_DIR}/buc_command.sh"
-source "${BURD_BUK_DIR}/buym_yelp.sh"
+source "${BURD_BUK_DIR}/buc_command.sh" || exit 1
+source "${BURD_BUK_DIR}/buym_yelp.sh" || exit 1
 
 ######################################################################
 # CLI Commands
@@ -44,20 +45,20 @@ rbgv_check_payor() {
   local -r z_iterations=5
   local -r z_delay_ms=1500
   buc_step "Payor OAuth access probe"
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
   zrbrp_kindle
   zrbrp_enforce
   rbgv_payor_oauth_probe "${z_iterations}" "${z_delay_ms}"
   buc_success "Payor OAuth access probe passed"
 }
 
-# Federated access probe — triggers the accessor's avowal step (Legs 1+2):
-# cache-hit gates the sitting's remaining runway then reuses it; a miss with a
-# terminal runs the device flow + STS exchange and caches the federated token;
-# a headless miss fails loud. This is the cloud tabtarget that exercises
-# avowal — avowal itself owns no colophon. The optional argument rides
-# rba_avow's required-runway seam, so the probe can demand a specific runway
-# (and a live-but-short sitting rejects in the runway band, advising novate).
+# Federated access probe — triggers the accessor's avowal step: cache-hit
+# gates the sederunt's remaining runway then reuses it; under the interactive
+# mechanism a miss rejects in the runway band naming novate (rbw-aN), the one
+# door that signs in; under programmatic a miss acquires (Legs 1+2) and caches
+# the federated token. The probe owns no logic of its own: it is rbau_avow's
+# reuse-or-refuse, surfaced. The optional argument rides
+# rbau_avow's required-runway seam, so the probe can demand a specific runway
+# (and a live-but-short sederunt rejects in the runway band, advising novate).
 # Depot-agnostic: needs only the RBRF trust, not RBRR/RBRD.
 rbgv_check_avowal() {
   zrbgv_sentinel
@@ -66,35 +67,33 @@ rbgv_check_avowal() {
   # colophon), like the mantle operand on rbgv_check_mantle. Empty = the floor.
   local -r z_required_runway="${BUZ_FOLIO:-}"
 
-  buc_doc_brief "Check federated access — open or reuse a sitting via device flow + STS (Legs 1+2) against the RBRF trust"
-  buc_doc_oparm "required_runway" "Seconds of sitting runway the probe demands; omit for the kindled floor"
+  buc_doc_brief "Check federated access — reuse a live ${RBCC_noun_sederunt} against the RBRF trust, or refuse naming rbw-aN when none is live"
+  buc_doc_oparm "required_runway" "Seconds of ${RBCC_noun_sederunt} runway the probe demands; omit for the kindled floor"
   buc_doc_shown || return 0
 
   buc_step "Federated access probe — avowal against the RBRF trust"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_avow "${z_required_runway}"
+  rbau_avow "${z_required_runway}"
 
-  local z_token
-  z_token=$(zrba_sitting_read_capture) || buc_die "Sitting not readable after avowal"
-  test -n "${z_token}" || buc_die "Sitting holds an empty federated token"
-  buc_success "Federated sitting live — federated token obtained (${#z_token} chars)"
+  local zSECRET_token
+  zSECRET_token=$(zrbau_sederunt_read_capture) || buc_die_now "${RBCC_noun_sederunt_lettrine} not readable after avowal"
+  test -n "${zSECRET_token}" || buc_die_now "${RBCC_noun_sederunt_lettrine} holds an empty federated token"
+  buc_success "Federated ${RBCC_noun_sederunt} live — federated token obtained (${#zSECRET_token} chars)"
 }
 
 # Don-mantle probe — exercises the freehold rig end to end: resolve the freehold
 # subject (the operator's standing Entra oid, RBPC_freehold_subject), avow as
-# that identity to open or reuse a sitting, then don the named mantle (Leg 3).
+# that identity to reuse the live sederunt, then don the named mantle (Leg 3).
 # Reports the minted mantle token, or surfaces the admission deficit the accessor
 # already characterized (the Leg-3 403: a citizen not brevetted onto the mantle,
 # or a missing depot serviceUsageConsumer — a standing state, not a propagation
 # race). Depot-coupled, unlike the depot-agnostic avowal probe: the don
 # derives the depot project (RBDC_DEPOT_PROJECT_ID), so furnish enforces RBRR/RBRD
-# for this command; the RBRF trust is sourced here as avowal does.
+# for this command; furnish sources the RBRF trust for it as for avowal.
 rbgv_check_mantle() {
   zrbgv_sentinel
 
@@ -118,33 +117,33 @@ rbgv_check_mantle() {
     "${RBCC_mantle_governor}")  z_polity_mantle="${RBCC_account_unhewn_governor}"  ;;
     "${RBCC_mantle_director}")  z_polity_mantle="${RBCC_account_unhewn_director}"  ;;
     "${RBCC_mantle_retriever}") z_polity_mantle="${RBCC_account_unhewn_retriever}" ;;
-    *) buc_die "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
+    *) buc_die_now "rbgv_check_mantle: mantle token required (${RBCC_mantle_governor} | ${RBCC_mantle_director} | ${RBCC_mantle_retriever}), got '${z_mantle:-<empty>}'" ;;
   esac
 
   buc_step "Mantle-access probe — ${z_polity_mantle} mantle as the freehold subject"
 
   buc_step "Resolve the freehold subject"
-  test -n "${RBPC_freehold_subject:-}" || buc_die "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
+  test -n "${RBPC_freehold_subject:-}" || buc_die_now "RBPC_freehold_subject is not set — rbpc_constants.sh must be sourced"
   buc_info "Freehold subject (avow as this identity): ${RBPC_freehold_subject}"
 
-  buc_step "Avow against the RBRF trust to open or reuse the sitting"
-  rbcc_source_active_rbrf
-  source "${RBCC_rbrw_file}" || buc_die "Failed to source RBRW: ${RBCC_rbrw_file}"
+  buc_step "Avow against the RBRF trust to reuse the live ${RBCC_noun_sederunt}"
   zrbrf_kindle
   zrbrw_kindle
   zrbrf_enforce
   zrbrw_enforce
 
-  rba_avow
+  rbau_avow
 
   # Confirm the human avowed as the freehold subject. The cached subject is
   # the decoded oid (best-effort, informational per the accessor): a mismatch
   # warns — the rig is being exercised under a different identity — but does not
   # gate the don; an undecodable subject is skipped with a log note.
   local z_cached_subject=""
-  z_cached_subject=$(zrba_sitting_subject_capture) || z_cached_subject=""
+  local z_cached_subject_status=0
+  z_cached_subject=$(zrbau_sederunt_subject_capture) || z_cached_subject_status=$?
+  test "${z_cached_subject_status}" -eq 0 || z_cached_subject=""
   if test -z "${z_cached_subject}"; then
-    buc_log_args "Avowed subject not decodable from the sitting cache — skipping the freehold-identity confirmation (informational only)"
+    buc_log_args "Avowed subject not decodable from the ${RBCC_noun_sederunt} cache — skipping the freehold-identity confirmation (informational only)"
   elif test "${z_cached_subject}" = "${RBPC_freehold_subject}"; then
     buc_info "Avowed subject matches the freehold subject"
   else
@@ -152,23 +151,23 @@ rbgv_check_mantle() {
   fi
 
   buc_step "Don the ${z_polity_mantle} mantle (Leg 3)"
-  # rba_don_capture emits the mantle token on success or returns a code having
-  # already logged the admission-deficit / lapsed-sitting forensic line; the
+  # rbau_don_capture emits the mantle token on success or returns a code having
+  # already logged the admission-deficit / lapsed-sederunt forensic line; the
   # probe surfaces that as its verdict (the accessor owns the diagnosis). The
   # distinguished admission-band return (Leg-3 403) gets its own operator-facing
   # buc_reject carrying the brevet instruction; every other nonzero return
-  # (lapsed sitting, transport/HTTP failure) stays the existing imprecise
-  # buc_die. The token is held in a process-local var, never persisted, and
+  # (lapsed sederunt, transport/HTTP failure) stays the existing imprecise
+  # buc_die_now. The token is held in a process-local var, never persisted, and
   # only its length is reported.
-  local z_mantle_token
+  local zSECRET_mantle_token
   local z_don_status=0
-  z_mantle_token=$(rba_don_capture "${z_mantle}") || z_don_status=$?
-  if test "${z_don_status}" -eq "${BUBC_band_admission}"; then
-    buc_reject "${BUBC_band_admission}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
+  zSECRET_mantle_token=$(rbau_don_capture "${z_mantle}") || z_don_status=$?
+  if test "${z_don_status}" -eq "${RBCG_ADMISSION_DENTIL}"; then
+    buc_reject "${RBCG_ADMISSION_DENTIL}" "Donning the ${z_polity_mantle} mantle hit an admission deficit: freehold subject '${RBPC_freehold_subject}' is not brevetted onto the ${z_polity_mantle} mantle — brevet it first (rbw-pB ${RBPC_freehold_subject} ${z_polity_mantle}), then re-run"
   elif test "${z_don_status}" -ne 0; then
-    buc_die "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed sitting or transport/HTTP failure)"
+    buc_die_now "Don of the ${z_polity_mantle} mantle failed — see the transcript (lapsed ${RBCC_noun_sederunt} or transport/HTTP failure)"
   fi
-  test -n "${z_mantle_token}" || buc_die "Don of the ${z_polity_mantle} mantle returned an empty token"
+  test -n "${zSECRET_mantle_token}" || buc_die_now "Don of the ${z_polity_mantle} mantle returned an empty token"
 
   # Exercise the minted token against Artifact Registry (repositories.list). This
   # proves the donned token actually REACHES AR — not merely that it minted — and
@@ -177,21 +176,21 @@ rbgv_check_mantle() {
   # back with rbw-da to see the freehold subject named at the using service.
   buc_step "Exercise the ${z_polity_mantle} mantle token against Artifact Registry (repositories.list)"
   local z_ar_code
-  z_ar_code=$(zrbgv_mantle_ar_call_capture "${z_mantle_token}") \
-    || buc_die "Mantle AR call failed for the ${z_polity_mantle} mantle"
+  z_ar_code=$(zrbgv_mantle_ar_call_capture "${zSECRET_mantle_token}") \
+    || buc_die_now "Mantle AR call failed for the ${z_polity_mantle} mantle"
   case "${z_ar_code}" in
     200|206)
       buc_info "Artifact Registry reachable under the ${z_polity_mantle} mantle (HTTP ${z_ar_code})"
       ;;
     403)
-      buc_die "The ${z_polity_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
+      buc_die_now "The ${z_polity_mantle} mantle donned but Artifact Registry denied access (HTTP 403) — the mantle SA lacks artifactregistry.reader, or its capability-set was not granted at levy"
       ;;
     *)
-      buc_die "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_polity_mantle} mantle"
+      buc_die_now "Mantle AR call: unexpected HTTP ${z_ar_code} for the ${z_polity_mantle} mantle"
       ;;
   esac
 
-  buc_success "Donned the ${z_polity_mantle} mantle, minted a token (${#z_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
+  buc_success "Donned the ${z_polity_mantle} mantle, minted a token (${#zSECRET_mantle_token} chars), and reached Artifact Registry — the attributed use-hop audit entry is written; read it with rbw-da"
 }
 
 ######################################################################
@@ -200,39 +199,41 @@ rbgv_check_mantle() {
 zrbgv_furnish() {
   local -r z_command="${1:-}"
 
-  buc_doc_env "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
+  buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
+  buc_doc_env_row "BURD_TEMP_DIR         " "Bash Dispatch Utility provided temporary directory, empty at start of command"
   buc_doc_env_done || return 0
 
   local z_rbk="${BASH_SOURCE[0]%/*}"
-  source "${BURD_BUK_DIR}/buv_validation.sh"
-  source "${BURD_BUK_DIR}/burd_regime.sh"
-  source "${z_rbk}/rbrr_regime.sh"
-  source "${z_rbk}/rbrd_regime.sh"
-  source "${z_rbk}/rbrp_regime.sh"
-  source "${z_rbk}/rbrf_regime.sh"
-  source "${z_rbk}/rbrw_regime.sh"
-  source "${z_rbk}/rbcc_constants.sh"
-  source "${z_rbk}/rbpc_constants.sh"
-  source "${z_rbk}/rbgc_constants.sh"
-  source "${z_rbk}/rbdc_derived.sh"
-  source "${z_rbk}/rbgo_oauth.sh"
-  source "${z_rbk}/rbuh_http.sh"
-  source "${z_rbk}/rbge_rest.sh"
-  source "${z_rbk}/rba_auth.sh"
-  source "${z_rbk}/rbgi_iam.sh"
-  source "${z_rbk}/rbgp_payor.sh"
-  source "${z_rbk}/rbgv_probe.sh"
+  source "${z_rbk}/rbrr_regime.sh" || buc_die_now "Failed to source rbrr_regime.sh"
+  source "${z_rbk}/rbrd_regime.sh" || buc_die_now "Failed to source rbrd_regime.sh"
+  source "${z_rbk}/rbrp_regime.sh" || buc_die_now "Failed to source rbrp_regime.sh"
+  source "${z_rbk}/rbrf_regime.sh" || buc_die_now "Failed to source rbrf_regime.sh"
+  source "${z_rbk}/rbrw_regime.sh" || buc_die_now "Failed to source rbrw_regime.sh"
+  source "${z_rbk}/rbcc_constants.sh" || buc_die_now "Failed to source rbcc_constants.sh"
+  source "${z_rbk}/rbpc_constants.sh" || buc_die_now "Failed to source rbpc_constants.sh"
+  source "${z_rbk}/rbgc_constants.sh" || buc_die_now "Failed to source rbgc_constants.sh"
+  source "${z_rbk}/rbdc_derived.sh" || buc_die_now "Failed to source rbdc_derived.sh"
+  source "${z_rbk}/rbgo_oauth.sh" || buc_die_now "Failed to source rbgo_oauth.sh"
+  source "${z_rbk}/rbuh_http.sh" || buc_die_now "Failed to source rbuh_http.sh"
+  source "${z_rbk}/rbge_rest.sh" || buc_die_now "Failed to source rbge_rest.sh"
+  source "${z_rbk}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
+  source "${z_rbk}/rbgi_iam.sh" || buc_die_now "Failed to source rbgi_iam.sh"
+  source "${z_rbk}/rbgp_payor.sh" || buc_die_now "Failed to source rbgp_payor.sh"
+  source "${z_rbk}/rbgv_probe.sh" || buc_die_now "Failed to source rbgv_probe.sh"
 
-  zbuv_kindle
-  zburd_kindle
 
-  source "${RBCC_rbrr_file}" || buc_die "Failed to source ${RBCC_rbrr_file}"
-  source "${RBCC_rbrd_file}" || buc_die "Failed to source RBRD: ${RBCC_rbrd_file}"
+  source "${RBCC_rbrr_file}" || buc_die_now "Failed to source ${RBCC_rbrr_file}"
+  source "${RBCC_rbrd_file}" || buc_die_now "Failed to source RBRD: ${RBCC_rbrd_file}"
   # RBRP values load here too so zrbgp_kindle can derive RBGP_TERRIER_BUCKET from
   # RBRP_PAYOR_PROJECT_ID; rbrp's kindle+enforce stay per-probe (rbgv_check_payor),
   # since the payor probe enforces RBRP while the depot probes enforce RBRR/RBRD.
-  source "${RBCC_rbrp_file}" || buc_die "Failed to source RBRP: ${RBCC_rbrp_file}"
+  source "${RBCC_rbrp_file}" || buc_die_now "Failed to source RBRP: ${RBCC_rbrp_file}"
+  case "${z_command}" in
+    rbgv_check_avowal|rbgv_check_mantle)
+      rbcc_source_active_rbrf_flint "${RBRR_ACTIVE_FOEDUS:-}"
+      source "${RBCC_rbrw_file}" || buc_die_now "Failed to source RBRW: ${RBCC_rbrw_file}"
+      ;;
+  esac
   zrbrr_kindle
   zrbrd_kindle
 
@@ -251,7 +252,7 @@ zrbgv_furnish() {
   zrbgo_kindle
   zrbuh_kindle
   zrbge_kindle
-  zrba_kindle
+  zrbau_kindle
   zrbgi_kindle
   zrbgp_kindle
   zrbgv_kindle

@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Foundry Director Build - kindle entry: the single rbfd
+# inclusion-guard, tinder and kindle, sourcing the guard-free body clusters
+# (rbfdp_ preflight, rbfdb_ build, rbfdm_ mirror, rbfdg_ graft, rbfdo_
+# ordain). The readonly ZRBFD0_* constants the kindle sets are read globally
+# by the clusters.
+
+set -euo pipefail
+
+# Multiple inclusion detection
+test -z "${ZRBFD0_SOURCED:-}" || buc_die_now "Module rbfd multiply sourced - check sourcing hierarchy"
+ZRBFD0_SOURCED=1
+
+# Tinder constants
+# Step id of the hallmark-echoing conjure step — single mint shared by the
+# step defs and the consistency assert, which locates its output slot by id
+readonly RBFD0_hallmark_echo_step_id="derive-tag-base"
+
+# Source shared Foundry Core module
+source "${BASH_SOURCE[0]%/*}/rbfc0_core.sh" || buc_die_now "Failed to source rbfc0_core.sh"
+
+# Source Foundry Verify module (ordain cross-module calls: rbfvv_vouch, zrbfvm_graft_metadata_submit)
+source "${BASH_SOURCE[0]%/*}/rbfv0_verify.sh" || buc_die_now "Failed to source rbfv0_verify.sh"
+
+# Director body clusters, sourced once here at the single rbfd entry — all
+# guard-free: no cluster is sourced by a second entry.
+source "${BASH_SOURCE[0]%/*}/rbfdp_preflight.sh" || buc_die_now "Failed to source rbfdp_preflight.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdb_build.sh" || buc_die_now "Failed to source rbfdb_build.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdm_mirror.sh" || buc_die_now "Failed to source rbfdm_mirror.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdg_graft.sh" || buc_die_now "Failed to source rbfdg_graft.sh"
+source "${BASH_SOURCE[0]%/*}/rbfdo_ordain.sh" || buc_die_now "Failed to source rbfdo_ordain.sh"
+
+######################################################################
+# Internal Functions (zrbfd0_*)
+
+zrbfd0_kindle() {
+  test -z "${ZRBFD0_KINDLED:-}" || buc_die_now "Module rbfd already kindled"
+
+  buc_log_args 'Kindle shared Foundry Core infrastructure'
+  zrbfc0_kindle
+
+  buc_log_args 'RBGJ files in same Tools directory as this implementation'
+  # Acronym: rbgjb = Recipe Bottle Google Json Build (step scripts in rbgjb/ dir)
+  local z_self_dir="${BASH_SOURCE[0]%/*}"
+  readonly ZRBFD0_RBGJB_STEPS_DIR="${z_self_dir}/rbgjb"
+  test -d "${ZRBFD0_RBGJB_STEPS_DIR}"   || buc_die_now "RBGJB steps directory not found: ${ZRBFD0_RBGJB_STEPS_DIR}"
+
+  # RBGJV and RBGJA step dirs now owned by rbfc0_core.sh (shared assembly helpers)
+
+  buc_log_args 'RBGJM mirror step scripts (same Tools directory)'
+  # Acronym: rbgjm = Recipe Bottle Google Json Mirror (step scripts in rbgjm/ dir)
+  readonly ZRBFD0_RBGJM_STEPS_DIR="${z_self_dir}/rbgjm"
+  test -d "${ZRBFD0_RBGJM_STEPS_DIR}"   || buc_die_now "RBGJM steps directory not found: ${ZRBFD0_RBGJM_STEPS_DIR}"
+
+  buc_log_args 'Define stitch operation file prefix (postfixed per step id)'
+  readonly ZRBFD0_STITCH_PREFIX="${BURD_TEMP_DIR}/rbfd_stitch_"
+
+  buc_log_args 'Define mirror operation files'
+  readonly ZRBFD0_MIRROR_PREFIX="${BURD_TEMP_DIR}/rbfd_mirror_"
+
+  buc_log_args 'Define graft operation files'
+  readonly ZRBFD0_GRAFT_PREFIX="${BURD_TEMP_DIR}/rbfd_graft_"
+
+  buc_log_args 'Define base-image registry preflight files'
+  readonly ZRBFD0_PREFLIGHT_PREFIX="${BURD_TEMP_DIR}/rbfd_preflight_"
+
+  buc_log_args 'Define context push operation files'
+  readonly ZRBFD0_CONTEXT_PREFIX="${BURD_TEMP_DIR}/rbfd_context_"
+
+  buc_log_args 'Kindle verify module (cross-module calls from ordain)'
+  zrbfv0_kindle
+
+  readonly ZRBFD0_KINDLED=1
+}
+
+zrbfd0_sentinel() {
+  zrbfc0_sentinel
+  test "${ZRBFD0_KINDLED:-}" = "1" || buc_die_now "Module rbfd not kindled - call zrbfd0_kindle first"
+}
+
+# eof

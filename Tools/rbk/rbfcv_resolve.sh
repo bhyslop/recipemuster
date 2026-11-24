@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,13 +24,13 @@
 set -euo pipefail
 
 ######################################################################
-# Vessel Resolution (rbfc_* / zrbfc_*)
+# Vessel Resolution (rbfcv_* / zrbfcv_*)
 
 # Validate that a vessel sigil is non-empty and corresponds to a known vessel.
 # On missing or invalid sigil, lists available vessels and dies.
-# Does NOT resolve to a directory — use zrbfc_resolve_vessel for that.
-rbfc_require_vessel_sigil() {
-  zrbfc_sentinel
+# Does NOT resolve to a directory — use zrbfcv_resolve_vessel for that.
+rbfcv_require_vessel_sigil() {
+  zrbfc0_sentinel
 
   local -r z_sigil="${1:-}"
 
@@ -38,84 +39,97 @@ rbfc_require_vessel_sigil() {
   fi
 
   local z_sigils=""
-  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
+  local z_sigil_roll=()
+  read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
-  local z_s=""
-  for z_s in ${z_sigils}; do
-    buc_bare "        ${z_s}"
+  local z_i=0
+  for z_i in "${!z_sigil_roll[@]}"; do
+    buc_bare "        ${z_sigil_roll[${z_i}]}"
   done
   if test -z "${z_sigil}"; then
-    buc_die "Vessel parameter required"
+    buc_die_now "Vessel parameter required"
   fi
-  buc_die "Vessel not found: ${z_sigil}"
+  buc_die_now "Vessel not found: ${z_sigil}"
 }
 
-# Resolve vessel argument: accepts a sigil (e.g., rbev-sentry-deb-tether) or a path
-# (e.g., rbmv_vessels/rbev-sentry-deb-tether).  On no-arg or invalid arg, lists
-# available vessels and dies.  On success, writes resolved path to ZRBFC_VESSEL_RESOLVED_DIR_FILE.
-zrbfc_resolve_vessel() {
-  zrbfc_sentinel
+# Resolve vessel argument: accepts a sigil (e.g., rbev_sentry_deb_tether) or a path
+# (e.g., rbmv_vessels/rbev_sentry_deb_tether).  On no-arg or invalid arg, lists
+# available vessels and dies.  On success, writes resolved path to ZRBFC0_VESSEL_RESOLVED_DIR_FILE.
+zrbfcv_resolve_vessel() {
+  zrbfc0_sentinel
 
   local -r z_arg="${1:-}"
 
   # Try as path first, then as sigil under RBRR_VESSEL_DIR
   if test -n "${z_arg}" && test -d "${z_arg}" && test -f "${z_arg}/${RBCC_rbrv_file}"; then
-    printf '%s' "${z_arg}" > "${ZRBFC_VESSEL_RESOLVED_DIR_FILE}" \
-      || buc_die "Failed to write resolved vessel path"
+    printf '%s' "${z_arg}" > "${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}" \
+      || buc_die_now "Failed to write resolved vessel path"
     return 0
   fi
   if test -n "${z_arg}" && test -d "${RBRR_VESSEL_DIR}/${z_arg}" && test -f "${RBRR_VESSEL_DIR}/${z_arg}/${RBCC_rbrv_file}"; then
-    printf '%s' "${RBRR_VESSEL_DIR}/${z_arg}" > "${ZRBFC_VESSEL_RESOLVED_DIR_FILE}" \
-      || buc_die "Failed to write resolved vessel path"
+    printf '%s' "${RBRR_VESSEL_DIR}/${z_arg}" > "${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}" \
+      || buc_die_now "Failed to write resolved vessel path"
     return 0
   fi
 
   # Resolution failed — list available vessels and die
   local z_sigils=""
-  z_sigils=$(rbrv_list_capture) || buc_die "No vessels found"
+  z_sigils=$(rbrv_list_flint_capture "${RBRR_VESSEL_DIR}") || buc_die_now "No vessels found"
+  local z_sigil_roll=()
+  read -r -a z_sigil_roll <<< "${z_sigils}" || buc_die_now "Failed to split the vessel listing"
   buc_step "Available vessels:"
-  local z_sigil=""
-  for z_sigil in ${z_sigils}; do
-    buc_bare "        ${z_sigil}"
+  local z_i=0
+  for z_i in "${!z_sigil_roll[@]}"; do
+    buc_bare "        ${z_sigil_roll[${z_i}]}"
   done
   if test -z "${z_arg}"; then
-    buc_die "Vessel argument required (sigil or path)"
+    buc_die_now "Vessel argument required (sigil or path)"
   fi
-  buc_die "Vessel not found: ${z_arg}"
+  buc_die_now "Vessel not found: ${z_arg}"
 }
 
-zrbfc_load_vessel() {
-  zrbfc_sentinel
+zrbfcv_load_vessel() {
+  zrbfc0_sentinel
 
-  local z_vessel_dir="$1"
+  local z_vessel_dir="${1:-}"
+  test -n "${z_vessel_dir}" || buc_die_now "zrbfcv_load_vessel: vessel_dir required"
 
   buc_log_args 'Validate vessel directory exists'
-  test -d "${z_vessel_dir}" || buc_die "Vessel directory not found: ${z_vessel_dir}"
+  test -d "${z_vessel_dir}" || buc_die_now "Vessel directory not found: ${z_vessel_dir}"
 
   buc_log_args 'Check for rbrv.env file'
   local z_vessel_env="${z_vessel_dir}/${RBCC_rbrv_file}"
-  test -f "${z_vessel_env}" || buc_die "Vessel configuration not found: ${z_vessel_env}"
+  test -f "${z_vessel_env}" || buc_die_now "Vessel configuration not found: ${z_vessel_env}"
 
   buc_log_args 'Source vessel configuration'
-  source "${z_vessel_env}" || buc_die "Failed to source vessel config: ${z_vessel_env}"
+  source "${z_vessel_env}" || buc_die_now "Failed to source vessel config: ${z_vessel_env}"
 
   buc_log_args 'Validate vessel directory matches sigil'
   local z_vessel_dir_clean="${z_vessel_dir%/}"  # Strip any trailing slash
   local z_dir_name="${z_vessel_dir_clean##*/}"  # Extract directory name
   buc_log_args "  z_vessel_dir = ${z_vessel_dir}"
   buc_log_args "  z_dir_name   = ${z_dir_name}"
-  test "${z_dir_name}" = "${RBRV_SIGIL}" || buc_die "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
+  test "${z_dir_name}" = "${RBRV_SIGIL}" || buc_die_now "Vessel sigil '${RBRV_SIGIL}' does not match directory name '${z_dir_name}'"
 
   buc_log_args 'Validate vessel path matches expected pattern'
   local z_expected_vessel_dir="${RBRR_VESSEL_DIR}/${RBRV_SIGIL}"
   local z_vessel_realpath=""
-  z_vessel_realpath=$(cd "${z_vessel_dir}" && pwd) || buc_die "Failed to resolve vessel directory path"
+  (
+    cd "${z_vessel_dir}" || buc_die_now "Failed to enter vessel directory: ${z_vessel_dir}"
+    pwd || buc_die_now "Failed to print vessel directory path"
+  ) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve vessel directory path"
+  z_vessel_realpath=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to resolve vessel directory path"
   local z_expected_realpath=""
-  z_expected_realpath=$(cd "${z_expected_vessel_dir}" && pwd) || buc_die "Failed to resolve expected vessel path"
-  test "${z_vessel_realpath}" = "${z_expected_realpath}" || buc_die "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
+  (
+    cd "${z_expected_vessel_dir}" || buc_die_now "Failed to enter expected vessel directory: ${z_expected_vessel_dir}"
+    pwd || buc_die_now "Failed to print expected vessel directory path"
+  ) > "${ZRBFC0_SCRATCH_FILE}" || buc_die_now "Failed to resolve expected vessel path"
+  z_expected_realpath=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to resolve expected vessel path"
+  test "${z_vessel_realpath}" = "${z_expected_realpath}" || buc_die_now "Vessel directory '${z_vessel_dir}' does not match expected location '${z_expected_vessel_dir}'"
 
   buc_log_args 'Store loaded vessel info for use by commands'
-  echo "${RBRV_SIGIL}" > "${ZRBFC_VESSEL_SIGIL_FILE}" || buc_die "Failed to store vessel sigil"
+  echo "${RBRV_SIGIL}" > "${ZRBFC0_VESSEL_SIGIL_FILE}" || buc_die_now "Failed to store vessel sigil"
 
   buc_info "Loaded vessel: ${RBRV_SIGIL}"
 }

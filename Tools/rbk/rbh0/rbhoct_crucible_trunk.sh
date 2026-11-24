@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,21 +40,25 @@ rbhoct_crucible_trunk() {
   local -r z_bottle_vessel="${3}"
   local -r z_nameplate_file="${4}"
 
-  buyy_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
-  buyy_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
+  buym_cmd_yawp "RBRN_SENTRY_HALLMARK";   local -r z_code_sentry_field="${z_buym_yelp}"
+  buym_cmd_yawp "RBRN_BOTTLE_HALLMARK";   local -r z_code_bottle_field="${z_buym_yelp}"
 
   local z_nameplate_exists=0
-  test -f "${z_nameplate_file}" && z_nameplate_exists=1
+  test ! -f "${z_nameplate_file}" || z_nameplate_exists=1
 
   local z_sentry_hallmark=""
   local z_bottle_hallmark=""
   local z_sentry_hallmark_present=0
   local z_bottle_hallmark_present=0
   if test "${z_nameplate_exists}" = "1"; then
-    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark=""
-    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark=""
-    test -n "${z_sentry_hallmark}" && z_sentry_hallmark_present=1
-    test -n "${z_bottle_hallmark}" && z_bottle_hallmark_present=1
+    local z_sentry_hallmark_status=0
+    z_sentry_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_SENTRY_HALLMARK") || z_sentry_hallmark_status=$?
+    test "${z_sentry_hallmark_status}" -eq 0 || z_sentry_hallmark=""
+    local z_bottle_hallmark_status=0
+    z_bottle_hallmark=$(zrbho_po_extract_capture "${z_nameplate_file}" "RBRN_BOTTLE_HALLMARK") || z_bottle_hallmark_status=$?
+    test "${z_bottle_hallmark_status}" -eq 0 || z_bottle_hallmark=""
+    test -z "${z_sentry_hallmark}" || z_sentry_hallmark_present=1
+    test -z "${z_bottle_hallmark}" || z_bottle_hallmark_present=1
   fi
 
   local z_sentry_image_exists=0
@@ -65,8 +70,8 @@ rbhoct_crucible_trunk() {
        > "${z_ct_images_out}" 2>"${z_ct_images_err}"; then
     while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in
-        *"${z_sentry_vessel}:k"[0-9]*) z_sentry_image_exists=1 ;;
-        *"${z_bottle_vessel}:k"[0-9]*) z_bottle_image_exists=1 ;;
+        *"${z_sentry_vessel}:k"[0123456789]*) z_sentry_image_exists=1 ;;
+        *"${z_bottle_vessel}:k"[0123456789]*) z_bottle_image_exists=1 ;;
       esac
     done < "${z_ct_images_out}"
   fi
@@ -99,7 +104,7 @@ rbhoct_crucible_trunk() {
   buh_e
   buh_code "   ${z_nameplate_file}"
   buh_e
-  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND drives the resulting"
+  buh_line "Each ${RBYC_KLUDGE} below builds a ${RBYC_VESSEL} AND mitres the resulting"
   buh_line "${RBYC_HALLMARK} into the ${z_moniker} ${RBYC_NAMEPLATE} — no copy/paste."
   buh_e
   buh_warn "${RBYC_KLUDGE} requires a clean git tree."
@@ -114,7 +119,7 @@ rbhoct_crucible_trunk() {
   buh_line "and dnsmasq to enforce network policy — only domains on the"
   buh_line "${RBYC_NAMEPLATE}'s allowlist are reachable from inside."
   buh_e
-  buh_line "Build it and drive the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
+  buh_line "Build it and mitre the ${RBYC_HALLMARK} into the ${RBYC_NAMEPLATE}:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_SENTRY}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"
   buh_e
@@ -144,7 +149,7 @@ rbhoct_crucible_trunk() {
   buh_step2 "${RBYC_KLUDGE} the ${RBYC_BOTTLE}"
   buh_e
   buh_line "The ${RBYC_BOTTLE} is the workload container — the unprivileged target"
-  buh_line "the ${RBYC_SENTRY} protects. Build it and drive the ${RBYC_HALLMARK}"
+  buh_line "the ${RBYC_SENTRY} protects. Build it and mitre the ${RBYC_HALLMARK}"
   buh_line "into the ${RBYC_NAMEPLATE}:"
   buh_e
   buh_tt  "   " "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}" "" " ${RBYC_HANDBOOK_NAMEPLATE_REF}"

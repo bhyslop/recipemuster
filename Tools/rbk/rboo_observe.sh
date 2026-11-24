@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2025 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,14 +26,14 @@
 set -euo pipefail
 
 # Multiple inclusion detection
-test -z "${ZRBOO_SOURCED:-}" || buc_die "Module rboo multiply sourced - check sourcing hierarchy"
+test -z "${ZRBOO_SOURCED:-}" || buc_die_now "Module rboo multiply sourced - check sourcing hierarchy"
 ZRBOO_SOURCED=1
 
 ######################################################################
 # Kindle and Sentinel
 
 zrboo_kindle() {
-  test -z "${ZRBOO_KINDLED:-}" || buc_die "Module rboo already kindled"
+  test -z "${ZRBOO_KINDLED:-}" || buc_die_now "Module rboo already kindled"
 
   # Verify RBOB is kindled (provides container names, runtime)
   zrbob_sentinel
@@ -51,7 +52,7 @@ zrboo_kindle() {
   ZRBOO_TCPDUMP_OPTS=(-U -l -nn -vvv -e)
   readonly ZRBOO_TCPDUMP_OPTS
 
-  # Scry interface-discovery captures land here (BCG temp-file capture pattern).
+  # Scry interface-discovery captures land here.
   readonly ZRBOO_SCRY_PREFIX="${BURD_TEMP_DIR}/rboo_scry_"
 
   # Bridge interface (only for podman, discovered at observe time)
@@ -61,7 +62,7 @@ zrboo_kindle() {
 }
 
 zrboo_sentinel() {
-  test "${ZRBOO_KINDLED:-}" = "1" || buc_die "Module rboo not kindled - call zrboo_kindle first"
+  test "${ZRBOO_KINDLED:-}" = "1" || buc_die_now "Module rboo not kindled - call zrboo_kindle first"
 }
 
 ######################################################################
@@ -71,11 +72,14 @@ zrboo_sentinel() {
 #   $1  ANSI color sequence (a ZRBOO_* constant)
 #   $2  leg label shown in brackets
 zrboo_prefix() {
-  local z_color="$1"
-  local z_label="$2"
-  local line
-  while IFS= read -r line; do
-    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${line}"
+  zrboo_sentinel
+
+  local z_color="${1:-}"
+  local z_label="${2:-}"
+  local z_line=""
+  while IFS= read -r z_line || test -n "${z_line}"; do
+    echo "${z_color}${ZRBOO_BOLD}[${z_label}]${ZRBOO_RESET} ${z_line}" \
+      || buc_die_now "Failed to emit a ${z_label} capture line"
   done
 }
 
@@ -102,28 +106,29 @@ rboo_observe() {
   # Discover sentry interface roles by IP inside the container — Docker does
   # not guarantee eth0/eth1 ordering (on the WSL native-docker host the two are
   # reversed), so resolve by role the way rbjs_sentry.sh does, never by name.
-  # BCG: external command output goes to temp files, never command substitution.
   local z_enclave_file="${ZRBOO_SCRY_PREFIX}enclave_addr.txt"
   local z_enclave_stderr="${ZRBOO_SCRY_PREFIX}enclave_stderr.txt"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o addr show to "${RBRN_ENCLAVE_SENTRY_IP}" \
     > "${z_enclave_file}" 2>"${z_enclave_stderr}" \
-    || buc_die "scry: cannot query Sentry interfaces (is the Crucible charged?) — see ${z_enclave_stderr}"
+    || buc_die_now "scry: cannot query Sentry interfaces (is the Crucible charged?) — see ${z_enclave_stderr}"
 
   # ip -o emits "<idx>: <ifname> ..."; the first line's second field is the leg.
   local z_if_idx=""
   local z_if_rest=""
   local z_sentry_enclave_if=""
-  read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" || true
+  read -r z_if_idx z_sentry_enclave_if z_if_rest < "${z_enclave_file}" \
+    || test -n "${z_sentry_enclave_if}" \
+    || buc_die_now "Failed to read the Sentry interface listing: ${z_enclave_file}"
   test -n "${z_sentry_enclave_if}" \
-    || buc_die "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
+    || buc_die_now "scry: no Sentry interface holds enclave IP ${RBRN_ENCLAVE_SENTRY_IP} (is the Crucible charged?)"
 
   local z_uplink_file="${ZRBOO_SCRY_PREFIX}uplink_addr.txt"
   local z_uplink_stderr="${ZRBOO_SCRY_PREFIX}uplink_stderr.txt"
   "${ZRBOB_RUNTIME}" exec "${ZRBOB_SENTRY}" \
     ip -o -4 addr show scope global \
     > "${z_uplink_file}" 2>"${z_uplink_stderr}" \
-    || buc_die "scry: cannot query Sentry uplink interfaces — see ${z_uplink_stderr}"
+    || buc_die_now "scry: cannot query Sentry uplink interfaces — see ${z_uplink_stderr}"
 
   # First global interface whose name differs from the enclave leg is the uplink.
   local z_ifname=""
@@ -136,7 +141,7 @@ rboo_observe() {
     fi
   done < "${z_uplink_file}"
   test -n "${z_sentry_uplink_if}" \
-    || buc_die "scry: no Sentry uplink interface found (enclave=${z_sentry_enclave_if})"
+    || buc_die_now "scry: no Sentry uplink interface found (enclave=${z_sentry_enclave_if})"
 
   buc_info "Network topology:"
   buc_info "  SENTRY:          enclave=${z_sentry_enclave_if} uplink=${z_sentry_uplink_if}"
@@ -179,15 +184,16 @@ rboo_observe() {
   # Bridge capture: only for podman (requires podman machine ssh). Built as a
   # single ssh command string, so timeout/opts/filter are spliced in textually.
   if test "${RBRN_RUNTIME}" = "podman"; then
-    # BCG: capture network-inspect output to a temp file, never command substitution.
     local z_bridge_if_file="${ZRBOO_SCRY_PREFIX}bridge_if.txt"
     local z_bridge_if_stderr="${ZRBOO_SCRY_PREFIX}bridge_if_stderr.txt"
     "${ZRBOB_RUNTIME}" network inspect "${ZRBOB_NETWORK}" --format '{{.NetworkInterface}}' \
       > "${z_bridge_if_file}" 2>"${z_bridge_if_stderr}" \
-      || buc_die "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
-    read -r z_rboo_bridge_interface < "${z_bridge_if_file}" || true
+      || buc_die_now "scry: cannot inspect network ${ZRBOB_NETWORK} — see ${z_bridge_if_stderr}"
+    read -r z_rboo_bridge_interface < "${z_bridge_if_file}" \
+      || test -n "${z_rboo_bridge_interface}" \
+      || buc_die_now "Failed to read the bridge interface: ${z_bridge_if_file}"
     test -n "${z_rboo_bridge_interface}" \
-      || buc_die "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
+      || buc_die_now "scry: network ${ZRBOB_NETWORK} reports no bridge interface"
     buc_info "Starting bridge capture (${z_rboo_bridge_interface}) via podman machine ssh"
     local z_bridge_cmd="sudo -n"
     test -z "${z_duration}" || z_bridge_cmd="${z_bridge_cmd} timeout ${z_duration}"

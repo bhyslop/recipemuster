@@ -1,4 +1,19 @@
 #!/bin/bash
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 # RBGJV Step 03: Build FROM scratch container with verification results, push as vouch
 # Builder: docker (from reliquary)
 # Entrypoint: bash
@@ -6,7 +21,7 @@
 #                _RBGV_HALLMARK, _RBGV_ARK_BASENAME_VOUCH
 #
 # Note: The Dockerfile heredoc below is intentional — this script runs inside
-# a Cloud Build container, not under BCG module discipline.
+# a Cloud Build container.
 #
 # Platforms are read from /workspace/vouch_platforms.txt (written by step 02).
 # Multi-platform via buildx. No TARGETARCH needed — vouch content (JSON files)

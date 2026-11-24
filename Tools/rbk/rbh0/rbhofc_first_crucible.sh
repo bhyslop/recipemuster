@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,17 +34,19 @@ rbho_first_crucible() {
   buc_doc_shown || return 0
 
   local -r z_moniker="ccyolo"
-  local -r z_sentry_vessel="rbev-sentry-deb-tether"
-  local -r z_bottle_vessel="rbev-bottle-ccyolo"
-  local -r z_nameplate_file="${RBCC_moorings_dir}/${z_moniker}/${RBCC_rbrn_file}"
+  local -r z_sentry_vessel="rbev_sentry_deb_tether"
+  local -r z_bottle_vessel="rbev_bottle_ccyolo"
+  local -r z_nameplate_file="${RBCC_moorings_dir}/${RBCC_nameplate_sprue}${z_moniker}/${RBCC_rbrn_file}"
   local -r z_ssh_tabtarget="tt/rbw-cS.SshTo.${z_moniker}.sh"
 
-  buyy_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
+  buym_cmd_yawp "${z_ssh_tabtarget}";     local -r z_cmd_ssh="${z_buym_yelp}"
 
   local -r z_test_domain="www.internic.net"
 
   local z_has_docker=0
-  command -v docker >/dev/null 2>&1 && z_has_docker=1
+  if command -v docker >/dev/null; then
+    z_has_docker=1
+  fi
 
   buh_section "Start a ${RBYC_CRUCIBLE} Using Local Builds"
   buh_e
@@ -76,6 +79,11 @@ rbho_first_crucible() {
     return 0
   fi
 
+  buh_line "Each ${RBYC_KLUDGE} below may print a buildx warning, InvalidDefaultArgInFrom, about"
+  buh_line "an empty base image name. It is expected: the base image arrives as a build"
+  buh_line "argument the warning cannot see, and the build proceeds."
+  buh_e
+
   rbhoct_crucible_trunk "${z_moniker}" "${z_sentry_vessel}" "${z_bottle_vessel}" "${z_nameplate_file}"
 
   buh_step1 "Enter the container and run Claude Code"
@@ -94,9 +102,10 @@ rbho_first_crucible() {
   buh_line "subscription, and paste the code back into the terminal."
   buh_e
   buh_warn "The ${RBYC_CCYOLO} ${RBYC_BOTTLE} pins Claude Code to a specific version."
-  buh_line "Versions after v2.1.89 have a regression where paste does not"
-  buh_line "work in the OAuth input prompt through SSH or docker exec"
-  buh_line "(github.com/anthropics/claude-code/issues/47745). If you"
+  buh_line "The pinned version was tried by hand, pasting the OAuth code"
+  buh_line "through both SSH and docker exec. Versions v2.1.105 through"
+  buh_line "v2.1.107 broke paste in that prompt"
+  buh_line "(github.com/anthropics/claude-code/issues/47699). If you"
   buh_line "update the pin and paste stops working, type the code manually."
   buh_e
   buh_line "Once authenticated, Claude Code starts in full autonomy mode —"
@@ -167,10 +176,10 @@ rbho_first_crucible() {
   buh_line "and you can run any ${RBYC_NAMEPLATE} — ${z_moniker} was just this"
   buh_line "session's example."
   buh_e
-  buyy_tt_yawp "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}";          local -r z_tt_kludge="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}";  local -r z_tt_charge="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_SSH}"    "${z_moniker}";  local -r z_tt_ssh="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}";  local -r z_tt_quench="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_KLUDGE_BOTTLE}";          local -r z_tt_kludge="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_CHARGE}" "${z_moniker}";  local -r z_tt_charge="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_SSH}"    "${z_moniker}";  local -r z_tt_ssh="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_CRUCIBLE_QUENCH}" "${z_moniker}";  local -r z_tt_quench="${z_buym_yelp}"
   buh_line "   ${RBYC_KLUDGE}   ${z_tt_kludge}    build the ${RBYC_BOTTLE} image, write ${RBYC_HALLMARK} into ${RBYC_NAMEPLATE}"
   buh_line "   ${RBYC_CHARGE}   ${z_tt_charge}    start the three containers from the ${RBYC_NAMEPLATE}"
   buh_line "   SSH      ${z_tt_ssh}     log into the ${RBYC_BOTTLE} for interactive work"

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,15 +33,19 @@ rbho_crash_course() {
   local z_rbrd_project=""
   local z_rbrd_populated=0
   if test -f "${RBCC_rbrd_file}"; then
-    z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project=""
-    test -n "${z_rbrd_project}" && z_rbrd_populated=1
+    local z_rbrd_project_status=0
+    z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project_status=$?
+    test "${z_rbrd_project_status}" -eq 0 || z_rbrd_project=""
+    test -z "${z_rbrd_project}" || z_rbrd_populated=1
   fi
 
   local z_station_present=0
   local z_log_dir=""
   if test -n "${BURD_STATION_FILE:-}" && test -f "${BURD_STATION_FILE}"; then
     z_station_present=1
-    z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir=""
+    local z_log_dir_status=0
+    z_log_dir=$(zrbho_po_extract_capture "${BURD_STATION_FILE}" "BURS_LOG_DIR") || z_log_dir_status=$?
+    test "${z_log_dir_status}" -eq 0 || z_log_dir=""
   fi
 
   buh_section "Recipe Bottle — Configure your Repo's Environment"
@@ -52,6 +57,12 @@ rbho_crash_course() {
   buh_line "The command you just ran is a ${RBYC_TABTARGET} — a launcher script"
   buh_line "in the ${BURC_TABTARGET_DIR}/ directory. Tab completion narrows by prefix: type \`${BURC_TABTARGET_DIR}/rbw-<TAB>\` to see every"
   buh_line "${RBYC_RECIPE_BOTTLE} command."
+  buh_e
+  buh_line "Each ${RBYC_TABTARGET} finds the root of your clone by itself, so it runs"
+  buh_line "from any directory. The plain commands these tracks give, like the"
+  buh_line "\`mkdir -p\` in Step 5, and any file path you hand a ${RBYC_TABTARGET}, are"
+  buh_line "written from the root of your clone, so they must be run from there."
+  buh_line "Run everything from the root, as \`${BURC_TABTARGET_DIR}/...\`, and both hold."
   buh_e
 
   buh_step1 "View the project config"
@@ -69,7 +80,17 @@ rbho_crash_course() {
   buh_step1 "View your personal station"
   buh_e
   buh_line "${RBYC_BURS} is your per-developer station file: local, gitignored,"
-  buh_line "holds things that vary per machine. Run the renderer:"
+  buh_line "holds things that vary per machine."
+  buh_e
+  buh_line "On a genuinely fresh clone there is no station file yet. Create one"
+  buh_line "with the fresh-station bootstrap:"
+  buh_e
+  buh_tt   "   " "buw-SI"
+  buh_e
+  buh_line "This writes a complete ${RBYC_BURS} file with every required field"
+  buh_line "and a purpose comment for each. Where a ${BUBG_STATION_BASE} file already stands,"
+  buh_line "it overwrites it with the defaults, losing every value set in it."
+  buh_line "Then run the renderer:"
   buh_e
   buh_tt   "   " "${BUWZ_RS_RENDER}"
   buh_e
@@ -92,8 +113,8 @@ rbho_crash_course() {
   buh_e
   buh_line "A live probe of this machine — [*] holds, [ ] needs action:"
   if test "${z_station_present}" = "1"; then
-    buyy_cmd_yawp " [*] ";              local -r z_mark="${z_buym_yelp}"
-    buyy_cmd_yawp "${BURD_STATION_FILE}"; local -r z_path="${z_buym_yelp}"
+    buym_cmd_yawp " [*] ";              local -r z_mark="${z_buym_yelp}"
+    buym_cmd_yawp "${BURD_STATION_FILE}"; local -r z_path="${z_buym_yelp}"
     buh_line "${z_mark} Station file present at ${z_path}"
   else
     zrbho_po_status 0 "Station file not found"
@@ -106,6 +127,14 @@ rbho_crash_course() {
   buh_line "runtime container prefix, vessel directory, Cloud Build timeouts."
   buh_line "The depot regime (${RBYC_RBRD}) holds your team's ${RBYC_DEPOT} identity —"
   buh_line "the GCP project where container images are built and stored, frozen at ${RBYC_LEVY}."
+  buh_e
+  buh_line "${RBYC_RBRR} names a secrets directory, RBRR_SECRETS_DIR, kept outside"
+  buh_line "the clone and never committed, and the bootstrap above does not create"
+  buh_line "it. Make it now, with the client_secrets subdirectory the ${RBYC_PAYOR}'s"
+  buh_line "OAuth client will be saved into:"
+  buh_e
+  buh_code "   mkdir -p ${RBRR_SECRETS_DIR}/client_secrets"
+  buh_e
   buh_line "Run the validators:"
   buh_e
   buh_tt   "   " "${RBZ_VALIDATE_REPO}"
@@ -116,6 +145,11 @@ rbho_crash_course() {
   buh_line "On a team repo, they are already populated and validation passes."
   buh_line "Either way, read the output — it tells you exactly what state you're in."
   buh_e
+  buh_line "A blank ${RBYC_RBRD} does not block local ${RBYC_CRUCIBLE} work — the next track"
+  buh_line "on the start menu kludges and charges the ${RBYC_CCYOLO} ${RBYC_NAMEPLATE} entirely"
+  buh_line "on Docker, no cloud identity required. ${RBYC_RBRD} only gates ${RBYC_DEPOT}-backed"
+  buh_line "builds (Cloud Build, GAR-hosted images) — the ${RBYC_PAYOR} track further down."
+  buh_e
   if test "${z_rbrd_populated}" = "1"; then
     zrbho_po_status 1 "${RBYC_RBRD} populated — depot project: ${z_rbrd_project}"
   else
@@ -125,12 +159,12 @@ rbho_crash_course() {
 
   buh_step1 "Check your logs"
   buh_e
-  buh_line "When you ran the validator, it printed file paths at the top"
-  buh_line "of its output. Read-only or state-changing, every command writes"
+  buh_line "When you ran the validators in Step 5, each printed file paths at the"
+  buh_line "top of its output. Read-only or state-changing, most commands write"
   buh_line "three ${RBYC_LOG} files to ${RBYC_BURS}_LOG_DIR:"
   buh_e
   if test -n "${z_log_dir}"; then
-    buyy_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"; local -r z_log_path="${z_buym_yelp}"
+    buym_cmd_yawp "${z_log_dir}/${BURC_LOG_LAST}.${BURC_LOG_EXT}"; local -r z_log_path="${z_buym_yelp}"
     buh_line "   stable    ${z_log_path}  (always the same path, great for Claude)"
   else
     buh_line "   stable    always the same path — tooling reads this one"
@@ -142,6 +176,11 @@ rbho_crash_course() {
   buh_line "capturing key decision points and state transitions. When a"
   buh_line "command fails, the transcript is the first thing to read."
   buh_e
+  buh_line "A command that handles a secret, or one that can run before a ${BUBG_STATION_BASE}"
+  buh_line "file stands, writes no ${RBYC_LOGS} and prints no paths. The ${RBYC_BURC} and"
+  buh_line "${RBYC_BURS} commands you ran in Steps 2 to 4 are of that kind, so the"
+  buh_line "validators of Step 5 were the first to print them."
+  buh_e
   buh_line "Handbook display commands (like this one) do not log — teaching"
   buh_line "output is ephemeral by design."
   buh_e
@@ -151,22 +190,22 @@ rbho_crash_course() {
   buh_line "Every ${RBYC_REGIME} has a render and a validate tabtarget."
   buh_line "The letter after \`r\` is all that changes:"
   buh_e
-  buyy_tt_yawp "${BUWZ_RC_RENDER}";       local -r z_rc_r="${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RC_VALIDATE}";      local -r z_rc_v="${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RS_RENDER}";        local -r z_rs_r="${z_buym_yelp}"
-  buyy_tt_yawp "${BUWZ_RS_VALIDATE}";      local -r z_rs_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_REPO}";       local -r z_rr_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_REPO}";     local -r z_rr_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_DEPOT}";      local -r z_rd_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_DEPOT}";    local -r z_rd_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_PAYOR}";      local -r z_rp_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_PAYOR}";    local -r z_rp_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_OAUTH}";      local -r z_ro_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_OAUTH}";    local -r z_ro_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_VESSEL}";     local -r z_rv_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_VESSEL}";   local -r z_rv_v="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_RENDER_NAMEPLATE}";  local -r z_rn_r="${z_buym_yelp}"
-  buyy_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";local -r z_rn_v="${z_buym_yelp}"
+  buym_tt_yawp "${BUWZ_RC_RENDER}";       local -r z_rc_r="${z_buym_yelp}"
+  buym_tt_yawp "${BUWZ_RC_VALIDATE}";      local -r z_rc_v="${z_buym_yelp}"
+  buym_tt_yawp "${BUWZ_RS_RENDER}";        local -r z_rs_r="${z_buym_yelp}"
+  buym_tt_yawp "${BUWZ_RS_VALIDATE}";      local -r z_rs_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_REPO}";       local -r z_rr_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_REPO}";     local -r z_rr_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_DEPOT}";      local -r z_rd_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_DEPOT}";    local -r z_rd_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_PAYOR}";      local -r z_rp_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_PAYOR}";    local -r z_rp_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_OAUTH}";      local -r z_ro_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_OAUTH}";    local -r z_ro_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_VESSEL}";     local -r z_rv_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_VESSEL}";   local -r z_rv_v="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_RENDER_NAMEPLATE}";  local -r z_rn_r="${z_buym_yelp}"
+  buym_tt_yawp "${RBZ_VALIDATE_NAMEPLATE}";local -r z_rn_v="${z_buym_yelp}"
   buh_line "   c  ${RBYC_BURC}  ${z_rc_r}   ${z_rc_v}"
   buh_line "   s  ${RBYC_BURS}  ${z_rs_r}  ${z_rs_v}"
   buh_line "   r  ${RBYC_RBRR}  ${z_rr_r}     ${z_rr_v}"
@@ -174,10 +213,26 @@ rbho_crash_course() {
   buh_line "   p  ${RBYC_RBRP}  ${z_rp_r}    ${z_rp_v}"
   buh_line "   o  ${RBYC_RBRO}  ${z_ro_r}    ${z_ro_v}"
   buh_e
-  buh_line "These take a target name (vessel or nameplate):"
+  buh_line "On a clone no ${RBYC_PAYOR} has set up, the d, p and o"
+  buh_line "${RBYC_TABTARGETS} refuse, each naming the first blank field it meets:"
+  buh_line "the ${RBYC_PAYOR} track fills them. The o ${RBYC_TABTARGETS} read"
+  buh_line "${RBYC_RBRD} before their own file, so they name a depot field first."
+  buh_e
+  buh_line "These take a target name after the command, a vessel or a nameplate:"
   buh_e
   buh_line "   v  ${RBYC_RBRV}  ${z_rv_r}     ${z_rv_v}"
   buh_line "   n  ${RBYC_RBRN}  ${z_rn_r}  ${z_rn_v}"
+  buh_e
+  buh_line "List the names they take:"
+  buh_e
+  buh_tt   "   " "${RBZ_LIST_VESSELS}"
+  buh_tt   "   " "${RBZ_LIST_NAMEPLATES}"
+  buh_e
+  buh_line "Then hand one to the ${RBYC_TABTARGET}, as here for the vessel and"
+  buh_line "${RBYC_NAMEPLATE} of ${RBYC_CCYOLO}, the ${RBYC_CRUCIBLE} the next track uses:"
+  buh_e
+  buh_tt   "   " "${RBZ_VALIDATE_VESSEL}" "" " rbev_bottle_ccyolo"
+  buh_tt   "   " "${RBZ_VALIDATE_NAMEPLATE}" "" " ccyolo"
   buh_e
   buh_line "Learn the letter — you can find any regime's tools from it."
   buh_line "One wrinkle: ${RBYC_BURC}/${RBYC_BURS} tools carry the buw- prefix, the Recipe"

@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +24,10 @@
 set -euo pipefail
 
 ######################################################################
-# Wrest (rbfl_*)
+# Wrest (rbflw_*)
 
-rbfl_wrest() {
-  zrbfl_sentinel
+rbflw_wrest() {
+  zrbfl0_sentinel
 
   local -r z_locator="${BUZ_FOLIO:-}"
 
@@ -34,38 +35,44 @@ rbfl_wrest() {
   buc_doc_param "ref" "Image ref: package:tag or package@sha256:<hex>. Type-blind over any rbi_* namespace (e.g. rbi_hm/H/image:H, rbi_ld/b260602120000:rbi_bole)"
   buc_doc_shown || return 0
 
-  test -n "${z_locator}" || buc_die "Image ref required (package:tag or package@sha256:<hex>)"
+  test -n "${z_locator}" || buc_die_now "Image ref required (package:tag or package@sha256:<hex>)"
 
   case "${z_locator}" in
     *:*) : ;;
-    *)   buc_die "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
+    *)   buc_die_now "Invalid image ref. Expected package:tag or package@sha256:<hex>" ;;
   esac
   local -r z_pkg_path="${z_locator%:*}"
   local -r z_tag="${z_locator##*:}"
-  test -n "${z_pkg_path}" || buc_die "Package path is empty in locator"
-  test -n "${z_tag}"      || buc_die "Tag is empty in locator"
+  test -n "${z_pkg_path}" || buc_die_now "Package path is empty in locator"
+  test -n "${z_tag}"      || buc_die_now "Tag is empty in locator"
 
   buc_step "Authenticating as Director"
-  local z_token
-  z_token=$(rba_token_capture "${RBCC_mantle_director}") \
-    || buc_die "Failed to get OAuth token"
+  local zSECRET_token
+  zSECRET_token=$(rbau_token_capture "${RBCC_mantle_director}") \
+    || buc_die_now "Failed to get OAuth token"
 
   buc_step "Logging into container registry"
-  local -r z_full_ref="${ZRBFC_REGISTRY_HOST}/${ZRBFC_REGISTRY_PATH}/${z_locator}"
+  local -r z_full_ref="${ZRBFC0_REGISTRY_HOST}/${ZRBFC0_REGISTRY_PATH}/${z_locator}"
 
-  rbgo_docker_login "${z_token}" "${ZRBFC_REGISTRY_HOST}"
+  rbgo_docker_login "${zSECRET_token}" "${ZRBFC0_REGISTRY_HOST}"
 
   buc_step "Pulling image: ${z_full_ref}"
-  docker pull "${z_full_ref}" || buc_die "Image pull failed"
+  local z_pull_status=0
+  docker pull "${z_full_ref}" || z_pull_status=$?
+  local z_logout_status=0
+  rbgo_docker_logout_predicate "${ZRBFC0_REGISTRY_HOST}" || z_logout_status=$?
+  test "${z_pull_status}" -eq 0 || buc_die_now "Image pull failed (status ${z_pull_status})"
+  test "${z_logout_status}" -eq 0 || buc_die_now "Docker logout from ${ZRBFC0_REGISTRY_HOST} failed — the credential may still stand in docker's store — see the transcript"
 
   local z_image_id
-  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC_SCRATCH_FILE}" 2>/dev/null \
-    || buc_die "Failed to get image ID"
-  z_image_id=$(<"${ZRBFC_SCRATCH_FILE}")
+  local -r z_inspect_stderr="${ZRBFL0_INSPECT_PREFIX}wrest_stderr.txt"
+  docker inspect --format='{{.Id}}' "${z_full_ref}" > "${ZRBFC0_SCRATCH_FILE}" 2>"${z_inspect_stderr}" \
+    || buc_die_now "Failed to get image ID — see ${z_inspect_stderr}"
+  z_image_id=$(<"${ZRBFC0_SCRATCH_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_SCRATCH_FILE}"
 
-  echo ""
-  echo "Image wrested: ${z_full_ref}"
-  echo "Local image ID: ${z_image_id}"
+  echo "" || buc_die_now
+  echo "Image wrested: ${z_full_ref}" || buc_die_now
+  echo "Local image ID: ${z_image_id}" || buc_die_now
 
   buc_success "Image wrest complete"
 }

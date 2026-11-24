@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,14 +26,16 @@
 
 set -euo pipefail
 
+test -z "${ZRBFB_SOURCED:-}" || buc_die_now "Module rbfb multiply sourced - check sourcing hierarchy"
+ZRBFB_SOURCED=1
+
 ######################################################################
 # Beckon (rbfb_*)
 
 # Announce the consumers of the hallmark fact just written (ordain or kludge).
 #
-# The roster is exactly the RBF_FACT_HALLMARK chain consumers enumerated in
-# RBS0 "Chaining-Fact Roles": the rbch_palpate readers (summon, plumb, rekon)
-# and the rbch_enchase writers that resolve THIS fact (anoint, drive). It MUST
+# The roster is exactly the RBF_FACT_HALLMARK chain consumers: the rbsbc_palpate readers (summon, plumb, rekon)
+# and the rbsbc_enchase writers that resolve THIS fact (anoint, `mitre`). It MUST
 # agree with that enumeration — a consumer added there without a line here (or
 # vice versa) is the drift this single home exists to prevent.
 #
@@ -41,24 +44,24 @@ set -euo pipefail
 # placeholder. No per-mode branching — every consumer is listed uniformly.
 #
 # Args: hallmark (the tag the HEAD just wrote)
-rbfb_beckon_hallmark() {
+rbfb_hallmark() {
   local -r z_hallmark="${1:-}"
-  test -n "${z_hallmark}" || buc_die "rbfb_beckon_hallmark: hallmark required"
+  test -n "${z_hallmark}" || buc_die_now "rbfb_hallmark: hallmark required"
 
   buc_bare ""
   buc_bare "  This hallmark feeds:"
 
-  # rbch_palpate readers of RBF_FACT_HALLMARK — folio IS the hallmark, fill it
+  # rbsbc_palpate readers of RBF_FACT_HALLMARK — folio IS the hallmark, fill it
   buc_tabtarget "${RBZ_SUMMON_HALLMARK}" "${z_hallmark}"
   buc_tabtarget "${RBZ_PLUMB_COMPACT}"   "${z_hallmark}"
   buc_tabtarget "${RBZ_PLUMB_FULL}"      "${z_hallmark}"
   buc_tabtarget "${RBZ_REKON_HALLMARK}"  "${z_hallmark}"
 
-  # rbch_enchase writers of RBF_FACT_HALLMARK — folio is a different target,
+  # rbsbc_enchase writers of RBF_FACT_HALLMARK — folio is a different target,
   # so show a placeholder (anoint reads the hallmark with an empty express;
-  # drive's folio is the nameplate to receive it)
+  # `mitre`'s folio is the nameplate to receive it)
   buc_tabtarget "${RBZ_ANOINT_GRAFT}"    "<graft-vessel>"
-  buc_tabtarget "${RBZ_DRIVE_HALLMARK}"  "<nameplate> bottle"
+  buc_tabtarget "${RBZ_MITRE_HALLMARK}"  "<nameplate> bottle"
 }
 
 # eof

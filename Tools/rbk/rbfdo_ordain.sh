@@ -1,0 +1,101 @@
+#!/bin/bash
+#
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Author: Brad Hyslop <bhyslop@scaleinvariant.org>
+#
+# Recipe Bottle Foundry Director Build - ordain body (guard-free cluster,
+# sourced by rbfd0_director): rbfdo_ordain — the mode dispatcher over the
+# operation bodies (conjure -> rbfdb_build, annex -> rbfdm_mirror, graft ->
+# rbfdg_graft), then the metadata pipeline (vouch or graft-metadata submit,
+# cross-module into rbfv) and the hallmark beckon. Owns no operation
+# machinery of its own.
+
+set -euo pipefail
+
+# The vessel-mode words this module prints, from rb's generated constants. The
+# sourced file carries its own inclusion guard, so a sibling sourcing it costs
+# nothing.
+source "${BASH_SOURCE[0]%/*}/rbcg_breviary.sh" || buc_die_now "Failed to source rbcg_breviary.sh"
+
+######################################################################
+# External Functions (rbfdo_*)
+
+rbfdo_ordain() {
+  zrbfd0_sentinel
+
+  buc_doc_brief "Ordain a hallmark from a vessel (conjure, ${RBCG_VESSEL_MODE_ANNEX_BASE}, or graft based on vessel mode)"
+  buc_doc_param "vessel" "Vessel sigil or path to vessel directory"
+  buc_doc_shown || return 0
+
+  # Resolve vessel argument (sigil or path)
+  zrbfcv_resolve_vessel "${BUZ_FOLIO:-}"
+  local z_vessel_dir
+  z_vessel_dir=$(<"${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}") || buc_die_now "Failed to read: ${ZRBFC0_VESSEL_RESOLVED_DIR_FILE}"
+  test -n "${z_vessel_dir}" || buc_die_now "Empty resolved vessel path"
+
+  # Peek at vessel mode without sourcing (sourcing makes vars readonly,
+  # and the downstream function will source again via zrbfcv_load_vessel)
+  local -r z_rbrv_file="${z_vessel_dir}/${RBCC_rbrv_file}"
+  local z_mode=""
+  local z_mode_line=""
+  while IFS= read -r z_mode_line || test -n "${z_mode_line}"; do
+    case "${z_mode_line}" in
+      RBRV_VESSEL_MODE=*) z_mode="${z_mode_line#RBRV_VESSEL_MODE=}"; break ;;
+    esac
+  done < "${z_rbrv_file}"
+  z_mode="${z_mode:-rbnve_conjure}"
+
+  # Mode dispatch. Each mode owns its own dirty-tree posture: conjure gates
+  # inside rbfdb_build, annex gates inside rbfdm_mirror, graft is deliberately
+  # ungated (RBr_d71).
+  case "${z_mode}" in
+    rbnve_conjure) rbfdb_build "${z_vessel_dir}" ;;
+    rbnve_annex)    rbfdm_mirror "${z_vessel_dir}" ;;
+    rbnve_graft)   rbfdg_graft "${z_vessel_dir}" ;;
+    *)             buc_die_now "Unknown vessel mode: ${z_mode}" ;;
+  esac
+
+  # Chaining: read hallmark persisted by mode dispatch
+  buc_step "Reading hallmark from mode dispatch output"
+  local z_hallmark=""
+  z_hallmark=$(<"${BURD_OUTPUT_DIR}/${RBF_FACT_HALLMARK}") \
+    || buc_die_now "Failed to read hallmark from output"
+  test -n "${z_hallmark}" || buc_die_now "Empty hallmark in output"
+
+  # Metadata pipeline: graft uses combined about+vouch; conjure/annex already have about, need standalone vouch
+  case "${z_mode}" in
+    rbnve_conjure)
+      buc_info "About produced by combined conjure job — proceeding to vouch"
+      rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
+      ;;
+    rbnve_graft)
+      zrbfvm_graft_metadata_submit "${z_vessel_dir}" "${z_hallmark}"
+      ;;
+    rbnve_annex)
+      buc_info "About produced by combined ${RBCG_VESSEL_MODE_ANNEX_BASE} job — proceeding to vouch"
+      rbfvv_vouch "${z_vessel_dir}" "${z_hallmark}"
+      ;;
+    *)
+      buc_die_now "Unknown vessel mode in chaining: ${z_mode}"
+      ;;
+  esac
+
+  # Beckon the consumers of the hallmark this ordain just wrote
+  rbfb_hallmark "${z_hallmark}"
+}
+
+# eof
