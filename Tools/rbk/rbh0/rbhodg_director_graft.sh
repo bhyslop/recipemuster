@@ -72,18 +72,25 @@ rbho_director_graft() {
 
   local z_grafted_installed=0
   if command -v docker >/dev/null; then
-    local z_project_id=""
+    local z_cloud_prefix=""
+    local z_depot_moniker=""
     local z_region=""
     if test -f "${RBCC_rbrd_file}"; then
-      local z_project_id_status=0
-      z_project_id=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_project_id_status=$?
-      test "${z_project_id_status}" -eq 0 || z_project_id=""
+      local z_cloud_prefix_status=0
+      z_cloud_prefix=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_CLOUD_PREFIX") || z_cloud_prefix_status=$?
+      test "${z_cloud_prefix_status}" -eq 0 || z_cloud_prefix=""
+      local z_depot_moniker_status=0
+      z_depot_moniker=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_depot_moniker_status=$?
+      test "${z_depot_moniker_status}" -eq 0 || z_depot_moniker=""
       local z_region_status=0
       z_region=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_GCP_REGION") || z_region_status=$?
       test "${z_region_status}" -eq 0 || z_region=""
     fi
-    if test -n "${z_region}" && test -n "${z_project_id}"; then
-      local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/"
+    if test -n "${z_region}" && test -n "${z_cloud_prefix}" && test -n "${z_depot_moniker}"; then
+      # The depot's project ID and registry repository, composed as rbdc_derived.sh derives them.
+      local -r z_project_id="${z_cloud_prefix}${RBGC_depot_project_infix}${z_depot_moniker}"
+      local -r z_gar_repository="${z_cloud_prefix}${z_depot_moniker}-gar"
+      local -r z_gar_prefix="${z_region}${RBGC_GAR_HOST_SUFFIX}/${z_project_id}/${z_gar_repository}/${RBGC_GAR_CATEGORY_HALLMARKS}/"
       local -r z_df_out="${ZRBHO_DOCKER_IMAGES_PREFIX}9_graft_repotag.txt"
       local -r z_df_err="${ZRBHO_DOCKER_STDERR_PREFIX}9_graft_repotag.txt"
       if docker images --format "{{.Repository}}:{{.Tag}}" \
@@ -91,7 +98,7 @@ rbho_director_graft() {
         local z_line=""
         while IFS= read -r z_line || test -n "${z_line}"; do
           case "${z_line}" in
-            "${z_gar_prefix}"*"${z_vessel}:g"[0123456789]*) z_grafted_installed=1; break ;;
+            "${z_gar_prefix}g"[0123456789]*"/${RBGC_ARK_BASENAME_IMAGE}:g"[0123456789]*) z_grafted_installed=1; break ;;
           esac
         done < "${z_df_out}"
       fi
@@ -240,6 +247,10 @@ rbho_director_graft() {
   buh_line "creation time (from ${RBYC_DEPOT} layer metadata) and the push time."
   buh_line "Both come from the host — there is no server-side notary."
   buh_e
+  buh_line "Commit your RBRV_GRAFT_IMAGE edit, and the yoke's changes, before you"
+  buh_line "${RBYC_ORDAIN}: ${RBYC_GRAFT} does not refuse an uncommitted tree, so nothing"
+  buh_line "else will tell you."
+  buh_e
   buh_line "${RBYC_ORDAIN}:"
   buh_e
   buh_tt "   " "${RBZ_ORDAIN_HALLMARK}" "" " ${z_vessel}"
@@ -271,9 +282,9 @@ rbho_director_graft() {
   buh_line "the local machine that pushed it."
   buh_e
   if test "${z_grafted_installed}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${z_lk_vessel} grafted ${RBYC_HALLMARK} present in the local ${RBYC_DEPOT} cache"
+    buh_line "${RBYC_PROBE_YES}A grafted ${RBYC_HALLMARK} of this ${RBYC_DEPOT} stands in the local image store"
   else
-    buh_line "${RBYC_PROBE_NO}No grafted ${RBYC_HALLMARK} for ${z_lk_vessel} seen locally — run ${RBYC_ORDAIN} above"
+    buh_line "${RBYC_PROBE_NO}No grafted ${RBYC_HALLMARK} of this ${RBYC_DEPOT} in the local image store — run ${RBYC_ORDAIN} above"
   fi
   buh_e
 
