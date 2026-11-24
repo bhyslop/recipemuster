@@ -23,7 +23,8 @@ The project's clone stands beside the folder you start in, and every document in
    Where a dialog welcoming the account by name stands over the page instead, it carries the account's name and address: read them there, and tick nothing and accept nothing in it.
 3. Open the Microsoft Entra admin center, at `https://entra.microsoft.com/`, in a tab of your own; a tab you already hold open there serves.
    Read the page's account button without hovering over it.
-   Its visible text is cut short, so read the whole address signed in, and the account's directory, from the button's label, the name the page gives the button for screen readers, rather than from the text it shows.
+   Read the whole address signed in from the button's label, the name the page gives the button for screen readers.
+   Read the account's directory from the text the button itself holds, which stands whole where the label may be cut short.
 
 At both consoles, reading is the whole of this walk's work: open no menu, change no setting, create nothing and accept nothing.
 
