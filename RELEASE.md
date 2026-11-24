@@ -50,9 +50,11 @@ Once per station, before the first cohobation.
    ```
    git ls-remote git@github.com:scaleinv/recipebottle.git
    ```
-4. At the cloud console, open Billing, then the billing account's Account management page, and count the rows of its table of projects linked to this billing account by hand, since the page shows no total.
-   Confirm three free link slots: two for the `gauntlet` and one for the yomp.
-   Where slots are short, release depots you no longer need with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
+4. List the projects linked to the billing account with `tt/rbw-db.PayorListsBillingLinks.sh`, which prints each one and then their count.
+   The release links three more: two depots for the `gauntlet` and one for the yomp.
+   The account's ceiling on links is read nowhere, so a short ceiling is met as a refused link at levy, whose refusal names the depot it stranded unlinked and the remedies: remove a depot no longer needed, or ask Google for a higher quota.
+   Remove depots you no longer need beforehand with `tt/rbw-dU.PayorUnmakesDepot.sh «project-id»`.
+   The count can hold a depot already removed, where its unlink failed and its link waits on the project's purge.
 5. Delete any working directory the retired bash release instruments left beside the maintainer repository; the [hierophant](#Hierophant) never uses them.
 
 ## <a id="ThePractice"></a>Practice
@@ -67,7 +69,7 @@ Two gaps are accepted: the private stand-in cannot be cloned anonymously, so the
 
 Once per station.
 Practice needs only part of the standing ground above: its commands read the practice base remote and never the real one, so step 1 waits for the cohobations.
-Read step 4's count before each round and after each introit, since an introit can set up projects linked to the billing account; practice runs no `gauntlet`.
+List step 4's billing links before each round and after each introit, since an introit can set up projects linked to the billing account; practice runs no `gauntlet`.
 Then give practice a repository to run from, in one of two ways.
 
 In the maintainer repository, after steps 2, 3 and 5, add the practice base remote and neuter its push side exactly as the real one's; [essai](#Essai) in the [palaestra](#Palaestra) refuses to cut unless the push side reads this sentinel.
@@ -207,7 +209,7 @@ At the GitHub console, by hand:
    [Docimasy](#Docimasy) refuses a [narthex](#Narthex) holding an earlier cut.
 2. Delete the public repository's `POSTULANT_LOCAL` branch left by the previous release, so the staging push creates it fresh.
    If a branch ruleset refuses the delete, relax it for the delete and restore it at once.
-3. Confirm three free billing link slots again.
+3. List the billing links again with `tt/rbw-db.PayorListsBillingLinks.sh`, and remove any depot no longer needed.
 4. Confirm the Pages source is the README rendered from main root, and close any stale open pull request on the public repository.
 
 ### <a id="DocimasyAct"></a>Docimasy

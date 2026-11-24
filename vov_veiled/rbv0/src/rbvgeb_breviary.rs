@@ -3090,6 +3090,9 @@ pub const RBVGEB_RBFLN_LIST_PEDIMENT: &str = rbvgeb_rbfln_list_pediment!();
 macro_rules! rbvgeb_rbgp_attribution_trail_pediment { () => { "rbw-da" }; }
 pub(crate) use rbvgeb_rbgp_attribution_trail_pediment;
 pub const RBVGEB_RBGP_ATTRIBUTION_TRAIL_PEDIMENT: &str = rbvgeb_rbgp_attribution_trail_pediment!();
+macro_rules! rbvgeb_rbgp_billing_links_pediment { () => { "rbw-db" }; }
+pub(crate) use rbvgeb_rbgp_billing_links_pediment;
+pub const RBVGEB_RBGP_BILLING_LINKS_PEDIMENT: &str = rbvgeb_rbgp_billing_links_pediment!();
 macro_rules! rbvgeb_rbgp_collate_pediment { () => { "rbw-rdc" }; }
 pub(crate) use rbvgeb_rbgp_collate_pediment;
 pub const RBVGEB_RBGP_COLLATE_PEDIMENT: &str = rbvgeb_rbgp_collate_pediment!();
