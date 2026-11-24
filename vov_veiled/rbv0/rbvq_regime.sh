@@ -50,6 +50,7 @@ zrbvq_kindle() {
   buv_string_enroll  RBRQ_ENTRA_DIRECTORY     1  512  "Microsoft Entra directory, as the account button shows it"
   buv_string_enroll  RBRQ_WORKFORCE_POOL_ID   1  512  "Workforce pool ID"
   buv_string_enroll  RBRQ_SESSION_DURATION    1  512  "Workforce pool session duration"
+  buv_string_enroll  RBRQ_CLAUDE_ACCOUNT      0  512  "Claude account"
 
   buv_group_enroll "For this try"
   buv_string_enroll  RBRQ_CLOUD_PREFIX        1  512  "Cloud prefix"
