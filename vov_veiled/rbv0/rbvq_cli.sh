@@ -131,6 +131,7 @@ rbvq_block() {
 
   # Each value beside the one string its enrollment carries; each stem shown
   # joined with the index, under the stem's plain name, which names the joined value.
+  # A field of least length 0 may stand unset; its line prints with no value.
   local z_i=""
   local z_varname=""
   local z_value=""
@@ -140,7 +141,7 @@ rbvq_block() {
     case "${z_varname}" in
       RBRQ_MONIKER_STEM)  z_value="${ZRBVQ_DEPOT_MONIKER}" ;;
       RBRQ_PROVIDER_STEM) z_value="${ZRBVQ_PROVIDER_ID}" ;;
-      *)                  z_value="${!z_varname}" ;;
+      *)                  z_value="${!z_varname:-}" ;;
     esac
     printf '%s: %s\n' "${z_buv_desc_roll[z_i]}" "${z_value}" || buc_die_now
   done
