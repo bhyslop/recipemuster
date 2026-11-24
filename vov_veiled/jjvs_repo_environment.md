@@ -13,8 +13,7 @@ Other documents stand in the clone — the other tracks, the guides other comman
 The clone was prepared before you arrived, and its station file already stands beside it, written for this walk.
 Where the track offers to create a station file on a fresh clone, judge that direction against what you find, but do not run it: it would write over the station file this walk stands on.
 
-This walk is walked alone, with no one beside you: it needs no browser window, and no act in it is reserved to a person, so every act the track directs is yours.
-Where a direction leaves a gap too large to bridge, the walk ends there, and that gap is the finding.
+This walk is walked alone, with no one beside you: it needs no browser window, and no act in it is reserved to a person.
 
 ### Confirmations
 

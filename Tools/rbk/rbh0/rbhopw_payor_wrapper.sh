@@ -113,7 +113,7 @@ rbho_payor_handbook() {
 
   buh_step1 "Install OAuth credentials"
   buh_e
-  buh_line "Establishing the Manor (Step 3) ended with saving a JSON client secret"
+  buh_line "Establishing the Manor (Step 3) saved a JSON client secret"
   buh_line "file into its durable home - the client_secrets/ subdirectory of your"
   buh_line "secrets directory (RBRR_SECRETS_DIR in ${RBCC_rbrr_file}), created"
   buh_line "if it was absent. It must be the client created inside your own payor"
@@ -149,9 +149,11 @@ rbho_payor_handbook() {
   buh_line "    filled before Step 4 (the depot regime is enforced; the terrier"
   buh_line "    bucket's region rides RBRD_GCP_REGION)."
   buh_line "  * the workforce ${RBYC_REGIME} (${RBCC_rbrw_file}) —"
-  buh_line "    RBRW_WORKFORCE_POOL_ID and RBRW_SESSION_DURATION, alongside the"
-  buh_line "    RBRW_ORG_ID from Step 1. This command founds the pool from all three"
-  buh_line "    (ensure-exists)."
+  buh_line "    RBRW_WORKFORCE_POOL_ID (4 to 32 characters of lowercase letters,"
+  buh_line "    digits and hyphens, starting with a letter, not ending in a hyphen"
+  buh_line "    and never starting with gcp-, as acme-manor) and"
+  buh_line "    RBRW_SESSION_DURATION, alongside the RBRW_ORG_ID from Step 1. This"
+  buh_line "    command founds the pool from all three (ensure-exists)."
   buh_e
   buh_line "An organization holds one ${RBYC_MANOR}. If yours already holds one, set"
   buh_line "RBRW_WORKFORCE_POOL_ID to the ID of the pool it stands on: this command"

@@ -33,6 +33,14 @@ zrbvz_kindle() {
   buz_enroll RBVZ_HARBINGER "rbvw-h" "rbve_cli.sh" "rbve_harbinger" "imprint" "Harbinger — the introit against promoted public main (zero remote acts; the world is the imprint)"
   buz_enroll RBVZ_ENCAMP "rbvw-p" "rbve_cli.sh" "rbve_encamp" "imprint" "Practice seat — encamp a practice seat beneath an absolute practice home (a chore beside the ceremony; the world is the imprint)"
 
+  # The Qualification Regime's doors: each takes the values file as its one
+  # optional argument, rbrq.env beside the station file when given none.
+  buz_enroll RBVZ_RBVQ_RENDER   "rbvw-qr" "rbvq_cli.sh" "rbvq_render"   "param1" "Displays every Qualification field as the file holds it, before any check, so a broken value stands visible beside the rest."
+  buz_enroll RBVZ_RBVQ_VALIDATE "rbvw-qv" "rbvq_cli.sh" "rbvq_validate" "param1" "Checks every Qualification field's shape, and each field that fills a clone's field where that field is defined, and fails naming the field that does not hold."
+  buz_enroll RBVZ_RBVQ_BLOCK    "rbvw-qb" "rbvq_cli.sh" "rbvq_block"    "param1" "Checks the Qualification fields, then prints the block pasted to a walking session: each value beside its plain name, the try's joined values among them; or nothing but the refusal."
+  buz_enroll RBVZ_RBVQ_ADVANCE  "rbvw-qa" "rbvq_cli.sh" "rbvq_advance"  "param1" "Adds one to the try index and writes the file, refusing at 9999."
+  buz_enroll RBVZ_RBVQ_LAY      "rbvw-ql" "rbvq_cli.sh" "rbvq_lay"      "param1" "Writes a first Qualification file, its index reading 1000 and its other fields blank, and never writes over a file standing."
+
   readonly ZRBVZ_KINDLED=1
 }
 
