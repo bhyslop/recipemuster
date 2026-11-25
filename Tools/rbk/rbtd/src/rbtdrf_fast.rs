@@ -59,6 +59,7 @@ use crate::rbtgec_consts::{
     BUWGC_RC_VALIDATE,
     BUWGC_RS_RENDER,
     BUWGC_RS_VALIDATE,
+    RBTGEC_CONCLAVE_RELIQUARY,
     RBTGEC_HYGIENE_CHECK_DOCKERFILE,
     RBTGEC_HYGIENE_CHECK_VESSEL,
     RBTGEC_JETTISON_IMAGE,
@@ -73,7 +74,8 @@ use crate::rbtgec_consts::{
     RBTGEC_VALIDATE_NAMEPLATE,
     RBTGEC_VALIDATE_PAYOR,
     RBTGEC_VALIDATE_REPO,
-    RBTGEC_VALIDATE_VESSEL, //
+    RBTGEC_VALIDATE_VESSEL,
+    RBTGEC_YOKE_RELIQUARY, //
 };
 
 // Repo-root-relative kit paths. Test harnesses run with cwd = repo root, so
@@ -2267,6 +2269,118 @@ fn rbtchf_rt_lapse_advisory(dir: &Path) -> rbtcee_Verdict {
     }
 }
 
+// Reliquary refusal at use. A vessel's reliquary stands vacant until the yoke
+// writes it, so the tool-image resolve every ordain and ensconce passes through
+// must refuse a vacant one, naming the acts that fill it in their order: the
+// conclave that captures a reliquary, then the yoke that writes its touchmark
+// into every vessel. The furnish ceremony mirrors rbfd0_cli's zrbfd0_furnish in
+// the order it keeps, kindling only what zrbfc0_kindle and the zipper need over
+// the committed regime files; BURD_* are supplied directly since no dispatch
+// runs here, and no door is launched.
+
+/// The tabtarget directory the zipper resolves a colophon's door in. Mirror:
+/// burc.env BURC_TABTARGET_DIR — same literal.
+const RBTDRF_RT_TABTARGET_DIR: &str = "tt";
+
+fn rbtdrf_rt_vacant_reliquary_refusal(dir: &Path) -> rbtcee_Verdict {
+    let root = match std::env::current_dir() {
+        Ok(r) => r,
+        Err(e) => {
+            return rbtcee_Verdict::Fail(format!(
+                "cannot get cwd: {}",
+                e, //
+            ));
+        }
+    };
+    let dir_p = rbtcep_native_to_posix(dir);
+    let buc_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUC_COMMAND));
+    let buym_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUYM_YELP));
+    let bubc_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUBC_CONSTANTS));
+    let buv_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUV_VALIDATION));
+    let burd_p = rbtcep_native_to_posix(&root.join(RBTCHF_BURD_REGIME));
+    let buz_p = rbtcep_native_to_posix(&root.join(RBTCHF_BUZ_ZIPPER));
+    let rbk_p = rbtcep_native_to_posix(&root.join(RBTCHF_RBK_ROOT));
+
+    let script = format!(
+        "set -euo pipefail\n\
+         BURD_TEMP_DIR='{dir_p}'\n\
+         BURD_OUTPUT_DIR='{dir_p}'\n\
+         BURD_MOORINGS_DIR='{moorings}'\n\
+         BURD_TABTARGET_DIR='{tt}'\n\
+         source '{buc_p}'\n\
+         source '{buym_p}'\n\
+         source '{bubc_p}'\n\
+         source '{buv_p}'\n\
+         source '{burd_p}'\n\
+         source '{rbk_p}/rbcc_constants.sh'\n\
+         source '{rbk_p}/rbgc_constants.sh'\n\
+         source '{rbk_p}/rbgd_depot.sh'\n\
+         source '{rbk_p}/rbrr_regime.sh'\n\
+         source '{rbk_p}/rbrd_regime.sh'\n\
+         source '{rbk_p}/rbdc_derived.sh'\n\
+         source '{rbk_p}/rbfc0_core.sh'\n\
+         source '{buz_p}'\n\
+         source '{rbk_p}/rbz_zipper.sh'\n\
+         zbuv_kindle\n\
+         zburd_kindle\n\
+         source \"${{PWD}}/{moorings}/rbrr.env\"\n\
+         source \"${{PWD}}/{moorings}/rbrd.env\"\n\
+         zrbcc_kindle\n\
+         zrbrr_kindle\n\
+         zrbrd_kindle\n\
+         zrbdc_kindle\n\
+         zrbgc_kindle\n\
+         zrbgd_kindle\n\
+         zrbfc0_kindle\n\
+         zbuz_kindle\n\
+         zrbz_kindle\n\
+         RBRV_RELIQUARY=''\n\
+         zrbfca_resolve_tool_images\n",
+        moorings = crate::rbtgec_consts::RBTGEC_MOORINGS_DIR,
+        tt = RBTDRF_RT_TABTARGET_DIR, //
+    );
+
+    match rbtchf_run_bash(&root, &script, dir, "rt-vacant-reliquary") {
+        Ok((code, stdout, stderr)) => {
+            let said = format!(
+                "{}{}",
+                stderr,
+                stdout, //
+            );
+            if code == 0 {
+                return rbtcee_Verdict::Fail(format!(
+                    "rt-vacant-reliquary: expected the resolve to refuse a vacant reliquary, got exit 0:\n{}",
+                    said, //
+                ));
+            }
+            let conclave = format!(
+                "{}.",
+                RBTGEC_CONCLAVE_RELIQUARY, //
+            );
+            let yoke = format!(
+                "{}.",
+                RBTGEC_YOKE_RELIQUARY, //
+            );
+            match (said.find(&conclave), said.find(&yoke)) {
+                (Some(c), Some(y)) if c < y => rbtcee_Verdict::Pass,
+                (c, y) => rbtcee_Verdict::Fail(format!(
+                    "rt-vacant-reliquary: exit {} without {} (at {:?}) ahead of {} (at {:?}):\n{}",
+                    code,
+                    conclave,
+                    c,
+                    yoke,
+                    y,
+                    said, //
+                )),
+            }
+        }
+        Err(e) => rbtcee_Verdict::Fail(format!(
+            "rt-vacant-reliquary: {}",
+            e, //
+        )),
+    }
+}
+
 // ── Currency-gate cases ─────────────────────────────────────
 //
 // Drives the pin-currency gate (rbob_bottle.sh `zrbob_kludge_currency_gate`)
@@ -3120,6 +3234,7 @@ pub static RBTCHF_CASES_FOUNDRY_PATH: &[rbtcee_Case] = &[
     rbtcee_case!(rbtchf_np_offcygwin_identity),
     rbtcee_case!(rbtchf_np_bare_absolute_unsurveyed),
     rbtcee_case!(rbtchf_rt_lapse_advisory),
+    rbtcee_case!(rbtdrf_rt_vacant_reliquary_refusal),
     rbtcee_case!(rbtchf_kc_readme_leaves_current),
     rbtcee_case!(rbtchf_kc_other_vessel_leaves_current),
     rbtcee_case!(rbtchf_kc_shared_context_stales),

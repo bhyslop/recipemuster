@@ -35,7 +35,6 @@ zrbhp0_kindle() {
   esac
 
   readonly ZRBHP0_RBRP_FILE="${RBCC_rbrp_file}"
-  readonly ZRBHP0_RBRP_FILE_BASENAME="${ZRBHP0_RBRP_FILE##*/}"
 
   readonly ZRBHP0_KINDLED=1
 }

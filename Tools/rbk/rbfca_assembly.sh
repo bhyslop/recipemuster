@@ -57,8 +57,13 @@ zrbfca_resolve_tool_images() {
   zrbfc0_sentinel
 
   local -r z_reliquary="${RBRV_RELIQUARY:-}"
-  test -n "${z_reliquary}" \
-    || buc_die_now "RBRV_RELIQUARY is required — run conclave to capture a reliquary Lode first"
+  if test -z "${z_reliquary}"; then
+    buc_bare "  RBRV_RELIQUARY stands vacant. Fill it in order: ${RBCG_LODE_CONCLAVE_BASE} the build-tool"
+    buc_bare "  cohort, then ${RBCG_DIRECTOR_YOKE_BASE} the touchmark it prints into every vessel:"
+    buc_tabtarget "${RBZ_CONCLAVE_RELIQUARY}"
+    buc_tabtarget "${RBZ_YOKE_RELIQUARY}" "<new-touchmark>"
+    buc_die_now "RBRV_RELIQUARY is vacant — ${RBCG_LODE_CONCLAVE_BASE}, then ${RBCG_DIRECTOR_YOKE_BASE}"
+  fi
 
   zrbfca_resolve_tool_images_from "${z_reliquary}"
 }

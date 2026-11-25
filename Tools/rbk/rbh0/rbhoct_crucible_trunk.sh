@@ -30,8 +30,9 @@ ZRBHOCT_SOURCED=1
 #
 # Args:
 #   $1  z_moniker        — nameplate identity (e.g., ccyolo, tadmor)
-#   $2  z_sentry_vessel  — sentry vessel name (for image-exists probe)
-#   $3  z_bottle_vessel  — bottle vessel name (for image-exists probe)
+#   $2  z_sentry_vessel  — sentry vessel name (unread by the image probe: a
+#                          kludge ref carries no vessel)
+#   $3  z_bottle_vessel  — bottle vessel name (likewise unread by the probe)
 #   $4  z_nameplate_file — absolute path to the nameplate rbrn.env
 
 rbhoct_crucible_trunk() {
@@ -61,6 +62,18 @@ rbhoct_crucible_trunk() {
     test -z "${z_bottle_hallmark}" || z_bottle_hallmark_present=1
   fi
 
+  # The ref kludge writes carries no vessel, so the probe tells sentry from
+  # bottle by the nameplate's hallmark: an image in the kludge namespace tagged
+  # with that hallmark, composed as rbfk_kludge.sh composes it.
+  local z_sentry_kludge_ref=""
+  case "${z_sentry_hallmark}" in
+    "${RBGC_HALLMARK_PREFIX_KLUDGE}"?*) z_sentry_kludge_ref="${RBGC_KLUDGE_REGISTRY_ROOT}/${RBGC_GAR_CATEGORY_HALLMARKS}/${z_sentry_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_sentry_hallmark}" ;;
+  esac
+  local z_bottle_kludge_ref=""
+  case "${z_bottle_hallmark}" in
+    "${RBGC_HALLMARK_PREFIX_KLUDGE}"?*) z_bottle_kludge_ref="${RBGC_KLUDGE_REGISTRY_ROOT}/${RBGC_GAR_CATEGORY_HALLMARKS}/${z_bottle_hallmark}/${RBGC_ARK_BASENAME_IMAGE}:${z_bottle_hallmark}" ;;
+  esac
+
   local z_sentry_image_exists=0
   local z_bottle_image_exists=0
   local z_line=""
@@ -70,8 +83,9 @@ rbhoct_crucible_trunk() {
        > "${z_ct_images_out}" 2>"${z_ct_images_err}"; then
     while IFS= read -r z_line || test -n "${z_line}"; do
       case "${z_line}" in
-        *"${z_sentry_vessel}:k"[0123456789]*) z_sentry_image_exists=1 ;;
-        *"${z_bottle_vessel}:k"[0123456789]*) z_bottle_image_exists=1 ;;
+        "") ;;
+        "${z_sentry_kludge_ref}") z_sentry_image_exists=1 ;;
+        "${z_bottle_kludge_ref}") z_bottle_image_exists=1 ;;
       esac
     done < "${z_ct_images_out}"
   fi
@@ -125,9 +139,9 @@ rbhoct_crucible_trunk() {
   buh_e
 
   if test "${z_sentry_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found locally"
+    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image of the ${RBYC_NAMEPLATE}'s ${RBYC_HALLMARK} found locally"
   else
-    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_SENTRY} image found"
+    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged image of the ${RBYC_NAMEPLATE}'s ${RBYC_SENTRY} ${RBYC_HALLMARK} found locally"
   fi
   if test "${z_sentry_hallmark_present}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${z_code_sentry_field} = ${z_sentry_hallmark}"
@@ -156,9 +170,9 @@ rbhoct_crucible_trunk() {
   buh_e
 
   if test "${z_bottle_image_exists}" = "1"; then
-    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found locally"
+    buh_line "${RBYC_PROBE_YES}${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image of the ${RBYC_NAMEPLATE}'s ${RBYC_HALLMARK} found locally"
   else
-    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged ${RBYC_BOTTLE} image found"
+    buh_line "${RBYC_PROBE_NO}No ${RBYC_KLUDGE}-tagged image of the ${RBYC_NAMEPLATE}'s ${RBYC_BOTTLE} ${RBYC_HALLMARK} found locally"
   fi
   if test "${z_bottle_hallmark_present}" = "1"; then
     buh_line "${RBYC_PROBE_YES}${z_code_bottle_field} = ${z_bottle_hallmark}"
