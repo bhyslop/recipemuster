@@ -65,6 +65,7 @@ use crate::rbtchx_pyx::zrbtchx_root;
 use crate::rbtgeb_breviary::RBTGEB_CREDLESS_DENTIL;
 use crate::rbtgec_consts::{
     RBTGEC_ACCOUNT_PAYOR,
+    RBTGEC_LIST_VESSELS,
     RBTGEC_MOORINGS_DIR,
     RBTGEC_RBRD_FILE,
     RBTGEC_RBRN_FILE,
@@ -72,6 +73,9 @@ use crate::rbtgec_consts::{
     RBTGEC_RBRP_FILE,
     RBTGEC_RBRR_FILE,
     RBTGEC_RBRV_FILE,
+    RBTGEC_RENDER_VESSEL,
+    RBTGEC_VALIDATE_DEPOT,
+    RBTGEC_VALIDATE_VESSEL,
     RBTGEC_VESSELS_SUBDIR,
     RBTGEC_VOORLOPER_LEFTOVERS,
     RBTGEC_VOORLOPER_PREPARE,
@@ -154,6 +158,19 @@ const ZRBTDRZ_NO_CREDENTIAL_FRAGMENT: &str = "holds no credential, so it founded
 const ZRBTDRZ_COULD_NOT_ASK_FRAGMENT: &str = "the payor's ask ended with exit";
 const ZRBTDRZ_STANDS_FRAGMENT: &str = "Depot stands: ";
 const ZRBTDRZ_NONE_FRAGMENT: &str = "No depot stands under cloud prefix";
+
+/// What the vessel doors say. Mirror: rbrv_cli.sh `rbrv_list` and
+/// `rbrv_validate`, and buc_command.sh `buc_doc_env_row`, whose warning on an
+/// unset variable a door must not print — same literals.
+const ZRBTDRZ_VESSELS_LISTED_FRAGMENT: &str = "Available vessels:";
+const ZRBTDRZ_VESSEL_VALID_FRAGMENT: &str = "RBRV vessel valid";
+const ZRBTDRZ_UNSET_FRAGMENT: &str = "is not set";
+
+/// The depot field the depot's validate is refused on in the delivered shape:
+/// the first field its regime enrolls, which the proscription gives blank.
+/// Mirror: rbrd_regime.sh `zrbrd_kindle` and rblm_proscription.sh
+/// `zrblm_kindle`, the cloud prefix's row.
+const ZRBTDRZ_DEPOT_BLANK_FIELD: &str = "RBRD_CLOUD_PREFIX";
 
 /// The leftovers door's three answers, spelled as literals: sound, barred and
 /// broke, the exit verdicts BUK declares (BUr_vsm).
@@ -344,16 +361,20 @@ fn zrbtdrz_door(clone: &Path, colophon: &str) -> Result<PathBuf, String> {
     }
 }
 
-/// Drive the clone's door for `colophon` from inside the clone, its run roots
-/// under the case, and keep what it said.
+/// Drive the clone's door for `colophon` from inside the clone, handing it
+/// `args`, its run roots under the case, and keep what it said.
 fn zrbtdrz_drive(
     dir: &Path,
     clone: &Path,
     colophon: &str,
     label: &str,
+    args: &[&str],
 ) -> Result<(i32, String), String> {
     let door = zrbtdrz_door(clone, colophon)?;
     let mut cmd = rbtdri_rooted_tabtarget_command(&door, dir)?;
+    for arg in args {
+        cmd.arg(arg);
+    }
     let output = cmd.current_dir(clone).output().map_err(|e| {
         format!(
             "{}: cannot run {}: {}",
@@ -644,7 +665,7 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
             ));
         }
         let (code, said) =
-            zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-fresh-clone")?;
+            zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-fresh-clone", &[])?;
         if code != 0 {
             return Err(format!(
                 "prepare-fresh-clone: exited {} — expected 0\n{}",
@@ -698,6 +719,7 @@ fn rbtdrz_prepare_station_stands(dir: &Path) -> rbtcee_Verdict {
             &clone,
             RBTGEC_VOORLOPER_PREPARE,
             "prepare-already-standing",
+            &[],
         )?;
         if code == 0 {
             return Err(format!(
@@ -741,7 +763,7 @@ fn rbtdrz_prepare_field_filled(dir: &Path) -> rbtcee_Verdict {
         )?;
         zrbtdrz_commit(&clone, "zq one site value planted")?;
         let station = zrbtdrz_station(&clone)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label)?;
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label, &[])?;
         zrbtdrz_expect_shape_refusal(
             label,
             code,
@@ -764,7 +786,7 @@ fn rbtdrz_prepare_blanked_state(dir: &Path) -> rbtcee_Verdict {
         let clone = zrbtdrz_clone(dir)?;
         zrbtdrz_zero_clone(&clone)?;
         let station = zrbtdrz_station(&clone)?;
-        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label)?;
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, label, &[])?;
         zrbtdrz_expect_shape_refusal(
             label,
             code,
@@ -802,6 +824,7 @@ fn rbtdrz_leftovers_no_credential(dir: &Path) -> rbtcee_Verdict {
             &clone,
             RBTGEC_VOORLOPER_LEFTOVERS,
             "leftovers-no-credential",
+            &[],
         )?;
         zrbtdrz_expect(
             "leftovers-no-credential",
@@ -827,6 +850,7 @@ fn rbtdrz_leftovers_could_not_ask(dir: &Path) -> rbtcee_Verdict {
             &clone,
             RBTGEC_VOORLOPER_LEFTOVERS,
             "leftovers-could-not-ask",
+            &[],
         )?;
         let fragment = format!(
             "{} {}",
@@ -1017,6 +1041,122 @@ fn rbtdrz_reading_nothing_stands(dir: &Path) -> rbtcee_Verdict {
     })())
 }
 
+// ── The vessel doors ─────────────────────────────────────────
+
+/// What a door said with its terminal escapes taken out, so a tinted line reads
+/// as its plain text.
+fn zrbtdrz_plain(said: &str) -> String {
+    let mut out = String::new();
+    let mut chars = said.chars();
+    while let Some(c) = chars.next() {
+        if c == '\u{1b}' {
+            for e in chars.by_ref() {
+                if e.is_ascii_alphabetic() {
+                    break;
+                }
+            }
+        } else {
+            out.push(c);
+        }
+    }
+    out
+}
+
+/// The sigils the vessel listing printed: each indented one-word line that
+/// follows the line announcing them, up to the first line that is not one.
+fn zrbtdrz_listed_sigils(said: &str) -> Vec<String> {
+    let plain = zrbtdrz_plain(said);
+    let mut lines = plain
+        .lines()
+        .skip_while(|line| !line.contains(ZRBTDRZ_VESSELS_LISTED_FRAGMENT));
+    lines.next();
+    lines
+        .take_while(|line| {
+            let word = line.trim();
+            line.starts_with(' ') && !word.is_empty() && !word.contains(char::is_whitespace)
+        })
+        .map(|line| line.trim().to_string())
+        .collect()
+}
+
+/// THE VESSEL DOORS ANSWER ON A FRESH CLONE: in a clone stood in the delivered
+/// shape and committed, beside a station, the vessel listing exits 0 and prints
+/// its vessels with no warning of an unset variable; the vessel render and the
+/// vessel validate each exit 0 for every vessel it printed, the validate saying
+/// the vessel is valid; and the depot's own validate still refuses, naming the
+/// blank cloud prefix.
+fn rbtdrz_vessel_doors_fresh_clone(dir: &Path) -> rbtcee_Verdict {
+    zrbtdrz_verdict((|| {
+        let label = "vessel-doors-fresh-clone";
+        let clone = zrbtdrz_clone(dir)?;
+        zrbtdrz_deliver_clone(dir, &clone, label)?;
+        zrbtdrz_lay_station(dir, &clone)?;
+        let list_label = format!(
+            "{}-list",
+            label, //
+        );
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_LIST_VESSELS, &list_label, &[])?;
+        zrbtdrz_expect(&list_label, code, &said, 0, ZRBTDRZ_VESSELS_LISTED_FRAGMENT)?;
+        if said.contains(ZRBTDRZ_UNSET_FRAGMENT) {
+            return Err(format!(
+                "{}: the listing warned '{}'\n{}",
+                list_label,
+                ZRBTDRZ_UNSET_FRAGMENT,
+                said, //
+            ));
+        }
+        let sigils = zrbtdrz_listed_sigils(&said);
+        if sigils.is_empty() {
+            return Err(format!(
+                "{}: the listing printed no vessel\n{}",
+                list_label,
+                said, //
+            ));
+        }
+        for sigil in &sigils {
+            let render_label = format!(
+                "{}-render-{}",
+                label,
+                sigil, //
+            );
+            let (code, said) = zrbtdrz_drive(
+                dir,
+                &clone,
+                RBTGEC_RENDER_VESSEL,
+                &render_label,
+                &[sigil.as_str()],
+            )?;
+            zrbtdrz_expect(&render_label, code, &said, 0, sigil)?;
+            let validate_label = format!(
+                "{}-validate-{}",
+                label,
+                sigil, //
+            );
+            let (code, said) = zrbtdrz_drive(
+                dir,
+                &clone,
+                RBTGEC_VALIDATE_VESSEL,
+                &validate_label,
+                &[sigil.as_str()],
+            )?;
+            zrbtdrz_expect(&validate_label, code, &said, 0, ZRBTDRZ_VESSEL_VALID_FRAGMENT)?;
+        }
+        let depot_label = format!(
+            "{}-depot",
+            label, //
+        );
+        let (code, said) = zrbtdrz_drive(dir, &clone, RBTGEC_VALIDATE_DEPOT, &depot_label, &[])?;
+        if code == 0 {
+            return Err(format!(
+                "{}: exited 0 over a blank depot\n{}",
+                depot_label,
+                said, //
+            ));
+        }
+        zrbtdrz_expect(&depot_label, code, &said, code, ZRBTDRZ_DEPOT_BLANK_FIELD)
+    })())
+}
+
 // ── Cases and fixture ────────────────────────────────────────
 
 pub static RBTDRZ_CASES_VOORLOPER_DOORS: &[rbtcee_Case] = &[
@@ -1027,12 +1167,16 @@ pub static RBTDRZ_CASES_VOORLOPER_DOORS: &[rbtcee_Case] = &[
     rbtcee_case!(rbtdrz_leftovers_no_credential),
     rbtcee_case!(rbtdrz_leftovers_could_not_ask),
     rbtcee_case!(rbtdrz_reading_something_stands),
-    rbtcee_case!(rbtdrz_reading_nothing_stands), //
+    rbtcee_case!(rbtdrz_reading_nothing_stands),
+    rbtcee_case!(rbtdrz_vessel_doors_fresh_clone), //
 ];
 
-/// credless: a reveille member. Its six tabtarget launches are the two doors,
-/// each guarded; the lustrations and the reading's planted answers ride
-/// direct-kindle children, never a launch.
+/// credless: a reveille member. Its thirty tabtarget launches, each guarded:
+/// six are the two doors, one per prepare and leftovers case; twenty-four are
+/// the vessel-doors case's, one vessel listing, a render and a validate for
+/// each of the eleven vessels the tree carries, and one depot validate. A vessel
+/// added or removed moves the count by two. The lustrations and the reading's
+/// planted answers ride direct-kindle children, never a launch.
 pub static RBTDRZ_FIXTURE_VOORLOPER_DOORS: rbtcee_Fixture = rbtcee_Fixture {
     name: RBTDRZ_NAME_VOORLOPER_DOORS,
     disposition: rbtcee_Disposition::Independent,
@@ -1043,6 +1187,6 @@ pub static RBTDRZ_FIXTURE_VOORLOPER_DOORS: rbtcee_Fixture = rbtcee_Fixture {
     tariff: rbtcee_Tariff {
         min_secs: None,
         max_secs: Some(60),
-        invocations: Some(6),
+        invocations: Some(30),
     },
 };
