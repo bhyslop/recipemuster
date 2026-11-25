@@ -50,6 +50,8 @@ zrbfv0_furnish() {
   source "${z_rbk_kit_dir}/rbau_auth.sh" || buc_die_now "Failed to source rbau_auth.sh"
   source "${z_rbk_kit_dir}/rbfv0_verify.sh" || buc_die_now "Failed to source rbfv0_verify.sh"
   source "${z_rbk_kit_dir}/rbndb_base.sh" || buc_die_now "Failed to source rbndb_base.sh"
+  source "${BURD_BUK_DIR}/buz_zipper.sh" || buc_die_now "Failed to source buz_zipper.sh"
+  source "${z_rbk_kit_dir}/rbz_zipper.sh" || buc_die_now "Failed to source rbz_zipper.sh"
 
 
   buc_log_args 'Validate BUD environment'
@@ -79,6 +81,9 @@ zrbfv0_furnish() {
   zrbfc0_kindle
   zrbfv0_kindle
   zrbndb_kindle
+
+  zbuz_kindle
+  zrbz_kindle
 }
 
 buc_execute rbfv "Recipe Bottle Foundry Verify" zrbfv0_furnish "$@"
