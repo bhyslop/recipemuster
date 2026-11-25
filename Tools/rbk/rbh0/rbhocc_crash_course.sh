@@ -30,13 +30,13 @@ rbho_crash_course() {
   buc_doc_brief "Configure your Repo's Environment — tabtargets, regimes, station setup, logs"
   buc_doc_shown || return 0
 
-  local z_rbrd_project=""
+  local z_rbrd_moniker=""
   local z_rbrd_populated=0
   if test -f "${RBCC_rbrd_file}"; then
-    local z_rbrd_project_status=0
-    z_rbrd_project=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_project_status=$?
-    test "${z_rbrd_project_status}" -eq 0 || z_rbrd_project=""
-    test -z "${z_rbrd_project}" || z_rbrd_populated=1
+    local z_rbrd_moniker_status=0
+    z_rbrd_moniker=$(zrbho_po_extract_capture "${RBCC_rbrd_file}" "RBRD_DEPOT_MONIKER") || z_rbrd_moniker_status=$?
+    test "${z_rbrd_moniker_status}" -eq 0 || z_rbrd_moniker=""
+    test -z "${z_rbrd_moniker}" || z_rbrd_populated=1
   fi
 
   local z_station_present=0
@@ -151,7 +151,7 @@ rbho_crash_course() {
   buh_line "builds (Cloud Build, GAR-hosted images) — the ${RBYC_PAYOR} track further down."
   buh_e
   if test "${z_rbrd_populated}" = "1"; then
-    zrbho_po_status 1 "${RBYC_RBRD} populated — depot project: ${z_rbrd_project}"
+    zrbho_po_status 1 "${RBYC_RBRD} populated — depot moniker: ${z_rbrd_moniker}"
   else
     zrbho_po_status 0 "${RBYC_RBRD} not populated — depot identity fields are blank"
   fi
