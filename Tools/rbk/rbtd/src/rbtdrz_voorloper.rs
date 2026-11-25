@@ -100,8 +100,11 @@ const ZRBTDRZ_TT_DIR: &str = "tt";
 const ZRBTDRZ_CONFIG_REGIME: &str = "burc.env";
 const ZRBTDRZ_STATION_KEY: &str = "BURC_STATION_FILE=";
 
-/// The key the repo regime names the secrets directory under.
+/// The key the repo regime names the secrets directory under, and the
+/// directory the first track has the reader make inside it. Mirror:
+/// rbhocc_crash_course.sh, its mkdir line — same literal.
 const ZRBTDRZ_SECRETS_KEY: &str = "RBRR_SECRETS_DIR=";
+const ZRBTDRZ_CLIENT_SECRETS: &str = "client_secrets";
 
 /// The station a leftovers case lays beside its clone, and the log directory it
 /// names one level up from the clone.
@@ -320,11 +323,15 @@ fn zrbtdrz_station(clone: &Path) -> Result<PathBuf, String> {
     Ok(clone.join(rel))
 }
 
+/// The secrets directory the clone's repo regime names, beside the clone.
+fn zrbtdrz_secrets(clone: &Path) -> Result<PathBuf, String> {
+    let rel = zrbtdrz_value(&clone.join(RBTGEC_RBRR_FILE), ZRBTDRZ_SECRETS_KEY)?;
+    Ok(clone.join(rel))
+}
+
 /// The payor credential the clone's repo regime names, beside the clone.
 fn zrbtdrz_credential(clone: &Path) -> Result<PathBuf, String> {
-    let rel = zrbtdrz_value(&clone.join(RBTGEC_RBRR_FILE), ZRBTDRZ_SECRETS_KEY)?;
-    Ok(clone
-        .join(rel)
+    Ok(zrbtdrz_secrets(clone)?
         .join(RBTGEC_ACCOUNT_PAYOR)
         .join(RBTGEC_RBRO_FILE))
 }
@@ -664,8 +671,13 @@ fn rbtdrz_prepare_fresh_clone(dir: &Path) -> rbtcee_Verdict {
                 station.display(), //
             ));
         }
-        let (code, said) =
-            zrbtdrz_drive(dir, &clone, RBTGEC_VOORLOPER_PREPARE, "prepare-fresh-clone", &[])?;
+        let (code, said) = zrbtdrz_drive(
+            dir,
+            &clone,
+            RBTGEC_VOORLOPER_PREPARE,
+            "prepare-fresh-clone",
+            &[],
+        )?;
         if code != 0 {
             return Err(format!(
                 "prepare-fresh-clone: exited {} — expected 0\n{}",
@@ -1080,7 +1092,8 @@ fn zrbtdrz_listed_sigils(said: &str) -> Vec<String> {
 }
 
 /// THE VESSEL DOORS ANSWER ON A FRESH CLONE: in a clone stood in the delivered
-/// shape and committed, beside a station, the vessel listing exits 0 and prints
+/// shape and committed, beside a station and the secrets directory the first
+/// track has the reader make, the vessel listing exits 0 and prints
 /// its vessels with no warning of an unset variable; the vessel render and the
 /// vessel validate each exit 0 for every vessel it printed, the validate saying
 /// the vessel is valid; and the depot's own validate still refuses, naming the
@@ -1091,6 +1104,7 @@ fn rbtdrz_vessel_doors_fresh_clone(dir: &Path) -> rbtcee_Verdict {
         let clone = zrbtdrz_clone(dir)?;
         zrbtdrz_deliver_clone(dir, &clone, label)?;
         zrbtdrz_lay_station(dir, &clone)?;
+        zrbtdrz_mkdir(&zrbtdrz_secrets(&clone)?.join(ZRBTDRZ_CLIENT_SECRETS))?;
         let list_label = format!(
             "{}-list",
             label, //
@@ -1139,7 +1153,13 @@ fn rbtdrz_vessel_doors_fresh_clone(dir: &Path) -> rbtcee_Verdict {
                 &validate_label,
                 &[sigil.as_str()],
             )?;
-            zrbtdrz_expect(&validate_label, code, &said, 0, ZRBTDRZ_VESSEL_VALID_FRAGMENT)?;
+            zrbtdrz_expect(
+                &validate_label,
+                code,
+                &said,
+                0,
+                ZRBTDRZ_VESSEL_VALID_FRAGMENT,
+            )?;
         }
         let depot_label = format!(
             "{}-depot",
