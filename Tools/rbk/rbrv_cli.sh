@@ -99,10 +99,10 @@ zrbrv_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
-  # No zrbrd_enforce: no vessel verb reads a depot value — list, render and
-  # validate read the vessel directory and the vessel file alone, so a blank
-  # depot must not refuse them. RBRD stays kindled: enrolled, locked, inert
-  # strings, which zrbdc_kindle composes its derived names from.
+  # The depot is loaded and not enforced: no vessel verb reads a depot value —
+  # list, render and validate read the vessel directory and the vessel file
+  # alone, so a blank depot must not refuse them. RBRD stays kindled: enrolled,
+  # locked, inert strings, which zrbdc_kindle composes its derived names from.
   zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
