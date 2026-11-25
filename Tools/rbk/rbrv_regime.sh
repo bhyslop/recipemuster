@@ -51,7 +51,7 @@ zrbrv_kindle() {
                     rbnve_annex rbnve_conjure rbnve_graft
 
   buv_group_enroll "Tool Image Reliquary"
-  buv_string_enroll RBRV_RELIQUARY             1   14  "Reliquary Lode touchmark (e.g., r260324193326) — identifies the conclave tool-image Lode in GAR"
+  buv_string_enroll RBRV_RELIQUARY             0   14  "Reliquary Lode touchmark (e.g., r260324193326) — identifies the conclave tool-image Lode in GAR; legal-empty until ${RBCG_DIRECTOR_YOKE_PAST}, and an ${RBCG_ARK_ORDAIN_BASE} against an empty one rejects at use time"
 
   buv_group_enroll "Egress Mode"
   buv_enum_enroll   RBRV_EGRESS_MODE                   "Pool routing for primary build operation" \
@@ -79,7 +79,7 @@ zrbrv_kindle() {
 
   buv_group_enroll "Grafting Configuration"
   buv_gate_enroll   RBRV_VESSEL_MODE  rbnve_graft
-  buv_string_enroll RBRV_GRAFT_IMAGE                1  512  "Local image reference for graft operations"
+  buv_string_enroll RBRV_GRAFT_IMAGE                0  512  "Local image reference for graft operations — legal-empty until ${RBCG_DIRECTOR_ANOINT_PAST} or set by hand; a ${RBCG_ARK_GRAFT_BASE} against an empty one rejects at use time"
   buv_string_enroll RBRV_GRAFT_OPTIONAL_DOCKERFILE  0  512  "Optional Dockerfile for about recipe.txt"
 
   # Guard against unexpected RBRV_ variables not in enrollment

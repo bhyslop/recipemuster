@@ -76,7 +76,6 @@ rbrv_list() {
 
 zrbrv_furnish() {
   buc_doc_env_row "BURD_BUK_DIR          " "BUK module directory (dispatch-provided)"
-  buc_doc_env_row "BUZ_FOLIO             " "Vessel sigil (e.g., tadmor-sentry); empty for list"
   buc_doc_env_done || return 0
 
   # Sources (always)
@@ -100,7 +99,10 @@ zrbrv_furnish() {
   zrbrr_kindle
   zrbrd_kindle
   zrbrr_enforce
-  zrbrd_enforce
+  # No zrbrd_enforce: no vessel verb reads a depot value — list, render and
+  # validate read the vessel directory and the vessel file alone, so a blank
+  # depot must not refuse them. RBRD stays kindled: enrolled, locked, inert
+  # strings, which zrbdc_kindle composes its derived names from.
   zrbdc_kindle
 
   # If BUZ_FOLIO is set, load and kindle the specified vessel
