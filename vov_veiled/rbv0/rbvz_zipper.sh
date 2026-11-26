@@ -41,6 +41,9 @@ zrbvz_kindle() {
   buz_enroll RBVZ_RBVQ_ADVANCE  "rbvw-qa" "rbvq_cli.sh" "rbvq_advance"  "param1" "Adds one to the try index and writes the file, refusing at 9999."
   buz_enroll RBVZ_RBVQ_LAY      "rbvw-ql" "rbvq_cli.sh" "rbvq_lay"      "param1" "Writes a first Qualification file, its index reading 1000 and its other fields blank, and never writes over a file standing."
 
+  # The guide to the browser profile the windowed walks open on; it takes no argument.
+  buz_enroll RBVZ_RBVP_CATECHESIS "rbvw-m" "rbvp_cli.sh" "rbvp_catechesis" "" "Prints the guide to the Chrome profile the windowed walks open on: making it or renaming it, its Claude extension, and its sign-ins in their order."
+
   readonly ZRBVZ_KINDLED=1
 }
 
