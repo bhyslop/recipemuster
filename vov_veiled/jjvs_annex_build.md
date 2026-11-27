@@ -18,10 +18,6 @@ Docker stands installed and running on this machine, and no pluml Crucible stand
 The first-cloud-build walk's Sederunt may have lapsed since: before your first act run `tt/rbw-as.EspySederunt.sh` and report what it shows, then open a fresh Sederunt by the Novate door the first-cloud-build track gives, `tt/rbw-aN.NovateSederunt.sh`, before the track's first step.
 Where an Ordain warns that the depot's build quota is short, report the warning and walk on as the build does: asking for more quota is no act of this walk.
 
-The track's step that pins the image never has you write the Hallmark it builds into the pluml Nameplate, though the step after it looks for that Hallmark there and the Charge reads it there.
-The Ordain closes by listing the doors its Hallmark feeds, the Mitre door among them, spelled with a nameplate to fill and `bottle`.
-Judge the track where you meet that gap, and report it as the track's; then cross it by that line, naming `pluml` for the nameplate, and commit the pluml Nameplate before the Charge: that crossing is this text's direction, and not the track's.
-
 ### The browser window
 
 A browser window on a profile of its own, signed in to the Microsoft Entra admin center, at `https://entra.microsoft.com/`, as the block's "Microsoft Entra administrator", the attendant's own user, the one wearing the director and retriever Mantles in this depot.
@@ -40,7 +36,7 @@ Once you have walked the track to its end and the act above is done, confirm eac
 
 - `tt/rbw-as.EspySederunt.sh` reports a Sederunt standing, with runway left.
 - `RBRN_SENTRY_HALLMARK` in `rbmm_moorings/rben_pluml/rbrn.env` reads the Hallmark the Kludge of the Sentry printed, and `RBRN_BOTTLE_HALLMARK` there reads the Hallmark the Ordain printed.
-- `git status --short`, run in the clone, prints nothing: every change the track had you make, and the Mitre this text added, stands committed.
+- `git status --short`, run in the clone, prints nothing: every change the track had you make stands committed.
 - `tt/rbw-ft.RetrieverTalliesHallmarks.sh` lists the Hallmark the Ordain printed as vouched: quote what it shows of that Hallmark's verdict, beside the track's "digest-pin".
 - The diagram you rendered at `http://localhost:8001` while the Crucible stood: say what you gave the page and what it showed.
 - `docker ps` lists no container whose name begins `pluml-`.
